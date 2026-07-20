@@ -1,0 +1,967 @@
+unit frselecaoaleatoria;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, DB,
+  ZQuery, ZPgSqlQuery, cpquery, cpdatasource, Grids, DBGrids, cpdbgrid,
+  frconsulta, frconsultacodigo, Buttons, ExtCtrls, ctconstantes,
+  frconsultacontabil, frconsultacodigocontabil, StdCtrls, biblio,
+  windows;
+
+type
+  TfraSelecaoAleatoria = class(TFrame)
+    dbgSelecaoAleatoria: TtecDBGrid;
+    dsrSelecaoAleatoria: TtecDataSource;
+    qrySelecaoAleatoria: TtecQuery;
+    pnlLabels: TPanel;
+    sbnProcura: TSpeedButton;
+    sbnExcluir: TSpeedButton;
+    sbnExcluirTodos: TSpeedButton;
+    sbnIncluirItem: TSpeedButton;
+    qryComparacao: TtecQuery;
+    qryComparacaoopcomparacao: TStringField;
+    qryLogica: TtecQuery;
+    qryLogicaoplogico: TStringField;
+    qryCamposAplicacao: TtecQuery;
+    pnlAbaixo: TPanel;
+    lblOrientacao: TLabel;
+    pnlAbaixoDireita: TPanel;
+    Splitter1: TSplitter;
+    procedure sbnIncluirItemClick(Sender: TObject);
+    procedure sbnExcluirClick(Sender: TObject);
+    procedure sbnExcluirTodosClick(Sender: TObject);
+  protected
+  private
+    FCampoParaLista: String;
+    fcondicaodaselecao: TtecFuncaoBoolean;
+    FCampoParaLista2: String;
+    fUtilizarCamparacaoeLogica: boolean;
+    fPossuiCampoFilial: boolean;
+    FCampoParaLista5: String;
+    FCampoParaLista4: String;
+    FCampoParaLista3: String;
+    FCampo_chv_nfe: String;
+    FCampo_codigonota: String;
+    fPossuiCampochv_nfe: boolean;
+    fPossuiCampocodigonota: boolean;
+    fPossuiCamposerie: boolean;
+    fPossuiCamponumeronota: boolean;
+    fPossuiCampooperacao: boolean;
+    fPossuiCampodadofiscal: boolean;
+    fPossuiCampoTipo: boolean;
+    fPossuiCampoDescricao: boolean;
+    function GetStringSelecionada: String;
+    function GetListaSelecionada: vString;
+    function GetStringSelecionada2: String;
+    procedure setUtilizarCamparacaoeLogica(const Value: boolean);
+    function GetListaCondicional: String;
+    function GetListaCondicionalcomTipo: String;
+
+    procedure Excluir;
+    { Private declarations }
+  public
+    { Public declarations }
+    ConsultaSelecaoAleatoria
+     : TfraConsultaCodigo;
+    ConsultaSelecaoAleatoriaContabil : TfraConsultaCodigoContabil;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    function Operador(opcomparacao: String): String;
+    function Separador_Inicial(opcomparacao: String): String;
+    function Separador_Final(opcomparacao: String): String;
+
+    property CampoParaLista: String read FCampoParaLista write FCampoParaLista;
+    property CampoParaLista2: String read FCampoParaLista2 write FCampoParaLista2;
+    property CampoParaLista3: String read FCampoParaLista3 write FCampoParaLista3;
+    property CampoParaLista4: String read FCampoParaLista4 write FCampoParaLista4;
+    property CampoParaLista5: String read FCampoParaLista5 write FCampoParaLista5;
+
+    property Campo_chv_nfe: String read FCampo_chv_nfe write FCampo_chv_nfe;
+    property Campo_codigonota: String read FCampo_codigonota write FCampo_codigonota;
+
+    property StringSelecionada: String read GetStringSelecionada;
+    property StringSelecionada2: String read GetStringSelecionada2;
+
+    property ListaSelecionada: vString read GetListaSelecionada;
+    property condicaodaselecao: TtecFuncaoBoolean read fcondicaodaselecao write fcondicaodaselecao;
+
+    property ListaCondicional: String read GetListaCondicional;
+    property ListaCondicionalcomTipo: String read GetListaCondicionalcomTipo;
+
+
+    property UtilizarCamparacaoeLogica: boolean read fUtilizarCamparacaoeLogica write setUtilizarCamparacaoeLogica default false;
+    property PossuiCampoFilial: boolean read fPossuiCampoFilial write fPossuiCampoFilial default false;
+
+    property PossuiCamposerie: boolean read fPossuiCamposerie write fPossuiCamposerie default false;
+    property PossuiCamponumeronota: boolean read fPossuiCamponumeronota write fPossuiCamponumeronota default false;
+    property PossuiCampooperacao: boolean read fPossuiCampooperacao write fPossuiCampooperacao default false;
+    property PossuiCampochv_nfe: boolean read fPossuiCampochv_nfe write fPossuiCampochv_nfe default false;
+    property PossuiCampocodigonota: boolean read fPossuiCampocodigonota write fPossuiCampocodigonota default false;
+    property PossuiCampodadofiscal: boolean read fPossuiCampodadofiscal write fPossuiCampodadofiscal default false;
+    property PossuiCampoTipo: boolean read fPossuiCampoTipo write fPossuiCampoTipo default true;
+    property PossuiCampoDescricao: boolean read fPossuiCampoDescricao write fPossuiCampoDescricao default true;
+    procedure AdicionarItemNaLista(Codigo: String);
+    procedure AdicionarListaItemNaLista(Lista: TStringList);
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfraSelecaoAleatoria.sbnIncluirItemClick(Sender: TObject);
+begin
+  qrySelecaoAleatoria.Append;
+  dbgSelecaoAleatoria.SelectedIndex := 0;
+end;
+
+procedure TfraSelecaoAleatoria.sbnExcluirClick(Sender: TObject);
+begin
+  if not qrySelecaoAleatoria.isempty then
+    qrySelecaoAleatoria.Delete;
+end;
+
+procedure TfraSelecaoAleatoria.sbnExcluirTodosClick(Sender: TObject);
+begin
+  qrySelecaoAleatoria.First;
+  while not qrySelecaoAleatoria.eof do
+    qrySelecaoAleatoria.Delete
+end;
+
+function TfraSelecaoAleatoria.GetStringSelecionada: String;
+begin
+  result := '';
+
+  if (CampoParaLista<>'') and (CampoParaLista2='') then
+  begin
+    qrySelecaoAleatoria.First;
+    while not qrySelecaoAleatoria.Eof do
+    begin
+      if assigned(condicaodaselecao) then
+      begin
+        if condicaodaselecao then
+        begin
+          if not qrySelecaoAleatoria.fieldbyname(CampoParaLista).isnull then
+          begin
+            if qrySelecaoAleatoria.fieldbyname(CampoParaLista).DataType = ftString then
+              result := result + quotedstr(qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString) + ','
+            else
+              result := result + qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString + ',';
+          end;
+        end;
+        qrySelecaoAleatoria.Next;
+      end
+      else
+      begin
+        if not qrySelecaoAleatoria.fieldbyname(CampoParaLista).isnull then
+        begin
+          if qrySelecaoAleatoria.fieldbyname(CampoParaLista).DataType = ftString then
+            result := result + quotedstr(qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString) + ','
+          else
+            result := result + qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString + ',';
+        end;
+        qrySelecaoAleatoria.Next;
+      end;
+    end;
+    if result <> '' then
+      delete(result,length(result),1);
+  end
+  else
+  if (CampoParaLista<>'') and (CampoParaLista2<>'') then
+  begin
+    qrySelecaoAleatoria.First;
+    while not qrySelecaoAleatoria.Eof do
+    begin
+      if assigned(condicaodaselecao) then
+      begin
+        if condicaodaselecao then
+        begin
+          if not qrySelecaoAleatoria.fieldbyname(CampoParaLista).isnull and
+             not qrySelecaoAleatoria.fieldbyname(CampoParaLista2).isnull then
+          begin
+            if qrySelecaoAleatoria.fieldbyname(CampoParaLista).DataType = ftString then
+              result := result + '(' + quotedstr(qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString)
+            else
+              result := result + '(' + qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString ;
+
+            if qrySelecaoAleatoria.fieldbyname(CampoParaLista2).DataType = ftString then
+              result := result + ',' + quotedstr(qrySelecaoAleatoria.fieldbyname(CampoParaLista2).AsString) + '),'
+            else
+              result := result + ',' + qrySelecaoAleatoria.fieldbyname(CampoParaLista2).AsString + '),';
+          end;
+        end;
+        qrySelecaoAleatoria.Next;
+      end
+      else
+      begin
+        if not qrySelecaoAleatoria.fieldbyname(CampoParaLista).isnull and
+           not qrySelecaoAleatoria.fieldbyname(CampoParaLista2).isnull then
+        begin
+          if qrySelecaoAleatoria.fieldbyname(CampoParaLista).DataType = ftString then
+            result := result + '(' + quotedstr(qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString)
+          else
+            result := result + '(' + qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString ;
+
+          if qrySelecaoAleatoria.fieldbyname(CampoParaLista2).DataType = ftString then
+            result := result + ',' + quotedstr(qrySelecaoAleatoria.fieldbyname(CampoParaLista2).AsString) + '),'
+          else
+            result := result + ',' + qrySelecaoAleatoria.fieldbyname(CampoParaLista2).AsString + '),';
+        end;
+
+        qrySelecaoAleatoria.Next;
+      end;
+    end;
+    if result <> '' then
+      delete(result,length(result),1);
+  end;
+
+
+end;
+
+function TfraSelecaoAleatoria.GetListaSelecionada: vString;
+var
+  Lista : vString;
+begin
+  Lista := nil;
+  if CampoParaLista<>'' then
+  begin
+    qrySelecaoAleatoria.First;
+    while not qrySelecaoAleatoria.Eof do
+    begin
+      if assigned(condicaodaselecao) then
+      begin
+        if condicaodaselecao then
+        begin
+          SetLength(Lista, length(Lista)+1);
+          Lista[length(Lista)-1] := qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString;
+        end;
+        qrySelecaoAleatoria.Next;
+      end
+      else
+      begin
+        Lista[length(Lista)-1] := qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString;
+        qrySelecaoAleatoria.Next;
+      end;
+    end;
+  end;
+  result := Lista;
+end;
+
+function TfraSelecaoAleatoria.GetStringSelecionada2: String;
+begin
+  if qrySelecaoAleatoria.fieldbyname(CampoParaLista).DataType = ftString then
+    result := ''''
+  else
+    result := '';
+
+  if CampoParaLista<>'' then
+  begin
+    qrySelecaoAleatoria.First;
+    while not qrySelecaoAleatoria.Eof do
+    begin
+      if assigned(condicaodaselecao) then
+      begin
+        if condicaodaselecao then
+        begin
+          if not qrySelecaoAleatoria.fieldbyname(CampoParaLista).isnull then
+          begin
+            if qrySelecaoAleatoria.fieldbyname(CampoParaLista).DataType = ftString then
+              result := result +  quotedstr(qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString) + quotedstr(',')
+            else
+              result := result + qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString + ',';
+          end;
+        end;
+        qrySelecaoAleatoria.Next;
+      end
+      else
+      begin
+        if not qrySelecaoAleatoria.fieldbyname(CampoParaLista).isnull then
+        begin
+          if qrySelecaoAleatoria.fieldbyname(CampoParaLista).DataType = ftString then
+            result := result +  quotedstr(qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString) + quotedstr(',')
+          else
+            result := result + qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString + ',';
+        end;
+        qrySelecaoAleatoria.Next;
+      end;
+    end;
+  end;
+  
+  if (qrySelecaoAleatoria.fieldbyname(CampoParaLista).DataType = ftString) and (result <> '''') then
+    delete(result,length(result)-2,2)
+  else
+    delete(result,length(result),1);
+
+end;
+
+constructor TfraSelecaoAleatoria.Create(AOwner: TComponent);
+begin
+  inherited;
+  dbgSelecaoAleatoria.ondelete := Excluir;
+end;
+
+procedure TfraSelecaoAleatoria.setUtilizarCamparacaoeLogica(
+  const Value: boolean);
+begin
+  fUtilizarCamparacaoeLogica := Value;
+
+  if UtilizarCamparacaoeLogica then
+  begin
+    qryComparacao.close;
+    qryComparacao.open;
+
+    qryLogica.close;
+    qryLogica.open;
+
+    if (ConsultaSelecaoAleatoria <> nil) and
+       (ConsultaSelecaoAleatoria.TipoPesquisa = pesNotasPag) then
+    begin
+      qryCamposAplicacao.sql.clear;
+      qryCamposAplicacao.sql.append('select cast(''codigonota'' as varchar(35)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''chv_nfe'' as varchar(35)) as campo union all ');
+{      qryCamposAplicacao.sql.append('select cast(''[fornecedor, tipo, série, número]'' as varchar(35)) as campo union all ');}
+      qryCamposAplicacao.sql.append('select cast(''fornecedor'' as varchar(35)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''tipofornecedor'' as varchar(35)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''serie'' as varchar(35)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''numero'' as varchar(35)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''descricao'' as varchar(35)) as campo ');
+    end
+    else
+    if (ConsultaSelecaoAleatoria <> nil) and
+       (ConsultaSelecaoAleatoria.TipoPesquisa = pesNotas) then
+    begin
+      qryCamposAplicacao.sql.clear;
+      qryCamposAplicacao.sql.append('select cast(''dadofiscal'' as varchar(35)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''chv_nfe'' as varchar(35)) as campo union all ');
+{      qryCamposAplicacao.sql.append('select cast(''[fornecedor, tipo, série, número]'' as varchar(35)) as campo union all ');}
+      qryCamposAplicacao.sql.append('select cast(''filial'' as varchar(35)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''serie'' as varchar(35)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''numero'' as varchar(35)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''descricao'' as varchar(35)) as campo ');
+    end
+    else
+    if (ConsultaSelecaoAleatoria <> nil) and
+       (ConsultaSelecaoAleatoria.TipoPesquisa = pesContratos) then
+    begin
+      qryCamposAplicacao.sql.clear;
+      qryCamposAplicacao.sql.append('select cast(''contrato'' as varchar(11)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''nome'' as varchar(11)) as campo ');
+    end
+    else
+    if (ConsultaSelecaoAleatoria <> nil) and
+       (ConsultaSelecaoAleatoria.TipoPesquisa = pesESPECIFICACAO) then
+    begin
+      qryCamposAplicacao.sql.clear;
+      qryCamposAplicacao.sql.append('select cast(''descricao'' as varchar(11)) as campo');
+    end
+    else
+    if (ConsultaSelecaoAleatoria <> nil) and
+       (ConsultaSelecaoAleatoria.TipoPesquisa = pesITEMPRODUTOS) then {pesITEMPRODUTOS tem campos adicionais}
+    begin
+      qryCamposAplicacao.sql.clear;
+      qryCamposAplicacao.sql.append('select cast(''codigo'' as varchar(11)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''descricao'' as varchar(11)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''valorgrade1'' as varchar(11)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''valorgrade2'' as varchar(11)) as campo ');
+    end
+    else
+    if (ConsultaSelecaoAleatoria <> nil) and
+       (ConsultaSelecaoAleatoria.TipoPesquisa = pesCLIENTES) then {pesITEMPRODUTOS tem campos adicionais}
+    begin
+      qryCamposAplicacao.sql.clear;
+      qryCamposAplicacao.sql.append('select cast(''codigo'' as varchar(11)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''descricao'' as varchar(11)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''cnpj'' as varchar(11)) as campo ');
+    end
+    else
+    if (ConsultaSelecaoAleatoria <> nil) and
+       (ConsultaSelecaoAleatoria.TipoPesquisa = pesLOCALIZACAOESTOQUE) then {pesITEMPRODUTOS tem campos adicionais}
+    begin
+      qryCamposAplicacao.sql.clear;
+      qryCamposAplicacao.sql.append('select cast(''descricao'' as varchar(11)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''valorgrade1'' as varchar(11)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''valorgrade2'' as varchar(11)) as campo ');
+    end
+    else
+    begin
+      qryCamposAplicacao.sql.clear;
+      qryCamposAplicacao.sql.append('select cast(''codigo'' as varchar(11)) as campo union all ');
+
+      if PossuiCampoFilial then
+        qryCamposAplicacao.sql.append('select cast(''filial'' as varchar(11)) as campo union all ');
+      qryCamposAplicacao.sql.append('select cast(''descricao'' as varchar(11)) as campo ');
+    end;
+
+    qryCamposAplicacao.open;
+
+    if (qryCamposAplicacao.locate('campo', 'codigo', [])) or
+        ((ConsultaSelecaoAleatoria <> nil) and
+         (ConsultaSelecaoAleatoria.TipoPesquisa in [pesNotas, pesNotasPag])) then
+    begin
+
+      with TStringField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'Codigo';
+        DisplayLabel := 'Código';
+        FieldKind:= fkdata;
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 18, true);
+      end;
+
+    end;
+
+    if PossuiCampoFilial then
+    begin
+      with TIntegerField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'filial';
+        DisplayLabel := 'Filial';
+        FieldKind:= fkdata;
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftInteger, 0, true);
+      end;
+    end;
+
+    if  ((ConsultaSelecaoAleatoria <> nil) and
+         not (ConsultaSelecaoAleatoria.TipoPesquisa in [pesCONTRATOS])) then
+    begin
+      with TStringField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'tipo';
+        DisplayLabel := 'T';
+        FieldKind:= fkdata;
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 1, true);
+      end;
+    end;
+
+    if (qryCamposAplicacao.locate('campo', 'descricao', [])) or
+        ((ConsultaSelecaoAleatoria <> nil) and
+         (ConsultaSelecaoAleatoria.TipoPesquisa in [pesNotas, pesNotasPag])) then
+    begin
+      with TStringField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'descricao';
+        DisplayLabel := 'Descrição';
+        FieldKind:= fkdata;
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 122, true);
+        qrySelecaoAleatoria.FieldByName('descricao').Size := 122;
+      end;
+    end;
+
+    {
+    if qryCamposAplicacao.locate('campo', 'valorgrade1', []) then
+    begin
+      with TStringField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'valorgrade1';
+        DisplayLabel := 'Linha';
+        FieldKind:= fkdata;
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 50, true);
+        qrySelecaoAleatoria.FieldByName('valorgrade1').Size := 50;
+      end;
+    end;
+    }
+
+    if PossuiCampoSerie then
+    begin
+      with TStringField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'serie';
+        DisplayLabel := 'Série';
+        FieldKind:= fkdata;
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 3, true);
+      end;
+    end;
+
+    if PossuiCamponumeronota then
+    begin
+      with TIntegerField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'numeronota';
+        DisplayLabel := 'N° NF';
+        FieldKind:= fkdata;
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftInteger, 0, true);
+      end;
+    end;
+
+    if PossuiCampodadofiscal then
+    begin
+      with TIntegerField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'dadofiscal';
+        DisplayLabel := 'Dado Fiscal';
+        FieldKind:= fkdata;
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftInteger, 0, true);
+      end;
+    end;
+
+    if PossuiCampooperacao then
+    begin
+      with TStringField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'operacao';
+        DisplayLabel := 'Op';
+        FieldKind:= fkdata;
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 1, true);
+      end;
+    end;
+
+    if PossuiCampochv_nfe then
+    begin
+      with TStringField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'chv_nfe';
+        DisplayLabel := 'Chave NFe';
+        FieldKind:= fkdata;
+        EditMask := '99\-9999\-99999999999999\-99\-999\-999999999\-9\-99999999\-9;0;_';
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 44, false);
+      end;
+    end;
+
+    if PossuiCampocodigonota then
+    begin
+      with TIntegerField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'codigonota';
+        DisplayLabel := 'codigonota';
+        FieldKind:= fkdata;
+        visible := false;
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftInteger, 0, true);
+      end;
+    end;
+
+    if qryCamposAplicacao.locate('campo', 'contrato', []) then
+    begin
+      with TStringField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'contrato';
+        DisplayLabel := 'Contrato';
+        FieldKind:= fkdata;
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 20,  true);
+        qrySelecaoAleatoria.FieldByName('contrato').Size := 20;
+      end;
+    end;
+
+    if qryCamposAplicacao.locate('campo', 'nome', []) then
+    begin
+      with TStringField.Create(qrySelecaoAleatoria) do
+      begin
+        FieldName := 'nome';
+        DisplayLabel := 'Nome';
+        FieldKind:= fkdata;
+        DataSet := qrySelecaoAleatoria;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 60, true);
+        qrySelecaoAleatoria.FieldByName('nome').Size := 60;
+      end;
+    end;
+
+    with TStringField.Create(qrySelecaoAleatoria) do
+    begin
+      FieldName := 'campo';
+      DisplayLabel := 'Aplicar a';
+      DataSet := qrySelecaoAleatoria;
+      FieldKind := fkData;
+
+      if (ConsultaSelecaoAleatoria <> nil) and
+         (ConsultaSelecaoAleatoria.TipoPesquisa = pesNotasPag) then
+      begin
+        Size := 35;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 35, true);
+      end  
+      else
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 11, true);
+    end;
+
+    with TStringField.Create(qrySelecaoAleatoria) do
+    begin
+      FieldName := 'campol';
+      DisplayLabel := 'Aplicar a';
+      DataSet := qrySelecaoAleatoria;
+      FieldKind := fkLookup;
+      KeyFields := 'campo';
+      LookupDataSet := qryCamposAplicacao;
+      LookupKeyFields := 'campo';
+      LookupResultField := 'campo';
+      LookupCache := true;
+
+      if (ConsultaSelecaoAleatoria <> nil) and
+         (ConsultaSelecaoAleatoria.TipoPesquisa = pesNotasPag) then
+      begin
+        size := 35;
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 35, true);
+      end
+      else
+        qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 11, true)
+    end;
+
+    with TStringField.Create(qrySelecaoAleatoria) do
+    begin
+      FieldName := 'opcomparacao';
+      DisplayLabel := 'Comparação';
+      DataSet := qrySelecaoAleatoria;
+      FieldKind := fkData;
+      qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 20, true);
+    end;
+
+    with TStringField.Create(qrySelecaoAleatoria) do
+    begin
+      FieldName := 'opcomparacaol';
+      DisplayLabel := 'Comparação';
+      DataSet := qrySelecaoAleatoria;
+      FieldKind := fkLookup;
+      KeyFields := 'opcomparacao';
+      LookupDataSet := qryComparacao;
+      LookupKeyFields := 'opcomparacao';
+      LookupResultField := 'opcomparacao';
+      qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 20, true);
+    end;
+
+    with TStringField.Create(qrySelecaoAleatoria) do
+    begin
+      FieldName := 'oplogico';
+      DisplayLabel := 'Lógica';
+      DataSet := qrySelecaoAleatoria;
+      FieldKind := fkData;
+      qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 2, true);
+    end;
+
+    with TStringField.Create(qrySelecaoAleatoria) do
+    begin
+      FieldName := 'oplogicol';
+      DisplayLabel := 'Lógica';
+      DataSet := qrySelecaoAleatoria;
+      FieldKind := fkLookup;
+      KeyFields := 'oplogico';
+      LookupDataSet := qryLogica;
+      LookupKeyFields := 'oplogico';
+      LookupResultField := 'oplogico';
+      qrySelecaoAleatoria.FieldDefs.Add(qrySelecaoAleatoria.Name + FieldName, ftString, 2, true);
+    end;
+
+    qrySelecaoAleatoria.Open;
+    qrySelecaoAleatoria.delete;
+    qrySelecaoAleatoria.delete;
+  end;
+
+
+end;
+
+function TfraSelecaoAleatoria.GetListaCondicional: String;
+var
+ vCampo: String;
+
+  function Conjuncao: String;
+  begin
+    result := '';
+    if qryselecaoaleatoria.recno <> qryselecaoaleatoria.recordcount then
+    begin
+      if  qryselecaoaleatoria.fieldbyname('oplogico').asstring = 'e' then result := 'and'
+      else result := 'or';
+    end;
+  end;
+begin
+
+  result := '';
+  qryselecaoaleatoria.first;
+  while not qryselecaoaleatoria.eof do
+  begin
+
+    if qryselecaoaleatoria.findfield(qryselecaoaleatoria.fieldbyname('campo').asstring)<>nil then
+    begin
+
+      if qryselecaoaleatoria.fieldbyname(qryselecaoaleatoria.fieldbyname('campo').asstring).isnull then
+      begin
+        dbgSelecaoAleatoria.SetFocus;
+        vCampo := qryselecaoaleatoria.fieldbyname('campo').asString;
+        dbgSelecaoAleatoria.SelectedIndex := dbgSelecaoAleatoria.ColumnByName(vCampo).Index;
+        MensagemErro('A expressão lógica esta incorreta. O contúdo do campo '+quotedstr(qryselecaoaleatoria.fieldbyname('campo').asstring)+ ' está vazio.');
+        abort;
+      end
+      else
+      begin
+        if (operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) = 'in') or
+           (operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) = 'not in') then
+        begin
+          result := result +
+
+                  'cast('+qryselecaoaleatoria.fieldbyname('campo').asstring + ' as varchar) ' + operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) + ' ' +
+                  separador_inicial(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+                  quotedstr(qryselecaoaleatoria.fieldbyname(qryselecaoaleatoria.fieldbyname('campo').asstring).asstring) + ' ' +
+                  separador_final(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+
+                  Conjuncao + ' ';
+        end
+        else
+        begin
+          result := result +
+
+                  qryselecaoaleatoria.fieldbyname('campo').asstring + ' ' + operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) + ' ' +
+                  separador_inicial(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+                  quotedstr(qryselecaoaleatoria.fieldbyname(qryselecaoaleatoria.fieldbyname('campo').asstring).asstring) + ' ' +
+                  separador_final(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+
+                  Conjuncao + ' ';
+        end;
+        qryselecaoaleatoria.next;
+      end;
+    end
+    else
+    begin
+        if (operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) = 'in') or
+           (operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) = 'not in') then
+        begin
+          result := result +
+
+                  'cast('+qryselecaoaleatoria.fieldbyname('campo').asstring + ' as varchar) ' + operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) + ' ' +
+                  separador_inicial(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+                  quotedstr(qryselecaoaleatoria.fieldbyname('descricao').asstring) + ' ' +
+                  separador_final(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+
+                  Conjuncao + ' ';
+
+        end
+        else
+        begin
+          result := result +
+
+                  qryselecaoaleatoria.fieldbyname('campo').asstring + ' ' + operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) + ' ' +
+                  separador_inicial(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+                  quotedstr(qryselecaoaleatoria.fieldbyname('descricao').asstring) + ' ' +
+                  separador_final(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+
+                  Conjuncao + ' ';
+        end;
+        qryselecaoaleatoria.next;
+    end;
+  end;
+end;
+
+function TfraSelecaoAleatoria.GetListaCondicionalcomTipo: String;
+
+{
+  function Conjuncao: String;
+  begin
+    result := '';
+    if qryselecaoaleatoria.recno <> qryselecaoaleatoria.recordcount then
+    begin
+      if  qryselecaoaleatoria.fieldbyname('oplogico').asstring = 'e' then result := 'and'
+      else result := 'or';
+    end;
+  end;
+
+begin
+  result := '';
+  qryselecaoaleatoria.first;
+  while not qryselecaoaleatoria.eof do
+  begin
+    result := result +
+              '(' + qryselecaoaleatoria.fieldbyname('campo').asstring + ' ' + Operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) + ' ' +
+                    quotedstr(qryselecaoaleatoria.fieldbyname(qryselecaoaleatoria.fieldbyname('campo').asstring).asstring) + ' and ' +
+
+                    ' tipo ' + '=' + ' ' +
+                    quotedstr(qryselecaoaleatoria.fieldbyname('tipo').asstring) + ')' +
+
+              Conjuncao + ' ';
+    qryselecaoaleatoria.next;
+  end;
+
+end;
+}
+
+var
+ vCampo: String;
+
+  function Conjuncao: String;
+  begin
+    result := '';
+    if qryselecaoaleatoria.recno <> qryselecaoaleatoria.recordcount then
+    begin
+      if  qryselecaoaleatoria.fieldbyname('oplogico').asstring = 'e' then result := 'and'
+      else result := 'or';
+    end;
+  end;
+begin
+
+  result := '';
+  qryselecaoaleatoria.first;
+  while not qryselecaoaleatoria.eof do
+  begin
+
+    if qryselecaoaleatoria.findfield(qryselecaoaleatoria.fieldbyname('campo').asstring)<>nil then
+    begin
+
+      if qryselecaoaleatoria.fieldbyname(qryselecaoaleatoria.fieldbyname('campo').asstring).isnull then
+      begin
+        dbgSelecaoAleatoria.SetFocus;
+        vCampo := qryselecaoaleatoria.fieldbyname('campo').asString;
+        dbgSelecaoAleatoria.SelectedIndex := dbgSelecaoAleatoria.ColumnByName(vCampo).Index;
+        MensagemErro('A expressão lógica esta incorreta. O contúdo do campo '+quotedstr(qryselecaoaleatoria.fieldbyname('campo').asstring)+ ' está vazio.');
+        abort;
+      end
+      else
+      begin
+        if (operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) = 'in') or
+           (operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) = 'not in') then
+        begin
+          result := result +
+
+                  'cast('+qryselecaoaleatoria.fieldbyname('campo').asstring + ' as varchar) ' + operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) + ' ' +
+                  separador_inicial(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+                  quotedstr(qryselecaoaleatoria.fieldbyname(qryselecaoaleatoria.fieldbyname('campo').asstring).asstring) + ' ' +
+                  separador_final(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+
+                  Conjuncao + ' ';
+        end
+        else
+        begin
+          result := result +
+
+                  qryselecaoaleatoria.fieldbyname('campo').asstring + ' ' + operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) + ' ' +
+                  separador_inicial(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+                  quotedstr(qryselecaoaleatoria.fieldbyname(qryselecaoaleatoria.fieldbyname('campo').asstring).asstring) +
+
+                   ' and tipo = ' +
+                    quotedstr(qryselecaoaleatoria.fieldbyname('tipo').asstring) + 
+
+                  separador_final(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+
+                  Conjuncao + ' ';
+        end;
+        qryselecaoaleatoria.next;
+      end;
+    end
+    else
+    begin
+        if (operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) = 'in') or
+           (operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) = 'not in') then
+        begin
+          result := result +
+
+                  'cast('+qryselecaoaleatoria.fieldbyname('campo').asstring + ' as varchar) ' + operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) + ' ' +
+                  separador_inicial(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+                  quotedstr(qryselecaoaleatoria.fieldbyname('descricao').asstring) + ' ' +
+                  separador_final(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+
+                  Conjuncao + ' ';
+
+        end
+        else
+        begin
+          result := result +
+
+                  qryselecaoaleatoria.fieldbyname('campo').asstring + ' ' + operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) + ' ' +
+                  separador_inicial(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+                  quotedstr(qryselecaoaleatoria.fieldbyname('descricao').asstring) + ' ' +
+                  separador_final(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) +
+
+                  Conjuncao + ' ';
+        end;
+        qryselecaoaleatoria.next;
+    end;
+  end;
+end;
+
+
+function TfraSelecaoAleatoria.Operador(opcomparacao: String): String;
+begin
+  if opcomparacao = 'Contém' then
+    result := 'ilike'
+  else
+  if opcomparacao = 'Não Contém' then
+    result := 'not ilike'
+  else
+  if opcomparacao = 'Contido na Lista' then
+    result := 'in'
+  else
+  if opcomparacao = 'não Contido na Lista' then
+    result := 'not in'
+  else
+    result := copy(opcomparacao,1,2)
+end;
+
+
+
+procedure TfraSelecaoAleatoria.Excluir;
+begin
+  if sbnExcluir.enabled then
+    sbnExcluirClick(nil);
+end;
+
+procedure TfraSelecaoAleatoria.AdicionarItemNaLista(Codigo: String);
+begin
+  qrySelecaoAleatoria.append;
+  qrySelecaoAleatoria.fieldbyname('codigo').asString := codigo;
+  qrySelecaoAleatoria.post;
+
+ {
+  ConsultaSelecaoAleatoria.edfcodigo.text := codigo;
+  ConsultaSelecaoAleatoria.edfcodigo.exist;
+  }
+end;
+
+procedure TfraSelecaoAleatoria.AdicionarListaItemNaLista(
+  Lista: TStringList);
+var
+  i : integer;
+begin
+  for i:=0 to Lista.count-1 do
+    AdicionarItemNaLista(Lista[i]);
+end;
+
+function TfraSelecaoAleatoria.Separador_Final(
+  opcomparacao: String): String;
+begin
+  if opcomparacao = 'Contém' then
+    result := ''
+  else
+  if opcomparacao = 'Não Contém' then
+    result := ''
+  else
+  if opcomparacao = 'Contido na Lista' then
+    result := ','' '',''''), '','')) as varchar))'
+  else
+  if opcomparacao = 'não Contido na Lista' then
+    result := ','' '',''''), '','')) as varchar))'
+  else
+    result := ''
+
+end;
+
+function TfraSelecaoAleatoria.Separador_Inicial(
+  opcomparacao: String): String;
+begin
+  if opcomparacao = 'Contém' then
+    result := ''
+  else
+  if opcomparacao = 'Não Contém' then
+    result := ''
+  else
+  if opcomparacao = 'Contido na Lista' then
+    result := '(SELECT CAST(unnest(string_to_array(translate('
+  else
+  if opcomparacao = 'não Contido na Lista' then
+    result := '(SELECT CAST(unnest(string_to_array(translate('
+  else
+    result := ''
+
+end;
+
+destructor TfraSelecaoAleatoria.Destroy;
+begin
+//  freeandnil(ConsultaSelecaoAleatoria);
+  inherited;
+end;
+
+end.

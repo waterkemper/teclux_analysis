@@ -1,0 +1,917 @@
+inherited dtmCadastroEnderecos: TdtmCadastroEnderecos
+  Left = 816
+  Top = 101
+  Height = 627
+  Width = 658
+  object qryEstados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeDelete = BeforeDelete
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    OnNewRecord = qryEstadosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT Codigo,'
+      '       Nome,'
+      '       CodigoIBGE,'
+      '       Pontos,'
+      '       PercFCP,'
+      '       ResponsavelDIFAL,'
+      '       BaseDupla'
+      ''
+      'FROM estados'
+      ''
+      'WHERE Estados.Codigo = :Codigo')
+    RequestLive = True
+    Left = 54
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryEstadosCodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'Codigo'
+      Required = True
+      Size = 2
+    end
+    object qryEstadosNome: TStringField
+      FieldName = 'Nome'
+      Required = True
+      Size = 30
+    end
+    object qryEstadosPontos: TIntegerField
+      FieldName = 'Pontos'
+      DisplayFormat = '0'
+    end
+    object qryEstadosCodigoIBGE: TIntegerField
+      FieldName = 'CodigoIBGE'
+      DisplayFormat = '0'
+    end
+    object qryEstadosResponsavelDIFAL: TBooleanField
+      FieldName = 'ResponsavelDIFAL'
+    end
+    object qryEstadosBaseDupla: TBooleanField
+      FieldName = 'BaseDupla'
+    end
+    object qryEstadosPercFCP: TFloatField
+      FieldName = 'PercFCP'
+      Required = True
+    end
+  end
+  object dsrEstados: TtecDataSource
+    DataSet = qryEstados
+    Left = 54
+    Top = 69
+  end
+  object qryCidades: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryCidadesBeforeOpen
+    BeforeDelete = BeforeDelete
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT Estado,'
+      '       Codigo,'
+      '       Nome,'
+      '       Pontos,'
+      '       CEP,'
+      '       FonePrestadora,'
+      '       FoneDDD,'
+      '       CodigoIBGE,'
+      '       CodigoDIMOB,'
+      '       regiao'
+      ''
+      'FROM   cidades'
+      ''
+      'WHERE  Estado = :Estado AND'
+      '       Codigo = :Codigo'
+      '')
+    RequestLive = True
+    Left = 151
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'estado'
+        ParamType = ptUnknown
+        Value = ''
+      end
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryCidadesestado: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'estado'
+      Required = True
+      Size = 2
+    end
+    object qryCidadescodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryCidadesnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+    object qryCidadespontos: TIntegerField
+      FieldName = 'pontos'
+      DisplayFormat = '0'
+    end
+    object qryCidadescep: TIntegerField
+      FieldName = 'cep'
+      DisplayFormat = '00000-000'
+    end
+    object qryCidadesfoneprestadora: TIntegerField
+      FieldName = 'foneprestadora'
+      DisplayFormat = '0'
+    end
+    object qryCidadesfoneddd: TIntegerField
+      FieldName = 'foneddd'
+      DisplayFormat = '0'
+    end
+    object qryCidadescodigoibge: TIntegerField
+      FieldName = 'codigoibge'
+      DisplayFormat = '9999999'
+      EditFormat = '9999999'
+    end
+    object qryCidadescodigodimob: TIntegerField
+      DisplayWidth = 4
+      FieldName = 'codigodimob'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryCidadesregiao: TStringField
+      FieldName = 'regiao'
+      Size = 10
+    end
+  end
+  object dsrCidades: TtecDataSource
+    DataSet = qryCidades
+    Left = 151
+    Top = 69
+  end
+  object qryBairros: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeDelete = BeforeDelete
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from bairros'
+      'WHERE (bairros.estado = :estado) and'
+      '            (bairros.cidade = :cidade) and'
+      '            (bairros.codigo = :codigo)')
+    RequestLive = True
+    Left = 248
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'estado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'cidade'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryBairrosestado: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'estado'
+      Required = True
+      Size = 2
+    end
+    object qryBairroscidade: TIntegerField
+      DisplayLabel = 'Cidade'
+      FieldName = 'cidade'
+      Required = True
+    end
+    object qryBairroscodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'codigo'
+    end
+    object qryBairrosnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 30
+    end
+    object qryBairrosregiao: TStringField
+      FieldName = 'regiao'
+      Size = 10
+    end
+    object qryBairrospontos: TIntegerField
+      FieldName = 'pontos'
+    end
+    object qryBairroscep: TIntegerField
+      FieldName = 'cep'
+      DisplayFormat = '00000-000'
+    end
+    object qryBairrosfrete: TIntegerField
+      FieldName = 'frete'
+    end
+  end
+  object dsrBairros: TtecDataSource
+    DataSet = qryBairros
+    Left = 248
+    Top = 69
+  end
+  object qryRuas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryRuasBeforeOpen
+    AfterOpen = qryRuasAfterOpen
+    BeforeCancel = qryRuasBeforeCancel
+    AfterCancel = qryRuasAfterCancel
+    BeforeDelete = BeforeDelete
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    OnNewRecord = qryRuasNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * '
+      'from ruas'
+      'where ruas.codigo = :codigo')
+    RequestLive = True
+    Left = 345
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryRuascodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'codigo'
+    end
+    object qryRuasnomerua: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nomerua'
+      Required = True
+      Size = 30
+    end
+    object qryRuasateonde: TStringField
+      Alignment = taRightJustify
+      FieldName = 'ateonde'
+      Size = 12
+    end
+    object qryRuasdaonde: TStringField
+      Alignment = taRightJustify
+      FieldName = 'daonde'
+      Size = 12
+    end
+    object qryRuaslado: TStringField
+      FieldName = 'lado'
+      Size = 1
+    end
+    object qryRuastipo: TStringField
+      FieldName = 'tipo'
+      Size = 8
+    end
+    object qryRuasestado: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'estado'
+      Required = True
+      Size = 2
+    end
+    object qryRuascidade: TIntegerField
+      DisplayLabel = 'Cidade'
+      FieldName = 'cidade'
+      Required = True
+    end
+    object qryRuasbairro: TIntegerField
+      DisplayLabel = 'Bairro'
+      FieldName = 'bairro'
+      Required = True
+    end
+    object qryRuascep: TIntegerField
+      DisplayLabel = 'CEP'
+      FieldName = 'cep'
+      Required = True
+      DisplayFormat = '00000-000'
+    end
+  end
+  object dsrRuas: TtecDataSource
+    DataSet = qryRuas
+    Left = 345
+    Top = 69
+  end
+  object qryRegioes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeDelete = BeforeDelete
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select regioes.codigo,'
+      '         regioes.nome,'
+      '         regioes.pontos,'
+      '         regioes.frete'
+      'from regioes'
+      'where regioes.codigo = :codigo')
+    RequestLive = True
+    Left = 442
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryRegioescodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+      Size = 10
+    end
+    object qryRegioesnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 30
+    end
+    object qryRegioespontos: TIntegerField
+      DisplayLabel = 'Pontos'
+      FieldName = 'pontos'
+      DisplayFormat = '0'
+    end
+    object qryRegioesfrete: TIntegerField
+      FieldName = 'frete'
+    end
+  end
+  object dsrRegioes: TtecDataSource
+    DataSet = qryRegioes
+    Left = 442
+    Top = 69
+  end
+  object spcCidadeProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cidades_proximocodigo(:estado) as codigo '
+      'from estados '
+      'where codigo = :estado for update;')
+    RequestLive = True
+    Left = 79
+    Top = 413
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'estado'
+        ParamType = ptUnknown
+        Size = 2
+      end>
+    object spcCidadeProximoCodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object spcBairroProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT bairros_proximocodigo(:estado,:cidade) as codigo'
+      'FROM cidades'
+      'WHERE estado = :estado AND codigo = :cidade FOR UPDATE')
+    RequestLive = True
+    Left = 79
+    Top = 465
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'estado'
+        ParamType = ptUnknown
+        Value = ' '
+      end
+      item
+        DataType = ftInteger
+        Name = 'cidade'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object spcBairroProximocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object spcRuaProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ruas_proximocodigo() as codigo')
+    RequestLive = True
+    Left = 79
+    Top = 360
+    object spcRuaProximocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryConsultaEstadosRuas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryConsultaEstadosRuasAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select estados.codigo,'
+      '         estados.nome'
+      'from estados'
+      'where estados.codigo = :codigo')
+    RequestLive = False
+    Left = 438
+    Top = 133
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaEstadosRuascodigo: TStringField
+      FieldName = 'codigo'
+      Size = 2
+    end
+    object qryConsultaEstadosRuasnome: TStringField
+      FieldName = 'nome'
+      Size = 30
+    end
+  end
+  object dsrConsultaEstadosRuas: TtecDataSource
+    DataSet = qryConsultaEstadosRuas
+    Left = 438
+    Top = 185
+  end
+  object qryConsultaCidadesBairros: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cidades.codigo,'
+      '         cidades.nome'
+      'from cidades'
+      'where (cidades.estado = :estado) and'
+      '          (cidades.codigo = :codigo)')
+    RequestLive = False
+    Left = 262
+    Top = 237
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'estado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaCidadesBairroscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryConsultaCidadesBairrosnome: TStringField
+      FieldName = 'nome'
+      Size = 30
+    end
+  end
+  object dsrConsultaCidadesBairros: TtecDataSource
+    DataSet = qryConsultaCidadesBairros
+    Left = 262
+    Top = 290
+  end
+  object qryConsultaRegioesBairros: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select regioes.codigo,'
+      '         regioes.nome'
+      'from regioes'
+      'where regioes.codigo = :codigo')
+    RequestLive = False
+    Left = 264
+    Top = 346
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaRegioesBairrosnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 30
+    end
+    object qryConsultaRegioesBairroscodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Size = 10
+    end
+  end
+  object dsrConsultaRegioesBairros: TtecDataSource
+    DataSet = qryConsultaRegioesBairros
+    Left = 262
+    Top = 395
+  end
+  object qryConsultaBairrosRuas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select bairros.codigo,'
+      '         bairros.nome'
+      'from bairros'
+      'where (bairros.estado = :estado) and'
+      '          (bairros.cidade = :cidade) and'
+      '          (bairros.codigo = :codigo)')
+    RequestLive = False
+    Left = 438
+    Top = 343
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'estado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'cidade'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaBairrosRuascodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryConsultaBairrosRuasnome: TStringField
+      FieldName = 'nome'
+      Size = 30
+    end
+  end
+  object dsrConsultaBairrosRuas: TtecDataSource
+    DataSet = qryConsultaBairrosRuas
+    Left = 438
+    Top = 395
+  end
+  object qryConsultaEstadosCidades: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select estados.codigo,'
+      '         estados.nome'
+      'from estados'
+      'where estados.codigo = :codigo')
+    RequestLive = False
+    Left = 79
+    Top = 133
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = ''
+      end>
+    object qryConsultaEstadosCidadescodigo: TStringField
+      FieldName = 'codigo'
+      Size = 2
+    end
+    object qryConsultaEstadosCidadesnome: TStringField
+      FieldName = 'nome'
+      Size = 30
+    end
+  end
+  object dsrConsultaEstadosCidades: TtecDataSource
+    DataSet = qryConsultaEstadosCidades
+    Left = 79
+    Top = 185
+  end
+  object qryConsultaEstadosBairros: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryConsultaEstadosBairrosAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select estados.codigo,'
+      '         estados.nome'
+      'from estados'
+      'where estados.codigo = :codigo')
+    RequestLive = False
+    Left = 262
+    Top = 133
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaEstadosBairroscodigo: TStringField
+      FieldName = 'codigo'
+      Size = 2
+    end
+    object qryConsultaEstadosBairrosnome: TStringField
+      FieldName = 'nome'
+      Size = 30
+    end
+  end
+  object dsrConsultaEstadosBairros: TtecDataSource
+    DataSet = qryConsultaEstadosBairros
+    Left = 262
+    Top = 185
+  end
+  object qryConsultaCidadesRuas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryConsultaCidadesRuasAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cidades.codigo,'
+      '         cidades.nome'
+      'from cidades'
+      'where (cidades.estado = :estado) and'
+      '          (cidades.codigo = :codigo)')
+    RequestLive = False
+    Left = 438
+    Top = 237
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'estado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaCidadesRuascodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryConsultaCidadesRuasnome: TStringField
+      FieldName = 'nome'
+      Size = 30
+    end
+  end
+  object dsrConsultaCidadesRuas: TtecDataSource
+    DataSet = qryConsultaCidadesRuas
+    Left = 438
+    Top = 290
+  end
+  object qryConsultaTabelaFretesBairros: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeDelete = BeforeDelete
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select tabeladefretes.codigo, tabeladefretes.descricao'
+      'from tabeladeFretes'
+      'where tabeladefretes.codigo = :codigo')
+    RequestLive = False
+    Left = 259
+    Top = 446
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaTabelaFretesBairroscodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryConsultaTabelaFretesBairrosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object dsrConsultaTabelaFretesBairros: TtecDataSource
+    DataSet = qryConsultaTabelaFretesBairros
+    Left = 259
+    Top = 499
+  end
+  object qryConsultaTabelaFretesRegiao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeDelete = BeforeDelete
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select tabeladefretes.codigo, tabeladefretes.descricao'
+      'from tabeladeFretes'
+      'where tabeladefretes.codigo = :codigo')
+    RequestLive = False
+    Left = 434
+    Top = 446
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaTabelaFretesRegiaocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryConsultaTabelaFretesRegiaodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object dsrConsultaTabelaFretesRegiao: TtecDataSource
+    DataSet = qryConsultaTabelaFretesRegiao
+    Left = 434
+    Top = 499
+  end
+  object qryConsultaRegioesCidades: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select regioes.codigo,'
+      '         regioes.nome'
+      'from regioes'
+      'where regioes.codigo = :codigo')
+    RequestLive = False
+    Left = 80
+    Top = 250
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaRegioesCidadesnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 30
+    end
+    object qryConsultaRegioesCidadescodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Size = 10
+    end
+  end
+  object dsrConsultaRegioesCidades: TtecDataSource
+    DataSet = qryConsultaRegioesCidades
+    Left = 78
+    Top = 299
+  end
+end

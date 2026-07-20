@@ -1,0 +1,2889 @@
+inherited dtmAlteracoesPrecos: TdtmAlteracoesPrecos
+  OldCreateOrder = False
+  Left = 355
+  Top = 221
+  Height = 474
+  Width = 730
+  object dsrAlteracoesPrecos: TtecDataSource
+    DataSet = qryAlteracoesPrecos
+    Left = 72
+    Top = 40
+  end
+  object qryAlteracoesPrecos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    OnCalcFields = qryAlteracoesPrecosCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListadeItemProdutos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListadeProdutos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListadeGrupos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListadeClasses'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListadeMarcas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      
+        'select pnp.produto, pnp.produtovisual, pnp.descricao_produto, pn' +
+        'p.data, pnp.preco,'
+      
+        '       pnp.descricao_preco, pnp.valor, pnp.markup, pnp.trigger_u' +
+        'ser, pnp.cargo,'
+      
+        '       sum(estoques_preco_(pnp.produto, pnp.valor, pnp.markup)) ' +
+        'as valorprodutocargo'
+      '       '
+      'from'
+      '('
+      'select pnp.*,'
+      
+        '       coalesce((select markup from t_produtoscargos_log(pnp.pro' +
+        'duto, ca.codigo, pnp.data)),0) as markup,'
+      
+        '       (select trigger_user from t_produtoscargos_log(pnp.produt' +
+        'o, ca.codigo, pnp.data)) as trigger_user,       '
+      
+        '       cast(cast(ca.codigo as varchar(10))||'#39' - '#39'||cast(ca.descr' +
+        'icao as varchar(50)) as varchar(65)) as cargo'
+      '       '
+      'from'
+      '('
+      ''
+      ''
+      '  select pnp.*,'
+      '         (select pr.descricao '
+      '          from precos pr '
+      '          where pr.caracteristica = (select p.caracteristica'
+      '                                     from produtos p'
+      
+        '                                     where p.codigo = pnp.produt' +
+        'o)'
+      '            and pr.codigo = pnp.preco) as descricao_preco,'
+      '            '
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco, pnp.data)) as valor'
+      '  from'
+      '  ('
+      '      select distinct cp_log.*,'
+      
+        '             (select preco from t_produtos_log(cp_log.produto, c' +
+        'p_log.data)) as preco'
+      '      from'
+      '      ('
+      ''
+      '      select distinct p.codigo as produto,'
+      '             p.codigovisual as produtovisual,'
+      '             p.descricao as descricao_produto,'
+      '             cp_log.data'
+      ''
+      ''
+      '      from'
+      '      ('
+      '        select distinct cp_log.caracteristica,'
+      '             cast(cp_log.trigger_changed as date) as data'
+      '         from colunasprecos_log cp_log'
+      
+        '         where cast(cp_log.trigger_changed as date) between :Dat' +
+        'aInicial and :DataFinal'
+      
+        '       order by cp_log.caracteristica, cast(cp_log.trigger_chang' +
+        'ed as date)'
+      '       ) as cp_log'
+      '          join ((((caracteristicas c'
+      '                join produtos p'
+      '                on p.caracteristica = c.codigo)'
+      ''
+      '                           join grupos g'
+      '                           on c.grupo = g.codigo)'
+      ''
+      '                           join classes cl'
+      '                           on c.classe = cl.codigo)'
+      ''
+      '                           join marcas m'
+      '                           on c.marca = m.codigo)'
+      ''
+      ''
+      '          on cp_log.caracteristica = c.codigo'
+      ''
+      '      where true'
+      ''
+      '      %ListadeItemProdutos'
+      ''
+      '      %ListadeProdutos'
+      ''
+      '      %ListadeGrupos'
+      ''
+      '      %ListadeClasses'
+      ''
+      '      %ListadeMarcas'
+      ''
+      '      ) as cp_log'
+      
+        '      order by produto, produtovisual, DATA, preco, descricao_pr' +
+        'oduto'
+      '  ) as pnp'
+      '  '
+      '  '
+      '  '
+      '  '
+      '  '
+      ') as pnp, cargos ca'
+      ''
+      ') as pnp'
+      ''
+      
+        'group by pnp.produto, pnp.produtovisual, pnp.descricao_produto, ' +
+        'pnp.data, pnp.preco, pnp.descricao_preco, pnp.valor, pnp.markup,' +
+        ' pnp.trigger_user, pnp.cargo'
+      'order by 1,2,3,4,5,6,7,8,9')
+    RequestLive = False
+    Left = 112
+    Top = 56
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'2020-01-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'2020-04-06'#39
+      end>
+    object qryAlteracoesPrecosproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryAlteracoesPrecosprodutovisual: TStringField
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryAlteracoesPrecosdescricao_produto: TStringField
+      FieldName = 'descricao_produto'
+      Size = 100
+    end
+    object qryAlteracoesPrecosdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAlteracoesPrecospreco: TIntegerField
+      FieldName = 'preco'
+    end
+    object qryAlteracoesPrecosdescricao_preco: TStringField
+      FieldName = 'descricao_preco'
+      Size = 30
+    end
+    object qryAlteracoesPrecosvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryAlteracoesPrecosmarkup: TFloatField
+      FieldName = 'markup'
+      DisplayFormat = '0.00'
+    end
+    object qryAlteracoesPrecostrigger_user: TStringField
+      FieldName = 'trigger_user'
+      Size = 32
+    end
+    object qryAlteracoesPrecoscargo: TStringField
+      FieldName = 'cargo'
+      Size = 65
+    end
+    object qryAlteracoesPrecosvalorprodutocargo: TFloatField
+      FieldName = 'valorprodutocargo'
+      DisplayFormat = '0.00'
+    end
+    object qryAlteracoesPrecosprodutovisualdescricao: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'produtovisualdescricao'
+      Size = 130
+      Calculated = True
+    end
+  end
+  object qryAlteracoesPrecosCargos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    AfterOpen = qryAlteracoesPrecosCargosAfterOpen
+    AfterScroll = qryAlteracoesPrecosCargosAfterScroll
+    OnCalcFields = qryAlteracoesPrecosCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'rollback;'
+      'begin;'
+      ''
+      'SELECT dynamic_pivot_('
+      ''
+      #39
+      'select cast( cast(pnp.produto as varchar) ||'
+      '            cast(pnp.data as varchar) ||'
+      '            cast(coalesce(pnp.preco,0) as varchar) ||'
+      '            cast(coalesce(pnp.valor,0) as varchar) ||'
+      '            cast(coalesce(pnp.markup,0) as varchar) ||'
+      
+        '            cast(coalesce(pnp.trigger_user,'#39#39#39#39') as varchar) as ' +
+        'varchar(200)) as identificador,'
+      ''
+      
+        '       cast(cast(pnp.produtovisual as varchar)||'#39#39' '#39#39'||cast(pnp.' +
+        'descricao_produto as varchar) as varchar(150)) as produtovisuald' +
+        'escricao,'
+      ''
+      '       pnp.produto, pnp.produtovisual,'
+      '       pnp.descricao_produto, pnp.data, pnp.preco,'
+      
+        '       pnp.descricao_preco, pnp.valor, pnp.markup, pnp.trigger_u' +
+        'ser, pnp.cargo,'
+      
+        '       sum(estoques_preco_(pnp.produto, pnp.valor, pnp.markup)) ' +
+        'as valorprodutocargo'
+      ''
+      'from'
+      '('
+      'select pnp.*,'
+      
+        '       coalesce((select markup from t_produtoscargos_log(pnp.pro' +
+        'duto, ca.codigo, pnp.data)),0) as markup,'
+      
+        '       (select trigger_user from t_produtoscargos_log(pnp.produt' +
+        'o, ca.codigo, pnp.data)) as trigger_user,       '
+      
+        '       cast(cast(ca.codigo as varchar(10))||'#39#39' - '#39#39'||cast(ca.des' +
+        'cricao as varchar(50)) as varchar(65)) as cargo'
+      '       '
+      'from'
+      '('
+      ''
+      ''
+      '  select pnp.*,'
+      '         (select pr.descricao '
+      '          from precos pr '
+      '          where pr.caracteristica = (select p.caracteristica'
+      '                                     from produtos p'
+      
+        '                                     where p.codigo = pnp.produt' +
+        'o)'
+      '            and pr.codigo = pnp.preco) as descricao_preco,'
+      '            '
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco, pnp.data)) as valor'
+      '  from'
+      '  ('
+      '      select distinct cp_log.*,'
+      
+        '             (select preco from t_produtos_log(cp_log.produto, c' +
+        'p_log.data)) as preco'
+      '      from'
+      '      ('
+      ''
+      '      select distinct p.codigo as produto,'
+      '             p.codigovisual as produtovisual,'
+      '             p.descricao as descricao_produto,'
+      '             cp_log.data'
+      ''
+      ''
+      '      from'
+      '      ('
+      '        select distinct cp_log.caracteristica,'
+      '             cast(cp_log.trigger_changed as date) as data'
+      '         from colunasprecos_log cp_log'
+      '         where cast(cp_log.trigger_changed as date) between'
+      ''
+      '         '#39#39'2010-04-01'#39#39
+      ''
+      '         and'
+      ''
+      '         '#39#39'2010-04-30'#39#39
+      '         '
+      
+        '       order by cp_log.caracteristica, cast(cp_log.trigger_chang' +
+        'ed as date)'
+      '       ) as cp_log'
+      '          join ((((caracteristicas c'
+      '                join produtos p'
+      '                on p.caracteristica = c.codigo)'
+      ''
+      '                           join grupos g'
+      '                           on c.grupo = g.codigo)'
+      ''
+      '                           join classes cl'
+      '                           on c.classe = cl.codigo)'
+      ''
+      '                           join marcas m'
+      '                           on c.marca = m.codigo)'
+      ''
+      ''
+      '          on cp_log.caracteristica = c.codigo'
+      ''
+      '      where true'
+      ''
+      ''
+      ''
+      '      ) as cp_log'
+      
+        '      order by produto, produtovisual, DATA, preco, descricao_pr' +
+        'oduto'
+      '  ) as pnp'
+      ''
+      ') as pnp, cargos ca'
+      ''
+      ') as pnp'
+      ''
+      
+        'group by pnp.produto, pnp.produtovisual, pnp.descricao_produto, ' +
+        'pnp.data, pnp.preco, pnp.descricao_preco, pnp.valor, pnp.markup,' +
+        ' pnp.trigger_user, pnp.cargo'
+      'order by 1,2,3,4,5,6,7,8,9, 10'#39','
+      ''
+      
+        #39'select cast(cast(ca.codigo as varchar(10))||'#39#39' - '#39#39'||cast(ca.de' +
+        'scricao as varchar(50)) as varchar(65)) as cargo'
+      ' from cargos ca '
+      ' order by 1'#39', '
+      ' '
+      ' '#39'identificador'#39','
+      ' '
+      
+        ' '#39', produtovisualdescricao, produto, produtovisual, descricao_pr' +
+        'oduto, data, preco, descricao_preco, valor, markup, trigger_user' +
+        #39','
+      ''
+      '  '#39'cargo'#39', '#39'valorprodutocargo'#39', '#39'curs'#39' '
+      ''
+      ') as cur ;'
+      ''
+      'fetch ALL in curs;')
+    RequestLive = False
+    Left = 80
+    Top = 200
+  end
+  object dsrAlteracoesPrecosCargos: TtecDataSource
+    DataSet = qryAlteracoesPrecosCargos
+    Left = 72
+    Top = 152
+  end
+  object qryAlteracoesPrecosCargos_Auxiliar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    OnCalcFields = qryAlteracoesPrecosCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'rollback;'
+      'begin;'
+      ''
+      'SELECT dynamic_pivot_('
+      ''
+      #39
+      '  select cast( cast(produto as varchar) ||'
+      '               cast(coalesce(preco,0) as varchar) ||'
+      
+        '               cast(coalesce(cargo,0) as varchar) as varchar(200' +
+        ')) as identificador,'
+      ''
+      
+        '         produto, produtovisual, caracteristica, precoproduto, d' +
+        'escricao_produto, preco, descricao_preco, cargo, descricao_cargo' +
+        ','
+      
+        '         (select max(e.datacompra) from estoques e where e.produ' +
+        'to = selecao.produto and e.datacompra is not null limit 1) as da' +
+        'tacompra,'
+      
+        '         valoranterior, valoratual, margematual, to_char(data, '#39 +
+        #39'DD-MM-YYYY'#39#39') as data, valor'
+      'from'
+      '('
+      ''
+      '('
+      ''
+      
+        '      select produto, produtovisual, caracteristica, precoprodut' +
+        'o, '
+      
+        '             trim(descricao||'#39#39' '#39#39'||coalesce(valorgrade1,'#39#39#39#39')||' +
+        #39#39' '#39#39'||coalesce(valorgrade2,'#39#39#39#39'))  as descricao_produto,'
+      '             preco,'
+      '             '
+      '         (select pr.descricao'
+      '          from precos pr'
+      '          where pr.caracteristica = (select p.caracteristica'
+      '                                     from produtos p'
+      
+        '                                     where p.codigo = pnp.produt' +
+        'o)'
+      '            and pr.codigo = pnp.preco) as descricao_preco,'
+      '            '
+      '                     cast(null as integer) as cargo,'
+      '                     '
+      '            cast(null as varchar(50)) as descricao_cargo,'
+      ''
+      '            '
+      '            data,'
+      ''
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco, pnp.data)) as valor,'
+      ''
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco,'
+      ''
+      '         :DataAnterior'
+      ''
+      '         )) as valoranterior,'
+      '         '
+      '         pnp.valoratual,'
+      '         '
+      '         case when pnp.valoratual = 0 then 0 else'
+      
+        '         round((1 - pnp.valorultimacompra / pnp.valoratual) * 10' +
+        '0,0) end as margematual'
+      '             '
+      '       from'
+      '      '
+      '       ('
+      '         '
+      '         select pnp.*,'
+      '               (select e.valorultimacompra '
+      '                from estoques e '
+      '                where e.produto = pnp.produto '
+      '                  and e.datacompra is not null'
+      
+        '                order by e.datacompra desc limit 1) as valorulti' +
+        'macompra,'
+      '                '
+      
+        '                (select valor from t_colunasprecos_log(pnp.produ' +
+        'to, pnp.preco, current_date)) as valoratual                '
+      '                '
+      '         from'
+      '         ('
+      ''
+      '          select p.codigo as produto,'
+      
+        '                 p.codigovisual as produtovisual,               ' +
+        '  '
+      '                 p.caracteristica,'
+      '                 p.preco as precoproduto,'
+      '                 p.descricao,'
+      '                 p.valorgrade1,'
+      '                 p.valorgrade2,'
+      '                 cp_log.data, '
+      '                 cp_log.preco'
+      ''
+      ''
+      '          from'
+      '          '
+      '          ('
+      ''
+      ''
+      '          ('
+      ''
+      '            SELECT p.codigo AS produto,'
+      
+        '                  date(cp_log.trigger_changed AT TIME ZONE '#39#39'UTC' +
+        #39#39') AS DATA,'
+      '                  cp_log.preco'
+      ''
+      '            FROM colunasprecos_log cp_log'
+      '            join (produtos p'
+      '                    join (((caracteristicas c'
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      '               on p.caracteristica = c.codigo)'
+      '            ON cp_log.caracteristica = p.caracteristica'
+      ''
+      ''
+      
+        '            WHERE (((date(cp_log.trigger_changed AT TIME ZONE '#39#39 +
+        'UTC'#39#39')) >='
+      ''
+      '            :DataInicial'
+      '            ::date)'
+      ''
+      
+        '               AND ((date(cp_log.trigger_changed AT TIME ZONE '#39#39 +
+        'UTC'#39#39')) <='
+      ''
+      '               :Datafinal'
+      '               ::date))'
+      ''
+      
+        '               and case when p.preco = cp_log.preco then true EL' +
+        'SE'
+      
+        '                    (select preco FROM t_produtos_log(p.codigo, ' +
+        ' date(cp_log.trigger_changed AT TIME ZONE '#39#39'UTC'#39#39'))) = cp_log.pr' +
+        'eco'
+      '                   end'
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      ''
+      
+        '            GROUP BY p.codigo, date(cp_log.trigger_changed AT TI' +
+        'ME ZONE '#39#39'UTC'#39#39'), cp_log.preco'
+      ''
+      '          )'
+      ''
+      '          union'
+      ''
+      '          ('
+      ''
+      
+        '            select p_log.codigo as produto, p_log.trigger_date a' +
+        's data, p_log.preco'
+      '            from produtos_log p_log'
+      ''
+      '                 join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      '               on p.caracteristica = c.codigo)'
+      ''
+      '              on p_log.codigo = p.codigo'
+      ''
+      '            where  ((p_log.trigger_date >='
+      '                      :DataInicial'
+      '                      ::date) AND (p_log.trigger_date <='
+      '                      :DataFinal'
+      '                      ::date))'
+      ''
+      '            and exists (select p_log2.codigo'
+      '                        from produtos_log p_log2'
+      '                        where p_log2.codigo = p_log.codigo'
+      
+        '                          and p_log2.trigger_date = p_log.trigge' +
+        'r_date'
+      
+        '                          and p_log2.trigger_user = p_log.trigge' +
+        'r_user'
+      '                          and p_log2.preco <> p_log.preco'
+      '                          limit 1)'
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      
+        '            group by p_log.codigo, p_log.trigger_date, p_log.pre' +
+        'co'
+      ''
+      ''
+      '          )'
+      ''
+      ''
+      '      ) as cp_log'
+      ''
+      '                    join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      '               on p.caracteristica = c.codigo)'
+      ''
+      '              on cp_log.produto = p.codigo'
+      ''
+      'group by'
+      ''
+      ''
+      '           p.codigo,'
+      '                 p.codigovisual,'
+      '                 p.caracteristica,'
+      '                 p.preco,'
+      '                 p.descricao,'
+      '                 p.valorgrade1,'
+      '                 p.valorgrade2,'
+      '                 cp_log.data, cp_log.preco'
+      ''
+      '     ) as pnp'
+      '    ) as pnp'
+      ''
+      ''
+      ')'
+      ''
+      ''
+      'union all'
+      ''
+      ''
+      '('
+      ''
+      
+        'select pnp.produto, pnp.produtovisual, pnp.caracteristica, pnp.p' +
+        'recoproduto, '
+      '       pnp.descricao_produto, pnp.preco, descricao_preco,'
+      '       pnp.cargo, pnp.descricao_cargo, pnp.data,'
+      
+        '       estoques_preco_(pnp.produto, pnp.valor, pnp.markup) as va' +
+        'lor,'
+      
+        '       estoques_preco_(pnp.produto, pnp.valoranterior, pnp.marku' +
+        'panterior) as valoranterior,'
+      '       pnp.valoratual,       '
+      '       case when pnp.valoratual = 0 then 0 else      '
+      
+        '         round((1 - pnp.valorultimacompra / pnp.valoratual) * 10' +
+        '0,0) end as margematual'
+      '       '
+      ''
+      'from'
+      '('
+      
+        '  select pnp.produto, pnp.produtovisual, pnp.caracteristica, pnp' +
+        '.precoproduto, '
+      '         pnp.descricao_produto, pnp.preco, descricao_preco,'
+      
+        '         pnp.cargo, pnp.descricao_cargo, pnp.data,  pnp.valor, p' +
+        'np.markup,'
+      
+        '         pnp.valoranterior, pnp.markupanterior, pnp.valorultimac' +
+        'ompra,'
+      
+        '         estoques_preco_(pnp.produto, pnp.valoratual, pnp.markup' +
+        'atual) as valoratual'
+      '  from       '
+      '  '
+      '  ('
+      ''
+      ''
+      ''
+      '      select cp_log.*,'
+      
+        '           coalesce((select markup from t_produtoscargos_log(cp_' +
+        'log.produto, ca.codigo, cp_log.data)),0) as markup,'
+      
+        '           coalesce((select markup from t_produtoscargos_log(cp_' +
+        'log.produto, ca.codigo,'
+      ''
+      '           :DataAnterior'
+      ''
+      '           )),0) as markupanterior,'
+      '           '
+      
+        '           coalesce((select markup from produtoscargos pc where ' +
+        'pc.produto = cp_log.produto and pc.cargo = ca.codigo),0) as mark' +
+        'upatual,'
+      '      '
+      '           ca.codigo as cargo,'
+      '           ca.descricao as descricao_cargo '
+      '                   '
+      ''
+      '      from'
+      '      '
+      '      ('
+      '      '
+      
+        '      select produto, produtovisual, caracteristica, precoprodut' +
+        'o, '
+      
+        '             trim(descricao||'#39#39' '#39#39'||coalesce(valorgrade1,'#39#39#39#39')||' +
+        #39#39' '#39#39'||coalesce(valorgrade2,'#39#39#39#39'))  as descricao_produto,'
+      '             data, preco,'
+      '             '
+      '         (select pr.descricao'
+      '          from precos pr'
+      '          where pr.caracteristica = (select p.caracteristica'
+      '                                     from produtos p'
+      
+        '                                     where p.codigo = pnp.produt' +
+        'o)'
+      '            and pr.codigo = pnp.preco) as descricao_preco,'
+      ''
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco, pnp.data)) as valor,'
+      ''
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco,'
+      ''
+      '         :DataAnterior'
+      ''
+      '         )) as valoranterior,'
+      '         '
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco, current_date)) as valoratual,'
+      '         '
+      '         (select e.valorultimacompra '
+      '          from estoques e '
+      '          where e.produto = pnp.produto '
+      '            and e.datacompra is not null'
+      
+        '          order by e.datacompra desc limit 1) as valorultimacomp' +
+        'ra '
+      '             '
+      '       from'
+      '      '
+      '       ('
+      '       '
+      ''
+      '          select p.codigo as produto,'
+      '                 p.codigovisual as produtovisual,'
+      '                 p.caracteristica,'
+      '                 p.preco as precoproduto,'
+      '                 p.descricao,'
+      '                 p.valorgrade1,'
+      '                 p.valorgrade2,'
+      '                 cp_log.data, '
+      '                 cp_log.preco'
+      ''
+      ''
+      '          from'
+      '          '
+      '          ('
+      '          '
+      '          '
+      '          ('
+      '            select p.codigo as produto,'
+      
+        '                   date(cp_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39') as data,'
+      '                 cp_log.preco'
+      ''
+      '            from colunasprecos_log cp_log'
+      ''
+      '                  join (produtos p'
+      '                          join (((caracteristicas c'
+      '                                     join grupos g'
+      '                                     on c.grupo = g.codigo)'
+      '                                     join classes cl'
+      '                                     on c.classe = cl.codigo)'
+      '                                     join marcas m'
+      '                                     on c.marca = m.codigo)'
+      '                     on p.caracteristica = c.codigo)'
+      ''
+      '                 on cp_log.caracteristica = p.caracteristica'
+      ''
+      
+        '            where  (((date(cp_log.trigger_changed at TIME ZONE '#39 +
+        #39'UTC'#39#39')) >='
+      ''
+      '            :DataInicial'
+      '            ::date)'
+      ''
+      
+        '             and ((date(cp_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39')) <='
+      ''
+      '            :Datafinal'
+      '            ::date))'
+      ''
+      
+        '               and case when p.preco = cp_log.preco then true EL' +
+        'SE'
+      
+        '                    (select preco FROM t_produtos_log(p.codigo, ' +
+        ' date(cp_log.trigger_changed AT TIME ZONE '#39#39'UTC'#39#39'))) = cp_log.pr' +
+        'eco'
+      '                   end'
+      ''
+      ''
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      ''
+      
+        '             group by p.codigo, date(cp_log.trigger_changed at T' +
+        'IME ZONE '#39#39'UTC'#39#39'), cp_log.preco'
+      ''
+      ''
+      '          )'
+      ''
+      '          union'
+      ''
+      '          ('
+      ''
+      
+        '            select p_log.codigo as produto, p_log.trigger_date a' +
+        's data, p_log.preco'
+      '            from produtos_log p_log'
+      ''
+      '                 join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      '                   on p.caracteristica = c.codigo)'
+      '                 on p_log.codigo = p.codigo'
+      ''
+      ''
+      '            where  ((p_log.trigger_date >='
+      '                      :DataInicial'
+      '                      ::date) AND (p_log.trigger_date <='
+      '                      :DataFinal'
+      '                      ::date))'
+      ''
+      '            and exists (select p_log2.codigo'
+      '                        from produtos_log p_log2'
+      '                        where p_log2.codigo = p_log.codigo'
+      
+        '                          and p_log2.trigger_date = p_log.trigge' +
+        'r_date'
+      
+        '                          and p_log2.trigger_user = p_log.trigge' +
+        'r_user'
+      '                          and p_log2.preco <> p_log.preco'
+      '                          limit 1)'
+      ''
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      
+        '            group by p_log.codigo, p_log.trigger_date, p_log.pre' +
+        'co'
+      ''
+      '          )'
+      ''
+      '          union'
+      ''
+      '         ('
+      ''
+      '            select pc_log.*,'
+      '/*                cast(null as integer) as preco*/'
+      
+        '                (select preco from t_produtos_log(pc_log.produto' +
+        ', pc_log.data)) as preco'
+      '         from'
+      ''
+      ''
+      '          ('
+      ''
+      '            select pc_log.produto,'
+      
+        '                   date(pc_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39') as data'
+      ''
+      '            from produtoscargos_log pc_log'
+      ''
+      '                 join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      '                   on p.caracteristica = c.codigo)'
+      '                 on pc_log.produto = p.codigo'
+      ''
+      
+        '            where  (((date(pc_log.trigger_changed at TIME ZONE '#39 +
+        #39'UTC'#39#39')) >='
+      ''
+      '            :DataInicial'
+      '            ::date)'
+      ''
+      
+        '             and ((date(pc_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39')) <='
+      ''
+      '            :DataFinal'
+      '            ::date))'
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      ''
+      ''
+      ''
+      ''
+      '            group by'
+      ''
+      '             pc_log.produto,'
+      '             date(pc_log.trigger_changed at TIME ZONE '#39#39'UTC'#39#39')'
+      ''
+      ''
+      '          ) as pc_log'
+      ''
+      '         )'
+      ''
+      '      ) as cp_log'
+      '      '
+      '                    join (produtos p '
+      '              '
+      '                    join (((caracteristicas c'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      '                               '
+      '               on p.caracteristica = c.codigo)                '
+      ''
+      ''
+      '              on cp_log.produto = p.codigo   '
+      ''
+      ''
+      'group by'
+      ''
+      ''
+      '           p.codigo,'
+      '                 p.codigovisual,'
+      '                 p.caracteristica,'
+      '                 p.preco,'
+      '                 p.descricao,'
+      '                 p.valorgrade1,'
+      '                 p.valorgrade2,'
+      '                 cp_log.data, cp_log.preco'
+      '                 '
+      '     ) as pnp    '
+      '     '
+      '   ) as cp_log, cargos ca'
+      '   '
+      ' ) as pnp'
+      ') as pnp'
+      ''
+      'order by 1,2,3,4,5,6,7,8,9'
+      ''
+      ')'
+      ''
+      ') as selecao'
+      ''
+      'where COALESCE(margematual,0) <='
+      ''
+      ':MargemAtual'
+      ''
+      
+        'order by produto, produtovisual, caracteristica, precoproduto, d' +
+        'escricao_produto, preco, descricao_preco, cargo, descricao_cargo' +
+        ','
+      '         valoranterior, valoratual, data, valor'#39','
+      ''
+      ''
+      '      '#39
+      '      select to_char(cp_log.data, '#39#39'DD-MM-YYYY'#39#39') as data'
+      ''
+      '      from'
+      '      ('
+      ''
+      ''
+      '          ('
+      '            select p.codigo as produto,'
+      
+        '                   date(cp_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39') as data'
+      ''
+      '            from colunasprecos_log cp_log'
+      ''
+      '            join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      '                   on p.caracteristica = c.codigo)'
+      ''
+      '            on cp_log.caracteristica = p.caracteristica'
+      ''
+      
+        '            where  (((date(cp_log.trigger_changed at TIME ZONE '#39 +
+        #39'UTC'#39#39')) >='
+      ''
+      '            :DataInicial'
+      '            ::date)'
+      ''
+      
+        '             and ((date(cp_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39')) <='
+      ''
+      '            :Datafinal'
+      '            ::date))'
+      ''
+      
+        '            and (select preco FROM t_produtos_log(p.codigo,  dat' +
+        'e(cp_log.trigger_changed AT TIME ZONE '#39#39'UTC'#39#39'))) = cp_log.preco'
+      ''
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      ''
+      
+        '             group by p.codigo, date(cp_log.trigger_changed at T' +
+        'IME ZONE '#39#39'UTC'#39#39')'
+      ''
+      ''
+      '          )'
+      ''
+      '          union'
+      ''
+      '          ('
+      ''
+      
+        '            select p_log.codigo as produto, p_log.trigger_date a' +
+        's data'
+      '            from produtos_log p_log'
+      ''
+      '                 join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      '                   on p.caracteristica = c.codigo)'
+      '                 on p_log.codigo = p.codigo'
+      ''
+      ''
+      '            where  ((p_log.trigger_date >='
+      '                      :DataInicial'
+      '                      ::date) AND (p_log.trigger_date <='
+      '                      :DataFinal'
+      '                      ::date))'
+      ''
+      '            and exists (select p_log2.codigo'
+      '                        from produtos_log p_log2'
+      '                        where p_log2.codigo = p_log.codigo'
+      
+        '                          and p_log2.trigger_date = p_log.trigge' +
+        'r_date'
+      
+        '                          and p_log2.trigger_user = p_log.trigge' +
+        'r_user'
+      '                          and p_log2.preco <> p_log.preco'
+      '                          limit 1)'
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      '            group by p_log.codigo, p_log.trigger_date'
+      ''
+      '          )'
+      ''
+      '          union'
+      ''
+      '         ('
+      ''
+      '            select pc_log.produto,'
+      
+        '                   date(pc_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39') as data'
+      ''
+      '            from produtoscargos_log pc_log'
+      ''
+      '                 join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      ''
+      '                   on p.caracteristica = c.codigo)'
+      ''
+      '                 on pc_log.produto = p.codigo'
+      ''
+      
+        '            where  (((date(pc_log.trigger_changed at TIME ZONE '#39 +
+        #39'UTC'#39#39')) >='
+      ''
+      '            :DataInicial'
+      '            ::date)'
+      ''
+      
+        '             and ((date(pc_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39')) <='
+      ''
+      '            :DataFinal'
+      '            ::date))'
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      ''
+      '            group by'
+      ''
+      '             pc_log.produto,'
+      '             date(pc_log.trigger_changed at TIME ZONE '#39#39'UTC'#39#39')'
+      ''
+      ''
+      ''
+      '         )'
+      ''
+      '      ) as cp_log'
+      ''
+      '                    join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      ''
+      '               on p.caracteristica = c.codigo)'
+      ''
+      ''
+      '              on cp_log.produto = p.codigo'
+      ''
+      ''
+      '       group by cp_log.data'
+      '       order by cp_log.data'#39','
+      ''
+      ''
+      ' '#39'identificador'#39','
+      ''
+      
+        ' '#39', produto, produtovisual, caracteristica, precoproduto, descri' +
+        'cao_produto, preco, descricao_preco, cargo, descricao_cargo, dat' +
+        'acompra, valoranterior, valoratual, margematual'#39','
+      ''
+      '  '#39'data'#39', '#39'valor'#39', '#39'curs'#39
+      ''
+      ') as cur ;'
+      ''
+      'fetch ALL in curs;')
+    RequestLive = False
+    Left = 320
+    Top = 240
+  end
+  object qryAlteracoesPrecosCargos_Auxiliar_por_Cargo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    OnCalcFields = qryAlteracoesPrecosCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'rollback;'
+      'begin;'
+      ''
+      'SELECT dynamic_pivot_('
+      ''
+      #39
+      'select cast( cast(pnp.produto as varchar) ||'
+      '            cast(pnp.data as varchar) ||'
+      '            cast(coalesce(pnp.preco,0) as varchar) ||'
+      '            cast(coalesce(pnp.valor,0) as varchar) ||'
+      '            cast(coalesce(pnp.markup,0) as varchar) ||'
+      
+        '            cast(coalesce(pnp.trigger_user,'#39#39#39#39') as varchar) as ' +
+        'varchar(200)) as identificador,'
+      ''
+      
+        '       cast(cast(pnp.produtovisual as varchar)||'#39#39' - '#39#39'||cast(pn' +
+        'p.descricao_produto as varchar) as varchar(150)) as produtovisua' +
+        'ldescricao,'
+      ''
+      '       pnp.produto, pnp.produtovisual,'
+      '       pnp.descricao_produto, pnp.data, pnp.preco,'
+      
+        '       pnp.descricao_preco, pnp.valor, pnp.markup, pnp.trigger_u' +
+        'ser, pnp.cargo,'
+      
+        '       sum(estoques_preco_(pnp.produto, pnp.valor, pnp.markup)) ' +
+        'as valorprodutocargo'
+      ''
+      'from'
+      '('
+      'select pnp.*,'
+      
+        '       coalesce((select markup from t_produtoscargos_log(pnp.pro' +
+        'duto, ca.codigo, pnp.data)),0) as markup,'
+      
+        '       (select trigger_user from t_produtoscargos_log(pnp.produt' +
+        'o, ca.codigo, pnp.data)) as trigger_user,       '
+      
+        '       cast(cast(ca.codigo as varchar(10))||'#39#39' - '#39#39'||cast(ca.des' +
+        'cricao as varchar(50)) as varchar(65)) as cargo'
+      '       '
+      'from'
+      '('
+      ''
+      ''
+      '  select pnp.*,'
+      '         (select pr.descricao '
+      '          from precos pr '
+      '          where pr.caracteristica = (select p.caracteristica'
+      '                                     from produtos p'
+      
+        '                                     where p.codigo = pnp.produt' +
+        'o)'
+      '            and pr.codigo = pnp.preco) as descricao_preco,'
+      '            '
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco, pnp.data)) as valor'
+      '  from'
+      '  ('
+      '      select distinct cp_log.*,'
+      
+        '             (select preco from t_produtos_log(cp_log.produto, c' +
+        'p_log.data)) as preco'
+      '      from'
+      '      ('
+      ''
+      '      select distinct p.codigo as produto,'
+      '             p.codigovisual as produtovisual,'
+      '             p.descricao as descricao_produto,'
+      '             cp_log.data'
+      ''
+      ''
+      '      from'
+      '      ('
+      '        select distinct cp_log.caracteristica,'
+      '             cast(cp_log.trigger_changed as date) as data'
+      '         from colunasprecos_log cp_log'
+      '         where cast(cp_log.trigger_changed as date) between'
+      ''
+      '         :DataInicial'
+      ''
+      '         and'
+      ''
+      '         :DataFinal'
+      '         '
+      
+        '       order by cp_log.caracteristica, cast(cp_log.trigger_chang' +
+        'ed as date)'
+      '       ) as cp_log'
+      '          join ((((caracteristicas c'
+      '                join produtos p'
+      '                on p.caracteristica = c.codigo)'
+      ''
+      '                           join grupos g'
+      '                           on c.grupo = g.codigo)'
+      ''
+      '                           join classes cl'
+      '                           on c.classe = cl.codigo)'
+      ''
+      '                           join marcas m'
+      '                           on c.marca = m.codigo)'
+      ''
+      ''
+      '          on cp_log.caracteristica = c.codigo'
+      ''
+      '      where true'
+      ''
+      '      %ListadeItemProdutos'
+      ''
+      '      %ListadeProdutos'
+      ''
+      '      %ListadeGrupos'
+      ''
+      '      %ListadeClasses'
+      ''
+      '      %ListadeMarcas'
+      ''
+      ''
+      '      ) as cp_log'
+      
+        '      order by produto, produtovisual, DATA, preco, descricao_pr' +
+        'oduto'
+      '  ) as pnp'
+      ''
+      ') as pnp, cargos ca'
+      ''
+      ') as pnp'
+      ''
+      
+        'group by pnp.produto, pnp.produtovisual, pnp.descricao_produto, ' +
+        'pnp.data, pnp.preco, pnp.descricao_preco, pnp.valor, pnp.markup,' +
+        ' pnp.trigger_user, pnp.cargo'
+      'order by 1,2,3,4,5,6,7,8,9, 10'#39','
+      ''
+      
+        #39'select cast(cast(ca.codigo as varchar(10))||'#39#39' - '#39#39'||cast(ca.de' +
+        'scricao as varchar(50)) as varchar(65)) as cargo'
+      ' from cargos ca '
+      ' order by 1'#39', '
+      ' '
+      ' '#39'identificador'#39','
+      ' '
+      
+        ' '#39', produtovisualdescricao, produto, produtovisual,  descricao_p' +
+        'roduto, data, preco, descricao_preco, valor, markup, trigger_use' +
+        'r'#39','
+      ''
+      '  '#39'cargo'#39', '#39'valorprodutocargo'#39', '#39'curs'#39' '
+      ''
+      ') as cur ;'
+      ''
+      'fetch ALL in curs;')
+    RequestLive = False
+    Left = 456
+    Top = 16
+  end
+  object qryAlteracoesPrecosCargosVisaoParalela_Auxiliar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrAlteracoesPrecos
+    Constraints = <>
+    AutoCalcFields = False
+    OnCalcFields = qryAlteracoesPrecosCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListadeItemProdutos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListadeProdutos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListadeGrupos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListadeClasses'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListadeMarcas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      '  select cast( cast(produto as varchar) ||'
+      '               cast(coalesce(preco,0) as varchar) ||'
+      
+        '               cast(coalesce(cargo,0) as varchar) as varchar(200' +
+        ')) as identificador,'
+      ''
+      
+        '         produto, preco, cargo,  to_char(data,'#39'DD-MM-YYYY'#39') as d' +
+        'ata, datahora, valor, markup, trigger_user, coluna'
+      'from'
+      '('
+      ''
+      '('
+      ''
+      '      select produto,'
+      '             preco,'
+      '             cast(null as integer) as cargo,'
+      '             data, datahora,'
+      
+        '             (select valor from t_colunasprecos_log(pnp.produto,' +
+        ' pnp.preco, pnp.data)) as valor,'
+      '             markup, trigger_user, coluna'
+      '         '
+      ''
+      '             '
+      '       from'
+      '      '
+      '       ('
+      '       '
+      ''
+      '          select p.codigo as produto,'
+      '                 cp_log.data, cp_log.datahora,'
+      '                 cp_log.preco,'
+      '                 c.markup, cp_log.trigger_user, cp_log.coluna'
+      ''
+      ''
+      '          from'
+      '          '
+      '          ('
+      ''
+      '          '
+      '          ('
+      '            select p.codigo as produto,'
+      
+        '                   date(cp_log.trigger_changed at TIME ZONE '#39'UTC' +
+        #39') as data,'
+      
+        '                   TO_char(cp_log.trigger_changed,'#39'DD-MM-YYYY HH' +
+        ':MI'#39') as datahora,'
+      
+        '                   cp_log.preco, cp_log.trigger_user, cp_log.col' +
+        'una'
+      ''
+      '            from colunasprecos_log cp_log'
+      ''
+      '                  join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      ''
+      '                   on p.caracteristica = c.codigo)'
+      ''
+      '                 on cp_log.caracteristica = p.caracteristica'
+      ''
+      
+        '            where  (((date(cp_log.trigger_changed at TIME ZONE '#39 +
+        'UTC'#39')) >='
+      '            :DataInicial )'
+      
+        '             and ((date(cp_log.trigger_changed at TIME ZONE '#39'UTC' +
+        #39')) <='
+      '            :Datafinal ))'
+      ''
+      
+        '            and (cp_log.Trigger_Tuple = '#39'NEW'#39' or (cp_log.Trigger' +
+        '_Tuple = '#39'OLD'#39' and Trigger_Mode='#39'DELETE'#39'))'
+      ''
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      ''
+      
+        '             group by p.codigo, date(cp_log.trigger_changed at T' +
+        'IME ZONE '#39'UTC'#39'),'
+      
+        '                      TO_char(cp_log.trigger_changed,'#39'DD-MM-YYYY' +
+        ' HH:MI'#39'), cp_log.preco, cp_log.trigger_user, cp_log.coluna'
+      ''
+      ''
+      '          )'
+      ''
+      '          union'
+      ''
+      '          ('
+      ''
+      ''
+      '            select p_log.codigo as produto,'
+      '                   p_log.trigger_date as data,'
+      
+        '                   TO_char(p_log.trigger_changed,'#39'DD-MM-YYYY HH:' +
+        'MI'#39') as datahora,'
+      
+        '                   p_log.preco, p_log.trigger_user, cast(null as' +
+        ' smallint) as coluna'
+      '            from produtos_log p_log'
+      ''
+      '                 join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      ''
+      '                       on p.caracteristica = c.codigo)'
+      ''
+      '                 on p_log.codigo = p.codigo'
+      ''
+      ''
+      ''
+      '            where  ((p_log.trigger_date >='
+      '                      :DataInicial ) AND (p_log.trigger_date <='
+      '                      :DataFinal ))'
+      ''
+      '            and exists (select p_log2.codigo'
+      '                        from produtos_log p_log2'
+      '                        where p_log2.codigo = p_log.codigo'
+      
+        '                          and p_log2.trigger_date = p_log.trigge' +
+        'r_date'
+      
+        '                          and p_log2.trigger_user = p_log.trigge' +
+        'r_user'
+      '                          and p_log2.preco <> p_log.preco'
+      '                          limit 1)'
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      
+        '            group by p_log.codigo, p_log.trigger_date, TO_char(p' +
+        '_log.trigger_changed,'#39'DD-MM-YYYY HH:MI'#39'), p_log.preco, p_log.tri' +
+        'gger_user'
+      ''
+      ''
+      '          )'
+      ''
+      ''
+      '      ) as cp_log'
+      ''
+      '                    join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      ''
+      '               on p.caracteristica = c.codigo)'
+      ''
+      ''
+      '              on cp_log.produto = p.codigo'
+      ''
+      ''
+      'group by'
+      ''
+      ''
+      '           p.codigo,'
+      
+        '                 cp_log.data, cp_log.datahora, cp_log.preco, c.m' +
+        'arkup, cp_log.trigger_user, cp_log.coluna'
+      ''
+      '     ) as pnp'
+      ''
+      ''
+      ')'
+      ''
+      ''
+      'union all'
+      ''
+      ''
+      '('
+      ''
+      'select pnp.produto, pnp.preco, '
+      '       pnp.cargo, pnp.data, pnp.datahora,'
+      
+        '       estoques_preco_(pnp.produto, pnp.valor, pnp.markup) as va' +
+        'lor, markup, trigger_user, coluna'
+      ''
+      'from'
+      '('
+      ''
+      ''
+      '      select cp_log.*,'
+      
+        '           coalesce((select markup from t_produtoscargos_log(cp_' +
+        'log.produto, ca.codigo, cp_log.data)),0) as markup,'
+      ''
+      '           ca.codigo as cargo'
+      '                   '
+      ''
+      '      from'
+      '      '
+      '      ('
+      '      '
+      '      select produto, '
+      '             data, datahora, preco, trigger_user, coluna,'
+      
+        '             (select valor from t_colunasprecos_log(pnp.produto,' +
+        ' pnp.preco, pnp.data)) as valor'
+      '             '
+      '       from'
+      '      '
+      '       ('
+      '       '
+      ''
+      '          select p.codigo as produto,'
+      '                 cp_log.data, cp_log.datahora,'
+      
+        '                 cp_log.preco, cp_log.trigger_user, cp_log.colun' +
+        'a'
+      ''
+      ''
+      '          from'
+      '          '
+      '          ('
+      '          '
+      '          '
+      '          ('
+      '            select p.codigo as produto,'
+      
+        '                   date(cp_log.trigger_changed at TIME ZONE '#39'UTC' +
+        #39') as data,'
+      
+        '                   TO_char(cp_log.trigger_changed,'#39'DD-MM-YYYY HH' +
+        ':MI'#39') as datahora,'
+      
+        '                 cp_log.preco, cp_log.trigger_user, cp_log.colun' +
+        'a'
+      ''
+      '            from colunasprecos_log cp_log'
+      ''
+      '                 join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      ''
+      '                     on p.caracteristica = c.codigo)'
+      ''
+      '                 on cp_log.caracteristica = p.caracteristica'
+      ''
+      
+        '            where  (((date(cp_log.trigger_changed at TIME ZONE '#39 +
+        'UTC'#39')) >='
+      ''
+      '            :DataInicial )'
+      
+        '             and ((date(cp_log.trigger_changed at TIME ZONE '#39'UTC' +
+        #39')) <='
+      '            :Datafinal ))'
+      ''
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      ''
+      ''
+      ''
+      
+        '             group by p.codigo, date(cp_log.trigger_changed at T' +
+        'IME ZONE '#39'UTC'#39'),'
+      
+        '                     TO_char(cp_log.trigger_changed,'#39'DD-MM-YYYY ' +
+        'HH:MI'#39'), cp_log.preco, cp_log.trigger_user, cp_log.coluna'
+      ''
+      ''
+      '          )'
+      ''
+      '          union'
+      ''
+      '          ('
+      ''
+      '            select p_log.codigo as produto,'
+      '                   p_log.trigger_date as data,'
+      
+        '                   TO_char(p_log.trigger_changed,'#39'DD-MM-YYYY HH:' +
+        'MI'#39') as datahora,'
+      
+        '                   p_log.preco, p_log.trigger_user, cast(null as' +
+        ' smallint) as coluna'
+      '            from produtos_log p_log'
+      ''
+      '                 join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      ''
+      '                     on p.caracteristica = c.codigo)'
+      ''
+      ''
+      '               on p_log.codigo = p.codigo'
+      ''
+      ''
+      ''
+      ''
+      '            where  ((p_log.trigger_date >='
+      '                      :DataInicial ) AND (p_log.trigger_date <='
+      '                      :DataFinal ))'
+      ''
+      '            and exists (select p_log2.codigo'
+      '                        from produtos_log p_log2'
+      '                        where p_log2.codigo = p_log.codigo'
+      
+        '                          and p_log2.trigger_date = p_log.trigge' +
+        'r_date'
+      
+        '                          and p_log2.trigger_user = p_log.trigge' +
+        'r_user'
+      '                          and p_log2.preco <> p_log.preco'
+      '                          limit 1)'
+      ''
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      ''
+      
+        '            group by p_log.codigo, p_log.trigger_date, TO_char(p' +
+        '_log.trigger_changed,'#39'DD-MM-YYYY HH:MI'#39'), p_log.preco, p_log.tri' +
+        'gger_user'
+      ''
+      '          )'
+      ''
+      '          union'
+      ''
+      '         ('
+      ''
+      '            select pc_log.produto, pc_log.data, pc_log.datahora,'
+      
+        '                (select preco from t_produtos_log(pc_log.produto' +
+        ', pc_log.data)) as preco, pc_log.trigger_user, pc_log.coluna'
+      '         from'
+      ''
+      ''
+      '          ('
+      ''
+      '            select pc_log.produto,'
+      
+        '                   date(pc_log.trigger_changed at TIME ZONE '#39'UTC' +
+        #39') as data,'
+      
+        '                   TO_char(pc_log.trigger_changed,'#39'DD-MM-YYYY HH' +
+        ':MI'#39') as datahora,'
+      
+        '                   pc_log.trigger_user, cast(null as smallint) a' +
+        's coluna'
+      ''
+      ''
+      '            from produtoscargos_log pc_log'
+      ''
+      '                    join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      ''
+      '               on p.caracteristica = c.codigo)'
+      ''
+      ''
+      '              on pc_log.produto = p.codigo'
+      ''
+      ''
+      ''
+      ''
+      
+        '            where  (((date(pc_log.trigger_changed at TIME ZONE '#39 +
+        'UTC'#39')) >='
+      ''
+      '            :DataInicial )'
+      ''
+      
+        '             and ((date(pc_log.trigger_changed at TIME ZONE '#39'UTC' +
+        #39')) <='
+      ''
+      '            :DataFinal ))'
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      ''
+      ''
+      ''
+      ''
+      ''
+      '            group by'
+      ''
+      '             pc_log.produto,'
+      '             date(pc_log.trigger_changed at TIME ZONE '#39'UTC'#39'),'
+      '             TO_char(pc_log.trigger_changed,'#39'DD-MM-YYYY HH:MI'#39'),'
+      '             pc_log.trigger_user'
+      ''
+      ''
+      '          ) as pc_log'
+      ''
+      '         )'
+      ''
+      '      ) as cp_log'
+      '      '
+      '                    join (produtos p'
+      ''
+      '                    join (((caracteristicas c'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      ''
+      '               on p.caracteristica = c.codigo)'
+      ''
+      ''
+      '              on cp_log.produto = p.codigo'
+      ''
+      ''
+      'group by'
+      ''
+      ''
+      '           p.codigo,'
+      
+        '                 cp_log.data, cp_log.datahora, cp_log.preco, cp_' +
+        'log.trigger_user, cp_log.coluna'
+      ''
+      '     ) as pnp'
+      ''
+      '   ) as cp_log, cargos ca'
+      ''
+      ''
+      ') as pnp'
+      ''
+      
+        'order by produto, preco, cargo, data, datahora, valor, markup, t' +
+        'rigger_user, coluna'
+      ''
+      ')'
+      ''
+      ') as selecao'
+      
+        'order by produto, preco, cargo, data, datahora, valor, markup, t' +
+        'rigger_user, coluna'
+      '')
+    RequestLive = False
+    Left = 320
+    Top = 288
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAlteracoesPrecosCargosVisaoParalela: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'identificador=identificador'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrAlteracoesPrecosCargos
+    Constraints = <>
+    AutoCalcFields = False
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'rollback;'
+      'begin;'
+      ''
+      'SELECT dynamic_pivot_('
+      ''
+      #39
+      'select cast( cast(pnp.produto as varchar) ||'
+      '            cast(pnp.data as varchar) ||'
+      '            cast(coalesce(pnp.preco,0) as varchar) ||'
+      '            cast(coalesce(pnp.valor,0) as varchar) ||'
+      '            cast(coalesce(pnp.markup,0) as varchar) ||'
+      
+        '            cast(coalesce(pnp.trigger_user,'#39#39#39#39') as varchar) as ' +
+        'varchar(200)) as identificador,'
+      ''
+      
+        '       cast(cast(pnp.produtovisual as varchar)||'#39#39' '#39#39'||cast(pnp.' +
+        'descricao_produto as varchar) as varchar(150)) as produtovisuald' +
+        'escricao,'
+      ''
+      '       pnp.produto, pnp.produtovisual,'
+      '       pnp.descricao_produto, pnp.data, pnp.preco,'
+      
+        '       pnp.descricao_preco, pnp.valor, pnp.markup, pnp.trigger_u' +
+        'ser, pnp.cargo,'
+      
+        '       sum(estoques_preco_(pnp.produto, pnp.valor, pnp.markup)) ' +
+        'as valorprodutocargo'
+      ''
+      'from'
+      '('
+      'select pnp.*,'
+      
+        '       coalesce((select markup from t_produtoscargos_log(pnp.pro' +
+        'duto, ca.codigo, pnp.data)),0) as markup,'
+      
+        '       (select trigger_user from t_produtoscargos_log(pnp.produt' +
+        'o, ca.codigo, pnp.data)) as trigger_user,       '
+      
+        '       cast(cast(ca.codigo as varchar(10))||'#39#39' - '#39#39'||cast(ca.des' +
+        'cricao as varchar(50)) as varchar(65)) as cargo'
+      '       '
+      'from'
+      '('
+      ''
+      ''
+      '  select pnp.*,'
+      '         (select pr.descricao '
+      '          from precos pr '
+      '          where pr.caracteristica = (select p.caracteristica'
+      '                                     from produtos p'
+      
+        '                                     where p.codigo = pnp.produt' +
+        'o)'
+      '            and pr.codigo = pnp.preco) as descricao_preco,'
+      '            '
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco, pnp.data)) as valor'
+      '  from'
+      '  ('
+      '      select distinct cp_log.*,'
+      
+        '             (select preco from t_produtos_log(cp_log.produto, c' +
+        'p_log.data)) as preco'
+      '      from'
+      '      ('
+      ''
+      '      select distinct p.codigo as produto,'
+      '             p.codigovisual as produtovisual,'
+      '             p.descricao as descricao_produto,'
+      '             cp_log.data'
+      ''
+      ''
+      '      from'
+      '      ('
+      '        select distinct cp_log.caracteristica,'
+      '             cast(cp_log.trigger_changed as date) as data'
+      '         from colunasprecos_log cp_log'
+      '         where cast(cp_log.trigger_changed as date) between'
+      ''
+      '         '#39#39'2010-04-01'#39#39
+      ''
+      '         and'
+      ''
+      '         '#39#39'2010-04-30'#39#39
+      '         '
+      
+        '       order by cp_log.caracteristica, cast(cp_log.trigger_chang' +
+        'ed as date)'
+      '       ) as cp_log'
+      '          join ((((caracteristicas c'
+      '                join produtos p'
+      '                on p.caracteristica = c.codigo)'
+      ''
+      '                           join grupos g'
+      '                           on c.grupo = g.codigo)'
+      ''
+      '                           join classes cl'
+      '                           on c.classe = cl.codigo)'
+      ''
+      '                           join marcas m'
+      '                           on c.marca = m.codigo)'
+      ''
+      ''
+      '          on cp_log.caracteristica = c.codigo'
+      ''
+      '      where true'
+      ''
+      ''
+      ''
+      '      ) as cp_log'
+      
+        '      order by produto, produtovisual, DATA, preco, descricao_pr' +
+        'oduto'
+      '  ) as pnp'
+      ''
+      ') as pnp, cargos ca'
+      ''
+      ') as pnp'
+      ''
+      
+        'group by pnp.produto, pnp.produtovisual, pnp.descricao_produto, ' +
+        'pnp.data, pnp.preco, pnp.descricao_preco, pnp.valor, pnp.markup,' +
+        ' pnp.trigger_user, pnp.cargo'
+      'order by 1,2,3,4,5,6,7,8,9, 10'#39','
+      ''
+      
+        #39'select cast(cast(ca.codigo as varchar(10))||'#39#39' - '#39#39'||cast(ca.de' +
+        'scricao as varchar(50)) as varchar(65)) as cargo'
+      ' from cargos ca '
+      ' order by 1'#39', '
+      ' '
+      ' '#39'identificador'#39','
+      ' '
+      
+        ' '#39', produtovisualdescricao, produto, produtovisual, descricao_pr' +
+        'oduto, data, preco, descricao_preco, valor, markup, trigger_user' +
+        #39','
+      ''
+      '  '#39'cargo'#39', '#39'valorprodutocargo'#39', '#39'curs'#39' '
+      ''
+      ') as cur ;'
+      ''
+      'fetch ALL in curs;')
+    RequestLive = False
+    Left = 72
+    Top = 320
+  end
+  object dsrAlteracoesPrecosCargosVisaoParalela: TtecDataSource
+    DataSet = qryAlteracoesPrecosCargosVisaoParalela
+    Left = 48
+    Top = 264
+  end
+  object tecQuery1: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    OnCalcFields = qryAlteracoesPrecosCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'rollback;'
+      'begin;'
+      ''
+      'SELECT dynamic_pivot_('
+      ''
+      #39
+      '  select cast( cast(produto as varchar) ||'
+      '               cast(coalesce(preco,0) as varchar) ||'
+      
+        '               cast(coalesce(cargo,0) as varchar) as varchar(200' +
+        ')) as identificador,'
+      ''
+      
+        '         produto, produtovisual, descricao_produto, preco, descr' +
+        'icao_preco, cargo, descricao_cargo, '
+      '         valoranterior, valoratual, data, valor'
+      'from'
+      '('
+      ''
+      '('
+      
+        '  select pnp.produto, pnp.produtovisual, pnp.descricao_produto, ' +
+        'pnp.preco,'
+      ''
+      '         (select pr.descricao'
+      '          from precos pr'
+      '          where pr.caracteristica = (select p.caracteristica'
+      '                                     from produtos p'
+      
+        '                                     where p.codigo = pnp.produt' +
+        'o)'
+      '            and pr.codigo = pnp.preco) as descricao_preco,'
+      ''
+      '         cargo, descricao_cargo,'
+      ''
+      '         pnp.data,'
+      ''
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco, pnp.data)) as valor,'
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco,'
+      ''
+      '         :DataAnterior'
+      ''
+      '         )) as valoranterior,'
+      '         '
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco, current_date)) as valoratual'
+      '         '
+      '         '
+      '  from'
+      '  '
+      '  '
+      '  ('
+      '  '
+      '  '
+      '      select distinct cp_log.*,'
+      '             cast(null as integer) as cargo,'
+      '             cast(null as varchar(50)) as descricao_cargo'
+      '      from'
+      ' ('
+      ' '
+      ''
+      '   ('
+      '      select distinct p.codigo as produto,'
+      '             p.codigovisual as produtovisual,'
+      
+        '             trim(p.descricao||'#39#39' '#39#39'||coalesce(p.valorgrade1,'#39#39#39 +
+        #39')||'#39#39' '#39#39'||coalesce(p.valorgrade2,'#39#39#39#39'))  as descricao_produto,'
+      '             cp_log.data, cp_log.preco'
+      ''
+      ''
+      '      from'
+      '      ('
+      '        select distinct cp_log.caracteristica,'
+      '             cast(cp_log.trigger_changed as date) as data,'
+      '             cp_log.preco'
+      ''
+      '        from colunasprecos_log cp_log'
+      '        where cp_log.preco is not null'
+      
+        '          and (date(cp_log.trigger_changed at TIME ZONE '#39#39'UTC'#39#39')' +
+        ') between'
+      ''
+      '        :DataInicial'
+      ''
+      '         and'
+      ''
+      '        :DataFinal'
+      ''
+      
+        '        order by cp_log.caracteristica, cast(cp_log.trigger_chan' +
+        'ged as date), cp_log.preco'
+      ''
+      '       ) as cp_log'
+      '          join ((((caracteristicas c'
+      '                join produtos p'
+      '                on p.caracteristica = c.codigo)'
+      ''
+      '                           join grupos g'
+      '                           on c.grupo = g.codigo)'
+      ''
+      '                           join classes cl'
+      '                           on c.classe = cl.codigo)'
+      ''
+      '                           join marcas m'
+      '                           on c.marca = m.codigo)'
+      ''
+      '          on cp_log.caracteristica = c.codigo'
+      '          '
+      '      where true'
+      ''
+      '        %ListadeItemProdutos'
+      ''
+      '        %ListadeProdutos'
+      ''
+      '        %ListadeGrupos'
+      ''
+      '        %ListadeClasses'
+      ''
+      '        %ListadeMarcas'
+      '          '
+      '          '
+      '   )'
+      '          '
+      '   union'
+      ''
+      '  ('
+      ''
+      '      select distinct p.codigo as produto,'
+      '             p.codigovisual as produtovisual,'
+      
+        '             trim(p.descricao||'#39#39' '#39#39'||coalesce(p.valorgrade1,'#39#39#39 +
+        #39')||'#39#39' '#39#39'||coalesce(p.valorgrade2,'#39#39#39#39'))  as descricao_produto,'
+      '             p_log.data, p_log.preco'
+      ''
+      ''
+      '      from'
+      '      ('
+      ''
+      ''
+      '        select distinct p_log.codigo as produto,'
+      '             p_log.trigger_date as data,'
+      '             p_log.preco'
+      ''
+      '        from produtos_log p_log'
+      '        where p_log.preco is not null'
+      '          and p_log.trigger_date between'
+      ''
+      '        :DataInicial'
+      ''
+      '         and'
+      ''
+      '        :DataFinal'
+      ''
+      '        order by p_log.codigo, p_log.trigger_date, p_log.preco'
+      '        '
+      '      ) as p_log  '
+      '      '
+      '          join (produtos p '
+      '          '
+      '                join (((caracteristicas c'
+      ''
+      '                           join grupos g'
+      '                           on c.grupo = g.codigo)'
+      ''
+      '                           join classes cl'
+      '                           on c.classe = cl.codigo)'
+      ''
+      '                           join marcas m'
+      '                           on c.marca = m.codigo)'
+      '                           '
+      '           on p.caracteristica = c.codigo)                '
+      ''
+      ''
+      '          on p_log.produto = p.codigo'
+      '          '
+      '      where true'
+      ''
+      '        %ListadeItemProdutos'
+      ''
+      '        %ListadeProdutos'
+      ''
+      '        %ListadeGrupos'
+      ''
+      '        %ListadeClasses'
+      ''
+      '        %ListadeMarcas'
+      ''
+      '    )     '
+      ''
+      ''
+      '   ) as cp_log'
+      
+        '      order by produto, produtovisual, DATA, preco, descricao_pr' +
+        'oduto    '
+      ''
+      '      '
+      '  ) as pnp'
+      '  '
+      '  '
+      '  '
+      ')  '
+      ''
+      ''
+      'union all'
+      ''
+      ''
+      '('
+      ''
+      'select pnp.produto, pnp.produtovisual,'
+      '       pnp.descricao_produto, pnp.preco, descricao_preco,'
+      '       pnp.cargo, pnp.descricao_cargo, pnp.data,'
+      
+        '       estoques_preco_(pnp.produto, pnp.valor, pnp.markup) as va' +
+        'lor,'
+      
+        '       estoques_preco_(pnp.produto, pnp.valoranterior, pnp.marku' +
+        'panterior) as valoranterior,'
+      
+        '       estoques_preco_(pnp.produto, pnp.valoratual, pnp.markupat' +
+        'ual) as valoratual'
+      ''
+      'from'
+      '('
+      ''
+      ''
+      '      select cp_log.*,'
+      
+        '           coalesce((select markup from t_produtoscargos_log(cp_' +
+        'log.produto, ca.codigo, cp_log.data)),0) as markup,'
+      
+        '           coalesce((select markup from t_produtoscargos_log(cp_' +
+        'log.produto, ca.codigo,'
+      ''
+      '           :DataAnterior'
+      ''
+      '           )),0) as markupanterior,'
+      '           '
+      
+        '           coalesce((select markup from t_produtoscargos_log(cp_' +
+        'log.produto, ca.codigo, current_date)),0) as markupatual,'
+      '      '
+      '           ca.codigo as cargo,'
+      '           ca.descricao as descricao_cargo '
+      '                   '
+      ''
+      '      from'
+      '      '
+      '      ('
+      '      '
+      '      select produto, produtovisual, '
+      
+        '             trim(descricao||'#39#39' '#39#39'||coalesce(valorgrade1,'#39#39#39#39')||' +
+        #39#39' '#39#39'||coalesce(valorgrade2,'#39#39#39#39'))  as descricao_produto,'
+      '             data, preco,'
+      '             '
+      '         (select pr.descricao'
+      '          from precos pr'
+      '          where pr.caracteristica = (select p.caracteristica'
+      '                                     from produtos p'
+      
+        '                                     where p.codigo = pnp.produt' +
+        'o)'
+      '            and pr.codigo = pnp.preco) as descricao_preco,'
+      ''
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco, pnp.data)) as valor,'
+      ''
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco,'
+      ''
+      '         :DataAnterior'
+      ''
+      '         )) as valoranterior,'
+      '         '
+      
+        '         (select valor from t_colunasprecos_log(pnp.produto, pnp' +
+        '.preco, current_date)) as valoratual'
+      '             '
+      '       from'
+      '      '
+      '       ('
+      '       '
+      ''
+      '          select p.codigo as produto,'
+      '                 p.codigovisual as produtovisual,'
+      '                 p.descricao,'
+      '                 p.valorgrade1,'
+      '                 p.valorgrade2,'
+      '                 cp_log.data, '
+      '                 cp_log.preco'
+      ''
+      ''
+      '          from'
+      '          '
+      '          ('
+      '          '
+      '          '
+      '          ('
+      '            select p.codigo as produto,'
+      
+        '                   date(cp_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39') as data,'
+      '                 cp_log.preco'
+      ''
+      
+        '            from colunasprecos_log cp_log join produtos p on cp_' +
+        'log.caracteristica = p.caracteristica'
+      '            '
+      
+        '            where  (((date(cp_log.trigger_changed at TIME ZONE '#39 +
+        #39'UTC'#39#39')) >='
+      ''
+      '            :DataInicial'
+      '            ::date)'
+      ''
+      
+        '             and ((date(cp_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39')) <='
+      ''
+      '            :Datafinal'
+      '            ::date))'
+      ''
+      
+        '             group by p.codigo, date(cp_log.trigger_changed at T' +
+        'IME ZONE '#39#39'UTC'#39#39'), cp_log.preco'
+      '            '
+      '              '
+      '          )'
+      '          '
+      '          union'
+      ''
+      '          ('
+      ''
+      '            select p_log.codigo as produto,'
+      '                 p_log.trigger_date as data,'
+      '                 p_log.preco'
+      ''
+      '            from produtos_log p_log'
+      '            where ((p_log.trigger_date >= '
+      '            :DataInicial'
+      '            ::date) AND (p_log.trigger_date <= '
+      '            :DataFinal'
+      '            ::date))'
+      '            '
+      '            group by '
+      '            '
+      '                 p_log.codigo,'
+      '                 p_log.trigger_date,'
+      '                 p_log.preco            '
+      '            '
+      '          ) '
+      '          '
+      '          union '
+      ''
+      '         ('
+      '         '
+      '            select pc_log.*,'
+      '/*                cast(null as integer) as preco*/'
+      
+        '                (select preco from t_produtos_log(pc_log.produto' +
+        ', pc_log.data)) as preco '
+      '         from       '
+      '         '
+      '         '
+      '          ('
+      '       '
+      '            select pc_log.produto,'
+      
+        '                   date(pc_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39') as data'
+      '                 '
+      '            from produtoscargos_log pc_log'
+      ''
+      '            '
+      '            '
+      
+        '            where  (((date(pc_log.trigger_changed at TIME ZONE '#39 +
+        #39'UTC'#39#39')) >='
+      ''
+      '            :DataInicial'
+      '            ::date)'
+      ''
+      
+        '             and ((date(pc_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39')) <='
+      ''
+      '            :DataFinal'
+      '            ::date))'
+      '            '
+      '            group by '
+      '            '
+      '             pc_log.produto,'
+      '             date(pc_log.trigger_changed at TIME ZONE '#39#39'UTC'#39#39') '
+      ''
+      '         '
+      '          ) as pc_log          '
+      '          '
+      '         )'
+      '                 '
+      '      ) as cp_log '
+      '      '
+      '                    join (produtos p '
+      '              '
+      '                    join (((caracteristicas c'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      '                               '
+      '               on p.caracteristica = c.codigo)                '
+      ''
+      ''
+      '              on cp_log.produto = p.codigo   '
+      '              '
+      '     where true'
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      '     '
+      '              '
+      'group by'
+      ''
+      ''
+      '           p.codigo,'
+      '                 p.codigovisual,'
+      '                 p.descricao,'
+      '                 p.valorgrade1,'
+      '                 p.valorgrade2,'
+      '                 cp_log.data, cp_log.preco'
+      '                 '
+      '     ) as pnp             '
+      '   ) as cp_log, cargos ca'
+      '   '
+      ''
+      ') as pnp'
+      ''
+      'order by 1,2,3,4,5,6,7,8,9'
+      ''
+      ')'
+      ''
+      ') as selecao'
+      'order by 1,2,3,4,5,6,7,8,9,10'#39','
+      ''
+      ''
+      '      '#39
+      '      select distinct cp_log.data'
+      ''
+      '      from'
+      '      ('
+      '      '
+      '      '
+      '       ('
+      '          select distinct cp_log.data'
+      ''
+      ''
+      '          from'
+      '          ('
+      '            select distinct cp_log.caracteristica,'
+      '                 cast(cp_log.trigger_changed as date) as data'
+      ''
+      '            from colunasprecos_log cp_log'
+      '            where cp_log.preco is not null '
+      
+        '              and (date(cp_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39')) between'
+      ''
+      '            :DataInicial'
+      ''
+      '             and'
+      ''
+      '            :DataFinal'
+      ''
+      '            order by cast(cp_log.trigger_changed as date)'
+      ''
+      '           ) as cp_log'
+      '              join ((((caracteristicas c'
+      '                    join produtos p'
+      '                    on p.caracteristica = c.codigo)'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      ''
+      '              on cp_log.caracteristica = c.codigo'
+      '              '
+      '          where true'
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      '              '
+      '              '
+      '       )'
+      '              '
+      '       union'
+      ''
+      '      ('
+      ''
+      '          select distinct p_log.data'
+      ''
+      ''
+      '          from'
+      '          ('
+      ''
+      ''
+      '            select distinct p_log.codigo as produto,'
+      '                 p_log.trigger_date as data'
+      ''
+      '            from produtos_log p_log'
+      '            where  p_log.preco is not null'
+      '            and p_log.trigger_date between'
+      ''
+      '            :DataInicial'
+      ''
+      '             and'
+      ''
+      '            :DataFinal'
+      ''
+      '            order by  p_log.trigger_date'
+      '            '
+      '          ) as p_log  '
+      '          '
+      '              join (produtos p '
+      '              '
+      '                    join (((caracteristicas c'
+      ''
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      '                               '
+      
+        '                   on p.caracteristica = c.codigo)              ' +
+        '  '
+      ''
+      ''
+      '              on p_log.produto = p.codigo'
+      '              '
+      '          where true'
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      '        )     '
+      '       '
+      '       '
+      '       union '
+      ''
+      '       ('
+      '         '
+      '         select distinct pc_log.data'
+      '         from       '
+      '         '
+      '         '
+      '         ('
+      '       '
+      
+        '            select distinct cast(pc_log.trigger_changed as date)' +
+        ' as data'
+      '                 '
+      '                 '
+      '                 '
+      '            from produtoscargos_log pc_log'
+      ''
+      '            join (produtos p'
+      '                  join (((caracteristicas c'
+      '                                    '
+      '                               join grupos g'
+      '                               on c.grupo = g.codigo)'
+      ''
+      '                               join classes cl'
+      '                               on c.classe = cl.codigo)'
+      ''
+      '                               join marcas m'
+      '                               on c.marca = m.codigo)'
+      '                               '
+      '                  on p.caracteristica = c.codigo)'
+      '                  '
+      '              on pc_log.produto = p.codigo'
+      '            '
+      '            '
+      '            '
+      
+        '            where (date(pc_log.trigger_changed at TIME ZONE '#39#39'UT' +
+        'C'#39#39')) between'
+      ''
+      '            :DataInicial'
+      ''
+      '             and'
+      ''
+      '            :DataFinal'
+      ''
+      ''
+      '            %ListadeItemProdutos'
+      ''
+      '            %ListadeProdutos'
+      ''
+      '            %ListadeGrupos'
+      ''
+      '            %ListadeClasses'
+      ''
+      '            %ListadeMarcas'
+      ''
+      ''
+      '            order by cast(pc_log.trigger_changed as date)'
+      ''
+      '         ) as pc_log'
+      '       )'
+      ''
+      '      ) as cp_log'
+      '      order by data'#39','
+      ''
+      ''
+      ' '#39'identificador'#39','
+      ''
+      
+        ' '#39', produto, produtovisual, descricao_produto, preco, descricao_' +
+        'preco, cargo, descricao_cargo, valoranterior, valoratual'#39','
+      ''
+      '  '#39'data'#39', '#39'valor'#39', '#39'curs'#39
+      ''
+      ') as cur ;'
+      ''
+      'fetch ALL in curs;')
+    RequestLive = False
+    Left = 576
+    Top = 208
+  end
+end

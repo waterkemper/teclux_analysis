@@ -1,0 +1,692 @@
+inherited frmQuitacaoExtraCaixa: TfrmQuitacaoExtraCaixa
+  Left = 552
+  Top = 132
+  Action = actHabilitar
+  ActiveControl = edfCliente
+  Caption = 'Quita'#231#227'o Extra-caixa'
+  ClientHeight = 454
+  ClientWidth = 820
+  FormStyle = fsMDIChild
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    Left = 323
+    Top = 6
+    Height = 31
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 820
+    inherited tblBarra: TToolBar
+      Width = 820
+      inherited sbnProcurar: TSpeedButton
+        Visible = False
+      end
+      object sbnAutenticar: TSpeedButton
+        Left = 158
+        Top = 2
+        Width = 100
+        Height = 43
+        Hint = 'Confirmar o recebimento da parcela extra caixa'
+        Caption = 'Confirmar F12'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDC0000000000000000000000000000000000000000000000
+          00000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC80808080808080
+          8080808080808080808080808080808080808080FFFFFFDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDC000000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C30000
+          00C3C3C3000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC808080FFFFFFDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC808080DCDCDC808080FFFFFFDCDCDCDCDCDC
+          DCDCDC0000000000000000000000000000000000000000000000000000000000
+          00000000C3C3C3000000DCDCDCDCDCDCDCDCDC80808080808080808080808080
+          8080808080808080808080808080808080808080DCDCDC808080DCDCDCDCDCDC
+          DCDCDC000000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C30000FF0000FFC3C3
+          C3000000000000000000DCDCDCDCDCDCDCDCDC808080FFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC808080808080FFFFFF808080808080808080DCDCDCDCDCDC
+          DCDCDC000000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C300FF0000FF00C3C3
+          C3000000C3C3C3000000DCDCDCDCDCDCDCDCDC808080FFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFF808080DCDCDC808080DCDCDCDCDCDC
+          DCDCDC0000000000000000000000000000000000000000000000000000000000
+          00000000C3C3C3000000DCDCDCDCDCDCDCDCDC80808080808080808080808080
+          8080808080808080808080808080808080808080DCDCDC808080DCDCDCDCDCDC
+          DCDCDC000000DCDCDCC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C30000
+          00C3C3C3000000000000FFFFFFFFFFFFDCDCDC808080FFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC808080DCDCDC808080808080000000000000
+          DCDCDCDCDCDC000000000000FFFFFF000000000000000000FFFFFF000000C3C3
+          C3000000C3C3C3000000808080808080FFFFFFDCDCDC808080808080DCDCDC80
+          8080808080808080FFFFFF808080DCDCDC808080DCDCDC808080FF0000000000
+          000000000000DCDCDC000000FFFFFF000000FFFFFF000000FFFFFF0000000000
+          00000000000000DCDCDCDCDCDC808080808080808080DCDCDC808080DCDCDC80
+          8080DCDCDC808080FFFFFF808080808080808080808080DCDCDCFF0000000000
+          FFFFFF00FFFF000000000000000000000000000000FFFFFFFFFFFF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC808080DCDCDCDCDCDC80808080808080808080
+          8080808080DCDCDCDCDCDC808080FFFFFFDCDCDCDCDCDCDCDCDCFF0000000000
+          00FFFFFFFFFF00FFFFFFFFFF00FFFFFFFFFF00FFFF000000FFFFFF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC808080FFFFFF808080FFFFFFDCDCDCDCDCDCDCDCDCFF0000000000
+          00000000FFFFFFFFFF000000000000000000000000FFFFFFFFFFFF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC808080808080DCDCDCDCDCDC80808080808080
+          8080808080DCDCDCDCDCDC808080FFFFFFDCDCDCDCDCDCDCDCDC000000000000
+          DCDCDC00000000FFFF000000000000000000000000000000000000000000DCDC
+          DCDCDCDCDCDCDCDCDCDC808080808080DCDCDC808080DCDCDC80808080808080
+          8080808080808080808080808080FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDC000000FFFFFF00FFFFFFFFFF00FFFFFFFFFF000000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC808080DCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC808080FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDC000000000000000000000000000000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC80808080808080
+          8080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        Layout = blGlyphTop
+        NumGlyphs = 2
+        Spacing = 0
+        OnClick = sbnAutenticarClick
+      end
+    end
+  end
+  object pnlFundoJanela: TPanel
+    Left = 0
+    Top = 53
+    Width = 820
+    Height = 401
+    Align = alClient
+    BevelOuter = bvNone
+    BorderWidth = 3
+    TabOrder = 2
+    object gbxQuitacaoExtraCaixa: TGroupBox
+      Left = 3
+      Top = 3
+      Width = 814
+      Height = 395
+      Align = alClient
+      TabOrder = 0
+      object sbnProcuraCliente: TSpeedButton
+        Left = 153
+        Top = 8
+        Width = 23
+        Height = 22
+        Hint = 'Procurar Cliente'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDC800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC800000800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000
+          00800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000
+          00800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000008000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+          FFFFDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDC0000FF800000800000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDC
+          DCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC7F
+          7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFFFFFFFFFFFFDCDCDCDCDCDCDC
+          DCDCFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA858800000DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDCFFFFFFFFFFFF7F
+          7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = sbnProcuraClienteClick
+      end
+      object sbnIncluirParcela: TSpeedButton
+        Left = 785
+        Top = 56
+        Width = 23
+        Height = 23
+        Hint = 'Incluir parcela'
+        Enabled = False
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDC7F7F7F7F7F7F7F7F7F8080808080807F7F7F7F7F7F7F7F7F7F7F
+          7F808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC0000000000000000000000000000000000000000000000000000000000
+          00808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCFFFFFFFFFFFFFFFFFF7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000000000000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDC7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDC7F7F7FFFFFFFDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFF000000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDC7F7F7FFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF000000000000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFFFFFFFFFFFFFFF
+          FFFF7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000000000000000000000000000000000DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = sbnIncluirParcelaClick
+      end
+      object sbnExcluirParcela: TSpeedButton
+        Left = 785
+        Top = 82
+        Width = 23
+        Height = 23
+        Hint = 'Excluir parcela'
+        Enabled = False
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          A0A0A00000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDC0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFFF
+          FFFFDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF808080DCDCDCDCDCDCDCDCDC
+          0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC0000000000FFDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FFF
+          FFFFDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF808080DCDCDCDCDCDCDCDCDCDCDCDC
+          0000FF0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC0000
+          000000FF808080DCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FFF
+          FFFFFFFFFFDCDCDCDCDCDCFFFFFF808080808080DCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC0000FF0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDC0000000000
+          FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+          7F7FFFFFFFDCDCDCFFFFFF808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDC0000FF0000FF0000FF000000DCDCDCDCDCDC0000000000FF0000
+          FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+          7F7FFFFFFFFFFFFF808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDC0000FF0000FF0000FF0000000000000000FF0000FF8080
+          80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+          7F7F7F7F7F808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000FF0000FF0000FF808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F80
+          80807F7F7F808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC0000000000FF0000FF0000FF0000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F
+          7F7F7F7F7F7F7F7F808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDC0000000000000000FF0000FF0000FF000000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF8080808080807F
+          7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC0000000000FF0000FF0000FF0000FF0000FF0000FF000000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF80808080808080808080
+          80807F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC0000FF
+          0000FF0000FF0000FF0000FF0000FF808080DCDCDC7F7F7F0000FF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF808080808080808080808080808080DC
+          DCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC0000FF
+          0000FF0000FF0000FF0000FF808080DCDCDCDCDCDCDCDCDC8080800000FF0000
+          00DCDCDCDCDCDCDCDCDCDCDCDC808080808080808080808080808080DCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCA0A0A0
+          0000FF0000FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC0000
+          FF0000FF000000DCDCDCDCDCDC808080808080808080808080DCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = sbnExcluirParcelaClick
+      end
+      object lblCliente: TLabel
+        Left = 18
+        Top = 12
+        Width = 40
+        Height = 16
+        Alignment = taRightJustify
+        Caption = 'Cliente'
+      end
+      object lblDataEmissao: TLabel
+        Left = 208
+        Top = 270
+        Width = 82
+        Height = 16
+        Caption = 'Data Emiss'#227'o'
+      end
+      object lblPlano: TLabel
+        Left = 221
+        Top = 296
+        Width = 69
+        Height = 16
+        Caption = 'Plano pagto'
+      end
+      object lblValor: TLabel
+        Left = 258
+        Top = 348
+        Width = 29
+        Height = 16
+        Caption = 'Valor'
+      end
+      object lblVendedor: TLabel
+        Left = 233
+        Top = 322
+        Width = 54
+        Height = 16
+        Caption = 'Vendedor'
+      end
+      object lblNotas: TLabel
+        Left = 59
+        Top = 249
+        Width = 80
+        Height = 16
+        Caption = 'Notas Fiscais'
+      end
+      object dtxNomeCliente: TtecDBText
+        Left = 177
+        Top = 8
+        Width = 350
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'nome'
+        DataSource = dtmQuitacaoExtraCaixa.dsrClientes
+        ReadOnly = True
+        TabOrder = 0
+      end
+      object edfCliente: TtecDbEditFind
+        Left = 62
+        Top = 8
+        Width = 90
+        Height = 24
+        DataField = 'codigo'
+        DataSource = dtmQuitacaoExtraCaixa.dsrClientes
+        Group = 'Cliente'
+        MaxLength = 10
+        Maximo = 0
+        Minimo = 37353
+        Adicional = 0
+        Opcional = True
+        OnFound = edfClienteFound
+        TabOrder = 1
+        PermitirZero = False
+        PermitirNulo = False
+        Operacao = opATRIBUICAO
+        Parameter = 'codigo'
+        ActiveSetControls = False
+        DenyInsert = True
+        NoSetControls = <>
+        SetControls = <>
+      end
+      object dbgContratos: TtecDBGrid
+        Left = 6
+        Top = 39
+        Width = 222
+        Height = 208
+        DataSource = dtmQuitacaoExtraCaixa.dsrContratosPorCliente
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 2
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clBlack
+        TitleFont.Height = -13
+        TitleFont.Name = 'helvetica'
+        TitleFont.Pitch = fpVariable
+        TitleFont.Style = []
+        RowWrap = 60
+        Large = False
+        DoubleRowColor = False
+        TitleMinHeight = 100
+        CellHeights = 100
+        StrippedColor = 16054260
+        CanDelete = False
+        PostOnEnter = False
+        DenySort = False
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'numero'
+            Title.Alignment = taCenter
+            Title.Caption = 'Contratos'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'situacaocontrato'
+            Title.Alignment = taCenter
+            Title.Caption = 'Situa'#231#227'o'
+            Width = 82
+            Visible = True
+          end>
+      end
+      object dbgParcelas: TtecDBGrid
+        Left = 230
+        Top = 39
+        Width = 552
+        Height = 208
+        DataSource = dtmQuitacaoExtraCaixa.dsrParcelas
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 4
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clBlack
+        TitleFont.Height = -13
+        TitleFont.Name = 'helvetica'
+        TitleFont.Pitch = fpVariable
+        TitleFont.Style = []
+        OnDrawColumnCell = dbgParcelasDrawColumnCell
+        OnDblClick = dbgParcelasDblClick
+        OnKeyDown = dbgParcelasKeyDown
+        RowWrap = 60
+        Large = False
+        DoubleRowColor = False
+        TitleMinHeight = 100
+        CellHeights = 100
+        StrippedColor = 16054260
+        CanDelete = False
+        PostOnEnter = False
+        DenySort = False
+        Columns = <
+          item
+            Alignment = taCenter
+            Expanded = False
+            FieldName = 'parcelaorigem'
+            Title.Alignment = taCenter
+            Title.Caption = 'NP'
+            Width = 40
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'datavencto'
+            Title.Alignment = taCenter
+            Title.Caption = 'Vencto'
+            Width = 75
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'valorvencto'
+            Title.Alignment = taCenter
+            Title.Caption = 'Valor'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'descontosugerido'
+            Title.Alignment = taCenter
+            Title.Caption = 'Desconto'
+            Width = 60
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'liquido'
+            Title.Alignment = taCenter
+            Title.Caption = 'L'#237'quido'
+            Width = 64
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'datapagto'
+            Title.Alignment = taCenter
+            Title.Caption = 'Pagto'
+            Width = 75
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'valorpagto'
+            Title.Alignment = taCenter
+            Title.Caption = 'Valor'
+            Width = 80
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'jurosdesctos'
+            Title.Alignment = taCenter
+            Title.Caption = 'Juros/Dscto'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -11
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 60
+            Visible = True
+          end
+          item
+            Alignment = taCenter
+            Expanded = False
+            FieldName = 'tipopagto'
+            Title.Alignment = taCenter
+            Title.Caption = 'TP'
+            Width = 25
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ContaBoleto'
+            Title.Alignment = taCenter
+            Title.Caption = 'Conta'
+            Width = 64
+            Visible = True
+          end
+          item
+            Alignment = taCenter
+            Expanded = False
+            FieldName = 'Digito'
+            Title.Alignment = taCenter
+            Title.Caption = 'D'
+            Width = 15
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'SiglaBanco'
+            Title.Alignment = taCenter
+            Title.Caption = 'Banco'
+            Width = 95
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'NomeAgencia'
+            Title.Alignment = taCenter
+            Title.Caption = 'Ag'#234'ncia'
+            Width = 200
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'usuarioextracaixa'
+            Title.Alignment = taCenter
+            Title.Caption = 'Autoriza'#231#227'o'
+            Width = 300
+            Visible = True
+          end>
+      end
+      object dtxEmissao: TtecDBText
+        Left = 293
+        Top = 266
+        Width = 75
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'data'
+        DataSource = dtmQuitacaoExtraCaixa.dsrContratosPorCliente
+        ReadOnly = True
+        TabOrder = 3
+      end
+      object dtxDescricaoPlano: TtecDBText
+        Left = 293
+        Top = 292
+        Width = 200
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'plano'
+        DataSource = dtmQuitacaoExtraCaixa.dsrContratosPorCliente
+        ReadOnly = True
+        TabOrder = 5
+      end
+      object dtxValor: TtecDBText
+        Left = 293
+        Top = 344
+        Width = 100
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'valor'
+        DataSource = dtmQuitacaoExtraCaixa.dsrContratosPorCliente
+        ReadOnly = True
+        TabOrder = 6
+      end
+      object dtxDescricaoVendedor: TtecDBText
+        Left = 293
+        Top = 318
+        Width = 250
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'nome'
+        DataSource = dtmQuitacaoExtraCaixa.dsrContratosPorCliente
+        ReadOnly = True
+        TabOrder = 7
+      end
+      object dbgNotas: TtecDBGrid
+        Left = 7
+        Top = 266
+        Width = 186
+        Height = 132
+        DataSource = dtmQuitacaoExtraCaixa.dsrNotas
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 8
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clBlack
+        TitleFont.Height = -13
+        TitleFont.Name = 'helvetica'
+        TitleFont.Pitch = fpVariable
+        TitleFont.Style = []
+        RowWrap = 60
+        Large = False
+        DoubleRowColor = False
+        TitleMinHeight = 100
+        CellHeights = 100
+        StrippedColor = 16054260
+        CanDelete = False
+        PostOnEnter = False
+        DenySort = False
+        Columns = <
+          item
+            Alignment = taCenter
+            Expanded = False
+            FieldName = 'filial'
+            Title.Alignment = taCenter
+            Title.Caption = 'Filial'
+            Width = 30
+            Visible = True
+          end
+          item
+            Alignment = taCenter
+            Expanded = False
+            FieldName = 'serie'
+            Title.Alignment = taCenter
+            Title.Caption = 'S'#233'rie'
+            Width = 35
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'numero'
+            Title.Alignment = taCenter
+            Title.Caption = 'N'#250'mero'
+            Width = 80
+            Visible = True
+          end>
+      end
+    end
+  end
+  object aclHabilitar: TActionList
+    Left = 336
+    Top = 8
+    object actHabilitar: TAction
+      Caption = 'actHabilitar'
+      OnUpdate = actHabilitarUpdate
+    end
+  end
+end

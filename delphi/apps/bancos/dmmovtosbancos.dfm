@@ -1,0 +1,1143 @@
+inherited dtmMovtosBancos: TdtmMovtosBancos
+  OldCreateOrder = False
+  Left = 470
+  Top = 292
+  Height = 325
+  Width = 639
+  object qryMovtosBancos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryMovtosBancosBeforeOpen
+    AfterOpen = qryMovtosBancosAfterOpen
+    AfterClose = qryMovtosBancosAfterClose
+    BeforeInsert = qryMovtosBancosBeforeInsert
+    AfterScroll = qryMovtosBancosAfterScroll
+    OnNewRecord = qryMovtosBancosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT Conta,'
+      '       Data, datareferencia,'
+      '       Sequencia,'
+      '       Valor,'
+      '       Compensacao,'
+      '       SeqCompensacao,'
+      '       Documento,'
+      '       Tipo,'
+      '       evento,'
+      '       observacoes,'
+      ''
+      
+        '       CASE WHEN OrigemLancto = '#39'B'#39' THEN CAST('#39'BANCOS'#39'          ' +
+        ' AS VARCHAR)'
+      
+        '            WHEN OrigemLancto = '#39'P'#39' THEN CAST('#39'CONTAS A PAGAR'#39'  ' +
+        ' AS VARCHAR)'
+      
+        '            WHEN OrigemLancto = '#39'A'#39' THEN CAST('#39'ADIANTAMENTOS'#39'   ' +
+        'AS VARCHAR)'
+      
+        '            WHEN OrigemLancto = '#39'R'#39' THEN CAST('#39'CONTAS A RECEBER'#39 +
+        ' AS VARCHAR)'
+      
+        '            WHEN OrigemLancto = '#39'T'#39' THEN CAST('#39'TRANSFER'#202'NCIA'#39' AS' +
+        ' VARCHAR)'
+      
+        '            WHEN OrigemLancto = '#39'X'#39' THEN CAST('#39'OPERA'#199#213'ES NO CAIX' +
+        'A'#39' AS VARCHAR)'
+      '       END as Origem,'
+      ''
+      '       OrigemLancto'
+      ''
+      'FROM   movtosbancos'
+      ''
+      ''
+      'WHERE ((:Campo in (1, 2, 3, 4, 5 /*, 6, 7*/))     AND'
+      '       (:Operacao = 0 AND Conta     = :Conta AND'
+      '                          Data      = :Data  AND'
+      '                          Sequencia = :Sequencia))'
+      ''
+      '/* Data */'
+      '   OR ((:Campo = 1) AND'
+      ''
+      '               /* PRIMEIRO */'
+      '              ((:Operacao = 1 AND Conta = :Conta'
+      '                              AND Data  = (SELECT MIN(Data)'
+      '                                              FROM  MovtosBancos'
+      
+        '                                              WHERE Conta  = :Co' +
+        'nta'
+      
+        '                                                AND Data  >= :Ba' +
+        'ncoDataInicial))'
+      '               /* ANTERIOR */'
+      
+        '            OR (:Operacao = 2 AND Conta     = :Conta            ' +
+        'AND'
+      
+        '                                  Data     >= :BancoDataInicial ' +
+        'AND'
+      '                                 (Data      < :Data'
+      
+        '                              OR (Data      = :Data             ' +
+        'AND'
+      '                                  Sequencia < :Sequencia)))'
+      ''
+      '               /* PR'#211'XIMO */'
+      
+        '            OR (:Operacao = 3 AND Conta     = :Conta          AN' +
+        'D'
+      
+        '                                  Data     <= :BancoDataFinal AN' +
+        'D'
+      '                                 (Data      > :Data'
+      
+        '                              OR (Data      = :Data           AN' +
+        'D'
+      '                                  Sequencia > :Sequencia)))'
+      ''
+      '               /* '#218'LTIMO */'
+      '            OR (:Operacao = 4 AND Conta      = :Conta'
+      '                              AND Data = (SELECT MAX(Data)'
+      '                                            FROM  MovtosBancos'
+      
+        '                                            WHERE Conta  = :Cont' +
+        'a '
+      
+        '                                              AND Data  <= :Banc' +
+        'oDataFinal))))'
+      '/* Seq'#252#234'ncia */'
+      '   OR ((:Campo = 2) AND'
+      ''
+      '               /* PRIMEIRO */'
+      '              ((:Operacao = 1 AND Conta     = :Conta'
+      '                              AND Data      = :Data'
+      
+        '                              AND Sequencia = (SELECT MIN(Sequen' +
+        'cia)'
+      
+        '                                                  FROM  MovtosBa' +
+        'ncos'
+      
+        '                                                  WHERE Conta = ' +
+        ':Conta'
+      
+        '                                                    AND Data  = ' +
+        ':Data))'
+      '               /* ANTERIOR */'
+      '            OR (:Operacao = 2 AND Conta     = :Conta            '
+      '                              AND Data      = :Data'
+      '                              AND Sequencia < :Sequencia)'
+      ''
+      '               /* PR'#211'XIMO */'
+      '            OR (:Operacao = 3 AND Conta     = :Conta          '
+      '                              AND Data      = :Data'
+      '                              AND Sequencia > :Sequencia)'
+      ''
+      '               /* '#218'LTIMO */'
+      '            OR (:Operacao = 4 AND Conta      = :Conta'
+      '                              AND Data      = :Data'
+      
+        '                              AND Sequencia = (SELECT MAX(Sequen' +
+        'cia)'
+      
+        '                                                  FROM  MovtosBa' +
+        'ncos'
+      
+        '                                                  WHERE Conta = ' +
+        ':Conta '
+      
+        '                                                    AND Data  = ' +
+        ':Data))))'
+      ''
+      '/* Valor */'
+      ''
+      '   OR ((:Campo = 3) AND'
+      '               /* PRIMEIRO */'
+      '              ((:Operacao = 1 AND Conta = :Conta'
+      '                              AND Valor = (SELECT MIN(Valor)'
+      '                                              FROM  MovtosBancos'
+      
+        '                                              WHERE Conta  = :Co' +
+        'nta'
+      
+        '                                                AND Data  >= :Ba' +
+        'ncoDataInicial'
+      
+        '                                                AND Data  <= :Ba' +
+        'ncoDataFinal))'
+      '               /* ANTERIOR */'
+      
+        '            OR (:Operacao = 2 AND Conta     = :Conta            ' +
+        'AND'
+      
+        '                                  Data     >= :BancoDataInicial ' +
+        'AND'
+      
+        '                                  Data     <= :BancoDataFinal   ' +
+        'AND'
+      '                                 (Valor     < :Valor'
+      
+        '                              OR (Valor     = :Valor            ' +
+        'AND'
+      '                                  Data      < :Data)'
+      
+        '                              OR (Valor     = :Valor            ' +
+        'AND'
+      
+        '                                  Data      = :Data             ' +
+        'AND'
+      '                                  Sequencia < :Sequencia)))'
+      ''
+      '               /* PR'#211'XIMO */'
+      
+        '            OR (:Operacao = 3 AND Conta     = :Conta            ' +
+        'AND'
+      
+        '                                  Data     >= :BancoDataInicial ' +
+        'AND'
+      
+        '                                  Data     <= :BancoDataFinal   ' +
+        'AND'
+      '                                 (Valor     > :Valor'
+      
+        '                              OR (Valor     = :Valor            ' +
+        'AND'
+      '                                  Data      > :Data)'
+      
+        '                              OR (Valor     = :Valor            ' +
+        'AND'
+      
+        '                                  Data      = :Data             ' +
+        'AND'
+      '                                  Sequencia > :Sequencia)))'
+      ''
+      '               /* '#218'LTIMO */'
+      '            OR (:Operacao = 4 AND Conta = :Conta'
+      '                              AND Valor = (SELECT MAX(Valor)'
+      '                                              FROM  MovtosBancos'
+      
+        '                                              WHERE Conta  = :Co' +
+        'nta'
+      
+        '                                                AND Data  >= :Ba' +
+        'ncoDataInicial'
+      
+        '                                                AND Data  <= :Ba' +
+        'ncoDataFinal))))'
+      ''
+      '/* Compensacao */'
+      ''
+      '   OR ((:Campo = 4) AND'
+      '               /* PRIMEIRO */'
+      '              ((:Operacao = 1 AND Conta       = :Conta AND'
+      
+        '                                  Compensacao = (SELECT MIN(Comp' +
+        'ensacao)'
+      
+        '                                                    FROM  Movtos' +
+        'Bancos'
+      
+        '                                                    WHERE Conta ' +
+        '       = :Conta'
+      
+        '                                                      AND Compen' +
+        'sacao >= :BancoDataInicial'
+      
+        '                                                      AND Compen' +
+        'sacao <= :BancoDataFinal))'
+      ''
+      '               /* ANTERIOR */'
+      
+        '            OR (:Operacao = 2 AND Conta          = :Conta       ' +
+        '     AND'
+      
+        '                                  Compensacao   >= :BancoDataIni' +
+        'cial AND'
+      
+        '                                  Compensacao   <= :BancoDataFin' +
+        'al   AND'
+      '                                 (Compensacao    < :Compensacao'
+      
+        '                              OR (Compensacao    = :Compensacao ' +
+        '     AND'
+      
+        '                                  SeqCompensacao < :SeqCompensac' +
+        'ao)))'
+      ''
+      '               /* PR'#211'XIMO */'
+      
+        '            OR (:Operacao = 3 AND Conta          = :Conta       ' +
+        '     AND'
+      
+        '                                  Compensacao   >= :BancoDataIni' +
+        'cial AND'
+      
+        '                                  Compensacao   <= :BancoDataFin' +
+        'al   AND'
+      '                                 (Compensacao    > :Compensacao'
+      
+        '                              OR (Compensacao    = :Compensacao ' +
+        '     AND'
+      
+        '                                  SeqCompensacao > :SeqCompensac' +
+        'ao)))'
+      ''
+      '               /* '#218'LTIMO */'
+      '            OR (:Operacao = 4 AND Conta       = :Conta'
+      
+        '                              AND Compensacao = (SELECT MAX(Comp' +
+        'ensacao)'
+      
+        '                                                    FROM  Movtos' +
+        'Bancos'
+      
+        '                                                    WHERE Conta ' +
+        '       = :Conta'
+      
+        '                                                      AND Compen' +
+        'sacao >= :BancoDataInicial'
+      
+        '                                                      AND Compen' +
+        'sacao <= :BancoDataFinal))))'
+      '/* Documento */'
+      ''
+      '   OR ((:Campo = 5) AND'
+      '               /* PRIMEIRO */'
+      '              ((:Operacao = 1 AND Conta     = :Conta'
+      
+        '                              AND Documento = (SELECT MIN(Docume' +
+        'nto)'
+      
+        '                                                  FROM  MovtosBa' +
+        'ncos'
+      
+        '                                                  WHERE Conta  =' +
+        ' :Conta'
+      
+        '                                                    AND Data  >=' +
+        ' :BancoDataInicial'
+      
+        '                                                    AND Data  <=' +
+        ' :BancoDataFinal))'
+      ''
+      '               /* ANTERIOR */'
+      
+        '            OR (:Operacao = 2 AND Conta     = :Conta            ' +
+        'AND'
+      
+        '                                  Data     >= :BancoDataInicial ' +
+        'AND'
+      
+        '                                  Data     <= :BancoDataFinal   ' +
+        'AND'
+      '                                 (Documento < :Documento'
+      
+        '                              OR (Documento = :Documento        ' +
+        'AND'
+      '                                  Data      < :Data)'
+      
+        '                              OR (Documento = :Documento        ' +
+        'AND'
+      
+        '                                  Data      = :Data             ' +
+        'AND'
+      '                                  Sequencia < :Sequencia)))'
+      ''
+      '               /* PR'#211'XIMO */'
+      
+        '            OR (:Operacao = 3 AND Conta     = :Conta            ' +
+        'AND'
+      
+        '                                  Data     >= :BancoDataInicial ' +
+        'AND'
+      
+        '                                  Data     <= :BancoDataFinal   ' +
+        'AND'
+      '                                 (Documento > :Documento'
+      
+        '                              OR (Documento = :Documento        ' +
+        'AND'
+      '                                  Data      > :Data)'
+      
+        '                              OR (Documento = :Documento        ' +
+        'AND'
+      
+        '                                  Data      = :Data             ' +
+        'AND'
+      '                                  Sequencia > :Sequencia)))'
+      ''
+      '               /* '#218'LTIMO */'
+      '            OR (:Operacao = 4 AND Conta     = :Conta'
+      
+        '                              AND Documento = (SELECT MAX(Docume' +
+        'nto)'
+      
+        '                                                  FROM  MovtosBa' +
+        'ncos'
+      
+        '                                                  WHERE Conta  =' +
+        ' :Conta'
+      
+        '                                                    AND Data  >=' +
+        ' :BancoDataInicial'
+      
+        '                                                    AND Data  <=' +
+        ' :BancoDataFinal))))'
+      ''
+      ''
+      '%Ordenacao'
+      ''
+      '')
+    RequestLive = True
+    Left = 56
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Campo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'Operacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'Conta'
+        ParamType = ptUnknown
+        Value = 255
+      end
+      item
+        DataType = ftDateTime
+        Name = 'Data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'Sequencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDateTime
+        Name = 'BancoDataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDateTime
+        Name = 'BancoDataFinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftCurrency
+        Name = 'Valor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDateTime
+        Name = 'Compensacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'SeqCompensacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'Documento'
+        ParamType = ptUnknown
+      end>
+    object qryMovtosBancosConta: TIntegerField
+      FieldName = 'Conta'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovtosBancosData: TDateField
+      Alignment = taCenter
+      FieldName = 'Data'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryMovtosBancosSequencia: TIntegerField
+      DisplayLabel = 'Seq'#252#234'ncia'
+      FieldName = 'Sequencia'
+      DisplayFormat = '0'
+    end
+    object qryMovtosBancosValor: TFloatField
+      FieldName = 'Valor'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryMovtosBancosCompensacao: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Compensa'#231#227'o'
+      FieldName = 'Compensacao'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryMovtosBancosSeqCompensacao: TIntegerField
+      DisplayLabel = 'SeqCompensa'#231#227'o'
+      FieldName = 'SeqCompensacao'
+      DisplayFormat = '0'
+    end
+    object qryMovtosBancosDocumento: TStringField
+      FieldName = 'Documento'
+    end
+    object qryMovtosBancosTipo: TStringField
+      FieldName = 'Tipo'
+      Size = 1
+    end
+    object qryMovtosBancosOrigem: TStringField
+      Alignment = taCenter
+      FieldName = 'Origem'
+      Size = 50
+    end
+    object qryMovtosBancosOrigemLancto: TStringField
+      DisplayWidth = 1
+      FieldName = 'OrigemLancto'
+      Size = 2
+    end
+    object qryMovtosBancosevento: TIntegerField
+      FieldName = 'evento'
+    end
+    object qryMovtosBancosobservacoes: TStringField
+      DisplayWidth = 512
+      FieldName = 'observacoes'
+      Size = 1000
+    end
+    object qryMovtosBancosdatareferencia: TDateField
+      FieldName = 'datareferencia'
+    end
+  end
+  object qryConsultaContas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT b.Sigla,'
+      '       a.Nome,'
+      '       c.Conta,'
+      '       c.Digito,'
+      '       c.Titular,'
+      '       c.Banco,'
+      '       c.Agencia,'
+      ''
+      '       SaldoBanco(c.Conta,(SELECT MAX(Data)'
+      '                              FROM  MovtosBancos'
+      
+        '                              WHERE Conta = c.Conta), '#39'L'#39') AS Sa' +
+        'ldoLancado'
+      ''
+      'FROM   Contas c JOIN Bancos b   ON c.Banco   = b.Codigo'
+      '                JOIN Agencias a ON c.Banco   = a.Banco AND'
+      '                                   c.Agencia = a.Codigo'
+      ''
+      'ORDER BY b.Sigla, UPPER(TO_ASCII(a.Nome,    '#39'LATIN1'#39')),'
+      '                  UPPER(TO_ASCII(c.Titular, '#39'LATIN1'#39'))')
+    RequestLive = True
+    Left = 182
+    Top = 23
+    object qryConsultaContasSigla: TStringField
+      FieldName = 'Sigla'
+      Size = 10
+    end
+    object qryConsultaContasNome: TStringField
+      FieldName = 'Nome'
+      Size = 30
+    end
+    object qryConsultaContasConta: TIntegerField
+      DisplayLabel = 'N'#186' Conta'
+      FieldName = 'Conta'
+      DisplayFormat = '#,###,##0'
+    end
+    object qryConsultaContasDigito: TStringField
+      DisplayLabel = 'V'
+      DisplayWidth = 1
+      FieldName = 'Digito'
+      Size = 2
+    end
+    object qryConsultaContasTitular: TStringField
+      DisplayWidth = 30
+      FieldName = 'Titular'
+      Size = 50
+    end
+    object qryConsultaContasSaldoLancado: TFloatField
+      DisplayLabel = 'Saldo'
+      DisplayWidth = 14
+      FieldName = 'SaldoLancado'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryConsultaContasBanco: TIntegerField
+      FieldName = 'Banco'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryConsultaContasAgencia: TIntegerField
+      FieldName = 'Agencia'
+      Visible = False
+      DisplayFormat = '0'
+    end
+  end
+  object dsrMovtosBancos: TtecDataSource
+    DataSet = qryMovtosBancos
+    Left = 88
+    Top = 40
+  end
+  object qryConsultaMovtosBancos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT m.Conta,'
+      '       m.Data,'
+      '       m.Sequencia,'
+      '   ABS(m.Valor) AS Valor,'
+      '       m.Documento,'
+      ''
+      
+        '       CASE WHEN OrigemLancto IS NULL THEN CAST('#39'Banco'#39'   AS VAR' +
+        'CHAR)'
+      '            WHEN (OrigemLancto = '#39'P'#39') or'
+      
+        '                 (OrigemLancto = '#39'A'#39') THEN CAST('#39'Pagar'#39'   AS VAR' +
+        'CHAR)'
+      
+        '            WHEN OrigemLancto = '#39'R'#39'   THEN CAST('#39'Receber'#39' AS VAR' +
+        'CHAR)'
+      '       END AS Origem,'
+      ''
+      
+        '       coalesce(e.Descricao,cast('#39'EVENTOS DIVERSOS'#39' as varchar(5' +
+        '0))) as Evento'
+      ''
+      
+        'FROM   movtosbancos m  left JOIN eventos e ON m.evento = e.Codig' +
+        'o'
+      ''
+      'WHERE  m.Conta  = :Conta            AND'
+      '       m.Data  BETWEEN :BancoDataInicial'
+      '                   AND :BancoDataFinal'
+      ''
+      'ORDER BY m.Data, m.Sequencia, m.Documento       ')
+    RequestLive = False
+    Left = 56
+    Top = 184
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'BancoDataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'BancoDataFinal'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaMovtosBancosConta: TIntegerField
+      FieldName = 'Conta'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryConsultaMovtosBancosData: TDateField
+      Alignment = taCenter
+      FieldName = 'Data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryConsultaMovtosBancosSequencia: TIntegerField
+      DisplayLabel = 'Seq'
+      DisplayWidth = 5
+      FieldName = 'Sequencia'
+      DisplayFormat = '0'
+    end
+    object qryConsultaMovtosBancosValor: TFloatField
+      DisplayWidth = 15
+      FieldName = 'Valor'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryConsultaMovtosBancosDocumento: TStringField
+      DisplayWidth = 15
+      FieldName = 'Documento'
+    end
+    object qryConsultaMovtosBancosEvento: TStringField
+      DisplayWidth = 30
+      FieldName = 'Evento'
+      Size = 50
+    end
+    object qryConsultaMovtosBancosOrigem: TStringField
+      DisplayWidth = 5
+      FieldName = 'Origem'
+      Size = 50
+    end
+  end
+  object dsrProcuraContas: TtecDataSource
+    DataSet = qryProcuraContas
+    Left = 182
+    Top = 150
+  end
+  object qryProcuraContas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryProcuraContasAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT c.Banco,'
+      '       c.Agencia,'
+      '       c.Conta,'
+      '       c.Digito,'
+      '       c.Titular,'
+      '       b.Sigla,'
+      '       a.Nome,'
+      '       c.filial,'
+      ''
+      '       SaldoBanco(c.Conta, (SELECT MAX(Data)'
+      '                               FROM  MovtosBancos'
+      
+        '                               WHERE Conta = c.Conta), '#39'L'#39') AS S' +
+        'aldoLancado'
+      ''
+      'FROM   Contas c JOIN Bancos b   ON c.Banco   = b.Codigo'
+      '                JOIN Agencias a ON c.Banco   = a.Banco AND'
+      '                                   c.Agencia = a.Codigo'
+      ''
+      'WHERE  c.Conta = :Conta'
+      ''
+      ''
+      '')
+    RequestLive = True
+    Left = 182
+    Top = 95
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Conta'
+        ParamType = ptUnknown
+        Value = '-1'
+      end>
+    object qryProcuraContasBanco: TIntegerField
+      FieldName = 'Banco'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraContasAgencia: TIntegerField
+      DisplayLabel = 'Ag'#234'ncia'
+      FieldName = 'Agencia'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraContasConta: TIntegerField
+      FieldName = 'Conta'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraContasDigito: TStringField
+      DisplayLabel = 'D'#237'gito'
+      FieldName = 'Digito'
+      Required = True
+      Size = 2
+    end
+    object qryProcuraContasTitular: TStringField
+      FieldName = 'Titular'
+      Size = 50
+    end
+    object qryProcuraContasSigla: TStringField
+      FieldName = 'Sigla'
+      Size = 10
+    end
+    object qryProcuraContasSaldoLancado: TFloatField
+      FieldName = 'SaldoLancado'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryProcuraContasNome: TStringField
+      FieldName = 'Nome'
+      Size = 30
+    end
+    object qryProcuraContasfilial: TIntegerField
+      FieldName = 'filial'
+    end
+  end
+  object qryUltimoLancto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        ';SELECT cast('#39'SALDO LAN'#199'ADO AT'#201' '#39'||to_char(MAX(Data), '#39'DD/MM/YYY' +
+        'Y'#39') as varchar) as data'
+      'FROM  movtosbancos'
+      'WHERE Conta = :Conta')
+    RequestLive = True
+    Left = 416
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Conta'
+        ParamType = ptUnknown
+      end>
+    object qryUltimoLanctodata: TStringField
+      FieldName = 'data'
+      Size = 50
+    end
+  end
+  object dsrUltimoLancto: TtecDataSource
+    DataSet = qryUltimoLancto
+    Left = 416
+    Top = 88
+  end
+  object qryMovtosBancosEventos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterEdit = qryMovtosBancosEventosAfterEdit
+    BeforePost = qryMovtosBancosEventosBeforePost
+    AfterPost = qryMovtosBancosEventosAfterPost
+    AfterDelete = qryMovtosBancosEventosAfterDelete
+    AfterScroll = qryMovtosBancosEventosAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select mbe.Conta,'
+      '       mbe.Data,'
+      '       mbe.Sequencia,'
+      '       mbe.Evento,'
+      '       mbe.sequenciaevento,'
+      '       mbe.Tipo,'
+      '       mbe.Valor,'
+      '       mbe.contatransf,'
+      '       mbe.observacoes,'
+      '      (select c.digito'
+      '       from contas c'
+      '       where c.conta = mbe.contatransf) as digito,'
+      ''
+      '      (select b.sigla'
+      '       from bancos b'
+      '       where b.codigo = (select c.banco'
+      '                         from contas c'
+      
+        '                         where c.conta = mbe.contatransf)) as si' +
+        'gla,'
+      ''
+      '      (select a.nome'
+      '       from agencias a'
+      '       where (a.codigo, a.banco) in (select c.agencia, c.banco'
+      '                                    from contas c'
+      
+        '                                    where c.conta = mbe.contatra' +
+        'nsf)) as nomeagencia,'
+      ''
+      '       CAST((SELECT e.Descricao'
+      '                FROM Eventos e'
+      
+        '                WHERE e.Codigo = mbe.Evento) AS VARCHAR(50)) AS ' +
+        'DescricaoEvento,'
+      ''
+      '       true as EventoValidado,'
+      '       true as ContaValidada,'
+      '       false as RegistroAlterado'
+      'from movtosbancoseventos mbe'
+      'where mbe.conta      = :conta'
+      '  and mbe.Data        = :Data'
+      '  and mbe.Sequencia   = :Sequencia'
+      'order by mbe.Evento'
+      '')
+    RequestLive = True
+    Left = 56
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Sequencia'
+        ParamType = ptUnknown
+      end>
+    object qryMovtosBancosEventosconta: TIntegerField
+      FieldName = 'conta'
+    end
+    object qryMovtosBancosEventosdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryMovtosBancosEventossequencia: TIntegerField
+      FieldName = 'sequencia'
+    end
+    object qryMovtosBancosEventosevento: TIntegerField
+      FieldName = 'evento'
+      Required = True
+    end
+    object qryMovtosBancosEventossequenciaevento: TIntegerField
+      FieldName = 'sequenciaevento'
+    end
+    object qryMovtosBancosEventostipo: TStringField
+      FieldName = 'tipo'
+      Required = True
+      Size = 1
+    end
+    object qryMovtosBancosEventosdescricaoevento: TStringField
+      DisplayLabel = 'descri'#231#227'o do evento'
+      FieldName = 'descricaoevento'
+      Required = True
+      Size = 50
+    end
+    object qryMovtosBancosEventoseventovalidado: TBooleanField
+      FieldName = 'eventovalidado'
+    end
+    object qryMovtosBancosEventosregistroalterado: TBooleanField
+      FieldName = 'registroalterado'
+    end
+    object qryMovtosBancosEventoscontatransf: TIntegerField
+      DisplayLabel = 'Conta para transfer'#234'ncia'
+      FieldName = 'contatransf'
+      Required = True
+    end
+    object qryMovtosBancosEventossigla: TStringField
+      DisplayLabel = 'Sigla ag'#234'ncia'
+      FieldName = 'sigla'
+      ReadOnly = True
+      Required = True
+      Size = 10
+    end
+    object qryMovtosBancosEventosnomeagencia: TStringField
+      DisplayLabel = 'Nome da ag'#234'ncia'
+      FieldName = 'nomeagencia'
+      ReadOnly = True
+      Required = True
+      Size = 30
+    end
+    object qryMovtosBancosEventosvalor: TFloatField
+      FieldName = 'valor'
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryMovtosBancosEventoscontavalidada: TBooleanField
+      FieldName = 'contavalidada'
+    end
+    object qryMovtosBancosEventosdigito: TStringField
+      FieldName = 'digito'
+      ReadOnly = True
+      Size = 50
+    end
+    object qryMovtosBancosEventosobservacoes: TStringField
+      DisplayWidth = 512
+      FieldName = 'observacoes'
+      Size = 1000
+    end
+  end
+  object dsrMovtosBancosEventos: TtecDataSource
+    DataSet = qryMovtosBancosEventos
+    OnDataChange = dsrMovtosBancosEventosDataChange
+    Left = 88
+    Top = 104
+  end
+  object qryProximoMovtosBancos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT coalesce(MAX(Sequencia),0)+1 as sequencia'
+      '  FROM MovtosBancos'
+      ' WHERE Conta = :Conta AND'
+      '        Data = :Data')
+    RequestLive = False
+    Left = 200
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Data'
+        ParamType = ptUnknown
+      end>
+    object qryProximoMovtosBancossequencia: TIntegerField
+      FieldName = 'sequencia'
+    end
+  end
+  object qryAtualizarLancamentos_: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update lancamentos set complemento = :observacoes'
+      'WHERE Exercicio = :Exercicio'
+      '  and Filial    = :Filial'
+      '  and Origem    = '#39'B'#39
+      '  and Data      = :Data'
+      
+        '  AND NrOrigem  = cast(10000000 as bigint) * cast(:Conta as bigi' +
+        'nt) +'
+      
+        '                     cast(10000 as bigint) * cast(:Sequencia as ' +
+        'bigint) +'
+      '                             cast(:evento as bigint);')
+    RequestLive = True
+    Left = 424
+    Top = 200
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'observacoes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Exercicio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Sequencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'evento'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryProximaSequenciaEvento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select coalesce('
+      ''
+      '(select max(mbe.sequenciaevento)'
+      ' from movtosbancoseventos mbe'
+      ' where mbe.conta = :conta'
+      '    and mbe.data = :data'
+      '    and mbe.sequencia = :sequencia'
+      '    and mbe.evento = :evento'
+      '        '
+      
+        'group by mbe.conta, mbe.data, mbe.sequencia, mbe.evento),0)+1 as' +
+        ' sequencia')
+    RequestLive = False
+    Left = 288
+    Top = 56
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sequencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'evento'
+        ParamType = ptUnknown
+      end>
+    object qryProximaSequenciaEventosequencia: TIntegerField
+      FieldName = 'sequencia'
+    end
+  end
+end

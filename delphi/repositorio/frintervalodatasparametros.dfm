@@ -1,0 +1,52 @@
+inherited fraIntervaloDatasParametros: TfraIntervaloDatasParametros
+  Width = 242
+  Height = 78
+  VertScrollBar.Range = 75
+  AutoScroll = False
+  Constraints.MaxHeight = 78
+  Constraints.MaxWidth = 0
+  Constraints.MinHeight = 78
+  Constraints.MinWidth = 0
+  inherited gbxPeriodo: TGroupBox
+    Top = 42
+    Align = alBottom
+  end
+  object gbxFormaSelecao: TGroupBox
+    Left = 0
+    Top = 5
+    Width = 242
+    Height = 37
+    Align = alBottom
+    Caption = 'FORMA DE SELE'#199#195'O'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 1
+    object dbcFormaSelecao: TComboBox
+      Left = 4
+      Top = 12
+      Width = 234
+      Height = 23
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ItemHeight = 15
+      ParentFont = False
+      TabOrder = 0
+      OnChange = dbcFormaSelecaoChange
+      Items.Strings = (
+        'M'#202'S ANTERIOR'
+        'M'#202'S ATUAL'
+        'PER'#205'ODO SELECIONADO'
+        'EXERC'#205'CIO ATUAL'
+        'EXERC'#205'CIO ANTERIOR')
+    end
+  end
+end

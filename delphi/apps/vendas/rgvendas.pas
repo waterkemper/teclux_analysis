@@ -1,0 +1,59 @@
+unit rgvendas;
+
+interface
+
+Uses
+  //CLX
+  classes;
+
+implementation
+
+Uses
+  fmcadastrocontratos, fmcancelamentocontratos, fmcadastroclientes,
+  fmconsultanotasecupons, fmdevolucaomercadorias, fmcadastroreservas,
+  fmetiquetasreservas, fmlistacasamento, fmrelatoriovendasdoperiodo, fmvendasavista,
+  fmrelatoriorecebimentosdoperiodo, fmrelatoriocontratosemitidos,
+  fmrelatorioresumodevendaserecebimentos, fmrelatoriocustomercadoriasvendidas,
+  fmoperacoescontratos, fmrelatorioresumosinteticofaturamento,
+  fmcancelamentoreservas, fmrelatoriocontratospendentes, fmrelatorionotasfuturas,
+  fmrelatoriosituacaorecebimentos,fmlistaspadrao, fmorcamentos, 
+  fmrelatorioprodutosporclienteevendedor, fmrelatoriorenegociacao, fmordemservicos,
+  fmcalculofinanciamento, fmrelatorioos, fmconsultacontratos, fmtrocamercadorias,
+  fmrelatoriofaturamentoporgrupo, fmrelatorioservicos, fmextratobonus, fmespelhocarne,
+  fmcadastropedidossaidas, fmrelatoriosaldocredito, fmmenufiscal,
+  fmexportacaovendasreducoes, fmimportacaoclientesprodutos, fmrelatoriocupons,
+  fmUnificarClientes, fmRelatorioListasCasamento, fmOrdensCarga,
+  fmcadastrocontratosmanutencao, fmGerarContratosPrestacaoServicos, fmSetoresVenda,
+  fmRelatorioVendasporSetores, fmVendasPerdidas, fmVendasporFornecedor,
+  fmConsultaListasPadrao, fmVendasCasadas, fmConsultaContratosManutencao,
+  fmConsultaCashBack, fmCadastroLicitacoes, fmConsultaLicitacoes,
+  fmRelatorioLicitacoes;
+
+initialization
+  RegisterClasses([TfrmCadastroContratos, TfrmCadastroClientes, TfrmVendasAVista,
+                   TfrmCancelamentoContratos,
+                   TfrmDevolucaoMercadorias, Tfrmcadastroreservas,
+                   TfrmEtiquetasReservas, TfrmListaCasamento, TfrmConsultaNotaseCupons,
+                   Tfrmrelatoriovendasdoperiodo, Tfrmrelatoriorecebimentosdoperiodo,
+                   Tfrmrelatoriocontratosemitidos, Tfrmrelatorioresumodevendaserecebimentos,
+                   Tfrmrelatoriocustomercadoriasvendidas, TfrmOperacoesContratos,
+                   Tfrmrelatorioresumosinteticofaturamento, TfrmCancelamentoReservas,
+                   TfrmRelatorioContratosPendentes, TfrmRelatorioNotasFuturas,
+                   Tfrmrelatoriosituacaorecebimentos, TfrmListasPadrao,
+                   TfrmOrcamentos,  TfrmRelatorioRenegociacao,
+                   TfrmRelatorioProdutosporClienteeVendedor,
+                   TfrmCalculoFinanciamento, TfrmOrdemServico,
+                   Tfrmrelatorioos, TfrmTrocaMercadorias, Tfrmconsultacontratos,
+                   Tfrmrelatoriofaturamentoporgrupo, TfrmRelatorioServicos,
+                   Tfrmextratobonus, TfrmEspelhoCarne, Tfrmcadastropedidossaidas,
+                   Tfrmrelatoriosaldocredito, TfrmMenuFiscal,
+                   tfrmExportacaoVendasReducoes, TfrmImportacaoClientesProdutos,
+                   TfrmRelatorioCupons, TfrmUnificarClientes, TfrmRelatorioListasCasamento,
+                   TfrmOrdensCarga, TfrmCadastroContratosManutencao,
+                   TfrmGerarContratosPrestacaoServicos, TfrmSetoresVenda,
+                   TfrmRelatorioVendasporSetores, TfrmVendasPerdidas,
+                   tfrmVendasporFornecedor, TfrmConsultaListasPadrao,
+                   TfrmVendasCasadas, TfrmConsultaContratosManutencao,
+                   TfrmConsultaCashBack, TfrmCadastroLicitacoes,
+                   TfrmConsultaLicitacoes, TfrmRelatorioLicitacoes]);
+end.

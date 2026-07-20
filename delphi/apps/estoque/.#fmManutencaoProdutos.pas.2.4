@@ -1,0 +1,1505 @@
+unit fmManutencaoProdutos;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ComCtrls, fmajudabt, Buttons, ToolWin, ExtCtrls,
+  frmultiplaselecaoaleatoria, dmManutencaoProdutos, Grids, AdvObj, BaseGrid,
+  AdvGrid, DBAdvGrid, StdCtrls, AdvEdit, AdvEdBtn, PlannerDatePicker,
+  PlannerDBDatePicker, frmctrllink, DB, frconsulta, frconsultacodigo, cpdbfindcontrols,
+  clparametrossistema, ctconstantes, frconsultacontabil,
+  frconsultacodigocontabil, GradientLabel, biblio, Mask, AdvMEdBtn,
+  PlannerMaskDatePicker, PlannerDBMaskDatePicker, DBPlannerDatePicker,
+  DBEditDateTimePicker, DBCtrls, cptexto, DBAdvEd, advlued, dbadvle,
+  DBMaplistCombobox, Menus, AdvMenus, tmsAdvGridExcel, AsgFindDialog,
+  fmPrincipalBasico, AdvSmoothProgressBar;
+
+type
+  TfrmManutencaoProdutos = class(TfrmAjudaBt)
+    pgcManutencaoProdutos: TPageControl;
+    tstParametros: TTabSheet;
+    tstDadosProdutos: TTabSheet;
+    sbnGerar: TSpeedButton;
+    sbnAlterar: TSpeedButton;
+    DBAdvProdutos: TDBAdvGrid;
+    DBAdvProdutosTop: TDBAdvGrid;
+    FormControlEditLink1: TFormControlEditLink;
+    PlannerDBDatePicker1: TPlannerDBDatePicker;
+    fraConsulta: TfraConsultaCodigo;
+    fraConsultaContabil: TfraConsultaCodigoContabil;
+    pnlLegenda: TPanel;
+    ckbSelecionarTodos: TCheckBox;
+    GradientLabelPesquisaCampo: TGradientLabel;
+    Panel1: TPanel;
+    sbnAplicar: TSpeedButton;
+    Timer1: TTimer;
+    pnlEdicaoDados: TPanel;
+    DBAdvEdit: TDBAdvEdit;
+    DBAdvEditFloat: TDBAdvMaskEdit;
+    DBCheckBoxBoolean: TDBCheckBox;
+    DBMaplistCombobox1: TDBMaplistCombobox;
+    AdvPopupMenu1: TAdvPopupMenu;
+    Pesquizar1: TMenuItem;
+    ExportarExcel1: TMenuItem;
+    Copia1: TMenuItem;
+    AdvGridFindDialog1: TAdvGridFindDialog;
+    AdvGridExcelIO1: TAdvGridExcelIO;
+    sbnProdutos: TSpeedButton;
+    AdvSmoothProgressBar1: TAdvSmoothProgressBar;
+    fraMultiplaSelecaoAleatoria1: TfraMultiplaSelecaoAleatoria;
+    gbxProdutos: TGroupBox;
+    ckbProdutoEmLinha: TCheckBox;
+    ckbProdutoForadeLinha: TCheckBox;
+    ckbProdutoComMontagem: TCheckBox;
+    ckbProdutoSemMontagem: TCheckBox;
+    ckbProdutoNaoBrinde: TCheckBox;
+    ckbProdutoBrinde: TCheckBox;
+    ckbProdutoInativo: TCheckBox;
+    ckbProdutoAtivo: TCheckBox;
+    ckbDisponivelnoSite: TCheckBox;
+    ckbNaoDisponivelnoSite: TCheckBox;
+    gbxFornecedores: TGroupBox;
+    fraConsultaFornecedor: TfraConsultaCodigo;
+    procedure sbnGerarClick(Sender: TObject);
+    procedure DBAdvProdutosTopGetEditorType(Sender: TObject; ACol,
+      ARow: Integer; var AEditor: TEditorType);
+    procedure FormControlEditLink1SetEditorFocus(Sender: TObject;
+      Grid: TAdvStringGrid; AControl: TWinControl);
+    procedure FormControlEditLink1SetEditorProperties(Sender: TObject;
+      Grid: TAdvStringGrid; AControl: TWinControl);
+    procedure FormControlEditLink1SetEditorValue(Sender: TObject;
+      Grid: TAdvStringGrid; AValue: String);
+    procedure FormControlEditLink1GetEditorValue(Sender: TObject;
+      Grid: TAdvStringGrid; var AValue: String);
+    procedure DBAdvProdutosTopKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure DBAdvProdutosTopSelectCell(Sender: TObject; ACol,
+      ARow: Integer; var CanSelect: Boolean);
+    procedure DBAdvProdutosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure ckbSelecionarTodosClick(Sender: TObject);
+    procedure sbnAplicarClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure DBAdvProdutosDblClick(Sender: TObject);
+    procedure DBAdvProdutosGetCellColor(Sender: TObject; ARow,
+      ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure PlannerDBDatePicker1KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure ckbNuloKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnAlterarClick(Sender: TObject);
+    procedure DBCheckBoxBooleanKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure DBMaplistCombobox1KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure DBAdvProdutosTopColumnSize(Sender: TObject; ACol: Integer;
+      var Allow: Boolean);
+    procedure DBAdvProdutosTopColumnSizing(Sender: TObject; ACol,
+      ColumnSize: Integer);
+    procedure DBAdvProdutosColumnSizing(Sender: TObject; ACol,
+      ColumnSize: Integer);
+    procedure DBAdvProdutosTopMouseUp(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure DBAdvProdutosMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure Copia1Click(Sender: TObject);
+    procedure Pesquizar1Click(Sender: TObject);
+    procedure ExportarExcel1Click(Sender: TObject);
+    procedure sbnProdutosClick(Sender: TObject);
+
+  protected
+  private
+    { Private declarations }
+    vrecnoteste : integer;
+    vrowteste : integer;
+    vtoprowteste : integer;
+    vColResized : integer;
+    procedure AtribuirDadostipoproduto(Found: Boolean);
+    procedure AtribuirDadosgrupo_caracteristica(Found: Boolean);
+    procedure AtribuirDadosClasse_caracteristica(Found: Boolean);
+    procedure AtribuirDadosMarca_caracteristica(Found: Boolean);
+    procedure AtribuirDadosunidade_caracteristica(Found: Boolean);
+    procedure AtribuirDadosfatorpreco_caracteristica(Found: Boolean);
+    procedure AtribuirDadosSetorProducao_caracteristica(Found: Boolean);
+    procedure AtribuirDadosSetorcst_caracteristica(Found: Boolean);
+    procedure AtribuirDadoscsosn_caracteristica(Found: Boolean);
+    procedure AtribuirDadoscodigo_efd_t53_caracteristica(Found: Boolean);
+
+    procedure AtribuirDadosicmsmodalidade_caracteristica(Found: Boolean);
+    procedure AtribuirDadosicms_caracteristica(Found: Boolean);
+    procedure AtribuirDadosicmsmodsubst_caracteristica(Found: Boolean);
+    procedure AtribuirDadosorigem_caracteristica(Found: Boolean);
+    procedure AtribuirDadosobslegal_caracteristica(Found: Boolean);
+    procedure AtribuirDadosipi_caracteristica(Found: Boolean);
+    procedure AtribuirDadosipicst_caracteristica(Found: Boolean);
+    procedure AtribuirDadoscofinscst_caracteristica(Found: Boolean);
+    procedure AtribuirDadospiscst_caracteristica(Found: Boolean);
+    procedure SincronizarLarguraColuna(ColunaOrigem, ColunaDestino: TDBAdvGrid);
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmManutencaoProdutos: TfrmManutencaoProdutos;
+
+implementation
+
+{$R *.dfm}
+
+constructor TfrmManutencaoProdutos.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmManutencaoProdutos := TdtmManutencaoProdutos.Create(Self);
+  pnlEdicaoDados.visible := false;
+  vColResized := 0;
+
+
+  fraConsultaFornecedor.qryProcuraCliente.ParamByName('NaoConsiderarTipoCliente').asBoolean := false;
+  fraConsultaFornecedor.TipoPesquisa := pesFORNECEDORES;
+  fraConsultaFornecedor.TipoCliente := 'F';
+  fraConsultaFornecedor.Tipovfornecedor := 'F';
+  dtmManutencaoProdutos.qryProcuraFornecedores := fraConsultaFornecedor.qryProcuraCliente;
+
+end;
+
+destructor TfrmManutencaoProdutos.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TfrmManutencaoProdutos.sbnGerarClick(Sender: TObject);
+var
+ vContinuar : Boolean;
+begin
+  inherited;
+{
+  if fraMultiplaSelecaoAleatoria1.ExisteParametroSetado or
+     (fraConsultaFornecedor.edfCodigo.text<>'') or
+
+
+  then
+
+  begin
+  }
+
+    vContinuar := true;
+
+    if (dtmManutencaoProdutos.vmarcados <> 0) and
+       (dtmManutencaoProdutos.vAplicados <> 0) then
+      vcontinuar := MensagemConfirmacao('Existe uma gravação pendente. Ao gerar os dados a mesma será perdida.') = smbOK;
+
+    if vContinuar then
+    begin
+      dtmManutencaoProdutos.vMarcados := 0;
+      dtmManutencaoProdutos.vAplicados := 0;
+      ckbSelecionarTodos.checked := false;
+
+      with dtmManutencaoProdutos do
+      begin
+
+        ParametroListasPadrao := fraMultiplaSelecaoAleatoria1.fraSelecaoaleatorialistaspadronizadas.ListaCondicional;
+
+        ProdutoEmLinha     := ckbProdutoEmLinha.checked;
+        ProdutoForadeLinha := ckbProdutoForadeLinha.checked;
+
+        ProdutoAtivo       := ckbProdutoAtivo.checked;
+        ProdutoInativo     := ckbProdutoInativo.checked;
+
+        ProdutoComMontagem := ckbProdutoComMontagem.Checked;
+        ProdutoSemMontagem := ckbProdutoSemMontagem.Checked;
+
+        ProdutoBrinde      := ckbProdutoBrinde.Checked;
+        ProdutoNaoBrinde   := ckbProdutoNaoBrinde.Checked;
+
+        DisponivelnoSite := ckbDisponivelnoSite.checked;
+        NaoDisponivelnoSite := ckbNaoDisponivelnoSite.checked;
+
+      end;
+
+      if dtmManutencaoProdutos.AbrirConsulta then
+        pgcManutencaoProdutos.activepage := tstDadosProdutos
+      else
+        MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']));
+
+    end
+    else
+      pgcManutencaoProdutos.activepage := tstDadosProdutos;
+  {
+  end
+  else
+    MensagemAviso('Nenhum parâmetro foi informado.');}
+end;
+
+procedure TfrmManutencaoProdutos.DBAdvProdutosTopGetEditorType(
+  Sender: TObject; ACol, ARow: Integer; var AEditor: TEditorType);
+begin
+  inherited;
+  PlannerDBDatePicker1.visible := false;
+  DBAdvEdit.visible := false;
+  DBAdvEditFloat.visible := false;
+  DBMaplistCombobox1.visible := false;
+
+  fraConsulta.visible := false;
+  fraConsultaContabil.visible := false;
+
+
+  PlannerDBDatePicker1.left := DBCheckBoxBoolean.width + 3;
+  DBAdvEditFloat.left := DBCheckBoxBoolean.width + 3;
+  DBAdvEdit.left := DBCheckBoxBoolean.width + 3;
+  DBMaplistCombobox1.left := DBCheckBoxBoolean.width + 3;
+  fraConsulta.left := DBCheckBoxBoolean.width + 3;
+  fraConsultaContabil.left := DBCheckBoxBoolean.width + 3;
+
+  DBCheckBoxBoolean.AllowGrayed := false;
+
+  if dtmManutencaoProdutos.qryProdutosLinha.FindField('Nulo_'+TDBAdvGrid(Sender).Columns[Acol].FieldName)<>nil then
+    DBCheckBoxBoolean.datafield := 'Nulo_'+TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+  if dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString = 'Nulo' then
+    dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).clear;
+
+  if TDBAdvGrid(Sender).Columns[Acol].Field.DataType = ftDate then
+  begin
+    PlannerDBDatePicker1.datafield := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    PlannerDBDatePicker1.width :=  TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    PlannerDBDatePicker1.visible := true;
+//    TDBAdvGrid(Sender).EditLink := FormControlEditLink1
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].Field.DataType = ftBoolean then
+  begin
+    DBCheckBoxBoolean.datafield := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    DBCheckBoxBoolean.AllowGrayed := true;
+//    TDBAdvGrid(Sender).EditLink := FormControlEditLink1
+  end
+  else
+  if (TDBAdvGrid(Sender).Columns[Acol].Field.DataType = ftFloat) or
+     (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'volumes_caracteristica') or
+     (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'bonus_caracteristica') then
+  begin
+    DBAdvEditFloat.datafield := TDBAdvGrid(Sender).Columns[Acol].Fieldname;
+    DBAdvEditFloat.visible := true;
+    DBAdvEditFloat.width :=  TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+
+  end
+  else
+  if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'descricao_produto') or
+     (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'descricaoplanilhacusto_produto') or
+     (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'nome_site_produto') or
+     (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'referencia_produto') or
+     (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'descricao_caracteristica') or
+     (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'complemento_caracteristica') or
+     (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'gtin_caracteristica') or
+     (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'descricaonanf_caracteristica') then
+  begin
+
+    DBAdvEdit.datafield := TDBAdvGrid(Sender).Columns[Acol].Fieldname;
+    DBAdvEdit.EditType := etString;
+    DBAdvEdit.visible := true;
+    DBAdvEdit.width :=  TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+
+//    TDBAdvGrid(Sender).EditLink := FormControlEditLink1
+  end
+  else
+  if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'discriminarcomposto_caracteristica') then
+  begin
+
+    DBMaplistCombobox1.datafield := TDBAdvGrid(Sender).Columns[Acol].Fieldname;
+    DBMaplistCombobox1.visible := true;
+    DBMaplistCombobox1.width :=  TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+
+    DBMaplistCombobox1.Items.Clear;
+    DBMaplistCombobox1.Items.Append('N - Sem composição');
+    DBMaplistCombobox1.Items.Append('C - Com composição');
+    DBMaplistCombobox1.Items.Append('S - Só composição');
+    DBMaplistCombobox1.Items.Append('');
+
+    DBMaplistCombobox1.ItemValues.clear;
+    DBMaplistCombobox1.ItemValues.Append('N');
+    DBMaplistCombobox1.ItemValues.Append('C');
+    DBMaplistCombobox1.ItemValues.Append('S');
+    DBMaplistCombobox1.ItemValues.Append('');
+
+  end
+  else
+  if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'vendanegativa_caracteristica') or
+     (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'vendanegativanosite_caracteristica') then
+  begin
+
+    DBMaplistCombobox1.datafield := TDBAdvGrid(Sender).Columns[Acol].Fieldname;
+    DBMaplistCombobox1.visible := true;
+    DBMaplistCombobox1.width :=  TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+
+    DBMaplistCombobox1.Items.Clear;
+    DBMaplistCombobox1.Items.Append('S - Sim');
+    DBMaplistCombobox1.Items.Append('N - Não');
+    if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'vendanegativanosite_caracteristica') then
+      DBMaplistCombobox1.Items.Append('X - Outros');
+    DBMaplistCombobox1.Items.Append('');
+
+    DBMaplistCombobox1.ItemValues.clear;
+    DBMaplistCombobox1.ItemValues.Append('S');
+    DBMaplistCombobox1.ItemValues.Append('N');
+    if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'vendanegativanosite_caracteristica') then
+      DBMaplistCombobox1.ItemValues.Append('X');
+    DBMaplistCombobox1.Items.Append('');
+
+  end
+  else
+  if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'tipocomissao_caracteristica') or
+     (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'tipocomissaoindicador_caracteristica') then
+  begin
+
+    DBMaplistCombobox1.datafield := TDBAdvGrid(Sender).Columns[Acol].Fieldname;
+    DBMaplistCombobox1.visible := true;
+    DBMaplistCombobox1.width :=  TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+
+    DBMaplistCombobox1.Items.Clear;
+    DBMaplistCombobox1.Items.Append('% - Percentual');
+    DBMaplistCombobox1.Items.Append('V - Valor');
+    DBMaplistCombobox1.Items.Append('');
+
+    DBMaplistCombobox1.ItemValues.clear;
+    DBMaplistCombobox1.ItemValues.Append('%');
+    DBMaplistCombobox1.ItemValues.Append('V');
+    DBMaplistCombobox1.Items.Append('');
+
+  end
+  else
+
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'tipoproduto_caracteristica' then
+  begin
+    With fraConsulta do
+    begin
+      fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+      fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+      fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+      fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+
+      fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+      fraConsulta.edfCodigo.MaxLength := 2;
+      fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+      fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+      fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+      fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+
+      fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraTipoProduto;
+      fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+      fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+      fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+      fraConsulta.edfCodigo.LookupField := 'codigo';
+
+      fraConsulta.OnFound := AtribuirDadostipoproduto;
+      TipoPesquisa := pesTIPOPRODUTO;
+    end;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'grupo_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraGrupoProdutos;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 4;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosgrupo_caracteristica;
+    fraConsulta.TipoPesquisa := pesGRUPOS;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'classe_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraClasses;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 2;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosClasse_caracteristica;
+    fraConsulta.TipoPesquisa := pesCLASSES;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'marca_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraMarca;
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 4;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosMarca_caracteristica;
+    fraConsulta.TipoPesquisa := pesMARCAS;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'unidade_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraUnidades;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 8;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosunidade_caracteristica;
+    fraConsulta.TipoPesquisa := pesUNIDADES;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'fatorpreco_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraMoedas;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 4;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosfatorpreco_caracteristica;
+    fraConsulta.TipoPesquisa := pesMOEDAS;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'setorproducao_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraSetoresProducao;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 4;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosSetorProducao_caracteristica;
+    fraConsulta.TipoPesquisa := pesSETORESPRODUCAO;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'cst_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraTributosICMS;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'incidencia';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 4;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldInterno := 'incidencia_caracteristica';
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosSetorcst_caracteristica;
+    fraConsulta.TipoPesquisa := pesTRIBUTOSICMS;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'csosn_caracteristica' then
+  begin
+
+    fraConsultaContabil.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsultaContabil.edfcodigo.Width := fraConsultaContabil.Width-23;
+    fraConsultaContabil.sbnprocura.left := fraConsultaContabil.edfcodigo.Width;
+
+    fraConsultacontabil.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsultaContabil.edfCodigo.LookupSource := fraConsultaContabil.dsrProcuraCSOSN;
+
+    fraConsultaContabil.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsultaContabil.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsultaContabil.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsultaContabil.edfCodigo.LookupField := 'codigo';
+
+    fraConsultaContabil.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsultaContabil.edfCodigo.MaxLength := 4;
+    fraConsultaContabil.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsultaContabil.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsultaContabil.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsultaContabil.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsultaContabil.OnFound := AtribuirDadoscsosn_caracteristica;
+    fraConsultaContabil.TipoPesquisa := pesCSOSN;
+    fraConsultaContabil.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'icmsmodalidade_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraModalidadeBCICMS;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 1;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosicmsmodalidade_caracteristica;
+    fraConsulta.TipoPesquisa := pesMODALIDADEBCICMS;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'icms_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraICMS;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 4;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosicms_caracteristica;
+    fraConsulta.TipoPesquisa := pesICMS;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'icmsmodsubst_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraModalidadeBCICMSST;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 1;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosicmsmodsubst_caracteristica;
+    fraConsulta.TipoPesquisa := pesMODALIDADEBCICMSST;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'icmsmodsubst_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraModalidadeBCICMSST;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 1;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosicmsmodsubst_caracteristica;
+    fraConsulta.TipoPesquisa := pesMODALIDADEBCICMSST;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'origem_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraOrigens;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 1;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosorigem_caracteristica;
+    fraConsulta.TipoPesquisa := pesORIGENS;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'obslegal_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraObsLegais;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 3;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosobslegal_caracteristica;
+    fraConsulta.TipoPesquisa := pesOBSLEGAIS;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'ipi_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuraIPI;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 6;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosipi_caracteristica;
+    fraConsulta.TipoPesquisa := pesIPI;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'ipicst_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuratributosipi;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 2;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadosipicst_caracteristica;
+    fraConsulta.TipoPesquisa := pesTRIBUTOSIPI;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'cofinscst_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    TDBAdvGrid(Sender).Columns[Acol].Editor := edCustom;
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuratributoscofins;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 2;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadoscofinscst_caracteristica;
+    fraConsulta.TipoPesquisa := pesTRIBUTOSCOFINS;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'piscst_caracteristica' then
+  begin
+    fraConsulta.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsulta.edfcodigo.Width := fraConsulta.Width-23;
+    fraConsulta.sbnprocura.left := fraConsulta.edfcodigo.Width;
+
+    fraConsulta.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsulta.edfCodigo.LookupSource := fraConsulta.dsrProcuratributospis;
+
+    fraConsulta.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsulta.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsulta.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsulta.edfCodigo.LookupField := 'codigo';
+
+    fraConsulta.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsulta.edfCodigo.MaxLength := 2;
+    fraConsulta.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsulta.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsulta.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsulta.OnFound := AtribuirDadospiscst_caracteristica;
+    fraConsulta.TipoPesquisa := pesTRIBUTOSpis;
+    fraConsulta.visible := true;
+  end
+  else
+  if TDBAdvGrid(Sender).Columns[Acol].FieldName = 'codigo_efd_t53_caracteristica' then
+  begin
+
+    fraConsultaContabil.Width := TDBAdvGrid(Sender).Columns[Acol].Width - DBCheckBoxBoolean.width - 5;
+    fraConsultaContabil.edfcodigo.Width := fraConsultaContabil.Width-23;
+    fraConsultaContabil.sbnprocura.left := fraConsultaContabil.edfcodigo.Width;
+
+    fraConsultacontabil.edfCodigo.text := dtmManutencaoProdutos.dsrProdutosLinha.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+    fraConsultacontabil.edfCodigo.LookupSource := fraConsultacontabil.dsrProcuraefd_t53;
+
+    fraConsultacontabil.edfCodigo.LookupaFieldinterno := 'codigo';
+    fraConsultacontabil.edfCodigo.LookupaFieldvisual := 'codigo';
+    fraConsultacontabil.edfCodigo.LookupQueryParameter := 'codigo';
+    fraConsultacontabil.edfCodigo.LookupField := 'codigo';
+
+    fraConsultacontabil.edfCodigo.Operacao := opATRIBUICAO;
+    fraConsultacontabil.edfCodigo.MaxLength := 10;
+    fraConsultacontabil.edfCodigo.DataSource := dtmManutencaoProdutos.dsrProdutosLinha;
+
+    fraConsultacontabil.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsultacontabil.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+    fraConsultacontabil.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+    fraConsultacontabil.OnFound := AtribuirDadoscodigo_efd_t53_caracteristica;
+    fraConsultacontabil.TipoPesquisa := pesEFD_T53;
+    fraConsultacontabil.visible := true;
+  end;
+end;
+
+procedure TfrmManutencaoProdutos.FormControlEditLink1SetEditorFocus(
+  Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+begin
+  inherited;
+  if TDBAdvGrid(Grid).Columns[Grid.col].Field.DataType = ftDate then
+    PlannerDBDatePicker1.setfocus
+  else
+  if TDBAdvGrid(Grid).Columns[Grid.col].Field.DataType = ftBoolean then
+    DBCheckBoxBoolean.setfocus
+  else
+  if (TDBAdvGrid(Grid).Columns[Grid.col].Field.DataType = ftFloat) or
+     (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'volumes_caracteristica') then
+    DBAdvEditFloat.setfocus
+  else
+  if (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'descricao_produto') or
+     (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'descricaoplanilhacusto_produto') or
+     (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'nome_site_produto') or
+     (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'referencia_produto') or
+     (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'descricao_caracteristica') or
+     (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'complemento_caracteristica') or
+     (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'gtin_caracteristica') or
+     (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'descricaonanf_caracteristica') then
+    DBAdvEdit.setfocus
+  else
+  IF (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'discriminarcomposto_caracteristica') or
+     (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'vendanegativa_caracteristica') or
+     (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'vendanegativanosite_caracteristica') or
+     (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'tipocomissao_caracteristica') or
+     (TDBAdvGrid(Grid).Columns[Grid.col].FieldName = 'tipocomissaoindicador_caracteristica') then
+    DBMaplistCombobox1.setfocus
+  else
+  if fraconsulta.visible then
+    fraConsulta.edfcodigo.setfocus
+  else
+  if fraconsultacontabil.visible then
+    fraConsultaContabil.edfcodigo.setfocus;
+end;
+
+procedure TfrmManutencaoProdutos.FormControlEditLink1SetEditorProperties(
+  Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmManutencaoProdutos.FormControlEditLink1SetEditorValue(
+  Sender: TObject; Grid: TAdvStringGrid; AValue: String);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmManutencaoProdutos.FormControlEditLink1GetEditorValue(
+  Sender: TObject; Grid: TAdvStringGrid; var AValue: String);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadostipoproduto(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaotipoproduto_caracteristica.asString :=
+    fraConsulta.qryProcuraTipoProduto.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosgrupo_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaogrupo_caracteristica.asString :=
+    fraConsulta.qryProcuraGrupoProdutos.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosClasse_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaoclasse_caracteristica.asString :=
+    fraConsulta.qryProcuraClasses.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosMarca_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaomarca_caracteristica.asString :=
+    fraConsulta.qryProcuraMarca.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosunidade_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaounidade_caracteristica.asString :=
+    fraConsulta.qryProcuraUnidades.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosfatorpreco_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaofatorpreco_caracteristica.asString :=
+    fraConsulta.qryProcuraMoedas.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosSetorProducao_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricacaosetorproducao_caracteristica.asString :=
+    fraConsulta.qryProcuraSetoresProducao.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosSetorcst_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaocst_caracteristica.asString :=
+    fraConsulta.qryProcuraTributosICMS.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadoscsosn_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaocsosn_caracteristica.asString :=
+    fraConsultaContabil.qryProcuraCSOSN.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosicmsmodalidade_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaoicmsmodalidade_caracteristica.asString :=
+    fraConsulta.qryProcuraModalidadeBCICMS.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosicms_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaoicms_caracteristica.asString :=
+    fraConsulta.qryProcuraICMS.fieldbyname('descricao').asString;
+
+  dtmManutencaoProdutos.qryProdutosLinhaaliquotaicms_estadosicms.AsCurrency :=
+    fraConsulta.qryProcuraICMS.fieldbyname('aliquota').AsCurrency;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosicmsmodsubst_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaoicmsmodsubst_caracteristica.asString :=
+    fraConsulta.qryProcuraModalidadeBCICMSST.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosorigem_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaoorigem_caracteristica.asString :=
+    fraConsulta.qryProcuraOrigens.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosobslegal_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaoobslegal_caracteristica.asString :=
+    fraConsulta.qryProcuraObsLegais.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosipi_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaoipi_caracteristica.asString :=
+    fraConsulta.qryProcuraIPI.fieldbyname('descricao').asString;
+
+  dtmManutencaoProdutos.qryProdutosLinhaclassificacaofiscalipi_caracteristica.asString :=
+    fraConsulta.qryProcuraIPI.fieldbyname('classificacaofiscal').asString;
+
+  dtmManutencaoProdutos.qryProdutosLinhaaliquotaipi_caracteristica.AsCurrency :=
+    fraConsulta.qryProcuraIPI.fieldbyname('aliquota').asCurrency;
+
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadosipicst_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaoipicst_caracteristica.asString :=
+    fraConsulta.qryProcuratributosipi.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadoscofinscst_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaocofins_caracteristica.asString :=
+    fraConsulta.qryProcuratributoscofins.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadospiscst_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaopis_caracteristica.asString :=
+    fraConsulta.qryProcuratributospis.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.AtribuirDadoscodigo_efd_t53_caracteristica(Found: Boolean);
+begin
+  dtmManutencaoProdutos.qryProdutosLinhadescricaoefd_t53_caracteristica.asString :=
+    fraConsultaContabil.qryProcuraefd_t53.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmManutencaoProdutos.DBAdvProdutosTopKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+//var
+//  tecla: word;
+begin
+  inherited;
+  if (key = VK_F9) and (Shift = [ssCtrl]) then
+  begin
+    if (DBAdvProdutosTop.ColumnByFieldName['codigo_efd_t53_caracteristica'].Index = DBAdvProdutosTop.Col) or
+       (DBAdvProdutosTop.ColumnByFieldName['csosn_caracteristica'].Index = DBAdvProdutosTop.Col) then
+    begin
+      DBAdvProdutosTop.ShowInplaceEdit;
+      fraConsultaContabil.sbnProcuraClick(sender)
+    end
+    else
+    if (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'tipoproduto_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'grupo_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'classe_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'marca_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'unidade_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'fatorpreco_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'setorproducao_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'cst_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'icmsmodalidade_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'icms_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'icmsmodsubst_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'icmsmodsubst_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'origem_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'obslegal_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'ipi_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'ipicst_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'cofinscst_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'piscst_caracteristica') then
+    begin
+      DBAdvProdutosTop.ShowInplaceEdit;
+      fraConsulta.sbnProcuraClick(sender)
+    end;
+  end;
+end;
+
+procedure TfrmManutencaoProdutos.DBAdvProdutosTopSelectCell(
+  Sender: TObject; ACol, ARow: Integer; var CanSelect: Boolean);
+begin
+  inherited;
+  if
+
+       (TDBAdvGrid(Sender).Columns[ACol].FieldName = 'tipoproduto_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'grupo_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'classe_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'marca_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'unidade_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'fatorpreco_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'setorproducao_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'cst_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'icmsmodalidade_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'icms_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'icmsmodsubst_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'icmsmodsubst_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'origem_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'obslegal_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'ipi_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'ipicst_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'cofinscst_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'piscst_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'codigo_efd_t53_caracteristica') or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'csosn_caracteristica')
+  then
+    GradientLabelPesquisaCampo.Caption := 'Ctrl + F9 - Pesquisar    |  Space/Duplo Clique - Selecionar'
+  else
+    GradientLabelPesquisaCampo.Caption := 'Space/Duplo Clique - Selecionar';
+
+
+end;
+
+procedure TfrmManutencaoProdutos.DBAdvProdutosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_space then
+  begin
+    TDBAdvGrid(Sender).datasource.dataset.edit;
+    TDBAdvGrid(Sender).FieldAtColumn[TDBAdvGrid(Sender).ColumnByFieldName['marcar'].index].AsBoolean := not
+    TDBAdvGrid(Sender).FieldAtColumn[TDBAdvGrid(Sender).ColumnByFieldName['marcar'].index].AsBoolean;
+    TDBAdvGrid(Sender).datasource.dataset.post;
+
+    if DBAdvProdutos.FieldAtColumn[DBAdvProdutos.ColumnByFieldName['marcar'].index].AsBoolean then
+      inc(dtmManutencaoProdutos.vmarcados)
+    else
+      dec(dtmManutencaoProdutos.vmarcados);
+
+  end;
+
+end;
+
+procedure TfrmManutencaoProdutos.ckbSelecionarTodosClick(Sender: TObject);
+var
+vRecno : integer;
+begin
+  inherited;
+
+  DBAdvProdutos.SaveGridPosition;
+
+  with dtmManutencaoProdutos do
+  begin
+
+    vRecno := qryProdutos.recno;
+    qryProdutos.DisableControls;
+
+    qryProdutos.first;
+    while not qryProdutos.eof do
+    begin
+      qryProdutos.edit;
+      qryProdutosmarcar.AsBoolean := ckbSelecionarTodos.checked;
+      qryProdutos.post;
+
+      if qryProdutosmarcar.AsBoolean then
+        inc(vmarcados)
+      else
+        dec(vmarcados);
+
+      qryProdutos.next;
+
+      vPosition :=  (qryProdutos.RecNo * 100) / qryProdutos.recordcount;
+
+      AdvSmoothProgressBar1.visible := true;
+      AdvSmoothProgressBar1.Appearance.ValueFormat := 'Marcando/desmarcando produtos %.0f%%';
+      AdvSmoothProgressBar1.Position := vPosition;
+
+      Application.ProcessMessages;
+
+    end;
+
+    AdvSmoothProgressBar1.visible := false;
+
+    qryProdutos.enableControls;
+    qryProdutos.recno := vRecno;
+
+  end;
+
+  DBAdvProdutos.RestoreGridPosition;
+
+
+  {
+  vRecno := DBAdvProdutos.datasource.dataset.recno;
+  DBAdvProdutos.datasource.dataset.first;
+  while not DBAdvProdutos.datasource.dataset.eof do
+  begin
+    DBAdvProdutos.datasource.dataset.edit;
+    DBAdvProdutos.FieldAtColumn[DBAdvProdutos.ColumnByFieldName['marcar'].index].AsBoolean := ckbSelecionarTodos.checked;
+    DBAdvProdutos.datasource.dataset.post;
+
+    if DBAdvProdutos.FieldAtColumn[DBAdvProdutos.ColumnByFieldName['marcar'].index].AsBoolean then
+      inc(dtmManutencaoProdutos.vmarcados)
+    else
+      dec(dtmManutencaoProdutos.vmarcados);
+
+    DBAdvProdutos.datasource.dataset.next;
+  end;
+  DBAdvProdutos.datasource.dataset.recno := vRecno;
+  }
+
+
+
+end;
+
+procedure TfrmManutencaoProdutos.sbnAplicarClick(Sender: TObject);
+begin
+  inherited;
+  DBAdvProdutos.SaveGridPosition;
+  dtmManutencaoProdutos.AplicarAlteracoes;
+  DBAdvProdutos.RestoreGridPosition;
+end;
+
+procedure TfrmManutencaoProdutos.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+
+  sbnGerar.enabled := pgcManutencaoProdutos.ActivePage = tstParametros;
+
+  sbnAplicar.enabled := (dtmManutencaoProdutos.vmarcados <> 0) and not sbnGerar.enabled;
+  sbnAlterar.enabled := (dtmManutencaoProdutos.vmarcados <> 0) and
+                        (dtmManutencaoProdutos.vAplicados <> 0) and not sbnGerar.enabled;
+
+  sbnProdutos.enabled := dtmManutencaoProdutos.qryProdutos.RecordCount <> 0;
+
+
+end;
+
+procedure TfrmManutencaoProdutos.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+  if (dtmManutencaoProdutos.vmarcados <> 0) and
+     (dtmManutencaoProdutos.vAplicados <> 0) then
+    CanClose := MensagemConfirmacao('Existe uma gravação pendente. Ao gerar os dados a mesma será perdida.') = smbOK;
+
+  if not canclose then
+    pgcManutencaoProdutos.ActivePage := tstDadosProdutos;  
+
+end;
+
+procedure TfrmManutencaoProdutos.DBAdvProdutosDblClick(Sender: TObject);
+begin
+  inherited;
+
+    TDBAdvGrid(Sender).datasource.dataset.edit;
+    TDBAdvGrid(Sender).FieldAtColumn[TDBAdvGrid(Sender).ColumnByFieldName['marcar'].index].AsBoolean := not
+    TDBAdvGrid(Sender).FieldAtColumn[TDBAdvGrid(Sender).ColumnByFieldName['marcar'].index].AsBoolean;
+    TDBAdvGrid(Sender).datasource.dataset.post;
+
+    if DBAdvProdutos.FieldAtColumn[DBAdvProdutos.ColumnByFieldName['marcar'].index].AsBoolean then
+      inc(dtmManutencaoProdutos.vmarcados)
+    else
+      dec(dtmManutencaoProdutos.vmarcados);
+  
+
+end;
+
+procedure TfrmManutencaoProdutos.DBAdvProdutosGetCellColor(Sender: TObject;
+  ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush;
+  AFont: TFont);
+var
+  vstate : Boolean;
+
+begin
+  inherited;
+  if ARow > 0 then
+  begin
+    DBAdvProdutos.GetCheckBoxState(DBAdvProdutos.ColumnByFieldName['marcar'].Index,
+                                       ARow, vstate);
+    if vstate then
+      ABrush.Color := GradientLabelPesquisaCampo.color
+  end;
+end;
+
+procedure TfrmManutencaoProdutos.Button1Click(Sender: TObject);
+begin
+  inherited;
+//  DBAdvProdutos.toprow
+//  DBAdvProdutos.VisibleRowCount;
+//  dtmManutencaoProdutos.qryProdutos.MoveBy(1)
+
+  vrecnoteste := dtmManutencaoProdutos.qryProdutos.recno;
+  vrowteste := DBAdvProdutos.row;
+  vtoprowteste := DBAdvProdutos.toprow;
+
+end;
+
+procedure TfrmManutencaoProdutos.Button2Click(Sender: TObject);
+begin
+  inherited;
+  DBAdvProdutos.row := vtoprowteste + DBAdvProdutos.VisibleRowCount;
+  DBAdvProdutos.row := vtoprowteste;
+  dtmManutencaoProdutos.qryProdutos.MoveBy(vrowteste-vtoprowteste);
+
+
+end;
+
+procedure TfrmManutencaoProdutos.PlannerDBDatePicker1KeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+//    DBAdvProdutosTop.setfocus;
+    SelectNext(ActiveControl, false, true);
+end;
+
+procedure TfrmManutencaoProdutos.ckbNuloKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    SelectNext(ActiveControl, false, true);
+//    DBAdvProdutosTop.setfocus;
+
+end;
+
+procedure TfrmManutencaoProdutos.sbnAlterarClick(Sender: TObject);
+begin
+  inherited;
+
+  DBAdvProdutos.SaveGridPosition;
+
+  if dtmManutencaoProdutos.GravarAlteracoes then
+    DBAdvProdutos.RestoreGridPosition;
+
+
+
+end;
+
+procedure TfrmManutencaoProdutos.DBCheckBoxBooleanKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    SelectNext(pnlEdicaoDados, false, true);
+end;
+
+procedure TfrmManutencaoProdutos.DBMaplistCombobox1KeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    SelectNext(pnlEdicaoDados, false, true);
+
+end;
+
+procedure TfrmManutencaoProdutos.DBAdvProdutosTopColumnSize(
+  Sender: TObject; ACol: Integer; var Allow: Boolean);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmManutencaoProdutos.DBAdvProdutosTopColumnSizing(
+  Sender: TObject; ACol, ColumnSize: Integer);
+begin
+  inherited;
+
+  try
+    vColResized := ACol;
+    DBAdvProdutos.OnColumnSizing := nil;
+    DBAdvProdutos.ColumnByFieldName[TDBAdvGrid(Sender).Columns[Acol].fieldname].Width := TDBAdvGrid(Sender).ColumnByFieldName[TDBAdvGrid(Sender).Columns[Acol].fieldname].Width;
+  finally
+    DBAdvProdutos.OnColumnSizing := DBAdvProdutosColumnSizing;
+  end;
+
+end;
+
+procedure TfrmManutencaoProdutos.DBAdvProdutosColumnSizing(Sender: TObject;
+  ACol, ColumnSize: Integer);
+begin
+  inherited;
+
+  try
+    vColResized := ACol;
+    DBAdvProdutosTop.OnColumnSizing := nil;
+    DBAdvProdutosTop.ColumnByFieldName[TDBAdvGrid(Sender).Columns[Acol].fieldname].Width := TDBAdvGrid(Sender).ColumnByFieldName[TDBAdvGrid(Sender).Columns[Acol].fieldname].Width;
+    DBAdvProdutosTop.Repaint;
+  finally
+    DBAdvProdutosTop.OnColumnSizing := DBAdvProdutosTopColumnSizing;
+  end;
+end;
+
+procedure TfrmManutencaoProdutos.DBAdvProdutosTopMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  SincronizarLarguraColuna(DBAdvProdutosTop, DBAdvProdutos);
+end;
+
+procedure TfrmManutencaoProdutos.DBAdvProdutosMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  SincronizarLarguraColuna(DBAdvProdutos, DBAdvProdutosTop);
+end;
+
+procedure TfrmManutencaoProdutos.SincronizarLarguraColuna(ColunaOrigem,
+  ColunaDestino: TDBAdvGrid);
+begin
+  if vColResized <> 0 then
+  begin
+    ColunaDestino.ColumnByFieldName[ColunaOrigem.Columns[vColResized].fieldname].Width := ColunaOrigem.ColumnByFieldName[ColunaOrigem.Columns[vColResized].fieldname].Width;
+    vColResized := 0;
+  end;
+end;
+
+procedure TfrmManutencaoProdutos.Copia1Click(Sender: TObject);
+begin
+  inherited;
+  DBAdvProdutos.CopySelectionToClipboard;
+end;
+
+procedure TfrmManutencaoProdutos.Pesquizar1Click(Sender: TObject);
+begin
+  inherited;
+  AdvGridFindDialog1.Grid := DBAdvProdutos;
+  AdvGridFindDialog1.Execute;
+
+end;
+
+procedure TfrmManutencaoProdutos.ExportarExcel1Click(Sender: TObject);
+var
+  vNomeArquivo : String;
+
+begin
+  inherited;
+  AdvGridExcelIO1.AdvStringGrid := DBAdvProdutos;
+  vNomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas\ManutencaoProdutos.xls';
+  AdvGridExcelIO1.XLSExport(vNomeArquivo, 'ManutençãoProdutos');
+end;
+
+procedure TfrmManutencaoProdutos.sbnProdutosClick(Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir',
+      dtmManutencaoProdutos.qryProdutoscodigovisual_caracteristica.asString], 'TfrmCadastroCaracteristicas', True)
+end;
+
+end.

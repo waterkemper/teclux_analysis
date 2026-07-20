@@ -1,0 +1,170 @@
+unit clbackuptefdiscado;
+
+interface
+
+type
+
+  TtecBackupTEFDiscado = class
+  public
+    procedure Apagar(Indice: Integer);
+    procedure ApagarArquivo;
+    procedure ExecutarBackup;  // CANCELA AS TRANSAÇÕES PENDENTES
+    function  ExisteArquivo(Criar: Boolean): Boolean;
+    procedure Incluir(NomeRedeNSU, NSUSiTEC, DataNSU, HoraNSU: String; Valor: Currency; Indice: Integer);
+    function  QtdadeTransacoes: Integer;
+  end;
+
+var
+
+  BackupTEFDiscado: TtecBackupTEFDiscado;
+
+implementation
+
+Uses
+  //CLX
+  SysUtils, inifiles, Forms,
+  //Biblio
+  cltefdiscado, fmmensagemtemporizada;
+
+{ TtecBackupTEFDiscado }
+
+Const
+
+  NomeTEFArqBackup = 'tefdiscadobackup.ini';
+
+procedure TtecBackupTEFDiscado.Apagar(Indice: Integer);
+var
+  Arq: TIniFile;
+  StrTransacao: String;
+begin
+  Arq := TIniFile.Create(ExtractFilePath(Application.ExeName) + NomeTEFArqBackup);
+  try
+    StrTransacao := 'TRANSACAO' + IntToStr(iNDICE);
+    Arq.EraseSection(StrTransacao);
+    Arq.UpdateFile;
+  finally
+    Arq.Free
+  end
+end;
+
+procedure TtecBackupTEFDiscado.ApagarArquivo;
+begin
+  if FileExists(ExtractFilePath(Application.ExeName) + NomeTEFArqBackup) then
+    DeleteFile(ExtractFilePath(Application.ExeName) + NomeTEFArqBackup)
+end;
+
+procedure TtecBackupTEFDiscado.ExecutarBackup;
+var
+  Arq: TIniFile;
+  StrTransacao: String;
+  NomeRedeNSU,
+  NSUSiTEC,
+  DataNSU,
+  HoraNSU: String;
+  ValorStr: String;
+  Valor: Real;
+  Indice: Integer;
+  tefdiscado: TtecTEFDiscado;
+
+begin
+  if FileExists(ExtractFilePath(Application.ExeName) + NomeTEFArqBackup) then begin
+    Arq := TIniFile.Create(ExtractFilePath(Application.ExeName) + NomeTEFArqBackup);
+    try
+      Indice := 1;
+//      frmMsg := TfrmMensagemTemporizada.Create(nil,'');
+//      try
+        while Indice <= 30 do begin
+          StrTransacao := 'TRANSACAO' + IntToStr(iNDICE);
+          if Arq.SectionExists(StrTransacao) then begin
+            NomeRedeNSU := Arq.ReadString(StrTransacao, 'NOMEREDE', '');
+            NSUSiTEC    := Arq.ReadString(StrTransacao, 'NSU', '');
+            DataNSU     := Arq.ReadString(StrTransacao, 'DATA', '');
+            HoraNSU     := Arq.ReadString(StrTransacao, 'HORA', '');
+            ValorStr    := Arq.ReadString(StrTransacao, 'VALOR', '');
+            try
+              Valor     := StrToFloat(ValorStr);
+            except
+              Valor     := 0;
+            end;
+            tefdiscado := TtecTEFDiscado.Create(tefdiscado);
+            tefdiscado.ValorTransacao := ValorStr;
+            try
+              if tefdiscado.CancelarTransacao(NSUSiTEC, NomeRedeNSU, HoraNSU, DataNSU, Valor, False) then begin
+                Arq.EraseSection(StrTransacao);
+                Arq.UpdateFile;
+                Inc(Indice);
+              end
+            finally
+              tefdiscado.Free
+            end
+          end else
+            Inc(Indice);
+        end;
+        ApagarArquivo
+{      finally
+        frmMsg.Free
+      end}
+    finally
+      Arq.Free
+    end
+  end
+end;
+
+function TtecBackupTEFDiscado.ExisteArquivo(Criar: Boolean): Boolean;
+var
+  Arq: Integer;
+begin
+  Result := FileExists(ExtractFilePath(Application.ExeName) + NomeTEFArqBackup);
+  if Not Result and Criar then begin
+    Arq := FileCreate(ExtractFilePath(Application.ExeName) + NomeTEFArqBackup);
+    if Arq > 0 then
+      FileClose(Arq);
+    Result := Arq > 0
+  end
+end;
+
+procedure TtecBackupTEFDiscado.Incluir(NomeRedeNSU, NSUSiTEC, DataNSU, HoraNSU: String;
+  Valor: Currency; Indice: Integer);
+var
+  Arq: TIniFile;
+  StrTransacao: String;
+begin
+  Arq := TIniFile.Create(ExtractFilePath(Application.ExeName) + NomeTEFArqBackup);
+  try
+    StrTransacao := 'TRANSACAO' + IntToStr(iNDICE);
+    Arq.WriteString(StrTransacao, 'NOMEREDE', NomeRedeNSU);
+    Arq.WriteString(StrTransacao, 'NSU',      NSUSiTEC);
+    Arq.WriteString(StrTransacao, 'DATA',     DataNSU);
+    Arq.WriteString(StrTransacao, 'HORA',     HoraNSU);
+    Arq.WriteFloat(StrTransacao,  'VALOR',    Valor);
+    Arq.UpdateFile;
+  finally
+    Arq.Free
+  end
+end;
+
+function TtecBackupTEFDiscado.QtdadeTransacoes: Integer;
+var
+  Arq: TIniFile;
+  StrTransacao: String;
+  Indice: Integer;
+
+begin
+  Result := 0;
+  if FileExists(ExtractFilePath(Application.ExeName) + NomeTEFArqBackup) then begin
+    Arq := TIniFile.Create(ExtractFilePath(Application.ExeName) + NomeTEFArqBackup);
+    try
+      Indice := 1;
+      while Indice <= 30 do begin
+        StrTransacao := 'TRANSACAO' + IntToStr(iNDICE);
+        if Arq.SectionExists(StrTransacao) then
+          Inc(Result);
+        Inc(Indice);
+      end;
+    finally
+      Arq.Free
+    end
+  end
+end;
+
+end.

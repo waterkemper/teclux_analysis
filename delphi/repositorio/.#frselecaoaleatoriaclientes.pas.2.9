@@ -1,0 +1,219 @@
+unit frselecaoaleatoriaclientes;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, frselecaoaleatoria, DB, frconsultacodigo, cpdbfindcontrols, ctconstantes, biblio;
+
+type
+  TfraSelecaoAleatoriaClientes = class(TFrame)
+    fraSelecaoAleatoriaCliente: TfraSelecaoAleatoria;
+    procedure fraSelecaoAleatoriaClientesqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaClientesqrySelecaoAleatoriaNewRecord(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaClientesdbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaClientessbnProcuraClick(Sender: TObject);
+    procedure fraSelecaoAleatoriaClientedbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+  private
+    function GetListaCondicional: String;
+    procedure AtribuirDadosClientes;
+    procedure AcionarPesquisaGrade;
+
+
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    property ListaCondicional: String read GetListaCondicional;
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfraSelecaoAleatoriaClientes.fraSelecaoAleatoriaClientesqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+begin
+  with fraSelecaoAleatoriaCliente do
+  begin
+    qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'Cliente';
+    qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('tipo').DisplayLabel := 'T';
+    qrySelecaoAleatoria.FieldByName('tipo').ReadOnly := true;
+
+    qrySelecaoAleatoria.FieldByName('descricao').DisplayLabel := 'Nome do Cliente/Fornecedor';
+    qrySelecaoAleatoria.FieldByName('descricao').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('opcomparacao').DisplayLabel := 'Comparação';
+    qrySelecaoAleatoria.FieldByName('opcomparacao').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('oplogico').DisplayLabel := 'Lógica';
+    qrySelecaoAleatoria.FieldByName('oplogico').ReadOnly := false;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+  end;
+
+end;
+
+procedure TfraSelecaoAleatoriaClientes.fraSelecaoAleatoriaClientesqrySelecaoAleatoriaNewRecord(
+  DataSet: TDataSet);
+begin
+  with fraSelecaoAleatoriaCliente do
+  begin
+    qrySelecaoAleatoria.FieldByName('campo').asString := 'codigo';
+    qrySelecaoAleatoria.FieldByName('opcomparacao').asString := '= Igual a';
+    qrySelecaoAleatoria.FieldByName('oplogico').asString := 'ou';
+  end;
+end;
+
+procedure TfraSelecaoAleatoriaClientes.fraSelecaoAleatoriaClientesdbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  if (fraSelecaoAleatoriaCliente.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatoriaCliente.qrySelecaoAleatoria.FieldByName('codigo')) then
+    acionarPesquisaGrade;
+
+end;
+
+procedure TfraSelecaoAleatoriaClientes.fraSelecaoAleatoriaClientessbnProcuraClick(
+  Sender: TObject);
+begin
+  AcionarPesquisaGrade;
+
+end;
+
+constructor TfraSelecaoAleatoriaClientes.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  fraSelecaoAleatoriaCliente.qrySelecaoAleatoria.Sql.Text :=
+    'SELECT  cast(null as char(18)) as codigo, '+
+    '            cast(null as char(1)) as tipo, '+
+    '            cast(null as varchar(50)) as descricao, '+
+    '            cast(null as varchar(11)) as campo, '+
+    '            cast(null as varchar(20)) as opcomparacao, '+
+    '            cast(null as varchar(2)) as oplogico ';
+
+
+
+
+  fraSelecaoAleatoriaCliente.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaCliente.CampoParaLista2 := 'tipo';
+
+
+  with fraSelecaoAleatoriaCliente do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoria';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 4;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraCliente;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.NaoExecutarLookupFound := true;
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesCLIENTES;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosClientes;
+    ConsultaSelecaoAleatoria.TipoCliente := 'C';
+    ConsultaSelecaoAleatoria.edfCodigo.ExibirMensagem := false;
+  end;
+
+  fraSelecaoAleatoriaCliente.UtilizarCamparacaoeLogica := true;
+
+end;
+
+function TfraSelecaoAleatoriaClientes.GetListaCondicional: String;
+begin
+{  result := trocar(fraSelecaoAleatoriaCliente.ListaCondicionalcomTipo, 'codigo','vf.codigo');}
+
+  result := trocar(fraSelecaoAleatoriaCliente.ListaCondicional, 'codigo','vf.codigo');
+  result := trocar(result, 'tipo','vf.tipo');
+  result := trocar(result, 'descricao','vf.nome');
+  result := trocar(result, 'cpf/cnpj','vf.pessoanumero');
+end;
+
+procedure TfraSelecaoAleatoriaClientes.AtribuirDadosClientes;
+begin
+  with fraSelecaoAleatoriaCliente do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraClientecodigo.AsString;
+
+    if qrySelecaoAleatoria.Findfield('tipo')<> nil then
+      qrySelecaoAleatoria.FieldByName('tipo').AsString :=
+          ConsultaSelecaoAleatoria.qryProcuraClientetipo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('descricao').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraClientenome.AsString;
+
+    if qrySelecaoAleatoria.FieldByName('campo').asString = '' then
+      qrySelecaoAleatoria.FieldByName('campo').asString := 'codigo';
+
+    if qrySelecaoAleatoria.FieldByName('opcomparacao').asString = '' then
+      qrySelecaoAleatoria.FieldByName('opcomparacao').asString := '= Igual a';
+
+    if qrySelecaoAleatoria.FieldByName('oplogico').asString = '' then
+      qrySelecaoAleatoria.FieldByName('oplogico').asString := 'ou';
+
+    qrySelecaoAleatoria.Post;
+  end;
+end;
+
+procedure TfraSelecaoAleatoriaClientes.AcionarPesquisaGrade;
+begin
+  with fraSelecaoAleatoriaCliente do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar('Clientes');
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+procedure TfraSelecaoAleatoriaClientes.fraSelecaoAleatoriaClientedbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     if (fraSelecaoAleatoriaCliente.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatoriaCliente.qrySelecaoAleatoria.FieldByName('codigo')) then
+                     begin
+                       fraSelecaoAleatoriaCliente.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                       if (Shift = []) or fraSelecaoAleatoriaCliente.ConsultaSelecaoAleatoria.CtrlOn then
+                         AcionarPesquisaGrade
+                     end;
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if (fraSelecaoAleatoriaCliente.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatoriaCliente.qrySelecaoAleatoria.FieldByName('codigo')) then
+                begin
+                  fraSelecaoAleatoriaCliente.ConsultaSelecaoAleatoria.edfCodigo.text := fraSelecaoAleatoriaCliente.qrySelecaoAleatoria.FieldByName('codigo').asString;
+                  fraSelecaoAleatoriaCliente.ConsultaSelecaoAleatoria.edfCodigo.exist;
+                  if not fraSelecaoAleatoriaCliente.ConsultaSelecaoAleatoria.qryProcuraCliente.IsEmpty then
+                    AtribuirDadosClientes
+                  else
+                  begin
+                    key := 0;
+                    fraSelecaoAleatoriaCliente.dbgSelecaoAleatoria.SelectedIndex := 0;
+                    fraSelecaoAleatoriaCliente.dbgSelecaoAleatoria.SetFocus;
+                  end;
+                end;
+  end;
+
+end;
+
+end.

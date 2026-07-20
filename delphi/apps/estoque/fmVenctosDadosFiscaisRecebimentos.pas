@@ -1,0 +1,127 @@
+unit fmVenctosDadosFiscaisRecebimentos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, fmajudabt, ComCtrls, Buttons, ExtCtrls, Grids, DBGrids,
+  cpdbgrid, biblio, ctconstantes,
+  dmemissaonotassaidaavulsas, ToolWin, ActnList, clparametrossistema, clecf, cltefdiscado,
+  ACBrTEFDClass, cpnumero;
+
+type
+  TfrmVenctosDadosFiscaisRecebimentos = class(TfrmAjudaBt)
+    pnlFundoJanela: TPanel;
+    gbxRecebimentos: TGroupBox;
+    pnlBottom: TPanel;
+    gbxValorAutenticado: TGroupBox;
+    dbgRecebimentos: TtecDBGrid;
+    gbxValorTotalRecebimentos: TGroupBox;
+    sbnGravar: TSpeedButton;
+    Bevel1: TBevel;
+    edtValorNota: TDBEditNumero;
+    DBEditNumero1: TDBEditNumero;
+    procedure sbnGravarClick(Sender: TObject);
+    procedure dbgRecebimentosColExit(Sender: TObject);
+    procedure dbgRecebimentosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+  private
+    { Private declarations }
+  protected
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    { Public declarations }
+  end;
+
+var
+  frmVenctosDadosFiscaisRecebimentos: TfrmVenctosDadosFiscaisRecebimentos;
+
+implementation
+
+//uses SysInit;
+
+{$R *.dfm}
+
+{ TfrmVenctosDadosFiscaisRecebimentos }
+
+constructor TfrmVenctosDadosFiscaisRecebimentos.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+destructor TfrmVenctosDadosFiscaisRecebimentos.Destroy;
+begin
+  inherited;
+  frmVenctosDadosFiscaisRecebimentos := nil;
+end;
+
+procedure TfrmVenctosDadosFiscaisRecebimentos.sbnGravarClick(Sender: TObject);
+begin
+  inherited;
+  sbnGravar.Enabled := false;
+
+  dtmEmissaoNotaAvulsas.GravarVenctosDadosFiscais;
+  if dtmEmissaoNotaAvulsas.qryDadosFiscaistotalvalorvencto.AsCurrency =
+     dtmEmissaoNotaAvulsas.qryDadosFiscaisvalortotal.AsCurrency then
+  begin
+    ModalResult := mrOk;
+  end
+  else
+  begin
+    MensagemAviso('Os valores dos vencimentos não estão fechando com o total da nota fiscal.');
+    dbgRecebimentos.SetFocus;
+  end;
+
+  sbnGravar.Enabled := true;
+
+end;
+
+procedure TfrmVenctosDadosFiscaisRecebimentos.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_F5) and sbnGravar.Enabled then
+    sbnGravarClick(nil)
+
+end;
+
+
+procedure TfrmVenctosDadosFiscaisRecebimentos.dbgRecebimentosColExit(Sender: TObject);
+begin
+  inherited;
+  dtmEmissaoNotaAvulsas.GravarVenctosDadosFiscais;
+end;
+
+procedure TfrmVenctosDadosFiscaisRecebimentos.dbgRecebimentosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if TeclaEnterOuReturn(Key) then
+    dtmEmissaoNotaAvulsas.GravarVenctosDadosFiscais; 
+end;
+
+procedure TfrmVenctosDadosFiscaisRecebimentos.FormShow(Sender: TObject);
+begin
+  inherited;
+  dtmEmissaoNotaAvulsas.MontarVenctosDadosFiscais;
+end;
+
+
+procedure TfrmVenctosDadosFiscaisRecebimentos.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+  CanClose := roundtod(dtmEmissaoNotaAvulsas.qryDadosFiscaistotalvalorvencto.AsCurrency, 2) =
+              roundtod(dtmEmissaoNotaAvulsas.qryDadosFiscaisvalortotal.AsCurrency, 2);
+  if not CanClose then
+  begin
+    if MensagemSelecionaOpcao('Os valores dos vencimentos não estão fechando com o total da nota fiscal. Deseja cancelar a operação?') = smbYes then
+      Canclose := true;
+  end;
+end;
+
+end.

@@ -1,0 +1,106 @@
+unit dmFormacaoPrecoVenda;
+
+interface
+
+uses
+  SysUtils, Classes, DB, ZQuery, ZPgSqlQuery, cpquery, cpdatasource,
+  dmbasico, ZTransact, dmtecsoft, ACBrBase, ACBrDFe, ACBrNFSe;
+
+type
+  TdtmFormacaoPrecoVenda = class(TdtmBasico)
+    dsrFormacaoPrecoVenda: TtecDataSource;
+    qryFormacaoPrecoVenda: TtecQuery;
+    qryFormacaoPrecoVendacodigonota: TIntegerField;
+    qryFormacaoPrecoVendafornecedor: TIntegerField;
+    qryFormacaoPrecoVendatipofornecedor: TStringField;
+    qryFormacaoPrecoVendaserie: TStringField;
+    qryFormacaoPrecoVendanumeronota: TIntegerField;
+    qryFormacaoPrecoVendaproduto: TLargeintField;
+    qryFormacaoPrecoVendaprodutovisual: TStringField;
+    qryFormacaoPrecoVendanumeroproduto: TIntegerField;
+    qryFormacaoPrecoVendaprecounitario: TFloatField;
+    qryFormacaoPrecoVendadesconto: TFloatField;
+    qryFormacaoPrecoVendafrete: TFloatField;
+    qryFormacaoPrecoVendaiivalor: TFloatField;
+    qryFormacaoPrecoVendadespesasacessorias: TFloatField;
+    qryFormacaoPrecoVendaacrescimo: TFloatField;
+    qryFormacaoPrecoVendaseguro: TFloatField;
+    qryFormacaoPrecoVendaicmsvalor: TFloatField;
+    qryFormacaoPrecoVendaaliquotaicms: TFloatField;
+    qryFormacaoPrecoVendavcredicmssn: TFloatField;
+    qryFormacaoPrecoVendapcredsn: TFloatField;
+    qryFormacaoPrecoVendaicmsconhecimentofrete: TFloatField;
+    qryFormacaoPrecoVendaaliquotaicmsconhecimentofrete: TFloatField;
+    qryFormacaoPrecoVendaicmsvalorstcusto: TFloatField;
+    qryFormacaoPrecoVendaaliquotaicmsst_custo: TFloatField;
+    qryFormacaoPrecoVendavaloripi: TFloatField;
+    qryFormacaoPrecoVendaaliquotaipi: TFloatField;
+    qryFormacaoPrecoVendapisvalor: TFloatField;
+    qryFormacaoPrecoVendapisaliquota: TFloatField;
+    qryFormacaoPrecoVendacofinsvalor: TFloatField;
+    qryFormacaoPrecoVendacofinsaliquota: TFloatField;
+    qryFormacaoPrecoVendaprecocusto: TFloatField;
+    qryFormacaoPrecoVendadescontoprecovenda: TFloatField;
+    qryFormacaoPrecoVendacustoparavenda: TFloatField;
+    qryFormacaoPrecoVendamarkup: TFloatField;
+    qryFormacaoPrecoVendavalormarkup: TFloatField;
+    qryFormacaoPrecoVendaaliquotaicmsprecovenda: TFloatField;
+    qryFormacaoPrecoVendaicmsvalorprecovenda: TFloatField;
+    qryFormacaoPrecoVendapercentualreducaoicmsprecovenda: TFloatField;
+    qryFormacaoPrecoVendavalorreducaoicmsprecovenda: TFloatField;
+    qryFormacaoPrecoVendapisaliquotaprecovenda: TFloatField;
+    qryFormacaoPrecoVendapisvalorprecovenda: TFloatField;
+    qryFormacaoPrecoVendacofinsaliquotaprecovenda: TFloatField;
+    qryFormacaoPrecoVendacofinsvalorprecovenda: TFloatField;
+    qryFormacaoPrecoVendaprecovenda: TFloatField;
+    qryFormacaoPrecoVendafatorsubstituicao_custo: TFloatField;
+    qryFormacaoPrecoVendaarredondamento: TFloatField;
+    qryFormacaoPrecoVendabaseicmsparavenda: TFloatField;
+    qryFormacaoPrecoVendanomefornecedor: TStringField;
+    qryFormacaoPrecoVendaestado: TStringField;
+    qryFormacaoPrecoVendaemissao: TDateField;
+    qryFormacaoPrecoVendaaliquotaipiprecovenda: TFloatField;
+    qryFormacaoPrecoVendavaloripiprecovenda: TFloatField;
+    qryFormacaoPrecoVendadescricaoproduto: TStringField;
+    qryFormacaoPrecoVendacst_produto: TStringField;
+    qryFormacaoPrecoVendacsosn_produto: TStringField;
+    qryFormacaoPrecoVendacst_notafiscal: TStringField;
+    qryFormacaoPrecoVendacst_fornecedor: TStringField;
+    qryFormacaoPrecoVendacsosn_fornecedor: TStringField;
+    qryFormacaoPrecoVendacodigofiscalempresa: TIntegerField;
+    qryFormacaoPrecoVendadescricaocodigofiscaloempresa: TStringField;
+    qryFormacaoPrecoVendacodigofiscalfornecedor: TIntegerField;
+    qryFormacaoPrecoVendadescricaocodigofiscalfornecedor: TStringField;
+    qryFormacaoPrecoVendancm_empresa: TStringField;
+    qryFormacaoPrecoVendancm_fornecedor: TStringField;
+    qryFormacaoPrecoVendacsosn_notafiscal: TStringField;
+    qryFormacaoPrecoVendancm_cadastro: TStringField;
+    qryFormacaoPrecoVendacusto_medio: TFloatField;
+    qryFormacaoPrecoVendamva: TFloatField;
+    procedure qryFormacaoPrecoVendaCalcFields(DataSet: TDataSet);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  dtmFormacaoPrecoVenda: TdtmFormacaoPrecoVenda;
+
+implementation
+
+{$R *.dfm}
+
+procedure TdtmFormacaoPrecoVenda.qryFormacaoPrecoVendaCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryFormacaoPrecoVendafatorsubstituicao_custo.AsFloat <> 0 then
+    qryFormacaoPrecoVendamva.AsFloat := (qryFormacaoPrecoVendafatorsubstituicao_custo.AsFloat - 1) * 100
+  else
+    qryFormacaoPrecoVendamva.AsFloat := 0;  
+
+
+end;
+
+end.

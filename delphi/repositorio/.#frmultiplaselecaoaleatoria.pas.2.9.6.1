@@ -1,0 +1,85 @@
+unit frmultiplaselecaoaleatoria;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
+  Dialogs, ComCtrls, cppagecontrol, frselecaoaleatoria,
+  frselecaoaleatoriaitemdeprodutos, ExtCtrls, frselecaoaleatoriaprodutos,
+  frselecaoaleatoriagruposprodutos, frselecaoaleatoriaclassesprodutos,
+  frselecaoaleatoriamarcasprodutos, frselecaoaleatoriapromocoes,
+  frselecaoaleatoriacsosn, frselecaoaleatoriacst,
+  frselecaoaleatorialistaspadronizadas, frselecaoaleatoriamodelosprodutos,
+  clparametrossistema, frselecaoaleatorialocalizacaoestoque,
+  frselecaoaleatoriamarketplace;
+
+type
+  TfraMultiplaSelecaoAleatoria = class(TFrame)
+    pgcMultiplaSelecaoAleatoria: TtecPageControl;
+    tstItemdeProduto: TTabSheet;
+    tstProduto: TTabSheet;
+    Timer1: TTimer;
+    fraSelecaoAleatoriaItemdeProdutos: TfraSelecaoAleatoriaItemdeProdutos;
+    fraSelecaoAleatoriaprodutos: TfraSelecaoAleatoriaprodutos;
+    tstSelecaoAleatoriaGrupoProduto: TTabSheet;
+    fraSelecaoaleatoriagruposprodutos: TfraSelecaoaleatoriagruposprodutos;
+    tstSelecaoAleatoriaClasseProduto: TTabSheet;
+    fraSelecaoaleatoriaclassesprodutos: TfraSelecaoaleatoriaclassesprodutos;
+    tstSelecaoAleatoriaMarcaProduto: TTabSheet;
+    fraSelecaoAleatoriamarcasProdutos: TfraSelecaoAleatoriamarcasProdutos;
+    tstSelecaoAleatoriaPromocoes: TTabSheet;
+    fraSelecaoaleatoriapromocoes: TfraSelecaoaleatoriapromocoes;
+    tstCSOSN: TTabSheet;
+    tstCST: TTabSheet;
+    fraSelecaoAleatoriacst: TfraSelecaoAleatoriacst;
+    fraSelecaoAleatoriacsosn: TfraSelecaoAleatoriacsosn;
+    tstListaPadronizada: TTabSheet;
+    fraSelecaoaleatorialistaspadronizadas: TfraSelecaoaleatorialistaspadronizadas;
+    tstSelecaoAleatoriamodelosProduto: TTabSheet;
+    fraSelecaoAleatoriamodelosProdutos1: TfraSelecaoAleatoriamodelosProdutos;
+    tstSelecaoAleatoriaLocalizacoesEstoques: TTabSheet;
+    fraSelecaoaleatorialocalizacaoestoque1: TfraSelecaoaleatorialocalizacaoestoque;
+    tstSelecaoAleatoriaMarketPlace: TTabSheet;
+    fraSelecaoaleatoriamarketplace1: TfraSelecaoaleatoriamarketplace;
+    procedure Timer1Timer(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+  end;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfraMultiplaSelecaoAleatoria.Timer1Timer(Sender: TObject);
+begin
+  tstItemdeProduto.Highlighted := (fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.qryselecaoaleatoria.recordcount <> 0);
+  tstProduto.Highlighted := (fraSelecaoAleatoriaprodutos.fraSelecaoAleatoriaProduto.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaGrupoProduto.Highlighted := (fraSelecaoaleatoriagruposprodutos.fraSelecaoAleatoriaGrupoProduto.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaClasseProduto.Highlighted := (fraSelecaoaleatoriaclassesprodutos.fraSelecaoAleatoriaClasseProduto.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaMarcaProduto.Highlighted := (fraSelecaoAleatoriamarcasProdutos.fraSelecaoAleatoriamarcasProduto.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriamodelosProduto.Highlighted := (fraSelecaoAleatoriamodelosProdutos1.fraSelecaoAleatoriaModelosProduto.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaPromocoes.Highlighted := (fraSelecaoaleatoriapromocoes.fraSelecaoAleatoriapromocoes.qryselecaoaleatoria.recordcount <> 0);
+  tstCST.Highlighted := (fraSelecaoaleatoriacst.fraSelecaoAleatoriacst.qryselecaoaleatoria.recordcount <> 0);
+  tstCSOSN.Highlighted := (fraSelecaoaleatoriacsosn.fraSelecaoAleatoriacsosn.qryselecaoaleatoria.recordcount <> 0);
+  tstListaPadronizada.Highlighted := (fraSelecaoaleatorialistaspadronizadas.fraSelecaoaleatorialistaspadronizadas.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaLocalizacoesEstoques.Highlighted := (fraSelecaoaleatorialocalizacaoestoque1.fraSelecaoAleatoriaLocalizacaoEstoque.qryselecaoaleatoria.recordcount <> 0);
+
+end;
+
+constructor TfraMultiplaSelecaoAleatoria.Create(AOwner: TComponent);
+begin
+  inherited;
+  tstSelecaoAleatoriamodelosProduto.tabvisible := ParSistema.LiberarVisualizacaodeModelosProdutos and
+                                                  (AOwner.ClassName = 'TfrmConsultaEstoque');
+
+  tstSelecaoAleatoriaLocalizacoesEstoques.tabvisible := (AOwner.ClassName = 'TfrmConsultaEstoque');
+
+  tstSelecaoAleatoriaMarketPlace.tabvisible := (AOwner.ClassName = 'TfrmManutencaoPreco');
+
+
+end;
+
+end.

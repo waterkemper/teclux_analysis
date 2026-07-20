@@ -1,0 +1,206 @@
+inherited frmRelatorioDepreciacao: TfrmRelatorioDepreciacao
+  Left = 503
+  Top = 193
+  Caption = ' Relat'#243'rio de Deprecia'#231#245'es'
+  ClientHeight = 357
+  ClientWidth = 710
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  FormStyle = fsMDIChild
+  OldCreateOrder = False
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited pnlBarra: TToolBar
+    Width = 710
+    TabOrder = 3
+  end
+  inherited pnlFundoJanela: TPanel
+    Top = 357
+    Width = 710
+    Height = 0
+    TabOrder = 4
+  end
+  object gbxPeriodo: TGroupBox
+    Left = 91
+    Top = 68
+    Width = 75
+    Height = 36
+    Caption = ' MESES '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 1
+    object lblA: TLabel
+      Left = 33
+      Top = 13
+      Width = 7
+      Height = 15
+      Caption = 'a'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+    object edtMesInicial: TEditMes
+      Left = 2
+      Top = 10
+      Width = 25
+      Height = 23
+      EditMask = '99;1; '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = 2
+      ParentFont = False
+      TabOrder = 0
+      Text = '  '
+    end
+    object edtMesFinal: TEditMes
+      Left = 47
+      Top = 10
+      Width = 25
+      Height = 23
+      EditMask = '99;1; '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = 2
+      ParentFont = False
+      TabOrder = 1
+      Text = '  '
+    end
+  end
+  object gbxBens: TGroupBox
+    Left = 6
+    Top = 112
+    Width = 700
+    Height = 243
+    Caption = ' BENS A RELACIONAR '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 2
+    inline fraSelecaoAleatoriaImobilizado: TfraSelecaoAleatoria
+      Left = 2
+      Top = 16
+      Width = 696
+      Height = 225
+      HorzScrollBar.Range = 26
+      Align = alClient
+      AutoScroll = False
+      TabOrder = 0
+      inherited dbgSelecaoAleatoria: TtecDBGrid
+        Width = 665
+        Height = 225
+        Font.Height = -12
+        Font.Name = 'Helvetica'
+        Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgCancelOnExit]
+        OnDblClick = fraSelecaoAleatoriaImobilizadodbgSelecaoAleatoriaDblClick
+        OnKeyDown = fraSelecaoAleatoriaImobilizadodbgSelecaoAleatoriaKeyDown
+        CanDelete = True
+        DefaultRowHeight = 19
+      end
+      inherited pnlLabels: TPanel
+        Left = 665
+        Height = 225
+        inherited sbnProcura: TSpeedButton
+          Hint = 'CTRL + F9 - Procura funcion'#225'rio'
+          OnClick = fraSelecaoAleatoriaImobilizadosbnProcuraClick
+        end
+        inherited sbnExcluir: TSpeedButton
+          Hint = 'Excluir funcion'#225'rio'
+        end
+        inherited sbnExcluirTodos: TSpeedButton
+          Hint = 'Excluir todos os funcion'#225'rios'
+        end
+        inherited sbnIncluirItem: TSpeedButton
+          Hint = 'Incluir funcion'#225'rio'
+        end
+      end
+      inherited qrySelecaoAleatoria: TtecQuery
+        AfterOpen = fraSelecaoAleatoriaImobilizadoqrySelecaoAleatoriaAfterOpen
+        Sql.Strings = (
+          'select i.numero,'
+          '       p.codigovisual as produtovisual,'
+          '       p.descricao as descricaodobem'
+          ''
+          'from imobilizado i'
+          '     join produtos p'
+          '     on i.codigobem = p.codigo'
+          ''
+          'where false'
+          ''
+          'order by i.numero')
+      end
+    end
+  end
+  object gbxExercicio: TGroupBox
+    Left = 6
+    Top = 54
+    Width = 77
+    Height = 50
+    Caption = ' EXERC'#205'CIO '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 0
+    object edtExercicioAtualContabilidade: TEditNumero
+      Left = 2
+      Top = 10
+      Width = 72
+      Height = 37
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -24
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      MaxLength = 8
+      ParentFont = False
+      TabOrder = 0
+      Mascara = False
+      Alignment = taLeftJustify
+      TipoMascara = tmGERAL
+      NrDecimal = 0
+      Decimais = False
+      Negativo = False
+      Tamanho = 8
+    end
+  end
+  object rgpResumo: TRadioGroup
+    Left = 174
+    Top = 41
+    Width = 111
+    Height = 64
+    Caption = 'RESUMO'
+    ItemIndex = 0
+    Items.Strings = (
+      'Com R&esumo'
+      '&Sem Resumo'
+      'S'#243' Res&umo')
+    TabOrder = 5
+  end
+end

@@ -1,0 +1,251 @@
+unit fmOpcaoEstoqueMenuFiscal;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmajudabt, StdCtrls, ExtCtrls, ComCtrls, Buttons, ToolWin,
+  frselecaoaleatoria, fmnavcontroles, dmtecsoft, dmmenufiscal, DB, ctconstantes,
+  frconsulta, frconsultacodigo, cpdbfindcontrols, biblio, cpdata, cpnumero, clparametrossistema;
+
+type
+  TfrmOpcaoEstoqueMenuFiscal = class(TfrmNavControles)
+    rbnOpcaoEstoque: TRadioGroup;
+    fraSelecaoAleatoriaEstoqueMenuFiscal: TfraSelecaoAleatoria;
+    gbxContasdoEstoqueParcial: TGroupBox;
+    bbnOK: TBitBtn;
+    bbnCancelar: TBitBtn;
+    gbxFaixas: TGroupBox;
+    lblDe: TLabel;
+    lblAte: TLabel;
+    pnlCupons: TPanel;
+    edtCupomInicial: TEditNumero;
+    edtCupomFinal: TEditNumero;
+    pnlDatas: TPanel;
+    edtPeriodoInicial: TEditData;
+    edtPeriodoFinal: TEditData;
+    procedure rbnOpcaoEstoqueClick(Sender: TObject);
+    procedure fraSelecaoAleatoria1qrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoria1dbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaEstoqueMenuFiscalsbnProcuraClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaEstoqueMenuFiscaldbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure bbnOKClick(Sender: TObject);
+    procedure fraSelecaoAleatoriaEstoqueMenuFiscalsbnIncluirItemClick(
+      Sender: TObject);
+  protected
+    procedure AcionarPesquisaGrade;
+    procedure AtribuirDadosItemProduto(Found: Boolean);
+
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent);override;
+    destructor  Destroy; override;
+
+  end;
+
+var
+  frmOpcaoEstoqueMenuFiscal: TfrmOpcaoEstoqueMenuFiscal;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmOpcaoEstoqueMenuFiscal.rbnOpcaoEstoqueClick(Sender: TObject);
+begin
+  inherited;
+  case rbnOpcaoEstoque.ItemIndex of
+  0 :  gbxContasdoEstoqueParcial.Enabled := false;
+  1 :  gbxContasdoEstoqueParcial.Enabled := true;
+  end;
+
+end;
+
+procedure TfrmOpcaoEstoqueMenuFiscal.fraSelecaoAleatoria1qrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  with fraSelecaoAleatoriaEstoqueMenuFiscal do
+  begin
+    qrySelecaoAleatoria.FieldByName('produtovisual').visible := ParSistema.PermitirProdutoAlfanumerico;
+    qrySelecaoAleatoria.FieldByName('produto').visible := not ParSistema.PermitirProdutoAlfanumerico;
+
+    qrySelecaoAleatoria.FieldByName('produto').DisplayLabel := 'Código';
+    qrySelecaoAleatoria.FieldByName('produtovisual').DisplayLabel := 'Código';
+
+    qrySelecaoAleatoria.FieldByName('produto').ReadOnly := False;
+    qrySelecaoAleatoria.FieldByName('produtovisual').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('descricao').DisplayLabel := 'Descrição';
+    qrySelecaoAleatoria.FieldByName('descricao').ReadOnly := true;
+//    qrySelecaoAleatoria.Fields[1].SetFieldType(ftString);
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+  end;
+
+end;
+
+procedure TfrmOpcaoEstoqueMenuFiscal.fraSelecaoAleatoria1dbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  acionarPesquisaGrade;
+
+end;
+
+procedure TfrmOpcaoEstoqueMenuFiscal.AcionarPesquisaGrade;
+begin
+  with fraSelecaoAleatoriaEstoqueMenuFiscal do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar(ctCONTAS);
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+
+end;
+
+constructor TfrmOpcaoEstoqueMenuFiscal.Create(AOwner: TComponent);
+begin
+  inherited;
+{
+  with TLargeIntField.Create(fraSelecaoAleatoriaEstoqueMenuFiscal.dsrSelecaoAleatoria) do
+  begin
+   FieldName := 'codigo';
+   FieldKind:= fkData;
+   DataSet := fraSelecaoAleatoriaEstoqueMenuFiscal.qrySelecaoAleatoria;
+   //     DisplayWidth := 8;
+   fraSelecaoAleatoriaEstoqueMenuFiscal.qrySelecaoAleatoria.FieldDefs.Add('qrySelecaoAleatoriacodigo', ftLargeint);
+  end;
+
+  with TStringField.Create(fraSelecaoAleatoriaEstoqueMenuFiscal.dsrSelecaoAleatoria) do
+  begin
+   FieldName := 'descricao';
+   FieldKind:= fkData;
+   DataSet := fraSelecaoAleatoriaEstoqueMenuFiscal.qrySelecaoAleatoria;
+//   Size := 50;
+   DisplayWidth := 50;
+   fraSelecaoAleatoriaEstoqueMenuFiscal.qrySelecaoAleatoria.FieldDefs.Add('qrySelecaoAleatoriadescricao', ftString);
+  end;
+}
+
+  fraSelecaoAleatoriaEstoqueMenuFiscal.qrySelecaoAleatoria.Sql.Text :=
+//     'SELECT Codigo, descricao FROM produtos WHERE false';
+    'SELECT  cast(null as bigint) as produto, cast(null as char(18)) as produtovisual, cast(null as varchar(50)) as descricao';
+
+  fraSelecaoAleatoriaEstoqueMenuFiscal.CampoParaLista := 'produto';
+  fraSelecaoAleatoriaEstoqueMenuFiscal.qrySelecaoAleatoria.Open;
+  fraSelecaoAleatoriaEstoqueMenuFiscal.qrySelecaoAleatoria.delete;
+
+
+  with fraSelecaoAleatoriaEstoqueMenuFiscal do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoria';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 18;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'produto';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraItemProdutos;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'produto';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'produto';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesITEMPRODUTOS;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosItemProduto;
+  end;
+end;
+
+destructor TfrmOpcaoEstoqueMenuFiscal.Destroy;
+begin
+  inherited;
+  frmOpcaoEstoqueMenuFiscal := nil;
+end;
+
+procedure TfrmOpcaoEstoqueMenuFiscal.AtribuirDadosItemProduto(Found: Boolean);
+begin
+  with fraSelecaoAleatoriaEstoqueMenuFiscal do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('produto').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraItemProdutos.FieldByName('produto').AsString;
+
+    qrySelecaoAleatoria.FieldByName('descricao').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraItemProdutos.FieldByName('descricaolc').AsString;
+
+    qrySelecaoAleatoria.Post;
+
+  end;
+
+end;
+
+procedure TfrmOpcaoEstoqueMenuFiscal.fraSelecaoAleatoriaEstoqueMenuFiscalsbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+AcionarPesquisaGrade;
+end;
+
+procedure TfrmOpcaoEstoqueMenuFiscal.fraSelecaoAleatoriaEstoqueMenuFiscaldbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     fraSelecaoAleatoriaEstoqueMenuFiscal.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or fraSelecaoAleatoriaEstoqueMenuFiscal.ConsultaSelecaoAleatoria.CtrlOn then
+                       AcionarPesquisaGrade
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaEstoqueMenuFiscal.dbgSelecaoAleatoria.SelectedIndex = 0  then
+                begin
+                  fraSelecaoAleatoriaEstoqueMenuFiscal.ConsultaSelecaoAleatoria.edfCodigo.DoExit;
+                  if not fraSelecaoAleatoriaEstoqueMenuFiscal.ConsultaSelecaoAleatoria.qryProcuraItemProdutos.IsEmpty then
+                    AtribuirDadosItemProduto(true)
+                  else
+                  begin
+                    key := 0;
+                    fraSelecaoAleatoriaEstoqueMenuFiscal.dbgSelecaoAleatoria.SelectedIndex := 0;
+                    fraSelecaoAleatoriaEstoqueMenuFiscal.dbgSelecaoAleatoria.SetFocus;
+                  end;
+                end;
+  end;
+
+
+end;
+
+procedure TfrmOpcaoEstoqueMenuFiscal.bbnOKClick(Sender: TObject);
+begin
+  inherited;
+  if (rbnOpcaoEstoque.ItemIndex = 1) and
+     (fraSelecaoAleatoriaEstoqueMenuFiscal.StringSelecionada='') then
+   MensagemAviso('A opção informada para o estoque é a parcial.'+sLineBreak+
+                 'Favor informar os produtos desejados.')
+  else
+    ModalResult := mrOK;
+
+
+end;
+
+procedure TfrmOpcaoEstoqueMenuFiscal.fraSelecaoAleatoriaEstoqueMenuFiscalsbnIncluirItemClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraSelecaoAleatoriaEstoqueMenuFiscal.sbnIncluirItemClick(Sender);
+
+end;
+
+end.

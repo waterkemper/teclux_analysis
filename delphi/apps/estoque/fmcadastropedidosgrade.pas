@@ -1,0 +1,258 @@
+unit fmcadastropedidosgrade;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmajuda, Grids, DBGrids, cpdbgrid, db, biblio, ctconstantes,
+  // projeto
+  dmcadastropedidos, Buttons, fmcadastropadrao, ComCtrls, ExtCtrls,
+  StdCtrls,fmcadastroprodutospedidos_, DBCtrls, cpdbtext, Mask, ToolWin;
+
+
+type
+  TfrmCadastroPedidosGrade = class(TFrmCadastroPadrao)
+    pnlSituacaoProdutos: TPanel;
+    lblProdutoNaoCadastradoNoEstoque: TLabel;
+    shpProdutonaoCadastradonoEstoque: TShape;
+    dbgGrades: TtecDBGrid;
+    pnlseparar: TPanel;
+    gbxDescricao: TGroupBox;
+    dtxproduto: TtecDBText;
+    dtxProdutoDescricao: TtecDBText;
+    sbnTrocarLInhaColuna: TSpeedButton;
+    procedure dbgGradesDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure dbgGradesDblClick(Sender: TObject);
+    procedure dbgGradesKeyPress(Sender: TObject; var Key: Char);
+    procedure dbgGradesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnTrocarLInhaColunaClick(Sender: TObject);
+  private
+    { Private declarations }
+{    TfrmCadastroPedidos(self.owner).dtmCadastroPedidos: TTfrmCadastroPedidos(self.owner).dtmCadastroPedidos;}
+
+  protected
+//    TfrmCadastroPedidos(self.owner).dtmCadastroPedidos: TTfrmCadastroPedidos(self.owner).dtmCadastroPedidos;
+    procedure AlterarEstadoBotoes; override;
+    function InternoGravar: Boolean; override;
+    function AcionaCadastroProdutosPedidos: Boolean;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure  SetDataModulo (dtm: tdtmCadastroPedidos);
+    procedure PosicionarLinhaColunaNaGrade;
+  end;
+
+var
+  frmCadastroPedidosGrade: TfrmCadastroPedidosGrade;
+
+implementation
+
+uses fmcadastropedidos;
+
+{$R *.dfm}
+
+{ TfrmCadastroPedidosGrade }
+
+procedure TfrmCadastroPedidosGrade.AlterarEstadoBotoes;
+begin
+  if not sbnSalvar.Enabled then
+    inherited;
+end;
+
+constructor TfrmCadastroPedidosGrade.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+destructor TfrmCadastroPedidosGrade.Destroy;
+begin
+  inherited;
+//  frmCadastroPedidosGrade := nil;
+end;
+
+function TfrmCadastroPedidosGrade.InternoGravar: Boolean;
+begin
+ TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.GravarCopiaProdutosPedidos;
+  ModalResult := mrOk;
+end;
+
+procedure TfrmCadastroPedidosGrade.PosicionarLinhaColunaNaGrade;
+begin
+ dbggrades.SetFocus;
+ with TfrmCadastroPedidos(self.owner).dtmCadastroPedidos do
+ begin
+  case tipoGrade of
+   tpLINHA : dbggrades.SelectedIndex := Colunas.IndexOf(CopiaProdutoColunaGrade)+1;
+   tpCOLUNA: dbggrades.SelectedIndex := Colunas.IndexOf(CopiaProdutoLinhaGrade)+1;
+  end;
+//  PosicionarLinhanaGrade;
+ end;
+end;
+
+procedure TfrmCadastroPedidosGrade.SetDataModulo(Dtm: tdtmCadastroPedidos);
+begin
+//  TfrmCadastroPedidos(self.owner).dtmCadastroPedidos := Dtm;
+//  dbgGrades.datasource := TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.dsrGrade;
+  dbgGrades.datasource := dtm.dsrGrade;
+end;
+
+procedure TfrmCadastroPedidosGrade.dbgGradesDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  With TfrmCadastroPedidos(self.owner).dtmCadastroPedidos do
+  begin
+    if (column.Index <> 0) and
+       (column.Index < (dbgGrades.columns.Count-6))  then
+    begin
+      if not PosicionarLinhaColunanoProduto(trim(column.Title.Caption)) then
+        TDBGrid(Sender).Canvas.Brush.Color := clBtnFace;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+
+    if (column.Index = (dbgGrades.columns.Count-2))  then
+    begin
+      if Gradeipidiferente then
+        TDBGrid(Sender).Canvas.font.Color := clred;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+
+    if (column.Index = (dbgGrades.columns.Count-3))  then
+    begin
+      if Gradeicmsdiferente then
+        TDBGrid(Sender).Canvas.font.Color := clred;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+
+    if (column.Index = (dbgGrades.columns.Count-4))  then
+    begin
+      if Gradedescontodiferente then
+        TDBGrid(Sender).Canvas.font.Color := clred;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+
+    if (column.Index = (dbgGrades.columns.Count-5))  then
+    begin
+      if Gradeprecodiferente then
+        TDBGrid(Sender).Canvas.Font.Color := clred;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+  end;
+end;
+
+procedure TfrmCadastroPedidosGrade.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.PosicionarLinhaColunanoProdutoPedido(
+     trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption));
+end;
+
+procedure TfrmCadastroPedidosGrade.dbgGradesDblClick(Sender: TObject);
+begin
+  inherited;
+  if ((dbgGrades.SelectedIndex<>0) and
+     (dbggrades.SelectedIndex < (dbggrades.Columns.Count-6))) then
+     AcionaCadastroProdutosPedidos
+end;
+
+function TfrmCadastroPedidosGrade.AcionaCadastroProdutosPedidos: Boolean;
+begin
+  Result := TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.IncluirProdutoPedidocopia(trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption));
+  if result then
+  begin
+    TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.dsrProdutosPedidos.DataSet := TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.TabelaCopiaProdutoPedido;
+    Result := False;
+    {
+    if not Assigned (frmCadastroProdutosPedidos_) then
+      frmCadastroProdutosPedidos_:= TfrmCadastroProdutosPedidos_.Create(frmCadastroProdutosPedidos_);
+      }
+
+    with tfrmCadastroPedidos(owner).frmCadastroProdutosPedidos_ do
+    begin
+//      SetDataModulo(TfrmCadastroPedidos(self.owner).dtmCadastroPedidos);
+      DataSet  := TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.TabelaCopiaProdutoPedido;
+      TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.TabelaCopiaProdutoPedido.Edit;
+      sbnIncluir.Visible := false;
+//      ckbTodosProdutos.Checked := False;
+//      ckbTodosProdutos.enabled := false;
+//      flkProduto.enabled := false;
+//      sbnProcurarProduto.Enabled := false;
+      ShowModal;
+//      frmCadastroProdutosPedidos_.Free;
+    end;
+    TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.dsrProdutosPedidos.DataSet := TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.TabelaProdutoPedido;
+  end;
+  frmCadastroPedidosGrade.SetFocus;
+end;
+
+procedure TfrmCadastroPedidosGrade.dbgGradesKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  inherited;
+  with TfrmCadastroPedidos(self.owner).dtmCadastroPedidos do
+  begin
+    if (dbgGrades.SelectedIndex = (dbgGrades.columns.Count-5)) then
+    begin
+        if Gradeprecodiferente then
+          MensagemAviso(format(ctCAMPONAOPODESERALTERADO, [ANSIUpperCase(ctPRECO)]));
+    end
+    else
+    if (dbgGrades.SelectedIndex = (dbgGrades.columns.Count-4)) then
+    begin
+        if GradeDescontoDiferente then
+          MensagemAviso(format(ctCAMPONAOPODESERALTERADO, [ANSIUpperCase(ctDESCONTO)]));
+    end
+    else
+    if (dbgGrades.SelectedIndex = (dbgGrades.columns.Count-3)) then
+    begin
+        if Gradeicmsdiferente then
+          MensagemAviso(format(ctCAMPONAOPODESERALTERADO, [ANSIUpperCase(ctICMS)]));
+    end
+    else
+    if (dbgGrades.SelectedIndex = (dbgGrades.columns.Count-2)) then
+    begin
+        if Gradeipidiferente then
+          MensagemAviso(format(ctCAMPONAOPODESERALTERADO, [ANSIUpperCase(ctIPI)]));
+    end;
+  end;
+end;
+
+procedure TfrmCadastroPedidosGrade.dbgGradesKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+   if ((dbgGrades.SelectedIndex<>0) and
+      (dbggrades.SelectedIndex < (dbggrades.Columns.Count-6))) then
+    case key of
+     TeclaEditarRegistro : AcionaCadastroProdutosPedidos;
+     TeclaInserirRegistro: AcionaCadastroProdutosPedidos;
+    end;
+end;
+
+procedure TfrmCadastroPedidosGrade.sbnTrocarLInhaColunaClick(
+  Sender: TObject);
+var
+ GradeEdicao : Boolean;
+begin
+  inherited;
+  GradeEdicao := sbnSalvar.Enabled;
+  TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.PosicionarLinhaColunanoProdutoPedidoCopia(trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption));
+  case tipograde of
+   tpLINHA : tipograde := tpCOLUNA;
+   tpCOLUNA : tipograde := tpLINHA;
+  end;
+  TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.GerarTabelaGrade;
+  DataSet:= TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.TabelaGrade;
+  TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.EditarGrade(GradeEdicao);
+  PosicionarLinhaColunanaGrade;
+end;
+
+end.

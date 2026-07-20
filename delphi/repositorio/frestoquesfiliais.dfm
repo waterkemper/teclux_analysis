@@ -1,0 +1,75 @@
+object fraEstoquesFiliais: TfraEstoquesFiliais
+  Left = 0
+  Top = 0
+  Width = 294
+  Height = 210
+  TabOrder = 0
+  object dbgEstoquesFiliais: TtecDBGrid
+    Left = 0
+    Top = 0
+    Width = 294
+    Height = 210
+    Align = alClient
+    DataSource = dsrEstoquesFiliais
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'MS Shell Dlg'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 0
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clBlack
+    TitleFont.Height = -11
+    TitleFont.Name = 'MS Shell Dlg'
+    TitleFont.Pitch = fpVariable
+    TitleFont.Style = []
+    OnKeyDown = dbgEstoquesFiliaisKeyDown
+    RowWrap = 60
+    Large = False
+    DoubleRowColor = False
+    TitleMinHeight = 100
+    CellHeights = 100
+    StrippedColor = 16054260
+    CanDelete = False
+    PostOnEnter = False
+    DenySort = False
+    Columns = <
+      item
+        Expanded = False
+        FieldName = 'filialestoque'
+        Title.Alignment = taCenter
+        Title.Caption = 'C'#211'DIGO'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clBlack
+        Title.Font.Height = -9
+        Title.Font.Name = 'Helvetica'
+        Title.Font.Pitch = fpVariable
+        Title.Font.Style = []
+        Width = 45
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'nomefilial'
+        ReadOnly = True
+        Title.Alignment = taCenter
+        Title.Caption = 'NOME FILIAL ESTOQUE'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clBlack
+        Title.Font.Height = -9
+        Title.Font.Name = 'Helvetica'
+        Title.Font.Pitch = fpVariable
+        Title.Font.Style = []
+        Width = 210
+        Visible = True
+      end>
+  end
+  object dsrEstoquesFiliais: TtecDataSource
+    OnStateChange = dsrEstoquesFiliaisStateChange
+    OnUpdateData = dsrEstoquesFiliaisUpdateData
+    Left = 16
+    Top = 56
+  end
+end

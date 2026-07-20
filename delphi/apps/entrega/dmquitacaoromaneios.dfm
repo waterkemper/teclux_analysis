@@ -1,0 +1,202 @@
+inherited dtmQuitacaoRomaneios: TdtmQuitacaoRomaneios
+  OldCreateOrder = False
+  Left = 359
+  Top = 192
+  Height = 413
+  Width = 730
+  object qryFornecedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  codigo, '
+      '            razao'
+      'From    fornecedores'
+      'where codigo=:codigo')
+    RequestLive = False
+    Left = 56
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryfornecedorescodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryfornecedoresrazao: TStringField
+      FieldName = 'razao'
+      Size = 40
+    end
+  end
+  object dsrFornecedores: TtecDataSource
+    DataSet = qryFornecedores
+    Left = 192
+    Top = 88
+  end
+  object qryConsultaFornecedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  codigo, '
+      '              razao'
+      'From    fornecedores'
+      'order by UPPER(TO_ASCII(razao,''LATIN1''))')
+    RequestLive = False
+    Left = 168
+    Top = 160
+    object qryConsultafornecedoresrazao: TStringField
+      DisplayLabel = 'fornecedor'
+      FieldName = 'razao'
+      Size = 40
+    end
+    object qryConsultafornecedorescodigo: TIntegerField
+      DisplayLabel = 'Código'
+      FieldName = 'codigo'
+    end
+  end
+  object qryRomaneios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterInsert = qryRomaneiosAfterInsert
+    AfterScroll = qryRomaneiosAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select r.numero,'
+      '       r.tipo,'
+      '       r.fornecedor,'
+      '       r.emissao,'
+      '       (select f.razao'
+      '          from fornecedores f where r.fornecedor=f.codigo)'
+      '            as nomefornecedor,'
+      
+        '       (select sum(valor) from romaneiosnotas rn where r.numero=' +
+        'rn.romaneio'
+      
+        '                             and rn.entrega is not null and not ' +
+        'rn.cancelado'
+      
+        '              and not exists (select rn.entrega from romaneiosno' +
+        'tas rn where'
+      
+        '                r.numero=rn.romaneio and rn.entrega is null and ' +
+        'not rn.cancelado))'
+      '                   as totalromaneio,'
+      '       0.00 as previsao,'
+      '       false as quitar'
+      'from romaneios r'
+      'where'
+      
+        '       (select sum(valor) from romaneiosnotas rn where r.numero=' +
+        'rn.romaneio  and rn.entrega is not null and not rn.cancelado'
+      
+        '              and not exists (select rn.entrega from romaneiosno' +
+        'tas rn where r.numero=rn.romaneio and rn.entrega is null and not' +
+        ' rn.cancelado)) is not null'
+      'and r.datapagto is null'
+      '/*   emissao       */'
+      '/*   fornecedor */'
+      '/*   tipo                */'
+      'order by r.numero')
+    RequestLive = True
+    Left = 336
+    Top = 48
+    object qryRomaneiosnumero: TIntegerField
+      DisplayLabel = 'Romaneio'
+      DisplayWidth = 8
+      FieldName = 'numero'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryRomaneiostipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryRomaneiosfornecedor: TIntegerField
+      DisplayLabel = 'Código'
+      FieldName = 'fornecedor'
+      ReadOnly = True
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryRomaneiosnomefornecedor: TStringField
+      DisplayLabel = 'fornecedor'
+      DisplayWidth = 42
+      FieldName = 'nomefornecedor'
+      ReadOnly = True
+      Size = 50
+    end
+    object qryRomaneiosemissao: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Emissão'
+      FieldName = 'emissao'
+      ReadOnly = True
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRomaneiostotalromaneio: TFloatField
+      DisplayLabel = 'Total'
+      FieldName = 'totalromaneio'
+      ReadOnly = True
+      DisplayFormat = '0.00'
+    end
+    object qryRomaneiosprevisao: TFloatField
+      DisplayLabel = 'Previsão'
+      FieldName = 'previsao'
+      DisplayFormat = '0.00'
+    end
+    object qryRomaneiosquitar: TBooleanField
+      DisplayLabel = 'Quitar'
+      FieldName = 'quitar'
+      ReadOnly = True
+    end
+  end
+  object dsrRomaneios: TtecDataSource
+    DataSet = qryRomaneios
+    Left = 336
+    Top = 120
+  end
+  object qryQuitarRomaneios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      '/* Preenchido em RunTime  */')
+    RequestLive = True
+    Left = 331
+    Top = 199
+  end
+end

@@ -1,0 +1,338 @@
+inherited frmbalancetefinanceiro: Tfrmbalancetefinanceiro
+  Left = 756
+  Top = 152
+  Caption = 'Balancete Financeiro'
+  ClientHeight = 431
+  ClientWidth = 583
+  FormStyle = fsMDIChild
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TToolBar
+    Width = 583
+  end
+  inherited pnlFundoJanela: TPanel
+    Top = 41
+    Width = 583
+    Height = 390
+    object gbxPeriodo: TGroupBox
+      Left = 100
+      Top = 6
+      Width = 128
+      Height = 36
+      Caption = ' PER'#205'ODO '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      object lblA: TLabel
+        Left = 60
+        Top = 13
+        Width = 7
+        Height = 15
+        Caption = 'a'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+      end
+      object edtDataInicial: TEditMesAno
+        Left = 2
+        Top = 10
+        Width = 55
+        Height = 23
+        EditMask = '99/9999;1; '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = 7
+        ParentFont = False
+        TabOrder = 0
+        Text = '  /    '
+      end
+      object edtDataFinal: TEditMesAno
+        Left = 70
+        Top = 10
+        Width = 55
+        Height = 23
+        EditMask = '99/9999;1; '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = 7
+        ParentFont = False
+        TabOrder = 1
+        Text = '  /    '
+      end
+    end
+    object rgpBalancete: TRadioGroup
+      Left = 6
+      Top = 4
+      Width = 85
+      Height = 56
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ItemIndex = 0
+      Items.Strings = (
+        'Anal'#237'tico'
+        'Sint'#233'tico')
+      ParentFont = False
+      TabOrder = 2
+    end
+    object gbxImprimir: TGroupBox
+      Left = 237
+      Top = 6
+      Width = 185
+      Height = 124
+      Caption = ' IMPRIMIR '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 3
+      object ckbSoContasComSaldo: TCheckBox
+        Left = 8
+        Top = 12
+        Width = 175
+        Height = 20
+        Caption = 'S'#243' contas com saldo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        OnClick = ckbSoContasComSaldoClick
+      end
+      object ckbCodigoEvento: TCheckBox
+        Left = 8
+        Top = 48
+        Width = 175
+        Height = 20
+        Caption = 'C'#243'digo do evento'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+      end
+      object ckbDespesasOutraPagina: TCheckBox
+        Left = 8
+        Top = 102
+        Width = 175
+        Height = 20
+        Caption = 'Despesas em outra p'#225'gina'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+      end
+      object ckbPularLinhaAntesSintetica: TCheckBox
+        Left = 8
+        Top = 66
+        Width = 175
+        Height = 20
+        Caption = 'Linha em branco antes de'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+      end
+      object ckbEventosSemMovimento: TCheckBox
+        Left = 8
+        Top = 30
+        Width = 175
+        Height = 20
+        Caption = 'Eventos sem movimento'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 4
+      end
+      object stxEventoSintetico: TStaticText
+        Left = 25
+        Top = 84
+        Width = 89
+        Height = 19
+        Caption = 'evento sint'#233'tico'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 5
+      end
+    end
+    object gbxContas: TGroupBox
+      Left = 6
+      Top = 138
+      Width = 572
+      Height = 227
+      Caption = ' CONTAS CORRENTES '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 4
+      object dbgContas: TtecDBGrid
+        Left = 2
+        Top = 16
+        Width = 568
+        Height = 209
+        Align = alClient
+        DataSource = dtmbalancetefinanceiro.dsrContasBancarias
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clBlack
+        TitleFont.Height = -9
+        TitleFont.Name = 'Arial'
+        TitleFont.Pitch = fpVariable
+        TitleFont.Style = []
+        OnDrawColumnCell = dbgContasDrawColumnCell
+        OnDblClick = dbgContasDblClick
+        RowWrap = 60
+        Large = False
+        DoubleRowColor = False
+        TitleMinHeight = 100
+        CellHeights = 100
+        StrippedColor = 16054260
+        CanDelete = False
+        CanNotInsertFromGrid = False
+        PostOnEnter = False
+        PostOnSetUpDown = False
+        DenySort = False
+        DefaultRowHeight = 19
+        ExibirNumerodaLinha = False
+        NaoAtribuirDadosaTabelaaoDigitar = False
+        Columns = <
+          item
+            Alignment = taCenter
+            Expanded = False
+            FieldName = 'ContaDigito'
+            Title.Alignment = taCenter
+            Title.Caption = 'CONTA'
+            Width = 75
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Banco'
+            Title.Alignment = taCenter
+            Title.Caption = 'BANCO'
+            Width = 85
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Agencia'
+            Title.Alignment = taCenter
+            Title.Caption = 'AG'#202'NCIA'
+            Width = 250
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Conta'
+            Title.Alignment = taCenter
+            Visible = False
+          end
+          item
+            Expanded = False
+            FieldName = 'Saldo'
+            Title.Alignment = taCenter
+            Title.Caption = 'SALDO'
+            Width = 90
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'Selecionada'
+            Title.Alignment = taCenter
+            Title.Caption = 'OK'
+            Width = 25
+            Visible = True
+          end>
+      end
+    end
+    object stxBalancete: TStaticText
+      Left = 10
+      Top = 4
+      Width = 64
+      Height = 16
+      Caption = ' BALANCETE '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+    end
+    object ckbSelecionartodas: TCheckBox
+      Left = 403
+      Top = 372
+      Width = 172
+      Height = 13
+      Caption = 'Selecionar todas as contas'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 5
+      OnClick = ckbSelecionartodasClick
+    end
+  end
+end

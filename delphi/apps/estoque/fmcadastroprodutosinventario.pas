@@ -1,0 +1,1089 @@
+unit fmcadastroprodutosinventario;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadraonavegacao, ComCtrls, Buttons, ExtCtrls,
+  dmcadastroinventario, DBCtrls, cpdbtext, frconsulta, frconsultacodigo,
+  cpnumero, ctconstantes, biblio,Windows, cptexto, db, clparametrossistema,
+  Mask, ToolWin, frVisualizarImageURL, fmVisualizarImageURL, Grids, AdvObj,
+  BaseGrid, AdvGrid, DBAdvGrid, DBMaplistCombobox, AdvEdit, DBAdvEd,
+  AdvEdBtn, PlannerDatePicker, PlannerDBDatePicker, frconsultacontabil,
+  frconsultacodigocontabil, cpdbfindcontrols, frmctrllink,
+  AdvOfficeButtons, DBAdvOfficeButtons;
+
+type
+  TfrmCadastroProdutosInventario = class(TfrmCadastroPadraoNav)
+    gbxSequencia: TGroupBox;
+    gbxProdutos: TGroupBox;
+    gbxQuantidade: TGroupBox;
+    dtxSequencia: TtecDBText;
+    fraConsultaProduto: TfraConsultaCodigo;
+    edtQuantidade: TDBEditNumero;
+    gbxEstoque: TGroupBox;
+    gbxReserva: TGroupBox;
+    gbxTransito: TGroupBox;
+    gbxDiferenca: TGroupBox;
+    gbxDemonstracao: TGroupBox;
+    gbxConserto: TGroupBox;
+    gbxDanificada: TGroupBox;
+    gbxReservaPrevia: TGroupBox;
+    dtxEmEstoque: TtecDBText;
+    dtxReserva: TtecDBText;
+    dtxTransito: TtecDBText;
+    dtxDiferenca: TtecDBText;
+    dtxDemonstracao: TtecDBText;
+    dtxConserto: TtecDBText;
+    dtxDanificada: TtecDBText;
+    dtxReservaPrevia: TtecDBText;
+    gbxQuantidades: TGroupBox;
+    GroupBox1: TGroupBox;
+    dtxMovimentado: TtecDBText;
+    fraVisualizarImageURL1: TfraVisualizarImageURL;
+    sbnVisualizarFoto: TSpeedButton;
+    gbxLotesdoProduto: TGroupBox;
+    GroupBox5: TGroupBox;
+    sbnExcluirLotes: TSpeedButton;
+    sbnIncluirLotes: TSpeedButton;
+    sbnSugerirQuantidadeLotes: TSpeedButton;
+    DBAdvGridLotesTotais: TDBAdvGrid;
+    DBAdvGridLotes: TDBAdvGrid;
+    pnlEdicaoDados: TPanel;
+    fraConsultaContabil: TfraConsultaCodigoContabil;
+    PlannerDBDatePicker1: TPlannerDBDatePicker;
+    DBAdvEdit: TDBAdvEdit;
+    DBAdvEditFloat: TDBAdvMaskEdit;
+    DBCheckBoxBoolean: TDBCheckBox;
+    DBMaplistCombobox1: TDBMaplistCombobox;
+    fraConsulta_: TfraConsultaCodigo;
+    FormControlEditLink1: TFormControlEditLink;
+    Splitter1: TSplitter;
+    Timer1: TTimer;
+    DBAdvOfficeCheckBox1: TDBAdvOfficeCheckBox;
+    procedure fraConsultaProdutoedfCodigoKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure edtQuantidadeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+    procedure fraConsultaProdutoedfCodigoMessage(var Msg: String);
+    procedure sbnVisualizarFotoClick(Sender: TObject);
+    procedure DBAdvGridLotesCheckRequiredFields(Sender: TObject;
+      var Allow: Boolean);
+    procedure DBAdvGridLotesEnter(Sender: TObject);
+    procedure DBAdvGridLotesGetEditorType(Sender: TObject; ACol,
+      ARow: Integer; var AEditor: TEditorType);
+    procedure FormControlEditLink1SetEditorFocus(Sender: TObject;
+      Grid: TAdvStringGrid; AControl: TWinControl);
+    procedure DBAdvGridLotesTotaisGetFloatFormat(Sender: TObject; ACol,
+      ARow: Integer; var IsFloat: Boolean; var FloatFormat: String);
+    procedure DBAdvGridLotesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirLotesClick(Sender: TObject);
+    procedure sbnExcluirLotesClick(Sender: TObject);
+    procedure DBAdvGridLotesCanAddRow(Sender: TObject;
+      var CanAdd: Boolean);
+    procedure DBAdvGridLotesAutoAddRow(Sender: TObject; ARow: Integer);
+    procedure DBAdvGridLotesRowChanging(Sender: TObject; OldRow,
+      NewRow: Integer; var Allow: Boolean);
+    procedure Timer1Timer(Sender: TObject);
+    procedure DBAdvEditFloatKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnSugerirQuantidadeLotesClick(Sender: TObject);
+  private
+    { Private declarations }
+    vBloquear_esc : Boolean;
+
+    procedure CondicoesItemProduto;
+    procedure AtribuirCamposProdutos(Found: Boolean);
+    procedure AtribuirCamposProdutosLotes(Found: Boolean);
+
+    procedure VisualizarImagem(Sender: TObject);
+    procedure AtualizarParametrosGridLoteProdutos;
+    procedure AtribuirParametros(TipoPesquisa: TtecPesquisa; NomedoCampo: String);
+    procedure CondicoesdaConsultaLotes;
+    procedure AtribuirDadosInventarioProdutosLotes(Found: Boolean);
+
+    function TotalProdutoLotes: Real;
+    function TotalPendenteProdutoLotes: Real;
+
+    procedure AfterChangeqryInventarioProdutoLotes(Sender: TObject);
+
+  protected
+    TipoConsulta: TtecConsultaProdutosContratos;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AlterarEstadoBotoes; override;
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmCadastroProdutosInventario: TfrmCadastroProdutosInventario;
+
+implementation
+
+uses fmnavcontroles, fmcadastropadrao;
+
+{$R *.dfm}
+
+{ TfrmCadastroProdutosInventario }
+
+procedure TfrmCadastroProdutosInventario.CondicoesItemProduto;
+const
+{  SQL = 'and (p.codigo not in (%s) or p.codigo = %s)';}
+  SQL = 'and (p.codigo not in (select ip.produto from inventarioprodutos ip where ip.inventario = %s) or p.codigo = %s)';
+//  SQLGrupos = 'and (c.grupo in (%s) or p.codigo = %s)';
+//  SQLClasses = 'and (c.classe in (%s) or p.codigo = %s)';
+//  SQLMarcas = 'and (c.marca in (%s) or p.codigo = %s)';
+  SQLGruposFornecedor = 'and (c.codigo in (select distinct fp.caracteristica '+
+                                          'from fornecedoresprodutos fp join '+
+                                              ' fornecedores f on fp.fornecedor = f.codigo '+
+                                          'where f.grupofornecedor in (%s) '+
+                                          'order by fp.caracteristica) or p.codigo = %s)';
+  SQLFornecedor = 'and (c.codigo in (select fp.caracteristica '+
+                                    'from fornecedoresprodutos fp '+
+                                    'where fp.fornecedor = %s '+
+                                    'order by fp.caracteristica) or p.codigo = %s)';
+  SQLLocalizacao = 'and (p.codigo in (select e.produto '+
+                                     'from estoques e '+
+                                     'where e.localizacao in (%s)) or p.codigo = %s)';
+begin
+
+{
+  fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+    format(SQL,[inttostr(dtmCadastroInventario.qryInventarionumero.AsInteger),
+                inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+}
+
+  if not parsistema.Inventariar_Produtos_Compostos then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLCondicaoCompostos').AsString :=  ' and not (coalesce(c.composto,false)) ';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLCondicaoCompostos').AsString := ' and not (coalesce(c.composto,false)) ';
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLCondicaoCompostos').AsString :=  '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLCondicaoCompostos').AsString := '';
+  end;
+
+  fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+    format(SQL,[inttostr(dtmCadastroInventario.qryInventarionumero.AsInteger),
+                inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+
+  if ListadeItemProdutos<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroItemProdutos').AsString :=  'and ('+ListadeItemProdutos+')';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroItemProdutos').AsString :=  'and ('+ListadeItemProdutos+')';
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroItemProdutos').AsString :=  '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroItemProdutos').AsString :=  '';
+  end;
+
+  if ListadeProdutos<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroProdutos').AsString :=  ' and (' + ListadeProdutos + ')';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroProdutos').AsString :=  ' and (' + ListadeProdutos + ')';
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroProdutos').AsString :=  '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroProdutos').AsString :=  '';
+  end;
+
+  if ListadeGrupos<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroGrupos').AsString := ' and (' + ListadeGrupos + ')';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroGrupos').AsString := ' and (' + ListadeGrupos + ')';
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroGrupos').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroGrupos').AsString := '';
+  end;
+
+  if ListadeClasses<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroClasses').AsString := ' and ('+ ListadeClasses + ')';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroClasses').AsString := ' and ('+ ListadeClasses + ')';
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroClasses').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroClasses').AsString := '';
+  end;
+
+  if ListadeMarcas<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroMarcas').AsString := ' and ('+ ListadeMarcas + ')';
+    fraConsultaProduto.qryconsultaItemProdutos.MacroByName('SQLFiltroMarcas').AsString := ' and ('+ ListadeMarcas + ')';
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroMarcas').AsString :='';
+    fraConsultaProduto.qryconsultaItemProdutos.MacroByName('SQLFiltroMarcas').AsString :='';
+  end;
+
+  if ListaCondicionalPromocoes<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('ListaCondicionalPromocoes').AsString := ' and ('+ ListaCondicionalPromocoes + ')';
+    fraConsultaProduto.qryconsultaItemProdutos.MacroByName('ListaCondicionalPromocoes').AsString := ' and ('+ ListaCondicionalPromocoes + ')';
+  end  
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('ListaCondicionalPromocoes').AsString := '';
+    fraConsultaProduto.qryconsultaItemProdutos.MacroByName('ListaCondicionalPromocoes').AsString := '';
+  end;
+
+                {
+  if dtmCadastroInventario.qryInventariogrupos.AsString<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroGrupos').AsString :=
+      format(SQLGrupos,[dtmCadastroInventario.qryInventariogrupos.AsString,
+                  inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroGrupos').AsString :=
+      format(SQLGrupos,[dtmCadastroInventario.qryInventariogrupos.AsString,
+                  inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroGrupos').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroGrupos').AsString := '';
+  end;
+
+  if dtmCadastroInventario.qryInventarioclasses.AsString<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroClasses').AsString :=
+      format(SQLClasses,[dtmCadastroInventario.qryInventarioclasses.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroClasses').AsString :=
+      format(SQLClasses,[dtmCadastroInventario.qryInventarioclasses.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)])
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroClasses').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroClasses').AsString := '';
+  end;
+
+  if dtmCadastroInventario.qryInventariomarcas.AsString<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroMarcas').AsString :=
+      format(SQLMarcas,[dtmCadastroInventario.qryInventariomarcas.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+    fraConsultaProduto.qryconsultaItemProdutos.MacroByName('SQLFiltroMarcas').AsString :=
+      format(SQLMarcas,[dtmCadastroInventario.qryInventariomarcas.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroMarcas').AsString :='';
+    fraConsultaProduto.qryconsultaItemProdutos.MacroByName('SQLFiltroMarcas').AsString :='';
+  end;
+  }
+
+  if dtmCadastroInventario.qryInventariogruposfornecedores.AsString<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroGruposFornecedores').AsString :=
+      format(SQLGruposFornecedor,[dtmCadastroInventario.qryInventariogruposfornecedores.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroGruposFornecedores').AsString :=
+      format(SQLGruposFornecedor,[dtmCadastroInventario.qryInventariogruposfornecedores.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroGruposFornecedores').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroGruposFornecedores').AsString := '';
+  end;
+
+  if dtmCadastroInventario.qryInventariofornecedor.AsString<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroFornecedor').AsString :=
+      format(SQLFornecedor,[dtmCadastroInventario.qryInventariofornecedor.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroFornecedor').AsString :=
+      format(SQLFornecedor,[dtmCadastroInventario.qryInventariofornecedor.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroFornecedor').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroFornecedor').AsString := '';
+  end;
+
+  if dtmCadastroInventario.qryInventariolocalizacao.AsString<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroLocalizacao').AsString :=
+      format(SQLLocalizacao,[dtmCadastroInventario.Localizacao,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroLocalizacao').AsString :=
+      format(SQLLocalizacao,[dtmCadastroInventario.Localizacao,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroLocalizacao').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroLocalizacao').AsString := '';
+  end;
+
+end;
+
+constructor TfrmCadastroProdutosInventario.Create(AOwner: TComponent);
+begin
+  inherited;
+//  fraConsultaProduto.edfCodigo.vCampoPesquisa := nil;
+//  fraConsultaProduto.edfCodigo.vCampoPesquisaLocate := nil;
+
+  fraConsultaProduto.edfCodigo.PosicionarProdutoNaoEncontrado := true;
+
+{
+  if ParSistema.PermitirProdutoAlfanumerico then begin
+     fraConsultaProduto.edfCodigo.Lookupfield:= 'produtovisual';
+     fraConsultaProduto.edfCodigo.LookupQueryParameter:= 'produtovisual';
+     fraConsultaProduto.edfCodigo.DataField     := 'produtovisual';
+     fraConsultaProduto.edfCodigo.LookupParameters := 'produtovisual,codigobarras';
+     fraConsultaProduto.edfCodigo.LocateParameters := 'produtovisual';
+     fraConsultaProduto.edfCodigo.Width := 200;
+     fraConsultaProduto.sbnProcura.Left := 200;
+     fraConsultaProduto.dtxDescricao.Left := 224;
+     fraConsultaProduto.dtxDescricao.Width := 321;
+  end
+  else
+  begin
+     fraConsultaProduto.edfCodigo.Lookupfield:= 'produto';
+     fraConsultaProduto.edfCodigo.LocateParameters := 'produto,codigobarras';
+     fraConsultaProduto.edfCodigo.LookupParameters := 'produto,codigobarras';
+
+     fraConsultaProduto.edfCodigo.LookupQueryParameter:= 'produto';
+
+     fraConsultaProduto.edfCodigo.DataField     := 'produto';
+     fraConsultaProduto.edfCodigo.Width := 135;
+     fraConsultaProduto.sbnProcura.Left := 136;
+     fraConsultaProduto.dtxDescricao.Left := 160;
+     fraConsultaProduto.dtxDescricao.Width := 385;
+  end;
+}
+
+  fraConsultaProduto.CondicoesdaConsulta := CondicoesItemProduto;
+  fraConsultaProduto.OnFound := AtribuirCamposProdutos;
+  fraConsultaProduto.TipoPesquisa := pesITEMPRODUTOS;
+
+  if (ParSistema.ValordaQuantidade > 0) then
+    Self.ActiveControl:=fraConsultaProduto.edfcodigo
+  else
+    Self.ActiveControl:=edtQuantidade;
+
+  fraVisualizarImageURL1.Produto := dtmCadastroInventario.GetProduto;
+  dtmCadastroInventario.VisualizarImagem := self.VisualizarImagem;
+  VisualizarImagem(nil);
+
+
+  pnlEdicaoDados.visible := false;
+
+  AtualizarParametrosGridLoteProdutos;
+
+  with DBAdvGridLotes do
+  begin
+    ColumnByFieldName['quantidade'].FloatFormat := '%.'+inttostr(Parsistema.QtCasasDecimaisQuantidade)+'n';
+    ColumnByFieldName['emestoque'].FloatFormat := DBAdvGridLotes.ColumnByFieldName['quantidade'].FloatFormat;
+    ColumnByFieldName['reservado'].FloatFormat := DBAdvGridLotes.ColumnByFieldName['quantidade'].FloatFormat;
+    ColumnByFieldName['transito'].FloatFormat := DBAdvGridLotes.ColumnByFieldName['quantidade'].FloatFormat;
+
+    ColumnByFieldName['movimentado'].FloatFormat := DBAdvGridLotes.ColumnByFieldName['quantidade'].FloatFormat;
+    ColumnByFieldName['diferenca'].FloatFormat := DBAdvGridLotes.ColumnByFieldName['quantidade'].FloatFormat;
+    ColumnByFieldName['demonstracao'].FloatFormat := DBAdvGridLotes.ColumnByFieldName['quantidade'].FloatFormat;
+
+    ColumnByFieldName['conserto'].FloatFormat := DBAdvGridLotes.ColumnByFieldName['quantidade'].FloatFormat;
+    ColumnByFieldName['danificada'].FloatFormat := DBAdvGridLotes.ColumnByFieldName['quantidade'].FloatFormat;
+    ColumnByFieldName['reservaprevia'].FloatFormat := DBAdvGridLotes.ColumnByFieldName['quantidade'].FloatFormat;
+  end;
+end;
+
+destructor TfrmCadastroProdutosInventario.Destroy;
+begin
+  inherited;
+  frmCadastroProdutosInventario := nil;
+
+  dtmCadastroInventario.AfterChangeqryInventarioProdutoLotes := nil;
+end;
+
+function TfrmCadastroProdutosInventario.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+    begin
+      dtmCadastroInventario.VisualizarImagem := nil;
+      dtmCadastroInventario.ExcluirProdutosInventario;
+      dtmCadastroInventario.VisualizarImagem := self.VisualizarImagem;
+      VisualizarImagem(nil);
+    end;
+  end;
+
+end;
+
+function TfrmCadastroProdutosInventario.InternoGravar: Boolean;
+var
+  vCell : String;
+  vCellValor : Double;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+  begin
+    dtmCadastroInventario.visualizarimagem := nil;
+    vCell := DBAdvGridLotesTotais.Cells[DBAdvGridLotesTotais.ColumnByFieldName['quantidade'].index, DBAdvGridLotesTotais.rowcount-1];
+    try
+      vCellValor := Strtofloat(vCell);
+    except
+      vCellValor := 0;
+    end;
+
+    if dtmCadastroInventario.qryInventarioProdutogerenciarloteevalidade.asBoolean and
+       (dtmCadastroInventario.qryInventarioProdutoquantidade.asFloat <> vCellValor) then
+    begin
+      MensagemErro('O Produto controla lotes e a quantidade inventariada não esta fechando ou não esta distribuida entre os lotes');
+      if DBAdvGridLotes.datasource.dataset.recordcount <> 0 then
+        DBAdvGridLotes.col := DBAdvGridLotes.ColumnByFieldName['quantidade'].index
+      else
+        DBAdvGridLotes.col := DBAdvGridLotes.ColumnByFieldName['nrlote'].index;
+
+      DBAdvGridLotes.setfocus;
+      DBAdvGridLotes.ShowInplaceEdit;
+    end
+    else
+      result := dtmCadastroInventario.GravarProdutosInventario(self);
+
+    dtmCadastroInventario.VisualizarImagem := self.VisualizarImagem;
+
+
+
+  end;
+end;
+
+function TfrmCadastroProdutosInventario.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+    begin
+
+      dtmCadastroInventario.IncluirProdutosInventario(false);
+      VisualizarImagem(nil);
+      if (ParSistema.ValordaQuantidade > 0) then
+        fraConsultaProduto.edfCodigo.SetFocus
+      else
+        edtQuantidade.SetFocus;
+    end;
+  end;
+
+  if result then
+    AtualizarParametrosGridLoteProdutos
+
+end;
+
+procedure TfrmCadastroProdutosInventario.AtribuirCamposProdutos(Found: Boolean);
+begin
+ if fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('descricao').AsString <> '' then
+ begin
+   dtmCadastroInventario.qryInventarioProdutoproduto.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('produto').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutoprodutovisual.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('produtovisual').AsString;
+
+   if dtmCadastroInventario.qryInventarioProdutoprodutodigitado.AsString = '' then
+     dtmCadastroInventario.qryInventarioProdutoprodutodigitado.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('produtovisual').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutodescricao.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('descricao').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutovalorgrade1.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('valorgrade1').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutovalorgrade2.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('valorgrade2').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutolinha.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('linha').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutocoluna.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('coluna').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutogerenciarloteevalidade.AsBoolean :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('gerenciarloteevalidade').AsBoolean;
+
+
+   dtmCadastroInventario.AtribuirQuantidades;
+   dtmCadastroInventario.AtribuirQuantidadesLotes(True);
+
+ end
+ else
+ begin
+   with dtmCadastroInventario do
+   begin
+     qryInventarioProdutoproduto.clear;
+     qryInventarioProdutoprodutovisual.clear;
+     qryInventarioProdutodescricao.clear;
+     qryInventarioProdutovalorgrade1.clear;
+     qryInventarioProdutovalorgrade2.clear;
+     qryInventarioProdutolinha.clear;
+     qryInventarioProdutocoluna.clear;
+     qryInventarioProdutoemestoque.clear;
+     qryInventarioProdutoreservado.clear;
+     qryInventarioProdutotransito.clear;
+     qryInventarioProdutodemonstracao.clear;
+     qryInventarioProdutoconserto.clear;
+     qryInventarioProdutodanificada.clear;
+     qryInventarioProdutoreservaprevia.clear;
+
+     LimparTabela(qryInventarioProdutoLotes);
+   end;
+ end;
+end;
+
+procedure TfrmCadastroProdutosInventario.fraConsultaProdutoedfCodigoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  fraConsultaProduto.edfCodigoKeyDown(Sender, Key, Shift);
+//gbxProdutos.Caption := fraConsultaProduto.edfCodigo.FParameterLabel;
+
+  if key = vk_return then
+    if not dtmCadastroInventario.qryInventarioProdutogerenciarloteevalidade.asBoolean then
+      fraConsultaProduto.edfCodigo.SetFocus;
+
+end;
+
+procedure TfrmCadastroProdutosInventario.edtQuantidadeKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    VK_RETURN:
+//      if (dtmCadastroInventario.qryInventarioProduto.State = dsinsert) then
+         fraConsultaProduto.edfCodigo.ConfirmarQuantidade := false;
+  end;
+
+//  if not ParSistema.GravarProdutoContratoAutomaticamente then
+    if TeclaEnterOuReturn(Key) and (Shift = []) then
+      if sbnsalvar.Enabled then
+        sbnSalvar.Click;
+end;
+
+procedure TfrmCadastroProdutosInventario.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  if not vBloquear_esc or (key <> vk_escape) then
+  begin
+    vBloquear_esc := False;
+    case key of
+      VK_RETURN: if Shift = [] then
+                 begin
+
+                   if (ActiveControl = fraConsultaProduto.edfCodigo) then
+                   begin
+
+                     if (ParSistema.GravarProdutoContratoAutomaticamente) then
+                     begin
+                       dtmCadastroInventario.VisualizarImagem := nil;
+                       inherited;
+                       if fraConsultaProduto.edfCodigo.Text <> '' then
+                         if sbnSalvar.Enabled then
+                           if InternoGravar then
+                           begin
+//                             fraConsultaProduto.edfCodigo.Clear;
+                             fraConsultaProduto.edfCodigo.setfocus;
+                             fraConsultaProduto.edfCodigo.selectall;
+                             VisualizarImagem(nil);
+                           end;
+
+                       dtmCadastroInventario.VisualizarImagem := self.VisualizarImagem;
+                     end
+                     else
+                       inherited;
+                   end
+                     else inherited;
+
+                 end;
+      else inherited keydown(Key, Shift);
+    end
+  end
+  else
+    vBloquear_esc := false;
+end;
+
+procedure TfrmCadastroProdutosInventario.FormShow(Sender: TObject);
+begin
+  inherited;
+  fraConsultaProduto.edfCodigo.SetFocus;
+  fraConsultaProduto.edfCodigo.SelectAll;
+
+
+  dtmCadastroInventario.AfterChangeqryInventarioProdutoLotes := AfterChangeqryInventarioProdutoLotes;
+
+end;
+
+procedure TfrmCadastroProdutosInventario.fraConsultaProdutoedfCodigoMessage(
+  var Msg: String);
+begin
+  inherited;
+  fraConsultaProduto.edfCodigoMessage(Msg);
+  windows.Beep(1200, 500);
+	windows.Beep(1200, 300);
+	windows.Beep(1200, 900);
+
+
+end;
+
+procedure TfrmCadastroProdutosInventario.AlterarEstadoBotoes;
+begin
+  inherited;
+  if fraConsultaProduto.edfCodigo.confirmarquantidade then
+    if dataset.State = dsbrowse then
+      fraConsultaProduto.edfCodigo.confirmarquantidade := false;
+
+end;
+
+procedure TfrmCadastroProdutosInventario.VisualizarImagem(Sender: TObject);
+begin
+  fraVisualizarImageURL1.AbrirqryFotosProdutos;
+//  fraConsultaProduto.edfcodigo.exist;
+end;
+
+procedure TfrmCadastroProdutosInventario.sbnVisualizarFotoClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarImageURL(self, dtmCadastroInventario.GetProduto);
+end;
+
+procedure TfrmCadastroProdutosInventario.DBAdvGridLotesCheckRequiredFields(
+  Sender: TObject; var Allow: Boolean);
+begin
+  inherited;
+//  if not dtmCadastroContratos.GravandoItensContratos then
+  begin
+  
+    Allow := dtmCadastroInventario.qryInventarioProdutoLotes.CheckRequiredFields(false,
+             dtmCadastroInventario.qryInventarioProdutogerenciarloteevalidade.asBoolean,
+             true, self, true, false);
+    if not (dtmCadastroInventario.qryInventarioProdutoLotes.state in [dsedit, dsinsert]) then
+      AtualizarParametrosGridLoteProdutos;
+  end;
+
+end;
+
+procedure TfrmCadastroProdutosInventario.AtualizarParametrosGridLoteProdutos;
+begin
+  with DBAdvGridLotesTotais do
+  begin
+    DBAdvGridLotesTotais.Reload;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['quantidade'].Index] := acSum;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['emestoque'].Index] := acSum;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['reservado'].Index] := acSum;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['transito'].Index] := acSum;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['movimentado'].Index] := acSum;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['diferenca'].Index] := acSum;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['demonstracao'].Index] := acSum;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['conserto'].Index] := acSum;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['danificada'].Index] := acSum;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['reservaprevia'].Index] := acSum;
+    refresh;
+  end;
+
+                         {
+  if DBAdvGridLotes.datasource.dataset.State = dsinsert then
+  begin
+    DBAdvGridLotes.ColumnByFieldName['nrlote'].readOnly := False;
+    DBAdvGridLotes.ColumnByFieldName['nrlote'].Editor := edCustom;
+  end
+  else
+  begin
+    if DBAdvGridLotes.ColumnByFieldName['nrlote'].Field.IsNull then
+    begin
+      DBAdvGridLotes.ColumnByFieldName['nrlote'].readOnly := False;
+      DBAdvGridLotes.ColumnByFieldName['nrlote'].Editor := edCustom;
+    end
+    else
+    begin
+      DBAdvGridLotes.ColumnByFieldName['nrlote'].readOnly := True;
+      DBAdvGridLotes.ColumnByFieldName['nrlote'].Editor := edNone;
+    end;
+  end;
+  }
+end;
+
+procedure TfrmCadastroProdutosInventario.DBAdvGridLotesEnter(
+  Sender: TObject);
+begin
+  inherited;
+  tipoconsulta := cpcNENHUM;
+end;
+
+procedure TfrmCadastroProdutosInventario.DBAdvGridLotesGetEditorType(
+  Sender: TObject; ACol, ARow: Integer; var AEditor: TEditorType);
+begin
+  inherited;
+//  if not dtmCadastroContratos.GravandoItensContratos then
+  begin
+
+    DBAdvEditFloat.visible := false;
+    fraConsulta_.visible := false;
+
+    if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'nrlote') {and (TDBAdvGrid(Sender).Columns[Acol].Field.AsString='')} then
+    begin
+      fraConsulta_.Width := TDBAdvGrid(Sender).Columns[Acol].Width - 5;
+      AtribuirParametros(pesESTOQUESLOTESPRODUTOS, TDBAdvGrid(Sender).Columns[Acol].fieldname);
+      fraConsulta_.visible := true;
+    end
+    else
+    if (TDBAdvGrid(Sender).Columns[Acol].Field.DataType = ftFloat) or
+       (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'quantidade') then
+    begin
+
+
+//    AtribuirParametros(pesESTOQUESLOTESPRODUTOS, 'nrlote');
+
+      DBAdvEditFloat.datasource := dtmCadastroInventario.dsrInventarioProdutoLotes;
+      DBAdvEditFloat.datafield := TDBAdvGrid(Sender).Columns[Acol].Fieldname;
+      DBAdvEditFloat.visible := true;
+      DBAdvEditFloat.width :=  TDBAdvGrid(Sender).Columns[Acol].Width -  5;
+
+  //    DBAdvGridLotes.datasource.dataset.edit;
+
+
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroProdutosInventario.AtribuirParametros(
+  TipoPesquisa: TtecPesquisa; NomedoCampo: String);
+begin
+  case TipoPesquisa of
+    pesESTOQUESLOTESPRODUTOS:
+    begin
+
+      With fraConsulta_ do
+      begin
+        TipoConsulta := cpcNENHUM;
+
+//        fraConsulta_.Width := TDBAdvGrid(Sender).Columns[Acol].Width - 5;
+        fraConsulta_.edfcodigo.Width := fraConsulta_.Width-23;
+        fraConsulta_.sbnprocura.left := fraConsulta_.edfcodigo.Width;
+
+//        fraConsulta_.edfCodigo.text := dtmCadastroContratos.dsrProdutosContratosLotes.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+        fraConsulta_.edfCodigo.text := dtmCadastroInventario.dsrInventarioProdutoLotes.dataset.fieldbyname(NomedoCampo).asString;
+        fraConsulta_.edfCodigo.modified := true;
+
+        fraConsulta_.edfCodigo.Operacao := opATRIBUICAO;
+        fraConsulta_.edfCodigo.MaxLength := 20;
+        fraConsulta_.edfCodigo.DataSource := dtmCadastroInventario.dsrInventarioProdutoLotes;
+        fraConsulta_.edfCodigo.DataaFieldInterno := 'lote';
+//        fraConsulta_.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+        fraConsulta_.edfCodigo.DataaFieldVisual := NomedoCampo;
+//        fraConsulta_.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+        fraConsulta_.edfCodigo.DataField := NomedoCampo;
+
+        fraConsulta_.edfCodigo.LookupSource := fraConsulta_.dsrProcuraEstoquesLotesProdutos;
+        fraConsulta_.edfCodigo.LookupaFieldinterno := 'lote';
+        fraConsulta_.edfCodigo.LookupaFieldvisual := 'nrlote';
+        fraConsulta_.edfCodigo.LookupQueryParameter := 'nrlote';
+        fraConsulta_.edfCodigo.LookupField := 'nrlote';
+
+        fraConsulta_.CondicoesdaConsulta := CondicoesdaConsultaLotes;
+        fraConsulta_.OnFound := AtribuirDadosInventarioProdutosLotes;
+
+
+        TipoPesquisa := pesESTOQUESLOTESPRODUTOS;
+
+      end;
+
+//      dtmCadastroContratos.fraconsulta_ := self.fraConsulta_;
+
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroProdutosInventario.CondicoesdaConsultaLotes;
+begin
+  fraconsulta_.qryProcuraEstoquesLotesProdutos.parambyname('produto').asString :=
+    IntToStr(dtmCadastroInventario.qryInventarioProdutoLotesproduto.asLargeint);
+
+  fraconsulta_.qryProcuraEstoquesLotesProdutos.parambyname('filial').asinteger :=
+    dtmCadastroInventario.qryInventariofilial.asinteger;
+
+//  fraconsulta_.qryProcuraEstoquesLotesProdutos.parambyname('contrato').asVariant := Null;
+
+  fraconsulta_.qryProcuraEstoquesLotesProdutos.parambyname('inventario').asinteger :=
+    dtmCadastroInventario.qryInventarionumero.asinteger;
+
+  fraconsulta_.qryConsultaEstoquesLotesProdutos.parambyname('produto').asString :=
+    inttostr(dtmCadastroInventario.qryInventarioProdutoLotesproduto.asLargeint);
+
+  fraconsulta_.qryConsultaEstoquesLotesProdutos.parambyname('filial').asinteger :=
+    dtmCadastroInventario.qryInventariofilial.asinteger;
+
+  fraconsulta_.qryConsultaEstoquesLotesProdutos.parambyname('nrlote').asString :=
+    dtmCadastroInventario.qryInventarioProdutoLotesnrlote.asstring;
+
+//  fraconsulta_.qryConsultaEstoquesLotesProdutos.parambyname('contrato').asVariant :=  Null;
+
+  fraconsulta_.qryConsultaEstoquesLotesProdutos.parambyname('inventario').asinteger :=
+    dtmCadastroInventario.qryInventarionumero.asinteger;
+
+
+end;
+
+procedure TfrmCadastroProdutosInventario.AtribuirDadosInventarioProdutosLotes(Found: Boolean);
+begin
+  if DBAdvGridLotes.GetDistinctValues(DBAdvGridLotes.ColumnByFieldName['nrlote'].index,
+                                      DBAdvGridLotes.row, true ).indexof(fraConsulta_.qryProcuraEstoquesLotesProdutosnrlote.asString)<>-1 then
+  begin
+    MensagemAviso('Número de lote já cadastrado!');
+    dtmCadastroInventario.qryInventarioProdutoLotes.cancel;
+  end
+  else
+  begin
+          {
+    if fraConsulta_.qryProcuraEstoquesLotesProdutosSaldoEstoque.AsFloat >=
+       TotalPendenteProdutoLotes then
+       dtmCadastroInventario.qryInventarioProdutoLotesquantidade.asFloat :=
+          TotalPendenteProdutoLotes
+    else
+       dtmCadastroInventario.qryInventarioProdutoLotesquantidade.asFloat :=
+          fraConsulta_.qryProcuraEstoquesLotesProdutosSaldoEstoque.AsFloat;
+
+    dtmCadastroInventario.qryInventarioProdutoLotesquantidadeantesalterar.asFloat :=
+      dtmCadastroInventario.qryInventarioProdutoLotesquantidade.asFloat;
+
+    dtmCadastroInventario.qryInventarioProdutoLotessaldoestoque.asFloat :=
+      fraConsulta_.qryProcuraEstoquesLotesProdutosSaldoEstoque.AsFloat;
+      }
+
+      AtribuirCamposProdutosLotes(true)
+
+
+  end;
+
+end;
+
+function TfrmCadastroProdutosInventario.TotalPendenteProdutoLotes: Real;
+begin
+  result := dtmCadastroInventario.qryInventarioProdutoLotesquantidade.asFloat -
+            TotalProdutoLotes;
+
+end;
+
+function TfrmCadastroProdutosInventario.TotalProdutoLotes: Real;
+begin
+  result := StrToFloatDef(DBAdvGridLotes.cells[DBAdvGridLotes.ColumnByFieldName['quantidade'].Index, DBAdvGridLotes.rowcount-1], 0);
+end;
+
+procedure TfrmCadastroProdutosInventario.FormControlEditLink1SetEditorFocus(
+  Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+begin
+  inherited;
+  if (TDBAdvGrid(Grid).Columns[Grid.col].Field.DataType = ftFloat) or
+     (TDBAdvGrid(grid).Columns[grid.col].FieldName = 'quantidade') then
+    DBAdvEditFloat.setfocus
+  else
+  if fraconsulta_.visible then
+    fraConsulta_.edfcodigo.setfocus;
+
+end;
+
+procedure TfrmCadastroProdutosInventario.AfterChangeqryInventarioProdutoLotes(
+  Sender: TObject);
+begin
+  AtualizarParametrosGridLoteProdutos;
+end;
+
+procedure TfrmCadastroProdutosInventario.DBAdvGridLotesTotaisGetFloatFormat(
+  Sender: TObject; ACol, ARow: Integer; var IsFloat: Boolean;
+  var FloatFormat: String);
+begin
+  inherited;
+  FloatFormat := '%.'+inttostr(Parsistema.QtCasasDecimaisQuantidade)+'n';
+end;
+
+procedure TfrmCadastroProdutosInventario.DBAdvGridLotesKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      TeclaEditarRegistro :
+      begin
+        if sbnIncluirLotes.enabled then
+        begin
+          DBAdvGridLotes.setfocus;
+//          DBAdvGridLotes.datasource.dataset.edit;
+        end;
+      end;
+      TeclaInserirRegistro:
+        begin
+           if sbnIncluirLotes.enabled then
+             DBAdvGridLotes.datasource.dataset.append;
+        end;
+      VK_F9:
+      begin
+        if (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'nrlote') then
+        begin
+          DBAdvGridLotes.ShowInplaceEdit;
+          fraConsulta_.sbnProcuraClick(sender)
+        end;
+      end;
+
+    end;
+  end
+  else
+  if key = vk_return then
+  begin
+    if DBAdvGridLotes.ColumnByFieldName['quantidade'].Index =
+       DBAdvGridLotes.Col then
+      DBAdvGridLotes.ShowInplaceEdit;
+  end
+
+end;
+
+procedure TfrmCadastroProdutosInventario.sbnIncluirLotesClick(
+  Sender: TObject);
+begin
+  inherited;
+  {
+  DBAdvGridLotes.ColumnByFieldName['nrlote'].readOnly := False;
+  DBAdvGridLotes.ColumnByFieldName['nrlote'].Editor := edCustom;
+  }
+  DBAdvGridLotes.col := DBAdvGridLotes.ColumnByFieldName['nrlote'].index;
+  DBAdvGridLotes.datasource.dataset.append;
+  DBAdvGridLotes.setfocus;
+  DBAdvGridLotes.ShowInplaceEdit;
+
+end;
+
+procedure TfrmCadastroProdutosInventario.sbnExcluirLotesClick(
+  Sender: TObject);
+begin
+  inherited;
+
+  try
+    if not DBAdvGridLotes.datasource.dataset.isempty then
+      DBAdvGridLotes.datasource.dataset.delete;
+  finally
+    AtualizarParametrosGridLoteProdutos;
+  end;
+
+end;
+
+procedure TfrmCadastroProdutosInventario.DBAdvGridLotesCanAddRow(
+  Sender: TObject; var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := false;
+  sbnIncluirLotesClick(Sender);
+  
+;
+end;
+
+procedure TfrmCadastroProdutosInventario.DBAdvGridLotesAutoAddRow(
+  Sender: TObject; ARow: Integer);
+begin
+  inherited;
+//  DBAdvGridLotes.datasource.dataset.delete;
+//  sbnIncluirLotesClick(Sender);
+  {
+  DBAdvGridLotes.ColumnByFieldName['nrlote'].readOnly := False;
+  DBAdvGridLotes.ColumnByFieldName['nrlote'].Editor := edCustom;
+  DBAdvGridLotes.col := DBAdvGridLotes.ColumnByFieldName['nrlote'].index;
+  DBAdvGridLotes.setfocus;
+  DBAdvGridLotes.ShowInplaceEdit;
+  }
+
+  DBAdvGridLotes.col := DBAdvGridLotes.ColumnByFieldName['nrlote'].index;
+  DBAdvGridLotes.setfocus;
+  DBAdvGridLotes.ShowInplaceEdit;
+
+
+end;
+
+procedure TfrmCadastroProdutosInventario.DBAdvGridLotesRowChanging(
+  Sender: TObject; OldRow, NewRow: Integer; var Allow: Boolean);
+begin
+  inherited;
+  {
+  Allow := not DBAdvGridLotes.ColumnByFieldName['nrlote'].Field.IsNull and
+           (DBAdvGridLotes.datasource.dataset.state <> dsinsert);
+
+
+  if DBAdvGridLotes.ColumnByFieldName['nrlote'].Field.IsNull then
+  begin
+    DBAdvGridLotes.ColumnByFieldName['nrlote'].readOnly := False;
+    DBAdvGridLotes.ColumnByFieldName['nrlote'].Editor := edCustom;
+  end
+  else
+  begin
+    DBAdvGridLotes.ColumnByFieldName['nrlote'].readOnly := True;
+    DBAdvGridLotes.ColumnByFieldName['nrlote'].Editor := edNone;
+  end;
+  }
+end;
+
+procedure TfrmCadastroProdutosInventario.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+//  gbxLotesdoProduto.visible := dtmCadastroInventario.qryInventarioProdutogerenciarloteevalidade.asBoolean;
+  gbxLotesdoProduto.enabled := dtmCadastroInventario.qryInventarioProdutogerenciarloteevalidade.asBoolean;
+end;
+
+procedure TfrmCadastroProdutosInventario.DBAdvEditFloatKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if key = vk_escape then
+    vBloquear_esc := True; {Controlar o comportamento do form...estranhamente este indo duas vezes para o keydown}
+
+end;
+
+procedure TfrmCadastroProdutosInventario.AtribuirCamposProdutosLotes(Found: Boolean);
+begin
+ if not fraConsulta_.qryProcuraEstoquesLotesProdutosproduto.IsNull then
+ begin
+   dtmCadastroInventario.AtribuirQuantidadesLotes(false);
+ end
+ else
+ begin
+   {
+   with dtmCadastroInventario do
+   begin
+     LimparTabela(qryInventarioProdutoLotes);
+   end;
+   }
+ end;
+
+end;
+
+procedure TfrmCadastroProdutosInventario.sbnSugerirQuantidadeLotesClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroInventario.AtribuirQuantidadesLotes(True);
+  fraConsultaProduto.edfCodigo.ConfirmarQuantidade := false;
+  sbnSalvar.Click;
+  AtualizarParametrosGridLoteProdutos;
+
+end;
+
+end.

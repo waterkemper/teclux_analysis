@@ -1,0 +1,145 @@
+unit cpfone;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Mask, DBCtrls, ctconstantes, windows, biblio, db;
+
+
+type
+  TDBEditFone = class(TDBEdit)
+  private
+    FTamanho: Word;
+    FDecimais: Boolean;
+    FNegativo: Boolean;
+  protected
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure Change; override;
+    procedure DoEnter; override;
+    procedure Resize; override;
+    procedure DoExit; override;
+    procedure Loaded; override;
+    procedure VerificarErro(Sender : TObject);
+
+  public
+    constructor  Create(AOwner: TComponent); override;
+
+  published
+    property Tamanho:     Word    read FTamanho  write FTamanho;
+    property Decimais:    Boolean read FDecimais write FDecimais;
+    property Negativo:    Boolean read FNegativo write FNegativo;
+  end;
+
+implementation
+
+
+procedure TDBEditFone.Change;
+//var NC:    byte;
+//    Novo:  string;
+begin
+   inherited;
+   {
+   NC:=1;
+   Novo := '';
+   While NC <= Length(Text) do begin
+      If Text[NC] in ['0'..'9','-','_'] Then
+         Novo := Novo + Text[NC];
+      Inc(NC);
+   end;
+   Text := Novo;
+   }
+end;
+
+constructor TDBEditFone.Create(AOwner: TComponent);
+Begin
+  inherited;
+  MaxLength := 9;
+  Height := 23;
+  Tamanho := 9;
+  self.OnExit := VerificarErro;
+
+End;
+
+procedure TDBEditFone.DoEnter;
+begin
+  inherited;
+  self.selectall;
+  TIntegerField(self.Field).EditFormat := '';  
+  TIntegerField(self.Field).DisplayFormat := '';
+//  TIntegerField(self.Field).DisplayFormat := '########';
+  Field.EditMask := '#####\-####;0;_';
+  if Focused then
+    Color:= CorFundoControle;
+
+  Tamanho := 9;
+  MaxLength := 9;
+end;
+
+procedure TDBEditFone.DoExit;
+begin
+  inherited;
+  Color:= clWindow;
+  TIntegerField(self.Field).DisplayFormat := '#####"-"####';
+end;
+
+procedure TDBEditFone.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+          {
+  inherited;
+  If (Key in [32..255])
+     and (((Tamanho > 0) and (Length(text)-SelLength >= Tamanho)) or
+          ((GetCharFromVirtualKey(Key)<>'') and
+          not (GetCharFromVirtualKey(Key)[1] in ['0'..'9']))  ) Then
+  begin
+     Key := 0;
+     Beep;
+  End;
+
+  }
+
+
+  if Assigned(Field) then
+  begin
+    if Field.CanModify then
+    begin
+      if not (key in [48..57,96..105] + VK_LISTATECLAS) and
+         ((Tamanho > 0) and
+          (Length(text)-SelLength >= Tamanho)) Then
+      Begin
+        Key := 0;
+        MessageBeep(0);
+      End;
+
+      inherited keydown(key, shift);
+    end;
+  end;
+  
+
+end;
+
+procedure TDBEditFone.Loaded;
+begin
+  inherited;
+  if assigned(field) then
+  begin
+    TIntegerField(self.Field).EditFormat := '';
+    TIntegerField(self.Field).EditMask := '';
+    TIntegerField(self.Field).DisplayFormat := '#####"-"####';
+  end;
+end;
+
+procedure TDBEditFone.Resize;
+begin
+  if (csDesigning in ComponentState) then
+    Height := 23
+  else
+    inherited;
+end;
+
+procedure TDBEditFone.VerificarErro(Sender: TObject);
+begin
+
+end;
+
+end.

@@ -1,0 +1,805 @@
+inherited dtmRequisicaoExposicao: TdtmRequisicaoExposicao
+  OldCreateOrder = False
+  Left = 585
+  Top = 40
+  Height = 378
+  Width = 594
+  object qryPedidosFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryPedidosFiliaisBeforeOpen
+    AfterScroll = qryPedidosFiliaisAfterScroll
+    OnNewRecord = qryPedidosFiliaisNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select pf.codigo, pf.codigoorigem,'
+      '       pf.produto,'
+      '       p.codigovisual as produtovisual,'
+      '       pf.requisitante,'
+      '       pf.requisitada,'
+      '       pf.data,'
+      '       pf.qtdepedida,'
+      '       pf.qtderecebida,'
+      '       pf.situacao,'
+      '       pf.dadofiscal,'
+      '       pf.observacao,'
+      '       pf.motivo,'
+      '       cast(case when pf.situacao = '#39'A'#39' then '#39'ABERTA'#39
+      '                 when pf.situacao = '#39'F'#39' then '#39'FECHADA'#39
+      '                 when pf.situacao = '#39'D'#39' then '#39'CONFIRMADA'#39
+      '                 else                        '#39'CANCELADA'#39
+      '            end as varchar) as descsituacao,'
+      '       f.nome,'
+      '       n.numero,'
+      '       n.serie,'
+      
+        '       case when f1.tipofilial='#39'V'#39' THEN coalesce(f1.filial_estoq' +
+        'ue,f1.codigo) ELSE f1.codigo END as filial_estoque'
+      ''
+      'From   pedidosfiliais pf'
+      '       left join notas n'
+      '       on (pf.dadofiscal = n.dadofiscal),'
+      '       filiais f, filiais f1, produtos p'
+      ''
+      'Where  pf.requisitante = :requisitante and'
+      '       pf.codigo       = :codigo       and'
+      '/*       pf.situacao     = '#39'A'#39'           and */'
+      '       pf.requisitante = f.codigo      and'
+      '       pf.requisitada  = f1.codigo     and'
+      '       pf.produto      = p.codigo'
+      ''
+      '')
+    RequestLive = True
+    Left = 80
+    Top = 15
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'requisitante'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryPedidosFiliaiscodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisproduto: TLargeintField
+      DisplayLabel = 'Produto'
+      FieldName = 'produto'
+      Required = True
+    end
+    object qryPedidosFiliaisdata: TDateTimeField
+      Alignment = taCenter
+      FieldName = 'data'
+      Required = True
+    end
+    object qryPedidosFiliaisrequisitante: TIntegerField
+      FieldName = 'requisitante'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisrequisitada: TIntegerField
+      FieldName = 'requisitada'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisqtdepedida: TFloatField
+      DisplayLabel = 'Quantidade'
+      FieldName = 'qtdepedida'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisqtderecebida: TFloatField
+      FieldName = 'qtderecebida'
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisobservacao: TStringField
+      FieldName = 'observacao'
+      Size = 150
+    end
+    object qryPedidosFiliaisnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryPedidosFiliaissituacao: TStringField
+      FieldName = 'situacao'
+      Required = True
+      Size = 12
+    end
+    object qryPedidosFiliaisdescsituacao: TStringField
+      FieldName = 'descsituacao'
+      Size = 50
+    end
+    object qryPedidosFiliaisdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryPedidosFiliaisfilial_estoque: TIntegerField
+      FieldName = 'filial_estoque'
+    end
+    object qryPedidosFiliaisprodutovisual: TStringField
+      FieldName = 'produtovisual'
+      Required = True
+      Size = 30
+    end
+    object qryPedidosFiliaismotivo: TIntegerField
+      FieldName = 'motivo'
+    end
+    object qryPedidosFiliaiscodigoorigem: TIntegerField
+      FieldName = 'codigoorigem'
+    end
+  end
+  object dsrPedidosFiliais: TtecDataSource
+    DataSet = qryPedidosFiliais
+    OnDataChange = dsrPedidosFiliaisDataChange
+    Left = 236
+    Top = 10
+  end
+  object qryProcuraProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryProcuraProdutosBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQLCondicaoCompostos'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select   e.produto,'
+      '         p.codigovisual as produtovisual,'
+      '         e.filial,'
+      '         (Select e1.emestoque'
+      '          From estoques e1'
+      '          Where e1.produto = e.produto'
+      
+        '          and e1.filial =CASE WHEN (select tipofilial from filia' +
+        'is where codigo=:requisitante)='#39'V'#39' THEN COALESCE((select filial_' +
+        'estoque from filiais where codigo=:requisitante),:requisitante) ' +
+        'ELSE :requisitante END) as estoquerequisitante,'
+      '         e.emestoque as estoquerequisitada,'
+      
+        '         cast(p.descricao||'#39' '#39'||coalesce(p.valorgrade1,'#39#39')||'#39' '#39'|' +
+        '|coalesce(p.valorgrade2,'#39#39') as varchar) as descricao,'
+      '         c.unidade,'
+      
+        '         case when f.tipofilial='#39'V'#39' THEN COALESCE(f.filial_estoq' +
+        'ue,f.codigo) ELSE f.codigo END as filial_estoque'
+      'From     estoques e, produtos p, caracteristicas c,filiais f'
+      'Where p.codigovisual = :produtovisual'
+      '  and f.codigo=:requisitada'
+      
+        '  and e.filial = CASE WHEN f.tipofilial='#39'V'#39' THEN coalesce(f.fili' +
+        'al_estoque,:requisitada) ELSE :requisitada END'
+      '  and e.produto = p.codigo'
+      '  and p.caracteristica = c.codigo'
+      ''
+      '%SQLCondicaoCompostos')
+    RequestLive = False
+    Left = 80
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'requisitante'
+        ParamType = ptUnknown
+        Value = 0
+      end
+      item
+        DataType = ftString
+        Name = 'produtovisual'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'requisitada'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryProcuraProdutosproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryProcuraProdutosprodutovisual: TStringField
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryProcuraProdutosfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryProcuraProdutosdescricao: TStringField
+      DisplayWidth = 62
+      FieldName = 'descricao'
+      Required = True
+      Size = 162
+    end
+    object qryProcuraProdutosestoquerequisitante: TFloatField
+      FieldName = 'estoquerequisitante'
+      DisplayFormat = '0'
+    end
+    object qryProcuraProdutosestoquerequisitada: TFloatField
+      FieldName = 'estoquerequisitada'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraProdutosunidade: TStringField
+      FieldName = 'unidade'
+      Size = 8
+    end
+    object qryProcuraProdutosfilial_estoque: TIntegerField
+      FieldName = 'filial_estoque'
+    end
+  end
+  object dsrProcuraProdutos: TtecDataSource
+    DataSet = qryProcuraProdutos
+    Left = 256
+    Top = 71
+  end
+  object qryConsultaProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryConsultaProdutosBeforeOpen
+    AfterOpen = qryConsultaProdutosAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQL'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLCondicaoCompostos'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select   p.descricao,'
+      '         c.unidade,'
+      '         p.valorgrade1,'
+      '         p.valorgrade2,'
+      '         p.referencia,'
+      '         e.produto,'
+      '         p.codigovisual as produtovisual,'
+      '         e.filial,'
+      
+        '         CASE WHEN f.tipofilial='#39'V'#39' AND f.filial_estoque IS NOT ' +
+        'NULL THEN (select e1.emestoque from estoques e1 WHERE  e1.produt' +
+        'o=e.produto and e1.filial=f.filial_estoque) ELSE e.emestoque END' +
+        ' AS emestoque'
+      'From     estoques e, produtos p, caracteristicas c, filiais f'
+      'Where e.filial =:requisitada'
+      '  and e.produto = p.codigo'
+      '  and e.filial=f.codigo'
+      '  and p.caracteristica = c.codigo'
+      '%SQL'
+      '%SQLCondicaoCompostos'
+      
+        'Order By UPPER(TO_ASCII(p.descricao,'#39'LATIN1'#39')), p.valorgrade1, p' +
+        '. valorgrade2')
+    RequestLive = False
+    Left = 459
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'requisitada'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryConsultaProdutosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      DisplayWidth = 50
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryConsultaProdutosvalorgrade1: TStringField
+      DisplayLabel = 'Linha'
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryConsultaProdutosvalorgrade2: TStringField
+      DisplayLabel = 'Coluna'
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryConsultaProdutosreferencia: TStringField
+      DisplayLabel = 'Refer'#234'ncia'
+      FieldName = 'referencia'
+      Size = 15
+    end
+    object qryConsultaProdutosprodutovisual: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryConsultaProdutosproduto: TLargeintField
+      DisplayLabel = 'C'#243'digo'
+      DisplayWidth = 20
+      FieldName = 'produto'
+      Visible = False
+    end
+    object qryConsultaProdutosfilial: TIntegerField
+      DisplayLabel = 'Filial'
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryConsultaProdutosemestoque: TFloatField
+      DisplayLabel = 'Estoque'
+      FieldName = 'emestoque'
+      DisplayFormat = '0'
+    end
+    object qryConsultaProdutosunidade: TStringField
+      FieldName = 'unidade'
+      Required = True
+      Size = 8
+    end
+  end
+  object qryConsultaFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select   nome,'
+      '             codigo,'
+      
+        '          CASE WHEN tipofilial='#39'V'#39' then COALESCE(filial_estoque,' +
+        'codigo) ELSE codigo END AS filial_estoque'
+      'From     filiais'
+      'Where  not (codigo in (:requisitante))'
+      'Order By UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 454
+    Top = 130
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'requisitante'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaFiliaisnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryConsultaFiliaisfilial_estoque: TIntegerField
+      FieldName = 'filial_estoque'
+    end
+  end
+  object qryProcuraFiliaisDestino: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryProcuraFiliaisDestinoAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo,'
+      '           nome,'
+      
+        '           case when tipofilial='#39'V'#39' THEN coalesce(filial_estoque' +
+        ',codigo) ELSE codigo END AS filial_estoque'
+      'From   filiais'
+      'Where (codigo =:codigo) and'
+      '           not (codigo in (:requisitante))')
+    RequestLive = False
+    Left = 83
+    Top = 134
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'requisitante'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFiliaisDestinocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcuraFiliaisDestinonome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryProcuraFiliaisDestinofilial_estoque: TIntegerField
+      FieldName = 'filial_estoque'
+    end
+  end
+  object dsrProcuraFiliaisDestino: TtecDataSource
+    DataSet = qryProcuraFiliaisDestino
+    Left = 259
+    Top = 133
+  end
+  object spcPedidosTransferenciaProximoCodigo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select pedidosfiliais_proximocodigo() as numero')
+    RequestLive = False
+    Left = 259
+    Top = 197
+    object spcPedidosTransferenciaProximoCodigonumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+  end
+  object qryConsultaPedidosFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryConsultaPedidosFiliaisAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  p.descricao,'
+      '            p.valorgrade1,'
+      '            p.valorgrade2,  '
+      '            pf.codigo,'
+      '            pf.requisitada,'
+      
+        '            cast(to_char(pf.data,'#39'DD/MM/YYYY HH24:MI'#39') as varcha' +
+        'r) as data,'
+      '            pf.produto,'
+      '            p.referencia'
+      'From     pedidosfiliais pf, produtos p'
+      'Where  (pf.produto = p.codigo) and'
+      '             (pf.requisitante =:requisitante) and'
+      '             (pf.situacao = '#39'A'#39')'
+      
+        'Order By UPPER(TO_ASCII(p.descricao,'#39'LATIN1'#39')), p.valorgrade1, p' +
+        '.valorgrade2')
+    RequestLive = False
+    Left = 454
+    Top = 14
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'requisitante'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryConsultaPedidosFiliaisproduto: TLargeintField
+      DisplayLabel = 'Produto'
+      FieldName = 'produto'
+    end
+    object qryConsultaPedidosFiliaisdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      DisplayWidth = 50
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryConsultaPedidosFiliaisvalorgrade1: TStringField
+      DisplayLabel = 'Linha'
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryConsultaPedidosFiliaisreferencia: TStringField
+      DisplayLabel = 'Refer'#234'ncia'
+      FieldName = 'referencia'
+      Size = 15
+    end
+    object qryConsultaPedidosFiliaisvalorgrade2: TStringField
+      DisplayLabel = 'Coluna'
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryConsultaPedidosFiliaisrequisitada: TIntegerField
+      DisplayLabel = 'Requisitada'
+      FieldName = 'requisitada'
+      DisplayFormat = '0'
+    end
+    object qryConsultaPedidosFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryConsultaPedidosFiliaisdata: TStringField
+      DisplayLabel = 'Data'
+      FieldName = 'data'
+    end
+  end
+  object qryProdutoJaRequisitado: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  codigo,'
+      '            produto,'
+      '            data'
+      'From    pedidosfiliais'
+      'Where (situacao = '#39'A'#39') and '
+      '            (produto =:produto) and'
+      '            (requisitada =:requisitada)  and'
+      '            (requisitante =:requisitante)')
+    RequestLive = False
+    Left = 259
+    Top = 256
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'requisitada'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'requisitante'
+        ParamType = ptUnknown
+      end>
+    object qryProdutoJaRequisitadocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProdutoJaRequisitadoproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryProdutoJaRequisitadodata: TDateTimeField
+      FieldName = 'data'
+    end
+  end
+  object qryEstoqueBloqueio: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select e.produto,'
+      '          e.filial,'
+      '          e.emestoque,'
+      '          e.futuro'
+      'from   estoques e'
+      'where'
+      '/*Preenchido em runtime. n'#227'o apague*/ False'
+      'for update')
+    RequestLive = True
+    Left = 489
+    Top = 146
+    object qryEstoqueBloqueioproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryEstoqueBloqueiofilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryEstoqueBloqueioemestoque: TFloatField
+      FieldName = 'emestoque'
+    end
+    object qryEstoqueBloqueiofuturo: TFloatField
+      FieldName = 'futuro'
+    end
+  end
+  object qryMovimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select m.numero,'
+      '       m.produto,'
+      '       m.filial,'
+      '       m.data,'
+      '       m.tipomovimento,'
+      '       m.quantidade,'
+      '       m.referencia,'
+      '       m.operacao,'
+      '       m.emestoque,'
+      '       m.reservado,'
+      '       m.transito,'
+      '       m.demonstracao,'
+      '       m.conserto,'
+      '       m.futuro,'
+      '       m.danificada,'
+      '       m.financeiro,'
+      '       m.valor,'
+      '       m.trfproduto,'
+      '       m.trffilial,'
+      '       m.cliente,'
+      '       m.tipocliente'
+      'from movimentos m'
+      'where m.numero = 0'
+      '')
+    RequestLive = True
+    Left = 455
+    Top = 196
+    object qryMovimentosnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosproduto: TLargeintField
+      FieldName = 'produto'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryMovimentostipomovimento: TStringField
+      FieldName = 'tipomovimento'
+      Size = 3
+    end
+    object qryMovimentosquantidade: TFloatField
+      FieldName = 'quantidade'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 60
+    end
+    object qryMovimentosoperacao: TStringField
+      FieldName = 'operacao'
+    end
+    object qryMovimentosemestoque: TFloatField
+      FieldName = 'emestoque'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosreservado: TFloatField
+      FieldName = 'reservado'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentostransito: TFloatField
+      FieldName = 'transito'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosdemonstracao: TFloatField
+      FieldName = 'demonstracao'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosconserto: TFloatField
+      FieldName = 'conserto'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosfuturo: TFloatField
+      FieldName = 'futuro'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosdanificada: TFloatField
+      FieldName = 'danificada'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosfinanceiro: TFloatField
+      FieldName = 'financeiro'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosvalor: TFloatField
+      FieldName = 'valor'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosdata: TDateField
+      FieldName = 'data'
+    end
+    object qryMovimentostrfproduto: TLargeintField
+      FieldName = 'trfproduto'
+    end
+    object qryMovimentostrffilial: TIntegerField
+      FieldName = 'trffilial'
+    end
+    object qryMovimentoscliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryMovimentostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+  end
+  object spcMovimentosProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select movimentos_proximonumero() as numero')
+    RequestLive = False
+    Left = 452
+    Top = 263
+    object spcMovimentosProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+end

@@ -1,0 +1,80 @@
+object frmMensagemSimNaoopcaocancelammoxml: TfrmMensagemSimNaoopcaocancelammoxml
+  Left = 458
+  Top = 84
+  Width = 731
+  Height = 164
+  HorzScrollBar.Visible = False
+  VertScrollBar.Visible = False
+  Caption = 'Selecione a op'#231#227'o'
+  Color = clBtnFace
+  TransparentColorValue = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  KeyPreview = True
+  OldCreateOrder = True
+  Position = poOwnerFormCenter
+  OnKeyDown = FormKeyDown
+  PixelsPerInch = 96
+  TextHeight = 13
+  object pnlBotoes: TPanel
+    Left = 0
+    Top = 83
+    Width = 715
+    Height = 43
+    Align = alBottom
+    BevelOuter = bvNone
+    TabOrder = 0
+    object btnOK: TBitBtn
+      Left = 256
+      Top = 6
+      Width = 81
+      Height = 33
+      Caption = '&OK'
+      Constraints.MinWidth = 81
+      ModalResult = 1
+      TabOrder = 0
+      OnClick = btnOKClick
+      NumGlyphs = 2
+    end
+    object btnAbrirArquivo: TBitBtn
+      Left = 360
+      Top = 6
+      Width = 81
+      Height = 33
+      Caption = '&Abrir Arquivo'
+      Constraints.MinWidth = 81
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 1
+      OnClick = btnAbrirArquivoClick
+      NumGlyphs = 2
+    end
+  end
+  object pnlMensagem: TPanel
+    Left = 0
+    Top = 0
+    Width = 715
+    Height = 81
+    Align = alTop
+    BevelOuter = bvNone
+    TabOrder = 1
+    object imgMensagem: TImage
+      Left = 8
+      Top = 14
+      Width = 33
+      Height = 27
+    end
+    object lblMensagem: TStaticText
+      Left = 56
+      Top = 24
+      Width = 633
+      Height = 57
+      AutoSize = False
+      Caption = 'lblMensagem'
+      TabOrder = 0
+    end
+  end
+end

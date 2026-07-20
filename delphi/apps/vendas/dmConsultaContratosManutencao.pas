@@ -1,0 +1,285 @@
+unit dmConsultaContratosManutencao;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, biblio, ctconstantes;
+
+type
+  TdtmConsultaContratosManutencao = class(TdtmBasico)
+    qryContratosManutencao: TtecQuery;
+    qryContratosManutencaonumero: TIntegerField;
+    qryContratosManutencaocliente: TIntegerField;
+    qryContratosManutencaotipocliente: TStringField;
+    qryContratosManutencaodiavencimento: TIntegerField;
+    qryContratosManutencaoassinatura: TDateField;
+    qryContratosManutencaovigencia: TDateField;
+    qryContratosManutencaovalor: TFloatField;
+    qryContratosManutencaoobservacoesnf: TStringField;
+    qryContratosManutencaoformacontrato: TIntegerField;
+    qryContratosManutencaodataentrega: TDateField;
+    qryContratosManutencaovalortaxaentrega: TFloatField;
+    qryContratosManutencaodiaslocados: TIntegerField;
+    qryContratosManutencaoformadoaluguel: TStringField;
+    qryContratosManutencaovalorcaucao: TFloatField;
+    qryContratosManutencaonometitularidadecaucao: TStringField;
+    qryContratosManutencaoequipamento: TStringField;
+    qryContratosManutencaonome: TStringField;
+    qryContratosManutencaopessoanumero: TStringField;
+    qryContratosManutencaodescricaoequipamento: TStringField;
+    qryContratosManutencaoDataTermino: TDateField;
+    qryContratosManutencaovendedor: TIntegerField;
+    qryContratosManutencaofilialvenda: TIntegerField;
+    qryContratosManutencaoqtparcelas: TLargeintField;
+    qryContratosManutencaosituacao: TStringField;
+    qryContratosManutencaonomesituacao: TStringField;
+    qryContratosManutencaocan_data: TDateField;
+    qryContratosManutencaomotivo: TIntegerField;
+    qryContratosManutencaodescricaomotivo: TStringField;
+    qryContratosManutencaoconclusao: TDateField;
+    qryContratosManutencaoabertura: TDateField;
+    qryContratosManutencaodescricaocancelamento: TStringField;
+    dsrContratosManutencao: TtecDataSource;
+    qryServicosContratosManutencao: TtecQuery;
+    qryServicosContratosManutencaocontrato: TIntegerField;
+    qryServicosContratosManutencaoservico: TIntegerField;
+    qryServicosContratosManutencaodescricaoservico: TStringField;
+    qryServicosContratosManutencaoquantidade: TIntegerField;
+    qryServicosContratosManutencaovalor: TFloatField;
+    dsrServicosContratosManutencao: TtecDataSource;
+    qryParcelasContratosManutencao: TtecQuery;
+    qryParcelasContratosManutencaocontratomanutencao: TIntegerField;
+    qryParcelasContratosManutencaonumero: TIntegerField;
+    qryParcelasContratosManutencaodatavencto: TDateField;
+    qryParcelasContratosManutencaovalorvencto: TFloatField;
+    qryParcelasContratosManutencaodatahoraatualizacao: TDateTimeField;
+    qryParcelasContratosManutencaodatavenctoparcela: TDateField;
+    qryParcelasContratosManutencaovalorvenctoparcela: TFloatField;
+    qryParcelasContratosManutencaosituacaocontrato: TStringField;
+    qryParcelasContratosManutencaodatapagto: TDateField;
+    qryParcelasContratosManutencaovalorpagto: TFloatField;
+    qryParcelasContratosManutencaocontrato: TStringField;
+    dsrParcelasContratosManutencao: TtecDataSource;
+    qryContratosManutencaovendedornome: TStringField;
+    qryContratosManutencaoselecionar: TBooleanField;
+    dsrTotais_: TtecDataSource;
+    qryTotais_: TtecQuery;
+    qryTotais_registrosselecionados: TIntegerField;
+    qryTotais_totalregistrosselecionados: TFloatField;
+    qryTotais_registrosmarcados: TIntegerField;
+    qryTotais_totalregistrosmarcados: TFloatField;
+    procedure qryContratosManutencaoAfterScroll(DataSet: TDataSet);
+    procedure qryContratosManutencaoAfterOpen(DataSet: TDataSet);
+  private
+    FRelatorioAtivo: Boolean;
+    { Private declarations }
+  public
+    { Public declarations }
+
+    constructor Create(AOwner: TComponent); override;
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+    property  RelatorioAtivo: Boolean read FRelatorioAtivo write FRelatorioAtivo;
+
+    function GerarConsulta(
+      AberturaInicial,
+      AberturaFinal,
+
+      AssinaturaInicial,
+      AssinaturaFinal,
+
+      DataEncerramentoInicial,
+      DataEncerramentoFinal,
+
+      DataCanceladoInicial,
+      DataCanceladoFinal : String;
+
+      Orcado,
+      Assinado,
+      Fechado,
+      Cancelado: Boolean;
+
+      CodigoFilial,
+      CodigoCliente,
+
+      ListaCondicionalusuarios,
+      ListaCondicionalgruposusuarios,
+      Equipamento : String): Boolean;
+
+  end;
+
+var
+  dtmConsultaContratosManutencao: TdtmConsultaContratosManutencao;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmConsultaContratosManutencao }
+
+constructor TdtmConsultaContratosManutencao.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+function TdtmConsultaContratosManutencao.GerarConsulta(AberturaInicial,
+  AberturaFinal, AssinaturaInicial, AssinaturaFinal,
+  DataEncerramentoInicial, DataEncerramentoFinal, DataCanceladoInicial,
+  DataCanceladoFinal: String;
+  Orcado, Assinado, Fechado, Cancelado: Boolean;
+
+  CodigoFilial, CodigoCliente,
+  ListaCondicionalusuarios, ListaCondicionalgruposusuarios,
+  Equipamento: String): Boolean;
+begin
+
+
+  qryContratosManutencao.macrobyname('Intervalo_Abertura').asString :=
+         MontarIntervaloDataMI('cm.abertura', AberturaInicial, AberturaFinal);
+
+  qryContratosManutencao.macrobyname('Intervalo_Assinatura').asString :=
+         MontarIntervaloDataMI('cm.assinatura', AssinaturaInicial, AssinaturaFinal);
+
+  qryContratosManutencao.macrobyname('Intervalo_Encerramento').asString :=
+         MontarIntervaloDataMI('cm.conclusao', DataEncerramentoInicial, DataEncerramentoFinal);
+
+  qryContratosManutencao.macrobyname('Intervalo_Cancelamento').asString :=
+         MontarIntervaloDataMI('cm.can_data', DataCanceladoInicial, DataCanceladoFinal);
+
+  qryContratosManutencao.macrobyname('Situacao').asString := MontarEnumerado('cm.situacao',
+     [Orcado, Assinado, Fechado, Cancelado],
+     ['O', 'A', 'F', 'C']);
+
+  if CodigoFilial <> '' then
+    qryContratosManutencao.macrobyname('Filial').asString := 'and cm.filialvenda = ' + CodigoFilial
+  else
+    qryContratosManutencao.macrobyname('Filial').asString := '';
+
+  if CodigoCliente <> '' then
+    qryContratosManutencao.macrobyname('Cliente').asString := 'and cm.cliente = ' + CodigoCliente
+  else
+    qryContratosManutencao.macrobyname('Cliente').asString := '';
+
+  if ListaCondicionalusuarios <> '' then
+    qryContratosManutencao.macrobyname('ListaCondicionalusuarios').asString :=
+      ' and ' + ListaCondicionalusuarios
+  else
+    qryContratosManutencao.macrobyname('ListaCondicionalusuarios').asString := '';
+
+
+  if ListaCondicionalgruposusuarios <> '' then
+    qryContratosManutencao.macrobyname('ListaCondicionalgruposusuarios').asString :=
+      ' and ' + ListaCondicionalgruposusuarios
+  else
+    qryContratosManutencao.macrobyname('ListaCondicionalgruposusuarios').asString := '';
+
+
+  if Equipamento <> '' then
+    qryContratosManutencao.macrobyname('Equipamento').asString := ' and cm.equipamento = '+quotedstr(Equipamento)
+  else
+    qryContratosManutencao.macrobyname('Equipamento').asString := '';
+
+  qryContratosManutencao.close;
+  qryContratosManutencao.open;
+
+  result := qryContratosManutencao.recordcount <> 0;
+
+  if not result then
+    MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO, [ctCONTRATO]));
+
+end;
+
+procedure TdtmConsultaContratosManutencao.MarcarSelecionados(Marcando,
+  Todos: Boolean);
+var
+  vRecno : integer;
+begin
+  try
+
+    qryContratosManutencao.AfterScroll:= nil;
+//    qryContratos.GuardarRegistroAtual(true);
+    qryContratosManutencao.disablecontrols;
+
+    vRecno := qryContratosManutencao.recno;
+    FRelatorioAtivo := True;
+
+    MarcarRegistros(qryContratosManutencao,
+                    qryContratosManutencaoselecionar,
+                    qryContratosManutencaovalor,
+                    Marcando,
+                    Todos);
+
+//    ClientDataSetContratosMarcados.close;
+//    ClientDataSetContratosMarcados.Open;
+
+
+  finally
+
+    FRelatorioAtivo := False;
+//    qrycontratos.VoltarRegistro;
+    qryContratosManutencao.recno := vRecno;
+    qryContratosManutencao.enablecontrols;
+    qryContratosManutencao.AfterScroll := qryContratosManutencaoAfterScroll;
+
+
+    qryTotais_.edit;
+    qryTotais_registrosmarcados.asinteger := QtdeMarcados;
+    qryTotais_totalregistrosmarcados.asCurrency := TotalMarcados;
+    qryTotais_.post;
+
+
+
+  end;
+
+end;
+
+procedure TdtmConsultaContratosManutencao.qryContratosManutencaoAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryServicosContratosManutencao,['contrato'],[qryContratosManutencaonumero.AsInteger]);
+  RefazConsultaPorNome(qryParcelasContratosManutencao,['contratomanutencao'],[qryContratosManutencaonumero.AsInteger]);
+
+end;
+
+procedure TdtmConsultaContratosManutencao.qryContratosManutencaoAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  try
+
+    qryContratosManutencao.AfterScroll:= nil;
+    qryContratosManutencao.GuardarRegistroAtual(true);
+    FRelatorioAtivo := True;
+
+    QtdeMarcados := 0;
+    TotalMarcados := 0;
+
+    qryTotais_.open;
+    qryTotais_.delete;
+
+    qryTotais_.edit;
+    qryTotais_registrosselecionados.asinteger := qryContratosManutencao.recordcount;
+    qryTotais_totalregistrosselecionados.asCurrency := SomarValores(qryContratosManutencao, [qryContratosManutencaovalor], [], [], []);
+    qryTotais_.post;
+
+
+
+//    ClientDataSetContratosSelecionados.close;
+//    ClientDataSetContratosSelecionados.open;
+
+//    ClientDataSetContratosMarcados.close;
+//    ClientDataSetContratosMarcados.Open;
+
+  finally
+
+    FRelatorioAtivo := False;
+    qryContratosManutencao.VoltarRegistro;
+    qryContratosManutencao.AfterScroll := qryContratosManutencaoAfterScroll;
+
+  end;
+
+end;
+
+end.

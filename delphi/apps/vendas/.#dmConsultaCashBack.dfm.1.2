@@ -1,0 +1,661 @@
+inherited dtmConsultaCashBack: TdtmConsultaCashBack
+  OldCreateOrder = False
+  Left = 410
+  Top = 222
+  Height = 255
+  Width = 547
+  object qryConsultaCashBack: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListaFiliais'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'IntervaloDatas'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Cliente'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      
+        'select row_number() over (order by data_hora, cliente, tipo_clie' +
+        'nte, contrato) as Reg,'
+      '       sel.*,'
+      ''
+      '       ValorCB +'
+      '       ValorCB_dev +'
+      '       ValorCB_apro +'
+      '       ValorCB_apro_canc +'
+      '       ValorCB_Acertos  as Total'
+      '       '
+      'from'
+      '('
+      'select  min(cb_s.data_hora)  as data_hora, '
+      '        cb_s.cliente,'
+      '        cb_s.tipo_cliente,'
+      '        vf.nome as nomecliente,'
+      '        cb_s.contrato,'
+      '        /*cb_so.parcela,*/'
+      '        ct.filialvenda,'
+      '        cb_sp.cashback,        '
+      '        cb.descricao as descricaocashback,'
+      '        cb_sp.validade,'
+      '        '
+      '        json_agg(cb_sp.*) as json_prod,'
+      '           '
+      
+        '        sum(case when cb_s.status in ('#39'V'#193'LIDO'#39') then cb_sp.valor' +
+        ' else cast(0 as numeric(11,3)) end) as ValorCB,'
+      
+        '        sum(case when cb_s.status in ('#39'V'#193'LIDOS DEVOLVIDOS'#39', '#39'V'#193'L' +
+        'IDOS TROCADOS'#39') then cb_sp.valor else cast(0 as numeric(11,3)) e' +
+        'nd) as ValorCB_Dev,'
+      
+        '        sum(case when cb_s.status in ('#39'APROPRIA'#199#195'O'#39') then cb_sp.' +
+        'valor else cast(0 as numeric(11,3)) end) as ValorCB_Apro,'
+      
+        '        sum(case when cb_s.status in ('#39'APROPRIA'#199#195'O DEVOLVIDA'#39', '#39 +
+        'APROPRIA'#199#195'O TROCADA'#39') then cb_sp.valor else cast(0 as numeric(11' +
+        ',3)) end) as ValorCB_Apro_Canc,'
+      
+        '        sum(case when cb_s.status in ('#39'ENTRADA MANUAL'#39','#39'SA'#205'DA MA' +
+        'NUAL'#39') then cb_sp.valor else cast(0 as numeric(11,3)) end) as Va' +
+        'lorCB_Acertos'
+      ' '
+      'from cashback_saldos cb_s'
+      '     join  cashback_saldos_produtos cb_sp     '
+      '           '
+      '           join produtos p'
+      '           on cb_sp.produto = p.codigo'
+      '           '
+      '           left join cashback cb'
+      '           on cb_sp.cashback = cb.codigo'
+      '             '
+      '     on cb_s.codigo = cb_sp.codigo_saldo '
+      '     '
+      '     join vfornecedores vf'
+      '     on cb_s.cliente = vf.codigo'
+      '     and cb_s.tipo_cliente = vf.tipo'
+      '     '
+      '     left join contratos ct'
+      '     on cb_s.contrato = ct.numero'
+      '     '
+      
+        'where case when cb_s.status in ('#39'V'#193'LIDO'#39', '#39'APROPRIA'#199#195'O'#39') then cb' +
+        '_s.cancelamento = 0 else true end'
+      
+        '  and cb_s.status NOT IN ('#39'V'#193'LIDO CANCELADO'#39', '#39'APROPRIA'#199#195'O CANCE' +
+        'LADA'#39')'
+      ''
+      '%ListaFiliais'
+      '%IntervaloDatas'
+      '%Cliente'
+      ''
+      '     '
+      
+        'group by /*cb_s.data_hora,*/ cb_s.cliente, vf.nome, cb_s.tipo_cl' +
+        'iente, cb_sp.validade, cb_sp.cashback, cb.descricao, cb_s.contra' +
+        'to, /*cb_s.parcela,*/ ct.filialvenda  /*, cashback, descricao_ca' +
+        'shback,  produtovisual, descricaoproduto*/'
+      
+        'order by /*cb_s.data_hora,*/ cb_s.cliente, vf.nome, cb_s.tipo_cl' +
+        'iente, cb_sp.validade,cb_sp.cashback, cb.descricao, cb_s.contrat' +
+        'o, /*cb_s.parcela,*/ ct.filialvenda  /*, cashback, descricao_cas' +
+        'hback,  produtovisual, descricaoproduto*/'
+      ''
+      ')  as sel order by data_hora, cliente, tipo_cliente, contrato'
+      '')
+    RequestLive = False
+    Left = 48
+    Top = 24
+    object qryConsultaCashBackreg: TLargeintField
+      DisplayLabel = 'Registro'
+      DisplayWidth = 5
+      FieldName = 'reg'
+    end
+    object qryConsultaCashBackdata_hora: TDateTimeField
+      DisplayLabel = 'Data/Hora'
+      FieldName = 'data_hora'
+      DisplayFormat = 'dd/MM/yy hh:mm'
+      EditMask = '99/99/99 99:99;1; '
+    end
+    object qryConsultaCashBackcliente: TIntegerField
+      DisplayLabel = 'Cliente'
+      DisplayWidth = 8
+      FieldName = 'cliente'
+    end
+    object qryConsultaCashBacktipo_cliente: TStringField
+      DisplayLabel = 'T'
+      DisplayWidth = 2
+      FieldName = 'tipo_cliente'
+      Size = 1
+    end
+    object qryConsultaCashBacknomecliente: TStringField
+      DisplayLabel = 'Nome do Cliente'
+      FieldName = 'nomecliente'
+      Size = 21
+    end
+    object qryConsultaCashBackcontrato: TStringField
+      DisplayLabel = 'Contrato'
+      DisplayWidth = 15
+      FieldName = 'contrato'
+    end
+    object qryConsultaCashBackfilialvenda: TIntegerField
+      DisplayLabel = 'Filial'
+      DisplayWidth = 7
+      FieldName = 'filialvenda'
+    end
+    object qryConsultaCashBackcashback: TIntegerField
+      DisplayLabel = 'CashBack'
+      DisplayWidth = 9
+      FieldName = 'cashback'
+    end
+    object qryConsultaCashBackdescricaocashback: TStringField
+      DisplayLabel = 'Descri'#231#227'o CashBack'
+      DisplayWidth = 20
+      FieldName = 'descricaocashback'
+      Size = 100
+    end
+    object qryConsultaCashBackvalidade: TDateTimeField
+      Alignment = taCenter
+      DisplayLabel = 'Validade'
+      DisplayWidth = 10
+      FieldName = 'validade'
+      DisplayFormat = 'dd/MM/yy hh:mm'
+      EditMask = '99/99/99 99:99;1; '
+    end
+    object qryConsultaCashBackjson_prod: TStringField
+      FieldName = 'json_prod'
+      Visible = False
+      Size = 2275
+    end
+    object qryConsultaCashBackvalorcb: TFloatField
+      DisplayLabel = 'Valor'
+      DisplayWidth = 10
+      FieldName = 'valorcb'
+    end
+    object qryConsultaCashBackvalorcb_dev: TFloatField
+      DisplayLabel = 'Devolu'#231#245'es'
+      DisplayWidth = 10
+      FieldName = 'valorcb_dev'
+    end
+    object qryConsultaCashBackvalorcb_apro: TFloatField
+      DisplayLabel = 'Apropria'#231#245'es'
+      DisplayWidth = 10
+      FieldName = 'valorcb_apro'
+    end
+    object qryConsultaCashBackvalorcb_apro_canc: TFloatField
+      DisplayLabel = 'Apr. Cancel.'
+      DisplayWidth = 10
+      FieldName = 'valorcb_apro_canc'
+    end
+    object qryConsultaCashBackValorCB_Acertos: TFloatField
+      DisplayLabel = 'Acertos'
+      FieldName = 'ValorCB_Acertos'
+    end
+    object qryConsultaCashBacktotal: TFloatField
+      DisplayLabel = 'Total'
+      DisplayWidth = 10
+      FieldName = 'total'
+    end
+  end
+  object dsrConsultaCashBack: TtecDataSource
+    DataSet = qryConsultaCashBack
+    Left = 88
+    Top = 40
+  end
+  object qryConsultaCashBack_Det: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'json_Prod'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      
+        'select cashback,  cb.descricao as descricaocashback, validade, p' +
+        '.codigovisual as produtovisual, p.descricao as descricaoproduto,' +
+        ' cb_s.Status, cashBack_prod.quantidade, cashBack_prod.valor'
+      'from'
+      ' ('
+      
+        '   select codigo_saldo, cashback,  validade, produto, quantidade' +
+        ', valor from json_to_recordset('
+      '   %json_Prod'
+      
+        '  ) as (codigo_saldo integer, cashback integer, validade timesta' +
+        'mp, produto bigint, quantidade numeric, valor NUMERIC)'
+      ''
+      ') as cashBack_prod'
+      ''
+      ' join produtos p'
+      ' on p.codigo =  cashBack_prod.produto'
+      ''
+      ' join cashback_saldos cb_s'
+      ' on cashBack_prod.codigo_saldo = cb_s.codigo'
+      ''
+      ' join cashback cb'
+      ' on cashBack_prod.cashback = cb.codigo')
+    RequestLive = False
+    Left = 64
+    Top = 104
+    object qryConsultaCashBack_Detprodutovisual: TStringField
+      DisplayLabel = 'Produto'
+      DisplayWidth = 20
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryConsultaCashBack_Detdescricaoproduto: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      DisplayWidth = 64
+      FieldName = 'descricaoproduto'
+      Size = 100
+    end
+    object qryConsultaCashBack_Detcashback: TIntegerField
+      DisplayLabel = 'CashBack'
+      DisplayWidth = 9
+      FieldName = 'cashback'
+    end
+    object qryConsultaCashBack_Detdescricaocashback: TStringField
+      DisplayLabel = 'Descri'#231#227'o CashBack'
+      DisplayWidth = 20
+      FieldName = 'descricaocashback'
+      Size = 100
+    end
+    object qryConsultaCashBack_Detvalidade: TDateTimeField
+      Alignment = taCenter
+      DisplayLabel = 'Validade'
+      DisplayWidth = 10
+      FieldName = 'validade'
+      DisplayFormat = 'dd/MM/yy hh:mm'
+      EditMask = '99/99/99 99:99;1; '
+    end
+    object qryConsultaCashBack_Detstatus: TStringField
+      DisplayLabel = 'Status'
+      DisplayWidth = 30
+      FieldName = 'status'
+      Size = 25
+    end
+    object qryConsultaCashBack_Detquantidade: TFloatField
+      DisplayLabel = 'Quantidade'
+      DisplayWidth = 16
+      FieldName = 'quantidade'
+      DisplayFormat = '0.00'
+    end
+    object qryConsultaCashBack_Detvalor: TFloatField
+      DisplayLabel = 'Valor'
+      DisplayWidth = 11
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+  end
+  object dsrConsultaCashBack_Det: TtecDataSource
+    DataSet = qryConsultaCashBack_Det
+    Left = 96
+    Top = 152
+  end
+  object qryConsultaCashBack_porProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListaFiliais'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'IntervaloDatas'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Cliente'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      
+        'select  row_number() over (order by produtovisual, descricaoprod' +
+        'uto) as Reg,'
+      '        sel.*,'
+      '       '
+      '       (valorcb +'
+      '/*        ValorCB_Canc +*/'
+      '        ValorCB_Dev + '
+      '        ValorCB_Apro +'
+      '        ValorCB_Apro_Canc +'
+      '        ValorCB_Acertos) as total'
+      'from'
+      '(       '
+      '        '
+      'select  '
+      '        p.codigovisual as produtovisual,'
+      '        p.descricao as descricaoproduto,'
+      ''
+      ''
+      
+        '        sum(case when cb_s.status = '#39'V'#193'LIDO'#39' then cb_sp.valor el' +
+        'se cast(0 as numeric(11,3)) end) as ValorCB,'
+      
+        '/*        sum(case when cb_s.status = '#39'V'#193'LIDO CANCELADO'#39' then cb' +
+        '_sp.valor else cast(0 as numeric(11,3)) end) as ValorCB_Canc,*/'
+      
+        '        sum(case when cb_s.status in ('#39'V'#193'LIDOS DEVOLVIDOS'#39', '#39'V'#193'L' +
+        'IDOS TROCADOS'#39') then cb_sp.valor else cast(0 as numeric(11,3)) e' +
+        'nd) as ValorCB_Dev,'
+      
+        '        sum(case when cb_s.status = '#39'APROPRIA'#199#195'O'#39' then cb_sp.val' +
+        'or else cast(0 as numeric(11,3)) end) as ValorCB_Apro,'
+      
+        '        sum(case when cb_s.status in ('#39'APROPRIA'#199#195'O DEVOLVIDA'#39', '#39 +
+        'APROPRIA'#199#195'O TROCADA'#39') then cb_sp.valor else cast(0 as numeric(11' +
+        ',3)) end) as ValorCB_Apro_Canc,'
+      
+        '        sum(case when cb_s.status in ('#39'ENTRADA MANUAL'#39','#39'SA'#205'DA MA' +
+        'NUAL'#39') then cb_sp.valor else cast(0 as numeric(11,3)) end) as Va' +
+        'lorCB_Acertos,'
+      '        '
+      '        json_agg(cb_sp.*) as json_prod,'
+      '        json_agg(cb_s.*) as json_saldos'
+      ''
+      '        '
+      ' '
+      'from cashback_saldos cb_s'
+      '     join  cashback_saldos_produtos cb_sp     '
+      '           '
+      '           join produtos p'
+      '           on cb_sp.produto = p.codigo'
+      '           '
+      '           left join cashback cb'
+      '           on cb_sp.cashback = cb.codigo'
+      '             '
+      '     on cb_s.codigo = cb_sp.codigo_saldo '
+      '     '
+      '     join vfornecedores vf'
+      '     on cb_s.cliente = vf.codigo'
+      '     and cb_s.tipo_cliente = vf.tipo'
+      '     '
+      '     left join contratos ct'
+      '     on cb_s.contrato = ct.numero'
+      '     '
+      
+        'where case when cb_s.status in ('#39'V'#193'LIDO'#39', '#39'APROPRIA'#199#195'O'#39') then cb' +
+        '_s.cancelamento = 0 else true end'
+      
+        '  and cb_s.status NOT IN ('#39'V'#193'LIDO CANCELADO'#39', '#39'APROPRIA'#199#195'O CANCE' +
+        'LADA'#39')'
+      ''
+      '%ListaFiliais'
+      '%IntervaloDatas'
+      '%Cliente'
+      '  '
+      ''
+      ' group by  p.codigovisual, p.descricao'
+      ''
+      ') as sel'
+      'order by produtovisual, descricaoproduto /*data , validade*/')
+    RequestLive = False
+    Left = 280
+    Top = 24
+    object qryConsultaCashBack_porProdutosreg: TLargeintField
+      DisplayLabel = 'Registro'
+      DisplayWidth = 5
+      FieldName = 'reg'
+    end
+    object qryConsultaCashBack_porProdutosprodutovisual: TStringField
+      DisplayLabel = 'Produto'
+      DisplayWidth = 20
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryConsultaCashBack_porProdutosdescricaoproduto: TStringField
+      DisplayLabel = 'Descri'#231#227'o do Produto'
+      DisplayWidth = 85
+      FieldName = 'descricaoproduto'
+      Size = 100
+    end
+    object qryConsultaCashBack_porProdutosvalorcb: TFloatField
+      DisplayLabel = 'Valor'
+      DisplayWidth = 12
+      FieldName = 'valorcb'
+    end
+    object qryConsultaCashBack_porProdutosvalorcb_dev: TFloatField
+      DisplayLabel = 'Devolu'#231#245'es'
+      DisplayWidth = 12
+      FieldName = 'valorcb_dev'
+    end
+    object qryConsultaCashBack_porProdutosvalorcb_apro: TFloatField
+      DisplayLabel = 'Apropria'#231#245'es'
+      DisplayWidth = 12
+      FieldName = 'valorcb_apro'
+    end
+    object qryConsultaCashBack_porProdutosvalorcb_apro_canc: TFloatField
+      DisplayLabel = 'Apr. Cancel.'
+      DisplayWidth = 12
+      FieldName = 'valorcb_apro_canc'
+    end
+    object qryConsultaCashBack_porProdutosValorCB_Acertos: TFloatField
+      DisplayLabel = 'Acertos'
+      DisplayWidth = 12
+      FieldName = 'ValorCB_Acertos'
+    end
+    object qryConsultaCashBack_porProdutostotal: TFloatField
+      DisplayLabel = 'Total'
+      DisplayWidth = 12
+      FieldName = 'total'
+    end
+    object qryConsultaCashBack_porProdutosjson_prod: TStringField
+      FieldName = 'json_prod'
+      Visible = False
+      Size = 1694
+    end
+    object qryConsultaCashBack_porProdutosjson_saldos: TStringField
+      FieldName = 'json_saldos'
+      Visible = False
+      Size = 2425
+    end
+  end
+  object dsrConsultaCashBack_porProdutos: TtecDataSource
+    DataSet = qryConsultaCashBack_porProdutos
+    Left = 320
+    Top = 40
+  end
+  object qryConsultaCashBack_DetProd: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'json_Prod'
+        ParamType = ptUnknown
+        Value = 
+          #39'[{"codigo_saldo":40,"codigo_saldo_origem":40,"cashback":9,"vali' +
+          'dade":"2022-07-07T00:00:00","produto":1951700,"quantidade":1.000' +
+          ',"valor":4.72}]'#39
+      end
+      item
+        DataType = ftString
+        Name = 'json_saldos'
+        ParamType = ptUnknown
+        Value = 
+          #39'[{"codigo":40,"data_hora":"2021-09-10T17:39:07.098866","cliente' +
+          '":52851,"tipo_cliente":"C","status":"V'#193'LIDO","contrato":"923971"' +
+          ',"parcela":1,"cancelamento":0,"codigo_apropriacao_devolvida":nul' +
+          'l}]'#39
+      end>
+    Sql.Strings = (
+      ';'
+      'select cb_sp.*,'
+      '       cb.descricao as descricaocashback, '
+      '       p.descricao as descricaoproduto,'
+      '       cb_s.*,'
+      '       vf.nome as nomecliente'
+      '       '
+      'from'
+      '('
+      
+        '   select codigo_saldo, cashback,  validade, produto, quantidade' +
+        ', valor from json_to_recordset('
+      ''
+      '  %json_prod'
+      ''
+      
+        '  ) as (codigo_saldo integer, cashback integer, validade timesta' +
+        'mp, produto bigint, quantidade numeric, valor NUMERIC)'
+      ') as cb_sp'
+      ''
+      'left join cashback cb'
+      'on cb.codigo = cb_sp.cashback'
+      ''
+      'join produtos p'
+      'on cb_sp.produto = p.codigo'
+      ''
+      'join'
+      ''
+      '('
+      ''
+      '   select distinct * from json_to_recordset('
+      ''
+      '  %json_saldos'
+      ''
+      '  ) as ('
+      '  '
+      '  '
+      '  '
+      '  codigo INTEGER,'
+      '  data_hora TIMESTAMP,'
+      '  cliente INTEGER,'
+      '  tipo_cliente CHAR(1),'
+      '  status VARCHAR(25),'
+      '  contrato VARCHAR(20),'
+      '  parcela INTEGER,'
+      '  cancelamento INTEGER,'
+      '  codigo_apropriacao_devolvida integer  '
+      '  '
+      '  )'
+      ''
+      ''
+      ''
+      ') as cb_s'
+      'on cb_sp.codigo_saldo = cb_s.codigo'
+      ''
+      'join vfornecedores vf'
+      'on cb_s.cliente = vf.codigo'
+      'and cb_s.tipo_cliente = vf.tipo'
+      ''
+      'order by cb_s.codigo'
+      '  '
+      '  '
+      ''
+      '')
+    RequestLive = False
+    Left = 280
+    Top = 128
+    object qryConsultaCashBack_DetProdcontrato: TStringField
+      DisplayLabel = 'Contrato'
+      DisplayWidth = 10
+      FieldName = 'contrato'
+    end
+    object qryConsultaCashBack_DetProdparcela: TIntegerField
+      DisplayLabel = 'Parcela'
+      DisplayWidth = 6
+      FieldName = 'parcela'
+    end
+    object qryConsultaCashBack_DetProdcliente: TIntegerField
+      DisplayLabel = 'Cliente'
+      DisplayWidth = 8
+      FieldName = 'cliente'
+    end
+    object qryConsultaCashBack_DetProdtipo_cliente: TStringField
+      DisplayLabel = 'T'
+      DisplayWidth = 2
+      FieldName = 'tipo_cliente'
+      Size = 1
+    end
+    object qryConsultaCashBack_DetProdnomecliente: TStringField
+      DisplayLabel = 'Nome do Cliente'
+      DisplayWidth = 35
+      FieldName = 'nomecliente'
+    end
+    object qryConsultaCashBack_DetProddata_hora: TDateTimeField
+      DisplayLabel = 'Data/Hora'
+      DisplayWidth = 18
+      FieldName = 'data_hora'
+    end
+    object qryConsultaCashBack_DetProdcashback: TIntegerField
+      DisplayLabel = 'CashBack'
+      DisplayWidth = 9
+      FieldName = 'cashback'
+    end
+    object qryConsultaCashBack_DetProddescricaocashback: TStringField
+      DisplayLabel = 'Descri'#231#227'o do CashBack'
+      DisplayWidth = 29
+      FieldName = 'descricaocashback'
+      Size = 100
+    end
+    object qryConsultaCashBack_DetProdvalidade: TDateTimeField
+      DisplayLabel = 'Validade'
+      DisplayWidth = 10
+      FieldName = 'validade'
+    end
+    object qryConsultaCashBack_DetProdstatus: TStringField
+      DisplayLabel = 'Status'
+      DisplayWidth = 31
+      FieldName = 'status'
+      Size = 25
+    end
+    object qryConsultaCashBack_DetProdquantidade: TFloatField
+      DisplayLabel = 'Quantidade'
+      FieldName = 'quantidade'
+    end
+    object qryConsultaCashBack_DetProdvalor: TFloatField
+      DisplayLabel = 'Valor'
+      DisplayWidth = 12
+      FieldName = 'valor'
+    end
+  end
+  object dsrConsultaCashBack_DetProd: TtecDataSource
+    DataSet = qryConsultaCashBack_DetProd
+    Left = 320
+    Top = 160
+  end
+end

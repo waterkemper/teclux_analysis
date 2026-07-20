@@ -1,0 +1,115 @@
+unit fmlogprodutos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, cpdata, DBCtrls, cpdbtext,
+  Mask, cpdbfindcontrols, ComCtrls, cppagecontrol, Buttons, ctconstantes,
+  biblio, dmlogprodutos,DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpeditioncontrolvalidation, fmrelatoriopadrao, QCheckLst,
+  fmconsultabasica,
+  fmconsultaporcampo, frlistafiliais, frlistagruposfiliais, Grids,
+  DBGrids, cpdbgrid, frconsulta, frconsultacodigo, ToolWin;
+
+type
+  TfrmLogProdutos = class(TfrmRelatorioPadrao)
+    gbxPeriodo: TGroupBox;
+    lblInicio: TLabel;
+    edtDataInicial: TEditData;
+    lblFim: TLabel;
+    edtDataFinal: TEditData;
+    gbxProdutos: TGroupBox;
+    ckbInseridos: TCheckBox;
+    ckbApagados: TCheckBox;
+    ckbAtualizados: TCheckBox;
+    ckbProdutoNaoBrinde: TCheckBox;
+    gbxItem: TGroupBox;
+    fraConsultaItemProduto: TfraConsultaCodigo;
+    gbxProduto: TGroupBox;
+    fraConsultaProduto: TfraConsultaCodigo;
+  protected
+    dtmLogProdutos: TdtmLogProdutos;
+    procedure InternoImpressao; override;
+
+  private
+    { Private declarations }
+  public
+    constructor Create(AOwner: TComponent); override;
+    function    ValidarCamposSelecao: Boolean;
+    { Public declarations }
+  end;
+
+var
+  frmLogProdutos: TfrmLogProdutos;
+  TipoPesquisa: TtecPesquisa;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmLogProdutos }
+
+constructor TfrmLogProdutos.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmLogProdutos := TdtmLogProdutos.Create(Self);
+//  dtmLogProdutos.Abre(ctTabelas);
+  fraConsultaItemProduto.TipoPesquisa := pesITEMPRODUTOS;
+  fraConsultaProduto.TipoPesquisa     := pesPRODUTOS;
+  edtDataInicial.Text := DateToStr(Date);
+  edtDataFinal.Text := DateToStr(Date);
+end;
+
+
+procedure TfrmLogProdutos.InternoImpressao;
+begin
+  inherited;
+  if ValidarCamposSelecao then
+  begin
+    with dtmLogProdutos do
+    begin
+      ParametroCabecalho := '';
+      DataInicial := edtDataInicial.Text;
+      DataFinal   := edtDataFinal.Text;
+      Inserido   := ckbInseridos.Checked;
+      Atualizado := ckbAtualizados.Checked;
+      Apagado    := ckbApagados.Checked;
+      MontaQueryLog(fraConsultaItemProduto.edfcodigo.ValoraDataFieldInterno, fraConsultaProduto.edfcodigo.ValoraDataFieldInterno);
+      {
+      if not qryImprimirRelatorio.IsEmpty then
+        ImprimirRelatorio
+      else
+        MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+        qryImprimirRelatorio.Close;
+      }
+    end;
+  end;
+
+end;
+
+function TfrmLogProdutos.ValidarCamposSelecao: Boolean;
+begin
+  Result := (edtDataInicial.DataValida and edtDataFinal.DataValida);
+  if Result then
+   begin
+    if (not dataembranco(edtDataInicial.text) and not dataembranco(edtDataFinal.text)) then
+      Result:=StrToDate(edtDataInicial.Text) <= StrToDate(edtDataFinal.Text);
+    if result then
+    begin
+      Result:=(not dataembranco(edtDataInicial.text) or not dataembranco(edtDataFinal.text));
+      if not Result then
+      begin
+       MensagemAviso(ctDATAINVALIDA);
+       edtDataInicial.SetFocus;
+      end;
+    end
+    else
+    begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      edtDataInicial.SetFocus;
+    end;
+   end;
+end;
+
+end.

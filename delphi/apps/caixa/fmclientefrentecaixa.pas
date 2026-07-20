@@ -1,0 +1,455 @@
+unit fmclientefrentecaixa;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, {Qete,}
+  DBCtrls, Buttons, Mask, DB,
+  //Repositorio
+  frcgcoucpf, frendereco, frenderecoeditor, fmnavcontroles, frtelefone,
+  //Componentes
+  cptexto, cpdbfindcontrols, cpdata, cpeditioncontrolvalidation, ComCtrls,
+  frconsulta, frconsultacodigo, cpdocumento, cpdbdata, Windows, ToolWin,
+  fmcadastropadrao, ExtCtrls, ctconstantes;
+
+type
+  TfrmClienteFrenteCaixa = class(TfrmCadastroPadrao)
+    fraEnderecoEditor: TfraEnderecoEditor;
+    fraFone: TfraTelefone;
+    fracgcoucpf: Tfracgcoucpf;
+    gbxCliente: TGroupBox;
+    edfCodigoCliente: TtecDbEditFind;
+    edtCliente: TDBEditTexto;
+    gbxIdNumero: TGroupBox;
+    fraCelular: TfraTelefone;
+    gbxEmail: TGroupBox;
+    edtDocumento: TDBEditDocumento;
+    gbxSite: TGroupBox;
+    edtemail: TDBEditTexto;
+    edtsite: TDBEditTexto;
+    gbxNascto: TGroupBox;
+    edtdatanascto: TDBEditData;
+    gbxEstrangeiro: TGroupBox;
+    ckbestrangeiro: TDBCheckBox;
+    procedure edfCodigoClienteExit(Sender: TObject);
+    procedure fracgcoucpfedtCPFCNPJExit(Sender: TObject);
+    procedure fracgcoucpfrgbTipoPessoaChange(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+//  procedure bbnOKClick(Sender: TObject);
+//    procedure bbnCancelarClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure fraEnderecoEditoredtCEPKeyPress(Sender: TObject;
+      var Key: Char);
+    procedure fraEnderecoEditorsbnRuaClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure edfCodigoClienteEnter(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure edfCodigoClienteKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    FOntecClose: TtecProcedure;
+  protected
+    CodClienteAnt: Integer;
+  
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    procedure AlterarEstadoBotoes; override;
+
+
+  public
+    ConsultaClientes: TfraConsultaCodigo;
+    constructor Create(Aowner: TComponent); override;
+    destructor  Destroy; override;
+    procedure AbrirClientes;
+    property  OntecClose: TtecProcedure read FOntecClose write FOntecClose;
+  end;
+
+var
+  FrmClienteFrenteCaixa: TfrmClienteFrenteCaixa;
+  origem : String;
+
+implementation
+
+{$R *.dfm}
+
+Uses
+  //Biblio
+  biblio, climpressorachequepadrao, clparametrossistema,
+  // Repositorio
+  fmconsultaporcampo, clusuario,
+  //Projeto
+  dmfrentecaixa, dmbasico;
+
+constructor TfrmClienteFrenteCaixa.Create(Aowner: TComponent);
+begin
+  Inherited;
+
+  DataSet := dtmFrenteCaixa.qryCliente;
+  if not Assigned(ConsultaClientes) then
+    ConsultaClientes := TfraConsultaCodigo.Create(self);
+  ConsultaClientes.edfCodigo.ActiveSetControls := false;
+  ConsultaClientes.edfCodigo.DataSource := dtmFrenteCaixa.dsrCliente;
+  ConsultaClientes.edfCodigo.DataField := 'codigo';
+  ConsultaClientes.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaClientes.AbrirTabelaProcura := false;
+  ConsultaClientes.TipoPesquisa := pesCLIENTES;
+  ConsultaClientes.TipoCliente:= 'C';
+//  dtmFrenteCaixa.AbreClientes;
+  fraEnderecoEditor.CampoCidadeIBGE := dtmFrenteCaixa.qryClientecidadeibge;
+{
+  if origem = 'Frente de Caixa' then
+    InternoIncluir;
+ }
+
+//  self.WindowState := tForm(AOwner).WindowState;
+
+  FormOrigemBloqueio := Aowner.name;
+  BloquearFormularios(self.name);
+
+end;
+
+procedure TfrmClienteFrenteCaixa.edfCodigoClienteExit(Sender: TObject);
+begin
+  inherited;
+  edtCliente.ReadOnly := Trim(edfCodigoCliente.Text) <> '';
+  fracgcoucpf.edtCPFCNPJ.Tipo := dtmFrenteCaixa.TipoPessoa;
+
+  if ((CodClienteAnt <> dtmFrenteCaixa.qryclienteCodigo.asinteger) or
+     ((CodClienteAnt=0) and (dtmFrenteCaixa.qryclienteCodigo.asinteger<>0))) and
+     parsistema.AnalisarFichaFinanceiraFrentedeCaixa then
+  begin
+  {
+    dtmFrenteCaixa.ExibirFicha(ClassName);
+    edfCodigoCliente.setfocus;
+    edfCodigoCliente.selectall;
+    }
+
+
+      dtmFrenteCaixa.AlertarAtualizacaoCadastroCliente(
+       dtmfrenteCaixa.qryclientecodigo.asinteger, 'C');
+
+
+      if not dtmFrenteCaixa.ExibirFicha(ClassName) then
+      begin
+        if (dtmfrenteCaixa.qryclientecodigo.asinteger <> 0) then
+        begin
+
+          if parsistema.CLIENTE_INADIMPLENTE_SO_COM_ANALISTA_DE_CREDITO then
+            self.OnActivate(self);
+
+          if (dtmfrenteCaixa.qryclientecodigo.asinteger <> 0) then
+          begin
+
+            if dtmfrenteCaixa.qryclienteqtorcamentoemaberto.AsInteger>0 then
+              MensagemAviso('ATENÇÃO: Cliente possui orçamentos em aberto!', ParSistema.Fechamento_da_tela_de_avisos_do_cliente_somente_com_mouse);
+
+          end;
+
+        end;
+      end;
+
+    edfCodigoCliente.setfocus;
+    edfCodigoCliente.selectall;
+
+  end;
+
+end;
+
+procedure TfrmClienteFrenteCaixa.fracgcoucpfedtCPFCNPJExit(Sender: TObject);
+begin
+  inherited;
+  if dtmFrenteCaixa.ExisteCPFCNPJ then
+  begin
+    fracgcoucpf.edtCPFCNPJ.SetFocus;
+    fracgcoucpf.TabOrder := 1;
+  end
+  else
+  if (dtmFrenteCaixa.qryCliente.State = dsinsert) and
+     (dtmFrenteCaixa.qryClientenome.IsNull) then
+  begin
+    fracgcoucpf.TabOrder := 0;
+    edtCliente.setfocus;
+  end;
+
+
+end;
+
+procedure TfrmClienteFrenteCaixa.fracgcoucpfrgbTipoPessoaChange(Sender: TObject);
+begin
+  inherited;
+  fracgcoucpf.edtCPFCNPJ.Tipo := dtmFrenteCaixa.TipoPessoa;
+  if dtmFrenteCaixa.TipoPessoa = 'F' then
+  begin
+    gbxIdNumero.Caption := 'RG';
+    edtDocumento.Tipo := Identidade;
+  end
+  else if dtmFrenteCaixa.TipoPessoa = 'J' then
+  begin
+    gbxIdNumero.Caption := 'Insc. Estadual';
+    edtDocumento.Tipo   := InscricaoEstadual;
+  end;
+end;
+
+procedure TfrmClienteFrenteCaixa.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+//  if edfCodigoCliente.Focused and (Shift = [ssCtrl]) and (Key = VK_F9) then
+  if not CtrlOn and  (Key = VK_F9) then
+  begin
+    ConsultaClientes.InternoPesquisar(ctCLIENTES);
+    AbrirClientes;
+    self.SetFocus;
+  end;
+
+  if Key = VK_ESCAPE then
+  begin
+    dtmFrenteCaixa.consultaClienteCodigo(dtmFrenteCaixa.CodigoCliente);
+    close;
+//    ModalResult := mrAbort;
+  end;
+end;
+
+procedure TfrmClienteFrenteCaixa.FormKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_F5: begin
+             if sbnSalvar.enabled then
+                internogravar;
+           end;
+  end;
+
+//  VK_F6: bbnCancelarClick(Self);
+{    VK_F9: begin
+              ConsultaClientes.InternoPesquisar(ctCLIENTES);
+              AbrirClientes;
+              self.SetFocus;
+            end;
+ //if not edfCodigoCliente.Focused then
+              //ConsultaCliente;
+  end
+  }
+end;
+
+{
+procedure TfrmClienteFrenteCaixa.bbnOKClick(Sender: TObject);
+begin
+  inherited;
+  if Trim(edtCliente.Text) = '' then begin
+    MensagemAviso('O Cliente não esta preenchido.');
+    edfCodigoCliente.SetFocus
+  end else if ParSistema.CPF_CNPJObrigatorio and (Trim(fracgcoucpf.edtCPFCNPJ.Text) = '') then begin
+    MensagemAviso('O CPF/CNPJ não esta preenchido.');
+    fracgcoucpf.edtCPFCNPJ.SetFocus
+  end else
+  begin
+    if Trim(fraEnderecoEditor.mmoRua.Text) = '' then
+    begin
+      fraEnderecoEditor.edtCEP.Field.AsString := dtmFrenteCaixa.CEPFilialBase;
+      fraEnderecoEditor.edtCEPExit(Self);
+    end;
+    dtmFrenteCaixa.IncluirCliente;
+
+    dtmFrenteCaixa.clienteVenda := dtmfrenteCaixa.qryclientecodigo.asinteger;
+    dtmFrenteCaixa.nomeclienteVenda := dtmfrenteCaixa.qryclientenome.asstring;
+
+    close;
+
+    //ModalResult := mrOK
+  end
+end;
+
+procedure TfrmClienteFrenteCaixa.bbnCancelarClick(Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.FechaClientes(True);
+  close;
+//  ModalResult := mrCancel
+end;
+}
+
+procedure TfrmClienteFrenteCaixa.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  if ConsultaClientes.InternoPesquisar(ctCLIENTES) = mrOK then
+    AbrirClientes;
+
+  self.SetFocus;
+//  fraConsultaCliente.sbnProcuraClick(Self);
+end;
+
+procedure TfrmClienteFrenteCaixa.fraEnderecoEditoredtCEPKeyPress(
+  Sender: TObject; var Key: Char);
+begin
+  inherited;
+  {
+  if key = #13 then
+  begin
+    bbnOKClick(self);
+  end;
+  }
+end;
+
+procedure TfrmClienteFrenteCaixa.fraEnderecoEditorsbnRuaClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraEnderecoEditor.sbnRuaClick(Sender);
+
+end;
+
+destructor TfrmClienteFrenteCaixa.Destroy;
+begin
+  if Assigned(OntecClose) then
+    OntecClose;
+  inherited;
+  frmClientefrentecaixa:= nil;
+end;
+
+
+procedure TfrmClienteFrenteCaixa.AbrirClientes;
+begin
+//  edfCodigoCliente.Text:= ConsultaClientes.ValorSelecionado;
+//  with dtmFrenteCaixa do
+  dtmFrenteCaixa.qryCliente.OnCalcFields := nil;
+  edfCodigoCliente.Text:= ConsultaClientes.ValorSelecionado;
+//  dtmFrenteCaixa.RefazConsultaPorNome(dtmFrenteCaixa.qryCliente,['codigo'],[ConsultaClientes.ValorSelecionado]);
+  edfCodigoCliente.Exist;
+  dtmFrenteCaixa.qryCliente.OnCalcFields := dtmFrenteCaixa.qryClienteCalcFields;
+end;
+
+function TfrmClienteFrenteCaixa.InternoIncluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then
+  begin
+    Result:= inherited InternoIncluir;
+    if Result then
+    begin
+      if not (dtmFrenteCaixa.qryCliente.State = dsinsert) then
+      begin
+        dtmFrenteCaixa.qryCliente.OnCalcFields := nil;
+        dtmFrenteCaixa.qryCliente.Insert;
+        dtmFrenteCaixa.qryCliente.OnCalcFields := dtmFrenteCaixa.qryClienteCalcFields;
+
+      end;
+    end;
+  end;
+end;
+
+function TfrmClienteFrenteCaixa.InternoGravar: Boolean;
+begin
+{
+  if fracgcoucpf.edtCPFCNPJ.Focused then
+    keybd_event(VK_RETURN,0,0,0);
+}
+  Result:= inherited InternoGravar;
+
+  if Result then
+  begin
+    if Trim(edtCliente.Text) = '' then
+    begin
+      MensagemAviso('O Cliente não esta preenchido.');
+      edfCodigoCliente.SetFocus
+    end
+    else
+    if ParSistema.CPF_CNPJObrigatorio and
+      (Trim(fracgcoucpf.edtCPFCNPJ.Text) = '') and
+      not ckbestrangeiro.checked then
+    begin
+      MensagemAviso('O CPF/CNPJ não esta preenchido.');
+      fracgcoucpf.edtCPFCNPJ.SetFocus
+    end else
+    begin
+      if Trim(fraEnderecoEditor.mmoRua.Text) = '' then
+      begin
+
+        fraEnderecoEditor.edtCEP.Field.AsString := dtmFrenteCaixa.CEPFilialBase;
+        fraEnderecoEditor.mmoRua.Field.AsString := dtmFrenteCaixa.RuaFilialBase;
+        fraEnderecoEditor.edtNumeroEndereco.Field.AsString := dtmFrenteCaixa.NumeroFilialBase;
+        fraEnderecoEditor.edtComplemento.Field.AsString := dtmFrenteCaixa.ComplementoFilialBase;
+        fraEnderecoEditor.edtBairro.Field.AsString := dtmFrenteCaixa.CodigoBairroFilialBase;
+        fraEnderecoEditor.edtBairro.DataSource.DataSet.FieldByName('nomebairro').AsString := dtmFrenteCaixa.BairroFilialBase;
+        fraEnderecoEditor.edtCidade.Field.AsString := dtmFrenteCaixa.CodigoCidadeFilialBase;
+        fraEnderecoEditor.edtCidade.DataSource.DataSet.FieldByName('nomecidade').AsString := dtmFrenteCaixa.CidadeFilialBase;
+        fraEnderecoEditor.edtEstado.Field.AsString := dtmFrenteCaixa.EstadoFilialBase;
+        dtmFrenteCaixa.qryClientecidadeibge.AsString := dtmfrentecaixa.CodigoCidadeIBGEFilialBase;
+      end;
+      dtmFrenteCaixa.IncluirCliente;
+
+      sbnSalvar.Enabled := false;
+
+      dtmFrenteCaixa.clienteVenda := dtmfrenteCaixa.qryclientecodigo.asinteger;
+      dtmFrenteCaixa.nomeclienteVenda := dtmfrenteCaixa.qryclientenome.asstring;
+      dtmFrenteCaixa.EmailClienteVenda := dtmFrenteCaixa.qryClienteemail.asString;
+
+
+      //ModalResult := mrOK;
+
+      close;
+    end;
+  end;
+
+end;
+
+function TfrmClienteFrenteCaixa.InternoExcluir: Boolean;
+begin
+  dtmFrenteCaixa.FechaClientes(True);
+  close;
+
+//  ModalResult := mrCancel
+end;
+
+procedure TfrmClienteFrenteCaixa.AlterarEstadoBotoes;
+begin
+  inherited;
+  sbnSalvar.Enabled := not dtmfrentecaixa.qrycliente.isempty;
+  sbnProcurar.enabled := true;
+end;
+
+procedure TfrmClienteFrenteCaixa.FormShow(Sender: TObject);
+begin
+  inherited;
+  sbnProcurar.enabled := true;
+end;
+
+procedure TfrmClienteFrenteCaixa.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  DesbloquearFormularios;
+end;
+
+procedure TfrmClienteFrenteCaixa.edfCodigoClienteEnter(Sender: TObject);
+begin
+  inherited;
+  CodClienteAnt := dtmFrenteCaixa.qryclienteCodigo.asinteger;
+
+end;
+
+procedure TfrmClienteFrenteCaixa.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+  {
+  Canclose := true;
+  if parsistema.ObrigaClienteFrenteCaixa then
+    Canclose := dtmfrentecaixa.clientevenda<>0;
+    }
+end;
+
+procedure TfrmClienteFrenteCaixa.edfCodigoClienteKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    if edtCliente.CanFocus then
+      edtCliente.setfocus;
+end;
+
+end.

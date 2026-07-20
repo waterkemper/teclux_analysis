@@ -1,0 +1,80 @@
+unit fmmensagemsimnaoopcaocancelammoxml;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Buttons, ExtCtrls, Windows, AdvMemo, Advmxml, xmldom, XMLIntf,
+  msxmldom, XMLDoc, ComCtrls, TreeList, Grids, AdvObj, BaseGrid, AdvGrid,
+  DBAdvGrid, DB, DBClient, Provider, Xmlxform ;
+
+type
+  TfrmMensagemSimNaoopcaocancelammoxml = class(Tform)
+    btnOK: TBitBtn;
+    btnAbrirArquivo: TBitBtn;
+    lblMensagem: TStaticText;
+    imgMensagem: TImage;
+    pnlBotoes: TPanel;
+    pnlMensagem: TPanel;
+    procedure btnCancelarClick(Sender: TObject);
+    procedure btnOKClick(Sender: TObject);
+    procedure btnOpcaoClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure btnAbrirArquivoClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+{    constructor Create(AOwner: TComponent); override;}
+    destructor Destroy; override;
+
+  end;
+
+var
+  frmMensagemSimNaoopcaocancelammoxml: TfrmMensagemSimNaoopcaocancelammoxml;
+
+
+
+implementation
+uses biblio;
+
+{$R *.dfm}
+
+procedure TfrmMensagemSimNaoopcaocancelammoxml.btnCancelarClick(Sender: TObject);
+begin
+  ModalResult := mrCancel;
+end;
+
+procedure TfrmMensagemSimNaoopcaocancelammoxml.btnOKClick(Sender: TObject);
+begin
+  ModalResult := mrYes;
+end;
+
+procedure TfrmMensagemSimNaoopcaocancelammoxml.btnOpcaoClick(Sender: TObject);
+begin
+  ModalResult := mrOk;
+end;
+
+destructor TfrmMensagemSimNaoopcaocancelammoxml.Destroy;
+begin
+  inherited;
+  frmMensagemSimNaoopcaocancelammoxml := nil;
+
+end;
+
+procedure TfrmMensagemSimNaoopcaocancelammoxml.FormKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if key = vk_escape then
+    modalresult := mrCancel;
+    
+end;
+
+procedure TfrmMensagemSimNaoopcaocancelammoxml.btnAbrirArquivoClick(
+  Sender: TObject);
+begin
+  ExecFile(btnAbrirArquivo.Hint);
+end;
+
+end.

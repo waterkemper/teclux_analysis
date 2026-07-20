@@ -1,0 +1,423 @@
+unit dmrelatoriochequesemitidos;
+
+interface
+
+uses
+  SysUtils, Classes, DB,
+  // Terceiros
+  FR_DSet, FR_DBSet, FR_Class, ZQuery, ZPgSqlQuery,
+  // Componentes
+  cpquery, cpdatasource,
+  // Constantes
+  ctconstantes, biblio,
+  // Repositorio
+  dmbasico, clparametrossistema, fmpreviewpadrao, FR_Desgn, ZTransact;
+
+type
+  TdtmRelatorioChequesEmitidos = class(TdtmBasico)
+    qryFilial: TtecQuery;
+    qryFilialcodigo: TIntegerField;
+    qryFilialnome: TStringField;
+    dsrFilial: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryGrupoFiliais: TtecQuery;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisdescricao: TStringField;
+    dsrGrupoFiliais: TtecDataSource;
+    qryConsultaGrupoFiliais: TtecQuery;
+    qryConsultaGrupoFiliaisdescricao: TStringField;
+    qryConsultaGrupoFiliaiscodigo: TIntegerField;
+    qryChequesEmitidos: TtecQuery;
+    qryChequesEmitidosdocumentopag: TIntegerField;
+    qryChequesEmitidoschequepagto: TIntegerField;
+    qryChequesEmitidosdatapagto: TDateField;
+    qryChequesEmitidosvalorpagto: TFloatField;
+    qryChequesEmitidosnota: TIntegerField;
+    frpChequesEmitidos: TfrReport;
+    fdsChequesEmitidos: TfrDBDataSet;
+    qryChequesEmitidosserie: TStringField;
+    qryChequesEmitidosnomeagencia: TStringField;
+    qryChequesEmitidosnumero: TIntegerField;
+    qryChequesEmitidosfilialpagto: TIntegerField;
+    qryChequesEmitidosnomefilialpagto: TStringField;
+    qryChequesEmitidosgrupofilialpagto: TIntegerField;
+    qryChequesEmitidosnomegrupofilialpagto: TStringField;
+    qryChequesEmitidosnome: TStringField;
+    frpCopiaCheque: TfrReport;
+    qryContas: TtecQuery;
+    qryContasBanco: TIntegerField;
+    qryContasAgencia: TIntegerField;
+    qryContasConta: TIntegerField;
+    qryContasDigito: TStringField;
+    qryContasTitular: TStringField;
+    qryContasSigla: TStringField;
+    qryContasNome: TStringField;
+    qryContasModeloCheque: TIntegerField;
+    dsrContas: TtecDataSource;
+    qryConsultaContas: TtecQuery;
+    qryConsultaContasSigla: TStringField;
+    qryConsultaContasNome: TStringField;
+    qryConsultaContasConta: TIntegerField;
+    qryConsultaContasDigito: TStringField;
+    qryConsultaContasTitular: TStringField;
+    qryConsultaContasAgencia: TIntegerField;
+    qryConsultaContasBanco: TIntegerField;
+    qryChequesEmitidosContaPagto: TIntegerField;
+    qryChequesEmitidosSiglaBanco: TStringField;
+    qryChequesEmitidosdiferenciar: TBooleanField;
+    qryChequesEmitidosnometitular: TStringField;
+    frpResumoChequesEmitidos: TfrReport;
+    qryChequesEmitidoscomplemento: TStringField;
+    procedure frpChequesEmitidosBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpCopiaChequeBeforePrint(Memo: TStringList; View: TfrView);
+    procedure qryChequesEmitidosAfterOpen(DataSet: TDataSet);
+  private
+    FAgruparFilial: Boolean;
+    FAgruparGrupoFilial: Boolean;
+    FParametroCabecalho: String;
+    FCapaCheque: Boolean;
+    FResumo: Integer;
+  protected
+    FChequeInicial: String;
+    FChequeFinal: String;
+    FDataFinal: String;
+    FDataInicial: String;
+    procedure MontaIntervaloDataData;
+    procedure MontaIntervaloCheque;
+    procedure SetChequeFinal(const Value: String);
+    procedure SetChequeInicial(const Value: String);
+    procedure SetConta(const Value: String);
+    procedure SetDataFinal(const Value: String);
+    procedure SetDataInicial(const Value: String);
+    procedure SetFilial(const Value: String);
+    procedure SetGrupo(const Value: String);
+    function GetConsultaContas: TtecQuery;
+    function GetConsultaFiliais: TtecQuery;
+    function GetConsultaGrupoFiliais: TtecQuery;
+  public
+    procedure ImprimirRelatorio;
+    function GerarRelatorio: Boolean;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecChequesEmitidos);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecChequesEmitidos);
+    procedure Selecionar(TipoPesquisa: TtecChequesEmitidos);
+    function ExisteFiliais(Campo, Codigo: string): Boolean;
+    function ExisteGrupoFiliais(Campo, Codigo: String): Boolean;
+    function ExisteConta(Campo, Codigo: String): Boolean;
+    constructor Create(AOwner: TComponent); Override;
+    property ConsultaFiliais: TtecQuery read GetConsultaFiliais;
+    property ConsultaGrupoFiliais: TtecQuery read GetConsultaGrupoFiliais;
+    property ConsultaContas: TtecQuery read GetConsultaContas;
+    property DataInicial: String read FDataInicial write SetDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    property Filial: String write SetFilial;
+    property Grupo: String write SetGrupo;
+    property Conta: String write SetConta;
+    property ChequeInicial: String read FChequeInicial write SetChequeInicial;
+    property ChequeFinal: String read FChequeFinal write SetChequeFinal;
+    property AgruparGrupoFilial: Boolean read FAgruparGrupoFilial write FAgruparGrupoFilial;
+    property AgruparFilial: Boolean read FAgruparFilial write FAgruparFilial;
+    property CapaCheque: Boolean read FCapaCheque write FCapaCheque;
+    procedure DefineOrdenacao(Ordem: Integer);
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    property Resumo: Integer read FResumo write FResumo;
+  end;
+
+implementation
+
+
+{$R *.dfm}
+
+{ TdtmRelatorioChequesEmitidos }
+
+procedure TdtmRelatorioChequesEmitidos.AbreTabelaPesquisa(TipoPesquisa: TtecChequesEmitidos);
+begin
+   case TipoPesquisa of
+      cheFILIAIS:      Abre(ctConsultaFiliais);
+      cheGRUPOFILIAIS: Abre(ctConsultaGruposFiliais);
+      cheCONTA:        Abre(ctConsultaContas);
+  end;
+end;
+
+constructor TdtmRelatorioChequesEmitidos.Create(AOwner: TComponent);
+begin
+   inherited;
+   qryFilial.      Tag:= ctTabelas;
+   qryGrupoFiliais.Tag:= ctTabelas;
+   qryContas.      Tag:= ctTabelas;
+
+   qryConsultaFiliais.     Tag:= ctConsultaFiliais;
+   qryConsultaGrupoFiliais.Tag:= ctConsultaGruposFiliais;
+   qryConsultaContas.      Tag:= ctConsultaContas;
+end;
+
+procedure TdtmRelatorioChequesEmitidos.DefineOrdenacao(Ordem: Integer);
+var Ordenacao: String;
+begin
+   Ordenacao:= 'SiglaBanco, NomeAgencia,';
+
+   case Ordem of
+     0: Ordenacao := Ordenacao + 'ChequePagto';
+     1: Ordenacao := Ordenacao + 'DataPagto';
+   end;
+
+   if FAgruparFilial
+   then Ordenacao:= 'NomeFilialPagto, FilialPagto, ' + Ordenacao;
+
+   if FAgruparGrupoFilial
+   then Ordenacao:= 'NomeGrupoFilialPagto, GrupoFilialPagto, ' + Ordenacao;
+
+   qryChequesEmitidos.MacroByName('Ordenacao').AsString:= 'ORDER BY ' + Ordenacao;
+end;
+
+
+function TdtmRelatorioChequesEmitidos.ExisteConta(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaContas, Campo, Codigo);
+end;
+
+function TdtmRelatorioChequesEmitidos.ExisteFiliais(Campo, Codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaFiliais, Campo, Codigo);
+end;
+
+function TdtmRelatorioChequesEmitidos.ExisteGrupoFiliais(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaGrupoFiliais, Campo, Codigo);
+end;
+
+procedure TdtmRelatorioChequesEmitidos.FechaTabelaPesquisa(TipoPesquisa: TtecChequesEmitidos);
+begin
+   case TipoPesquisa of
+      cheFILIAIS:      Fecha(ctConsultaFiliais);
+      cheGRUPOFILIAIS: Fecha(ctConsultaGruposFiliais);
+      cheCONTA:        Fecha(ctConsultaContas);
+   end;
+end;
+
+function TdtmRelatorioChequesEmitidos.GerarRelatorio: Boolean;
+begin
+  qryChequesEmitidos.Close;
+  qryChequesEmitidos.Open;
+  Result:= qryChequesEmitidos.IsEmpty;
+end;
+
+
+function TdtmRelatorioChequesEmitidos.GetConsultaContas: TtecQuery;
+begin
+  Result:= qryConsultaContas;
+end;
+
+function TdtmRelatorioChequesEmitidos.GetConsultaFiliais: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmRelatorioChequesEmitidos.GetConsultaGrupoFiliais: TtecQuery;
+begin
+  Result:= qryConsultaGrupoFiliais;
+end;
+
+procedure TdtmRelatorioChequesEmitidos.ImprimirRelatorio;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  frVariables['Outras']:= ParametroCabecalho;
+  frVariables['AgruparGrupoFilial']:= AgruparGrupoFilial;
+  frVariables['AgruparFilial']    := AgruparFilial;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3; //125%
+//  frpChequesEmitidos.DesignReport;
+//  frpCopiaCheque.DesignReport;
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   if CapaCheque then
+        frmPreview.frCompositeReport.Reports.Add(frpCopiaCheque)
+   else
+   begin
+     case FResumo of
+       0 : begin
+             frmPreview.frCompositeReport.Reports.Add(frpChequesEmitidos);
+             frmPreview.frCompositeReport.Reports.Add(frpResumoChequesEmitidos);
+           end;
+       1 : frmPreview.frCompositeReport.Reports.Add(frpChequesEmitidos);
+       2 : frmPreview.frCompositeReport.Reports.Add(frpResumoChequesEmitidos);
+     end
+   end;
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+   frmPreview.ShowModal;
+  finally
+   frmPreview.Free
+  end;
+end;
+
+procedure TdtmRelatorioChequesEmitidos.MontaIntervaloCheque;
+const Cheque_1: String = 'AND t.ChequePagto = ';
+      Cheque_2: String = 'AND t.ChequePagto BETWEEN ';
+begin
+   if FChequeInicial <> ''
+   then if FChequeFinal = '' then begin
+           qryChequesEmitidos.MacroByName('Cheque').AsString:= Cheque_1 + '''' + FChequeInicial + '''';
+           FParametroCabecalho:= FParametroCabecalho + ' CHEQUE Nº ' + FChequeInicial;
+        end
+        else begin
+           qryChequesEmitidos.MacroByName('Cheque').AsString:= Cheque_2 + '''' + FChequeInicial + ''' AND ''' + FChequeFinal + '''';
+           FParametroCabecalho:= FParametroCabecalho + ' CHEQUES DE ' + FChequeInicial + ' A ' + FChequeFinal;
+        end
+
+   else if FChequeFinal <> '' then begin
+           qryChequesEmitidos.MacroByName('Cheque').AsString:= Cheque_1 + '''' + FChequeFinal + '''';
+           FParametroCabecalho:= FParametroCabecalho + ' CHEQUE Nº ' + FChequeInicial;
+        end
+        else qryChequesEmitidos.MacroByName('Cheque').AsString:= '';
+end;
+
+procedure TdtmRelatorioChequesEmitidos.MontaIntervaloDataData;
+const Data_1: String = 'AND t.DataPagto = ';
+      Data_2: String = 'AND t.DataPagto BETWEEN ';
+begin
+   if not DataEmBranco(FDataInicial)
+   then if DataEmBranco(FDataFinal) then begin
+           qryChequesEmitidos.MacroByName('Pagamento').AsString:= Data_1 + '''' + FDataInicial + '''';
+           FParametroCabecalho:= ' NO DIA ' + FDataInicial;
+        end
+        else begin
+           qryChequesEmitidos.MacroByName('Pagamento').AsString:= Data_2 + '''' + FDataInicial + ''' AND ''' + FDataFinal + '''';
+           FParametroCabecalho:= ' ENTRE ' + FDataInicial + ' E ' + FDataFinal;
+        end
+
+   else if not DataEmBranco(FDataFinal) then begin
+           qryChequesEmitidos.MacroByName('Pagamento').AsString:= Data_1 + '''' + FDataFinal + '''';
+           FParametroCabecalho:= ' NO DIA ' + FDataFinal;
+        end
+        else qryChequesEmitidos.MacroByName('Pagamento').AsString:= '';
+end;
+
+
+procedure TdtmRelatorioChequesEmitidos.Selecionar(TipoPesquisa: TtecChequesEmitidos);
+begin
+   case TipoPesquisa of
+      cheFILIAIS:      ReFazConsulta(qryFilial,       [0],[qryConsultaFiliaiscodigo.     AsInteger]);
+      cheGRUPOFILIAIS: ReFazConsulta(qryGrupoFiliais, [0],[qryConsultaGrupoFiliaiscodigo.AsInteger]);
+      cheCONTA:        ReFazConsulta(qryContas,       [0],[qryConsultaContasConta.       AsInteger]);
+   end;
+end;
+
+
+procedure TdtmRelatorioChequesEmitidos.SetConta(const Value: String);
+begin
+   if Value <> '' then begin
+      qryChequesEmitidos.MacroByName('Conta').AsString:= ' AND t.ContaPagto = ' + Value;
+      FParametroCabecalho:= FParametroCabecalho + ' CONTA : ' + Value;
+   end
+   else qryChequesEmitidos.MacroByName('Conta').AsString:= '';
+end;
+
+procedure TdtmRelatorioChequesEmitidos.SetChequeFinal(const Value: String);
+begin
+  if FChequeFinal <> Value then
+    FChequeFinal:= Value;
+  MontaIntervaloCheque;
+end;
+
+procedure TdtmRelatorioChequesEmitidos.SetChequeInicial(const Value: String);
+begin
+  if FChequeInicial <>Value then
+    FChequeInicial:= Value;
+end;
+
+procedure TdtmRelatorioChequesEmitidos.SetDataFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FDataFinal := Value
+  else FDataFinal := '';
+  MontaIntervaloDataData;
+end;
+
+procedure TdtmRelatorioChequesEmitidos.SetDataInicial(const Value: String);
+begin
+  if not DataEmBranco(Value)
+  then FDataInicial := Value
+  else FDataInicial := '';
+end;
+
+procedure TdtmRelatorioChequesEmitidos.SetFilial(const Value: String);
+begin
+   if Value <> '' then begin
+      qryChequesEmitidos.MacroByName('Filial').AsString:= 'AND d.FilialEmissao = ' + Value;
+      FParametroCabecalho:= FParametroCabecalho+ ' FILIAL: ' + Value;
+   end
+   else qryChequesEmitidos.MacroByName('Filial').AsString:= '';
+end;
+
+procedure TdtmRelatorioChequesEmitidos.SetGrupo(const Value: String);
+begin
+   if (Value <> '') then begin
+      qryChequesEmitidos.MacroByName('Grupo').AsString:= 'AND d.FilialEmissao IN (SELECT Filial FROM FiliaisGruposFiliais ' +
+                                                         'WHERE Grupo = ' + Value + ')';
+      FParametroCabecalho:= FParametroCabecalho + ' GRUPO DE FILIAL: ' + Value;
+   end
+   else qryChequesEmitidos.MacroByName('Grupo').AsString:= '';
+end;
+
+
+procedure TdtmRelatorioChequesEmitidos.frpChequesEmitidosBeforePrint(Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpChequesEmitidos, view);
+end;
+
+procedure TdtmRelatorioChequesEmitidos.frpCopiaChequeBeforePrint(Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpCopiaCheque, view);
+end;
+
+procedure TdtmRelatorioChequesEmitidos.qryChequesEmitidosAfterOpen(
+  DataSet: TDataSet);
+var
+ Cheque, UltimoCheque : String;
+ GrupodeFilial, FilialPagto: String;
+begin
+  inherited;
+  qryChequesEmitidos.First;
+  Cheque := '';
+  UltimoCheque := '';
+  GrupodeFilial := '';
+  FilialPagto := '';
+  while not qryChequesEmitidos.Eof do
+  begin
+    if (qryChequesEmitidoschequepagto.AsString = Cheque) and
+       ((qryChequesEmitidosgrupofilialpagto.AsString = GrupodeFilial) or
+        (not AgruparGrupoFilial)) and
+       ((qryChequesEmitidosfilialpagto.AsString = FilialPagto) or
+        (not AgruparFilial)) then
+    begin
+      if (Cheque<>UltimoCheque) or
+         (UltimoCheque='') then
+      begin
+        qryChequesEmitidos.Prior;
+        qryChequesEmitidos.edit;
+        qryChequesEmitidosdiferenciar.AsBoolean := false;
+        qryChequesEmitidos.post;
+        qryChequesEmitidos.Next;
+      end;
+      qryChequesEmitidos.edit;
+      qryChequesEmitidosdiferenciar.AsBoolean := false;
+      qryChequesEmitidos.post;
+       if Cheque<>UltimoCheque then
+        UltimoCheque := Cheque;
+    end;
+    cheque := qryChequesEmitidoschequepagto.AsString;
+    GrupodeFilial := qryChequesEmitidosgrupofilialpagto.AsString;
+    FilialPagto := qryChequesEmitidosfilialpagto.AsString;
+    qryChequesEmitidos.Next;
+  end;
+end;
+
+end.

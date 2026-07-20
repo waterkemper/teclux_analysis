@@ -1,0 +1,414 @@
+unit fmnavcontroles;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Classes, Forms, StdCtrls, Mask, {Qete,} Controls, Grids,
+  DBGrids, Graphics, Windows,
+  //Terceiros
+  ZQuery,
+  //Componentes
+  cpdbfindcontrols, biblio,
+  // Repositorio
+  fmajuda, fmconsultabasica,Dialogs,
+  BaseGrid, AdvGrid,
+  DBAdvGrid, DBAdvMemo, cpdbmemo, DBEditDateTimePicker, fmpreviewpadrao;
+
+type
+  TfrmNavControles = class(TfrmAjuda)
+    procedure FormShow(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+  private
+    fFocusActiveControl: Boolean;
+  protected
+   { CtrlOn: Boolean;}
+    ActCTrl: TWinControl;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; virtual;
+    function TabelaDoParametro(Parametro: Integer): TZDataSet; virtual;
+    function TabelaDePesquisa: TZDataSet; virtual;
+    function TabelaDePesquisaSecundaria: TZDataSet; virtual;
+    function JanelaPesquisa: TfrmConsultaBasica; virtual;
+    function InternoPesquisar(Titulo: String): Integer; overload; virtual;
+    function InternoPesquisar(Control: TtecFindCustom; Titulo: String = ''): Integer; overload; virtual;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure KeyUp(var Key: Word; Shift: TShiftState); override;
+    function NavegacaoNoControleValida: Boolean;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var continuar: Boolean); virtual;
+    procedure ProximoControle(Ind: Integer); virtual;
+    procedure SelecionarImpressora(Tipo: Char);
+    procedure SetFocusFindCustom(Habilitar: Boolean);
+    property FocusActiveControl: Boolean read fFocusActiveControl write fFocusActiveControl;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure SetCtrlOn(Value: Boolean);
+  end;
+
+implementation
+
+{$R *.dfm}
+
+Uses
+  //Biblio
+  ctconstantes,
+  fmselecionarimpressoras;
+
+constructor TfrmNavControles.Create(AOwner: TComponent);
+begin
+try
+  inherited;
+  ActCTrl := ActiveControl;
+  if (WindowState = wsNormal) and (BorderIcons = [biSystemMenu, biMinimize]) then begin
+    Constraints.MaxHeight:= Height;
+    Constraints.MaxWidth := ClientWidth;
+    Constraints.MinHeight:= Height;
+    Constraints.MinWidth := ClientWidth;
+  end;
+  enabled := true;
+except
+     on E: Exception do ShowMessage(E.Message);
+end;
+
+end;
+
+function TfrmNavControles.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := True
+end;
+
+procedure TfrmNavControles.FormShow(Sender: TObject);
+begin
+  inherited;
+  if Not Assigned(ActiveControl) and
+     Assigned(ActCtrl) and
+     ActCtrl.CanFocus then
+      ActiveControl := ActCtrl
+      {
+  else
+  if Assigned(ActiveControl) then
+    ActiveControl.SetFocus};
+
+//  application.BringToFront;      
+end;
+
+function TfrmNavControles.InternoPesquisar(Titulo:String): Integer;
+var procurar: TfrmConsultaBasica;
+begin
+  procurar := JanelaPesquisa;
+
+  if Assigned(procurar) then
+  begin
+    if procurar.PesquisaIniciada and
+       not procurar.ReabrirFormulario then
+      Result := procurar.ShowModal(Titulo)
+    else
+    begin
+
+      try
+        procurar.ExisteCodigo := ExisteInformacao;
+  //    procurar.ConsultaInterativa := True;
+        procurar.DataSet := TabelaDePesquisa;
+        procurar.TabelaParametro := TabelaDoParametro;
+        procurar.ProximoControle := ProximoControle;
+        if procurar.UsarParametrosDaTabela then
+          procurar.PosicionarTabelaDoParametro:= PosicionarTabelaNoParametro;
+        if procurar.ManterParametros then
+          procurar.PesquisaIniciada := true;
+
+        Result := procurar.ShowModal(Titulo);
+      finally
+
+        if not procurar.ManterParametros then
+        begin
+          procurar := nil;
+          procurar.Free;
+        end;
+        SetFocus;
+//        CtrlOn:= False;
+      end
+    end
+  end
+  else
+    Result := mrNone
+end;
+
+function TfrmNavControles.InternoPesquisar(Control: TtecFindCustom; Titulo: String): Integer;
+begin
+  CtrlOn := True;
+  ActiveControl := Control;
+  Result := InternoPesquisar(Titulo);
+end;
+
+
+function TfrmNavControles.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := nil;
+end;
+
+procedure TfrmNavControles.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  CtrlOn := Shift = [ssCtrl];
+  ShiftOn := Shift = [ssShift];
+  AltOn := Shift = [ssAlt];
+
+  Case Key of
+    VK_F9     : begin
+                   CtrlOn := Shift = [ssCtrl];
+                   if (Shift = []) or CtrlOn then
+                     InternoPesquisar('');
+                 end;
+    VK_ESCAPE : if fsModal in FormState then
+                   ModalResult := mrCancel
+                 else
+                   SetFocusFindCustom(True);
+    VK_Return: begin
+
+                 if [ssShift] = Shift then
+                 begin
+                   if (ActiveControl is TCustomMemo) or
+                      (ActiveControl is TDBAdvMemo) or
+                      (ActiveControl is TtecDBMemo) then
+                     Key := 0;
+
+                   SelectNext(ActiveControl, False, True)
+
+                 end
+                 else if ([ssCtrl] = Shift) then
+                 begin
+                   if (ActiveControl Is TDBGrid) and (dgEditing in TDBGrid(ActiveControl).Options) then
+                     SelectNext(ActiveControl, True, True)
+                   else
+                   if (ActiveControl Is TDBAdvGrid) and (goEditing in TDBAdvGrid(ActiveControl).Options) then
+                     SelectNext(ActiveControl, True, True);
+                 end
+                 else if [] = Shift then
+                 begin
+                   if (ActiveControl is TCustomMemo) or
+                      (ActiveControl is TDBAdvMemo) or
+                      (ActiveControl is TtecDBMemo) {or
+                      (ActiveControl is TtecDBFindLookup)} then {Entrando em loop na consultafichaproduto no campo produto}
+                     Key := 0;
+
+                   if {(ActiveControl is TtecDBFindLookup) or} NavegacaoNoControleValida then
+                     SelectNext(ActiveControl, True, true);
+
+                 end
+                 else if (Shift = [ssCtrl]) then
+                 begin
+                  if WindowState = wsMaximized then
+                    WindowState := wsNormal
+                  else
+                   if windowstate = wsnormal then
+                     WindowState := wsMaximized;
+                 end
+                 else if ([ssAlt] = Shift) and Not ((ActiveControl is TCustomMemo) or
+                                                    (ActiveControl is TDBAdvMemo) or
+                                                    (ActiveControl is TtecDBMemo)) then
+                   Key := 0
+               end;
+
+    VK_TAB : if ShiftOn then
+             begin
+               if (ActiveControl is TCustomMemo) or
+                  (ActiveControl is TDBAdvMemo) or
+                  (ActiveControl is TDBEditDateTimePicker)  then
+               begin
+                 Key := 0;
+                 SelectNext(ActiveControl, False, True);
+               end;
+             end;
+(*
+    VK_LEFT : if ShiftOn then {AS DCU´s do delphi retorna #37 ao pressionar shit tab neste componente}
+             begin
+               if (ActiveControl is TDBEditDateTimePicker)  then
+               begin
+                 Key := 0;
+                 SelectNext(ActiveControl, False, True);
+               end;
+             end;
+*)
+
+  end;
+end;
+
+procedure TfrmNavControles.KeyUp(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  ctrlon  := CtrlIsOn;
+  ShiftOn := ShiftIsOn;
+  AltOn   := AltIsOn;
+
+
+  {
+  if key = VK_CONTROL then
+    ctrlon := false
+  else
+  if key = VK_SHIFT then
+    ShiftOn := false
+  else
+  if key = VK_MENU then
+    AltOn := false;
+    }
+end;
+
+function TfrmNavControles.NavegacaoNoControleValida: Boolean;
+
+  function ParentTCustomGrid: Boolean;
+  var
+    Par: TControl;
+  begin
+    Result := False;
+    if Assigned(ActiveControl) then begin
+      Par := ActiveControl.Parent;
+      while Assigned(Par) do begin
+        if Par is TCustomGrid then begin
+          Result := True;
+          break
+        end;
+        Par := Par.Parent
+      end
+    end
+  end;
+
+  function ParentTStringGrid: Boolean;
+  var
+    Par: TControl;
+  begin
+    Result := False;
+    if Assigned(ActiveControl) then begin
+      Par := ActiveControl.Parent;
+      while Assigned(Par) do begin
+        if Par is TStringGrid then begin
+          Result := True;
+          break
+        end;
+        Par := Par.Parent
+      end
+    end
+  end;
+
+begin
+  Result := Not (((ActiveControl Is TDBGrid) and
+                  (Not (dgRowSelect in TDBGrid(ActiveControl).Options))
+                   or ParentTCustomGrid
+                 ));
+
+  if result then
+    Result := Not (((ActiveControl Is TDBAdvGrid) and
+                    (Not (goRowSelect in TDBAdvGrid(ActiveControl).Options))
+                     or ParentTStringGrid
+                   ));
+
+end;
+
+procedure TfrmNavControles.PosicionarTabelaNoParametro(Ind: Integer; var continuar: Boolean);
+begin
+end;
+
+procedure TfrmNavControles.ProximoControle(Ind: Integer);
+begin
+end;
+
+procedure TfrmNavControles.SelecionarImpressora(Tipo: Char);
+begin
+  frmSelecionarImpressoras:= TfrmSelecionarImpressoras.Create(Self, Tipo);
+  frmSelecionarImpressoras.ShowModal;
+  frmSelecionarImpressoras.Free;
+end;
+
+procedure TfrmNavControles.SetCtrlOn(Value: Boolean);
+begin
+  CtrlOn := Value;
+end;
+
+procedure TfrmNavControles.SetFocusFindCustom(Habilitar: Boolean);
+var
+  Ctrl: TtecFindCustom;
+
+  function ProcurarControle(Ctrl: TWinControl): TtecFindCustom;
+  var
+    a: Integer;
+  begin
+    Result := nil;
+    for a := 0 to Ctrl.ControlCount - 1 do
+      if Ctrl.Controls[a] is TtecDbEditFind then begin
+        Result := TtecDbEditFind(Ctrl.Controls[a]);
+        if Result.CanFocus then
+          break
+      end else if Ctrl.Controls[a] is TtecDBFindLookup then begin
+        Result := TtecDBFindLookup(Ctrl.Controls[a]);
+        if Result.CanFocus then
+          break
+      end;
+    if Not Assigned(Result) then
+      for a := 0 to Ctrl.ControlCount - 1 do
+        if Ctrl.Controls[a] is TWinControl then begin
+          Result := ProcurarControle(TWinControl(Ctrl.Controls[a]));
+          if Assigned(Result) and Result.CanFocus then
+           break
+        end
+  end;
+begin
+  if FocusActiveControl then
+  begin
+    if ActCTrl.CanFocus and ActCTrl.Visible then
+      ActCTrl.SetFocus;
+  end
+  else
+  begin
+    Ctrl := ProcurarControle(Self);
+    if Assigned(Ctrl) then
+    begin
+      Ctrl := Ctrl.FirtsControl;
+      if Ctrl.CanFocus and self.visible then
+        Ctrl.SetFocus
+      else
+      if Habilitar then
+      begin
+        Ctrl.Enabled := True;
+        if ctrl.CanFocus and self.visible then
+          Ctrl.SetFocus;
+      end
+    end
+  end;
+end;
+
+function TfrmNavControles.TabelaDePesquisa: TZDataSet;
+begin
+  Result := nil
+end;
+
+function TfrmNavControles.TabelaDePesquisaSecundaria: TZDataSet;
+begin
+  Result := nil
+end;
+
+function TfrmNavControles.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+  Result := nil
+end;
+
+procedure TfrmNavControles.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+
+{
+var
+  cnt: Integer;
+  v_frmPreviewPadrao : TfrmPreviewPadrao;
+  }
+begin
+  inherited;
+{
+  for cnt :=self.ComponentCount-1 downto 0 do
+    if Components[cnt] is TfrmPreviewPadrao then
+    begin
+      v_frmPreviewPadrao := TfrmPreviewPadrao(Components[cnt]);
+      v_frmPreviewPadrao.ModalResult := mrOK;
+    end;
+
+  CanClose := True;
+ }
+end;
+
+end.

@@ -1,0 +1,126 @@
+unit fmcadastrosimilaresitemprodutos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  ExtCtrls, Buttons, StdCtrls, Mask, DBCtrls, DB, Windows,
+  //Terceiros
+  ZQuery,
+  //Repositorio
+  fmcadastropadrao, fmconsultabasica, fmconsultaporcampo,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema,
+  // Projeto
+  dmcadastroprodutos,
+  //Componentes
+  cpnumero, cptexto, cpdbfindcontrols, cpdbtext, ComCtrls, ToolWin,
+  frconsulta, frconsultacodigo;
+
+type
+  Tfrmcadastrosimilaresitemprodutos = class(TfrmCadastroPadrao)
+    dtxProdutoVisual: TtecDBText;
+    pnlFundoJanela: TPanel;
+    gbxCodProduto: TGroupBox;
+    gbxSimilarItemProdutos: TGroupBox;
+    fraConsultaCodigoProdutoItemSimilar: TfraConsultaCodigo;
+  protected
+    {dtmCadastroProdutos: TdtmCadastroProdutos;}
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    procedure CondicoesdaConsultaProdutoItemSimilar;
+    procedure AtribuirDadosConsultaProdutoItemSimilar(Found: Boolean);
+  public
+    tipoProcura: tipoProcuraProdutosEstoque;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmcadastrosimilaresitemprodutos: Tfrmcadastrosimilaresitemprodutos;
+
+implementation
+
+{$R *.dfm}
+
+destructor Tfrmcadastrosimilaresitemprodutos.Destroy;
+begin
+  inherited;
+  frmcadastrosimilaresitemprodutos := nil;
+end;
+
+
+function Tfrmcadastrosimilaresitemprodutos.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+    if not CtrlOn then
+      Result:= dtmCadastroProdutos.ExcluirSimilarItemProdutos;
+end;
+
+function Tfrmcadastrosimilaresitemprodutos.InternoGravar: Boolean;
+begin
+
+  Result:= False;
+  if fraConsultaCodigoProdutoItemSimilar.edfCodigo.Text = dtmCadastroProdutos.qryProdutoscodigovisual.AsString then
+    MensagemAviso('O item de produto similar deve ser diferente do item de produto principal')
+  else
+  begin
+    if ActiveControl = fraConsultaCodigoProdutoItemSimilar.edfCodigo then
+      Result:= fraConsultaCodigoProdutoItemSimilar.edfCodigo.Exist;
+
+    if Result then
+    begin
+      Result := dtmCadastroProdutos.GravarSimilarItemProduto;
+      fraConsultaCodigoProdutoItemSimilar.edfCodigo.SetFocus;
+    end;
+  end;
+
+end;
+
+function Tfrmcadastrosimilaresitemprodutos.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then
+    if not CtrlOn then
+      Result:= dtmCadastroProdutos.IncluirSimilarItemProdutos(False);
+end;
+
+
+{
+procedure Tfrmcadastrosimilaresitemprodutos.SetDataModulo(Dtm: TdtmCadastroProdutos);
+begin
+  dtmCadastroProdutos := Dtm;
+end;
+}
+
+constructor Tfrmcadastrosimilaresitemprodutos.Create(AOwner: TComponent);
+begin
+  inherited;
+  fraConsultaCodigoProdutoItemSimilar.TipoPesquisa := pesITEMPRODUTOS;
+  fraConsultaCodigoProdutoItemSimilar.CondicoesdaConsulta := CondicoesdaConsultaProdutoItemSimilar;
+  fraConsultaCodigoProdutoItemSimilar.OnFound := AtribuirDadosConsultaProdutoItemSimilar;
+end;
+
+procedure Tfrmcadastrosimilaresitemprodutos.CondicoesdaConsultaProdutoItemSimilar;
+begin
+  fraConsultaCodigoProdutoItemSimilar.qryProcuraItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+    ' and p.codigo <> ' + dtmCadastroProdutos.qryProdutoscodigo.AsString +
+    ' and p.codigo not in (select ps.similar from produtos_similares ps where ps.produto = ' + dtmCadastroProdutos.qryProdutoscodigo.AsString  + ')';
+
+  fraConsultaCodigoProdutoItemSimilar.qryConsultaItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+    fraConsultaCodigoProdutoItemSimilar.qryProcuraItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString;
+
+end;
+
+procedure Tfrmcadastrosimilaresitemprodutos.AtribuirDadosConsultaProdutoItemSimilar(Found: Boolean);
+begin
+  dtmCadastroProdutos.qryProdutos_Similaressimilar.AsString := fraConsultaCodigoProdutoItemSimilar.qryProcuraItemProdutos.FieldByName('produto').asString;
+  dtmCadastroProdutos.qryProdutos_Similaresdescricaoprodutosimilarlc.AsString := fraConsultaCodigoProdutoItemSimilar.qryProcuraItemProdutos.FieldByName('descricaolc').asString;
+
+end;
+
+end.
+

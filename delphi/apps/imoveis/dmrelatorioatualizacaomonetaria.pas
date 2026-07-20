@@ -1,0 +1,262 @@
+unit dmrelatorioatualizacaomonetaria;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, dmtecsoft, DB, cpdatasource, ZQuery, Biblio,
+  ZPgSqlQuery, cpquery, fr_class, fr_dset, fr_dbset, clparametrossistema,
+  fmpreviewpadrao, ctconstantes, ZTransact;
+
+type
+  TdtmRelatorioAtualizacaoMonetaria = class(TdtmBasico)
+    qryAtualizacaoMonetaria: TtecQuery;
+    dsrAtualizacaoMonetaria: TtecDataSource;
+    fdsAtualizacaoMonetaria: TfrDBDataSet;
+    frpAtualizacaoMonetaria: TfrReport;
+    frpAmporEmpreendimento: TfrReport;
+    qryAtualizacaoMonetariaEmp: TtecQuery;
+    dsrAtualizacaoMonetariaEmp: TtecDataSource;
+    qryAtualizacaoMonetariaEmpempreendimento: TIntegerField;
+    qryAtualizacaoMonetariaEmpnomeempreendimento: TStringField;
+    qryAtualizacaoMonetariaEmpjaneiro: TFloatField;
+    qryAtualizacaoMonetariaEmpfevereiro: TFloatField;
+    qryAtualizacaoMonetariaEmpmarco: TFloatField;
+    qryAtualizacaoMonetariaEmpabril: TFloatField;
+    qryAtualizacaoMonetariaEmpmaio: TFloatField;
+    qryAtualizacaoMonetariaEmpjunho: TFloatField;
+    qryAtualizacaoMonetariaEmpjulho: TFloatField;
+    qryAtualizacaoMonetariaEmpagosto: TFloatField;
+    qryAtualizacaoMonetariaEmpsetembro: TFloatField;
+    qryAtualizacaoMonetariaEmpoutubro: TFloatField;
+    qryAtualizacaoMonetariaEmpnovembro: TFloatField;
+    qryAtualizacaoMonetariaEmpdezembro: TFloatField;
+    qryAtualizacaoMonetariaEmptotal: TFloatField;
+    fdsAtualizacaoMonetariaEmp: TfrDBDataSet;
+    qryAtualizacaoMonetariacontrato: TIntegerField;
+    qryAtualizacaoMonetariaempreendimento: TIntegerField;
+    qryAtualizacaoMonetarianomeempreendimento: TStringField;
+    qryAtualizacaoMonetariacliente: TIntegerField;
+    qryAtualizacaoMonetarianomecliente: TStringField;
+    qryAtualizacaoMonetariajaneiro: TFloatField;
+    qryAtualizacaoMonetariafevereiro: TFloatField;
+    qryAtualizacaoMonetariamarco: TFloatField;
+    qryAtualizacaoMonetariaabril: TFloatField;
+    qryAtualizacaoMonetariamaio: TFloatField;
+    qryAtualizacaoMonetariajunho: TFloatField;
+    qryAtualizacaoMonetariajulho: TFloatField;
+    qryAtualizacaoMonetariaagosto: TFloatField;
+    qryAtualizacaoMonetariasetembro: TFloatField;
+    qryAtualizacaoMonetariaoutubro: TFloatField;
+    qryAtualizacaoMonetarianovembro: TFloatField;
+    qryAtualizacaoMonetariadezembro: TFloatField;
+    qryAtualizacaoMonetariaTotal: TCurrencyField;
+    qryAtualizacaoMonetariajaneiro_cp: TFloatField;
+    qryAtualizacaoMonetariafevereiro_cp: TFloatField;
+    qryAtualizacaoMonetariamarco_cp: TFloatField;
+    qryAtualizacaoMonetariaabril_cp: TFloatField;
+    qryAtualizacaoMonetariamaio_cp: TFloatField;
+    qryAtualizacaoMonetariajunho_cp: TFloatField;
+    qryAtualizacaoMonetariajulho_cp: TFloatField;
+    qryAtualizacaoMonetariaagosto_cp: TFloatField;
+    qryAtualizacaoMonetariasetembro_cp: TFloatField;
+    qryAtualizacaoMonetariaoutubro_cp: TFloatField;
+    qryAtualizacaoMonetarianovembro_cp: TFloatField;
+    qryAtualizacaoMonetariadezembro_cp: TFloatField;
+    qryAtualizacaoMonetariajaneiro_lp: TFloatField;
+    qryAtualizacaoMonetariafevereiro_lp: TFloatField;
+    qryAtualizacaoMonetariamarco_lp: TFloatField;
+    qryAtualizacaoMonetariaabril_lp: TFloatField;
+    qryAtualizacaoMonetariamaio_lp: TFloatField;
+    qryAtualizacaoMonetariajunho_lp: TFloatField;
+    qryAtualizacaoMonetariajulho_lp: TFloatField;
+    qryAtualizacaoMonetariaagosto_lp: TFloatField;
+    qryAtualizacaoMonetariasetembro_lp: TFloatField;
+    qryAtualizacaoMonetariaoutubro_lp: TFloatField;
+    qryAtualizacaoMonetarianovembro_lp: TFloatField;
+    qryAtualizacaoMonetariadezembro_lp: TFloatField;
+    qryAtualizacaoMonetariatotal_cp: TFloatField;
+    qryAtualizacaoMonetariatotal_lp: TFloatField;
+    qryAtualizacaoMonetariaEmpjaneiro_cp: TFloatField;
+    qryAtualizacaoMonetariaEmpjulho_cp: TFloatField;
+    qryAtualizacaoMonetariaEmpfevereiro_cp: TFloatField;
+    qryAtualizacaoMonetariaEmpagosto_cp: TFloatField;
+    qryAtualizacaoMonetariaEmpmarco_cp: TFloatField;
+    qryAtualizacaoMonetariaEmpsetembro_cp: TFloatField;
+    qryAtualizacaoMonetariaEmpabril_cp: TFloatField;
+    qryAtualizacaoMonetariaEmpoutubro_cp: TFloatField;
+    qryAtualizacaoMonetariaEmpmaio_cp: TFloatField;
+    qryAtualizacaoMonetariaEmpnovembro_cp: TFloatField;
+    qryAtualizacaoMonetariaEmpjunho_cp: TFloatField;
+    qryAtualizacaoMonetariaEmpdezembro_cp: TFloatField;
+    qryAtualizacaoMonetariaEmptotal_cp: TFloatField;
+    qryAtualizacaoMonetariaEmpjaneiro_lp: TFloatField;
+    qryAtualizacaoMonetariaEmpjulho_lp: TFloatField;
+    qryAtualizacaoMonetariaEmpfevereiro_lp: TFloatField;
+    qryAtualizacaoMonetariaEmpagosto_lp: TFloatField;
+    qryAtualizacaoMonetariaEmpmarco_lp: TFloatField;
+    qryAtualizacaoMonetariaEmpsetembro_lp: TFloatField;
+    qryAtualizacaoMonetariaEmpabril_lp: TFloatField;
+    qryAtualizacaoMonetariaEmpoutubro_lp: TFloatField;
+    qryAtualizacaoMonetariaEmpmaio_lp: TFloatField;
+    qryAtualizacaoMonetariaEmpnovembro_lp: TFloatField;
+    qryAtualizacaoMonetariaEmpjunho_lp: TFloatField;
+    qryAtualizacaoMonetariaEmpdezembro_lp: TFloatField;
+    qryAtualizacaoMonetariaEmptotal_lp: TFloatField;
+    procedure qryAtualizacaoMonetariaBeforeOpen(DataSet: TDataSet);
+    procedure frpAtualizacaoMonetariaBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryAtualizacaoMonetariaEmpBeforeOpen(DataSet: TDataSet);
+    procedure frpAmporEmpreendimentoBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryAtualizacaoMonetariaCalcFields(DataSet: TDataSet);
+  private
+    FCliente: Integer;
+    FEmpreendimento: Integer;
+    FExercicio: String;
+    FResumo: Boolean;
+    fCurto_e_LongPrazo: Boolean;
+    { Private declarations }
+  public
+    { Public declarations }
+    property Exercicio : String read FExercicio write FExercicio;
+    property Empreendimento : Integer read FEmpreendimento write FEmpreendimento;
+    property Cliente : Integer read FCliente write FCliente;
+    property Resumo : Boolean read FResumo write FResumo;
+    property Curto_e_LongPrazo : Boolean read fCurto_e_LongPrazo write fCurto_e_LongPrazo;
+
+    procedure ImprimirRelatorio;
+
+  end;
+
+var
+  dtmRelatorioAtualizacaoMonetaria: TdtmRelatorioAtualizacaoMonetaria;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmRelatorioAtualizacaoMonetaria }
+
+procedure TdtmRelatorioAtualizacaoMonetaria.ImprimirRelatorio;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+  Continuar : Boolean;
+begin
+  Continuar:= False;
+  frVariables['Curto_e_LongPrazo'] := Curto_e_LongPrazo;
+
+  AtribuirParametrosBaseRelatorio;
+
+  ShowProcessando('Criando Relatório');
+  if FResumo then
+  begin
+    qryAtualizacaoMonetariaEmp.Close;
+    qryAtualizacaoMonetariaEmp.Open;
+  end
+  else
+  begin
+   qryAtualizacaoMonetaria.Close;
+    qryAtualizacaoMonetaria.Open;
+  end;
+
+  if Resumo then
+  begin
+    if qryAtualizacaoMonetariaEmp.RecordCount > 0 then
+      Continuar:= True;
+  end
+  else
+  begin
+    if qryAtualizacaoMonetaria.RecordCount > 0 then
+      Continuar:= True;
+  end;
+
+  ShowProcessando;
+  if Continuar then
+  begin
+    frVariables['Titulo']:= 'ATUALIZAÇÃO MONETÁRIA + JUROS EM '+FExercicio;
+
+//    frpAtualizacaoMonetaria.DesignReport;
+//    frpAmporEmpreendimento.DesignReport;
+    
+    frmPreview := TfrmPreviewPadrao.create(self);
+    frmPreview.cmbZoom.ItemIndex := 3; //125%
+    try
+     Relatorio := frmPreview.frCompositeReport;
+     with frmPreview do
+     begin
+       frCompositeReport.Reports.Clear;
+       frCompositeReport.DoublePass:= True;
+       if FResumo then
+         frCompositeReport.Reports.Add(frpAmporEmpreendimento)
+       else
+         frCompositeReport.Reports.Add(frpAtualizacaoMonetaria);
+       Relatorio.Preview := frmPreview.frPreviewPadrao;
+       Relatorio.ShowReport;
+       frmPreview.ShowModal;
+     end;
+    finally
+     frmPreview.Free
+    end;
+  end
+  else
+    MensagemAviso(FORMAT(ctNENHUMREGISTROENCONTRADO,['registro']));
+end;
+
+procedure TdtmRelatorioAtualizacaoMonetaria.qryAtualizacaoMonetariaBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryAtualizacaoMonetaria.ParamByName('pExercicio').AsInteger:= strtoint(FExercicio);
+
+  if FEmpreendimento > 0 then
+    qryAtualizacaoMonetaria.MacroByName('WhereEmpreendimentos').AsString:= 'AND Empreendimento = '+inttostr(FEmpreendimento)
+  else
+      qryAtualizacaoMonetaria.MacroByName('WhereEmpreendimentos').AsString:= '';
+  if FCliente > 0 then
+    qryAtualizacaoMonetaria.MacroByName('WhereClientes').AsString:= 'WHERE Cliente = '+inttostr(FCliente)
+  else
+    qryAtualizacaoMonetaria.MacroByName('WhereClientes').AsString:= '';
+end;
+
+procedure TdtmRelatorioAtualizacaoMonetaria.frpAtualizacaoMonetariaBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpAtualizacaoMonetaria, View);
+end;
+
+procedure TdtmRelatorioAtualizacaoMonetaria.qryAtualizacaoMonetariaEmpBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryAtualizacaoMonetariaEmp.ParamByName('pExercicio').AsInteger:= strtoint(FExercicio);
+
+  if FEmpreendimento > 0 then
+    qryAtualizacaoMonetariaEmp.MacroByName('WhereEmpreendimentos').AsString:= 'AND vi.Empreendimento = '+inttostr(FEmpreendimento)
+  else
+    qryAtualizacaoMonetariaEmp.MacroByName('WhereEmpreendimentos').AsString:= '';
+end;
+
+procedure TdtmRelatorioAtualizacaoMonetaria.frpAmporEmpreendimentoBeforePrint(Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpAmporEmpreendimento, View);
+end;
+
+procedure TdtmRelatorioAtualizacaoMonetaria.qryAtualizacaoMonetariaCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryAtualizacaoMonetariaTotal.AsCurrency:= (qryAtualizacaoMonetariajaneiro.AsCurrency   +
+                                             qryAtualizacaoMonetariafevereiro.AsCurrency +
+                                             qryAtualizacaoMonetariamarco.AsCurrency     +
+                                             qryAtualizacaoMonetariaabril.AsCurrency     +
+                                             qryAtualizacaoMonetariamaio.AsCurrency      +
+                                             qryAtualizacaoMonetariajunho.AsCurrency     +
+                                             qryAtualizacaoMonetariajulho.AsCurrency     +
+                                             qryAtualizacaoMonetariaagosto.AsCurrency    +
+                                             qryAtualizacaoMonetariasetembro.AsCurrency  +
+                                             qryAtualizacaoMonetariaoutubro.AsCurrency   +
+                                             qryAtualizacaoMonetarianovembro.AsCurrency  +
+                                             qryAtualizacaoMonetariadezembro.AsCurrency);
+end;
+
+end.

@@ -1,0 +1,262 @@
+unit fmConsultaCashBack;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmajudabt, ComCtrls, Buttons, ToolWin, ExtCtrls, StdCtrls,
+  frintervalodatas, frintervalodatasparametros, frlistafiliais, Grids,
+  AdvObj, BaseGrid, AdvGrid, DBAdvGrid, dmConsultaCashBack, biblio, ctconstantes,
+  Menus, AdvMenus, tmsAdvGridExcel, AsgFindDialog,
+  frselecaoaleatoriaclientes;
+
+type
+  TfrmConsultaCashBack = class(TfrmAjudaBt)
+    pgcCashBack: TPageControl;
+    tstParametros: TTabSheet;
+    tstDados: TTabSheet;
+    sbnGerar: TSpeedButton;
+    fraListaFiliais1: TfraListaFiliais;
+    fraIntervaloDatasParametros1: TfraIntervaloDatasParametros;
+    gbxSelecionarPor: TGroupBox;
+    cbbSelecionarPor: TComboBox;
+    gbxVisaoPor: TGroupBox;
+    cbbVisaoPor: TComboBox;
+    DBAdvGridCashBack: TDBAdvGrid;
+    DBAdvGrid_ConsultaCashBack_Det: TDBAdvGrid;
+    Panel1: TPanel;
+    sbnVisualizarGradeProdutosContratos: TSpeedButton;
+    Splitter1: TSplitter;
+    AdvGridFindDialog1: TAdvGridFindDialog;
+    AdvGridExcelIO1: TAdvGridExcelIO;
+    AdvPopupMenu1: TAdvPopupMenu;
+    Pesquizar1: TMenuItem;
+    ExportarExcel1: TMenuItem;
+    gbxClientes: TGroupBox;
+    fraSelecaoAleatoriaClientes1: TfraSelecaoAleatoriaClientes;
+    procedure sbnGerarClick(Sender: TObject);
+    
+    procedure DBAdvGridCashBackExpandNode(Sender: TObject; ARow,
+      ARowreal: Integer);
+    procedure DBAdvGridCashBackContractNode(Sender: TObject; ARow,
+      ARowreal: Integer);
+    procedure sbnVisualizarGradeProdutosContratosClick(Sender: TObject);
+    procedure DBAdvGridCashBackSelectCell(Sender: TObject; ACol,
+      ARow: Integer; var CanSelect: Boolean);
+    procedure DBAdvGridCashBackCellValidate(Sender: TObject; ACol,
+      ARow: Integer; var Value: String; var Valid: Boolean);
+    procedure Pesquizar1Click(Sender: TObject);
+    procedure ExportarExcel1Click(Sender: TObject);
+  private
+    { Private declarations }
+    function ValidarCampos: Boolean;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+  end;
+
+var
+  frmConsultaCashBack: TfrmConsultaCashBack;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmConsultaCashBack }
+
+constructor TfrmConsultaCashBack.Create(AOwner: TComponent);
+begin
+  dtmConsultaCashBack:= TdtmConsultaCashBack.Create(Self);
+  inherited;
+  cbbVisaoPor.itemindex := 0;
+  cbbSelecionarPor.itemindex := 0;
+end;
+
+procedure TfrmConsultaCashBack.sbnGerarClick(Sender: TObject);
+var
+ i: integer;
+begin
+  inherited;
+  if ValidarCampos then
+  begin
+
+
+    with DBAdvGridCashBack do
+    begin
+      if cbbVisaoPor.Items.Strings[cbbVisaoPor.ItemIndex] = 'Visão por Contrato' then
+        DataSource := dtmConsultaCashBack.dsrConsultaCashBack
+      else
+        DataSource := dtmConsultaCashBack.dsrConsultaCashBack_porProdutos;
+    end;
+
+    with DBAdvGrid_ConsultaCashBack_Det do
+    begin
+      if cbbVisaoPor.Items.Strings[cbbVisaoPor.ItemIndex] = 'Visão por Contrato' then
+        DataSource := dtmConsultaCashBack.dsrConsultaCashBack_Det
+      else
+      if cbbVisaoPor.Items.Strings[cbbVisaoPor.ItemIndex] = 'Totais por Produto' then
+        DataSource := dtmConsultaCashBack.dsrConsultaCashBack_DetProd;
+    end;
+
+    with dtmConsultaCashBack do
+    begin
+      Filiais             := fraListaFiliais1.ListaSelecionada;
+
+
+      AbrirConsulta(fraIntervaloDatasParametros1.edtDataInicial.text,
+                    fraIntervaloDatasParametros1.edtDataFinal.text,
+                    cbbSelecionarPor.Items.Strings[cbbSelecionarPor.ItemIndex],
+                    cbbVisaoPor.Items.Strings[cbbVisaoPor.ItemIndex],
+                    fraSelecaoAleatoriaClientes1.ListaCondicional
+                    );
+
+      if (cbbVisaoPor.Items.Strings[cbbVisaoPor.ItemIndex] = 'Visão por Contrato') and (qryConsultaCashBack.recordcount = 0) or
+         (cbbVisaoPor.Items.Strings[cbbVisaoPor.ItemIndex] = 'Totais por Produto') and (qryConsultaCashBack_porProdutos.recordcount = 0) then
+      begin
+        MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO, ['CashBack']));
+        pgcCashBack.ActivePageIndex := 0;
+        cbbVisaoPor.setfocus;
+      end
+      else
+      begin
+        pgcCashBack.ActivePageIndex := 1;
+        DBAdvGridCashBack.setfocus;
+
+        with DBAdvGridCashBack do
+        begin
+          ColumnByFieldName['valorcb'].FloatFormat := '%.2n';
+          ColumnByFieldName['valorcb_dev'].FloatFormat := '%.2n';
+          ColumnByFieldName['valorcb_apro'].FloatFormat := '%.2n';
+          ColumnByFieldName['valorcb_apro_canc'].FloatFormat := '%.2n';
+          ColumnByFieldName['ValorCB_Acertos'].FloatFormat := '%.2n';
+          ColumnByFieldName['ValorCB_Vencidos'].FloatFormat := '%.2n';
+
+          ColumnByFieldName['total'].FloatFormat := '%.2n';
+
+          ColumnByFieldName['total'].Font.Style := [fsBold];
+
+          FloatingFooter.ColumnCalc[ColumnByFieldName['valorcb'].Index] := acSum;
+          FloatingFooter.ColumnCalc[ColumnByFieldName['valorcb_dev'].Index] := acSum;
+          FloatingFooter.ColumnCalc[ColumnByFieldName['valorcb_apro'].Index] := acSum;
+          FloatingFooter.ColumnCalc[ColumnByFieldName['valorcb_apro_canc'].Index] := acSum;
+          FloatingFooter.ColumnCalc[ColumnByFieldName['ValorCB_Acertos'].Index] := acSum;
+          FloatingFooter.ColumnCalc[ColumnByFieldName['ValorCB_Vencidos'].Index] := acSum;
+
+          FloatingFooter.ColumnCalc[ColumnByFieldName['total'].Index] := acSum;
+        end;
+
+        with DBAdvGrid_ConsultaCashBack_Det do
+        begin
+          ColumnByFieldName['valor'].FloatFormat := '%.2n';
+          ColumnByFieldName['valor'].Font.Style := [fsBold];
+          FloatingFooter.ColumnCalc[ColumnByFieldName['valor'].Index] := acSum;
+        end;
+
+      end;
+    end;
+
+  end;
+end;
+
+function TfrmConsultaCashBack.ValidarCampos: Boolean;
+begin
+  result := true;
+end;
+
+procedure TfrmConsultaCashBack.DBAdvGridCashBackExpandNode(Sender: TObject;
+  ARow, ARowreal: Integer);
+begin
+  inherited;
+  {
+  dtmConsultaCashBack.qryConsultaCashBack.recno :=  DBAdvGrid_ConsultaCashBack_Det.ColumnByFieldName['reg'].Field.value;
+  dtmConsultaCashBack.Abrir_ConsultaCashBack_Det;
+  with DBAdvGrid_ConsultaCashBack_Det do
+  begin
+    autosize := false;
+    autosize := True;
+    visible := true;
+  end;
+  }
+
+end;
+
+procedure TfrmConsultaCashBack.DBAdvGridCashBackContractNode(
+  Sender: TObject; ARow, ARowreal: Integer);
+begin
+  inherited;
+//  DBAdvGrid_ConsultaCashBack_Det.visible := false;
+end;
+
+procedure TfrmConsultaCashBack.sbnVisualizarGradeProdutosContratosClick(
+  Sender: TObject);
+begin
+  inherited;
+  if sbnVisualizarGradeProdutosContratos.caption = 'Visualizar Grade de Detalhes' then
+  begin
+    sbnVisualizarGradeProdutosContratos.caption := 'Ocultar Grade de Detalhes';
+    DBAdvGrid_ConsultaCashBack_Det.visible := true;
+    Splitter1.visible := true;
+    Splitter1.top := DBAdvGrid_ConsultaCashBack_Det.top-1; 
+
+  end
+  else
+  begin
+    sbnVisualizarGradeProdutosContratos.caption := 'Visualizar Grade de Detalhes';
+    DBAdvGrid_ConsultaCashBack_Det.visible := false;
+    Splitter1.visible := false;
+
+  end;
+end;
+
+procedure TfrmConsultaCashBack.DBAdvGridCashBackSelectCell(Sender: TObject;
+  ACol, ARow: Integer; var CanSelect: Boolean);
+begin
+  inherited;
+
+
+  if cbbVisaoPor.Items.Strings[cbbVisaoPor.ItemIndex] = 'Visão por Contrato' then
+  begin
+    dtmConsultaCashBack.qryConsultaCashBack.recno :=  strtoint(DBAdvGridCashBack.cells[DBAdvGridCashBack.ColumnByFieldName['reg'].index, Arow]);
+    dtmConsultaCashBack.Abrir_ConsultaCashBack_Det;
+  end
+  else
+  if cbbVisaoPor.Items.Strings[cbbVisaoPor.ItemIndex] = 'Totais por Produto' then
+  begin
+    dtmConsultaCashBack.qryConsultaCashBack_porProdutos.recno :=  strtoint(DBAdvGridCashBack.cells[DBAdvGridCashBack.ColumnByFieldName['reg'].index, Arow]);
+    dtmConsultaCashBack.Abrir_ConsultaCashBack_DetProd;
+  end;  
+
+  with DBAdvGrid_ConsultaCashBack_Det do
+  begin
+     FloatingFooter.ColumnCalc[ColumnByFieldName['valor'].Index] := acSum;
+     CalcFooter(DBAdvGrid_ConsultaCashBack_Det.ColumnByFieldName['valor'].Index);
+     refresh;
+  end;
+
+
+end;
+
+procedure TfrmConsultaCashBack.DBAdvGridCashBackCellValidate(
+  Sender: TObject; ACol, ARow: Integer; var Value: String;
+  var Valid: Boolean);
+begin
+  inherited;
+  DBAdvGridCashBack.Refresh;
+  DBAdvGridCashBack.FloatingFooter.Invalidate;
+
+end;
+
+
+procedure TfrmConsultaCashBack.Pesquizar1Click(Sender: TObject);
+begin
+  inherited;
+  AdvGridFindDialog1.Execute;
+end;
+
+procedure TfrmConsultaCashBack.ExportarExcel1Click(Sender: TObject);
+begin
+  inherited;
+  AdvGridExcelIO1.XLSExport(ExtractFilePath(Application.ExeName) + 'Saidas\'+DBAdvGridCashBack.datasource.dataset.name+'.xls','CashBack');
+end;
+
+end.

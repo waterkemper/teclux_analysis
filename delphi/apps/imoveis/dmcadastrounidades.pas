@@ -1,0 +1,125 @@
+unit dmcadastrounidades;
+
+interface
+
+uses
+  SysUtils, Classes, biblio, dmtecsoft, dmbasico, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, Forms, ctconstantes, ZTransact;
+
+type
+  TdtmCadastroUnidades = class(TdtmBasico)
+    qryConsultaTiposUnidades: TtecQuery;
+    qryConsultaTiposUnidadescodigo: TIntegerField;
+    qryConsultaTiposUnidadesnome: TStringField;
+    qryTiposUnidades: TtecQuery;
+    qryTiposUnidadesCodigo: TIntegerField;
+    qryTiposUnidadesNome: TStringField;
+    dsrTiposUnidades: TtecDataSource;
+    spcTiposUnidadesproximoNumero: TtecQuery;
+    spcTiposUnidadesproximoNumerocodigo: TIntegerField;
+    qryTiposUnidadesInativo: TDateField;
+    qryTiposUnidadesSigla: TStringField;
+    qryConsultaTiposUnidadessigla: TStringField;
+    qryConsultaTiposUnidadesinativo: TDateField;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure AbreTabelasConsulta(TipoPesquisa: TtecPesquisa);
+    procedure FechaTabelasConsulta(TipoPesquisa: TtecPesquisa);
+    procedure Selecionar(TipoPesquisa: TtecPesquisa);
+
+    function  ExisteTipoUnidade(Campo, Codigo : String): Boolean;    
+    procedure RefazConsultaTiposUnidades; overload;
+    procedure RefazConsultaTiposUnidades(Numero: String); overload;
+    function IncluirTiposUnidades: Boolean;
+    function GravarTiposUnidades: Boolean;
+    function ExcluirTiposUnidades: boolean;
+  end;
+
+var
+  dtmCadastroUnidades: TdtmCadastroUnidades;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmCadastroUnidades }
+
+procedure TdtmCadastroUnidades.AbreTabelasConsulta(
+  TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+    pesTIPOSUNIDADES   : qryConsultaTiposUnidades.Open
+  end;
+end;
+
+function TdtmCadastroUnidades.ExcluirTiposUnidades: boolean;
+begin
+  Result:= False;
+  if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['o TIPO DE UNIDADE'])) = smbOK then
+  begin
+    if not qryTiposUnidades.IsEmpty then
+    begin
+      qryTiposUnidades.Delete;
+      Result := True;
+    end;
+  END;
+end;
+
+function TdtmCadastroUnidades.ExisteTipoUnidade(Campo,Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaTiposUnidades, Campo, Codigo);
+end;
+
+procedure TdtmCadastroUnidades.FechaTabelasConsulta(
+  TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+    pesTIPOSUNIDADES   : qryConsultaTiposUnidades.CLose;
+  end;
+end;
+
+function TdtmCadastroUnidades.GravarTiposUnidades: Boolean;
+begin
+  if (qryTiposUnidades.State = dsinsert) then
+  begin
+    spcTiposUnidadesproximoNumero.Open;
+    qryTiposUnidadescodigo.AsInteger:= spcTiposUnidadesproximoNumerocodigo.AsInteger;
+    spcTiposUnidadesproximoNumero.Close;
+    qryTiposUnidades.Post;
+  end
+  else
+    qryTiposUnidades.Post;
+
+  Perpetrar([qrytiposUnidades]);
+  Result:= true;
+end;
+
+function TdtmCadastroUnidades.IncluirTiposUnidades: Boolean;
+begin
+  qryTiposUnidades.Open;
+  qryTiposUnidades.Insert;
+  Result:= true;
+end;
+
+procedure TdtmCadastroUnidades.RefazConsultaTiposUnidades;
+begin
+  RefazConsultaPorNome(qryTiposUnidades,['Codigo'],[qryConsultaTiposUnidadescodigo.AsVariant]);
+end;
+
+procedure TdtmCadastroUnidades.RefazConsultaTiposUnidades(Numero: String);
+begin
+  RefazConsultaPorNome(qryTiposUnidades,['Codigo'],[Numero]);
+end;
+
+procedure TdtmCadastroUnidades.Selecionar(TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+    pesTIPOSUNIDADES    : begin
+                            RefazConsultaPorNome(qryTiposUnidades,['Codigo'],[qryConsultaTiposUnidadescodigo.AsVariant]);
+                          end;
+  end;
+end;
+
+end.

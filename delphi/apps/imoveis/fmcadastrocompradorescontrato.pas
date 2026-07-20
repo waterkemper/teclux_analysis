@@ -1,0 +1,185 @@
+unit fmcadastrocompradorescontrato;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Biblio,
+  StdCtrls, fmcadastropadrao, DBCtrls, cpdbmemo, cpnumero, cpdbtext, ctconstantes,
+  Mask, cpdbfindcontrols, ComCtrls, Buttons, ExtCtrls, dmcontratosimoveis,
+  frconsulta, frconsultacodigo, ToolWin;
+
+type
+  TfrmcadastroCompradoresContrato = class(TfrmCadastroPadrao)
+    GroupBox1: TGroupBox;
+    gbxComprador: TGroupBox;
+    gbxRepresentante: TGroupBox;
+    gbxFiador: TGroupBox;
+    gbxPercentual: TGroupBox;
+    edtPercentual: TDBEditNumero;
+    gbxObservacoes: TGroupBox;
+    mmoObservacoes: TtecDBMemo;
+    fraConsultaComprador: TfraConsultaCodigo;
+    fraConsultaRepresentante: TfraConsultaCodigo;
+    fraConsultaFiador: TfraConsultaCodigo;
+    cbxPrincipal: TDBCheckBox;
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    procedure AtribuirNomeComprador;
+    procedure AtribuirNomeRepresentante;
+    procedure AtribuirNomeFiador;
+    Procedure ParametroFiador;
+    Procedure ParametroComprador;
+    Procedure ParametroRepresentante;
+    procedure AtribuirDadosComprador(Found: Boolean);
+    procedure AtribuirDadosFiador(Found: Boolean);
+    procedure AtribuirDadosRepresentante(Found: Boolean);
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmcadastroCompradoresContrato: TfrmcadastroCompradoresContrato;
+
+implementation
+
+uses DB;
+
+{$R *.dfm}
+
+{ TForm1 }
+
+procedure TfrmcadastroCompradoresContrato.AtribuirNomeComprador;
+begin
+    dtmContratosImoveis.qryCompradoresnomecliente.AsString:= fraConsultaComprador.qryProcuraClientenome.AsString;
+end;
+
+procedure TfrmcadastroCompradoresContrato.AtribuirNomeFiador;
+begin
+  dtmContratosImoveis.qryCompradoresnomerepresentante.AsString:= dtmContratosImoveis.qryCompradoresrepresentante.AsString+' - '+
+                                                                 fraConsultaRepresentante.qryProcuraClientenome.AsString;
+end;
+
+procedure TfrmcadastroCompradoresContrato.AtribuirNomeRepresentante;
+begin
+  dtmContratosImoveis.qryCompradoresnomefiador.AsString:= dtmContratosImoveis.qryCompradoresfiador.AsString+' - '+
+                                                          fraConsultaFiador.qryProcuraClientenome.AsString;
+end;
+
+constructor TfrmcadastroCompradoresContrato.Create(AOwner: TComponent);
+begin
+  inherited;
+  DataSet:= dtmContratosImoveis.qryCompradores;
+
+  fraConsultaComprador.CondicoesdaConsulta     := ParametroComprador;
+  fraConsultaComprador.TipoCliente             := 'C';
+  fraConsultaComprador.OnFound                 := AtribuirDadosComprador;
+  fraConsultaComprador.TipoPesquisa            := pesCLIENTES;
+
+  fraConsultaFiador.CondicoesdaConsulta        := ParametroFiador;
+  fraConsultaFiador.TipoCliente                := 'C';
+  fraConsultaFiador.OnFound                    := AtribuirDadosFiador;
+  fraConsultaFiador.TipoPesquisa               := pesCLIENTES;
+
+  fraConsultaRepresentante.CondicoesdaConsulta := ParametroRepresentante;
+  fraConsultaRepresentante.TipoCliente         := 'C';
+  fraConsultaRepresentante.OnFound             := AtribuirDadosRepresentante;
+  fraConsultaRepresentante.TipoPesquisa        := pesCLIENTES;
+end;
+
+destructor TfrmcadastroCompradoresContrato.Destroy;
+begin
+  inherited;
+  frmcadastroCompradoresContrato:= nil;
+end;
+
+function TfrmcadastroCompradoresContrato.InternoExcluir: Boolean;
+begin
+  dtmContratosImoveis.ExcluirCompradorContrato;
+  Result:= True;
+end;
+
+function TfrmcadastroCompradoresContrato.InternoGravar: Boolean;
+begin
+  AtribuirNomeComprador;
+  AtribuirNomeRepresentante;
+  AtribuirNomeFiador;
+  if not (cbxPrincipal.Checked) then
+    dtmContratosImoveis.qryCompradoresprincipal.AsBoolean:= False;
+  Result:= dtmContratosImoveis.GravarCompradorContrato;
+  fraConsultaComprador.edfCodigo.SetFocus;
+end;
+
+function TfrmcadastroCompradoresContrato.InternoIncluir: Boolean;
+begin
+  Result := dtmContratosImoveis.IncluirCompradoresContrato;
+  fraConsultaComprador.edfCodigo.SetFocus;
+end;
+
+procedure TfrmcadastroCompradoresContrato.FormShow(Sender: TObject);
+begin
+  inherited;
+  if fraConsultaComprador.edfCodigo.Focused then
+    fraConsultaComprador.edfCodigo.SetFocus;
+end;
+
+procedure TfrmcadastroCompradoresContrato.ParametroComprador;
+begin
+  with fraConsultaComprador do
+  begin
+    qryConsultaClientes.MacroByName('JaCadastrado').AsString:= dtmContratosImoveis.ParametroFiadorC + ' '+ dtmContratosImoveis.ParametroRepresentanteC;
+    qryProcuraCliente.MacroByName('JaCadastrado').AsString:= dtmContratosImoveis.ParametroFiadorV + ' '+ dtmContratosImoveis.ParametroRepresentanteV;
+    if not (dtmContratosImoveis.qryCompradores.State  in [dsinsert]) then
+      if dtmContratosImoveis.qryCompradorestipocliente.AsString<>''      then
+        qryProcuraCliente.ParamByName('tipocliente').AsString:= dtmContratosImoveis.qryCompradorestipocliente.AsString;
+  end;
+end;
+
+procedure TfrmcadastroCompradoresContrato.ParametroFiador;
+begin
+  with fraConsultaFiador do
+  begin
+    qryConsultaClientes.MacroByName('JaCadastrado').AsString:= dtmContratosImoveis.ParametroCompradorC + ' '+ dtmContratosImoveis.ParametroRepresentanteC;
+    qryProcuraCliente.MacroByName('JaCadastrado').AsString:= dtmContratosImoveis.ParametroCompradorV + ' '+ dtmContratosImoveis.ParametroRepresentanteV;
+    if not (dtmContratosImoveis.qryCompradores.State in [dsinsert]) then
+      if dtmContratosImoveis.qryCompradorestipofiador.AsString<>'' then
+        qryProcuraCliente.ParamByName('tipocliente').AsString:= dtmContratosImoveis.qryCompradorestipofiador.AsString;
+  end;
+end;
+
+procedure TfrmcadastroCompradoresContrato.ParametroRepresentante;
+begin
+  with fraConsultaRepresentante do
+  begin
+    qryConsultaClientes.MacroByName('JaCadastrado').AsString:= dtmContratosImoveis.ParametroCompradorC + ' '+ dtmContratosImoveis.ParametroFiadorC;
+    qryProcuraCliente.MacroByName('JaCadastrado').AsString:= dtmContratosImoveis.ParametroCompradorV + ' '+ dtmContratosImoveis.ParametroFiadorV;
+    if not (dtmContratosImoveis.qryCompradores.State in [dsinsert]) then
+      if dtmContratosImoveis.qryCompradorestiporepresentante.AsString<>'' then
+        qryProcuraCliente.ParamByName('tipocliente').AsString:= dtmContratosImoveis.qryCompradorestiporepresentante.AsString;  
+  end;
+end;
+
+
+procedure TfrmcadastroCompradoresContrato.AtribuirDadosComprador(Found: Boolean);
+begin
+  dtmContratosImoveis.qryCompradores.fieldbyname('tipocliente').AsVariant := fraConsultaComprador.qryProcuraClientetipo.AsVariant;
+end;
+
+procedure TfrmcadastroCompradoresContrato.AtribuirDadosFiador(Found: Boolean);
+begin
+    dtmContratosImoveis.qryCompradores.fieldbyname('tipofiador').AsVariant := fraConsultaFiador.qryProcuraClientetipo.AsVariant;
+end;
+
+procedure TfrmcadastroCompradoresContrato.AtribuirDadosRepresentante(Found: Boolean);
+begin
+  dtmContratosImoveis.qryCompradores.fieldbyname('tiporepresentante').AsVariant := fraConsultaRepresentante.qryProcuraClientetipo.AsVariant;
+end;
+
+end.

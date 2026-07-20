@@ -1,0 +1,320 @@
+unit fmrelatoriocontratosemitidos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, cpdata, DBCtrls, cpdbtext,
+  Mask, cpdbfindcontrols, ComCtrls, cppagecontrol, Buttons, ctconstantes,
+  biblio, dmrelatoriocontratosemitidos, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpeditioncontrolvalidation, fmrelatoriopadrao, CheckLst,
+  fmconsultabasica,
+  fmconsultaporcampo, frlistafiliais, frlistagruposfiliais, ToolWin,
+  frselecaoaleatoriaclientes, frmultiplaselecaoaleatoria, cptexto;
+
+  type
+  Tfrmrelatoriocontratosemitidos = class(TfrmRelatorioPadrao)
+    gbxContratosEmitidos: TGroupBox;
+    gbxPeriodo: TGroupBox;
+    lblDataInicial: TLabel;
+    edtDataInicial: TEditData;
+    lblDataFinal: TLabel;
+    edtDataFinal: TEditData;
+    rgpTipo: TRadioGroup;
+    rgpOrdenacao: TRadioGroup;
+    rgpResumo: TRadioGroup;
+    gbxAgentes: TGroupBox;
+    sbnMarcarAgentes: TSpeedButton;
+    sbnDesmarcarAgentes: TSpeedButton;
+    clbAgentes: TCheckListBox;
+    gbxAnalistaCredito: TGroupBox;
+    sbnMarcarAnalistaCredito: TSpeedButton;
+    sbnDesmarcarAnalistaCredito: TSpeedButton;
+    clbAnalistaCredito: TCheckListBox;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparGrupoFilial: TCheckBox;
+    ckbAgruparFilial: TCheckBox;
+    gbxTotalizacao: TGroupBox;
+    ckbTotaisPorContrato: TCheckBox;
+    gbxQuitacao: TGroupBox;
+    Label1: TLabel;
+    edtQuitacaoInicial: TEditData;
+    Label2: TLabel;
+    edtQuitacaoFinal: TEditData;
+    gbxOpcao: TGroupBox;
+    ckbNaoListarParcelas: TCheckBox;
+    gbxTipodeVenda: TGroupBox;
+    ckbVendaaVista: TCheckBox;
+    ckbVendaaPrazo: TCheckBox;
+    fraListaFiliais1: TfraListaFiliais;
+    fraListaGruposFiliais1: TfraListaGruposFiliais;
+    fraSelecaoAleatoriaClientes1: TfraSelecaoAleatoriaClientes;
+    pgcSelecaoAleatoria: TPageControl;
+    tstClientes: TTabSheet;
+    tstProdutos: TTabSheet;
+    fraMultiplaSelecaoAleatoria1: TfraMultiplaSelecaoAleatoria;
+    ckbContratoComObs: TCheckBox;
+    gbxObservacaoContrato: TGroupBox;
+    edtFiltroObservacoes: TEditTexto;
+    ckbConmSemObs: TCheckBox;
+    procedure sbnMarcarAgentesClick(Sender: TObject);
+    procedure sbnDesmarcarAgentesClick(Sender: TObject);
+    procedure sbnMarcarAnalistaCreditoClick(Sender: TObject);
+    procedure sbnDesmarcarAnalistaCreditoClick(Sender: TObject);
+    procedure rgpTipoClick(Sender: TObject);
+    procedure fraListaFiliais1clbFiliaisClickCheck(Sender: TObject);
+    procedure fraListaFiliais1sbnMarcarFiliaisClick(Sender: TObject);
+    procedure fraListaGruposFiliais1clbGrupodeFiliaisClickCheck(
+      Sender: TObject);
+    procedure fraListaGruposFiliais1sbnmarcarGrupodeFiliaisClick(
+      Sender: TObject);
+    procedure fraMultiplaSelecaoAleatoria1Timer1Timer(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    procedure InternoImpressao; override;
+  public
+    { Public declarations  }
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+    procedure MontaPesquisa;
+    function  ValidarCamposSelecao: Boolean;
+    procedure ObterLista(Origem: TStrings; Destino: TCheckListBox);
+  end;
+
+
+var
+  frmrelatoriocontratosemitidos: Tfrmrelatoriocontratosemitidos;
+  TipoPesquisa      : TtecRelatorioVendas;
+
+
+implementation
+
+uses frselecaoaleatoria;
+
+{$R *.dfm}
+
+{ Tfrmrelatoriocontratosemitidos }
+
+constructor Tfrmrelatoriocontratosemitidos.Create(Aowner: Tcomponent);
+begin
+  dtmrelatoriocontratosemitidos := Tdtmrelatoriocontratosemitidos.Create(Self);
+  inherited;
+  dtmrelatoriocontratosemitidos.Abre(ctTabelas);
+  ObterLista(dtmRelatorioContratosEmitidos.ListaAgentes, clbAgentes);
+  ObterLista(dtmrelatoriocontratosemitidos.ListaAnalistaCredito, clbAnalistaCredito);
+  edtDataInicial.Text := DateToStr(UltimoDiaMesPassado(1));
+  edtDataFinal.Text := DateToStr(DataLocal);
+end;
+
+destructor Tfrmrelatoriocontratosemitidos.Destroy;
+begin
+//  dtmrelatoriocontratosemitidos:=nil;
+  dtmrelatoriocontratosemitidos.free;
+  inherited;
+  frmrelatoriocontratosemitidos:= nil;
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.InternoImpressao;
+begin
+  inherited;
+  MontaPesquisa;
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.MontaPesquisa;
+begin
+  if ValidarCamposSelecao then begin
+    with dtmrelatoriocontratosemitidos do
+    begin
+      ParametroCabecalho:='';
+      Filiais             := fraListaFiliais1.ListaSelecionada;
+      GrupoFiliais        := fraListaGruposFiliais1.ListaSelecionada;
+      if GrupoFiliais<>'' then
+        ParametroCabecalho:=ParametroCabecalho+' Grupo de Filiais: '+GrupoFiliais
+      else
+      if Filiais<>'' then
+        ParametroCabecalho:=ParametroCabecalho+' Filiais: '+Filiais;
+
+      MontarFiltroAgentes(clbAgentes);
+      MontarFiltroAnalistaCredito(clbAnalistaCredito);
+
+      CondicaoClientes        := fraSelecaoAleatoriaClientes1.ListaCondicional;
+
+      ListaItemProdutos := fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional;
+      ListaProdutos     := fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaprodutos.ListaCondicional;
+      ListaGrupos       := fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriagruposprodutos.ListaCondicional;
+      ListaClasses      := fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriaclassesprodutos.ListaCondicional;
+      ListaMarcas       := fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriamarcasProdutos.ListaCondicional;
+      ListaCondicionalPromocoes := fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriapromocoes.ListaCondicional;
+
+
+      DataInicial     := edtDataInicial.Text;
+      DataFinal       := edtDataFinal.Text;
+      DataQuitacaoInicial := edtQuitacaoInicial.Text;
+      DataQuitacaoFinal := edtQuitacaoFinal.Text;
+      Tipo            := rgpTipo.ItemIndex;
+      VendaaVista         := ckbVendaaVista.checked;
+      VendaaPrazo         := ckbVendaaPrazo.Checked;
+      Resumo          := rgpResumo.ItemIndex;
+      ExibirTotalPorContrato := ckbTotaisPorContrato.Checked;
+      AgruparGrupoFilial  := ckbAgruparGrupoFilial.Checked;
+      AgruparFilial       := ckbAgruparFilial.Checked;
+      Ordenacao       := rgpOrdenacao.ItemIndex;
+      MontarOrdenacao;
+      NaoListarParcelas := ckbNaoListarParcelas.Checked;
+      ContratoComObservacoes := ckbContratoComObs.checked;
+      ComSemObs := ckbConmSemObs.checked;
+      FiltroObservacoes := edtFiltroObservacoes.text;
+
+
+      if abrirconsulta then
+        ImprimirRelatorio
+      else
+        MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+    end;
+  end;
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.ObterLista(Origem: TStrings;
+  Destino: TCheckListBox);
+begin
+  Destino.Items.AddStrings(Origem);
+end;
+
+function Tfrmrelatoriocontratosemitidos.ValidarCamposSelecao: Boolean;
+begin
+   Result := (edtDataInicial.DataValida and edtDataFinal.DataValida);
+   if Result then
+   begin
+    if (not dataembranco(edtDataInicial.text) and not dataembranco(edtDataFinal.text)) then
+      Result:=StrToDate(edtDataInicial.Text) <= StrToDate(edtDataFinal.Text);
+    if result then
+    begin
+      Result:=(not dataembranco(edtDataInicial.text) or not dataembranco(edtDataFinal.text));
+      if not Result then
+      begin
+       if rgpTipo.ItemIndex in [0,1] then
+       begin
+         MensagemAviso(ctDATAINVALIDA);
+         edtDataInicial.SetFocus;
+       end
+       else result := true;
+      end;
+    end
+    else
+    begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      edtDataInicial.SetFocus;
+    end;
+   end;
+
+   if result then
+   begin
+     Result := (edtQuitacaoInicial.DataValida and edtQuitacaoFinal.DataValida);
+     if Result then
+     begin
+      if (not dataembranco(edtQuitacaoInicial.text) and not dataembranco(edtQuitacaoFinal.text)) then
+        Result:=StrToDate(edtQuitacaoInicial.Text) <= StrToDate(edtQuitacaoFinal.Text);
+      if result then
+      begin
+        Result:=(not dataembranco(edtQuitacaoInicial.text) or not dataembranco(edtQuitacaoFinal.text));
+        if not Result then
+        begin
+         if (dataembranco(edtDataInicial.text) and dataembranco(edtDataFinal.text)) then
+         begin
+           MensagemAviso(ctDATAINVALIDA);
+           edtQuitacaoInicial.SetFocus;
+         end
+         else result := true;
+        end;
+      end
+      else
+      begin
+        MensagemAviso(ctDTINICIALMAIORDTFINAL);
+        edtQuitacaoInicial.SetFocus;
+      end;
+     end;
+   end;
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.sbnMarcarAgentesClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbAgentes, True);
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.sbnDesmarcarAgentesClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbAgentes, False);
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.sbnMarcarAnalistaCreditoClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbAnalistaCredito, True);
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.sbnDesmarcarAnalistaCreditoClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbAnalistaCredito, False);
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.rgpTipoClick(Sender: TObject);
+begin
+  inherited;
+  gbxQuitacao.Enabled := (rgpTipo.ItemIndex in [2,3]);
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.fraListaFiliais1clbFiliaisClickCheck(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaGruposFiliais1.sbnDesmarcarGrupodeFiliaisClick(self);
+
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.fraListaFiliais1sbnMarcarFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaFiliais1.sbnMarcarFiliaisClick(Sender);
+  fraListaGruposFiliais1.sbnDesmarcarGrupodeFiliaisClick(self);
+
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.fraListaGruposFiliais1clbGrupodeFiliaisClickCheck(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaFiliais1.sbnDesmarcarFiliaisClick(Sender);
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.fraListaGruposFiliais1sbnmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaGruposFiliais1.sbnmarcarGrupodeFiliaisClick(Sender);
+  fraListaFiliais1.sbnDesmarcarFiliaisClick(Sender);
+end;
+
+procedure Tfrmrelatoriocontratosemitidos.fraMultiplaSelecaoAleatoria1Timer1Timer(
+  Sender: TObject);
+begin
+  inherited;
+  fraMultiplaSelecaoAleatoria1.Timer1Timer(Sender);
+  tstProdutos.Highlighted := fraMultiplaSelecaoAleatoria1.tstItemdeProduto.Highlighted or
+                             fraMultiplaSelecaoAleatoria1.tstProduto.Highlighted or
+                             fraMultiplaSelecaoAleatoria1.tstSelecaoAleatoriaGrupoProduto.Highlighted or
+                             fraMultiplaSelecaoAleatoria1.tstSelecaoAleatoriaClasseProduto.Highlighted or
+                             fraMultiplaSelecaoAleatoria1.tstSelecaoAleatoriaMarcaProduto.Highlighted;
+
+  tstClientes.Highlighted := (fraSelecaoAleatoriaClientes1.fraSelecaoAleatoriaCliente.qrySelecaoAleatoria.recordcount <> 0);                             
+end;
+
+end.

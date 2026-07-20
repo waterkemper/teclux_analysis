@@ -1,0 +1,455 @@
+inherited frmConsultaProdutosNotasSefaz: TfrmConsultaProdutosNotasSefaz
+  Left = 365
+  Top = 190
+  Width = 1042
+  Height = 642
+  ActiveControl = dbgProdutosPedidosNfePendentes
+  Caption = 'Consulta de Produtos do pedido com NFe Pendentes de Entrada'
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  FormStyle = fsMDIChild
+  OldCreateOrder = False
+  Position = poDefault
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 13
+  object dbgProdutosPedidosNfePendentes: TtecDBGrid
+    Left = 0
+    Top = 0
+    Width = 1022
+    Height = 600
+    Align = alClient
+    DataSource = dsrProdutosPedidosNfePendentes
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'MS Sans Serif'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 0
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -9
+    TitleFont.Name = 'MS Sans Serif'
+    TitleFont.Pitch = fpVariable
+    TitleFont.Style = []
+    RowWrap = 60
+    Large = False
+    DoubleRowColor = True
+    TitleMinHeight = 100
+    CellHeights = 100
+    StrippedColor = 16054260
+    CanDelete = False
+    CanNotInsertFromGrid = False
+    PostOnEnter = False
+    PostOnSetUpDown = False
+    DenySort = False
+    DefaultRowHeight = 17
+    ExibirNumerodaLinha = False
+    NaoAtribuirDadosaTabelaaoDigitar = False
+    ShowWhenFieldInvisible = False
+    CanClickWhenEditing = False
+    Columns = <
+      item
+        Expanded = False
+        FieldName = 'pe_numero'
+        Width = 53
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'pe_emissao'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'chnfe'
+        Width = 193
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'pe_fornecedor'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'xnome'
+        Width = 142
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'dhemi'
+        Width = 93
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'dhrecbto'
+        Width = 93
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'produtovisual'
+        Width = 78
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'descricaoproduto'
+        Width = 201
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'pp_quantidade'
+        Width = 44
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'pp_preco_pedido'
+        Width = 55
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'cprod'
+        Width = 114
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'xprod'
+        Width = 222
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'ucom'
+        Width = 20
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'qcom'
+        Width = 46
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'vuncom'
+        Visible = True
+      end>
+  end
+  object dsrProdutosPedidosNfePendentes: TtecDataSource
+    DataSet = qryProdutosPedidosNfePendentes
+    Left = 88
+    Top = 104
+  end
+  object qryProdutosPedidosNfePendentes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '         nsus.*'
+      'from'
+      '         ('
+      ''
+      'select distinct'
+      '       nsus.cnpj,'
+      '       nsus.nsu,'
+      '       nsus.chnfe,'
+      '       nsus.cnpjemitente,'
+      '       nsus.xnome,'
+      '       nsus.dhemi,'
+      '       nsus.vnf,'
+      '       nsus.dhrecbto,'
+      ''
+      '       nsus.cSitNFe,'
+      '       nsus.tipo,'
+      ''
+      '       nsus_prod.cprod,       '
+      '       nsus_prod.sequencial,'
+      '       nsus_prod.cean,       '
+      '       nsus_prod.xprod,'
+      '       nsus_prod.ncm,'
+      ''
+      '       nsus_prod.ucom,'
+      '       nsus_prod.qcom,'
+      '       nsus_prod.vuncom,'
+      '       nsus_prod.vprod,'
+      '       nsus_prod.vfrete,'
+      '       nsus_prod.vseg,'
+      '       nsus_prod.vdesc,'
+      '       nsus_prod.voutro,'
+      '       nsus_prod.infadprod,'
+      '       '
+      '       p.codigovisual as produtovisual,'
+      '       p.descricao as descricaoproduto,'
+      '       pp.quantidade as pp_quantidade,'
+      '       pp.preco as pp_preco_pedido,'
+      '       pp.desconto as pp_desconto_pedido,'
+      '       pp.valoripi as pp_valoriipi,'
+      '       pp.valoricms as pp_valoricms,'
+      '       pp.frete as pp_frete,'
+      '       '
+      '       pe.numero as pe_numero,'
+      '       pe.emissao as pe_emissao,'
+      '       pe.fornecedor as pe_fornecedor,'
+      '       pe.emissao as pe_emissao,'
+      '      '
+      '       pe.filialfatura,'
+      '       pe.filialentrega,'
+      '       pe.filialcobranca'
+      ''
+      ''
+      'from produtospedidos pp'
+      ''
+      '     join pedidos pe'
+      '          join fornecedores f'
+      '               join nsus'
+      '                    join nsus_prod'
+      '                         join produtosfornecedores pf'
+      '                              join produtos p '
+      
+        '                              on pf.produto = p.codigo          ' +
+        '                '
+      '                              '
+      
+        '                          on nsus_prod.cprod = pf.produtonoforne' +
+        'cedor /*or'
+      
+        '                                  nsus_prod.xprod = pf.descricao' +
+        'nofornecedor or'
+      
+        '                                  nsus_prod.infadprod = pf.infad' +
+        'prod*/'
+      '/*                                and pf.fornecedor = f.codigo'
+      '                               and pf.tipofornecedor = '#39'F'#39' */'
+      '                               '
+      
+        '                               /*left join produtoscodigobarras ' +
+        'pcb'
+      
+        '                               on nsus_prod.cean = pcb.codigobar' +
+        'ras'
+      '                               and pcb.produto = 995400)*/'
+      '                               '
+      '                               '
+      '                    '
+      '                    on nsus.cnpj = nsus_prod.cnpj'
+      '                       and nsus.nsu = nsus_prod.nsu '
+      
+        '                       and nsus.tipo = nsus_prod.tipo           ' +
+        '                      '
+      '               on f.pessoanumero = nsus.cnpjemitente'
+      '          on pe.fornecedor = f.codigo'
+      '     on pp.pedido = pe.numero'
+      '     '
+      'where p.codigo = :produto'
+      '  and pp.produto = :produto'
+      '  and pe.situacao = '#39'A'#39
+      '  and pf.fornecedor = f.codigo'
+      '  and pf.tipofornecedor = '#39'F'#39
+      '  and cast(nsus.dhemi as date) >= pe.database'
+      ''
+      '                         and not exists'
+      '                       ('
+      '                              select'
+      '                                     np.chv_nfe'
+      '                              from'
+      '                                     notaspag np'
+      '                              where'
+      '                                     np.chv_nfe = nsus.chnfe'
+      '                       )'
+      ''
+      ''
+      'order by nsus.dhemi'
+      ''
+      ')'
+      ' as nsus'
+      ''
+      'where '
+      '         not'
+      '         /* cancelada */'
+      '         case'
+      '                  when nsus.cSitNFe = '#39'3'#39
+      '                           then true'
+      '                  when nsus.tipo='#39'NFE'#39
+      '                           then coalesce('
+      '                                          ('
+      '                                                 select'
+      '                                                        true'
+      '                                                 from'
+      
+        '                                                        nsus nsu' +
+        's_c'
+      '                                                 where'
+      
+        '                                                        nsus_c.c' +
+        'hnfe                       = nsus.chnfe'
+      
+        '                                                        and nsus' +
+        '_c.nsu                    <> nsus.nsu'
+      
+        '                                                        and nsus' +
+        '_c.tipo                    = '#39'NFE'#39
+      
+        '                                                        and nsus' +
+        '_c.tipoxmlretorno          = '#39'resEvento'#39
+      
+        '                                                        and nsus' +
+        '_c.xmleveciencia is not null'
+      
+        '                                                        and cast' +
+        '(cast((xpath('#39'//infEvento:tpEvento/text()="110111"'#39' , cast(nsus_' +
+        'c.xmleveciencia as xml), ARRAY[ARRAY['#39'infEvento'#39','
+      
+        '                                                        '#39'http://' +
+        'www.portalfiscal.inf.br/nfe'#39']]))[1] as text) as boolean)'
+      '                                         )'
+      '                                         ,false)'
+      '                  when nsus.tipo='#39'CTE'#39
+      '                           then coalesce('
+      '                                          ('
+      '                                                 select'
+      '                                                        true'
+      '                                                 from'
+      
+        '                                                        nsus nsu' +
+        's_c'
+      '                                                 where'
+      
+        '                                                        nsus_c.c' +
+        'hnfe                       = nsus.chnfe'
+      
+        '                                                        and nsus' +
+        '_c.nsu                    <> nsus.nsu'
+      
+        '                                                        and nsus' +
+        '_c.tipoxmlretorno          = '#39'resEvento'#39
+      
+        '                                                        and nsus' +
+        '_c.tipo                    = '#39'CTE'#39
+      
+        '                                                        and nsus' +
+        '_c.xmleveciencia is not null'
+      
+        '                                                        and cast' +
+        '(cast((xpath('#39'//infEvento:tpEvento/text()="110111"'#39' , cast(nsus_' +
+        'c.xmleveciencia as xml), ARRAY[ARRAY['#39'infEvento'#39','
+      
+        '                                                        '#39'http://' +
+        'www.portalfiscal.inf.br/cte'#39']]))[1] as text) as boolean)'
+      '                                         )'
+      '                                         ,false)'
+      '         end'
+      'order by'
+      '   nsus.cprod, nsus.dhemi'
+      ';')
+    RequestLive = False
+    Left = 120
+    Top = 96
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosPedidosNfePendentespe_numero: TIntegerField
+      DisplayLabel = 'Pedido'
+      FieldName = 'pe_numero'
+    end
+    object qryProdutosPedidosNfePendentespe_emissao: TDateField
+      DisplayLabel = 'P.Emiss'#227'o'
+      FieldName = 'pe_emissao'
+    end
+    object qryProdutosPedidosNfePendenteschnfe: TStringField
+      DisplayLabel = 'CHV NFe'
+      FieldName = 'chnfe'
+      Size = 44
+    end
+    object qryProdutosPedidosNfePendentespe_fornecedor: TIntegerField
+      DisplayLabel = 'Fornec.'
+      FieldName = 'pe_fornecedor'
+    end
+    object qryProdutosPedidosNfePendentesxnome: TStringField
+      DisplayLabel = 'Nome Fornecedor'
+      FieldName = 'xnome'
+      Size = 60
+    end
+    object qryProdutosPedidosNfePendentesdhemi: TStringField
+      DisplayLabel = 'Emiss'#227'o NFe'
+      FieldName = 'dhemi'
+      Size = 19
+    end
+    object qryProdutosPedidosNfePendentesdhrecbto: TStringField
+      DisplayLabel = 'Recbto NFe'
+      FieldName = 'dhrecbto'
+      Size = 19
+    end
+    object qryProdutosPedidosNfePendentesprodutovisual: TStringField
+      DisplayLabel = 'Produto'
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryProdutosPedidosNfePendentesdescricaoproduto: TStringField
+      DisplayLabel = 'Descri'#231#227'o Produto'
+      FieldName = 'descricaoproduto'
+      Size = 100
+    end
+    object qryProdutosPedidosNfePendentespp_quantidade: TFloatField
+      DisplayLabel = 'P.Qtde'
+      FieldName = 'pp_quantidade'
+    end
+    object qryProdutosPedidosNfePendentespp_preco_pedido: TFloatField
+      DisplayLabel = 'P.Pre'#231'o'
+      FieldName = 'pp_preco_pedido'
+    end
+    object qryProdutosPedidosNfePendentescprod: TStringField
+      DisplayLabel = 'Prod.NFe'
+      FieldName = 'cprod'
+      Size = 60
+    end
+    object qryProdutosPedidosNfePendentesxprod: TStringField
+      DisplayLabel = 'Descri'#231#227'o Prod. NFe'
+      FieldName = 'xprod'
+      Size = 120
+    end
+    object qryProdutosPedidosNfePendentesucom: TStringField
+      DisplayLabel = 'UN'
+      FieldName = 'ucom'
+      Size = 6
+    end
+    object qryProdutosPedidosNfePendentesqcom: TFloatField
+      DisplayLabel = 'Qtde Nfe'
+      FieldName = 'qcom'
+    end
+    object qryProdutosPedidosNfePendentesvuncom: TFloatField
+      DisplayLabel = 'Vlr Unit. Nfe'
+      FieldName = 'vuncom'
+    end
+    object qryProdutosPedidosNfePendentesncm: TStringField
+      FieldName = 'ncm'
+      Size = 10
+    end
+    object qryProdutosPedidosNfePendentescean: TStringField
+      FieldName = 'cean'
+      Size = 30
+    end
+  end
+end

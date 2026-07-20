@@ -1,0 +1,110 @@
+unit fmtranferenciasaldoscontabeis;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmajudabt, ComCtrls, Buttons, ExtCtrls, StdCtrls, frconsulta,
+  frconsultacodigo, clparametrossistema, ctconstantes, DB, ZQuery,
+  ZPgSqlQuery, cpquery, Windows,{Qete,} clusuario, biblio, dmlancamentocontabilidade,
+  ToolWin;
+
+type
+  TfrmTransferirSaldosContabeis = class(TfrmAjudaBt)
+    sbnConfirma: TSpeedButton;
+    gbxFilial: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigo;
+    gbxExercicios: TGroupBox;
+    gbxExercicioTransferencia: TGroupBox;
+    gbxExercicioAtual: TGroupBox;
+    lblExercicioAtual: TLabel;
+    lblExercicioTransferencia: TLabel;
+    qryTransferirSaldosExercicio: TtecQuery;
+    Image1: TImage;
+    procedure sbnConfirmaClick(Sender: TObject);
+    
+  private
+    { Private declarations }
+    procedure ExibirExercicioFilial(Found: Boolean);
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  public
+    { Public declarations }
+     constructor Create(AOwner: TComponent); Override;
+     destructor  Destroy; override;
+
+  end;
+
+var
+  frmTransferirSaldosContabeis: TfrmTransferirSaldosContabeis;
+
+implementation
+
+uses dmbasico;
+
+{$R *.dfm}
+
+{ TfrmTransferirSaldosContabeis }
+
+constructor TfrmTransferirSaldosContabeis.Create(AOwner: TComponent);
+begin
+  inherited;
+  fraConsultaFilial.SomenteFiliaisUsuario :=
+      ParSistema.RelatorioSomenteFiliaisAutorizadas;
+  fraConsultaFilial.OnFound := ExibirExercicioFilial;
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+
+end;
+
+destructor TfrmTransferirSaldosContabeis.Destroy;
+begin
+  inherited;
+  if assigned(dtmlancamentocontabilidade) then
+    dtmLancamentoContabilidade := nil;
+  frmTransferirSaldosContabeis := nil;
+end;
+
+procedure TfrmTransferirSaldosContabeis.ExibirExercicioFilial(Found: Boolean);
+begin
+  lblExercicioAtual.Caption := fraConsultaFilial.edfCodigo.DataSource.DataSet.fieldbyname('exercicio').asstring;
+  if lblExercicioAtual.Caption <> '' then
+  begin
+    lblExercicioTransferencia.Caption := inttostr(strtoint(lblExercicioAtual.Caption)+1);
+    sbnConfirma.Enabled := true;
+  end
+  else
+  begin
+    lblExercicioTransferencia.Caption := '';
+    sbnConfirma.Enabled := false;
+  end;
+end;
+
+procedure TfrmTransferirSaldosContabeis.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  case key of
+  VK_F5 : if sbnConfirma.Enabled then sbnConfirmaClick(nil);
+  end;
+end;
+
+procedure TfrmTransferirSaldosContabeis.sbnConfirmaClick(Sender: TObject);
+begin
+  inherited;
+  if not assigned(dtmlancamentocontabilidade) then
+    dtmLancamentoContabilidade := TdtmLancamentoContabilidade.Create(self);
+  if dtmLancamentoContabilidade.ObterAutorizacaodoUsuario then
+  begin
+    try
+      Refresh;
+      sbnConfirma.Enabled := false;
+      qryTransferirSaldosExercicio.ParamByName('anoatual').AsInteger := strtoint(lblExercicioAtual.caption);
+      qryTransferirSaldosExercicio.ParamByName('filial').AsInteger := strtoint(fraConsultaFilial.edfCodigo.text);
+      qryTransferirSaldosExercicio.ExecSql;
+      dtmLancamentoContabilidade.Perpetrar([qryTransferirSaldosExercicio]);
+    finally
+      sbnConfirma.Enabled := true;
+    end;
+  end;
+end;
+
+end.

@@ -1,0 +1,441 @@
+unit fmcadastroplanospagamentos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, DBCtrls, Mask, ExtCtrls, Buttons, ComCtrls,
+  Grids, DBGrids,
+  //Terceiros
+  ZQuery,
+  //Biblio
+  ctconstantes,
+  //Componentes
+  cpdbtext, cpdbfindcontrols, cptexto, cpdbdata, cpnumero, cpdbradiogroup,
+  cpdbgrid,
+  //Repositorio
+  fmcadastropadrao, frcomissao, fmconsultabasica, ActnList, ToolWin;
+
+type
+
+  TtecGridsComFoco = (gcfNENHUM, gcfGRUPO, gcfCLASSE);
+
+  TfrmCadastroPlanosPagamentos = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxEntrada: TGroupBox;
+    edtToleranciaEntrada: TDBEditNumero;
+    edtVenctoEntrada: TDBEditData;
+    edtPrazoVenctoEntrada: TDBEditNumero;
+    edtPorcentagemEntrada: TDBEditNumero;
+    gbxParcelas: TGroupBox;
+    edtQuantidadeParcelas: TDBEditNumero;
+    edtValorMinimoParcelas: TDBEditNumero;
+    edtIntervaloParcelas: TDBEditNumero;
+    gbxLimites: TGroupBox;
+    edtCompraMinima: TDBEditNumero;
+    edtCompraMaxima: TDBEditNumero;
+    edtDescontoMaximo: TDBEditNumero;
+    gbxPermiteAlterar: TGroupBox;
+    ckbAlterarValores: TDBCheckBox;
+    ckbAlterarVencimentos: TDBCheckBox;
+    sbnConsultaAgente: TSpeedButton;
+    edfCodigoPlano: TtecDbEditFind;
+    flkAgente: TtecDBFindLookup;
+    dtxAgente: TtecDBText;
+    edtTaxaMensalJuros: TDBEditNumero;
+    fraComissao: TfraComissao;
+    edtDiaBase: TDBEditNumero;
+    edtAposDia: TDBEditNumero;
+    edtMultiplo: TDBEditNumero;
+    gbxOpcoes: TGroupBox;
+    ckbImprimirParcelas: TDBCheckBox;
+    ckbEnderecoCompleto: TDBCheckBox;
+    pgcGruposClasses: TPageControl;
+    tstGrupos: TTabSheet;
+    tstClasses: TTabSheet;
+    dbgGrupos: TtecDBGrid;
+    dbgClasses: TtecDBGrid;
+    sbnIncluirClasses: TSpeedButton;
+    sbnExcluirClasses: TSpeedButton;
+    sbnIncluirGrupos: TSpeedButton;
+    sbnExcluirGrupos: TSpeedButton;
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    edtToleranciaParcelas: TDBEditNumero;
+    edtDesagio: TDBEditNumero;
+    sbnConsultaTipoRecebimento: TSpeedButton;
+    flkTipoRecebimento: TtecDBFindLookup;
+    dtxTipoRecebimento: TtecDBText;
+    ckbAlterarTipoRecebimento: TDBCheckBox;
+    ckbMesTrintaDias: TDBCheckBox;
+    gbxDataValidade: TGroupBox;
+    edtDataInicial: TDBEditData;
+    edtDataFinal: TDBEditData;
+    gbxQtdeParcelas: TGroupBox;
+    gbxIntervalo: TGroupBox;
+    lblDias1: TLabel;
+    gbxToleranciaParcela: TGroupBox;
+    lblDias2: TLabel;
+    gbxMinimoParcela: TGroupBox;
+    gbxPrazoEntrada: TGroupBox;
+    Label1: TLabel;
+    gbxToleranciaEntrada: TGroupBox;
+    Label2: TLabel;
+    gbxDataVencto: TGroupBox;
+    gbxPercentualEntrada: TGroupBox;
+    lblPercEntrada: TLabel;
+    gbxCompraMinima: TGroupBox;
+    gbxCompraMaximo: TGroupBox;
+    gbxDesctoMaximo: TGroupBox;
+    lblPercDescto: TLabel;
+    gbxCodigo: TGroupBox;
+    gbxDescricao: TGroupBox;
+    gbxAgente: TGroupBox;
+    gbxRecebimento: TGroupBox;
+    gbxDesagio: TGroupBox;
+    Label4: TLabel;
+    gbxJuros: TGroupBox;
+    Label3: TLabel;
+    gbxMultiplo: TGroupBox;
+    gbxAposDia: TGroupBox;
+    gbxDiaBase: TGroupBox;
+    ckbDisponivelSite: TDBCheckBox;
+    lblA: TLabel;
+    lblDeTrintaDias: TLabel;
+    edtDescricao: TDBEditTexto;
+    DBCheckBox1: TDBCheckBox;
+    ckbPermitirImpressaodoBoleto: TDBCheckBox;
+    DBCheckBox2: TDBCheckBox;
+    procedure sbnConsultaAgenteClick(Sender: TObject);
+    procedure dbgGruposEnter(Sender: TObject);
+    procedure dbgGridsExit(Sender: TObject);
+    procedure dbgClassesEnter(Sender: TObject);
+    procedure sbnExcluirGruposClick(Sender: TObject);
+    procedure sbnExcluirClassesClick(Sender: TObject);
+    procedure sbnIncluirGruposClick(Sender: TObject);
+    procedure edtQuantidadeParcelasExit(Sender: TObject);
+    procedure sbnIncluirClassesClick(Sender: TObject);
+    procedure edtVenctoEntradaExit(Sender: TObject);
+    procedure edfCodigoPlanoExit(Sender: TObject);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure sbnIncluirClick(Sender: TObject);
+    procedure sbnConsultaTipoRecebimentoClick(Sender: TObject);
+  protected
+    GridsComFoco: TtecGridsComFoco;
+    TipoConsulta: TtecCrediarioConsultaPlanoPagamento;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  InternoCancelar: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure PlanosAfterOpen(Sender: TObject);
+    function  TabelaDePesquisa: TZDataSet; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroPlanosPagamentos: TfrmCadastroPlanosPagamentos;
+
+implementation
+
+uses
+  //Biblio
+  biblio,
+  //repositorio
+  fmconsultaporcampo,
+  //Projeto
+  dmcadastroplanospagamentos, fmcadastrogruposplanopagamento,
+  fmcadastroclassesplanopagamento;
+
+{$R *.dfm}
+
+
+{ TfrmCadastroPlanosPagamentos }
+
+procedure TfrmCadastroPlanosPagamentos.actHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  edtDiaBase.ReadOnly:= (edtAposDia.Text <> '');
+  ckbAlterarVencimentos.ReadOnly:= edtDiaBase.Text <> '';
+end;
+
+constructor TfrmCadastroPlanosPagamentos.Create(AOwner: TComponent);
+begin
+   inherited;
+   dtmCadastroPlanosPagamentos := TdtmCadastroPlanosPagamentos.Create(Self);
+   dtmCadastroPlanosPagamentos.Abre(ctCrediarioTabelaPlanos);
+   DataSet := dtmCadastroPlanosPagamentos.TabelaPlanos;
+   dtmCadastroPlanosPagamentos.PlanosAfterOpen:= PlanosAfterOpen;
+
+   with fraComissao do begin
+      with lblComissao do begin
+         Left:= 65;
+         Font.Style := [];
+         Font.Height:= -9;
+      end;
+      with rgpTipoComissao do begin
+         Font.Style := [];
+         Font.Height:= -9;
+      end;
+   end;
+end;
+
+procedure TfrmCadastroPlanosPagamentos.dbgClassesEnter(Sender: TObject);
+begin
+  inherited;
+  GridsComFoco := gcfCLASSE
+end;
+
+procedure TfrmCadastroPlanosPagamentos.dbgGridsExit(Sender: TObject);
+begin
+  inherited;
+  GridsComFoco := gcfNENHUM;
+end;
+
+procedure TfrmCadastroPlanosPagamentos.dbgGruposEnter(Sender: TObject);
+begin
+  inherited;
+  GridsComFoco := gcfGRUPO;
+end;
+
+destructor TfrmCadastroPlanosPagamentos.Destroy;
+begin
+  dtmCadastroPlanosPagamentos := nil;
+  inherited;
+  frmCadastroPlanosPagamentos := nil;
+end;
+
+procedure TfrmCadastroPlanosPagamentos.edtQuantidadeParcelasExit(Sender: TObject);
+begin
+  inherited;
+//  if not dtmCadastroPlanosPagamentos.NumeroParcelasEhValido then
+//    edtQuantidadeParcelas.SetFocus;
+end;
+
+function TfrmCadastroPlanosPagamentos.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoConsulta of
+    cppTIPOPLANO: Result:= dtmCadastroPlanosPagamentos.ExisteTipoPlano(NomeCampo, Value);
+    cppAGENTES  : Result:= dtmCadastroPlanosPagamentos.ExisteAgente(NomeCampo, Value);
+    cppTIPOSRECEBIMENTOS: Result:= dtmCadastroPlanosPagamentos.ExisteTipoRecebimento(NomeCampo, Value);
+  else
+    Result:= dtmCadastroPlanosPagamentos.ExistePlano(NomeCampo, Value)
+  end
+end;
+
+function TfrmCadastroPlanosPagamentos.InternoCancelar: Boolean;
+begin
+  Result := inherited InternoCancelar;
+  if Result then begin
+    Result := dtmCadastroPlanosPagamentos.CancelarEdicao;
+    edtPrazoVenctoEntrada.Enabled := Trim(edtVenctoEntrada.Text) = '';
+  end;
+end;
+
+function TfrmCadastroPlanosPagamentos.InternoExcluir: Boolean;
+begin
+  Result := False;
+  if CtrlOn then begin
+    if GridsComFoco = gcfGRUPO then
+      Result := dtmCadastroPlanosPagamentos.ExcluirGrupoPlano
+    else if GridsComFoco = gcfCLASSE then
+      Result := dtmCadastroPlanosPagamentos.ExcluirClassePlano;
+  end else
+    Result := dtmCadastroPlanosPagamentos.ExcluirPlano
+end;
+
+function TfrmCadastroPlanosPagamentos.InternoGravar: Boolean;
+begin
+  Result := inherited InternoGravar; //NumeroParcelasEhValido;
+  if Result then
+    dtmCadastroPlanosPagamentos.GravarPlano
+end;
+
+function TfrmCadastroPlanosPagamentos.InternoIncluir: Boolean;
+begin
+  if CtrlOn then begin
+    if GridsComFoco = gcfGRUPO then begin
+      frmCadastroGrupoPlanoPagamento := TfrmCadastroGrupoPlanoPagamento.Create(frmCadastroGrupoPlanoPagamento);
+      try
+        dtmCadastroPlanosPagamentos.IncluirGrupoPlano;
+        frmCadastroGrupoPlanoPagamento.ShowModal;
+
+      finally
+        frmCadastroGrupoPlanoPagamento.free;
+        Result := True
+      end
+    end else if GridsComFoco = gcfCLASSE then begin
+      frmCadastroClassePlanoPagamento := TfrmCadastroClassePlanoPagamento.Create(frmCadastroClassePlanoPagamento);
+      try
+        dtmCadastroPlanosPagamentos.IncluirClassePlano;
+        frmCadastroClassePlanoPagamento.ShowModal;
+      finally
+        frmCadastroClassePlanoPagamento.free;
+        Result := True;
+      end
+    end else
+      Result := False
+  end else begin
+    Result := dtmCadastroPlanosPagamentos.IncluirPlano;
+    edtPrazoVenctoEntrada.Enabled := Trim(edtVenctoEntrada.Text) = ''
+  end
+end;
+
+function TfrmCadastroPlanosPagamentos.InternoPesquisar(Titulo: String): Integer;
+var
+  Tabela: Integer;
+  OK: Boolean;
+begin
+  Result:= mrNone;
+  TipoConsulta := cppNENHUM;
+  Tabela := ctCrediarioTabelaConsultaPlanos;
+  Ok := True;
+  if CtrlOn then begin
+    if dtmCadastroPlanosPagamentos.ReadOnly then
+      OK := False
+    else if ActiveControl = flkAgente then begin
+      TipoConsulta := cppAGENTES;
+      Tabela :=  ctCrediarioTabelaConsultaAgentes;
+      Titulo := ctAGENTES;
+    end
+    else if ActiveControl = flkTipoRecebimento then
+    begin
+      TipoConsulta := cppTIPOSRECEBIMENTOS;
+      Tabela :=  ctCrediarioTabelaTiposRecebimentos;
+      Titulo := ctTIPOSRECEBIMENTOS;
+    end else
+      Ok := False
+  end else begin
+    Titulo := ctPLANOSPAGAMENTOS
+  end;
+  if OK then begin
+    dtmCadastroPlanosPagamentos.Abre(Tabela);
+    Result:= inherited InternoPesquisar(Titulo);
+    if Result = mrOK then begin
+      dtmCadastroPlanosPagamentos.SelecionarPlano(TipoConsulta);
+      edtPrazoVenctoEntrada.Enabled := Trim(edtVenctoEntrada.Text) = ''
+    end;
+    dtmCadastroPlanosPagamentos.Fecha(Tabela);
+  end
+end;
+
+function TfrmCadastroPlanosPagamentos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result:= TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa:= True;
+end;
+
+procedure TfrmCadastroPlanosPagamentos.sbnConsultaAgenteClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkAgente, ctAGENTES)
+end;
+
+procedure TfrmCadastroPlanosPagamentos.sbnExcluirClassesClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgClasses.SetFocus;
+  InternoExcluir;
+  CtrlOn := False
+end;
+
+procedure TfrmCadastroPlanosPagamentos.sbnExcluirGruposClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgGrupos.SetFocus;
+  InternoExcluir;
+  CtrlOn := False
+end;
+
+procedure TfrmCadastroPlanosPagamentos.sbnIncluirGruposClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgGrupos.SetFocus;
+  InternoIncluir;
+  CtrlOn := False
+end;
+
+function TfrmCadastroPlanosPagamentos.TabelaDePesquisa: TZDataSet;
+begin
+  if CtrlOn then begin
+    if ActiveControl = flkAgente then
+      Result := dtmCadastroPlanosPagamentos.tabelaConsultaAgentes
+    else if ActiveControl = flkTipoRecebimento then
+      Result := dtmCadastroPlanosPagamentos.TabelaConsultaTiposRecebimentos
+    else
+      Result := nil
+  end else
+    Result := dtmCadastroPlanosPagamentos.TabelaConsultaPlanos
+end;
+
+procedure TfrmCadastroPlanosPagamentos.sbnIncluirClassesClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgClasses.SetFocus;
+  InternoIncluir;
+  CtrlOn := False
+end;
+
+procedure TfrmCadastroPlanosPagamentos.edtVenctoEntradaExit(Sender: TObject);
+begin
+  inherited;
+  edtPrazoVenctoEntrada.Enabled := Trim(edtVenctoEntrada.Text) = ''
+end;
+
+procedure TfrmCadastroPlanosPagamentos.edfCodigoPlanoExit(Sender: TObject);
+begin
+  inherited;
+  edtPrazoVenctoEntrada.Enabled := Trim(edtVenctoEntrada.Text) = '';
+end;
+
+procedure TfrmCadastroPlanosPagamentos.PlanosAfterOpen(Sender: TObject);
+begin
+  with dtmcadastroplanospagamentos do begin
+//    edtDescricao.ReadOnly          := ReadOnly;
+    edtDescricao.MaxLength         := 30;
+    edtQuantidadeParcelas.ReadOnly := ReadOnly;
+//    flkAgente.ReadOnly             := ReadOnly;
+//    edtAposDia.ReadOnly            := ReadOnly;
+//    edtDiaBase.ReadOnly            := ReadOnly;
+//    edtTaxaMensalJuros.ReadOnly    := ReadOnly;
+//    edtIntervaloParcelas.ReadOnly  := ReadOnly;
+//    edtDescontoMaximo.ReadOnly     := ReadOnly;
+//    edtPrazoVenctoEntrada.ReadOnly := ReadOnly;
+//    edtToleranciaEntrada.ReadOnly  := ReadOnly;
+//    edtVenctoEntrada.ReadOnly      := ReadOnly;
+//    edtPorcentagemEntrada.ReadOnly := ReadOnly;
+  end;
+end;
+
+procedure TfrmCadastroPlanosPagamentos.sbnIncluirClick(Sender: TObject);
+begin
+  inherited;
+  // não podemos deixar estes botões habilitados na inclusão...!!!!
+  // ocorrem erros graves, pois não há um registro master!
+  sbnIncluirGrupos.Enabled := False;
+  sbnExcluirGrupos.Enabled := False;
+  sbnIncluirClasses.Enabled := False;
+  sbnExcluirClasses.Enabled := False;
+end;
+
+procedure TfrmCadastroPlanosPagamentos.sbnConsultaTipoRecebimentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkTipoRecebimento, ctTIPOSRECEBIMENTOS);
+end;
+
+end.
+

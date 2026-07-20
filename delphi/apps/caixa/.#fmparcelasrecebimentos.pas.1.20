@@ -1,0 +1,279 @@
+unit fmparcelasrecebimentos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, fmajudabt, ComCtrls, Buttons, ExtCtrls, Grids, DBGrids,
+  cpdbgrid, biblio, ctconstantes,
+  dmautenticacoes, dmautenticacoesauxiliar, ToolWin, ActnList, clparametrossistema, clecf, cltefdiscado,
+  ACBrTEFDClass, dmbasico, db;
+
+type
+  TfrmParcelasRecebimentos = class(TfrmAjudaBt)
+    pnlFundoJanela: TPanel;
+    gbxRecebimentos: TGroupBox;
+    gbxParcelas: TGroupBox;
+    pnlBottom: TPanel;
+    gbxValorAutenticado: TGroupBox;
+    lblValorAutenticado: TLabel;
+    dbgParcelasAutenticadas: TtecDBGrid;
+    dbgRecebimentos: TtecDBGrid;
+    gbxValorTotalRecebimentos: TGroupBox;
+    lblValorTotalRecebimentos: TLabel;
+    sbnGravar: TSpeedButton;
+    Bevel1: TBevel;
+    Bevel2: TBevel;
+    sbnTEF: TSpeedButton;
+    actHabilitar: TActionList;
+    aclHabilitar: TAction;
+    procedure sbnGravarClick(Sender: TObject);
+    procedure dbgRecebimentosColExit(Sender: TObject);
+    procedure dbgRecebimentosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+    procedure aclHabilitarUpdate(Sender: TObject);
+    procedure sbnTEFClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+  private
+    { Private declarations }
+  protected
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AfterPostRecebimentos(Sender: TObject);
+  public
+{    procedure setDataModulo(dataModulo: TdtmAutenticacoes); ??}
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    { Public declarations }
+  end;
+
+var
+  frmParcelasRecebimentos: TfrmParcelasRecebimentos;
+
+implementation
+
+//uses SysInit;
+
+{$R *.dfm}
+
+{ TfrmParcelasRecebimentos }
+
+constructor TfrmParcelasRecebimentos.Create(AOwner: TComponent);
+begin
+  inherited;
+  with dtmautenticacoes do
+  begin
+    refazconsulta(qryAgentes, [], []);
+    refazconsulta(qryTiposRecebimentos, [], []);
+    refazconsulta(qryRecebimentos, [], []);
+    
+    qryRecebimentosTemp.readonly := false;
+
+    vValorPagtoDinheiro := 0;
+    vValorPagtoPIX := 0;
+    vValorPagtoCheque := 0;
+    vValorPagtoCartao := 0;
+    vValorPagtoConfirmado := 0;
+    vJaPossuiPagamentCartao_ou_PIXAprovado := false;
+    vNaoFiscalTEFJaIniciado := false;
+
+    sbnTEF.visible := (ParSistema.TipoTEF = tsDISCADO)
+                      and assigned(tefpadrao)
+                      and TEFPadrao.Inicializado(gpTefDial)
+                      and (tipoAutenticacao =  ctCaixaParcelasAberto);
+                      
+    if sbntef.visible then
+      tefpadrao.totalpago := 0;                      
+
+
+
+  end;
+end;
+
+destructor TfrmParcelasRecebimentos.Destroy;
+begin
+  inherited;
+  frmParcelasRecebimentos := nil;
+end;
+
+{
+procedure TfrmParcelasRecebimentos.setDataModulo(
+  dataModulo: TdtmAutenticacoes);
+begin
+  dtmautenticacoes := DataModulo;
+end;
+}
+
+procedure TfrmParcelasRecebimentos.sbnGravarClick(Sender: TObject);
+begin
+  inherited;
+  if dtmautenticacoes.NaoExistemAlteracoesemParcelaseContratos then
+  begin
+
+    sbnTEF.Enabled := false;
+    sbnGravar.Enabled := false;
+
+    dtmautenticacoes.GravarRecebimento;
+    if lblValorAutenticado.Caption = lblValorTotalRecebimentos.Caption then
+    begin
+      if dtmautenticacoes.GravarRecebimentos(false) then
+        ModalResult := mrOk
+      else
+      begin
+        if dtmAutenticacoes.Excecao then
+          ModalResult := mrCancel
+        else
+          dbgRecebimentos.SetFocus;
+      end;
+    end
+    else
+    begin
+      MensagemAviso(ctRECEBIMENTOSDIFEREAUTENTICADO);
+      dbgRecebimentos.SetFocus;
+    end;
+
+    sbnTEF.Enabled := true;
+    sbnGravar.Enabled := true;
+  end
+  else
+    ModalResult := mrCancel;
+
+end;
+
+procedure TfrmParcelasRecebimentos.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  if (activecontrol = dbgRecebimentos)
+     and (key = vk_escape)
+     and (dtmautenticacoes.qryRecebimentosTemp.State in [dsedit, dsinsert]) then
+    dtmautenticacoes.qryRecebimentosTemp.cancel
+  else
+  begin
+    inherited;
+    if (Key = VK_F5) and sbnGravar.Enabled then
+      sbnGravarClick(nil)
+    else
+    if (Key = VK_F9) and sbnTEF.Enabled and sbntef.Visible then
+      sbnTEFClick(nil);
+  end;
+end;
+
+procedure TfrmParcelasRecebimentos.AfterPostRecebimentos(Sender: TObject);
+begin
+  lblValorTotalRecebimentos.Caption := CurrToStrF(dtmautenticacoes.TotalRecebimentos,ffCurrency,2);
+end;
+
+procedure TfrmParcelasRecebimentos.dbgRecebimentosColExit(Sender: TObject);
+begin
+  inherited;
+//  dtmautenticacoes.GravarRecebimento;
+end;
+
+procedure TfrmParcelasRecebimentos.dbgRecebimentosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if TeclaEnterOuReturn(Key) then
+  begin
+//    dtmautenticacoes.GravarRecebimento;
+    if dbgRecebimentos.SelectedField = dtmautenticacoes.qryRecebimentosTempvalorlancto then
+      dbgRecebimentos.SelectedField := dtmautenticacoes.qryRecebimentosTemptiporec
+    else
+    if dbgRecebimentos.SelectedField = dtmautenticacoes.qryRecebimentosTemptiporec then
+      AbrirLookup;
+  end;
+
+end;
+
+procedure TfrmParcelasRecebimentos.FormShow(Sender: TObject);
+begin
+  inherited;
+  dtmautenticacoes.AfterPostRecebimentos := nil;
+  dtmautenticacoes.MontarRecebimentosParcelasAberto(False);
+  dtmautenticacoes.AfterPostRecebimentos := AfterPostRecebimentos;
+  dtmautenticacoes.qryRecebimentosTempAfterPost(nil);
+  lblValorAutenticado.Caption := CurrToStrF(dtmautenticacoes.TotalMarcados,ffCurrency,2);
+end;
+
+procedure TfrmParcelasRecebimentos.aclHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  sbntef.Enabled := dtmautenticacoes.ExisteRecebimentoDebCred_e_PIX;
+  sbnGravar.Enabled := not dtmautenticacoes.vJaPossuiPagamentCartao_ou_PIXAprovado;
+end;
+
+procedure TfrmParcelasRecebimentos.sbnTEFClick(Sender: TObject);
+begin
+  inherited;
+
+  if dtmautenticacoes.NaoExistemAlteracoesemParcelaseContratos then
+  begin
+
+    sbnTEF.Enabled := false;
+    sbnGravar.Enabled := false;
+  //  dtmautenticacoes.GravarRecebimento;
+
+    if lblValorAutenticado.Caption = lblValorTotalRecebimentos.Caption then
+    begin
+      if dtmautenticacoes.GravarRecebimentos(true) then
+        ModalResult := mrOk
+      else
+      begin
+        if dtmAutenticacoes.Excecao then
+          ModalResult := mrCancel
+        else
+          dbgRecebimentos.SetFocus;
+      end;
+    end
+    else
+    begin
+      MensagemAviso(ctRECEBIMENTOSDIFEREAUTENTICADO);
+      dbgRecebimentos.SetFocus;
+    end;
+
+    sbnTEF.Enabled := true;
+    sbnGravar.Enabled := true;
+  end
+  else
+    ModalResult := mrCancel;
+
+
+end;
+
+procedure TfrmParcelasRecebimentos.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+  if  ModalResult = mrOk then
+    CanClose := True
+  else
+  if (ModalResult = mrCancel) and dtmAutenticacoes.Excecao then
+    Canclose := True
+  else
+    CanClose := Truncar(dtmautenticacoes.vValorPagtoConfirmado, 2) = truncar(dtmautenticacoes.TotalMarcados, 2);
+
+  if not CanClose then
+  begin
+    if MensagemSelecionaOpcao('Os valores dos recebimentos não estão fechando com o total autenticado. Deseja cancelar a operação?') = smbYes then
+    begin
+      case dtmautenticacoes.tipoAutenticacao of
+        ctCaixaParcelasAberto: dtmautenticacoes.verificarSituacaoImpressaoECF_e_TEF;
+      end;
+      Canclose := true;
+    end;
+  end;
+
+  if CanClose then
+  begin
+    case dtmautenticacoes.tipoAutenticacao of
+      ctCaixaParcelasAberto:
+      begin
+        if assigned(TefPadrao) then
+          tefpadrao.totalpago := 0;
+      end;
+    end  
+  end;
+
+end;
+
+end.

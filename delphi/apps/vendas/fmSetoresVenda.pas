@@ -1,0 +1,138 @@
+unit fmSetoresVenda;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, dmSetoresVenda,
+  frconsultacontabil, frconsultacodigocontabil, db,
+  frconsulta, frconsultacodigo,
+  ctconstantes, DBCtrls, clparametrossistema,
+  cptexto, Mask, cpdbfindcontrols, biblio, ToolWin, Windows, Grids,
+  DBGrids, cpdbgrid {Qete,};
+
+type
+  TfrmSetoresVenda = class(TFrmCadastroPadrao)
+    gbxCodigo: TGroupBox;
+    edfCodigo: TtecDbEditFind;
+    gbxDescricao: TGroupBox;
+    edtDescricao: TDBEditTexto;
+    procedure sbnProcurarClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    ConsultaSetoresVenda: TfraConsultaCodigo;
+
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AbrirSetoresVenda(Found: Boolean);
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    { Public declarations }
+  end;
+
+var
+  frmSetoresVenda: TfrmSetoresVenda;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmSetoresVenda }
+
+procedure TfrmSetoresVenda.AbrirSetoresVenda(Found: Boolean);
+begin
+  edfCodigo.Text := ConsultaSetoresVenda.qryConsultaSetoresVendacodigo.AsString;
+  edfCodigo.Exist;
+{
+  with dtmSetoresVenda do
+     refazconsulta(qrySetoresVenda,[0], [ConsultaSetoresVenda.ValorSelecionado]);
+     }
+end;
+
+constructor TfrmSetoresVenda.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmSetoresVenda := TdtmSetoresVenda.Create(Self);
+  DataSet := dtmSetoresVenda.qrySetoresVenda;
+
+  ConsultaSetoresVenda := TfraConsultaCodigo.Create(self);
+  ConsultaSetoresVenda.edfCodigo.DataSource := dtmSetoresVenda.dsrSetoresVenda;
+  ConsultaSetoresVenda.edfCodigo.DataField := 'codigo';
+  ConsultaSetoresVenda.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaSetoresVenda.AbrirTabelaProcura := false;
+  ConsultaSetoresVenda.TipoPesquisa := pesSetoresVenda;
+  ConsultaSetoresVenda.OnFound := AbrirSetoresVenda;
+  ConsultaSetoresVenda.Name := 'fraConsultaSetoresVenda';
+
+end;
+
+destructor TfrmSetoresVenda.Destroy;
+begin
+  dtmSetoresVenda.qrySetoresVenda.close;
+  dtmSetoresVenda := nil;
+  inherited;
+end;
+
+function TfrmSetoresVenda.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+      Result := dtmSetoresVenda.ExcluirSetoresVenda;
+  end;
+
+end;
+
+function TfrmSetoresVenda.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    Result := dtmSetoresVenda.GravarSetoresVenda;
+end;
+
+function TfrmSetoresVenda.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmSetoresVenda.IncluirSetoresVenda;
+  end;
+
+end;
+
+procedure TfrmSetoresVenda.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key = VK_F9) then
+      if sbnProcurar.Enabled then
+        if ConsultaSetoresVenda.InternoPesquisar('Setores Venda') = mrOK then
+          edfCodigo.SetFocus;
+  end;
+
+end;
+
+procedure TfrmSetoresVenda.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaSetoresVenda.InternoPesquisar('Setores Venda');
+  edfCodigo.SetFocus;
+  edfCodigo.SelectAll;
+
+end;
+
+
+
+
+
+
+
+
+
+end.

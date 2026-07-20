@@ -1,0 +1,536 @@
+unit fmparcelasrecebimentosfrentecaixa;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, fmajudabt, ComCtrls, Buttons, ExtCtrls, Grids, DBGrids,
+  cpdbgrid, biblio, ctconstantes,
+  ToolWin, ActnList, clparametrossistema, clecf, cltefdiscado,
+  ACBrTEFDClass, dmfrentecaixa, dmbasico, db, cpnumero, StrUtils,
+  fmVisualizarSaldocashback, DBCtrls, Mask, cpdbtext;
+
+type
+  TfrmParcelasRecebimentosFrenteCaixa = class(TfrmAjudaBt)
+    pnlFundoJanela: TPanel;
+    gbxRecebimentos: TGroupBox;
+    pnlBottom: TPanel;
+    gbxValorAutenticado: TGroupBox;
+    dbgRecebimentos: TtecDBGrid;
+    gbxValorTotalRecebimentos: TGroupBox;
+    sbnGravar: TSpeedButton;
+    Bevel1: TBevel;
+    sbnTEF: TSpeedButton;
+    actHabilitar: TActionList;
+    aclHabilitar: TAction;
+    rgbTipoDesconto: TDBRadioGroup;
+    rgbTipoAcrescimo: TDBRadioGroup;
+    gbxCheques: TGroupBox;
+    Bevel2: TBevel;
+    dbgCheques: TtecDBGrid;
+    lblSaldoCheque: TLabel;
+    edtSaldoCheques: TEditNumero;
+    PanelCashBack: TPanel;
+    sbnVisualizardesconto_cashback: TStaticText;
+    edtdesconto_cashback: TDBEditNumero;
+    sbnVisualizardesconto_cashback_Gerado: TStaticText;
+    edtdesconto_cashbackGerado: TDBEditNumero;
+    StaticText1: TStaticText;
+    edtDesconto: TDBEditNumero;
+    StaticText2: TStaticText;
+    edtAcrescimo: TDBEditNumero;
+    edtvalorareceber: TDBEditNumero;
+    edttotalrecebimentos: TDBEditNumero;
+    function ValidarFechamentoValoresDigitados: Boolean ;
+    procedure sbnGravarClick(Sender: TObject);
+    procedure dbgRecebimentosColExit(Sender: TObject);
+    procedure dbgRecebimentosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+    procedure aclHabilitarUpdate(Sender: TObject);
+    procedure sbnTEFClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure edtDescontoExit(Sender: TObject);
+    procedure edtAcrescimoExit(Sender: TObject);
+    procedure edtDescontoEnter(Sender: TObject);
+    procedure edtAcrescimoEnter(Sender: TObject);
+    procedure rgbTipoDescontoEnter(Sender: TObject);
+    procedure rgbTipoAcrescimoEnter(Sender: TObject);
+    procedure sbnVisualizardesconto_cashbackClick(Sender: TObject);
+    procedure edtdesconto_cashbackExit(Sender: TObject);
+    procedure edtdesconto_cashbackEnter(Sender: TObject);
+  private
+    { Private declarations }
+
+  protected
+    vPermitirFecharJanela : Boolean;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AfterPostRecebimentos(Sender: TObject);
+    function VerificarDesconto_CashBack(zerar,Atribuir: Boolean): Boolean; overload;
+    function VerificarDesconto_CashBack: Boolean; overload;
+  public
+//    procedure setDataModulo(dataModulo: Tdtmfrentecaixa);
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    { Public declarations }
+  end;
+
+var
+  frmParcelasRecebimentosFrenteCaixa: TfrmParcelasRecebimentosFrenteCaixa;
+
+implementation
+
+uses Math;
+
+//uses SysInit;
+
+{$R *.dfm}
+
+{ TfrmParcelasRecebimentosFrenteCaixa }
+
+constructor TfrmParcelasRecebimentosFrenteCaixa.Create(AOwner: TComponent);
+begin
+  inherited;
+  sbnTEF.visible := (ParSistema.TipoTEF = tsDISCADO)
+                    and assigned(tefpadrao)
+                    and TEFPadrao.Inicializado(gpTefDial);
+
+  if sbntef.visible then
+    tefpadrao.totalpago := 0;
+
+    {
+  if parsistema.TipoPadraoDesconto = 'R$' then
+  begin
+    rgbTipoDesconto.ItemIndex := 1;
+    rgbTipoAcrescimo.ItemIndex := 1;
+  end
+  else
+  if parsistema.TipoPadraoDesconto = '%' then
+  begin
+    rgbTipoAcrescimo.ItemIndex := 0;
+    rgbTipoDesconto.ItemIndex := 0;
+  end;
+  }
+
+end;
+
+destructor TfrmParcelasRecebimentosFrenteCaixa.Destroy;
+begin
+  inherited;
+  frmParcelasRecebimentosFrenteCaixa := nil;
+end;
+
+{
+procedure TfrmParcelasRecebimentosFrenteCaixa.setDataModulo(
+  dataModulo: Tdtmfrentecaixa);
+begin
+  dtmfrentecaixa := DataModulo;
+end;
+}
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.sbnGravarClick(Sender: TObject);
+begin
+  inherited;
+  edtDescontoExit(nil);
+  edtAcrescimoExit(nil);
+  sbnTEF.Enabled := false;
+  sbnGravar.Enabled := false;
+  dtmfrentecaixa.GravarRecebimento;
+  if ValidarFechamentoValoresDigitados then
+  begin
+    if dtmfrentecaixa.GravarRecebimentos(false) then
+    begin
+      ModalResult := mrOk;
+      dtmfrentecaixa.ImprimirSaldoFrentedeCaixa;
+    end
+    else
+    begin
+      if dtmFrenteCaixa.Excecao then
+      begin
+        vPermitirFecharJanela := true;
+        modalresult := mrcancel;
+      end
+      else
+        dbgRecebimentos.SetFocus;
+    end;
+    sbnTEF.Enabled := true;
+    sbnGravar.Enabled := true;
+  end;
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.sbnTEFClick(Sender: TObject);
+begin
+  inherited;
+  edtDescontoExit(nil);
+  edtAcrescimoExit(nil);
+  sbnTEF.Enabled := false;
+  sbnGravar.Enabled := false;
+  dtmfrentecaixa.GravarRecebimento;
+  if ValidarFechamentoValoresDigitados then
+  begin
+    if dtmfrentecaixa.GravarRecebimentos(true) then
+      ModalResult := mrOk
+    else
+    begin
+      if dtmFrenteCaixa.Excecao then
+      begin
+        vPermitirFecharJanela := true;
+        modalresult := mrcancel;
+      end
+      else
+        dbgRecebimentos.SetFocus;
+    end;
+    sbnTEF.Enabled := true;
+    sbnGravar.Enabled := true;
+  end;
+end;
+
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  if (activecontrol = dbgRecebimentos)
+     and (key = vk_escape)
+     and (dtmFrenteCaixa.qryRecebimentosTemp.State in [dsedit, dsinsert]) then
+    dtmFrenteCaixa.qryRecebimentosTemp.cancel
+  else
+  {
+  if (activecontrol = dbgRecebimentos)
+     and (dbgRecebimentos.SelectedField = dtmFrenteCaixa.qryRecebimentosTemptiporec) then
+    AbrirLookupTiposRecebimentos 
+  else                                       }
+  begin
+    inherited;
+    if (Key = VK_F5) and sbnGravar.Enabled then
+      sbnGravarClick(nil)
+    else
+    if (Key = VK_F9) and sbnTEF.Enabled then
+      sbnTEFClick(nil);
+  end;
+
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.AfterPostRecebimentos(Sender: TObject);
+begin
+//  lblValorTotalRecebimentos.Caption :=  CurrToStrF(dtmfrentecaixa.TotalRecebimentos,ffCurrency,2);
+  if dtmFrenteCaixa.qryRecebimentosTemptipotiporecebimento.AsString='H' then
+    edtSaldoCheques.Value := dtmFrenteCaixa.qryRecebimentosTempvalorlancto.AsCurrency -
+                             dtmFrenteCaixa.vTotalValoresCheques
+  else
+    edtSaldoCheques.Value:= 0;
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.dbgRecebimentosColExit(Sender: TObject);
+begin
+  inherited;
+//  dtmfrentecaixa.GravarRecebimento;
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.dbgRecebimentosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if TeclaEnterOuReturn(Key) then
+  begin
+//    dtmfrentecaixa.GravarRecebimento;
+    if dbgRecebimentos.SelectedField = dtmFrenteCaixa.qryRecebimentosTempvalorlancto then
+      dbgRecebimentos.SelectedField := dtmFrenteCaixa.qryRecebimentosTemptiporec
+    else
+    if dbgRecebimentos.SelectedField = dtmFrenteCaixa.qryRecebimentosTemptiporec then
+      AbrirLookup;
+  end;
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.FormShow(Sender: TObject);
+begin
+  inherited;
+  dtmfrentecaixa.AfterPostRecebimentos := AfterPostRecebimentos;
+  dtmfrentecaixa.MontarRecebimentosParcelasAberto;
+//  lblValorAutenticado.Caption := CurrToStrF(dtmfrentecaixa.ValorAReceber,ffCurrency,2);
+//  lblValorTotalRecebimentos.Caption :=  CurrToStrF(dtmfrentecaixa.TotalRecebimentos,ffCurrency,2);
+  dtmFrenteCaixa.AfterAlteracaoValores(nil);
+  edtDesconto.SetFocus;
+  VerificarDesconto_CashBack(false,true);
+  
+
+
+
+
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.aclHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  sbntef.Enabled := dtmfrentecaixa.ExisteRecebimentoDebCred_e_PIX;
+  sbnGravar.Enabled := not dtmfrentecaixa.vJaPossuiPagamentCartao_ou_PIXAprovado;
+
+  edtDesconto.Enabled      := not dtmfrentecaixa.vJaPossuiPagamentCartao_ou_PIXAprovado;
+  rgbTipoDesconto.Enabled  := not dtmfrentecaixa.vJaPossuiPagamentCartao_ou_PIXAprovado;
+
+  edtAcrescimo.Enabled     := not dtmfrentecaixa.vJaPossuiPagamentCartao_ou_PIXAprovado;
+  rgbTipoAcrescimo.Enabled := not dtmfrentecaixa.vJaPossuiPagamentCartao_ou_PIXAprovado;
+
+end;
+
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+
+  if not vPermitirFecharJanela then
+  begin
+    CanClose := Truncar(dtmfrentecaixa.vValorPagtoConfirmado, 2) >= truncar(dtmfrentecaixa.ValorAReceber, 2);
+    if not CanClose then
+    begin
+      if MensagemSelecionaOpcao('Os valores dos recebimentos não estão fechando com o total autenticado. Deseja cancelar a operação?') = smbYes then
+      begin
+        dtmfrentecaixa.verificarSituacaoImpressaoECF_e_TEF;
+        dtmfrentecaixa.IniciarTabelaRecebimentoTemp;
+        Canclose := true;
+      end;
+    end;
+  end
+  else
+    CanClose := true;
+
+  if CanClose then
+    if assigned(TefPadrao) then
+      tefpadrao.totalpago := 0;
+
+  vPermitirFecharJanela := False;
+
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.edtDescontoExit(
+  Sender: TObject);
+begin
+  inherited;
+  if (dtmFrenteCaixa.vDescontoAntesAlterar <> edtDesconto.ValorSemFormatacao) or
+     (dtmFrenteCaixa.vTipoDescontoAntesAlterar <> rgbTipoDesconto.Items[rgbTipoDesconto.ItemIndex]) then
+  begin
+    dtmFrenteCaixa.vDescontoAntesAlterar := edtDesconto.ValorSemFormatacao;
+    dtmFrenteCaixa.vTipoDescontoAntesAlterar := rgbTipoDesconto.Items[rgbTipoDesconto.ItemIndex];
+    dtmFrenteCaixa.AdicionarDesconto(edtDesconto.ValorSemFormatacao,ifthen(rgbTipoDesconto.ItemIndex=0,'P','V'));
+//    lblValorAutenticado.Caption := CurrToStrF(dtmfrentecaixa.ValorAReceber,ffCurrency,2);
+  end;
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.edtAcrescimoExit(
+  Sender: TObject);
+begin
+  inherited;
+  if (dtmFrenteCaixa.vAcrescimoAntesAlterar <> edtAcrescimo.ValorSemFormatacao) or
+     (dtmFrenteCaixa.vTipoAcrescimoAntesAlterar <> rgbTipoAcrescimo.Items[rgbTipoAcrescimo.ItemIndex]) then
+  begin
+    dtmFrenteCaixa.vAcrescimoAntesAlterar := edtAcrescimo.ValorSemFormatacao;
+    dtmFrenteCaixa.vTipoAcrescimoAntesAlterar := rgbTipoAcrescimo.Items[rgbTipoAcrescimo.ItemIndex];
+    dtmFrenteCaixa.AdicionarAcrescimo(edtAcrescimo.ValorSemFormatacao,ifthen(rgbTipoAcrescimo.ItemIndex=0,'P','V'));
+
+//    lblValorAutenticado.Caption := CurrToStrF(dtmfrentecaixa.ValorAReceber,ffCurrency,2);
+  end;
+end;
+
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.edtDescontoEnter(
+  Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.vDescontoAntesAlterar := edtDesconto.ValorSemFormatacao;
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.edtAcrescimoEnter(
+  Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.vAcrescimoAntesAlterar := edtAcrescimo.ValorSemFormatacao;
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.rgbTipoDescontoEnter(
+  Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.vTipoDescontoAntesAlterar := rgbTipoDesconto.Items[rgbTipoDesconto.ItemIndex];
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.rgbTipoAcrescimoEnter(
+  Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.vTipoAcrescimoAntesAlterar := rgbTipoAcrescimo.Items[rgbTipoAcrescimo.ItemIndex];
+end;
+
+function TfrmParcelasRecebimentosFrenteCaixa.ValidarFechamentoValoresDigitados: Boolean;
+var
+  vNovoValorDesconto, vNovoPercentualDesconto : Currency;
+  OpcaoSelecionada : TMessageButton;
+
+begin
+  with dtmfrentecaixa do
+  begin
+    result := true;
+    OpcaoSelecionada := smbIgnore;
+
+    if (TotalRecebimentos < (TotalPagar + ValorAcrescimo - ValorTotalDescontoItem - desconto_cashback)) then
+    begin
+
+      result := False;
+      vNovoPercentualDesconto := 100 - PercentualDoValorSobreTotal((TotalPagar+ValorAcrescimo-ValorTotalDescontoItem-desconto_cashback),TotalRecebimentos);
+      vNovoValorDesconto := ((TotalPagar+ValorAcrescimo-ValorTotalDescontoItem-desconto_cashback) - TotalRecebimentos);
+
+      if (vTipoDescontoAntesAlterar = '%') and (vNovoPercentualDesconto <> vDescontoAntesAlterar) then
+      begin
+
+        OpcaoSelecionada := MensagemSelecionaOpcao(format('A soma dos recebimentos R$ %s difere do valor da venda de R$ %s. '+CHR(13)+
+                                  'Atribuir a diferença ao percentual de desconto? ',
+                                       [formatfloat('###,##0.00', TotalRecebimentos),
+                                        formatfloat('###,##0.00', (TotalPagar-ValorDesconto+ValorAcrescimo-ValorTotalDescontoItem-desconto_cashback))]));
+
+        result :=  (OpcaoSelecionada in [smbYes, smbNo]);
+
+      end
+      else
+      if (vTipoDescontoAntesAlterar = 'R$') and (vNovoValorDesconto <> vDescontoAntesAlterar) then
+      begin
+        OpcaoSelecionada := MensagemSelecionaOpcao(format('A soma dos recebimentos R$ %s difere do valor da venda de R$ %s. '+chr(13)+
+                                       'Atribuir a diferença ao valor de desconto? ',
+                                       [formatfloat('###,##0.00', TotalRecebimentos),
+                                        formatfloat('###,##0.00', (TotalPagar-ValorDesconto+ValorAcrescimo-ValorTotalDescontoItem-desconto_cashback))]));
+        result :=  (OpcaoSelecionada in [smbYes, smbNo]);
+      end
+      else
+        result := true;
+
+
+      if result or (OpcaoSelecionada = smbYes) then
+      begin
+        if parsistema.PercentualDescontoFrenteCaixa <> 0 then
+          if vNovoPercentualDesconto > parsistema.PercentualDescontoFrenteCaixa  then
+          begin
+            result := False;
+            MensagemAviso(format('Foi concedido um desconto de %s%s.'+chr(13)+
+                                 'Ultrapassando o desconto máximo de %s%s ',
+               [CurrToStr(vNovoPercentualDesconto), '%', floattostr(parsistema.PercentualDescontoFrenteCaixa), '%']));
+          end;
+
+        if result then
+        begin
+
+          if (vTipoDescontoAntesAlterar = '%') then
+          begin
+            dtmfrentecaixa.Desconto := vNovoPercentualDesconto;
+            vDescontoAntesAlterar := vNovoPercentualDesconto
+          end
+          else
+          begin
+            dtmfrentecaixa.Desconto := vNovoValorDesconto;
+            vDescontoAntesAlterar := vNovoValorDesconto;
+          end;
+
+          AdicionarDesconto(vDescontoAntesAlterar,ifthen(rgbTipoDesconto.ItemIndex=0,'P','V'));
+//          lblValorAutenticado.Caption := CurrToStrF(ValorAReceber,ffCurrency,2);
+        end;
+      end;
+
+    end;
+  end;
+end;
+
+function TfrmParcelasRecebimentosFrenteCaixa.VerificarDesconto_CashBack(
+  zerar, Atribuir: Boolean): Boolean;
+begin
+  result := true;
+  dtmfrentecaixa.AbrirDadosCashBack;
+  if dtmfrentecaixa.ValidarDesconto_CashBack then
+  begin
+    if ((dtmfrentecaixa.SaldoDesconto_CashbackAtual<>0) and
+        (dtmfrentecaixa.desconto_cashback=0)) or
+
+       ((dtmfrentecaixa.SaldoDesconto_CashbackAtual>0) and
+        (dtmfrentecaixa.desconto_cashback < dtmfrentecaixa.SaldoDesconto_CashbackAtual) and
+        (dtmfrentecaixa.desconto_cashback < ({dtmCadastroContratos.ValorVista} dtmfrentecaixa.ValorAReceber + dtmfrentecaixa.desconto_cashback)) and
+        (dtmfrentecaixa.ValorAReceber {dtmCadastroContratos.TotalContrato} > 0.01)) then
+    begin
+      if dtmfrentecaixa.SugerirDesconto_Cashback(true,atribuir) then
+      begin
+//        edtdesconto_cashback.text := floattostr(dtmFrenteCaixa.desconto_cashback);
+        result := atribuir;
+      end
+    end;
+  end
+  else
+  begin
+   if zerar then
+     dtmfrentecaixa.Desconto_Cashback := 0;
+//     edtdesconto_cashback.text := FormatarValor(0,2);
+   result := false;
+  end;
+
+//  edtdesconto_cashbackGerado.text := floattostr(dtmFrenteCaixa.desconto_cashbackGerado);
+
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.sbnVisualizardesconto_cashbackClick(
+  Sender: TObject);
+begin
+  inherited;
+
+  dtmfrentecaixa.AbrirDadosCashBack;
+  frmVisualizarSaldocashback := TfrmVisualizarSaldocashback.Create(frmVisualizarSaldocashback,
+                             dtmfrentecaixa.TabelaSaldoCashBack, nil);
+  frmVisualizarSaldocashback.ShowModal;
+  if frmVisualizarSaldocashback.ModalResult = mrOK then
+  begin
+    begin
+      if dtmfrentecaixa.desconto_cashback <>
+         dtmfrentecaixa.Saldodesconto_cashbackAtual then
+      begin
+        dtmfrentecaixa.SugerirDesconto_Cashback(false,true);
+//        edtdesconto_cashback.text := floattostr(dtmFrenteCaixa.desconto_cashback);
+//        dtmCadastroContratos.CalcularValorAVista;
+//        dtmCadastroContratos.PrecisaReCalcularParcelas := true;
+      end;
+    end;
+  end;
+  frmVisualizarSaldocashback.Free;
+  Application.BringToFront;
+
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.edtdesconto_cashbackExit(
+  Sender: TObject);
+begin
+  inherited;
+  VerificarDesconto_CashBack;
+end;
+
+function TfrmParcelasRecebimentosFrenteCaixa.VerificarDesconto_CashBack: Boolean;
+begin
+  with dtmfrentecaixa do
+  begin
+    if (edtdesconto_cashback.ValorSemFormatacao > desconto_cashbackAnt) or
+       (edtdesconto_cashback.ValorSemFormatacao > ValorAReceber) then   {Gedovar ...verificar}
+    begin
+      desconto_cashback := edtdesconto_cashback.ValorSemFormatacao;
+      if not ValidarDesconto_CashBack(true) then
+      begin
+        desconto_cashback := desconto_cashbackAnt;
+        edtdesconto_cashback.SetFocus;
+        edtdesconto_cashback.SelectAll;
+      end;
+    end
+    else
+      desconto_cashback := edtdesconto_cashback.ValorSemFormatacao;
+  end;
+//  edtdesconto_cashback.text := floattostr(dtmFrenteCaixa.desconto_cashback);
+//  lblValorAutenticado.Caption := CurrToStrF(dtmfrentecaixa.ValorAReceber,ffCurrency,2);
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.edtdesconto_cashbackEnter(
+  Sender: TObject);
+begin
+  inherited;
+  dtmfrentecaixa.desconto_cashbackAnt := dtmfrentecaixa.desconto_cashback;
+end;
+
+end.

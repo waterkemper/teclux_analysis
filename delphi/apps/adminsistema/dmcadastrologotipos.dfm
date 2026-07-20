@@ -1,0 +1,177 @@
+inherited dtmCadastroLogotipos: TdtmCadastroLogotipos
+  OldCreateOrder = False
+  Left = 275
+  Top = 316
+  Height = 308
+  Width = 499
+  object dsrLogotipos: TtecDataSource
+    DataSet = qryLogotipos
+    Left = 232
+    Top = 80
+  end
+  object qryConsultaFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT codigo, nome'
+      'FROM filiais'
+      'ORDER BY UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 131
+    Top = 20
+    object qryConsultaFiliaisnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+    object qryConsultaFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+    end
+  end
+  object dsrConsultaFiliais: TtecDataSource
+    DataSet = qryConsultaFiliais
+    Left = 136
+    Top = 80
+  end
+  object qryProcuraFilial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  Codigo,'
+      '               Nome'
+      'From     filiais'
+      'Where  Codigo =:Codigo')
+    RequestLive = False
+    Active = True
+    Left = 35
+    Top = 20
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFilialcodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraFilialnome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+  end
+  object dsrProcuraFilial: TtecDataSource
+    DataSet = qryProcuraFilial
+    Left = 35
+    Top = 83
+  end
+  object qryLogotipos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryLogotiposAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select  filial, '
+      '            descricao, '
+      '            nome,'
+      '            tipo'
+      'from logotipos'
+      'order by filial')
+    RequestLive = True
+    Left = 232
+    Top = 16
+    object qryLogotiposfilial: TIntegerField
+      DefaultExpression = '0'
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryLogotiposdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 25
+    end
+    object qryLogotiposnome: TStringField
+      DisplayLabel = 'Arquivo'
+      DisplayWidth = 40
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+    object qryLogotipostipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+  end
+  object qryConsultaLogotipos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryLogotiposAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select  coalesce(filial,0) as filial, '
+      '            descricao, '
+      '            nome'
+      'from logotipos'
+      'where coalesce(filial,0)=:filial')
+    RequestLive = False
+    Left = 336
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaLogotiposfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryConsultaLogotiposdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 40
+    end
+    object qryConsultaLogotiposnome: TStringField
+      FieldName = 'nome'
+      Size = 15
+    end
+  end
+  object dsrProcuraLogotipos: TtecDataSource
+    DataSet = qryConsultaLogotipos
+    Left = 336
+    Top = 80
+  end
+end

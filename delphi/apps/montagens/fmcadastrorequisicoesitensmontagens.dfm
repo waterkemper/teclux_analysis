@@ -1,0 +1,524 @@
+inherited frmcadastrorequisicoesitensmontagens: Tfrmcadastrorequisicoesitensmontagens
+  Left = 463
+  Top = 292
+  ActiveControl = flkProduto
+  Caption = 'Cadastro de Itens de Requisic'#245'es de Montagens'
+  ClientHeight = 329
+  ClientWidth = 658
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited pnlBarra: TPanel
+    Top = 53
+    Width = 658
+    Height = 276
+    Align = alClient
+    BorderWidth = 3
+    Visible = True
+    inherited bvlBotoesEd: TBevel
+      Left = 428
+      Top = -36
+    end
+    object gbxRequisicoesItens: TGroupBox
+      Left = 4
+      Top = 4
+      Width = 650
+      Height = 268
+      Align = alClient
+      TabOrder = 0
+      object sbnProcurarProduto: TSpeedButton
+        Left = 244
+        Top = 8
+        Width = 23
+        Height = 23
+        Hint = 'Procurar Produto'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDC800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC800000800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000
+          00800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000
+          00800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000008000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+          FFFFDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDC0000FF800000800000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDC
+          DCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFDCDCDCDCDCDC7F
+          7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFFFFFFFDCDCDCDCDCDCDC
+          DCDCFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA858800000DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FC3C3C3FFFFFFFFFFFF7F
+          7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = sbnProcurarProdutoClick
+      end
+      object sbnProcuraTabeladeMontagem: TSpeedButton
+        Left = 169
+        Top = 89
+        Width = 23
+        Height = 23
+        Hint = 'Procurar Tabela Montagem'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDC800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC800000800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000
+          00800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000
+          00800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000008000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+          FFFFDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDC0000FF800000800000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDC
+          DCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC7F
+          7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFFFFFFFFFFFFDCDCDCDCDCDCDC
+          DCDCFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA858800000DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDCFFFFFFFFFFFF7F
+          7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = sbnProcuraTabeladeMontagemClick
+      end
+      object sbnProcuraFilialProduto: TSpeedButton
+        Left = 169
+        Top = 35
+        Width = 23
+        Height = 23
+        Hint = 'Procurar Filial'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDC800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC800000800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000
+          00800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000
+          00800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000008000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+          FFFFDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDC0000FF800000800000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDC
+          DCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC7F
+          7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFFFFFFFFFFFFDCDCDCDCDCDCDC
+          DCDCFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA858800000DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDCFFFFFFFFFFFF7F
+          7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = sbnProcuraFilialProdutoClick
+      end
+      object sbnCancelarPagamento: TSpeedButton
+        Left = 184
+        Top = 170
+        Width = 137
+        Height = 24
+        Caption = 'Cancelar &pagamento '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        font.height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        OnClick = sbnCancelarPagamentoClick
+      end
+      object lblProduto: TLabel
+        Left = 29
+        Top = 11
+        Width = 75
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Item de produto'
+      end
+      object lblQuantidade: TLabel
+        Left = 48
+        Top = 65
+        Width = 56
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Quantidade'
+      end
+      object lblTabeladeMontagem: TLabel
+        Left = 16
+        Top = 92
+        Width = 88
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Tabela montagem'
+      end
+      object lblDatadeMontagem: TLabel
+        Left = 28
+        Top = 147
+        Width = 76
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Data montagem'
+      end
+      object lblValorPagto: TLabel
+        Left = 21
+        Top = 201
+        Width = 83
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Valor Pagamento'
+      end
+      object lblDataPagto: TLabel
+        Left = 24
+        Top = 174
+        Width = 80
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Data Pagamento'
+      end
+      object lblFilial: TLabel
+        Left = 81
+        Top = 38
+        Width = 24
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Filial'
+      end
+      object lblTipodeMontagem: TLabel
+        Left = 28
+        Top = 120
+        Width = 76
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Tipo montagem'
+      end
+      object Label1: TLabel
+        Left = 45
+        Top = 228
+        Width = 59
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Observa'#231#245'es'
+      end
+      object flkProduto: TtecDBFindLookup
+        Left = 108
+        Top = 8
+        Width = 135
+        Height = 21
+        DataField = 'produto'
+        DataSource = dtmCadastroRequisicoesMontagens.dsrRequisicoesItens
+        MaxLength = 18
+        Maximo = 0
+        Minimo = 37353
+        Adicional = 0
+        Opcional = True
+        OnMessage = flkProdutoMessage
+        TabOrder = 0
+        PermitirZero = False
+        PermitirNulo = False
+        Operacao = opATRIBUICAO
+        LookupField = 'codigo'
+        LookupSource = dtmCadastroRequisicoesMontagens.dsrProcuraProdutos
+        Parameter = ' '
+        ActiveSetControls = False
+        DenyInsert = False
+        NoSetControls = <>
+        SetControls = <>
+        LookupParameter = 'codigo'
+      end
+      object dtxDescricaoProduto: TtecDBText
+        Left = 268
+        Top = 8
+        Width = 373
+        Height = 21
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'descricaolc'
+        DataSource = dtmCadastroRequisicoesMontagens.dsrProcuraProdutos
+        ReadOnly = True
+        TabOrder = 7
+      end
+      object edtQuantidade: TDBEditNumero
+        Left = 108
+        Top = 62
+        Width = 85
+        Height = 21
+        MaxLength = -1
+        TabOrder = 2
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmQUANTIDADE
+        NrDecimal = 0
+        Decimais = False
+        Negativo = False
+        Tamanho = 0
+        DataField = 'quantidade'
+        DataSource = dtmCadastroRequisicoesMontagens.dsrRequisicoesItens
+      end
+      object flkTabeladeMontagem: TtecDBFindLookup
+        Left = 108
+        Top = 89
+        Width = 60
+        Height = 21
+        DataField = 'montagem'
+        DataSource = dtmCadastroRequisicoesMontagens.dsrRequisicoesItens
+        Group = 'TabelaMontagem'
+        MaxLength = 4
+        Maximo = 0
+        Minimo = 37353
+        Adicional = 0
+        Opcional = True
+        TabOrder = 3
+        PermitirZero = False
+        PermitirNulo = False
+        Operacao = opATRIBUICAO
+        LookupField = 'codigo'
+        LookupSource = dtmCadastroRequisicoesMontagens.dsrProcuraTabeladeMontagem
+        Parameter = ' '
+        ActiveSetControls = False
+        DenyInsert = False
+        NoSetControls = <>
+        SetControls = <>
+        LookupParameter = 'codigo'
+      end
+      object dtxDescricaoTabeladeMontagem: TtecDBText
+        Left = 193
+        Top = 89
+        Width = 250
+        Height = 21
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'descricao'
+        DataSource = dtmCadastroRequisicoesMontagens.dsrProcuraTabeladeMontagem
+        ReadOnly = True
+        TabOrder = 8
+      end
+      object edtDataMontagem: TDBEditData
+        Left = 108
+        Top = 144
+        Width = 75
+        Height = 21
+        DataField = 'datamontagem'
+        DataSource = dtmCadastroRequisicoesMontagens.dsrRequisicoesItens
+        Maximo = 0
+        Minimo = 37353
+        Adicional = 0
+        TabOrder = 5
+        OnChange = edtDataMontagemChange
+        Opcional = True
+      end
+      object edtValorPagto: TDBEditNumero
+        Left = 108
+        Top = 198
+        Width = 100
+        Height = 21
+        Enabled = False
+        MaxLength = -1
+        TabOrder = 10
+        Mascara = True
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = False
+        Tamanho = 9
+        DataField = 'valorpagto'
+        DataSource = dtmCadastroRequisicoesMontagens.dsrRequisicoesItens
+      end
+      object edtDataPagto: TDBEditData
+        Left = 108
+        Top = 171
+        Width = 75
+        Height = 21
+        DataField = 'datapagto'
+        DataSource = dtmCadastroRequisicoesMontagens.dsrRequisicoesItens
+        Enabled = False
+        Maximo = 0
+        Minimo = 37353
+        Adicional = 0
+        TabOrder = 9
+        Opcional = True
+      end
+      object flkFilialProduto: TtecDBFindLookup
+        Left = 108
+        Top = 35
+        Width = 60
+        Height = 21
+        DataField = 'filial'
+        DataSource = dtmCadastroRequisicoesMontagens.dsrRequisicoesItens
+        MaxLength = 3
+        Maximo = 0
+        Minimo = 37353
+        Adicional = 0
+        Opcional = True
+        TabOrder = 1
+        PermitirZero = False
+        PermitirNulo = False
+        Operacao = opATRIBUICAO
+        LookupField = 'codigo'
+        LookupSource = dtmCadastroRequisicoesMontagens.dsrProcuraFilialProduto
+        Parameter = ' '
+        ActiveSetControls = False
+        DenyInsert = False
+        NoSetControls = <>
+        SetControls = <>
+        LookupParameter = 'codigo'
+      end
+      object dtxFilialProduto: TtecDBText
+        Left = 193
+        Top = 35
+        Width = 250
+        Height = 21
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'nome'
+        DataSource = dtmCadastroRequisicoesMontagens.dsrProcuraFilialProduto
+        ReadOnly = True
+        TabOrder = 11
+      end
+      object ccbTipodeMontagem: TtecDBComboBox
+        Left = 108
+        Top = 116
+        Width = 100
+        Height = 21
+        DataField = 'tipodemontagem'
+        DataSource = dtmCadastroRequisicoesMontagens.dsrRequisicoesItens
+        ItemHeight = 13
+        Items.Strings = (
+          'Loja'
+          'Dentro'
+          'Fora')
+        TabOrder = 4
+      end
+      object mmoObservacoes: TtecDBMemo
+        Left = 107
+        Top = 225
+        Width = 534
+        Height = 45
+        DataField = 'observacoes'
+        DataSource = dtmCadastroRequisicoesMontagens.dsrRequisicoesItens
+        TabOrder = 6
+      end
+    end
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 658
+    inherited tblBarra: TToolBar
+      Width = 429
+      inherited sbnProcurar: TSpeedButton
+        Visible = False
+      end
+      inherited tbnDivisor: TToolButton
+        Width = 4
+      end
+      inherited sbnAjuda: TSpeedButton
+        Left = 79
+        Action = aclAbilita
+        GroupIndex = 0
+      end
+    end
+  end
+  object actRequisicoesItens: TActionList
+    Left = 408
+    Top = 8
+    object aclAbilita: TAction
+      Caption = 'aclAbilita'
+      OnUpdate = aclAbilitaUpdate
+    end
+  end
+end

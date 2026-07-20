@@ -1,0 +1,808 @@
+unit frVisualizarImageURL;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ImgList, ToolWin, ComCtrls, ExtCtrls, dmtecsoft, DB,
+  ZQuery, ZPgSqlQuery, cpquery, ctconstantes, dmbasico, clparametrossistema, biblio,
+  pngextra, idglobal, IdBaseComponent, IdCoder, IdCoder3to4, IdCoderMIME, pngimage,
+  AdvPicture, ExtDlgs, FileCtrl, CheckLst, us3thread, uS3Storage, Jpeg;
+
+type
+  TfraVisualizarImageURL = class(TFrame)
+    pnlInformacoesProduto: TPanel;
+    ImageList1: TImageList;
+    lblProduto: TLabel;
+    qryFotosProdutos: TtecQuery;
+    qryFotosProdutosproduto: TLargeintField;
+    qryFotosProdutosnomefoto: TStringField;
+    qryFotosProdutoslabel: TStringField;
+    qryFotosProdutosposicao: TStringField;
+    qryFotosProdutosnomethumb: TStringField;
+    qryFotosProdutosnomemedia: TStringField;
+    qryFotosProdutosreferencia: TIntegerField;
+    qryFotosProdutosdescricaoprodudo: TStringField;
+    qryFotosProdutosprodutovisual: TStringField;
+    ToolBar1: TToolBar;
+    ScrollBox1: TScrollBox;
+    imgVisualFormURL: TImage;
+    MIMEDecoder: TIdDecoderMIME;
+    FileListBox1: TFileListBox;
+    Splitter2: TSplitter;
+    Panel1: TPanel;
+    SplitterBottom: TSplitter;
+  protected
+
+    dmbasico : TdtmBasico;
+    
+  private
+    flistadearquivos: TStringList;
+    FProduto: TTecStringRetorno;
+    fTipoS3: String;
+    fCodigoS3: String;
+    fqryArquivosAnexados: tTecQuery;
+    function GetURLThumb: String;
+    function GetURLNomeFoto: String;
+    procedure listadearquivos(quantidade: integer);
+    procedure ResizeBitmap_(Bitmap: TBitmap; maxWidth, maxHeight: Integer; Background: TColor);
+    function GetURLNomeFotoS3: String;
+    function GetURLThumbS3: String;
+
+//    procedure ThreadDone(sender: TObject);
+
+    { Private declarations }
+  public
+    { Public declarations }
+
+    constructor Create(AOwner: TComponent); override;
+
+    procedure DownloadImagemS3(url:string; im:TImage; ConverterParaBMP: Boolean );
+    property Produto: TTecStringRetorno read FProduto write FProduto;
+
+    property TipoS3: String read fTipoS3 write fTipoS3;
+    property CodigoS3: String read fCodigoS3 write fCodigoS3;
+    property qryArquivosAnexados: tTecQuery read fqryArquivosAnexados write fqryArquivosAnexados;
+
+    procedure AbrirqryFotosProdutos(ExibirCodigodoProduto : boolean = true);
+    procedure AbrirqryFotosS3;
+
+    procedure AbrirImagensdaPasta(Caminho, mascara: String; quantidade: integer = 3);
+
+    procedure AbrirImgBase64(MemoryStream: TMemoryStream);
+
+    procedure ExibirQuadroImagem(Sender: TObject);
+    procedure ExibirQuadroImagemS3(Sender: TObject);
+
+    procedure ExibirQuadroImagemdaPasta(Sender: TObject);
+
+    property URLThumb: String read GetURLThumb;
+
+    property URLNomeFoto: String read GetURLNomeFoto;
+
+    property URLNomeFotoS3: String read GetURLNomeFotoS3;
+    property URLThumbS3: String read GetURLThumbS3;
+
+
+
+
+
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TfraVisualizarImageURL }
+
+procedure TfraVisualizarImageURL.AbrirImagensdaPasta(Caminho, mascara: String;
+  quantidade: integer);
+
+var
+  newbtn: TToolButton;
+  I: integer;
+  vBotoesCriados: Boolean;
+  vBitmap: TBitmap;
+
+begin
+
+    for I := ToolBar1.ButtonCount - 1 downto 0 do
+    begin
+      newbtn := ToolBar1.Buttons[I];
+      if newbtn.Action = Action then
+      begin
+        ToolBar1.Perform(CM_CONTROLCHANGE, WPARAM(newbtn), 0);
+        newbtn.Free;
+      end;
+    end;
+
+    ImageList1.Clear;
+
+    FileListBox1.Directory := Caminho;
+    FileListBox1.Mask := mascara;
+
+    listadearquivos(quantidade);
+
+    for i:= 0 to flistadearquivos.count-1 do
+    begin
+      newbtn := TToolButton.Create(ToolBar1);
+      newbtn.Parent := ToolBar1 as TWinControl;
+      newbtn .ImageIndex := i; // Index of the image in the TImageList
+      newbtn.name := 'btn'+inttostr(i);
+      newbtn.caption := flistadearquivos[i];
+      newbtn .onclick := ExibirQuadroImagemdaPasta;
+
+      imgVisualFormURL.Picture.LoadFromFile(flistadearquivos[i]);
+
+      if ImageList1.Count = 0 then
+      begin
+      {
+        ImageList1.width := imgVisualFormURL.Picture.Bitmap.width;
+        ImageList1.Height := imgVisualFormURL.Picture.Height;
+        }
+
+        ImageList1.width := imgVisualFormURL.Picture.width;
+        ImageList1.Height := imgVisualFormURL.Picture.Height;
+
+      end;
+
+//      vBitmap := TBitmap.Create;
+      vBitmap := imgVisualFormURL.Picture.Bitmap;
+//      ResizeBitmap(vBitmap, 200, 150, clBtnFace);
+
+
+      ImageList1.Add(vBitmap, nil);
+
+    end;
+
+end;
+
+procedure TfraVisualizarImageURL.AbrirImgBase64(MemoryStream: TMemoryStream);
+var
+{  base64Stream : TIdReadFileExclusiveStream;}
+{  pngStream : TIdFileCreateStream;}
+   FileStream : TFileStream;
+
+//  MIMEDecoder : TidDecoderMIME;
+  sData: string;
+
+  PNG: TPNGObject;
+  memStream: TMemoryStream;
+
+begin
+  MemoryStream.Position := 22;
+  PNG := TPNGObject.Create;
+  memStream := TMemoryStream.Create;
+
+{  base64Stream := TIdReadFileExclusiveStream.Create('c:\file_base64.txt');}
+
+  try
+{    pngStream := TIdFileCreateStream.Create('c:\MyImage.png');}
+//     FileStream := TFileStream.create
+    try
+      try
+//        MIMEDecoder := TIdDecoderMIME.Create(nil);
+        try
+//          MIMEDecoder.DecodeBegin(pngStream);
+          MIMEDecoder.DecodeBegin(memStream);
+          try
+//            while ReadLnFromStream(base64Stream, sData) do
+            while ReadLnFromStream(MemoryStream, sData) do
+              MIMEDecoder.Decode(sData);
+          finally
+            MIMEDecoder.DecodeEnd;
+          end;
+        finally
+//          MIMEDecoder.Free
+        end;
+      finally
+        memStream.position := 0;
+        PNG.LoadFromStream(memStream);
+        imgVisualFormURL.Picture.Assign(PNG);
+        PNG.free;
+        memStream.free;
+
+//        pngStream.Free;
+      end;
+    except
+//      DeleteFile('c:\MyImage.png');
+      raise;
+    end;
+  finally
+{    base64Stream.Free;}
+  end;
+
+//  imgVisualFormURL.Picture.LoadFromFile('c:\MyImage.png');
+
+end;
+
+procedure TfraVisualizarImageURL.AbrirqryFotosProdutos(ExibirCodigodoProduto : boolean);
+var
+//  mask : TBitmap;
+  newbtn: TToolButton;
+  I: integer;
+  vBotoesCriados: Boolean;
+  vMyBitMap, vMyBitMapaux: TBitMap;
+  lastbtnidx : integer;
+
+begin
+  if (produto <> '') and  (qryFotosProdutosprodutovisual.asstring<>produto) then
+  begin
+    dmbasico.refazConsultaporNome(qryFotosProdutos, ['produto'], [Produto]);
+
+    if qryFotosProdutos.recordcount <> 0 then
+    begin
+
+      for I := ToolBar1.ButtonCount - 1 downto 0 do
+      begin
+        newbtn := ToolBar1.Buttons[I];
+        if newbtn.Action = Action then
+        begin
+          ToolBar1.Perform(CM_CONTROLCHANGE, WPARAM(newbtn), 0);
+          newbtn.Free;
+        end;
+      end;
+
+      ImageList1.Clear;
+
+      if ExibirCodigodoProduto then
+        lblProduto.caption := qryFotosProdutosprodutovisual.asString + ' - ' + qryFotosProdutosdescricaoprodudo.asString
+      else
+        lblProduto.caption := qryFotosProdutosdescricaoprodudo.asString;
+
+      qryFotosProdutos.first;
+      while not qryFotosProdutos.eof do
+      begin
+        newbtn := TToolButton.Create(ToolBar1);
+        newbtn.Parent := ToolBar1 as TWinControl;
+        newbtn .ImageIndex := qryFotosProdutos.currec; // Index of the image in the TImageList
+        newbtn.name := 'btn'+inttostr(qryFotosProdutos.currec);
+        newbtn .onclick := ExibirQuadroImagem;
+
+        lastbtnidx := ToolBar1.ButtonCount - 1;
+        if lastbtnidx > -1 then
+          newbtn.Left := ToolBar1.Buttons[lastbtnidx].Left + ToolBar1.Buttons[lastbtnidx].Width
+        else
+          newbtn.Left := 0;
+
+        DownloadImagem(URLThumb, imgVisualFormURL, true);
+
+        vMyBitMap := imgVisualFormURL.Picture.Bitmap;
+        vMyBitMap := ResizeBitmap(vMyBitMap, ToolBar1.ButtonWidth, ToolBar1.ButtonHeight);
+        ImageList1.InsertMasked(qryFotosProdutos.recno-1, vMyBitMap, clNone );
+
+        qryFotosProdutos.next;
+
+      end;
+
+//      ToolBar1.images := ImageList1;
+
+      qryFotosProdutos.first;
+
+      if not qryFotosProdutos.isEmpty then
+        DownloadImagem(URLNomeFoto, imgVisualFormURL, false);
+
+    end
+    else
+    begin
+      lblProduto.caption := '';
+      ImageList1.clear;
+      imgVisualFormURL.picture := nil;
+    end;
+
+
+  end;
+
+end;
+
+procedure TfraVisualizarImageURL.AbrirqryFotosS3;
+var
+//  mask : TBitmap;
+  newbtn: TToolButton;
+  I: integer;
+  vBotoesCriados: Boolean;
+  {StretchedBMP} vMyBitMap: TBitmap;
+  lastbtnidx : integer;
+
+begin
+
+  if qryArquivosAnexados.recordcount <> 0 then
+  begin
+
+    for I := ToolBar1.ButtonCount - 1 downto 0 do
+    begin
+      newbtn := ToolBar1.Buttons[I];
+      if newbtn.Action = Action then
+      begin
+        ToolBar1.Perform(CM_CONTROLCHANGE, WPARAM(newbtn), 0);
+        newbtn.Free;
+      end;
+    end;
+
+    ImageList1.Clear;
+
+    lblProduto.caption := qryArquivosAnexados.fieldbyname('nomearquivo').asString;
+
+    qryArquivosAnexados.first;
+    while not qryArquivosAnexados.eof do
+    begin
+      newbtn := TToolButton.Create(ToolBar1);
+      newbtn.Parent := ToolBar1 as TWinControl;
+      newbtn.ImageIndex := qryArquivosAnexados.currec; // Index of the image in the TImageList
+      newbtn.name := 'btn'+inttostr(qryArquivosAnexados.currec);
+      newbtn.onclick := ExibirQuadroImagems3;
+
+      lastbtnidx := ToolBar1.ButtonCount - 1;
+      if lastbtnidx > -1 then
+        newbtn.Left := ToolBar1.Buttons[lastbtnidx].Left + ToolBar1.Buttons[lastbtnidx].Width
+      else
+        newbtn.Left := 0;
+
+
+      DownloadImagemS3(URLThumbS3, imgVisualFormURL, true);
+
+      vMyBitMap := imgVisualFormURL.Picture.Bitmap;
+      vMyBitMap := ResizeBitmap(vMyBitMap, ToolBar1.ButtonWidth, ToolBar1.ButtonHeight);
+
+      {
+      stretchedBMP := TBitmap.Create;
+      StretchedBMP.Width := ImageList1.Width;
+      StretchedBMP.Height := ImageList1.Height;
+
+      StretchedBMP.Canvas.StretchDraw(Rect(0, 0, StretchedBmp.Width-1, StretchedBmp.Height-1), imgVisualFormURL.Picture.Bitmap);
+
+//      ImageList1.Add(StretchedBmp, nil);
+}
+      ImageList1.InsertMasked(qryFotosProdutos.recno-1, vMyBitMap, clNone );
+
+      qryArquivosAnexados.next;
+
+
+    end;
+
+    qryArquivosAnexados.first;
+
+
+    if not qryArquivosAnexados.isEmpty then
+      DownloadImagemS3(URLNomeFotoS3, imgVisualFormURL, false);
+
+  end
+  else
+  begin
+    lblProduto.caption := '';
+    ImageList1.clear;
+    imgVisualFormURL.picture := nil;
+  end;
+
+end;
+
+constructor TfraVisualizarImageURL.Create(AOwner: TComponent);
+begin
+  inherited;
+  ToolBar1.ButtonHeight := 80;
+  ToolBar1.ButtonWidth := 80;
+  ImageList1.Height := 80;
+  ImageList1.Width := 80;
+
+end;
+
+procedure TfraVisualizarImageURL.DownloadImagemS3(url: string; im: TImage;
+  ConverterParaBMP: Boolean);
+var
+  theStream: TMemoryStream;
+//  theStream: TStream;
+//  theStream: TFileStream;
+//  FS3Storage: TS3Storage;
+
+  jpegimg: TJPEGImage;
+  BMP: TBitmap;
+  PNG: TPNGObject;
+//  idhttp1 : Tidhttp;
+  vehPNG, vehBMP, vehjpegimg : boolean;
+
+  Stream  : TFileStream;
+
+  function ehPNG: boolean;
+  const
+  PngHeader: Array[0..7] of Char = (#137, #80, #78, #71, #13, #10, #26, #10);
+  var
+    Header    : Array[0..7] of Char;
+  begin
+    result := false;
+    theStream.position := 0;
+       if theStream.Size = 0 then
+          Exit;
+
+    theStream.Read(Header[0], 8);
+//    result := pos('.png', url)<>0
+    result := (Header = PngHeader);
+    theStream.position := 0;
+
+  end;
+
+  function IsJpeg: Boolean;
+  var
+    BmpFH: TBitmapFileHeader;
+  begin
+    result := false;
+    theStream.position := 0;
+       if theStream.Size = 0 then
+          Exit;
+       // Posiciona em zero para evitar
+       // algum erro na leitura do cabeçalho
+       theStream.ReadBuffer(BmpFH, Sizeof(BmpFH));
+       Result := (BmpFH.bfType = $D8FF);
+       // Retorna ao início novamente
+       theStream.Position := 0;
+  end;
+
+  function IsBitmap: Boolean;
+  var
+    Bmfh: TBitmapFileHeader;
+  begin
+    result := false;
+    theStream.position := 0;
+       if theStream.Size = 0 then
+          Exit;
+
+       theStream.ReadBuffer(Bmfh, sizeof(Bmfh));
+       Result := (Bmfh.bfType = $4D42);
+       theStream.Position := 0;
+  end;
+
+begin
+ //   Stream  := TFileStream.Create(path, fmCreate);
+//    memStream := TMemoryStream.Create;
+
+    {
+    idhttp1 := Tidhttp.Create(nil);
+    idhttp1.ReadTimeout := 30000;
+    try
+      idhttp1.Get(Trim(url), memStream);
+    except
+      Exit;
+    end;
+    }
+
+
+    try
+      theStream := TMemoryStream.Create;
+//      theThread := TS3Thread.Create('GETFILE', parsistema.Bucket_s3, url, theStream, FS3Storage_, true);
+      FS3Storage.gets3object(parsistema.Bucket_s3, url, theStream)
+
+    finally
+//      theStream := nil;
+    end;
+
+    vehBMP := false;
+    vehjpegimg := false;
+    vehPNG := ehPNG;
+
+
+    try
+
+      if vehPNG then
+      begin
+        PNG := TPNGObject.Create;
+        PNG.LoadFromStream(theStream);
+
+        if ConverterParaBMP then
+        begin
+          BMP := TBitmap.Create;
+          BMP.Assign(PNG);
+          im.Picture.Assign(BMP)
+        end
+        else
+          im.Picture.Assign(PNG);
+      end
+      else
+      begin
+        vehBMP := IsBitmap;
+
+        if vehBMP then
+        begin
+          BMP := TBitmap.Create;
+          BMP.LoadFromStream(theStream);
+          im.Picture.Assign(BMP);
+        end
+        else
+        begin
+          vehjpegimg := IsJpeg;
+          if vehjpegimg then
+          begin
+            theStream.Position := 0;
+            jpegimg   := TJPEGImage.Create;
+            jpegimg.LoadFromStream(theStream);
+            if ConverterParaBMP then
+            begin
+              BMP := TBitmap.Create;
+              BMP.Assign(jpegimg);
+              im.Picture.Assign(BMP);
+            end
+            else
+              im.Picture.Assign(jpegimg);
+          end
+          else
+            im.Picture := nil;
+
+        end;
+
+      end;
+    finally
+      if converterparaBMP and (vehPNG OR vehjpegimg) then
+        BMP.Free
+      else
+      if vehBMP then
+        BMP.Free;
+
+
+      IF vehPNG THEN
+        PNG.free;
+
+      if vehjpegimg then
+        jpegimg.free;
+
+      theStream.Free;
+      theStream := nil;
+    end;
+
+end;
+
+
+
+procedure TfraVisualizarImageURL.ExibirQuadroImagem(Sender: TObject);
+begin
+  qryFotosProdutos.RecNo := TToolButton(sender).ImageIndex + 1;
+  DownloadImagem(URLNomeFoto, imgVisualFormURL, false);
+end;
+
+procedure TfraVisualizarImageURL.ExibirQuadroImagemdaPasta(
+  Sender: TObject);
+begin
+  imgVisualFormURL.Picture.LoadFromFile(flistadearquivos[TToolButton(sender).imageindex]);
+end;
+
+procedure TfraVisualizarImageURL.ExibirQuadroImagemS3(Sender: TObject);
+begin
+ qryArquivosAnexados.RecNo := TToolButton(sender).ImageIndex + 1;
+ DownloadImagemS3(URLNomeFotoS3, imgVisualFormURL, false);
+end;
+
+function TfraVisualizarImageURL.GetURLNomeFoto: String;
+begin
+  if parsistema.CloudStorage <> '' then
+    result := parsistema.CloudStorage+qryFotosProdutos.fieldByName('nomefoto').asString
+  else
+    result := 'http://'+ parsistema.SiteEmpresa+'/fotos/'+qryFotosProdutos.fieldByName('nomefoto').asString;
+end;
+
+function TfraVisualizarImageURL.GetURLNomeFotoS3: String;
+begin
+  result := {'http://'+ parsistema.Bucket_s3+'.s3.amazonaws.com/'+}
+            tipoS3+'/'+codigoS3+'/'+
+            qryArquivosAnexados.fieldByName('sequencia').asString +
+                        ExtractFileExt(qryArquivosAnexados.fieldByName('nomearquivo').asString);
+
+//  https://santaapolonia.s3.amazonaws.com/OS/923703/48.png
+
+end;
+
+function TfraVisualizarImageURL.GetURLThumb: String;
+begin
+  if parsistema.CloudStorage <> '' then
+    result := parsistema.CloudStorage+qryFotosProdutos.fieldByName('nomethumb').asString
+  else
+    result := 'http://'+ parsistema.SiteEmpresa+'/fotos/'+qryFotosProdutos.fieldByName('nomethumb').asString;
+end;
+
+// http://www.santaapolonia.com.br/fotos/59210027122011110401t.jpg
+//https://santaapolonia.s3.amazonaws.com/OS/923703/48.png
+
+
+
+
+function TfraVisualizarImageURL.GetURLThumbS3: String;
+begin
+  result := {'http://'+ parsistema.Bucket_s3+'.s3.amazonaws.com/'+
+  }
+            tipoS3+'/'+codigoS3+'/'+
+            qryArquivosAnexados.fieldByName('sequencia').asString +
+            ExtractFileExt(qryArquivosAnexados.fieldByName('nomearquivo').asString);
+end;
+
+procedure TfraVisualizarImageURL.listadearquivos(quantidade: integer);
+var
+  path: String;
+  i,j: Integer;
+
+begin
+
+  flistadearquivos := TStringList.create;
+  flistadearquivos.Sorted := true;
+
+    for i := 0 to filelistbox1.items.count-1 do
+      flistadearquivos.add( DateTimeToStr(FileDateToDateTime(FileAge(FileListBox1.directory+'\'+filelistbox1.items[i]))) +
+              filelistbox1.items[i] );
+
+    j:=0;
+    if (flistadearquivos.Count-1) > quantidade then
+      j:= (flistadearquivos.Count-1) - quantidade;
+
+    for i:= 0 to j do
+      flistadearquivos.Delete(0);
+
+    flistadearquivos.Sorted := false;
+    for i:= 0 to flistadearquivos.count-1 do
+      flistadearquivos[i] := Copy(flistadearquivos[i], 20, 50);
+    flistadearquivos.Sorted := true;  
+
+
+end;
+
+procedure TfraVisualizarImageURL.ResizeBitmap_(Bitmap: TBitmap; maxWidth,
+  maxHeight: Integer; Background: TColor);
+  {
+var
+  R: TRect;
+  B: TBitmap;
+  X, Y: Integer;
+  }
+     {
+const
+  maxWidth = 200;
+  maxHeight = 150;
+}
+
+var
+
+  thumbnail : TBitmap;
+  thumbRect : TRect;
+begin
+  thumbnail := Bitmap;
+  try
+    thumbRect.Left := 0;
+    thumbRect.Top := 0;
+    //proportional resize
+    if thumbnail.Width > thumbnail.Height then
+    begin
+      thumbRect.Right := maxWidth;
+      thumbRect.Bottom := (maxWidth * thumbnail.Height) div thumbnail.Width;
+    end
+    else
+    begin
+      thumbRect.Bottom := maxHeight;
+      thumbRect.Right := (maxHeight * thumbnail.Width) div thumbnail.Height;
+    end;
+    thumbnail.Canvas.StretchDraw(thumbRect, thumbnail) ;
+//resize image
+    thumbnail.Width := thumbRect.Right;
+    thumbnail.Height := thumbRect.Bottom;
+    //display in a TImage control
+//    imgVisualFormURL.Picture.Assign(thumbnail) ;
+    imgVisualFormURL.Picture.Bitmap;
+    
+  finally
+    Bitmap := thumbnail;
+    thumbnail.Free;
+  end;
+end;
+
+
+{
+  if assigned(Bitmap) then begin
+    B:= TBitmap.Create;
+    try
+      if Bitmap.Width > Bitmap.Height then begin
+        R.Right:= Width;
+        R.Bottom:= ((Width * Bitmap.Height) div Bitmap.Width);
+        X:= 0;
+        Y:= (Height div 2) - (R.Bottom div 2);
+      end else begin
+        R.Right:= ((Height * Bitmap.Width) div Bitmap.Height);
+        R.Bottom:= Height;
+        X:= (Width div 2) - (R.Right div 2);
+        Y:= 0;
+      end;
+      R.Left:= 0;
+      R.Top:= 0;
+      B.PixelFormat:= Bitmap.PixelFormat;
+      B.Width:= Width;
+      B.Height:= Height;
+      B.Canvas.Brush.Color:= Background;
+      B.Canvas.FillRect(B.Canvas.ClipRect);
+      B.Canvas.StretchDraw(R, Bitmap);
+      Bitmap.Width:= Width;
+      Bitmap.Height:= Height;
+      Bitmap.Canvas.Brush.Color:= Background;
+      Bitmap.Canvas.FillRect(Bitmap.Canvas.ClipRect);
+      Bitmap.Canvas.Draw(X, Y, B);
+    finally
+      B.Free;
+    end;
+  end;
+  }
+
+
+//end;
+
+(*
+procedure TfraVisualizarImageURL.ThreadDone(sender: TObject);
+//var
+//thisThread: TS3Thread; //could alternatively directly address theThread variable
+var
+  vAbrirArquivo: Boolean;
+begin
+
+//   thisThread := TS3Thread(Sender);
+
+    try
+      vAbrirArquivo := false;
+
+//    lbMessage.Caption := theThread.theMessage;
+
+    {
+    if thisThread.op = 'GET' then begin
+
+      if thisThread.success then
+      begin
+        thisThread.ResultStream.Position := 0;
+        self.RichEdit1.Lines.LoadFromStream(thisThread.ResultStream);
+        self.PageControl1.ActivePage := self.DocumentTab;
+      end
+      else begin
+        self.Memo1.Text := Fs3Storage.Error.Text;
+        self.PageControl1.ActivePage := self.ErrorTab;
+      end;
+
+    end;
+
+    if thisThread.op = 'PUT' then begin
+      if not thisThread.success then
+        self.Memo1.Text := Fs3Storage.Error.Text;
+    end;
+    }
+
+    if theThread.Op = 'PUTFILE' then
+    begin
+      if not theThread.success then
+      begin
+//        self.Memo1.Text := Fs3Storage.Error.Text;
+//        if (qryArquivosAnexados.state in [dsedit, dsinsert]) then
+//          qryArquivosAnexados.cancel;
+      end
+      else
+      begin
+//        if (qryArquivosAnexados.state in [dsedit, dsinsert]) then
+//          qryArquivosAnexados.post;
+      end;
+//      qryProximoArquivos_Anexados.close;
+    end;
+
+    if theThread.Op = 'GETFILE' then
+    begin
+     if not theThread.success then
+//        self.Memo1.Text := Fs3Storage.Error.Text
+     else
+     begin
+//       if fileexists(sFileName) then
+//         vAbrirArquivo := true;
+     end;
+    end;
+
+  finally
+    theThread.ResultStream.Free;
+//    theThread.ResultMemoryStream.Free;
+
+//    self.theThread := nil;
+//    self.ButtonEnable(true);
+
+//    if vAbrirArquivo then
+//      ExecFile(sFileName);
+
+  end;
+
+end;
+*)
+
+end.

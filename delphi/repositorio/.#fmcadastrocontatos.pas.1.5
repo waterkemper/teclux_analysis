@@ -1,0 +1,121 @@
+unit fmcadastrocontatos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, cpdbfindcontrols, Mask, DBCtrls, cptexto,
+  ComCtrls, Buttons, ExtCtrls, frconsulta, frconsultacodigo, DB,
+  cpdatasource, ctconstantes, cpdbmemo, frtelefone, biblio, cpquery,
+  cpdbtext, cpfone, ToolWin, DBIntCheckBox, frfoneramal;
+
+type
+  Tfrmcadastrocontatos = class(TfrmCadastroPadrao)
+    Panel1: TPanel;
+    gbxFundoJanela: TGroupBox;
+    dsrContatos: TtecDataSource;
+    gbxEmail: TGroupBox;
+    edtEmail: TDBEditTexto;
+    gbxCargo: TGroupBox;
+    gbxobservacoes: TGroupBox;
+    mmoObservacoes: TtecDBMemo;
+    gbxNome: TGroupBox;
+    edtContato: TDBEditTexto;
+    fraConsultaCargos: TfraConsultaCodigo;
+    dbireceberemailmarketing: TDBIntCheckBox;
+    fraFoneRamal1: TfraFoneRamal;
+    ckbenviar_nfe: TDBIntCheckBox;
+    ckbenviar_boleto: TDBIntCheckBox;
+    procedure fraConsultaCargossbnProcuraClick(Sender: TObject);
+  protected
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    procedure PreencherDescricao;
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmcadastrocontatos: Tfrmcadastrocontatos;
+  JaTestouEmail: Boolean;
+implementation
+
+
+{$R *.dfm}
+
+{ Tfrmcadastrocontatos}
+
+constructor Tfrmcadastrocontatos.Create(AOwner: TComponent);
+begin
+  inherited;
+  fraConsultaCargos.TipoPesquisa := pesCARGOS;
+  fraConsultaCargos.OnFound := PreencherDescricao;
+  JaTestouEmail:= False;
+end;
+
+destructor Tfrmcadastrocontatos.Destroy;
+begin
+  inherited;
+  frmcadastrocontatos := nil;
+end;
+
+function Tfrmcadastrocontatos.InternoExcluir: Boolean;
+begin
+  Result:= False;
+  if not dsrContatos.DataSet.IsEmpty then
+  begin
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o CONTATO'])) = smbOk then
+    begin
+      dsrContatos.DataSet.Delete;
+      Result := True;
+    end;
+  end;
+end;
+
+function Tfrmcadastrocontatos.InternoGravar: Boolean;
+begin
+  Result := False;
+  if not CtrlOn then
+  begin
+    if JaTestouEmail or EmailValido(edtEmail.Text) then
+    begin
+      if TtecQuery(dsrContatos.DataSet).CheckRequiredFields then
+         dsrContatos.DataSet.Post;
+         result := true;
+    end;
+  end;
+  edtContato.SetFocus;
+end;
+
+function Tfrmcadastrocontatos.InternoIncluir: Boolean;
+begin
+  Result := False;
+  if not CtrlOn then
+  begin
+    if TtecQuery(dsrContatos.DataSet).CheckRequiredFields then
+    dsrContatos.DataSet.Append;
+    edtContato.SetFocus;
+    result := true;
+  end
+end;
+
+procedure Tfrmcadastrocontatos.fraConsultaCargossbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaCargos.sbnProcuraClick(Sender);
+end;
+
+procedure Tfrmcadastrocontatos.PreencherDescricao;
+begin
+  dsrContatos.DataSet.FieldByName('descricaocargo').AsString :=
+    fraConsultaCargos.edfCodigo.LookupQuery.fieldbyname('descricao').AsString;
+end;
+
+end.

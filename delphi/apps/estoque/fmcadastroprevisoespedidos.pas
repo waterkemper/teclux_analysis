@@ -1,0 +1,94 @@
+unit fmcadastroprevisoespedidos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Mask, ExtCtrls, Buttons, DBCtrls, DB, ComCtrls,
+  //Terceiros
+  ZQuery,
+  //Componentes
+  cpdata, cpdbdata, cptexto, cpnumero, cpdbtext,
+  //Biblio
+  ctconstantes, biblio,
+  //Projeto
+  dmcadastropedidos,
+  //Repositorio
+  fmconsultabasica, fmconsultaporcampo, fmcadastropadrao, ToolWin;
+
+type
+  TfrmCadastroPrevisoesPedidos = class(TfrmCadastroPadrao)
+    gbxPrevisoesPedido: TGroupBox;
+    lblDias: TLabel;
+    edtDias: TDBEditNumero;
+    dtxData: TtecDBText;
+    lblPercentual2: TLabel;
+    edtPercentual: TDBEditNumero;
+    dxtValor: TtecDBText;
+    pnlFundoJanela: TPanel;
+    lblPedido: TLabel;
+    dtxPedido: TtecDBText;
+    lblData: TLabel;
+    lblPercentual: TLabel;
+    lblValor: TLabel;
+  private
+//    TfrmCadastroPedidos(self.owner).dtmCadastroPedidos: TTfrmCadastroPedidos(self.owner).dtmCadastroPedidos;
+  protected
+//    TfrmCadastroPedidos(self.owner).dtmCadastroPedidos: TTfrmCadastroPedidos(self.owner).dtmCadastroPedidos;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+  public
+    destructor Destroy; override;
+    procedure  SetDataModulo (Dtm: tdtmCadastroPedidos);
+  end;
+
+var
+  frmCadastroPrevisoesPedidos: TfrmCadastroPrevisoesPedidos;
+
+implementation
+
+uses fmcadastropedidos;
+
+{$R *.dfm}
+
+destructor TfrmCadastroPrevisoesPedidos.Destroy;
+begin
+  inherited;
+  frmCadastroPrevisoesPedidos := nil;
+end;
+
+function TfrmCadastroPrevisoesPedidos.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+   TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.ExcluirPrevisaoPedido;
+end;
+
+function TfrmCadastroPrevisoesPedidos.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.GravarPrevisaoPedido;
+end;
+
+function TfrmCadastroPrevisoesPedidos.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.IncluirPrevisaoPedido(False);
+    edtDias.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroPrevisoesPedidos.SetDataModulo(Dtm: TdtmCadastroPedidos);
+begin
+//  TfrmCadastroPedidos(self.owner).dtmCadastroPedidos       := Dtm;
+  edtDias.datasource       := TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.dsrPrevisoesPedidos;
+  edtPercentual.datasource := TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.dsrPrevisoesPedidos;
+  dtxData.datasource       := TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.dsrPrevisoesPedidos;
+  dxtValor.datasource      := TfrmCadastroPedidos(self.owner).dtmCadastroPedidos.dsrPrevisoesPedidos;
+end;
+
+end.

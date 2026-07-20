@@ -1,0 +1,363 @@
+unit fmconfirmarromaneiostransferencia;
+
+interface
+
+uses
+  SysUtils, Windows, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmajudabt, ComCtrls, Buttons, ExtCtrls, StdCtrls, cpdata, DBCtrls,
+  cpdbtext, Mask, cpdbfindcontrols, cpdbradiogroup, Grids, DBGrids,
+  cpdbgrid, cppagecontrol, {Qete,} DateUtils,
+  dmconfirmarromaneiostransferencia, ActnList, ctconstantes, biblio,
+  cpeditioncontrolvalidation, clusuario, clparametrossistema, ToolWin,
+  fmConferenciaProdutos, fmConferenciaDocumentos;
+
+type
+  TfrmConfirmarromaneiosTransferencia = class(TfrmAjudaBt)
+    pnlFundoJanela: TPanel;
+    gbxConfirmarTransferencia: TGroupBox;
+    gbxPeriodoRequisicao: TGroupBox;
+    lblA: TLabel;
+    edtDataInicial: TEditData;
+    edtDataFinal: TEditData;
+    edtFilialOrigem: TEdit;
+    edtDescricaoFilialOrigem: TEdit;
+    sbnGerar: TSpeedButton;
+    sbnConfirmar: TSpeedButton;
+    pgcromaneios: TtecPageControl;
+    tstromaneios: TTabSheet;
+    tstProdutos: TTabSheet;
+    dbgromaneios: TtecDBGrid;
+    dbgProdutos: TtecDBGrid;
+    ecvValida: TtecEditionControlValidation;
+    aclHabilitar: TActionList;
+    actHabilitarBotoes: TAction;
+    gbxRequisitante: TGroupBox;
+    gbxRequisitada: TGroupBox;
+    gbxNotaFiscal: TGroupBox;
+    pnlTop: TPanel;
+    pnlTopromaneios: TPanel;
+    pnlProdutos: TPanel;
+    sbnConferir: TSpeedButton;
+    gbxPesquisaNFe: TGroupBox;
+    edtNFE: TMaskEdit;
+    gbxPesquisaNumeroFe: TGroupBox;
+    StaticText1: TStaticText;
+    StaticText2: TStaticText;
+    edtFilial: TMaskEdit;
+    edtNumero: TMaskEdit;
+    gbxRomaneio: TGroupBox;
+    pnlBotoesRomaneio: TPanel;
+    sbnConferirVolumes: TSpeedButton;
+    procedure actHabilitarBotoesUpdate(Sender: TObject);
+    procedure dbgromaneiosDblClick(Sender: TObject);
+    procedure dbgromaneiosDrawColumnCell(Sender: TObject; const Rect: TRect;
+              DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure edtDataFinalEnter(Sender: TObject);
+    procedure sbnConfirmarClick(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure edtDataInicialExit(Sender: TObject);
+    procedure sbnConferirClick(Sender: TObject);
+    procedure edtNFEKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtNumeroKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnConferirVolumesClick(Sender: TObject);
+  private
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+
+  protected
+    dtmConfirmarromaneiosTransferencia: TdtmConfirmarromaneiosTransferencia;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+    procedure ExibirMensagemPadronizadaDataInicial;
+    procedure ExibirMensagemPadronizadaDataFinal;
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    function    ValidarInformacao: Boolean;
+  end;
+
+var
+  frmConfirmarromaneiosTransferencia: TfrmConfirmarromaneiosTransferencia;
+  ControleAtivo: TWinControl;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmConfirmarromaneiosTransferencia }
+
+procedure TfrmConfirmarromaneiosTransferencia.actHabilitarBotoesUpdate(Sender: TObject);
+begin
+  inherited;
+  sbnConfirmar.Enabled   := (dtmConfirmarromaneiosTransferencia.QtdeMarcados > 0);
+  tstProdutos.TabVisible := (dtmConfirmarromaneiosTransferencia.NrRegistros > 0);
+
+  gbxPesquisaNFe.enabled := (dtmConfirmarromaneiosTransferencia.NrRegistros > 0);
+  gbxPesquisaNumeroFe.enabled := gbxPesquisaNFe.enabled;
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.AfterScrollLinhaColunaGrade(
+  Sender: TObject);
+begin
+  dbgProdutos.Columns[3].Title.Caption := dtmConfirmarromaneiosTransferencia.LinhadaGrade;
+  dbgProdutos.Columns[4].Title.Caption := dtmConfirmarromaneiosTransferencia.colunadaGrade;
+end;
+
+constructor TfrmConfirmarromaneiosTransferencia.Create(AOwner: TComponent);
+begin
+  dtmConfirmarromaneiosTransferencia:= TdtmConfirmarromaneiosTransferencia.Create(Self);
+  inherited;
+  with dtmConfirmarromaneiosTransferencia do begin
+    edtDataInicial.Text          := DateToStr(DataServidor);
+    edtDataFinal.Text            := DateToStr(DataServidor);
+    edtFilialOrigem.Text         := preencheString(IntToStr(FilialBase),'0',3,FALSE);
+    edtDescricaoFilialOrigem.Text:= NomeFilialBase;
+  end;
+  pgcromaneios.ActivePageIndex:= 0;
+  dbgProdutos.Columns[3].Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutos.Columns[4].Visible := ParSistema.UsarGradesProdutos;
+  dtmConfirmarromaneiosTransferencia.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  if Length(ParSistema.MascaraQuantidade) * 7 < 65
+  then dbgProdutos.Columns[5].Width:= 65
+  else dbgProdutos.Columns[5].Width:= Length(ParSistema.MascaraQuantidade) * 7;
+
+  edtDataInicial.Minimo := dtmConfirmarromaneiosTransferencia.NDiasLimiteEmissao;
+  edtDataInicial.MensagemPadronizada := ExibirMensagemPadronizadaDataInicial;
+
+  edtDataFinal.Minimo := dtmConfirmarromaneiosTransferencia.NDiasLimiteEmissao;
+  edtDataFinal.MensagemPadronizada := ExibirMensagemPadronizadaDataFinal;
+
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.dbgromaneiosDblClick(Sender: TObject);
+begin
+  inherited;
+  {
+  if dbgromaneios.Focused then
+    dtmConfirmarromaneiosTransferencia.SelecionarRegistros;
+    }
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.dbgromaneiosDrawColumnCell(
+          Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+          State: TGridDrawState);
+begin
+  inherited;
+  if not (gdFocused in State) then
+   if dtmConfirmarromaneiosTransferencia.romaneioselecionada then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+   end;
+end;
+
+destructor TfrmConfirmarromaneiosTransferencia.Destroy;
+begin
+  dtmConfirmarromaneiosTransferencia:=nil;
+  inherited;
+  frmConfirmarromaneiosTransferencia:= nil;
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.edtDataFinalEnter(Sender: TObject);
+begin
+  inherited;
+  if not DataEmBranco(edtDataInicial.Text) then
+    edtDataFinal.Minimo:= DaysBetween(dtmConfirmarromaneiosTransferencia.DataServidor,
+                                      StrToDate(edtDataInicial.Text));
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.ExibirMensagemPadronizadaDataFinal;
+begin
+  if strtodate(edtDataFinal.Text) <= ParSistema.DataContabil then
+    MensagemAviso(format(ctDATACONTABILMAIORDATALANCTO, ['final',
+                     edtDatafinal.Text, 'contábil', ParSistema.DataContabilstring]))
+  else
+  if strtodate(edtDataFinal.Text) < strtodate(edtDataInicial.Text) then
+    MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['final',
+                     edtDatafinal.Text, 'emissão', edtDatainicial.Text]))
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.ExibirMensagemPadronizadaDataInicial;
+begin
+  if strtodate(edtDataInicial.Text) <= ParSistema.DataContabil then
+    MensagemAviso(format(ctDATACONTABILMAIORDATALANCTO, ['inicial',
+                     edtDatainicial.Text, 'contábil', ParSistema.DataContabilstring]))
+  else
+    if strtodate(edtDataInicial.Text) < DataLocal - edtDataInicial.minimo then
+      MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['inicial',
+                       edtDataInicial.Text, 'retroativa',
+                       datetostr(DataLocal - edtDataInicial.Minimo)]))
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_F5 : if (Shift = []) and sbnConfirmar.Enabled then sbnConfirmar.Click;
+    VK_F6 : if (Shift = []) and sbnGerar.Enabled then sbnGerar.Click;
+    VK_SPACE : if (Shift = [ssCtrl]) and dbgromaneios.Focused then
+                  dtmConfirmarromaneiosTransferencia.SelecionarRegistros;
+    VK_Return: if (ActiveControl = edtDataFinal) and (Shift = []) then begin
+                  if edtDataFinal.DataValida then begin
+                    sbnGerar.Click;
+                    if (dtmConfirmarromaneiosTransferencia.NrRegistros > 0) then begin
+                      pgcromaneios.ActivePageIndex:= 0;
+                      dbgromaneios.SetFocus;
+                    end;
+                  end
+                  else edtDataFinal.SetFocus;
+                end
+                else inherited;
+    else     inherited;
+  end;
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.sbnConfirmarClick(Sender: TObject);
+var
+  User: TtecUsuarios;
+begin
+  inherited;
+  with dtmConfirmarromaneiosTransferencia do begin
+    User:= TtecUsuarios.Create(dtmTecSoft.Database);
+    try
+      if not User.TransferenciaPorItem then
+           User:= ObterAutorizacao(taSENHA)
+      else User:= ObterAutorizacao(taLOGIN, ctAUTORIZACAOTRANSFERENCIA, ctAUTORIZADO);
+      if Assigned(User) and not User.TransferenciaPorItem then
+        dtmConfirmarromaneiosTransferencia.ConfirmaTransferencia
+      else
+        MensagemAviso(format(ctUSUARIONAOAUTORIZADO,['confirmar a transferência da(s) nota(s).']));
+    finally
+      User.Free;
+    end;
+
+
+  end;
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  with dtmConfirmarromaneiosTransferencia do
+  begin
+    if ValidarInformacao then begin
+      DataInicial:= edtDataInicial.Text;
+      DataFinal  := edtDataFinal.Text;
+      if GerarConsultaromaneiosTransferencias then begin
+        MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']));
+        edtDataInicial.SetFocus;
+      end
+      else begin
+        pgcromaneios.ActivePageIndex:= 0;
+        dbgromaneios.SetFocus;
+      end;
+    end;
+  end;
+end;
+
+function TfrmConfirmarromaneiosTransferencia.ValidarInformacao: Boolean;
+begin
+  Result:= ecvValida.Verify(gbxPeriodoRequisicao,ControleAtivo);
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.edtDataInicialExit(
+  Sender: TObject);
+begin
+  inherited;
+  edtDataFinal.Minimo := dtmConfirmarromaneiosTransferencia.NDiasLimiteData(
+                          edtDataInicial.Text);
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.sbnConferirClick(
+  Sender: TObject);
+begin
+  inherited;
+
+  with dtmConfirmarromaneiosTransferencia do
+    ConferirProdutos(qryProdutosTransferencia,
+                     qryProdutosTransferenciaproduto.fieldname,
+                     qryProdutosTransferenciaprodutovisual.FieldName,
+                     qryProdutosTransferenciadescricaoproduto.FieldName,
+                     qryProdutosTransferenciaquantidade.FieldName,
+                     'NST',
+                     qryromaneiosTransferenciasdadofiscal.AsString,
+                     qryProdutosTransferenciavalorgrade1.FieldName,
+                     qryProdutosTransferenciavalorgrade2.FieldName,
+                     qryProdutosTransferencialinha.FieldName,
+                     qryProdutosTransferenciacoluna.FieldName);
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.edtNFEKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  with dtmConfirmarromaneiosTransferencia do
+    if key = vk_return then
+    begin
+      if qryromaneiosTransferencias.locate('chv_nfe', somentenumero(edtNFE.Text), []) then
+      begin
+        dbgromaneios.setfocus;
+        dbgromaneios.SelectedField := qryromaneiosTransferenciaschv_nfe;
+        dtmConfirmarromaneiosTransferencia.SelecionarRegistros
+      end
+      else
+      begin
+        mensagemAviso('NFE não encontrada');
+        edtNFE.setfocus;
+        edtNFE.selectall;
+      end;
+    end;
+
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.edtNumeroKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+  begin
+    with dtmConfirmarromaneiosTransferencia do
+      if qryromaneiosTransferencias.locate('serie;numero',
+         VarArrayOf([edtFilial.text, edtNumero.text]), []) or
+         qryromaneiosTransferencias.locate('numero', edtNumero.text, []) then
+      begin
+        dbgromaneios.setfocus;
+        dbgromaneios.SelectedField := qryromaneiosTransferenciasnumero;
+        dtmConfirmarromaneiosTransferencia.SelecionarRegistros
+      end
+      else
+      begin
+        mensagemAviso('NFE não encontrada');
+        edtNumero.setfocus;
+        edtNumero.selectall;
+      end;
+  end;
+
+end;
+
+procedure TfrmConfirmarromaneiosTransferencia.sbnConferirVolumesClick(
+  Sender: TObject);
+begin
+  inherited;
+
+  with dtmConfirmarromaneiosTransferencia do
+  begin
+    try
+      qryromaneiosTransferencias.DisableControls;
+      qryromaneiosTransferencias.AfterScroll := nil;
+      qryromaneiosTransferencias.GuardarRegistroAtual(true);
+
+      ConferirVolumesDadosFiscais(qryromaneiosTransferencias, qryromaneiosTransferenciasromaneio.fieldname,
+       qryromaneiosTransferenciasdadofiscal.FieldName, 'ROE', qryromaneiosTransferenciasromaneio.AsString);
+
+    finally
+      SomarQtMarcados;
+      qryromaneiosTransferencias.enableControls;
+      qryromaneiosTransferencias.AfterScroll := qryromaneiosTransferencias.AfterScroll;
+      qryromaneiosTransferencias.VoltarRegistro;
+    end;
+  end;
+end;
+
+end.

@@ -1,0 +1,4118 @@
+inherited dtmCadastrosInternos: TdtmCadastrosInternos
+  Left = 264
+  Top = 225
+  Height = 732
+  Width = 1080
+  object dsrFiliais: TtecDataSource
+    DataSet = qryFiliais
+    OnDataChange = dsrFiliaisDataChange
+    Left = 66
+    Top = 12
+  end
+  object qryFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryFiliaisAfterOpen
+    AfterClose = qryFiliaisAfterClose
+    AfterScroll = qryFiliaisAfterScroll
+    OnCalcFields = qryFiliaisCalcFields
+    OnPostError = PostError
+    OnNewRecord = qryFiliaisNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  f.*,'
+      '        c.nome as nomecidade,'
+      '        b.nome as nomebairro'
+      ''
+      'From filiais f, estados e, cidades c, bairros b'
+      'where (f.estado = e.codigo) and'
+      '      (f.estado = c.estado) and'
+      '      (f.cidade = c.codigo) and'
+      '      (f.estado = b.estado) and'
+      '      (f.cidade = b.cidade) and'
+      '      (f.bairro = b.codigo) and'
+      '      (f.codigo = :codigo)')
+    RequestLive = True
+    Left = 32
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFiliaisnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 60
+    end
+    object qryFiliaisrazao: TStringField
+      DisplayLabel = 'Raz'#227'o'
+      FieldName = 'razao'
+      Required = True
+      Size = 60
+    end
+    object qryFiliaiscnpj: TStringField
+      DisplayLabel = 'CNPJ'
+      FieldName = 'cnpj'
+      Size = 14
+    end
+    object qryFiliaisinscricaoestadual: TStringField
+      DisplayLabel = 'Inscri'#231#227'o Estadual'
+      FieldName = 'inscricaoestadual'
+    end
+    object qryFiliaisinscricaomunicipal: TStringField
+      DisplayLabel = 'Inscri'#231#227'o Municipal'
+      FieldName = 'inscricaomunicipal'
+    end
+    object qryFiliaismnemonico: TStringField
+      DisplayLabel = 'Mnem'#244'nico'
+      FieldName = 'mnemonico'
+      Required = True
+      Size = 3
+    end
+    object qryFiliaisrua: TStringField
+      DisplayLabel = 'Rua'
+      FieldName = 'rua'
+      Required = True
+      Size = 100
+    end
+    object qryFiliaisestado: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'Estado'
+      FieldName = 'estado'
+      Required = True
+      Size = 2
+    end
+    object qryFiliaiscidade: TIntegerField
+      Alignment = taLeftJustify
+      DisplayLabel = 'Cidade'
+      FieldName = 'cidade'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisnomecidade: TStringField
+      DisplayLabel = 'Nome da Cidade'
+      DisplayWidth = 30
+      FieldName = 'nomecidade'
+      Required = True
+      Size = 72
+    end
+    object qryFiliaisbairro: TIntegerField
+      DisplayLabel = 'Bairro'
+      FieldName = 'bairro'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisnomebairro: TStringField
+      DisplayLabel = 'Nome do Bairro'
+      DisplayWidth = 30
+      FieldName = 'nomebairro'
+      Required = True
+      Size = 80
+    end
+    object qryFiliaiscep: TIntegerField
+      DisplayLabel = 'CEP'
+      FieldName = 'cep'
+      DisplayFormat = '##'#39'.'#39'###'#39'-'#39'###;0;_'
+      EditFormat = '##'#39'.'#39'###'#39'-'#39'###;0;_'
+    end
+    object qryFiliaisfoneddd: TIntegerField
+      DisplayLabel = 'Fone DDD'
+      FieldName = 'foneddd'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisfonenumero: TIntegerField
+      DisplayLabel = 'Fone N'#250'mero'
+      FieldName = 'fonenumero'
+      DisplayFormat = '####'#39'-'#39'####;0;_'
+      EditFormat = '####'#39'-'#39'####;0;_'
+    end
+    object qryFiliaisfaxddd: TIntegerField
+      DisplayLabel = 'Fax DDD'
+      FieldName = 'faxddd'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisfaxnumero: TIntegerField
+      DisplayLabel = 'Fax N'#250'mero'
+      FieldName = 'faxnumero'
+      DisplayFormat = '####'#39'-'#39'####;0;_'
+      EditFormat = '####'#39'-'#39'####;0;_'
+    end
+    object qryFiliaistipofilial: TStringField
+      DisplayLabel = 'Tipo Filial'
+      FieldName = 'tipofilial'
+      Required = True
+      Size = 1
+    end
+    object qryFiliaisprazoreserva: TIntegerField
+      DisplayLabel = 'Prazo Reserva'
+      FieldName = 'prazoreserva'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisseriesugestao: TStringField
+      DisplayLabel = 'S'#233'rie Sugest'#227'o'
+      FieldName = 'seriesugestao'
+      Required = True
+      Size = 3
+    end
+    object qryFiliaismontagem: TIntegerField
+      DisplayLabel = 'Montagem'
+      FieldName = 'montagem'
+      DisplayFormat = '0'
+    end
+    object qryFiliaiscontabil: TIntegerField
+      DisplayLabel = 'Cont'#225'bil'
+      FieldName = 'contabil'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisrazaocarne: TStringField
+      DisplayLabel = 'Raz'#227'o Carn'#234
+      FieldName = 'razaocarne'
+      Size = 15
+    end
+    object qryFiliaisrazaoquitacao: TStringField
+      DisplayLabel = 'Raz'#227'o Quita'#231#227'o'
+      FieldName = 'razaoquitacao'
+      Size = 15
+    end
+    object qryFiliaiscidadecarne: TStringField
+      DisplayLabel = 'Cidade Carn'#234
+      FieldName = 'cidadecarne'
+      Size = 15
+    end
+    object qryFiliaisporte: TStringField
+      DisplayLabel = 'Porte'
+      FieldName = 'porte'
+      Required = True
+      Size = 1
+    end
+    object qryFiliaissimples: TStringField
+      DisplayLabel = 'Simples'
+      FieldName = 'simples'
+      Required = True
+      Size = 1
+    end
+    object qryFiliaisjunta: TStringField
+      DisplayLabel = 'Junta'
+      FieldName = 'junta'
+    end
+    object qryFiliaisjuntadata: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Data Junta'
+      FieldName = 'juntadata'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryFiliaisspcregistro: TIntegerField
+      DisplayLabel = 'Registro SPC'
+      FieldName = 'spcregistro'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisspcremessa: TIntegerField
+      DisplayLabel = 'Remessa SPC'
+      FieldName = 'spcremessa'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisspcretorno: TIntegerField
+      DisplayLabel = 'Retorno SPC'
+      FieldName = 'spcretorno'
+      DisplayFormat = '0'
+    end
+    object qryFiliaispreconormal: TIntegerField
+      FieldName = 'preconormal'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFiliaisprecopromocao: TIntegerField
+      FieldName = 'precopromocao'
+      DisplayFormat = '0'
+    end
+    object qryFiliaistransfautomatica: TBooleanField
+      FieldName = 'transfautomatica'
+    end
+    object qryFiliaisregime: TIntegerField
+      FieldName = 'regime'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisspc_dasp_destinatario: TStringField
+      FieldName = 'spc_dasp_destinatario'
+      Size = 8
+    end
+    object qryFiliaisspc_remetente: TStringField
+      FieldName = 'spc_remetente'
+      Size = 40
+    end
+    object qryFiliaisspc_dasp_remetente: TStringField
+      FieldName = 'spc_dasp_remetente'
+      Size = 8
+    end
+    object qryFiliaisspc_operador: TStringField
+      FieldName = 'spc_operador'
+      Size = 8
+    end
+    object qryFiliaisspc_codigoinformante: TStringField
+      FieldName = 'spc_codigoinformante'
+      Size = 8
+    end
+    object qryFiliaisspc_destinatario: TStringField
+      FieldName = 'spc_destinatario'
+      Size = 40
+    end
+    object qryFiliaisexibircomplementonf: TBooleanField
+      FieldName = 'exibircomplementonf'
+    end
+    object qryFiliaisinicioatividades: TDateField
+      Alignment = taCenter
+      FieldName = 'inicioatividades'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryFiliaisfilialconsolidadoradime: TIntegerField
+      FieldName = 'filialconsolidadoradime'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisdebito: TIntegerField
+      FieldName = 'debito'
+      DisplayFormat = '0'
+    end
+    object qryFiliaiscredito: TIntegerField
+      FieldName = 'credito'
+      DisplayFormat = '0'
+    end
+    object qryFiliaiscontribicms: TBooleanField
+      FieldName = 'contribicms'
+      Required = True
+    end
+    object qryFiliaiscontribiss: TBooleanField
+      FieldName = 'contribiss'
+      Required = True
+    end
+    object qryFiliaiscontribipi: TBooleanField
+      FieldName = 'contribipi'
+      Required = True
+    end
+    object qryFiliaisaliquotacreditoicms: TFloatField
+      FieldName = 'aliquotacreditoicms'
+      DisplayFormat = '0.00'
+    end
+    object qryFiliaisnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryFiliaiscomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 100
+    end
+    object qryFiliaissite: TStringField
+      FieldName = 'site'
+      Size = 50
+    end
+    object qryFiliaissuframa: TStringField
+      FieldName = 'suframa'
+      Size = 9
+    end
+    object qryFiliaisind_perfil: TStringField
+      FieldName = 'ind_perfil'
+      Size = 1
+    end
+    object qryFiliaisind_ativ: TStringField
+      FieldName = 'ind_ativ'
+      Size = 1
+    end
+    object qryFiliaisregimetributario: TIntegerField
+      FieldName = 'regimetributario'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisregimesubstituicao: TIntegerField
+      FieldName = 'regimesubstituicao'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisclassificacaoipi: TStringField
+      FieldName = 'classificacaoipi'
+      Size = 2
+    end
+    object qryFiliaisquali_pj: TStringField
+      FieldName = 'quali_pj'
+      Size = 2
+    end
+    object qryFiliaisform_apur: TStringField
+      FieldName = 'form_apur'
+      Size = 1
+    end
+    object qryFiliaisform_tribut: TIntegerField
+      FieldName = 'form_tribut'
+      DisplayFormat = '0'
+    end
+    object qryFiliaissped_pis_cofins: TBooleanField
+      FieldName = 'sped_pis_cofins'
+    end
+    object qryFiliaissped_pis_cofins_rb: TBooleanField
+      FieldName = 'sped_pis_cofins_rb'
+    end
+    object qryFiliaissped_pis_cofins_rem: TBooleanField
+      FieldName = 'sped_pis_cofins_rem'
+    end
+    object qryFiliaissped_fiscal: TBooleanField
+      FieldName = 'sped_fiscal'
+    end
+    object qryFiliaisseriesugestaoservicos: TStringField
+      FieldName = 'seriesugestaoservicos'
+      Size = 3
+    end
+    object qryFiliaiscnaefiscal: TStringField
+      FieldName = 'cnaefiscal'
+      Size = 7
+    end
+    object qryFiliaistipoemissaonfeservico: TIntegerField
+      FieldName = 'tipoemissaonfeservico'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisaedffatura: TStringField
+      FieldName = 'aedffatura'
+      Size = 7
+    end
+    object qryFiliaistip_ecd: TIntegerField
+      FieldName = 'tip_ecd'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisopt_refis: TStringField
+      FieldName = 'opt_refis'
+      Required = True
+      Size = 1
+    end
+    object qryFiliaisopt_paes: TStringField
+      FieldName = 'opt_paes'
+      Required = True
+      Size = 1
+    end
+    object qryFiliaisformatrib_1_periodo: TStringField
+      FieldName = 'formatrib_1_periodo'
+      Size = 15
+    end
+    object qryFiliaisformatrib_2_periodo: TStringField
+      FieldName = 'formatrib_2_periodo'
+      Size = 15
+    end
+    object qryFiliaisformatrib_3_periodo: TStringField
+      FieldName = 'formatrib_3_periodo'
+      Size = 15
+    end
+    object qryFiliaisformatrib_4_periodo: TStringField
+      FieldName = 'formatrib_4_periodo'
+      Size = 15
+    end
+    object qryFiliaistip_esc_pre: TStringField
+      FieldName = 'tip_esc_pre'
+      Size = 1
+    end
+    object qryFiliaistip_ent: TStringField
+      FieldName = 'tip_ent'
+      Size = 2
+    end
+    object qryFiliaisforma_apur_i: TStringField
+      FieldName = 'forma_apur_i'
+      Size = 1
+    end
+    object qryFiliaisapur_csll: TStringField
+      FieldName = 'apur_csll'
+      Size = 1
+    end
+    object qryFiliaisopt_ext_rtt: TStringField
+      FieldName = 'opt_ext_rtt'
+      Size = 1
+    end
+    object qryFiliaisdif_fcont: TStringField
+      FieldName = 'dif_fcont'
+      Size = 1
+    end
+    object qryFiliaismes_bal_red_1: TStringField
+      FieldName = 'mes_bal_red_1'
+      Size = 1
+    end
+    object qryFiliaismes_bal_red_2: TStringField
+      FieldName = 'mes_bal_red_2'
+      Size = 1
+    end
+    object qryFiliaismes_bal_red_3: TStringField
+      FieldName = 'mes_bal_red_3'
+      Size = 1
+    end
+    object qryFiliaismes_bal_red_4: TStringField
+      FieldName = 'mes_bal_red_4'
+      Size = 1
+    end
+    object qryFiliaismes_bal_red_5: TStringField
+      FieldName = 'mes_bal_red_5'
+      Size = 1
+    end
+    object qryFiliaismes_bal_red_6: TStringField
+      FieldName = 'mes_bal_red_6'
+      Size = 1
+    end
+    object qryFiliaismes_bal_red_7: TStringField
+      FieldName = 'mes_bal_red_7'
+      Size = 1
+    end
+    object qryFiliaismes_bal_red_8: TStringField
+      FieldName = 'mes_bal_red_8'
+      Size = 1
+    end
+    object qryFiliaismes_bal_red_9: TStringField
+      FieldName = 'mes_bal_red_9'
+      Size = 1
+    end
+    object qryFiliaismes_bal_red_10: TStringField
+      FieldName = 'mes_bal_red_10'
+      Size = 1
+    end
+    object qryFiliaismes_bal_red_11: TStringField
+      FieldName = 'mes_bal_red_11'
+      Size = 1
+    end
+    object qryFiliaismes_bal_red_12: TStringField
+      FieldName = 'mes_bal_red_12'
+      Size = 1
+    end
+    object qryFiliaisind_aliq_csll: TStringField
+      FieldName = 'ind_aliq_csll'
+      Size = 1
+    end
+    object qryFiliaisind_qte_scp: TIntegerField
+      FieldName = 'ind_qte_scp'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisind_adm_fun_clu: TStringField
+      FieldName = 'ind_adm_fun_clu'
+      Size = 1
+    end
+    object qryFiliaisind_part_cons: TStringField
+      FieldName = 'ind_part_cons'
+      Size = 1
+    end
+    object qryFiliaisind_op_ext: TStringField
+      FieldName = 'ind_op_ext'
+      Size = 1
+    end
+    object qryFiliaisind_op_vinc: TStringField
+      FieldName = 'ind_op_vinc'
+      Size = 1
+    end
+    object qryFiliaisind_pj_enquad: TStringField
+      FieldName = 'ind_pj_enquad'
+      Size = 1
+    end
+    object qryFiliaisind_part_ext: TStringField
+      FieldName = 'ind_part_ext'
+      Size = 1
+    end
+    object qryFiliaisind_ativ_rural: TStringField
+      FieldName = 'ind_ativ_rural'
+      Size = 1
+    end
+    object qryFiliaisind_luc_exp: TStringField
+      FieldName = 'ind_luc_exp'
+      Size = 1
+    end
+    object qryFiliaisind_red_isen: TStringField
+      FieldName = 'ind_red_isen'
+      Size = 1
+    end
+    object qryFiliaisind_fin: TStringField
+      FieldName = 'ind_fin'
+      Size = 1
+    end
+    object qryFiliaisind_doa_eleit: TStringField
+      FieldName = 'ind_doa_eleit'
+      Size = 1
+    end
+    object qryFiliaisind_part_colig: TStringField
+      FieldName = 'ind_part_colig'
+      Size = 1
+    end
+    object qryFiliaisind_vend_exp: TStringField
+      FieldName = 'ind_vend_exp'
+      Size = 1
+    end
+    object qryFiliaisind_rec_ext: TStringField
+      FieldName = 'ind_rec_ext'
+      Size = 1
+    end
+    object qryFiliaisind_ativ_ext: TStringField
+      FieldName = 'ind_ativ_ext'
+      Size = 1
+    end
+    object qryFiliaisind_com_exp: TStringField
+      FieldName = 'ind_com_exp'
+      Size = 1
+    end
+    object qryFiliaisind_pgto_ext: TStringField
+      FieldName = 'ind_pgto_ext'
+      Size = 1
+    end
+    object qryFiliaisind_e_com_ti: TStringField
+      FieldName = 'ind_e_com_ti'
+      Size = 1
+    end
+    object qryFiliaisind_roy_rec: TStringField
+      FieldName = 'ind_roy_rec'
+      Size = 1
+    end
+    object qryFiliaisind_roy_pag: TStringField
+      FieldName = 'ind_roy_pag'
+      Size = 1
+    end
+    object qryFiliaisind_rend_serv: TStringField
+      FieldName = 'ind_rend_serv'
+      Size = 1
+    end
+    object qryFiliaisind_pgto_rem: TStringField
+      FieldName = 'ind_pgto_rem'
+      Size = 1
+    end
+    object qryFiliaisind_inov_tec: TStringField
+      FieldName = 'ind_inov_tec'
+      Size = 1
+    end
+    object qryFiliaisind_cap_inf: TStringField
+      FieldName = 'ind_cap_inf'
+      Size = 1
+    end
+    object qryFiliaisind_pj_hab: TStringField
+      FieldName = 'ind_pj_hab'
+      Size = 1
+    end
+    object qryFiliaisind_polo_am: TStringField
+      FieldName = 'ind_polo_am'
+      Size = 1
+    end
+    object qryFiliaisind_zon_exp: TStringField
+      FieldName = 'ind_zon_exp'
+      Size = 1
+    end
+    object qryFiliaisind_area_com: TStringField
+      FieldName = 'ind_area_com'
+      Size = 1
+    end
+    object qryFiliaisnaturezajuridica: TIntegerField
+      FieldName = 'naturezajuridica'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisind_aval_estoq: TIntegerField
+      FieldName = 'ind_aval_estoq'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisseriesugestaonfce: TStringField
+      FieldName = 'seriesugestaonfce'
+      Size = 3
+    end
+    object qryFiliaisind_esc_cons: TStringField
+      FieldName = 'ind_esc_cons'
+      Size = 1
+    end
+    object qryFiliaisind_rec_receita: TStringField
+      FieldName = 'ind_rec_receita'
+      Size = 1
+    end
+    object qryFiliaisind_pais_a_pais: TStringField
+      FieldName = 'ind_pais_a_pais'
+      Size = 1
+    end
+    object qryFiliaisclient_id_nfse: TStringField
+      FieldName = 'client_id_nfse'
+      Size = 50
+    end
+    object qryFiliaisclient_secret_nfse: TStringField
+      FieldName = 'client_secret_nfse'
+      Size = 50
+    end
+    object qryFiliaisurlauth_nfse: TStringField
+      FieldName = 'urlauth_nfse'
+      Size = 150
+    end
+    object qryFiliaisusuario_nfse: TStringField
+      FieldName = 'usuario_nfse'
+      Size = 50
+    end
+    object qryFiliaissenha_nfse: TStringField
+      FieldName = 'senha_nfse'
+      Size = 50
+    end
+    object qryFiliaissite_nfse: TStringField
+      FieldName = 'site_nfse'
+      Size = 150
+    end
+    object qryFiliaisurlprocessamento_simplificada: TStringField
+      FieldName = 'urlprocessamento_simplificada'
+      Size = 150
+    end
+    object qryFiliaisurlprocessamento_normal: TStringField
+      FieldName = 'urlprocessamento_normal'
+      Size = 150
+    end
+    object qryFiliaisnumeroseriecertificadodigital: TStringField
+      DisplayWidth = 30
+      FieldName = 'numeroseriecertificadodigital'
+      Size = 50
+    end
+    object qryFiliaissenhacertificadodigital: TStringField
+      FieldName = 'senhacertificadodigital'
+      Size = 15
+    end
+    object qryFiliaisclassificacaotributaria: TStringField
+      FieldName = 'classificacaotributaria'
+      Size = 2
+    end
+    object qryFiliaisiniciovalidadereinf: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'In'#237'cio da validade do reinf'
+      FieldName = 'iniciovalidadereinf'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryFiliaisinddesoneracao: TIntegerField
+      FieldName = 'inddesoneracao'
+    end
+    object qryFiliaisindacordoisenmulta: TIntegerField
+      FieldName = 'indacordoisenmulta'
+    end
+    object qryFiliaisindsitpj: TIntegerField
+      FieldName = 'indsitpj'
+    end
+    object qryFiliaisfinalvalidadereinf: TDateField
+      Alignment = taCenter
+      FieldName = 'finalvalidadereinf'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryFiliaisindescrituracao: TIntegerField
+      FieldName = 'indescrituracao'
+    end
+    object qryFiliaisdatahoraalteracaodadosreinf: TDateTimeField
+      Alignment = taCenter
+      FieldName = 'datahoraalteracaodadosreinf'
+      DisplayFormat = 'dd/MM/yy hh:mm'
+      EditMask = '99/99/99 99:99;1; '
+    end
+    object qryFiliaissdatahoraalteracao: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'sdatahoraalteracao'
+      Size = 50
+      Calculated = True
+    end
+    object qryFiliaismaodeobra: TBooleanField
+      FieldName = 'maodeobra'
+      OnChange = qryFiliaismaodeobraChange
+    end
+    object qryFiliaiscontacaixa: TIntegerField
+      FieldName = 'contacaixa'
+    end
+    object qryFiliaisurlprocessamento_consulta: TStringField
+      FieldName = 'urlprocessamento_consulta'
+      Size = 150
+    end
+    object qryFiliaisaliquotapis: TFloatField
+      FieldName = 'aliquotapis'
+      DisplayFormat = '0.00'
+    end
+    object qryFiliaisaliquotacofins: TFloatField
+      FieldName = 'aliquotacofins'
+      DisplayFormat = '0.00'
+    end
+    object qryFiliaisusuarioemail: TStringField
+      FieldName = 'usuarioemail'
+      Size = 100
+    end
+    object qryFiliaisemailenvio: TStringField
+      FieldName = 'emailenvio'
+      Size = 128
+    end
+    object qryFiliaissenhaemail: TStringField
+      FieldName = 'senhaemail'
+      Size = 100
+    end
+    object qryFiliaishostpop: TStringField
+      FieldName = 'hostpop'
+      Size = 100
+    end
+    object qryFiliaisportapop: TStringField
+      FieldName = 'portapop'
+      Size = 10
+    end
+    object qryFiliaishostsmtp: TStringField
+      FieldName = 'hostsmtp'
+      Size = 100
+    end
+    object qryFiliaisportasmtp: TStringField
+      FieldName = 'portasmtp'
+      Size = 10
+    end
+    object qryFiliaisautenticarsmtp: TBooleanField
+      FieldName = 'autenticarsmtp'
+    end
+    object qryFiliaissmtprequerssl: TBooleanField
+      FieldName = 'smtprequerssl'
+    end
+    object qryFiliaissmtprequertls: TBooleanField
+      FieldName = 'smtprequertls'
+    end
+    object qryFiliaiscod_plan_ref: TIntegerField
+      FieldName = 'cod_plan_ref'
+    end
+    object qryFiliaisregimecontabil: TIntegerField
+      FieldName = 'regimecontabil'
+    end
+    object qryFiliaisexcluiricmsdepisecofins: TBooleanField
+      FieldName = 'excluiricmsdepisecofins'
+    end
+  end
+  object qryConsultaFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Filtro'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select  nome,'
+      '            formatar_cpf_cnpj(cnpj) as cnpj,'
+      '            codigo'
+      'from     filiais'
+      '%Filtro'
+      'order by UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 867
+    Top = 491
+    object qryConsultaFiliaisnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaFiliaiscnpj: TStringField
+      DisplayLabel = 'CNPJ'
+      FieldName = 'cnpj'
+      Size = 18
+    end
+    object qryConsultaFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object qryUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryUsuariosAfterOpen
+    BeforeInsert = qryUsuariosBeforeInsert
+    BeforePost = qryUsuariosBeforePost
+    AfterCancel = qryUsuariosAfterCancel
+    AfterScroll = qryUsuariosAfterScroll
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    OnNewRecord = qryUsuariosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Autorizado'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select codigo,'
+      '       nome,'
+      '       codigofolha,'
+      '       credito,'
+      '       reserva, excluireserva,'
+      '       tipocomissao,'
+      '       inativo,'
+      '       administrador,'
+      '       cobranca,'
+      '       cobranca as cobrancaanterior,'
+      '       venda,'
+      '       atendimento,'
+      '       caixa,'
+      '       filtrosac,'
+      
+        '       (select usename from pg_user where usename = usuarios.use' +
+        'name) as login,'
+      '       ligacao,'
+      '       operador,'
+      '       pagamento,'
+      '       alterarprecocontrato,'
+      '       descontoextra,'
+      '       devolucaoproduto,'
+      '       trocaproduto,'
+      '       devolucaonumerario,'
+      '       alterarfilial,'
+      '       gerenteestoque,'
+      '       gerenteproducao,'
+      '       gerentecaixa,'
+      '       montador,'
+      '       confirmartransfitem,'
+      '       restringirfichacliente,'
+      '       emissornotafiscal,'
+      '       iteclux,'
+      '       alterardadoscontabeis,'
+      '       grupo,'
+      '       email,'
+      '       usuarioemail,'
+      '       senhaemail,'
+      '       hostpop,'
+      '       portapop,'
+      '       hostsmtp,'
+      '       portasmtp,'
+      '       usuarioiteclux,'
+      '       usename,'
+      '       expiracaosenha,'
+      '       diasvalidadesenha,'
+      '       diasavisosenha,'
+      '       assunto,'
+      '       introducao,'
+      '       conclusao,'
+      '       autenticarsmtp,'
+      '       salariohora,'
+      '       anuenio,'
+      '       turno,'
+      '       gerentetecnico,'
+      '       analistasite,'
+      '       setorvenda,'
+      '       rua,'
+      '       nrrua,'
+      '       complemento,'
+      '       bairro,'
+      '       cep,'
+      '       cidade,'
+      '       estado,'
+      '      (Select cd.nome'
+      '       From cidades cd'
+      '       Where cd.estado = usuarios.estado'
+      '         and cd.codigo = usuarios.cidade) as nomecidadeusuario,'
+      ''
+      '      (Select ba.nome'
+      '       From bairros ba'
+      '       Where ba.estado = usuarios.estado'
+      '         and ba.cidade = usuarios.cidade'
+      '         and ba.codigo = usuarios.bairro) as nomebairrousuario,'
+      '      pessoatipo,'
+      '      pessoanumero,'
+      '      gerentevendas,'
+      '      usuario_indicou,'
+      '      smtprequerssl,'
+      '      smtprequertls      '
+      ''
+      'from usuarios'
+      'where (codigo = :codigo)'
+      '%Autorizado')
+    RequestLive = True
+    Left = 56
+    Top = 134
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryUsuarioscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryUsuariosnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+    object qryUsuarioscodigofolha: TIntegerField
+      DisplayLabel = 'C'#243'digo Folha'
+      FieldName = 'codigofolha'
+      DisplayFormat = '0'
+    end
+    object qryUsuarioscredito: TBooleanField
+      DisplayLabel = 'Cr'#233'dito'
+      FieldName = 'credito'
+      Required = True
+    end
+    object qryUsuariosreserva: TBooleanField
+      DisplayLabel = 'Reserva'
+      FieldName = 'reserva'
+      Required = True
+    end
+    object qryUsuariosexcluireserva: TBooleanField
+      FieldName = 'excluireserva'
+    end
+    object qryUsuariostipocomissao: TStringField
+      DisplayLabel = 'Tipo Comiss'#227'o'
+      FieldName = 'tipocomissao'
+      Required = True
+      Size = 1
+    end
+    object qryUsuariosinativo: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Inativo'
+      FieldName = 'inativo'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryUsuariosvenda: TBooleanField
+      DisplayLabel = 'Venda'
+      FieldName = 'venda'
+      Required = True
+    end
+    object qryUsuariosatendimento: TBooleanField
+      DisplayLabel = 'Atendimento'
+      FieldName = 'atendimento'
+      Required = True
+    end
+    object qryUsuarioscaixa: TBooleanField
+      DisplayLabel = 'Caixa'
+      FieldName = 'caixa'
+      Required = True
+    end
+    object qryUsuariosfiltrosac: TIntegerField
+      DisplayLabel = 'Filtro SAC'
+      FieldName = 'filtrosac'
+      DisplayFormat = '0'
+    end
+    object qryUsuariosligacao: TIntegerField
+      DisplayLabel = 'Liga'#231#227'o'
+      FieldName = 'ligacao'
+      DisplayFormat = '0'
+    end
+    object qryUsuariosoperador: TStringField
+      Alignment = taRightJustify
+      DisplayLabel = 'Operador'
+      FieldName = 'operador'
+      Size = 8
+    end
+    object qryUsuariospagamento: TBooleanField
+      DisplayLabel = 'Pagamento'
+      FieldName = 'pagamento'
+      Required = True
+    end
+    object qryUsuariosalterarprecocontrato: TBooleanField
+      FieldName = 'alterarprecocontrato'
+    end
+    object qryUsuariosdescontoextra: TBooleanField
+      FieldName = 'descontoextra'
+    end
+    object qryUsuariosdevolucaoproduto: TBooleanField
+      FieldName = 'devolucaoproduto'
+    end
+    object qryUsuariosdevolucaonumerario: TBooleanField
+      FieldName = 'devolucaonumerario'
+    end
+    object qryUsuariosalterarfilial: TBooleanField
+      FieldName = 'alterarfilial'
+    end
+    object qryUsuariositeclux: TBooleanField
+      FieldName = 'iteclux'
+    end
+    object qryUsuariosgrupo: TIntegerField
+      FieldName = 'grupo'
+      DisplayFormat = '0'
+    end
+    object qryUsuariosalterardadoscontabeis: TBooleanField
+      FieldName = 'alterardadoscontabeis'
+    end
+    object qryUsuariosgerenteestoque: TBooleanField
+      FieldName = 'gerenteestoque'
+    end
+    object qryUsuarioslogin: TStringField
+      FieldName = 'login'
+      Size = 50
+    end
+    object qryUsuariosmontador: TBooleanField
+      FieldName = 'montador'
+    end
+    object qryUsuariosconfirmartransfitem: TBooleanField
+      FieldName = 'confirmartransfitem'
+    end
+    object qryUsuariosrestringirfichacliente: TBooleanField
+      FieldName = 'restringirfichacliente'
+    end
+    object qryUsuariosemissornotafiscal: TBooleanField
+      FieldName = 'emissornotafiscal'
+    end
+    object qryUsuariosgerentecaixa: TBooleanField
+      FieldName = 'gerentecaixa'
+    end
+    object qryUsuariosadministrador: TBooleanField
+      FieldName = 'administrador'
+    end
+    object qryUsuariostrocaproduto: TBooleanField
+      FieldName = 'trocaproduto'
+    end
+    object qryUsuariosemail: TStringField
+      FieldName = 'email'
+      Size = 128
+    end
+    object qryUsuariosusuarioemail: TStringField
+      FieldName = 'usuarioemail'
+      Size = 100
+    end
+    object qryUsuariossenhaemail: TStringField
+      FieldName = 'senhaemail'
+      Size = 100
+    end
+    object qryUsuarioshostpop: TStringField
+      FieldName = 'hostpop'
+      Size = 100
+    end
+    object qryUsuariosportapop: TStringField
+      FieldName = 'portapop'
+      Size = 10
+    end
+    object qryUsuarioshostsmtp: TStringField
+      FieldName = 'hostsmtp'
+      Size = 100
+    end
+    object qryUsuariosportasmtp: TStringField
+      FieldName = 'portasmtp'
+      Size = 10
+    end
+    object qryUsuariosusuarioiteclux: TStringField
+      FieldName = 'usuarioiteclux'
+      Size = 100
+    end
+    object qryUsuariosusename: TStringField
+      FieldName = 'usename'
+      Required = True
+      Size = 32
+    end
+    object qryUsuariosexpiracaosenha: TDateField
+      Alignment = taCenter
+      FieldName = 'expiracaosenha'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryUsuariosdiasvalidadesenha: TIntegerField
+      FieldName = 'diasvalidadesenha'
+      DisplayFormat = '0'
+    end
+    object qryUsuariosdiasavisosenha: TIntegerField
+      FieldName = 'diasavisosenha'
+      DisplayFormat = '0'
+    end
+    object qryUsuariosautenticarsmtp: TBooleanField
+      FieldName = 'autenticarsmtp'
+    end
+    object qryUsuariosAssunto: TStringField
+      FieldName = 'Assunto'
+      Size = 80
+    end
+    object qryUsuariosintroducao: TStringField
+      FieldName = 'introducao'
+      Size = 200
+    end
+    object qryUsuariosconclusao: TStringField
+      FieldName = 'conclusao'
+      Size = 200
+    end
+    object qryUsuariossalariohora: TFloatField
+      FieldName = 'salariohora'
+      DisplayFormat = '0.00'
+    end
+    object qryUsuariosanuenio: TFloatField
+      FieldName = 'anuenio'
+      DisplayFormat = '0.00'
+    end
+    object qryUsuariosturno: TIntegerField
+      FieldName = 'turno'
+      DisplayFormat = '0'
+    end
+    object qryUsuariosgerenteproducao: TBooleanField
+      FieldName = 'gerenteproducao'
+    end
+    object qryUsuariosgerentetecnico: TBooleanField
+      FieldName = 'gerentetecnico'
+    end
+    object qryUsuarioscobranca: TBooleanField
+      FieldName = 'cobranca'
+      OnChange = qryUsuarioscobrancaChange
+    end
+    object qryUsuarioscobrancaanterior: TBooleanField
+      FieldName = 'cobrancaanterior'
+    end
+    object qryUsuariosanalistasite: TBooleanField
+      FieldName = 'analistasite'
+    end
+    object qryUsuariossetorvenda: TIntegerField
+      FieldName = 'setorvenda'
+      DisplayFormat = '0'
+    end
+    object qryUsuariosrua: TStringField
+      FieldName = 'rua'
+      Size = 100
+    end
+    object qryUsuariosnrrua: TStringField
+      FieldName = 'nrrua'
+    end
+    object qryUsuarioscomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 100
+    end
+    object qryUsuariosbairro: TIntegerField
+      FieldName = 'bairro'
+    end
+    object qryUsuarioscep: TIntegerField
+      FieldName = 'cep'
+    end
+    object qryUsuarioscidade: TIntegerField
+      FieldName = 'cidade'
+    end
+    object qryUsuariosestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryUsuariosnomecidadeusuario: TStringField
+      FieldName = 'nomecidadeusuario'
+      Size = 40
+    end
+    object qryUsuariosnomebairrousuario: TStringField
+      FieldName = 'nomebairrousuario'
+      Size = 80
+    end
+    object qryUsuariospessoatipo: TStringField
+      FieldName = 'pessoatipo'
+      Size = 1
+    end
+    object qryUsuariospessoanumero: TStringField
+      FieldName = 'pessoanumero'
+      Size = 14
+    end
+    object qryUsuariosgerentevendas: TBooleanField
+      FieldName = 'gerentevendas'
+    end
+    object qryUsuariosusuario_indicou: TIntegerField
+      FieldName = 'usuario_indicou'
+    end
+    object qryUsuariossmtprequerssl: TBooleanField
+      FieldName = 'smtprequerssl'
+    end
+    object qryUsuariossmtprequertls: TBooleanField
+      FieldName = 'smtprequertls'
+    end
+  end
+  object dsrUsuarios: TtecDataSource
+    DataSet = qryUsuarios
+    OnDataChange = dsrUsuariosDataChange
+    Left = 67
+    Top = 154
+  end
+  object qryConsultaUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '         nome'
+      'from usuarios'
+      '/* Preenchido em runtime */'
+      'order by UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 326
+    Top = 597
+    object qryConsultaUsuariosnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaUsuarioscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object qryEstado: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * from estados order by UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
+    RequestLive = True
+    Left = 654
+    Top = 8
+    object qryEstadocodigo: TStringField
+      FieldName = 'codigo'
+      Required = True
+      Size = 2
+    end
+    object qryEstadonome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 30
+    end
+    object qryEstadopontos: TIntegerField
+      FieldName = 'pontos'
+    end
+  end
+  object dsrEstado: TtecDataSource
+    DataSet = qryEstado
+    Left = 670
+    Top = 22
+  end
+  object qryIDLogin: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select usesysid,'
+      '           usename,'
+      '           usesuper,'
+      
+        '           (select codigo from usuarios where usename=:login) as' +
+        ' codigousuario'
+      'from pg_user '
+      'where usename =:login')
+    RequestLive = False
+    Left = 875
+    Top = 341
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'login'
+        ParamType = ptUnknown
+      end>
+    object qryIDLoginusesysid: TIntegerField
+      FieldName = 'usesysid'
+      DisplayFormat = '0'
+    end
+    object qryIDLoginusesuper: TBooleanField
+      FieldName = 'usesuper'
+    end
+    object qryIDLoginusename: TStringField
+      FieldName = 'usename'
+      Size = 50
+    end
+    object qryIDLogincodigousuario: TIntegerField
+      FieldName = 'codigousuario'
+    end
+  end
+  object qryMetasUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterDelete = qryMetasUsuariosAfterDelete
+    OnPostError = PostError
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select usuario,'
+      '           mesano,'
+      '           valor,'
+      '           tipo,'
+      '           comissao,'
+      '           uteismeta,'
+      '           uteismes,'
+      
+        '           cast((substr(mesano,1,2) || '#39'/'#39' || substr(mesano,3,4)' +
+        ') as varchar) as mesanoeditado'
+      'From   metasusuarios'
+      'Where  usuario =:codigo'
+      'Order by substr(mesano,3,4), substr(mesano,1,2)')
+    RequestLive = True
+    Left = 198
+    Top = 9
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Codigo'
+        ParamType = ptUnknown
+        Value = 1
+      end>
+    object qryMetasUsuariosusuario: TIntegerField
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryMetasUsuariosmesano: TStringField
+      DisplayLabel = 'M'#234's/Ano'
+      FieldName = 'mesano'
+      Size = 6
+    end
+    object qryMetasUsuariosvalor: TFloatField
+      DisplayLabel = 'Valor'
+      FieldName = 'valor'
+      Required = True
+    end
+    object qryMetasUsuariostipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Required = True
+      Size = 1
+    end
+    object qryMetasUsuarioscomissao: TFloatField
+      DisplayLabel = 'Comiss'#227'o'
+      FieldName = 'comissao'
+      Required = True
+      DisplayFormat = '##0.00'
+    end
+    object qryMetasUsuariosuteismeta: TIntegerField
+      DisplayLabel = 'Dias '#250'teis meta'
+      FieldName = 'uteismeta'
+      Required = True
+    end
+    object qryMetasUsuariosuteismes: TIntegerField
+      DisplayLabel = 'Dias '#250'teis m'#234's'
+      FieldName = 'uteismes'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMetasUsuariosmesanoeditado: TStringField
+      DisplayLabel = 'M'#234's/Ano'
+      FieldName = 'mesanoeditado'
+      Required = True
+      Size = 7
+    end
+  end
+  object dsrMetasUsuarios: TtecDataSource
+    DataSet = qryMetasUsuarios
+    Left = 214
+    Top = 21
+  end
+  object dsrProcuraFiltros: TtecDataSource
+    DataSet = qryProcuraFiltros
+    Left = 679
+    Top = 155
+  end
+  object qryProcuraFiltros: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select Descricao,'
+      '           Numero'
+      'from    filtrossac'
+      'where Numero =:Numero')
+    RequestLive = False
+    Left = 664
+    Top = 141
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Numero'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFiltrosdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 30
+    end
+    object qryProcuraFiltrosnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+  end
+  object qryConsultaFiltros: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select Descricao,'
+      '           Numero'
+      'From   filtrossac'
+      'Order By UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 326
+    Top = 489
+    object qryConsultaFiltrosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Required = True
+      Size = 30
+    end
+    object qryConsultaFiltrosnumero: TIntegerField
+      DisplayLabel = 'N'#250'mero'
+      FieldName = 'numero'
+      Required = True
+    end
+  end
+  object qryComissoesUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterDelete = qryComissoesUsuariosAfterDelete
+    OnPostError = PostError
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select *'
+      'From comissoesusuarios'
+      'Where (usuario =:codigo)'
+      'order by limite')
+    RequestLive = True
+    Left = 491
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Codigo'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryComissoesUsuariosusuario: TIntegerField
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryComissoesUsuariosnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '000#'
+    end
+    object qryComissoesUsuarioslimite: TFloatField
+      DisplayLabel = 'Limite'
+      FieldName = 'limite'
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryComissoesUsuariospercprazo: TFloatField
+      DisplayLabel = '% Prazo'
+      FieldName = 'percprazo'
+      Required = True
+      DisplayFormat = '##0.00'
+    end
+    object qryComissoesUsuariospercvista: TFloatField
+      DisplayLabel = '% Vista'
+      FieldName = 'percvista'
+      Required = True
+      DisplayFormat = '##0.00'
+    end
+    object qryComissoesUsuariospercentrada: TFloatField
+      DisplayLabel = '% Entrada'
+      FieldName = 'percentrada'
+      Required = True
+      DisplayFormat = '##0.00'
+    end
+  end
+  object dsrComissoesUsuarios: TtecDataSource
+    DataSet = qryComissoesUsuarios
+    Left = 509
+    Top = 20
+  end
+  object qryConsultaFornecedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select Codigo,'
+      '           Nome,'
+      '           Estado,'
+      '           PessoaNumero'
+      'From   fornecedores'
+      'order by UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 326
+    Top = 544
+    object qryConsultaFornecedoresnome: TStringField
+      DisplayLabel = 'Nome'
+      DisplayWidth = 45
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaFornecedorescodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      DisplayWidth = 10
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryConsultaFornecedorespessoanumero: TStringField
+      DisplayLabel = 'CNPJ/CPF'
+      FieldName = 'pessoanumero'
+      Size = 14
+    end
+    object qryConsultaFornecedoresestado: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'UF'
+      DisplayWidth = 4
+      FieldName = 'estado'
+      Size = 2
+    end
+  end
+  object qryProcuraFilialContabil: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '             nome'
+      'from filiais'
+      'where codigo = :codigo')
+    RequestLive = False
+    Left = 352
+    Top = 341
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFilialContabilcodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcuraFilialContabilnome: TStringField
+      DisplayWidth = 40
+      FieldName = 'nome'
+      Required = True
+      Size = 60
+    end
+  end
+  object dsrProcuraFilialContabil: TtecDataSource
+    DataSet = qryProcuraFilialContabil
+    Left = 375
+    Top = 353
+  end
+  object qryProcuraFornecedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '             nome'
+      'from fornecedores'
+      'where codigo = :codigo')
+    RequestLive = False
+    Left = 504
+    Top = 141
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = ''
+      end>
+    object qryProcuraFornecedoresCodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcuraFornecedoresnome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+  end
+  object dsrProcuraFornecedores: TtecDataSource
+    DataSet = qryProcuraFornecedores
+    Left = 519
+    Top = 153
+  end
+  object qryProcuraFilialMontagem: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '             nome'
+      'from filiais'
+      'where codigo = :codigo')
+    RequestLive = False
+    Left = 348
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFilialMontagemcodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcuraFilialMontagemnome: TStringField
+      DisplayWidth = 40
+      FieldName = 'nome'
+      Required = True
+      Size = 60
+    end
+  end
+  object dsrProcuraFilialMontagem: TtecDataSource
+    DataSet = qryProcuraFilialMontagem
+    Left = 360
+    Top = 84
+  end
+  object qryConsultaColunas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  Codigo,'
+      '            Descricao'
+      'From   colunas'
+      'Order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 196
+    Top = 491
+    object qryConsultaColunasdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 15
+    end
+    object qryConsultaColunascodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+    end
+  end
+  object qryProcuraColunasNormal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select Codigo,'
+      '           Descricao'
+      'From  colunas'
+      'Where Codigo =:Codigo')
+    RequestLive = False
+    Left = 504
+    Top = 208
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraColunasNormalcodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraColunasNormaldescricao: TStringField
+      FieldName = 'descricao'
+      Size = 15
+    end
+  end
+  object dsrProcuraColunasNormal: TtecDataSource
+    DataSet = qryProcuraColunasNormal
+    Left = 520
+    Top = 220
+  end
+  object qryProcuraColunasPromocao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select Codigo,'
+      '           Descricao'
+      'From  colunas'
+      'Where Codigo =:Codigo')
+    RequestLive = False
+    Left = 660
+    Top = 73
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraColunasPromocaocodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraColunasPromocaodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 15
+    end
+  end
+  object dsrProcuraColunasPromocao: TtecDataSource
+    DataSet = qryProcuraColunasPromocao
+    Left = 668
+    Top = 85
+  end
+  object qryProcuraFilial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  codigo, nome'
+      'From     filiais'
+      'Where  codigo = :codigo'
+      '/*runtime*/')
+    RequestLive = False
+    Left = 656
+    Top = 208
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFilialcodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraFilialnome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+  end
+  object dsrProcuraFilial: TtecDataSource
+    DataSet = qryProcuraFilial
+    Left = 672
+    Top = 220
+  end
+  object qryProcuraModulos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select m. codigo,'
+      '       m.descricao'
+      'from modulos m'
+      'where m.codigo = :codigo')
+    RequestLive = False
+    Left = 504
+    Top = 272
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = '1'
+      end>
+    object qryProcuraModulosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryProcuraModuloscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrProcuraModulos: TtecDataSource
+    DataSet = qryProcuraModulos
+    Left = 518
+    Top = 284
+  end
+  object qryConsultaModulos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select m. codigo,'
+      '       m.descricao'
+      'from modulos m'
+      'order by UPPER(TO_ASCII(m.descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 196
+    Top = 544
+    object qryConsultaModulosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryConsultaModuloscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object dsrComissoesCobranca: TDataSource
+    DataSet = qryComissoesCobranca
+    Left = 204
+    Top = 85
+  end
+  object qryComissoesCobranca: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterDelete = qryComissoesCobrancaAfterDelete
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select c.usuario,'
+      '           c.evento,'
+      '           c.percfaixa_1,'
+      '           c.percfaixa_2,'
+      '           c.percfaixa_3,'
+      '           c.percfaixa_4,'
+      '           e.descricao '
+      'From   comissoescobranca c, eventoscobranca e'
+      'Where (usuario = :codigo) and'
+      '           (c.evento = e.codigo)')
+    RequestLive = True
+    Left = 195
+    Top = 73
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryComissoesCobrancausuario: TIntegerField
+      FieldName = 'usuario'
+    end
+    object qryComissoesCobrancaevento: TIntegerField
+      FieldName = 'evento'
+    end
+    object qryComissoesCobrancapercfaixa_1: TFloatField
+      FieldName = 'percfaixa_1'
+    end
+    object qryComissoesCobrancapercfaixa_2: TFloatField
+      FieldName = 'percfaixa_2'
+    end
+    object qryComissoesCobrancapercfaixa_3: TFloatField
+      FieldName = 'percfaixa_3'
+    end
+    object qryComissoesCobrancapercfaixa_4: TFloatField
+      FieldName = 'percfaixa_4'
+    end
+    object qryComissoesCobrancadescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object qryEventosCobranca: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select *'
+      'From   eventoscobranca')
+    RequestLive = False
+    Left = 668
+    Top = 341
+    object qryEventosCobrancacodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryEventosCobrancadescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object qryGruposUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qryGruposUsuariosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select p.codigo,'
+      '       p.nome,'
+      '       p.analistacredito,'
+      '       p.reservaproduto, excluireservaproduto,'
+      '       p.caixa,'
+      '       p.vendedor,'
+      '       p.cobrador,'
+      '       p.pagamento,'
+      '       p.atendente,'
+      '       p.alterarPrecoContrato,'
+      '       p.descontoExtra,'
+      '       p.devolucaoProduto,'
+      '       p.trocaproduto,'
+      '       p.devolucaoNumerario,'
+      '       p.alterarfilial,'
+      '       p.gerenteestoque,'
+      '       p.gerentecaixa,'
+      '       p.montador,'
+      '       p.confirmartransfitem,'
+      '       p.restringirfichacliente,'
+      '       p.emissornotafiscal,'
+      '       p.iteclux,'
+      '       p.alterardadoscontabeis,'
+      '       p.grupopostgresql'
+      'from gruposusuarios p'
+      'where p.codigo = :codigo')
+    RequestLive = True
+    Left = 52
+    Top = 337
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryGruposUsuarioscodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryGruposUsuariosnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 30
+    end
+    object qryGruposUsuariosanalistacredito: TBooleanField
+      FieldName = 'analistacredito'
+    end
+    object qryGruposUsuariosreservaproduto: TBooleanField
+      FieldName = 'reservaproduto'
+    end
+    object qryGruposUsuariosexcluireservaproduto: TBooleanField
+      FieldName = 'excluireservaproduto'
+    end
+    object qryGruposUsuarioscaixa: TBooleanField
+      FieldName = 'caixa'
+    end
+    object qryGruposUsuariosvendedor: TBooleanField
+      FieldName = 'vendedor'
+    end
+    object qryGruposUsuarioscobranca: TBooleanField
+      FieldName = 'cobrador'
+    end
+    object qryGruposUsuariospagamento: TBooleanField
+      FieldName = 'pagamento'
+    end
+    object qryGruposUsuariosatendimento: TBooleanField
+      FieldName = 'atendente'
+    end
+    object qryGruposUsuariosalterarprecocontrato: TBooleanField
+      FieldName = 'alterarprecocontrato'
+    end
+    object qryGruposUsuariosdescontoextra: TBooleanField
+      FieldName = 'descontoextra'
+    end
+    object qryGruposUsuariosdevolucaoproduto: TBooleanField
+      FieldName = 'devolucaoproduto'
+    end
+    object qryGruposUsuariosgrupopostgresql: TIntegerField
+      FieldName = 'grupopostgresql'
+      DisplayFormat = '0'
+    end
+    object qryGruposUsuariosdevolucaonumerario: TBooleanField
+      FieldName = 'devolucaonumerario'
+    end
+    object qryGruposUsuariosalterarfilial: TBooleanField
+      FieldName = 'alterarfilial'
+    end
+    object qryGruposUsuariositeclux: TBooleanField
+      FieldName = 'iteclux'
+    end
+    object qryGruposUsuariosgerenteestoque: TBooleanField
+      FieldName = 'gerenteestoque'
+    end
+    object qryGruposUsuariosalterardadoscontabeis: TBooleanField
+      FieldName = 'alterardadoscontabeis'
+    end
+    object qryGruposUsuariosmontador: TBooleanField
+      FieldName = 'montador'
+    end
+    object qryGruposUsuariosconfirmartransfitem: TBooleanField
+      FieldName = 'confirmartransfitem'
+    end
+    object qryGruposUsuariosrestringirfichacliente: TBooleanField
+      FieldName = 'restringirfichacliente'
+    end
+    object qryGruposUsuariosemissornotafiscal: TBooleanField
+      FieldName = 'emissornotafiscal'
+    end
+    object qryGruposUsuariosgerentecaixa: TBooleanField
+      FieldName = 'gerentecaixa'
+    end
+    object qryGruposUsuariostrocaproduto: TBooleanField
+      FieldName = 'trocaproduto'
+    end
+  end
+  object dsrGruposUsuarios: TtecDataSource
+    DataSet = qryGruposUsuarios
+    Left = 67
+    Top = 350
+  end
+  object qryProcuraGrupoPostgreSQL: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select grosysid,'
+      '       groname'
+      'from pg_group'
+      'where grosysid = :groupsysid'
+      'order by UPPER(TO_ASCII(groname,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 348
+    Top = 142
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'groupsysid'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraGrupoPostgreSQLgrosysid: TIntegerField
+      FieldName = 'grosysid'
+      DisplayFormat = '0'
+    end
+    object qryProcuraGrupoPostgreSQLgroname: TStringField
+      FieldName = 'groname'
+      Size = 32
+    end
+  end
+  object dsrProcuraGrupoPostgreSQL: TtecDataSource
+    DataSet = qryProcuraGrupoPostgreSQL
+    Left = 360
+    Top = 154
+  end
+  object qryConsultaGrupoPostgreSQL: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select groname,'
+      '       grosysid'
+      'from pg_group'
+      'order by UPPER(TO_ASCII(groname,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 462
+    Top = 493
+    object qryConsultaGrupoPostgreSQLgroname: TStringField
+      DisplayLabel = 'Nome grupo'
+      FieldName = 'groname'
+      Size = 15
+    end
+    object qryConsultaGrupoPostgreSQLgrosysid: TIntegerField
+      FieldName = 'grosysid'
+      Visible = False
+    end
+  end
+  object qryConsultaGruposUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select p.nome,'
+      '       p.codigo'
+      'from gruposusuarios p'
+      'order by UPPER(TO_ASCII(p.nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 612
+    Top = 492
+    object qryConsultaGruposUsuariosnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 30
+    end
+    object qryConsultaGruposUsuarioscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object spcGruposUsuariosProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select gruposusuarios_proximocodigo() as codigo')
+    RequestLive = False
+    Left = 675
+    Top = 405
+    object spcGruposUsuariosProximocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object qryProcuraGrupoUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '       nome'
+      'from gruposusuarios'
+      'where codigo = :codigo')
+    RequestLive = False
+    Left = 348
+    Top = 212
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraGrupoUsuarioscodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcuraGrupoUsuariosnome: TStringField
+      FieldName = 'nome'
+      Size = 30
+    end
+  end
+  object dsrProcuraGrupoUsuarios: TtecDataSource
+    DataSet = qryProcuraGrupoUsuarios
+    Left = 364
+    Top = 224
+  end
+  object qrySeriesFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeInsert = qrySeriesFiliaisBefore
+    BeforeEdit = qrySeriesFiliaisBefore
+    BeforeDelete = qrySeriesFiliaisBefore
+    AfterScroll = qrySeriesFiliaisAfterScroll
+    OnNewRecord = qrySeriesFiliaisNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from seriesfiliais'
+      'where filial = :filial')
+    RequestLive = True
+    Left = 195
+    Top = 142
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qrySeriesFiliaisfilial: TIntegerField
+      DisplayLabel = 'Fiial'
+      FieldName = 'filial'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qrySeriesFiliaisvalor: TStringField
+      DisplayLabel = 'S'#233'rie'
+      FieldName = 'valor'
+      Required = True
+      Size = 3
+    end
+    object qrySeriesFiliaisnumeroinicial: TIntegerField
+      DisplayLabel = 'N'#250'mero Inicial'
+      FieldName = 'numeroinicial'
+      Required = True
+      DisplayFormat = '000,000'
+    end
+    object qrySeriesFiliaisnumerofinal: TIntegerField
+      DisplayLabel = 'N'#250'mero Final'
+      FieldName = 'numerofinal'
+      Required = True
+      DisplayFormat = '000,000'
+    end
+    object qrySeriesFiliaismodelonota: TIntegerField
+      FieldName = 'modelonota'
+      DisplayFormat = '0'
+    end
+    object qrySeriesFiliaismodelodoctofiscal: TStringField
+      FieldName = 'modelodoctofiscal'
+      Size = 2
+    end
+    object qrySeriesFiliaisativa: TBooleanField
+      FieldName = 'ativa'
+    end
+    object qrySeriesFiliaisrequerconfirmacao: TBooleanField
+      FieldName = 'requerconfirmacao'
+    end
+  end
+  object dsrSeriesFiliais: TtecDataSource
+    DataSet = qrySeriesFiliais
+    Left = 208
+    Top = 153
+  end
+  object qryProcuraModelosNotasFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '          descricao'
+      'from modelosnotasfiscais'
+      'where codigo = :codigo')
+    RequestLive = False
+    Left = 198
+    Top = 209
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraModelosNotasFiscaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcuraModelosNotasFiscaisdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 50
+    end
+  end
+  object dsrProcuraModelosNotasFiscais: TtecDataSource
+    DataSet = qryProcuraModelosNotasFiscais
+    Left = 208
+    Top = 222
+  end
+  object qryConsultaModelosNotasFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '          descricao'
+      'from modelosnotasfiscais'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 459
+    Top = 597
+    object qryConsultaModelosNotasFiscaisdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryConsultaModelosNotasFiscaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object qryManutencaoLogin: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = False
+    Left = 835
+    Top = 274
+  end
+  object dsrConsultaFiliais: TtecDataSource
+    DataSet = qryConsultaFiliais
+    Left = 883
+    Top = 504
+  end
+  object qryExisteSerieFilialNotas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select * from'
+      '('
+      'select min(numero) as menornumero,'
+      '         max(numero) as maiornumero'
+      'from Notas'
+      'where filial = :filial and'
+      '         serie = :serie'
+      ') as temp'
+      'where menornumero is not null ')
+    RequestLive = False
+    Left = 68
+    Top = 544
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'serie'
+        ParamType = ptUnknown
+      end>
+    object qryExisteSerieFilialNotasmenornumero: TIntegerField
+      FieldName = 'menornumero'
+      DisplayFormat = '0'
+    end
+    object qryExisteSerieFilialNotasmaiornumero: TIntegerField
+      FieldName = 'maiornumero'
+      DisplayFormat = '0'
+    end
+  end
+  object qryExisteSerieFilialNotasPag: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select * from'
+      '('
+      'select min(numero) as menornumero,'
+      '         max(numero) as maiornumero '
+      'from NotasPag'
+      'where fornecedor = :filial and'
+      '         TipoFornecedor = '#39'L'#39' and '
+      '         serie = :serie'
+      ') as temp'
+      'where menornumero is not null')
+    RequestLive = False
+    Left = 64
+    Top = 488
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'serie'
+        ParamType = ptUnknown
+      end>
+    object qryExisteSerieFilialNotasPagmenornumero: TIntegerField
+      FieldName = 'menornumero'
+      DisplayFormat = '0'
+    end
+    object qryExisteSerieFilialNotasPagmaiornumero: TIntegerField
+      FieldName = 'maiornumero'
+      DisplayFormat = '0'
+    end
+  end
+  object qrySetoresUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterDelete = qrySetoresUsuariosAfterDelete
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select s.usuario,'
+      '           s.grupo,'
+      '           g.descricao'
+      'From   usuariossetores s, grupos g'
+      'Where (g.codigo = s.grupo) and'
+      '           (usuario=:usuario)')
+    RequestLive = True
+    Left = 196
+    Top = 343
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end>
+    object qrySetoresUsuariosusuario: TIntegerField
+      FieldName = 'usuario'
+    end
+    object qrySetoresUsuariosgrupo: TStringField
+      DisplayLabel = 'Grupo'
+      FieldName = 'grupo'
+      Required = True
+      Size = 4
+    end
+    object qrySetoresUsuariosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object dsrSetoresUsuarios: TtecDataSource
+    DataSet = qrySetoresUsuarios
+    Left = 211
+    Top = 354
+  end
+  object qryProcuraSetores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select   codigo,'
+      '             descricao'
+      'From     grupos'
+      'Where   (codigo=:codigo)'
+      '/*         Preencher em RunTime       */')
+    RequestLive = False
+    Left = 502
+    Top = 407
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraSetorescodigo: TStringField
+      FieldName = 'codigo'
+      Size = 4
+    end
+    object qryProcuraSetoresdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object qryConsultaSetores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select   descricao,'
+      '             codigo'
+      'From     grupos'
+      '/*     Preencher em  RunTime       */'
+      'Order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 614
+    Top = 545
+    object qryConsultaSetoresdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryConsultaSetorescodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Size = 4
+    end
+  end
+  object dsrProcuraSetor: TtecDataSource
+    DataSet = qryProcuraSetores
+    Left = 515
+    Top = 418
+  end
+  object qryFatoresPrecosFilial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select fpf.fatorpreco,'
+      '           fpf.filial,'
+      '           fpf.fator,'
+      '           fp.descricao'
+      'From   fatoresprecosfiliais fpf, fatorespreco fp'
+      'Where (fpf.filial =:filial)'
+      '    and (fpf.fatorpreco = fp.codigo)'
+      'Order By fpf.fatorpreco')
+    RequestLive = True
+    Left = 504
+    Top = 337
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryFatoresPrecosFilialfatorpreco: TStringField
+      FieldName = 'fatorpreco'
+      Required = True
+      Size = 4
+    end
+    object qryFatoresPrecosFilialfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryFatoresPrecosFilialfator: TFloatField
+      FieldName = 'fator'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryFatoresPrecosFilialdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object dsrFatoresPrecosFilial: TtecDataSource
+    DataSet = qryFatoresPrecosFilial
+    OnDataChange = dsrFatoresPrecosFilialDataChange
+    Left = 520
+    Top = 351
+  end
+  object qryProcuraFatoresPrecos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo,'
+      '           descricao'
+      'From   fatorespreco'
+      'Where codigo =:codigo'
+      '/*        Preenchido em RunTime    */')
+    RequestLive = False
+    Left = 352
+    Top = 405
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFatoresPrecoscodigo: TStringField
+      FieldName = 'codigo'
+      Required = True
+      Size = 4
+    end
+    object qryProcuraFatoresPrecosdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 30
+    end
+  end
+  object dsrProcuraFatoresPreco: TtecDataSource
+    DataSet = qryProcuraFatoresPrecos
+    Left = 367
+    Top = 418
+  end
+  object qryConsultaFatoresPrecos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select descricao,'
+      '           codigo'
+      'From   fatorespreco'
+      '/*         Preenchido em RunTime    */'
+      'Order By UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 736
+    Top = 557
+    object qryConsultaFatoresPrecosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryConsultaFatoresPrecoscodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Size = 4
+    end
+  end
+  object qryComissoesUsuariosGrupos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterDelete = qryComissoesUsuariosGruposAfterDelete
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cug.usuario,'
+      '          cug.grupo,'
+      
+        '          (select g.descricao from grupos g where g.codigo = cug' +
+        '.grupo) as descricao,'
+      '          cug.tipocomissao,'
+      '          cug.comissao'
+      'from comissoesusuariosgrupos cug'
+      'where cug.usuario = :usuario')
+    RequestLive = True
+    Left = 200
+    Top = 272
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end>
+    object qryComissoesUsuariosGruposusuario: TIntegerField
+      FieldName = 'usuario'
+    end
+    object qryComissoesUsuariosGruposgrupo: TStringField
+      DisplayLabel = 'Grupo'
+      FieldName = 'grupo'
+      Required = True
+      Size = 4
+    end
+    object qryComissoesUsuariosGruposdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryComissoesUsuariosGrupostipocomissao: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipocomissao'
+      Required = True
+      Size = 1
+    end
+    object qryComissoesUsuariosGruposcomissao: TFloatField
+      DisplayLabel = 'Comiss'#227'o'
+      FieldName = 'comissao'
+      Required = True
+    end
+  end
+  object dsrComissoesUsuariosGrupos: TtecDataSource
+    DataSet = qryComissoesUsuariosGrupos
+    Left = 215
+    Top = 284
+  end
+  object qryProcuraGrupos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select grupos.codigo, grupos.descricao'
+      'from grupos'
+      'where grupos.codigo = :codigo'
+      '/* editado em run time */')
+    RequestLive = False
+    Left = 200
+    Top = 403
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraGruposcodigo: TStringField
+      FieldName = 'codigo'
+      Size = 4
+    end
+    object qryProcuraGruposdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object dsrProcuraGrupos: TtecDataSource
+    DataSet = qryProcuraGrupos
+    Left = 216
+    Top = 415
+  end
+  object qryConsultaGrupos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select grupos.descricao,'
+      '          grupos.codigo'
+      'from grupos'
+      '/* editado em run time */'
+      'order by UPPER(TO_ASCII(grupos.descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 460
+    Top = 548
+    object qryConsultaGruposdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryConsultaGruposcodigo: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Size = 4
+    end
+  end
+  object qryComissoesUsuariosClasses: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterDelete = qryComissoesUsuariosClassesAfterDelete
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cuc.usuario,'
+      '          cuc.classe,'
+      
+        '          (select cl.descricao from classes cl where cl.codigo =' +
+        ' cuc.classe) as descricao,'
+      '          cuc.tipocomissao,'
+      '          cuc.comissao'
+      'from comissoesusuariosclasses cuc'
+      'where cuc.usuario = : usuario')
+    RequestLive = True
+    Left = 504
+    Top = 74
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end>
+    object qryComissoesUsuariosClassesusuario: TIntegerField
+      DisplayLabel = 'Usu'#225'rio'
+      FieldName = 'usuario'
+      Required = True
+    end
+    object qryComissoesUsuariosClassesclasse: TStringField
+      DisplayLabel = 'Classe'
+      FieldName = 'classe'
+      Required = True
+      Size = 2
+    end
+    object qryComissoesUsuariosClassesdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryComissoesUsuariosClassestipocomissao: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipocomissao'
+      Required = True
+      Size = 1
+    end
+    object qryComissoesUsuariosClassescomissao: TFloatField
+      DisplayLabel = 'Comiss'#227'o'
+      FieldName = 'comissao'
+      Required = True
+    end
+  end
+  object dsrComissoesUsuariosClasses: TtecDataSource
+    DataSet = qryComissoesUsuariosClasses
+    Left = 520
+    Top = 86
+  end
+  object qryProcuraClasses: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select classes.codigo, classes.descricao'
+      'from classes'
+      'where classes.codigo = :codigo'
+      '/* editado em run time */')
+    RequestLive = False
+    Left = 352
+    Top = 275
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraClassescodigo: TStringField
+      FieldName = 'codigo'
+      Size = 2
+    end
+    object qryProcuraClassesdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object dsrProcuraClasses: TtecDataSource
+    DataSet = qryProcuraClasses
+    Left = 368
+    Top = 286
+  end
+  object qryConsultaClasses: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select classes.descricao,'
+      '          classes.codigo'
+      'from classes'
+      '/* editado em run time */'
+      'order by UPPER(TO_ASCII(classes.descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 612
+    Top = 597
+    object qryConsultaClassesdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryConsultaClassescodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Size = 2
+    end
+  end
+  object qryConsultaCodigoUsuario: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryUsuariosAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '           nome'
+      'from usuarios'
+      'where codigo = :Codigo')
+    RequestLive = False
+    Left = 750
+    Top = 492
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Codigo'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaCodigoUsuariocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryConsultaCodigoUsuarionome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+  end
+  object qryUseSys: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select max(usesysid) as maxusesysid'
+      'from pg_user ')
+    RequestLive = False
+    Left = 795
+    Top = 404
+    object qryUseSysmaxusesysid: TIntegerField
+      FieldName = 'maxusesysid'
+    end
+  end
+  object qryMaxUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select max(codigo) as codigo'
+      'from usuarios')
+    RequestLive = False
+    Left = 792
+    Top = 342
+    object qryMaxUsuarioscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object qryProcuraFilialConsolidadoraDime: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  Codigo,'
+      '               Nome'
+      'From     filiais'
+      'Where  Codigo =:Codigo')
+    RequestLive = False
+    Left = 664
+    Top = 273
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFilialConsolidadoraDimecodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcuraFilialConsolidadoraDimenome: TStringField
+      DisplayWidth = 40
+      FieldName = 'nome'
+      Size = 60
+    end
+  end
+  object dsrProcuraFilialConsolidadoraDime: TtecDataSource
+    DataSet = qryProcuraFilialConsolidadoraDime
+    Left = 683
+    Top = 286
+  end
+  object qryProcuraContas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'select codigo, cast(btrim(classificacao, '#39'. '#39') as varchar) as cl' +
+        'assificacao, descricao'
+      'from planocontas'
+      'where codigo = :codigo'
+      '  and tipo = '#39'A'#39
+      '  and inativo is null')
+    RequestLive = False
+    Left = 350
+    Top = 7
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraContascodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraContasclassificacao: TStringField
+      FieldName = 'classificacao'
+    end
+    object qryProcuraContasdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 50
+    end
+  end
+  object dsrProcuraContas: TtecDataSource
+    DataSet = qryProcuraContas
+    Left = 362
+    Top = 19
+  end
+  object qryUsuarioIteclux: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update usuarios set'
+      'usuarioiteclux = :usuarioiteclux,'
+      'senhaiteclux = md5(:senhaiteclux)'
+      'where codigo = :usuario;')
+    RequestLive = False
+    Left = 880
+    Top = 400
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuarioiteclux'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'senhaiteclux'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryUsuariosFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterDelete = qryUsuariosFiliaisAfterDelete
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select uf.*,'
+      '       f.nome'
+      'From   usuariosfiliais uf, filiais f'
+      'Where  f.codigo = uf.filial'
+      '  and  uf.usuario = :usuario'
+      'Order by f.codigo')
+    RequestLive = True
+    Left = 53
+    Top = 405
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end>
+    object qryUsuariosFiliaisusuario: TIntegerField
+      FieldName = 'usuario'
+    end
+    object qryUsuariosFiliaisfilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+    end
+    object qryUsuariosFiliaisnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryUsuariosFiliaispercentualgerente: TFloatField
+      FieldName = 'percentualgerente'
+      DisplayFormat = '##0.00'
+    end
+    object qryUsuariosFiliaispercentualsupervisor: TFloatField
+      FieldName = 'percentualsupervisor'
+      DisplayFormat = '##0.00'
+    end
+  end
+  object dsrUsuariosFiliais: TtecDataSource
+    DataSet = qryUsuariosFiliais
+    Left = 69
+    Top = 417
+  end
+  object qryIESubstTributario: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryIESubstTributarioAfterPost
+    AfterDelete = qryIESubstTributarioAfterDelete
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from iesubsttributario'
+      'where cliente = :cliente'
+      '    and tipocliente = '#39'L'#39
+      'order by estado')
+    RequestLive = True
+    Left = 72
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end>
+    object qryIESubstTributariocliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryIESubstTributariotipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryIESubstTributarioestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryIESubstTributarioinscricaoestadual: TStringField
+      FieldName = 'inscricaoestadual'
+    end
+  end
+  object qryEstoquesFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryEstoquesFiliaisAfterPost
+    AfterDelete = qryEstoquesFiliaisAfterDelete
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ef.*,'
+      
+        '          (select f.nome from filiais f where f.codigo = ef.fili' +
+        'alestoque) as nome'
+      'from estoquesfiliais ef'
+      'where ef.filialbase = :filialbase'
+      'order by ef.filialestoque')
+    RequestLive = True
+    Left = 64
+    Top = 216
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end>
+    object qryEstoquesFiliaisfilialbase: TIntegerField
+      FieldName = 'filialbase'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryEstoquesFiliaisfilialestoque: TIntegerField
+      DisplayLabel = 'FILIAL ESTOQUE'
+      FieldName = 'filialestoque'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryEstoquesFiliaisnome: TStringField
+      DisplayLabel = 'NOME'
+      FieldName = 'nome'
+      Size = 50
+    end
+  end
+  object qryRespAdmCadastro: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryRespAdmCadastroAfterPost
+    AfterDelete = qryRespAdmCadastroAfterDelete
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from respadmcadastro'
+      'where filial=:filial')
+    RequestLive = True
+    Left = 792
+    Top = 160
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryRespAdmCadastroFilial: TIntegerField
+      FieldName = 'Filial'
+      Required = True
+    end
+    object qryRespAdmCadastroInstituicao: TStringField
+      FieldName = 'Instituicao'
+      Required = True
+      Size = 2
+    end
+    object qryRespAdmCadastroCodigo: TStringField
+      FieldName = 'Codigo'
+      Required = True
+      Size = 30
+    end
+  end
+  object dsrRespAdmCadastro: TtecDataSource
+    DataSet = qryRespAdmCadastro
+    Left = 800
+    Top = 208
+  end
+  object dsrEstoquesFiliais: TtecDataSource
+    DataSet = qryEstoquesFiliais
+    Left = 96
+    Top = 232
+  end
+  object qryUsuariosOperacoesProducao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryUsuariosOperacoesProducaoAfterOpen
+    BeforePost = qryUsuariosOperacoesProducaoBeforePost
+    AfterPost = qryUsuariosOperacoesProducaoAfterPost
+    AfterDelete = qryUsuariosOperacoesProducaoAfterDelete
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select uop.*,'
+      '       o.nome,'
+      '       o.c01,'
+      '       o.c02,'
+      '       o.c03,'
+      '       o.descricao as descricaooperacao,'
+      '       nc.descricao as descricaonivelconhecimento'
+      '        '
+      'from usuariosoperacoesproducao uop'
+      '     join operacoes o'
+      '     on uop.operacao = o.codigo'
+      '     '
+      '     join niveisconhecimento nc'
+      '     on uop.nivelconhecimento = nc.codigo'
+      ''
+      'where uop.usuario = :usuario'
+      'order by uop.operacao')
+    RequestLive = True
+    Left = 824
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end>
+    object qryUsuariosOperacoesProducaousuario: TIntegerField
+      FieldName = 'usuario'
+    end
+    object qryUsuariosOperacoesProducaooperacao: TIntegerField
+      DisplayLabel = 'opera'#231#227'o'
+      FieldName = 'operacao'
+      Required = True
+    end
+    object qryUsuariosOperacoesProducaonivelconhecimento: TIntegerField
+      DisplayLabel = 'N'#237'vel de Conhecimento'
+      FieldName = 'nivelconhecimento'
+      Required = True
+    end
+    object qryUsuariosOperacoesProducaonome: TStringField
+      FieldName = 'nome'
+      Size = 10
+    end
+    object qryUsuariosOperacoesProducaoc01: TStringField
+      FieldName = 'c01'
+      Size = 2
+    end
+    object qryUsuariosOperacoesProducaoc02: TStringField
+      FieldName = 'c02'
+      Size = 2
+    end
+    object qryUsuariosOperacoesProducaoc03: TStringField
+      FieldName = 'c03'
+      Size = 2
+    end
+    object qryUsuariosOperacoesProducaodescricaonivelconhecimento: TStringField
+      FieldName = 'descricaonivelconhecimento'
+      Size = 50
+    end
+    object qryUsuariosOperacoesProducaodescricaooperacao: TStringField
+      FieldName = 'descricaooperacao'
+      Size = 60
+    end
+    object qryUsuariosOperacoesProducaohabilitadosetup: TBooleanField
+      FieldName = 'habilitadosetup'
+    end
+  end
+  object dsrUsuariosOperacoesProducao: TtecDataSource
+    DataSet = qryUsuariosOperacoesProducao
+    Left = 848
+    Top = 24
+  end
+  object qryAliquotasSimplesNacional: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryAliquotasSimplesNacionalAfterPost
+    AfterDelete = qryAliquotasSimplesNacionalAfterDelete
+    OnNewRecord = qryAliquotasSimplesNacionalNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT asn.*'
+      'FROM aliquotassimplesnacional asn'
+      'WHERE asn.Filial = :Filial'
+      'ORDER BY asn.mesano')
+    RequestLive = True
+    Left = 64
+    Top = 280
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryAliquotasSimplesNacionalMesAno: TStringField
+      FieldName = 'MesAno'
+      Required = True
+      OnChange = qryAliquotasSimplesNacionalMesAnoChange
+      EditMask = '!99/0000;1;_'
+      Size = 7
+    end
+    object qryAliquotasSimplesNacionalFilial: TIntegerField
+      FieldName = 'Filial'
+      Required = True
+    end
+    object qryAliquotasSimplesNacionalAliquotaICMS: TFloatField
+      FieldName = 'AliquotaICMS'
+    end
+  end
+  object dsrAliquotasSimplesNacional: TtecDataSource
+    DataSet = qryAliquotasSimplesNacional
+    Left = 96
+    Top = 296
+  end
+  object qryAliquotas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select count(*) as n'
+      'from aliquotassimplesnacional'
+      'where filial=:filial'
+      '    and mesano=:mesano')
+    RequestLive = False
+    Left = 128
+    Top = 392
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'mesano'
+        ParamType = ptUnknown
+      end>
+    object qryAliquotasn: TLargeintField
+      FieldName = 'n'
+    end
+  end
+  object qryNaturezaJuridica: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryNaturezaJuridicaCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select nj.*,'
+      
+        '          (select gnj.descricao from gruponaturezajuridica gnj w' +
+        'here gnj.codigo = nj.grupo) as descricaogrupo'
+      'from naturezajuridica nj')
+    RequestLive = False
+    Left = 120
+    Top = 16
+    object qryNaturezaJuridicacodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+    object qryNaturezaJuridicadescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryNaturezaJuridicadatainicio: TDateField
+      DisplayLabel = 'Data Inicial'
+      FieldName = 'datainicio'
+    end
+    object qryNaturezaJuridicadatafim: TDateField
+      DisplayLabel = 'Data Final'
+      FieldName = 'datafim'
+    end
+    object qryNaturezaJuridicagrupo: TIntegerField
+      DisplayLabel = 'Grupo'
+      FieldName = 'grupo'
+    end
+    object qryNaturezaJuridicadescricaogrupo: TStringField
+      DisplayLabel = 'Descri'#231#227'o do Grupo'
+      FieldName = 'descricaogrupo'
+      Size = 50
+    end
+    object qryNaturezaJuridicacodigodescricao: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'codigodescricao'
+      Size = 100
+      Calculated = True
+    end
+  end
+  object DSRNaturezaJuridica: TtecDataSource
+    DataSet = qryNaturezaJuridica
+    Left = 128
+    Top = 48
+  end
+  object qryComissoesUsuariosIndicados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterDelete = qryComissoesUsuariosAfterDelete
+    OnPostError = PostError
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select *'
+      'From comissoesusuariosindicados'
+      'Where (usuario =:codigo)'
+      'order by limite')
+    RequestLive = True
+    Left = 579
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Codigo'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryComissoesUsuariosIndicadosusuario: TIntegerField
+      FieldName = 'usuario'
+    end
+    object qryComissoesUsuariosIndicadosnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '000#'
+    end
+    object qryComissoesUsuariosIndicadoslimite: TFloatField
+      DisplayLabel = 'Limite'
+      FieldName = 'limite'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryComissoesUsuariosIndicadospercprazo: TFloatField
+      DisplayLabel = '% Prazo'
+      FieldName = 'percprazo'
+      DisplayFormat = '##0.00'
+    end
+    object qryComissoesUsuariosIndicadospercvista: TFloatField
+      DisplayLabel = '% Vista'
+      FieldName = 'percvista'
+      DisplayFormat = '##0.00'
+    end
+    object qryComissoesUsuariosIndicadospercentrada: TFloatField
+      DisplayLabel = '% Entrada'
+      FieldName = 'percentrada'
+      DisplayFormat = '##0.00'
+    end
+  end
+  object dsrComissoesUsuariosIndicados: TtecDataSource
+    DataSet = qryComissoesUsuariosIndicados
+    Left = 589
+    Top = 20
+  end
+  object qryMeusIndicados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo, nome'
+      'from usuarios'
+      'where usuario_indicou = :usuario'
+      'order by codigo'
+      '')
+    RequestLive = False
+    Left = 952
+    Top = 296
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end>
+    object qryMeusIndicadoscodigo: TIntegerField
+      DisplayLabel = 'Vendedor'
+      FieldName = 'codigo'
+    end
+    object qryMeusIndicadosnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+  end
+  object dsrMeusIndicados: TtecDataSource
+    DataSet = qryMeusIndicados
+    Left = 960
+    Top = 344
+  end
+  object qryEnvio_R1000Reinf: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select er1000.*,'
+      
+        '       case when er1000.operacao = '#39'I'#39' then cast('#39'INCLUS'#195'O'#39' as v' +
+        'archar(10))'
+      
+        '            when er1000.operacao = '#39'A'#39' then cast('#39'ALTERA'#199#195'O'#39' as ' +
+        'varchar(10))'
+      
+        '            when er1000.operacao = '#39'E'#39' then cast('#39'EXCLUS'#195'O'#39' as v' +
+        'archar(10))'
+      '       end as s_operacao'
+      ''
+      'from envio_r1000reinf er1000'
+      'where er1000.filial = :filial'
+      'order by er1000.DataHoraProcessamento')
+    RequestLive = False
+    Left = 880
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryEnvio_R1000Reinffilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryEnvio_R1000Reinfdatahoraprocessamento: TDateTimeField
+      DisplayLabel = 'Data/Hora Processamento'
+      FieldName = 'datahoraprocessamento'
+      DisplayFormat = 'dd/MM/yyyy hh:mm:ss'
+    end
+    object qryEnvio_R1000Reinfoperacao: TStringField
+      DisplayLabel = 'Opera'#231#227'o'
+      FieldName = 'operacao'
+      Size = 1
+    end
+    object qryEnvio_R1000Reinfs_operacao: TStringField
+      DisplayLabel = 'Opera'#231#227'o'
+      FieldName = 's_operacao'
+      Size = 50
+    end
+    object qryEnvio_R1000Reinfclassificacaotributaria: TStringField
+      FieldName = 'classificacaotributaria'
+      Size = 2
+    end
+    object qryEnvio_R1000Reinfiniciovalidadereinf: TDateField
+      Alignment = taCenter
+      FieldName = 'iniciovalidadereinf'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryEnvio_R1000Reinffinalvalidadereinf: TDateField
+      Alignment = taCenter
+      FieldName = 'finalvalidadereinf'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryEnvio_R1000Reinfinddesoneracao: TIntegerField
+      FieldName = 'inddesoneracao'
+    end
+    object qryEnvio_R1000Reinfindacordoisenmulta: TIntegerField
+      FieldName = 'indacordoisenmulta'
+    end
+    object qryEnvio_R1000Reinfindsitpj: TIntegerField
+      FieldName = 'indsitpj'
+    end
+    object qryEnvio_R1000Reinfindescrituracao: TIntegerField
+      FieldName = 'indescrituracao'
+    end
+    object qryEnvio_R1000Reinfnmctt: TStringField
+      FieldName = 'nmctt'
+      Size = 70
+    end
+    object qryEnvio_R1000Reinfcpfctt: TStringField
+      FieldName = 'cpfctt'
+      Size = 11
+    end
+    object qryEnvio_R1000Reinffonefixo: TStringField
+      FieldName = 'fonefixo'
+      Size = 13
+    end
+    object qryEnvio_R1000Reinffonecel: TStringField
+      FieldName = 'fonecel'
+      Size = 13
+    end
+    object qryEnvio_R1000Reinfemail: TStringField
+      FieldName = 'email'
+      Size = 60
+    end
+    object qryEnvio_R1000Reinfdatahoraalteracaodadosreinf: TDateTimeField
+      FieldName = 'datahoraalteracaodadosreinf'
+    end
+  end
+  object dsrEnvio_R1000Reinf: TtecDataSource
+    DataSet = qryEnvio_R1000Reinf
+    Left = 912
+    Top = 120
+  end
+  object qryObras_Filiais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryObras_FiliaisAfterPost
+    AfterDelete = qryObras_FiliaisAfterDelete
+    OnNewRecord = qryObras_FiliaisNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select obras_vfornecedores.*'
+      'from obras_vfornecedores'
+      'where obras_vfornecedores.cliente = :filial'
+      '  and obras_vfornecedores.tipocliente = '#39'L'#39
+      '')
+    RequestLive = True
+    Left = 856
+    Top = 568
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryObras_Filiaiscliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryObras_Filiaistipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryObras_Filiaiscno: TStringField
+      FieldName = 'cno'
+      Required = True
+      Size = 14
+    end
+    object qryObras_Filiaisdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 100
+    end
+    object qryObras_Filiaistpinscestabindobra: TIntegerField
+      FieldName = 'tpinscestabindobra'
+    end
+  end
+  object dsrObras_Filiais: TtecDataSource
+    DataSet = qryObras_Filiais
+    Left = 896
+    Top = 584
+  end
+  object qryfornecedor_infoProcRetPr: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryfornecedor_infoProcRetPrAfterPost
+    AfterDelete = qryfornecedor_infoProcRetPrAfterDelete
+    OnNewRecord = qryfornecedor_infoProcRetPrNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fi.*,'
+      ''
+      '      (select pjr.nrProc'
+      '       from ProcessoJudicialReinf pjr'
+      '       where pjr.numero = fi.ProcessoJudicial) as nrProc,'
+      ''
+      '       (select setr.codSusp'
+      '        from SuspensaoExibilidadeTributos setr'
+      
+        '        where setr.numero = fi.NumeroSuspensaoExibilidadeTributo' +
+        's) as codSusp'
+      ''
+      'from fornecedor_infoprocretpr fi'
+      'where fi.fornecedor = :fornecedor'
+      ' and fi.tipofornecedor = '#39'L'#39)
+    RequestLive = True
+    Left = 728
+    Top = 624
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'fornecedor'
+        ParamType = ptUnknown
+      end>
+    object qryfornecedor_infoProcRetPrfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+    end
+    object qryfornecedor_infoProcRetPrprocessojudicial: TIntegerField
+      FieldName = 'processojudicial'
+    end
+    object qryfornecedor_infoProcRetPrnumerosuspensaoexibilidadetributos: TIntegerField
+      FieldName = 'numerosuspensaoexibilidadetributos'
+    end
+    object qryfornecedor_infoProcRetPrnrproc: TStringField
+      DisplayLabel = 'Nr'#186' do Processo'
+      FieldName = 'nrproc'
+      Required = True
+      Size = 21
+    end
+    object qryfornecedor_infoProcRetPrcodsusp: TStringField
+      DisplayLabel = 'C'#243'digo da Suspens'#227'o'
+      FieldName = 'codsusp'
+      Size = 14
+    end
+    object qryfornecedor_infoProcRetPrtipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Size = 1
+    end
+  end
+  object dsrfornecedor_infoProcRetPr: TtecDataSource
+    DataSet = qryfornecedor_infoProcRetPr
+    Left = 760
+    Top = 648
+  end
+  object qryfornecedor_infoProcRetAd: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryfornecedor_infoProcRetAdAfterPost
+    AfterDelete = qryfornecedor_infoProcRetAdAfterDelete
+    OnNewRecord = qryfornecedor_infoProcRetAdNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fi.*,'
+      ''
+      '      (select pjr.nrProc'
+      '       from ProcessoJudicialReinf pjr'
+      '       where pjr.numero = fi.ProcessoJudicial) as nrProc,'
+      ''
+      '       (select setr.codSusp'
+      '        from SuspensaoExibilidadeTributos setr'
+      
+        '        where setr.numero = fi.NumeroSuspensaoExibilidadeTributo' +
+        's) as codSusp'
+      ''
+      'from fornecedor_infoprocretad fi'
+      'where fi.fornecedor = :fornecedor'
+      '  and fi.tipofornecedor = '#39'L'#39)
+    RequestLive = True
+    Left = 912
+    Top = 640
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'fornecedor'
+        ParamType = ptUnknown
+      end>
+    object qryfornecedor_infoProcRetAdfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+    end
+    object qryfornecedor_infoProcRetAdprocessojudicial: TIntegerField
+      FieldName = 'processojudicial'
+    end
+    object qryfornecedor_infoProcRetAdnumerosuspensaoexibilidadetributos: TIntegerField
+      FieldName = 'numerosuspensaoexibilidadetributos'
+    end
+    object qryfornecedor_infoProcRetAdnrproc: TStringField
+      DisplayLabel = 'Nr'#186' do Processo'
+      FieldName = 'nrproc'
+      Required = True
+      Size = 21
+    end
+    object qryfornecedor_infoProcRetAdcodsusp: TStringField
+      DisplayLabel = 'C'#243'digo da Suspens'#227'o'
+      FieldName = 'codsusp'
+      Size = 14
+    end
+    object qryfornecedor_infoProcRetAdtipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Size = 1
+    end
+  end
+  object dsrfornecedor_infoProcRetAd: TtecDataSource
+    DataSet = qryfornecedor_infoProcRetAd
+    Left = 920
+    Top = 672
+  end
+end

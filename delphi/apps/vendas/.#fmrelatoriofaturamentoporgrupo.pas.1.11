@@ -1,0 +1,321 @@
+unit fmrelatoriofaturamentoporgrupo;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmrelatoriopadrao, ExtCtrls, Buttons, StdCtrls, cpdata, DBCtrls,
+  cpdbtext, Mask, cpdbfindcontrols, CheckLst, ComCtrls, cppagecontrol,
+  // Repositorio
+  //fmajudabt, fmconsultaporcampo, fmconsultabasica, clparametrossistema,
+   fmconsultabasica, fmconsultaporcampo,
+  // Constantes
+  ctconstantes, biblio,
+  // Terceiros
+  ZQuery, cpdbradiogroup, frlistagruposfiliais, frlistafiliais, ToolWin, clparametrossistema,
+  frconsulta, frconsultacodigo;
+
+type
+  TfrmRelatorioFaturamentoPorGrupo = class(TFrmRelatorioPadrao)
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    tstGrupoFilial: TTabSheet;
+    gbxPeriodo: TGroupBox;
+    lblDataInicial: TLabel;
+    edtDataInicial: TEditData;
+    lblDataFinal: TLabel;
+    edtDataFinal: TEditData;
+    gbxVendedor: TGroupBox;
+    sbnProcurarVendedor: TSpeedButton;
+    edfVendedor: TtecDbEditFind;
+    dtxVendedor: TtecDBText;
+    gbxFornecedor: TGroupBox;
+    gbxGrupos: TGroupBox;
+    sbnMarcarGrupos: TSpeedButton;
+    sbnDesmarcarGrupos: TSpeedButton;
+    clbGrupos: TCheckListBox;
+    gbxClasses: TGroupBox;
+    sbnMarcarClasses: TSpeedButton;
+    sbnDesmarcarClasses: TSpeedButton;
+    clbClasses: TCheckListBox;
+    GroupBox1: TGroupBox;
+    sbnItemProduto: TSpeedButton;
+    gbxDevolucoes: TGroupBox;
+    ckbDevolucoesPeriodoSelecionado: TCheckBox;
+    ckbDevolucoesPeriodoAnterior: TCheckBox;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparFilial: TCheckBox;
+    ckbAgruparClasse: TCheckBox;
+    rgbxOrdenacao: TRadioGroup;
+    fraListaFiliais1: TfraListaFiliais;
+    fraListaGruposFiliais1: TfraListaGruposFiliais;
+    fraConsultaItemProduto: TfraConsultaCodigo;
+    fraConsultaFornecedor: TfraConsultaCodigo;
+    procedure sbnProcurarVendedorClick(Sender: TObject);
+    procedure sbnMarcarGruposClick(Sender: TObject);
+    procedure sbnDesmarcarGruposClick(Sender: TObject);
+    procedure sbnMarcarClassesClick(Sender: TObject);
+    procedure sbnDesmarcarClassesClick(Sender: TObject);
+    procedure fraListaFiliais1clbFiliaisClickCheck(Sender: TObject);
+    procedure fraListaFiliais1sbnMarcarFiliaisClick(Sender: TObject);
+    procedure fraListaGruposFiliais1clbGrupodeFiliaisClickCheck(
+      Sender: TObject);
+    procedure fraListaGruposFiliais1sbnmarcarGrupodeFiliaisClick(
+      Sender: TObject);
+  private
+    procedure ObterLista(Origem: TLista; Destino: TCheckListBox);
+  protected
+    function InternoPesquisar(Titulo: String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    procedure InternoImpressao; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function PesquisaHabilitada: Boolean;
+    function  ValidarCamposSelecao: Boolean;
+  end;
+
+
+var
+  frmRelatoriofaturamentoporgrupo: TfrmRelatoriofaturamentoporgrupo;
+  TipoPesquisa: TTecPesquisa;
+
+implementation
+
+{$R *.dfm}
+  uses dmrelatoriofaturamentoporgrupo, DB;
+
+
+{ TfrmRelatoriofaturamentoporgrupo }
+
+constructor TfrmRelatoriofaturamentoporgrupo.Create(
+  AOwner: TComponent);
+begin
+  inherited;
+  dtmRelatoriofaturamentoporgrupo := TdtmRelatoriofaturamentoporgrupo.Create(Self);
+  dtmRelatoriofaturamentoporgrupo.Abre(ctTabelas);
+  pgcFilialGrupoFilial.ActivePageIndex:=0;
+  edtDataInicial.Text := datetostr(Date());
+  edtDataFinal.Text := datetostr(Date());
+  ObterLista(dtmRelatoriofaturamentoporgrupo.ListaGrupos, clbGrupos);
+  ObterLista(dtmRelatoriofaturamentoporgrupo.ListaClasses, clbClasses);
+
+  fraConsultaItemProduto.TipoPesquisa := pesITEMPRODUTOS;
+
+  fraConsultaFornecedor.qryProcuraCliente.ParamByName('NaoConsiderarTipoCliente').asBoolean := false;
+  fraConsultaFornecedor.TipoPesquisa := pesFORNECEDORES;
+  fraConsultaFornecedor.TipoCliente := 'F';
+  fraConsultaFornecedor.Tipovfornecedor := 'F';
+
+
+end;
+
+destructor TfrmRelatoriofaturamentoporgrupo.Destroy;
+begin
+  inherited;
+  frmRelatoriofaturamentoporgrupo := nil;
+end;
+
+function TfrmRelatoriofaturamentoporgrupo.ExisteInformacao(
+  Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmRelatoriofaturamentoporgrupo do
+  case TipoPesquisa of
+    pesVENDEDORES        : Result := ExisteVendedor(NomeCampo, Value);
+  else
+    Result := False;
+  end;
+end;
+
+function TfrmRelatoriofaturamentoporgrupo.InternoPesquisar(
+  Titulo: String): Integer;
+begin
+  if PesquisaHabilitada then
+    with dtmRelatoriofaturamentoporgrupo do
+    begin
+      AbreTabelaPesquisa(TipoPesquisa);
+      Result := inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FechaTabelaPesquisa(TipoPesquisa);
+    end
+  else
+  Result := 0;
+end;
+
+function TfrmRelatoriofaturamentoporgrupo.JanelaPesquisa: TfrmConsultaBasica;
+var
+  Jan: TfrmConsultaPorCampo;
+
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := Not (TipoPesquisa in [pesPRODUTOS, pesITEMPRODUTOS]) and CtrlOn;
+  Jan.UsarParametrosDaTabela := False;
+  Result := Jan
+end;
+
+
+function TfrmRelatoriofaturamentoporgrupo.PesquisaHabilitada: Boolean;
+begin
+  Result:= False;
+  if CtrlOn and (ActiveControl is TtecDBEditFind) then
+  begin
+    if edfVendedor.Focused then
+      TipoPesquisa := pesVENDEDORES;
+    Result := True;
+  end;
+end;
+
+function TfrmRelatoriofaturamentoporgrupo.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmRelatoriofaturamentoporgrupo do
+    case TipoPesquisa of
+      pesVENDEDORES   : Result := ConsultarVendedor;
+    else  Result:= nil;
+    end;
+
+end;
+
+procedure TfrmRelatoriofaturamentoporgrupo.sbnProcurarVendedorClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfVendedor, ctVENDEDORES);
+end;
+
+procedure TfrmRelatoriofaturamentoporgrupo.InternoImpressao;
+begin
+  if ValidarCamposSelecao then begin
+    with dtmRelatoriofaturamentoporgrupo do
+    begin
+      ParametroCabecalho  :='';
+      ParametroDataInicial:= edtDataInicial.Text;
+      ParametroDataFinal  := edtDataFinal.Text;
+      Filiais            := fraListaFiliais1.ListaSelecionada;
+      GrupoFiliais       := fraListaGruposFiliais1.ListaSelecionada;
+      if GrupoFiliais<>'' then
+        ParametroCabecalho:=ParametroCabecalho+' Grupo de Filiais: '+GrupoFiliais
+      else
+      if Filiais<>'' then
+        ParametroCabecalho:=ParametroCabecalho+' Filiais: '+Filiais;
+
+      ParametroItem       := fraConsultaItemProduto.qryProcuraItemProdutos.fieldbyname('produto').AsString;
+      MontarFiltroGrupos(clbGrupos);
+      MontarFiltroClasses(clbClasses);
+      ParametroVendedor   := edfvendedor.Text;
+      ParametroFornecedor := fraConsultaFornecedor.edfCodigo.Text;
+      DevolucoesPeriodoSelecionado := ckbDevolucoesPeriodoSelecionado.Checked;
+      DevolucoesPeriodoAnterior := ckbDevolucoesPeriodoAnterior.Checked;
+      AgruparFilial:=ckbAgruparFilial.Checked;
+      AgruparClasse:=ckbAgruparClasse.Checked;
+      Ordenacao:= rgbxOrdenacao.ItemIndex;
+
+      if AbrirConsultasRelatorio then
+        ImprimirRelatorio
+      else
+       MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+    end;
+  end;
+end;
+
+function TfrmRelatoriofaturamentoporgrupo.ValidarCamposSelecao: Boolean;
+begin
+   Result := (edtDataInicial.DataValida and edtDataFinal.DataValida);
+   if Result then
+   begin
+    if (not dataembranco(edtDataInicial.text) and not dataembranco(edtDataFinal.text)) then
+      Result:=StrToDate(edtDataInicial.Text) <= StrToDate(edtDataFinal.Text);
+    if result then
+    begin
+      Result:=(not dataembranco(edtDataInicial.text) or not dataembranco(edtDataFinal.text));
+      if Result then
+         Result := OperadorTernario((Trim(edfVendedor.Text) <> ''), edfVendedor.Exist, True) and
+                   OperadorTernario((Trim(fraConsultaItemProduto.edfCodigo.Text) <> ''), fraConsultaItemProduto.edfCodigo.Exist, True)
+      else
+      begin
+       MensagemAviso(ctDATAINVALIDA);
+       edtDataInicial.SetFocus;
+      end;
+    end
+    else
+    begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      edtDataInicial.SetFocus;
+    end;
+   end;
+end;
+
+
+procedure TfrmRelatoriofaturamentoporgrupo.ObterLista(Origem: TLista;
+  Destino: TCheckListBox);
+var
+  Ind: Integer;
+begin
+  for Ind:= 0 to (Length(Origem) - 1) do
+    Destino.Items.Add(Origem[Ind].codigo+' - ' +Origem[Ind].descricao);
+end;
+
+procedure TfrmRelatorioFaturamentoPorGrupo.sbnMarcarGruposClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbGrupos,True);
+end;
+
+procedure TfrmRelatorioFaturamentoPorGrupo.sbnDesmarcarGruposClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbGrupos,False);
+end;
+
+procedure TfrmRelatorioFaturamentoPorGrupo.sbnMarcarClassesClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbClasses,True);
+end;
+
+procedure TfrmRelatorioFaturamentoPorGrupo.sbnDesmarcarClassesClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbClasses,False);
+end;
+
+procedure TfrmRelatorioFaturamentoPorGrupo.fraListaFiliais1clbFiliaisClickCheck(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaGruposFiliais1.sbnDesmarcarGrupodeFiliaisClick(self);
+
+end;
+
+procedure TfrmRelatorioFaturamentoPorGrupo.fraListaFiliais1sbnMarcarFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaFiliais1.sbnMarcarFiliaisClick(Sender);
+  fraListaGruposFiliais1.sbnDesmarcarGrupodeFiliaisClick(self);
+
+end;
+
+procedure TfrmRelatorioFaturamentoPorGrupo.fraListaGruposFiliais1clbGrupodeFiliaisClickCheck(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaFiliais1.sbnDesmarcarFiliaisClick(Sender);
+
+end;
+
+procedure TfrmRelatorioFaturamentoPorGrupo.fraListaGruposFiliais1sbnmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaGruposFiliais1.sbnmarcarGrupodeFiliaisClick(Sender);
+  fraListaFiliais1.sbnDesmarcarFiliaisClick(Sender);
+end;
+
+end.

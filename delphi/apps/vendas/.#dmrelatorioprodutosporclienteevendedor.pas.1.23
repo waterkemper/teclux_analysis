@@ -1,0 +1,1184 @@
+unit dmrelatorioprodutosporclienteevendedor;
+
+interface
+
+uses
+  SysUtils, Classes, DB, CheckLst,
+  // Repositorio
+  dmbasico, dmtecsoft, fmpreviewpadrao,
+  // Terceiros
+  ZQuery, ZPgSqlQuery, FR_DSet, FR_DBSet, FR_Class,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema,
+  // Componenetes
+  cpquery,cpdatasource, ZTransact, fr_ptabl, fr_desgn, variants;
+
+
+
+type
+  TdtmRelatorioProdutosporClienteeVendedor = class(TdtmBasico)
+    qryProcuraVendedores: TtecQuery;
+    dsrProcuraVendedores: TtecDataSource;
+    qryConsultaVendedores: TtecQuery;
+    qryConsultaVendedoresnome: TStringField;
+    qryConsultaVendedorescodigo: TIntegerField;
+    qryProcuraGrupoProdutos: TtecQuery;
+    qryProcuraGrupoProdutoscodigo: TStringField;
+    qryProcuraGrupoProdutosdescricao: TStringField;
+    dsrProcuraGrupoProdutos: TtecDataSource;
+    qryProcuraClasses: TtecQuery;
+    qryProcuraClassescodigo: TStringField;
+    qryProcuraClassesdescricao: TStringField;
+    dsrProcuraClasses: TtecDataSource;
+    qryConsultaGrupoProdutos: TtecQuery;
+    qryConsultaGrupoProdutoscodigo: TStringField;
+    qryConsultaGrupoProdutosdescricao: TStringField;
+    qryConsultaClasses: TtecQuery;
+    qryConsultaClassescodigo: TStringField;
+    qryConsultaClassesdescricao: TStringField;
+    qryProcuraMarca: TtecQuery;
+    qryProcuraMarcacodigo: TIntegerField;
+    qryProcuraMarcadescricao: TStringField;
+    dsrProcuraMarca: TtecDataSource;
+    qryConsultaMarcas: TtecQuery;
+    qryConsultaMarcasdescricao: TStringField;
+    qryConsultaMarcascodigo: TIntegerField;
+    qryRelatorioProdutosClientes: TtecQuery;
+    qryRelatorioProdutosClientescliente: TIntegerField;
+    qryRelatorioProdutosClientestipocliente: TStringField;
+    qryRelatorioProdutosClientesnomecliente: TStringField;
+    qryRelatorioProdutosClientescontrato: TStringField;
+    qryRelatorioProdutosClientesfaturamento: TDateField;
+    qryRelatorioProdutosClientesfilialvenda: TIntegerField;
+    qryRelatorioProdutosClientesserie: TStringField;
+    qryRelatorioProdutosClientesnumeronota: TIntegerField;
+    qryRelatorioProdutosClientesmaquina: TIntegerField;
+    qryRelatorioProdutosClientesintervensao: TIntegerField;
+    qryRelatorioProdutosClientesnumerocupom: TIntegerField;
+    qryRelatorioProdutosClientesdata: TDateField;
+    qryRelatorioProdutosClientesquantidade: TFloatField;
+    qryRelatorioProdutosClientesproduto: TLargeintField;
+    qryRelatorioProdutosClientesfilial: TIntegerField;
+    qryRelatorioProdutosClientesdescricao: TStringField;
+    qryRelatorioProdutosClientesprecovenda: TFloatField;
+    qryRelatorioProdutosClientesrua: TStringField;
+    qryRelatorioProdutosClientesbairro: TStringField;
+    qryRelatorioProdutosClientescep: TIntegerField;
+    qryRelatorioProdutosClientescidade: TStringField;
+    qryRelatorioProdutosClientespessoanumero: TStringField;
+    qryEnderecoCliente: TtecQuery;
+    qryEnderecoClientecliente: TIntegerField;
+    qryEnderecoClientetipocliente: TStringField;
+    qryEnderecoClientenomecliente: TStringField;
+    qryEnderecoClienterua: TStringField;
+    qryEnderecoClientebairro: TStringField;
+    qryEnderecoClientecep: TIntegerField;
+    qryEnderecoClientecidade: TStringField;
+    qryEnderecoClientepessoanumero: TStringField;
+    fdsEnderecoCliente: TfrDBDataSet;
+    dsrEnderecoCliente: TtecDataSource;
+    fdsRelatorioProdutosClientes: TfrDBDataSet;
+    qryRelatorioProdutosClientessituacao: TStringField;
+    qryRelatorioProdutosVendedores: TtecQuery;
+    fdsRelatorioProdutosVendedores: TfrDBDataSet;
+    frpRelatorioProdutosVendedores: TfrReport;
+    qryRelatorioProdutosVendedoresvendedor: TIntegerField;
+    qryRelatorioProdutosVendedorescontrato: TStringField;
+    qryRelatorioProdutosVendedoressituacao: TStringField;
+    qryRelatorioProdutosVendedoresfaturamento: TDateField;
+    qryRelatorioProdutosVendedoresfilialvenda: TIntegerField;
+    qryRelatorioProdutosVendedoresserie: TStringField;
+    qryRelatorioProdutosVendedoresnumeronota: TIntegerField;
+    qryRelatorioProdutosVendedoresmaquina: TIntegerField;
+    qryRelatorioProdutosVendedoresintervensao: TIntegerField;
+    qryRelatorioProdutosVendedoresnumerocupom: TIntegerField;
+    qryRelatorioProdutosVendedoresdata: TDateField;
+    qryRelatorioProdutosVendedoresquantidade: TFloatField;
+    qryRelatorioProdutosVendedoresproduto: TLargeintField;
+    qryRelatorioProdutosVendedoresfilial: TIntegerField;
+    qryRelatorioProdutosVendedoresdescricao: TStringField;
+    qryRelatorioProdutosVendedoresprecovenda: TFloatField;
+    qryRelatorioProdutosVendedoresnomevendedor: TStringField;
+    qryEnderecoClientefone: TStringField;
+    qryProcuraClientes: TtecQuery;
+    dsrProcuraClientes: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryProcuraClientescodigo: TIntegerField;
+    qryProcuraClientesnome: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientestipoorig: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryRelatorioProdutosClientesdevolucao: TDateField;
+    qryRelatorioProdutosClientesregistro: TStringField;
+    qryRelatorioProdutosClientesdesconto: TFloatField;
+    qryRelatorioProdutosClientespedidocliente: TStringField;
+    qryRelatorioProdutosClientesproduto_cliente: TStringField;
+    qryRelatorioProdutosVendedorespedidocliente: TStringField;
+    qryRelatorioProdutosVendedoresdevolucao: TDateField;
+    qryRelatorioProdutosVendedoresdesconto: TFloatField;
+    qryRelatorioProdutosVendedoresregistro: TStringField;
+    qryRelatorioProdutosVendedoresproduto_cliente: TStringField;
+    frpRelatorioProdutosClientes_SemValores: TfrReport;
+    frpRelatorioProdutosVendedores_SemValores: TfrReport;
+    frpRelatorioProdutosClientes_Modelo_Gama: TfrReport;
+    frpRelatorioProdutosClientes_SemValores_Modelo_Gama: TfrReport;
+    frpRelatorioProdutosVendedores_Modelo_Gama: TfrReport;
+    frpRelatorioProdutosVendedores_SemValores_Modelo_Gama: TfrReport;
+    qryRelatorioProdutosClientesprecotabela: TFloatField;
+    qryRelatorioProdutosClientestotalprecovenda: TFloatField;
+    qryRelatorioProdutosClientestotalprecotabela: TFloatField;
+    qryRelatorioProdutosVendedoresdadofiscal: TIntegerField;
+    qryRelatorioProdutosVendedorestotalprecovenda: TFloatField;
+    qryRelatorioProdutosVendedoresprecotabela: TFloatField;
+    qryRelatorioProdutosVendedorestotalprecotabela: TFloatField;
+    frpRelatorioProdutosClientes: TfrReport;
+    qryRelatorioProdutosClientesprodutovisual: TStringField;
+    qryRelatorioProdutosVendedoresprodutovisual: TStringField;
+    qryProcuraClientestipo: TStringField;
+    qryProcuraVendedorescodigo: TIntegerField;
+    qryProcuraVendedoresnome: TStringField;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure frpRelatorioProdutosClientes_BeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpRelatorioProdutosVendedoresBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure ZMonitorMonitorEvent(Sql, Result: String);
+  private
+    FListaFiliais: TStringList;
+    FListaGruposFiliais: TStringList;
+    FprodutoAtivo: Boolean;
+    FprodutoEmLinha: Boolean;
+    FProdutoNaoBrinde: Boolean;
+    FProdutoComMontagem: Boolean;
+    FProdutoSemMontagem: Boolean;
+    FprodutoForadeLinha: Boolean;
+    FprodutoInativo: Boolean;
+    FProdutoBrinde: Boolean;
+    FParametroCodigo: String;
+    FParametroMarca: String;
+    FParametroGrupo: String;
+    FParametroDataInicial: String;
+    FParametroItem: String;
+    FParametroClasse: String;
+    FParametroDataFinal: String;
+    FParametroFornecedor: String;
+    FParametroCabecalho: String;
+    FFiliais: String;
+    FGrupoFiliais: String;
+    FCabecalhoSaldoEstoque: String;
+    FParametroVendedor: String;
+    FParametroTipoRelatorio: integer;
+    FParametroCliente: String;
+    FParametroExcetoCliente: Boolean;
+    FParametroDevolucoesPeriodoSelecionado: Boolean;
+    FParametroDevolucoesPeriodoAnterior: Boolean;
+    FParametroReservadoInicial: String;
+    FParametroReservadoFinal: String;
+    FParametroOrdenacao: String;
+    fncmisentopiscofins: Boolean;
+    fSomenteProdutosComNFEmitida: Boolean;
+    FParametroPromocoes: String;
+    FParametroServico: String;
+    function GetConsultarClasse: TtecQuery;
+    function GetConsultarVendedor: TTecQuery;
+    function GetConsultarGrupo: TtecQuery;
+    function GetConsultarMarca: TTecQuery;
+    function GetCodigoClasse: String;
+    function GetCodigoGrupo: String;
+    function GetCodigoMarca: Integer;
+    function GetCodigoVendedor: Integer;
+    procedure SetFiliais(const Value: String);
+    procedure SetGrupoFiliais(const Value: String);
+    procedure SetParametroDataFinal(const Value: String);
+    procedure SetParametroDataInicial(const Value: String);
+    function GetCodigoCliente: Integer;
+    function GetConsultarCliente: TTecQuery;
+    procedure SetParametroDevolucoesPeriodoAnterior(const Value: Boolean);
+    procedure SetParametroCliente(const Value: String);
+    procedure setParametroVendedor(const Value: String);
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure Selecionar(TipoPesquisa: TTecPesquisa);
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+    procedure AbreRelatorioProdutosporClienteeVendedor;
+
+    property ParametroDataInicial: String read FParametroDataInicial write SetParametroDataInicial;
+    property ParametroDataFinal: String read FParametroDataFinal write SetParametroDataFinal;
+    procedure ImprimirRelatorio(ImprimirValores, PrecoPauta: Boolean);
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    property ProdutoEmLinha: Boolean read FprodutoEmLinha write FProdutoEmLinha;
+    Property ProdutoForadeLinha: Boolean read FprodutoForadeLinha write FProdutoForadeLinha;
+    property ProdutoAtivo: Boolean read FprodutoAtivo write FProdutoAtivo;
+    property ProdutoInativo: Boolean read FprodutoInativo write FProdutoInativo;
+    property ProdutoComMontagem: Boolean read FProdutoComMontagem write FProdutoComMontagem;
+    property ProdutoSemMontagem: Boolean read FProdutoSemMontagem write FProdutoSemMontagem;
+    property ProdutoBrinde: Boolean read FProdutoBrinde write FProdutoBrinde;
+    property ProdutoNaoBrinde: Boolean read FProdutoNaoBrinde write FProdutoNaoBrinde;
+
+    property Filiais: String read FFiliais write SetFiliais;
+    property GrupoFiliais: String read FGrupoFiliais write SetGrupoFiliais;
+
+    property ParametroItem: String read FParametroItem write FParametroItem;
+    property ParametroServico: String read FParametroServico write FParametroServico;
+
+    property ParametroCodigo: String read FParametroCodigo write FParametroCodigo;
+    property ParametroGrupo: String read FParametroGrupo write FParametroGrupo;
+    property ParametroClasse: String read FParametroClasse write FParametroClasse;
+    property ParametroMarca: String read FParametroMarca write FParametroMarca;
+    property ParametroPromocoes: String read FParametroPromocoes write fParametroPromocoes;
+
+    property ParametroVendedor: String read FParametroVendedor write setParametroVendedor;
+    property ParametroFornecedor: String read FParametroFornecedor write FParametroFornecedor;
+    property ParametroTipoRelatorio: integer read FParametroTipoRelatorio write FParametroTipoRelatorio;
+    property ParametroCliente: String read FParametroCliente write SetParametroCliente;
+    property ParametroExcetoCliente: Boolean read FParametroExcetoCliente write FParametroExcetoCliente;
+    property ParametroDevolucoesPeriodoSelecionado: Boolean read FParametroDevolucoesPeriodoSelecionado write FParametroDevolucoesPeriodoSelecionado;
+    property ParametroDevolucoesPeriodoAnterior: Boolean read FParametroDevolucoesPeriodoAnterior write SetParametroDevolucoesPeriodoAnterior;
+    property ParametroReservadoInicial : String read FParametroReservadoInicial write FParametroReservadoInicial;
+    property ParametroReservadoFinal : String read FParametroReservadoFinal write FParametroReservadoFinal;
+    property ParametroOrdenacao: String read FParametroOrdenacao write FParametroOrdenacao;
+
+    property ConsultarGrupo: TtecQuery read GetConsultarGrupo;
+    property ConsultarClasse: TtecQuery read GetConsultarClasse;
+    property ConsultarMarca: TTecQuery read GetConsultarMarca;
+    property ConsultarVendedor: TTecQuery read GetConsultarVendedor;
+    property ConsultarCliente: TTecQuery read GetConsultarCliente;
+
+    function ExisteGrupo(Campo, Codigo: string): Boolean;
+    function ExisteClasse(Campo, Codigo: string): Boolean;
+    function ExisteMarca(Campo, Codigo: String): Boolean;
+    function ExisteVendedor(Campo, Codigo: String): Boolean;
+    function ExisteCliente(Campo, Codigo: String): Boolean;
+
+    property CodigoGrupo: String read GetCodigoGrupo;
+    property CodigoClasse: String read GetCodigoClasse;
+    property CodigoMarca: Integer read GetCodigoMarca;
+    property CodigoVendedor: Integer read GetCodigoVendedor;
+    property CodigoCliente: Integer read GetCodigoCliente;
+
+    property CabecalhoSaldoEstoque: String read FCabecalhoSaldoEstoque write FCabecalhoSaldoEstoque;
+    function AbrirConsultasRelatorio: boolean;
+
+    {
+    function MontarParametroItem: String;
+    function MontarParametroCodigo: String;
+    function MontarParametroGrupo: String;
+    function MontarParametroClasse: String;
+    function MontarParametroMarca: String;
+    }
+
+    function MontarParametroFornecedor: String;
+    function MontarParametroCliente: String;
+    function MontarParametroClienteNotasPag: String;
+    function MontarParametroCliente_FrentedeCaixa: String;
+
+
+    property ncmisentopiscofins: Boolean read fncmisentopiscofins write fncmisentopiscofins;
+    property SomenteProdutosComNFEmitida: Boolean read fSomenteProdutosComNFEmitida write fSomenteProdutosComNFEmitida;
+
+  end;
+
+var
+  dtmRelatorioProdutosporClienteeVendedor: TdtmRelatorioProdutosporClienteeVendedor;
+
+const
+  FiltroFilial      = ' ( ct.filialvenda IN (%s)) ' +#13#10;
+  FiltroFilialNotasPag      = ' ( np.filial IN (%s)) ' +#13#10;
+  FiltroFilial_FrenteCaixa = ' ( df.filialvenda IN (%s)) ' +#13#10;
+
+  FiltroGrupoFilial = ' ( ct.filialvenda IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+  FiltroGrupoFilialNotasPag = ' ( np.filial IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+
+  FiltroGrupoFilial_FrenteCaixa = ' ( df.filialvenda IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+  FiltroProduto = ' (p.codigo in (Select p.codigo '+
+                  ' from produtos p join caracteristicas c '+
+                  ' on p.caracteristica=c.codigo '+
+                  ' Where (%s))) ';
+
+//  FiltroNCMIsentoPISCOFINS = ' and (select ipi.ncmisentopiscofins from ipi where ipi.codigo = c.ipi)';
+  FiltroNCMIsentoPISCOFINS = ' and c.piscst in (''07'',''08'',''09'') and c.cofinscst in (''07'',''08'',''09'')';
+
+  FiltroNCMIsentoPISCOFINS_Servicos = ' and s.piscst in (''07'',''08'',''09'') and s.cofinscst in (''07'',''08'',''09'')';
+
+  FiltroSomenteProdutosComNFEmitida_Faturados = ' and false ';
+  FiltroSomenteProdutosComNFEmitida_Devolucoes = ' and cd.situacao = ''N''';
+
+
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmRelatorioProdutosporClienteeVendedor }
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.AbreRelatorioProdutosporClienteeVendedor;
+begin
+
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.AbreTabelaPesquisa(
+  TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+     pesGRUPOS            : Abre(ctPesquisaGrupo);
+     pesCLASSES           : Abre(ctPesquisaClasse);
+     pesMARCAS            : Abre(ctPesquisaMarca);
+     pesVENDEDORES        : Abre(ctPesquisaVendedor);
+     pesCLIENTES          : Abre(ctPesquisaClientes);
+  end;
+end;
+
+constructor TdtmRelatorioProdutosporClienteeVendedor.Create(
+  AOwner: TComponent);
+begin
+  inherited;
+  qryProcuraGrupoProdutos.Tag   := ctTabelas;
+  qryProcuraClasses.Tag         := ctTabelas;
+  qryProcuraMarca.tag           := ctTabelas;
+  qryprocuraVendedores.Tag      := ctTabelas;
+  qryProcuraClientes.Tag        := ctTabelas;
+  qryProcuraClientes.ParambyName('tipocliente').AsString := 'C';
+
+  qryconsultaGrupoProdutos.Tag  := ctPesquisaGrupo;
+  qryConsultaClasses.Tag        := ctPesquisaClasse;
+  qryConsultaMarcas.Tag         := ctPesquisaMarca;
+  qryConsultaVendedores.Tag     := ctPesquisaVendedor;
+  qryConsultaClientes.Tag       := ctPesquisaClientes;
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.ExisteClasse(Campo,
+  Codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaClasses, campo, codigo);
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.ExisteGrupo(Campo,
+  Codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaGrupoProdutos, campo, codigo);
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.ExisteMarca(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaMarcas, campo, codigo);
+end;
+
+
+function TdtmRelatorioProdutosporClienteeVendedor.ExisteVendedor(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaVendedores, campo, codigo);
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.FechaTabelaPesquisa(
+  TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+     pesITEMPRODUTOS      : fecha(ctPesquisaItemProdutos);
+     pesPRODUTOS          : fecha(ctPesquisaProdutos);
+     pesGRUPOS            : fecha(ctPesquisaGrupo);
+     pesCLASSES           : fecha(ctPesquisaClasse);
+     pesMARCAS            : fecha(ctPesquisaMarca);
+     pesVENDEDORES        : fecha(ctPesquisaVendedor);
+     pesCLIENTES          : fecha(ctPesquisaClientes);
+  end;
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.GetCodigoClasse: String;
+begin
+ result := qryConsultaClassescodigo.AsString;
+end;
+
+
+function TdtmRelatorioProdutosporClienteeVendedor.GetCodigoGrupo: String;
+begin
+ result := qryConsultaGrupoProdutoscodigo.Asstring;
+end;
+
+
+function TdtmRelatorioProdutosporClienteeVendedor.GetCodigoMarca: Integer;
+begin
+  Result := qryConsultaMarcascodigo.AsInteger;
+end;
+
+
+function TdtmRelatorioProdutosporClienteeVendedor.GetCodigoVendedor: Integer;
+begin
+ result := qryConsultaVendedorescodigo.Asinteger;
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.GetConsultarClasse: TtecQuery;
+begin
+ result := qryConsultaClasses;
+end;
+
+
+function TdtmRelatorioProdutosporClienteeVendedor.GetConsultarGrupo: TtecQuery;
+begin
+ result := qryConsultaGrupoProdutos;
+end;
+
+
+function TdtmRelatorioProdutosporClienteeVendedor.GetConsultarMarca: TTecQuery;
+begin
+  Result := qryConsultaMarcas;
+end;
+
+
+function TdtmRelatorioProdutosporClienteeVendedor.GetConsultarVendedor: TTecQuery;
+begin
+ result := qryConsultaVendedores;
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.ImprimirRelatorio(ImprimirValores, PrecoPauta: Boolean);
+begin
+  frVariables['Outras']:= FParametroCabecalho;
+  case FParametroTipoRelatorio of
+  0: frVariables['Titulo']:= 'ITENS POR CLIENTE';
+  1: frVariables['Titulo']:= 'ITENS POR VENDEDOR';
+  end;
+
+  case FParametroTipoRelatorio of
+   0 : begin
+        if ImprimirValores then
+        begin
+//          frpRelatorioProdutosClientes.DesignReport;
+          if PrecoPauta then
+            ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioProdutosClientes], false, self)
+          else
+            ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioProdutosClientes_Modelo_Gama], false, self);
+        end
+        else
+        begin
+          if PrecoPauta then
+            ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioProdutosClientes_SemValores], false, self)
+          else
+            ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioProdutosClientes_SemValores_Modelo_Gama], false, self);
+        end;
+       end;
+   1 : begin
+
+//        frpRelatorioProdutosVendedores.designreport;
+         
+        if ImprimirValores then
+        begin
+
+          if PrecoPauta then
+            ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioProdutosVendedores], false, self)
+          else
+            ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioProdutosVendedores_Modelo_Gama], false, self);
+        end
+        else
+        begin
+          if PrecoPauta then
+            ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioProdutosVendedores_SemValores], false, self)
+          else
+            ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioProdutosVendedores_SemValores_Modelo_Gama], false, self);
+        end;
+       end
+  end;
+
+
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.Selecionar(
+  TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesGRUPOS       : RefazConsulta(qryProcuraGrupoProdutos,[0],[CodigoGrupo]);
+    pesCLASSES      : RefazConsulta(qryProcuraClasses,[0],[CodigoClasse]);
+    pesVENDEDORES   : RefazConsulta(qryProcuraVendedores, [0], [Codigovendedor]);
+    pesMARCAS       : RefazConsulta(qryProcuraMarca, [0], [CodigoMarca]);
+    pesCLIENTES     : ReFazConsulta(qryProcuraClientes,[0,1],[qryConsultaClientesCodigo.AsVariant,
+                                   qryConsultaClientestipoorig.AsVariant]);
+  end;
+end;
+
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.SetFiliais(
+  const Value: String);
+begin
+  FFiliais := Value;
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.SetGrupoFiliais(
+  const Value: String);
+begin
+  FGrupoFiliais := Value;
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.AbrirConsultasRelatorio: boolean;
+const
+{ SQLVendedorDadosFiscais = ' exists (select pc.produto '+
+                           '         from produtoscontratos pc '+
+                           '         where pc.contrato = ct.numero and '+
+                           '               pc.produto = pdf.produto and '+
+                           '               pc.filial = pdf.filial and '+
+                           '               pc.vendedor = %s )';
+}
+
+ SQLVendedorDevolucoes   = ' (cd.contrato, cd.produto, cd.filial) in '+
+                           ' (select pc.contrato, pc.produto, pc.filial '+
+                           '     from produtoscontratos pc '+
+                           '     where pc.contrato = ct.numero '+
+                           '      and pc.produto = cd.produto '+
+                           '      and pc.filial = cd.filial '+
+                           '      and pc.vendedor = %s)';
+
+ SQLVendedorDevolucoesServicos   = ' (cd.contrato, cd.servico) in '+
+                           ' (select sc.contrato, sc.servico '+
+                           '     from servicoscontratos sc '+
+                           '     where sc.contrato = ct.numero '+
+                           '      and sc.servico = cd.servico '+
+                           '      and sc.vendedor = %s)';
+
+
+var
+ SQL_DadosFiscais,
+ SQL_DadosFiscais_Servicos,
+ SQL_DadosFiscais_FrentedeCaixa,
+ SQL_Contratos,
+ SQL_Contratos_Servicos,
+ SQL_Produtos,
+ SQL_Servicos,
+ SQL_Devolucoes,
+ SQL_Devolucoes_Servicos,
+ SQL_DevolucoesNotasPag,
+ SQLSituacaoProdutos : String;
+
+begin
+
+  SQLSituacaoProdutos := '';
+
+  SQL_Produtos := '';
+  SQL_Servicos := '';
+
+  SQL_DadosFiscais := '';
+  SQL_DadosFiscais_Servicos := '';
+  SQL_DadosFiscais_FrentedeCaixa := '';
+
+  SQL_Contratos := '';
+  SQL_Contratos_Servicos := '';
+
+  SQL_Devolucoes := '';
+  SQL_Devolucoes_Servicos := '';
+
+  SQL_DevolucoesNotasPag := '';
+
+  qryEnderecoCliente.ParamByName('datainicial').AsString := FParametroDataInicial;
+  qryEnderecoCliente.ParamByName('datafinal').AsString := FParametroDataFinal;
+
+  qryRelatorioProdutosClientes.ParamByName('datainicial').AsString := FParametroDataInicial;
+  qryRelatorioProdutosClientes.ParamByName('datafinal').AsString := FParametroDataFinal;
+
+  qryRelatorioProdutosVendedores.ParamByName('datainicial').AsString := FParametroDataInicial;
+  qryRelatorioProdutosVendedores.ParamByName('datafinal').AsString := FParametroDataFinal;
+
+  qryRelatorioProdutosClientes.MacroByName('ordenacao').AsString := ParametroOrdenacao;
+  qryRelatorioProdutosVendedores.MacroByName('ordenacao').AsString := ParametroOrdenacao;
+
+  if (FGrupoFiliais<>'') then
+  begin
+    if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+    begin
+      SQL_DadosFiscais := SQL_DadosFiscais +
+                       ' and ' + Format(FiltroFilial,[FFiliais])+
+                       ' and ' + Format(FiltroGrupoFilial,[FGrupoFiliais]);
+
+      SQL_DadosFiscais_Servicos := SQL_DadosFiscais_Servicos +
+                       ' and ' + Format(FiltroFilial,[FFiliais])+
+                       ' and ' + Format(FiltroGrupoFilial,[FGrupoFiliais]);
+
+      SQL_DadosFiscais_FrentedeCaixa := SQL_DadosFiscais_FrentedeCaixa +
+                       ' and ' + Format(FiltroFilial_FrenteCaixa,[FFiliais])+
+                       ' and ' + Format(FiltroGrupoFilial_FrenteCaixa,[FGrupoFiliais]);
+
+      SQL_Contratos := SQL_Contratos +
+                       ' and ' + Format(FiltroFilial,[FFiliais])+
+                       ' and ' + Format(FiltroGrupoFilial,[FGrupoFiliais]);
+
+      SQL_Contratos_Servicos := SQL_Contratos_Servicos +
+                       ' and ' + Format(FiltroFilial,[FFiliais])+
+                       ' and ' + Format(FiltroGrupoFilial,[FGrupoFiliais]);
+
+      SQL_Devolucoes := SQL_Devolucoes +
+                       ' and ' + Format(FiltroFilial,[FFiliais])+
+                       ' and ' + Format(FiltroGrupoFilial,[FGrupoFiliais]);
+
+      SQL_Devolucoes_Servicos := SQL_Devolucoes_Servicos +
+                       ' and ' + Format(FiltroFilial,[FFiliais])+
+                       ' and ' + Format(FiltroGrupoFilial,[FGrupoFiliais]);
+
+      SQL_DevolucoesNotasPag := SQL_DevolucoesNotasPag +
+                       ' and ' + Format(FiltroFilialNotasPag,[FFiliais])+
+                       ' and ' + Format(FiltroGrupoFilialNotasPag,[FGrupoFiliais]);
+
+    end
+    else
+    begin
+      SQL_DadosFiscais := SQL_DadosFiscais +
+                       ' and ' + Format(FiltroGrupoFilial,[FGrupoFiliais]);
+
+      SQL_DadosFiscais_Servicos := SQL_DadosFiscais_Servicos +
+                       ' and ' + Format(FiltroGrupoFilial,[FGrupoFiliais]);
+
+      SQL_DadosFiscais_FrentedeCaixa := SQL_DadosFiscais_FrentedeCaixa +
+                       ' and ' + Format(FiltroGrupoFilial_FrenteCaixa,[FGrupoFiliais]);
+
+      SQL_Contratos := SQL_Contratos +
+                       ' and ' +  Format(FiltroGrupoFilial,[FGrupoFiliais]);
+
+      SQL_Contratos_Servicos := SQL_Contratos_Servicos +
+                       ' and ' +  Format(FiltroGrupoFilial,[FGrupoFiliais]);
+
+      SQL_Devolucoes := SQL_Devolucoes +
+                        ' and ' +  Format(FiltroGrupoFilial,[FGrupoFiliais]);
+
+      SQL_Devolucoes_Servicos := SQL_Devolucoes_Servicos +
+                        ' and ' +  Format(FiltroGrupoFilial,[FGrupoFiliais]);
+
+      SQL_DevolucoesNotasPag := SQL_DevolucoesNotasPag +
+                       ' and ' + Format(FiltroGrupoFilialNotasPag,[FGrupoFiliais]);
+
+    end;
+  end
+  else
+  begin
+    if (FFiliais<>'') then
+    begin
+      SQL_DadosFiscais := SQL_DadosFiscais + ' and ' + Format(FiltroFilial,[FFiliais]);
+      SQL_DadosFiscais_Servicos := SQL_DadosFiscais_Servicos + ' and ' + Format(FiltroFilial,[FFiliais]);
+      SQL_DadosFiscais_FrentedeCaixa := SQL_DadosFiscais_FrentedeCaixa + ' and ' + Format(FiltroFilial_FrenteCaixa,[FFiliais]);
+      SQL_Contratos := SQL_Contratos + ' and ' + Format(FiltroFilial,[FFiliais]);
+      SQL_Contratos_Servicos := SQL_Contratos_Servicos + ' and ' + Format(FiltroFilial,[FFiliais]);
+      SQL_Devolucoes := SQL_Devolucoes + ' and ' + Format(FiltroFilial,[FFiliais]);
+      SQL_Devolucoes_Servicos := SQL_Devolucoes_Servicos + ' and ' + Format(FiltroFilial,[FFiliais]);
+      SQL_DevolucoesNotasPag := SQL_DevolucoesNotasPag + ' and ' + Format(FiltroFilialNotasPag,[FFiliais]);
+    end
+  end;
+
+  if FParametroCliente <> '' then
+  begin
+    SQL_DadosFiscais := SQL_DadosFiscais + ' and ' + MontarParametroCliente;
+    SQL_DadosFiscais_Servicos := SQL_DadosFiscais_Servicos + ' and ' + MontarParametroCliente;
+    SQL_DadosFiscais_FrentedeCaixa := SQL_DadosFiscais_FrentedeCaixa + ' and ' + MontarParametroCliente_FrentedeCaixa;
+    SQL_Contratos := SQL_Contratos + ' and ' + MontarParametroCliente;
+    SQL_Contratos_Servicos := SQL_Contratos_Servicos + ' and ' + MontarParametroCliente;
+    SQL_Devolucoes := SQL_Devolucoes + ' and ' + MontarParametroCliente;
+    SQL_Devolucoes_Servicos := SQL_Devolucoes_Servicos + ' and ' + MontarParametroCliente;
+    SQL_DevolucoesNotasPag := SQL_DevolucoesNotasPag + ' and ' + MontarParametroClienteNotasPag;
+  end;
+
+  if (not DataEmBranco(FParametroReservadoInicial)) or (not DataEmBranco(FParametroReservadoFinal)) then
+  begin
+    SQL_DadosFiscais := SQL_DadosFiscais + MontarIntervaloData('ct.datareservado', FParametroReservadoInicial, FParametroReservadoFinal);
+    SQL_DadosFiscais_Servicos := SQL_DadosFiscais_Servicos + MontarIntervaloData('ct.datareservado', FParametroReservadoInicial, FParametroReservadoFinal);
+    SQL_DadosFiscais_FrentedeCaixa := SQL_DadosFiscais_FrentedeCaixa + MontarIntervaloData('df.data', FParametroReservadoInicial, FParametroReservadoFinal);
+    SQL_Contratos := SQL_Contratos + MontarIntervaloData('ct.datareservado', FParametroReservadoInicial, FParametroReservadoFinal);
+    SQL_Contratos_Servicos := SQL_Contratos_Servicos + MontarIntervaloData('ct.datareservado', FParametroReservadoInicial, FParametroReservadoFinal);
+    SQL_Devolucoes := SQL_Devolucoes + MontarIntervaloData('ct.datareservado', FParametroReservadoInicial, FParametroReservadoFinal);
+    SQL_Devolucoes_Servicos := SQL_Devolucoes_Servicos + MontarIntervaloData('ct.datareservado', FParametroReservadoInicial, FParametroReservadoFinal);
+    SQL_DevolucoesNotasPag := SQL_DevolucoesNotasPag + MontarIntervaloData('df.data', FParametroReservadoInicial, FParametroReservadoFinal);
+  end;
+
+  if ParametroItem <> '' then
+    SQL_Produtos := ' and (' + ParametroItem + ')';
+
+  if ParametroCodigo <> '' then
+    SQL_Produtos := SQL_Produtos + ' and (' + ParametroCodigo + ')';
+
+  if ParametroGrupo <> '' then
+    SQL_Produtos := SQL_Produtos + ' and (' + ParametroGrupo + ')';
+
+  if ParametroClasse <> '' then
+    SQL_Produtos := SQL_Produtos + ' and (' + ParametroClasse + ')';
+
+  if ParametroMarca <> '' then
+    SQL_Produtos := SQL_Produtos + ' and (' + ParametroMarca + ')';
+
+  if ParametroPromocoes <> '' then
+    SQL_Produtos := SQL_Produtos + ' and (' + ParametroPromocoes + ')';
+
+  if FParametroFornecedor<>'' then
+    SQL_Produtos := SQL_Produtos + ' and ' + MontarParametroFornecedor;
+
+  if ParametroServico <> '' then
+    SQL_Servicos := ' and (' + ParametroServico + ')';
+
+  if SQL_Produtos <> '' then
+  begin
+    SQL_DadosFiscais := SQL_DadosFiscais + SQL_Produtos;
+    SQL_DadosFiscais_FrentedeCaixa := SQL_DadosFiscais_FrentedeCaixa + SQL_Produtos;
+    SQL_Contratos := SQL_Contratos + SQL_Produtos;
+    SQL_Devolucoes := SQL_Devolucoes + SQL_Produtos;
+    SQL_DevolucoesNotasPag := SQL_DevolucoesNotasPag + SQL_Produtos;
+  end;
+
+  if SQL_Servicos <> '' then
+  begin
+    SQL_DadosFiscais_Servicos := SQL_DadosFiscais_Servicos + SQL_Servicos;
+    SQL_Contratos_Servicos := SQL_Contratos_Servicos + SQL_Servicos;
+    SQL_Devolucoes_Servicos := SQL_Devolucoes_Servicos + SQL_Servicos;
+  end;
+
+  if FParametroVendedor<>'' then
+  begin
+    SQL_Contratos := SQL_Contratos + ' and pc.vendedor = '+FParametroVendedor;
+    SQL_Contratos_Servicos := SQL_Contratos_Servicos + ' and sc.vendedor = '+FParametroVendedor;
+
+    SQL_DadosFiscais := SQL_DadosFiscais + ' and coalesce(pdf.vendedor,df.vendedor) = ' + FParametroVendedor;
+    SQL_DadosFiscais_Servicos := SQL_DadosFiscais_Servicos + ' and coalesce(sc.vendedor,df.vendedor) = ' + FParametroVendedor;
+
+    SQL_DadosFiscais_FrentedeCaixa := SQL_DadosFiscais_FrentedeCaixa + ' and coalesce(pdf.vendedor,df.vendedor) = ' + FParametroVendedor;
+
+    SQL_Devolucoes := SQL_Devolucoes + ' and ' + format(SQLVendedorDevolucoes, [FParametroVendedor]);
+    SQL_Devolucoes_Servicos := SQL_Devolucoes_Servicos + ' and ' + format(SQLVendedorDevolucoesServicos, [FParametroVendedor]);
+
+    SQL_DevolucoesNotasPag := SQL_DevolucoesNotasPag +  ' and coalesce(pnp.vendedor,np.vendedor) = ' + FParametroVendedor;
+  end;
+
+  if FProdutoEmLinha and not FprodutoForadeLinha then
+  begin
+    if length(SQLSituacaoProdutos)<>0 then
+      SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (not p.foralinhal and not c.foralinhal)'
+    else
+      SQLSituacaoProdutos := ' (not p.foralinhal and not c.foralinhal)';
+  end
+  else
+  begin
+    if FprodutoForadeLinha and not Fprodutoemlinha then
+      if length(SQLSituacaoProdutos)<>0 then
+        SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (p.foralinhal or c.foralinhal)'
+      else
+        SQLSituacaoProdutos := ' (p.foralinhal or c.foralinhal)';
+  end;
+
+  if FProdutoAtivo and not FprodutoInativo then
+  begin
+    if length(SQLSituacaoProdutos)<>0 then
+      SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (not p.inativol and not c.inativol)'
+    else
+      SQLSituacaoProdutos := ' (not p.inativol and not c.inativol)';
+  end
+  else
+  begin
+    if FprodutoInativo and not FprodutoAtivo then
+      if length(SQLSituacaoProdutos)<>0 then
+        SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (p.inativol or c.inativol)'
+      else
+        SQLSituacaoProdutos := ' (p.inativol or c.inativol)';
+  end;
+
+  if FProdutoComMontagem and not FProdutoSemMontagem then
+  begin
+    if length(SQLSituacaoProdutos)<>0 then
+      SQLSituacaoProdutos := SQLSituacaoProdutos +
+                            ' and (c.montagem)'
+    else
+      SQLSituacaoProdutos := ' (c.montagem)';
+  end
+  else
+  begin
+    if FProdutoSemMontagem and not FProdutoComMontagem then
+      if length(SQLSituacaoProdutos)<>0 then
+        SQLSituacaoProdutos := SQLSituacaoProdutos + ' and not (c.montagem)'
+      else
+        SQLSituacaoProdutos := ' not (c.montagem)';
+  end;
+
+  if FProdutoBrinde and not FProdutoNaoBrinde then
+  begin
+    if length(SQLSituacaoProdutos)<>0 then
+      SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (c.brinde)'
+    else
+      SQLSituacaoProdutos := ' (c.brinde)';
+  end
+  else
+  begin
+    if FProdutoNaoBrinde and not FProdutoBrinde then
+      if length(SQLSituacaoProdutos)<>0 then
+        SQLSituacaoProdutos := SQLSituacaoProdutos + ' and not (c.brinde)'
+      else
+        SQLSituacaoProdutos := ' not (c.brinde)';
+  end;
+
+  if SQLSituacaoProdutos<>'' then
+  begin
+    SQL_DadosFiscais := SQL_DadosFiscais + ' and ' + SQLSituacaoProdutos;
+    SQL_DadosFiscais_FrentedeCaixa := SQL_DadosFiscais_FrentedeCaixa + ' and ' + SQLSituacaoProdutos;
+    SQL_Contratos := SQL_Contratos + ' and ' + SQLSituacaoProdutos;
+    SQL_Devolucoes := SQL_Devolucoes + ' and ' + SQLSituacaoProdutos;
+    SQL_DevolucoesNotasPag := SQL_DevolucoesNotasPag + ' and ' + SQLSituacaoProdutos;
+  end;
+
+  qryEnderecoCliente.MacroByName('DadosFiscais').AsString := SQL_DadosFiscais;
+  qryEnderecoCliente.MacroByName('DadosFiscais_Servicos').AsString := SQL_DadosFiscais_Servicos;
+  qryEnderecoCliente.MacroByName('DadosFiscais_FrentedeCaixa').AsString := SQL_DadosFiscais_FrentedeCaixa;
+  qryEnderecoCliente.MacroByName('Contratos').AsString := SQL_Contratos;
+  qryEnderecoCliente.MacroByName('Contratos_Servicos').AsString := SQL_Contratos_Servicos;
+  qryEnderecoCliente.MacroByName('Devolucoes').AsString := SQL_Devolucoes;
+  qryEnderecoCliente.MacroByName('Devolucoes_Servicos').AsString := SQL_Devolucoes_Servicos;
+  qryEnderecoCliente.MacroByName('Devolucoes_np').AsString := SQL_DevolucoesNotasPag;
+
+  if ncmisentopiscofins then
+  begin
+    qryEnderecoCliente.MacroByName('NCMIsentoPISCOFINS').AsString := FiltroNCMIsentoPISCOFINS;
+    qryEnderecoCliente.MacroByName('NCMIsentoPISCOFINS_Servicos').AsString := FiltroNCMIsentoPISCOFINS_Servicos;
+
+    qryRelatorioProdutosClientes.MacroByName('NCMIsentoPISCOFINS').AsString := FiltroNCMIsentoPISCOFINS;
+    qryRelatorioProdutosClientes.MacroByName('NCMIsentoPISCOFINS_Servicos').AsString := FiltroNCMIsentoPISCOFINS_Servicos;
+
+    qryRelatorioProdutosVendedores.MacroByName('NCMIsentoPISCOFINS').AsString := FiltroNCMIsentoPISCOFINS;
+    qryRelatorioProdutosVendedores.MacroByName('NCMIsentoPISCOFINS_Servicos').AsString := FiltroNCMIsentoPISCOFINS_Servicos;
+
+  end
+  else
+  begin
+    qryEnderecoCliente.MacroByName('NCMIsentoPISCOFINS').AsString := '';
+    qryEnderecoCliente.MacroByName('NCMIsentoPISCOFINS_Servicos').AsString := '';
+
+    qryRelatorioProdutosClientes.MacroByName('NCMIsentoPISCOFINS').AsString := '';
+    qryRelatorioProdutosClientes.MacroByName('NCMIsentoPISCOFINS_Servicos').AsString := '';
+
+    qryRelatorioProdutosVendedores.MacroByName('NCMIsentoPISCOFINS').AsString := '';
+    qryRelatorioProdutosVendedores.MacroByName('NCMIsentoPISCOFINS_Servicos').AsString := '';
+
+  end;
+
+  if SomenteProdutosComNFEmitida then
+  begin
+    qryEnderecoCliente.MacroByName('ProdutosComNFEmitida_Faturados').AsString := FiltroSomenteProdutosComNFEmitida_Faturados;
+    qryRelatorioProdutosClientes.MacroByName('ProdutosComNFEmitida_Faturados').AsString := FiltroSomenteProdutosComNFEmitida_Faturados;
+    qryRelatorioProdutosVendedores.MacroByName('ProdutosComNFEmitida_Faturados').AsString := FiltroSomenteProdutosComNFEmitida_Faturados;
+    qryEnderecoCliente.MacroByName('ProdutosComNFEmitida_Devolvido').AsString             := FiltroSomenteProdutosComNFEmitida_Devolucoes;
+    qryRelatorioProdutosClientes.MacroByName('ProdutosComNFEmitida_Devolvido').AsString   := FiltroSomenteProdutosComNFEmitida_Devolucoes;
+    qryRelatorioProdutosVendedores.MacroByName('ProdutosComNFEmitida_Devolvido').AsString := FiltroSomenteProdutosComNFEmitida_Devolucoes;
+  end
+  else
+  begin
+    qryEnderecoCliente.MacroByName('ProdutosComNFEmitida_Faturados').AsString := '';
+    qryRelatorioProdutosClientes.MacroByName('ProdutosComNFEmitida_Faturados').AsString := '';
+    qryRelatorioProdutosVendedores.MacroByName('ProdutosComNFEmitida_Faturados').AsString := '';
+
+    qryEnderecoCliente.MacroByName('ProdutosComNFEmitida_Devolvido').AsString := '';
+    qryRelatorioProdutosClientes.MacroByName('ProdutosComNFEmitida_Devolvido').AsString := '';
+    qryRelatorioProdutosVendedores.MacroByName('ProdutosComNFEmitida_Devolvido').AsString := '';
+  end;
+
+  qryRelatorioProdutosClientes.MacroByName('DadosFiscais').AsString := SQL_DadosFiscais;
+  qryRelatorioProdutosClientes.MacroByName('DadosFiscais_Servicos').AsString := SQL_DadosFiscais_Servicos;
+  qryRelatorioProdutosClientes.MacroByName('DadosFiscais_FrentedeCaixa').AsString := SQL_DadosFiscais_FrentedeCaixa;
+  qryRelatorioProdutosClientes.MacroByName('Contratos').AsString := SQL_Contratos;
+  qryRelatorioProdutosClientes.MacroByName('Contratos_Servicos').AsString := SQL_Contratos_Servicos;
+  qryRelatorioProdutosClientes.MacroByName('Devolucoes').AsString := SQL_Devolucoes;
+  qryRelatorioProdutosClientes.MacroByName('Devolucoes_Servicos').AsString := SQL_Devolucoes_Servicos;
+  qryRelatorioProdutosClientes.MacroByName('Devolucoes_np').AsString := SQL_DevolucoesNotasPag;
+
+
+  qryRelatorioProdutosVendedores.MacroByName('DadosFiscais').AsString := SQL_DadosFiscais;
+  qryRelatorioProdutosVendedores.MacroByName('DadosFiscais_Servicos').AsString := SQL_DadosFiscais_Servicos;
+  qryRelatorioProdutosVendedores.MacroByName('DadosFiscais_FrentedeCaixa').AsString := SQL_DadosFiscais_FrentedeCaixa;
+  qryRelatorioProdutosVendedores.MacroByName('Contratos').AsString := SQL_Contratos;
+  qryRelatorioProdutosVendedores.MacroByName('Contratos_Servicos').AsString := SQL_Contratos_Servicos;
+  qryRelatorioProdutosVendedores.MacroByName('Devolucoes').AsString := SQL_Devolucoes;
+  qryRelatorioProdutosVendedores.MacroByName('Devolucoes_Servicos').AsString := SQL_Devolucoes_Servicos;
+  qryRelatorioProdutosVendedores.MacroByName('Devolucoes_np').AsString := SQL_DevolucoesNotasPag;
+
+  qryEnderecoCliente.close;
+  qryRelatorioProdutosClientes.Close;
+  qryRelatorioProdutosVendedores.Close;
+
+  case FParametroTipoRelatorio of
+    0: begin
+        qryEnderecoCliente.open;
+        qryRelatorioProdutosClientes.open;
+       end;
+    1: qryRelatorioProdutosVendedores.Open;
+  end;
+  result := not qryEnderecoCliente.IsEmpty or not qryRelatorioProdutosVendedores.IsEmpty;
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.SetParametroDataFinal(
+  const Value: String);
+begin
+  if not DataEmBranco(Value) then
+  begin
+    FParametroDataFinal := Value;
+    if DataEmBranco(FParametroDataInicial) then
+      FParametroDataInicial:=FParametroDataFinal;
+  end
+  else
+   FParametroDataFinal := FParametroDataInicial;
+
+  FParametroCabecalho:= FParametroCabecalho + 'ENTRE ' + FParametroDataInicial +
+                                              ' E '    + FParametroDataFinal;
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.SetParametroDataInicial(
+  const Value: String);
+begin
+  if not DataEmBranco(Value) then
+    FParametroDataInicial := Value;
+end;
+
+{
+function TdtmRelatorioProdutosporClienteeVendedor.MontarParametroClasse: String;
+var
+ SQL : String;
+begin
+ SQL:=' c.classe = '+quotedstr(FParametroClasse);
+ FParametroCabecalho:=FParametroCabecalho+' Classe : '+FParametroClasse;
+ result := SQL;
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.MontarParametroCodigo: String;
+var
+ SQL : String;
+begin
+ SQL:=' c.codigo = '+FParametroCodigo;
+ FParametroCabecalho:=FParametroCabecalho+' Produto : '+FParametroCodigo;
+ result := SQL;
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.MontarParametroGrupo: String;
+var
+ SQL : String;
+begin
+ SQL:=' c.grupo = '+quotedstr(FParametroGrupo);
+ FParametroCabecalho:=FParametroCabecalho+' Grupo : '+FParametroGrupo;
+ result := SQL;
+end;
+
+
+function TdtmRelatorioProdutosporClienteeVendedor.MontarParametroItem: String;
+var
+ SQL : String;
+begin
+ SQL:=' p.codigo = '+FParametroItem ;
+ FParametroCabecalho:=FParametroCabecalho+' Item Produto : '+FParametroItem;
+ result := SQL;
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.MontarParametroMarca: String;
+var
+ SQL : String;
+begin
+ SQL:=' c.marca = '+FParametroMarca;
+ FParametroCabecalho:=FParametroCabecalho+' Marca : '+FParametroMarca;
+ result := SQL;
+end;
+}
+
+function TdtmRelatorioProdutosporClienteeVendedor.MontarParametroFornecedor: String;
+var
+ SQL : String;
+begin
+ SQL:=' c.codigo in (select caracteristica from fornecedoresprodutos where fornecedor = '+FParametroFornecedor+')';
+ FParametroCabecalho:=FParametroCabecalho+' Fornecedor : '+FParametroFornecedor;
+ result := SQL;
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.ExisteCliente(Campo,
+  Codigo: String): Boolean;
+begin
+  if Campo = 'nomecidade' then
+    Campo:= 'c.nome'
+  else if Campo = 'tipo' then
+    Campo:= 'v.tipo'
+  else
+    Campo:= 'v.' + Campo;
+  qryConsultaClientes.Sql[08] := ' Where (Maiusculo(' + Campo + ') ilike Maiusculo(''' + Codigo  + '%''))';
+  qryConsultaClientes.Open;
+  Result := Not qryConsultaClientes.IsEmpty
+end;
+
+
+function TdtmRelatorioProdutosporClienteeVendedor.GetCodigoCliente: Integer;
+begin
+ result := qryConsultaClientescodigo.Asinteger;
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.GetConsultarCliente: TTecQuery;
+begin
+ result := qryConsultaClientes;
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.MontarParametroCliente: String;
+var
+ SQL : String;
+begin
+ if not FParametroExcetoCliente then
+   SQL := ' (ct.cliente = ' + FParametroCliente + ' and  ct.tipocliente = '+quotedstr(qryProcuraClientestipo.AsString) + ' ) '
+ else
+   SQL := ' not (ct.cliente = ' + FParametroCliente + ' and  ct.tipocliente = '+quotedstr(qryProcuraClientestipo.AsString) + ' ) ';
+
+ result := SQL;
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.SetParametroDevolucoesPeriodoAnterior(
+  const Value: Boolean);
+const
+ SQLDevolucoesPeriodoAnterior = 'and ct.faturamento < :DataInicial';
+ SQLDevolucoesPeriodoSelecionado = 'and ct.faturamento between (:DataInicial) and (:DataFinal)';
+begin
+  FParametroDevolucoesPeriodoAnterior := Value;
+
+  qryEnderecoCliente.parambyname('IncluirDevolucoes').asBoolean :=  FParametroDevolucoesPeriodoAnterior or FParametroDevolucoesPeriodoSelecionado;
+  qryRelatorioProdutosClientes.parambyname('IncluirDevolucoes').asBoolean := qryEnderecoCliente.parambyname('IncluirDevolucoes').asBoolean;
+  qryRelatorioProdutosVendedores.parambyname('IncluirDevolucoes').asBoolean := qryEnderecoCliente.parambyname('IncluirDevolucoes').asBoolean;
+
+  if FParametroDevolucoesPeriodoAnterior and FParametroDevolucoesPeriodoSelecionado then
+  begin
+    qryEnderecoCliente.MacroByName('Devolucoes').AsString := '';
+    qryEnderecoCliente.MacroByName('Devolucoes_np').AsString := '';
+
+    qryRelatorioProdutosClientes.MacroByName('Devolucoes').AsString := '';
+    qryRelatorioProdutosClientes.MacroByName('Devolucoes_np').AsString := '';
+
+    qryRelatorioProdutosVendedores.MacroByName('Devolucoes').AsString := '';
+    qryRelatorioProdutosVendedores.MacroByName('Devolucoes_np').AsString := '';
+
+  end
+  else
+   if FParametroDevolucoesPeriodoAnterior then
+   begin
+     qryEnderecoCliente.MacroByName('Devolucoes').AsString := SQLDevolucoesPeriodoAnterior;
+     qryEnderecoCliente.MacroByName('Devolucoes_np').AsString := ' and false';
+
+     qryRelatorioProdutosClientes.MacroByName('Devolucoes').AsString := SQLDevolucoesPeriodoAnterior;
+     qryRelatorioProdutosClientes.MacroByName('Devolucoes_np').AsString := ' and false';
+
+     qryRelatorioProdutosVendedores.MacroByName('Devolucoes').AsString := SQLDevolucoesPeriodoAnterior;
+     qryRelatorioProdutosVendedores.MacroByName('Devolucoes_np').AsString := ' and false';
+
+   end
+   else
+   if FParametroDevolucoesPeriodoSelecionado then
+   begin
+     qryEnderecoCliente.MacroByName('Devolucoes').AsString := SQLDevolucoesPeriodoSelecionado;
+     qryEnderecoCliente.MacroByName('Devolucoes_np').AsString := ' and true';
+
+     qryRelatorioProdutosClientes.MacroByName('Devolucoes').AsString := SQLDevolucoesPeriodoSelecionado;
+     qryRelatorioProdutosClientes.MacroByName('Devolucoes_np').AsString := ' and true';
+
+     qryRelatorioProdutosVendedores.MacroByName('Devolucoes').AsString := SQLDevolucoesPeriodoSelecionado;
+     qryRelatorioProdutosVendedores.MacroByName('Devolucoes_np').AsString := ' and true';
+
+   end;
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.ZMonitor1MonitorEvent(
+  Sql, Result: String);
+var
+ Listar : TStringList;
+ arquivo: string;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  arquivo:='c:/teste.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.frpRelatorioProdutosClientes_BeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRelatorioProdutosClientes, View);
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.frpRelatorioProdutosVendedoresBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRelatorioProdutosVendedores, View);
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.ZMonitorMonitorEvent(
+  Sql, Result: String);
+var
+ Listar : TStringList;
+ arquivo : string;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  arquivo:='c:\teclux\produtos.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+function TdtmRelatorioProdutosporClienteeVendedor.MontarParametroCliente_FrentedeCaixa: String;
+var
+ SQL : String;
+begin
+
+ if not FParametroExcetoCliente then
+   SQL := ' (df.cliente = ' + FParametroCliente + ' and  df.tipocliente = '+quotedstr(qryProcuraClientestipo.AsString) + ' ) '
+ else
+   SQL := ' not (df.cliente = ' + FParametroCliente + ' and  df.tipocliente = '+quotedstr(qryProcuraClientestipo.AsString) + ' ) ';
+
+ result := SQL;
+end;
+
+
+function TdtmRelatorioProdutosporClienteeVendedor.MontarParametroClienteNotasPag: String;
+var
+ SQL : String;
+
+begin
+
+ if not FParametroExcetoCliente then
+   SQL := ' (np.fornecedor = ' + FParametroCliente + ' and  np.tipofornecedor = '+quotedstr(qryProcuraClientestipo.AsString) + ' ) '
+ else
+   SQL := ' not (np.fornecedor = ' + FParametroCliente + ' and  np.tipofornecedor = '+quotedstr(qryProcuraClientestipo.AsString) + ' ) ';
+
+ result := SQL;
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.SetParametroCliente(
+  const Value: String);
+begin
+  FParametroCliente := Value;
+  if value <> '' then
+    FParametroCabecalho := FParametroCabecalho + ' Cliente/Tipo : ' + qryProcuraClientestipo.AsString + FParametroCliente;
+
+end;
+
+procedure TdtmRelatorioProdutosporClienteeVendedor.setParametroVendedor(
+  const Value: String);
+begin
+  FParametroVendedor := Value;
+  if value <> '' then
+    FParametroCabecalho := FParametroCabecalho + ' Vendedor : ' + value + ' - '+ qryProcuraVendedoresnome.asString;
+
+end;
+
+end.

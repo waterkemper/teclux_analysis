@@ -1,0 +1,884 @@
+
+unit dmimprimecontratos;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, FR_Class,
+  FR_DSet, FR_DBSet, fmpreviewpadrao, clparametrossistema, DBClient,ctconstantes,
+  fr_barc, ZTransact, cpdatasource,Provider, fr_shape, fr_ptabl, Biblio,
+  frxClass, frxDBSet, frxExportODF, frxExportMail, frxExportTXT,
+  frxExportCSV, frxExportText, frxExportImage, frxExportRTF, frxExportXML,
+  frxExportXLS, frxExportHTML, frxExportPDF,  Forms;
+
+type
+  TdtmImprimeContratos = class(TdtmBasico)
+    qryParcelas: TtecQuery;
+    qryParcelascontrato: TStringField;
+    qryParcelasdatavencto: TDateField;
+    qryParcelasvalorvencto: TFloatField;
+    qryParcelasnumero: TIntegerField;
+    qryParcelastipopagto: TStringField;
+    qryParcelasformapagamento: TStringField;
+    qryParcelasselecionado: TBooleanField;
+    qryParcelasdatapagto: TDateField;
+    qryParcelasparcelaorigem: TStringField;
+    fdsServicosContratos: TfrDBDataSet;
+    fdsContratos: TfrDBDataSet;
+    fdsProdutosContratos: TfrDBDataSet;
+    frpContratos: TfrReport;
+    qryContratosEntradas: TtecQuery;
+    qryContratosEntradasentradas: TFloatField;
+    qryParcelasImprimir: TtecQuery;
+    qryParcelasImprimirdatavencto: TDateField;
+    qryParcelasImprimirvalorvencto: TFloatField;
+    qryParcelasImprimirformapagamento: TStringField;
+    qryParcelasImprimirparcelaorigem: TStringField;
+    dspParcelas: TDataSetProvider;
+    cdsParcelas: TClientDataSet;
+    cdsParcelasdatavencto: TDateField;
+    cdsParcelasvalorvencto: TFloatField;
+    cdsParcelasformapagamento: TStringField;
+    cdsParcelasparcelaorigem: TStringField;
+    qryProcuraNaturalidade: TtecQuery;
+    qryProcuraNaturalidadenome: TStringField;
+    qryProcuraNaturalidadecodigo: TIntegerField;
+    qryProcuraNaturalidadeestado: TStringField;
+    qryContratos: TtecQuery;
+    qryContratosnumero: TStringField;
+    qryContratosdata: TDateField;
+    qryContratosfaturamento: TDateField;
+    qryContratosavalista: TIntegerField;
+    qryContratoscliente: TIntegerField;
+    qryContratostipocliente: TStringField;
+    qryContratosvendedor: TIntegerField;
+    qryContratosfilialvenda: TIntegerField;
+    qryContratosvalorvista: TFloatField;
+    qryContratosvalorprazo: TFloatField;
+    qryContratostotalprodutos: TFloatField;
+    qryContratostotalservicos: TFloatField;
+    qryContratosdesconto: TFloatField;
+    qryContratosfrete: TFloatField;
+    qryContratosseguro: TFloatField;
+    qryContratosagente: TIntegerField;
+    qryContratosanalista: TIntegerField;
+    qryContratosnomeanalista: TStringField;
+    qryContratosorigem: TStringField;
+    qryContratostiporenegociacao: TStringField;
+    qryContratostaxajuros: TFloatField;
+    qryContratosplano: TIntegerField;
+    qryContratosconsideracoes: TStringField;
+    qryContratosentrua: TStringField;
+    qryContratosentestado: TStringField;
+    qryContratosentcidade: TIntegerField;
+    qryContratosentbairro: TIntegerField;
+    qryContratosentcep: TIntegerField;
+    qryContratosentfoneddd: TIntegerField;
+    qryContratosentfonenumero: TIntegerField;
+    qryContratosentfoneramal: TStringField;
+    qryContratosmontagemobs: TStringField;
+    qryContratosmontagemfilial: TIntegerField;
+    qryContratossituacao: TStringField;
+    qryContratosnomesituacao: TStringField;
+    qryContratosmotivo: TIntegerField;
+    qryContratosdescricaomotivo: TStringField;
+    qryContratosnomecidadeentrega: TStringField;
+    qryContratosnomebairroentrega: TStringField;
+    qryContratosnomecidadenaturalidade: TStringField;
+    qryContratosnomecidade: TStringField;
+    qryContratosnomebairro: TStringField;
+    qryContratosnomecidadeempresa: TStringField;
+    qryContratosnomebairroempresa: TStringField;
+    qryContratosnomecidadeconjuge: TStringField;
+    qryContratosnomebairroconjuge: TStringField;
+    qryContratosnomecidadereferencia: TStringField;
+    qryContratosnomebairroreferencia: TStringField;
+    qryContratosnome: TStringField;
+    qryContratosnascto: TDateField;
+    qryContratosapelido: TStringField;
+    qryContratossexo: TStringField;
+    qryContratoscivil: TStringField;
+    qryContratoscivildata: TDateField;
+    qryContratosiddocumento: TStringField;
+    qryContratosidorgao: TStringField;
+    qryContratosiddata: TDateField;
+    qryContratosidestado: TStringField;
+    qryContratospessoatipo: TStringField;
+    qryContratospessoanumero: TStringField;
+    qryContratosmae: TStringField;
+    qryContratospai: TStringField;
+    qryContratosconceito: TIntegerField;
+    qryContratosnaturalcidade: TIntegerField;
+    qryContratosnaturalestado: TStringField;
+    qryContratosrua: TStringField;
+    qryContratosestado: TStringField;
+    qryContratoscidade: TIntegerField;
+    qryContratosbairro: TIntegerField;
+    qryContratoscep: TIntegerField;
+    qryContratosfonetipo: TStringField;
+    qryContratosfoneddd: TIntegerField;
+    qryContratosfonenumero: TIntegerField;
+    qryContratosfoneramal: TStringField;
+    qryContratosfone2ddd: TIntegerField;
+    qryContratosfone2numero: TIntegerField;
+    qryContratosfone2ramal: TStringField;
+    qryContratosrestipo: TStringField;
+    qryContratosresonus: TFloatField;
+    qryContratosrestempo: TDateField;
+    qryContratosempresa: TStringField;
+    qryContratosempadmissao: TDateField;
+    qryContratosempcep: TIntegerField;
+    qryContratosempcomprovado: TBooleanField;
+    qryContratosempfoneddd: TIntegerField;
+    qryContratosempfonenumero: TIntegerField;
+    qryContratosempfoneramal: TStringField;
+    qryContratosempoutrasdescricao: TStringField;
+    qryContratosempoutrasfaixa: TIntegerField;
+    qryContratosempoutrasvalor: TFloatField;
+    qryContratosemprendafaixa: TIntegerField;
+    qryContratosemprendavalor: TFloatField;
+    qryContratosemprua: TStringField;
+    qryContratosempestado: TStringField;
+    qryContratosempcidade: TIntegerField;
+    qryContratosempbairro: TIntegerField;
+    qryContratosempcargo: TIntegerField;
+    qryContratosconjuge: TIntegerField;
+    qryContratosconnome: TStringField;
+    qryContratosconadmissao: TDateField;
+    qryContratosconcep: TIntegerField;
+    qryContratosconempresa: TStringField;
+    qryContratosconfoneddd: TIntegerField;
+    qryContratosconfonenumero: TIntegerField;
+    qryContratosconfoneramal: TStringField;
+    qryContratosconnascto: TDateField;
+    qryContratosconrendafaixa: TIntegerField;
+    qryContratosconrendavalor: TFloatField;
+    qryContratosconrua: TStringField;
+    qryContratosconestado: TStringField;
+    qryContratosconcidade: TIntegerField;
+    qryContratosconbairro: TIntegerField;
+    qryContratosconcargo: TIntegerField;
+    qryContratosreferencia: TStringField;
+    qryContratosreftipo: TStringField;
+    qryContratosrefrua: TStringField;
+    qryContratosrefestado: TStringField;
+    qryContratosrefcidade: TIntegerField;
+    qryContratosrefbairro: TIntegerField;
+    qryContratosrefcep: TIntegerField;
+    qryContratosreffoneddd: TIntegerField;
+    qryContratosreffonenumero: TIntegerField;
+    qryContratosreffoneramal: TStringField;
+    qryContratosreffone2ddd: TIntegerField;
+    qryContratosreffone2numero: TIntegerField;
+    qryContratosreffone2ramal: TStringField;
+    qryContratosobservacoes: TStringField;
+    qryContratosemail: TStringField;
+    qryContratosautomovel: TBooleanField;
+    qryContratoscartaocredito: TBooleanField;
+    qryContratoscartaoloja: TBooleanField;
+    qryContratoscheque: TBooleanField;
+    qryContratoschequeespecial: TBooleanField;
+    qryContratosdependentes: TIntegerField;
+    qryContratosonus: TFloatField;
+    qryContratosemitirnotadepoisde: TDateField;
+    qryContratoslistacasamento: TIntegerField;
+    qryContratosprimogenito: TStringField;
+    qryContratosrenegociado: TStringField;
+    qryContratospedidocliente: TStringField;
+    qryContratosdependente: TIntegerField;
+    qryContratoscreditotroca: TFloatField;
+    qryContratostotalqtdeprodutos: TFloatField;
+    qryContratosimpostoretido: TFloatField;
+    qryContratosTotalLiquidoServicos: TCurrencyField;
+    qryContratoscfps: TIntegerField;
+    qryContratosdescricaocfps: TStringField;
+    qryProdutosContratos: TtecQuery;
+    qryProdutosContratoscontrato: TStringField;
+    qryProdutosContratosfilial: TIntegerField;
+    qryProdutosContratosproduto: TLargeintField;
+    qryProdutosContratosdescricao: TStringField;
+    qryProdutosContratosunidade: TStringField;
+    qryProdutosContratosicms: TIntegerField;
+    qryProdutosContratosaliquotaicms: TFloatField;
+    qryProdutosContratosquantidade: TFloatField;
+    qryProdutosContratoscancelado: TFloatField;
+    qryProdutosContratosprecotabela: TFloatField;
+    qryProdutosContratosprecovenda: TFloatField;
+    qryProdutosContratosreserva: TIntegerField;
+    qryProdutosContratosmontagem: TStringField;
+    qryProdutosContratosbrinde: TBooleanField;
+    qryProdutosContratosentrega: TStringField;
+    qryProdutosContratosmovimento: TIntegerField;
+    qryProdutosContratosvendasemestoque: TStringField;
+    qryProdutosContratostransfautomatica: TBooleanField;
+    qryProdutosContratosdescricaoprecovenda: TStringField;
+    qryProdutosContratosmontagemoriginal: TBooleanField;
+    qryProdutosContratosvendedor: TIntegerField;
+    qryProdutosContratosincluirnanotafiscal: TBooleanField;
+    qryProdutosContratosincluirnalistacasamento: TBooleanField;
+    qryProdutosContratosprodutolista: TBooleanField;
+    qryProdutosContratosorigem: TIntegerField;
+    qryProdutosContratosincidencia: TStringField;
+    qryProdutosContratospercreducaobase: TFloatField;
+    qryProdutosContratosemestoque: TFloatField;
+    qryProdutosContratosreservado: TFloatField;
+    qryProdutosContratosfuturo: TFloatField;
+    qryProdutosContratosqtdecopiar: TFloatField;
+    qryProdutosContratosnumero: TIntegerField;
+    qryProdutosContratospromocao: TBooleanField;
+    qryProdutosContratosaliquotaipi: TFloatField;
+    qryProdutosContratosvalorgrade1: TStringField;
+    qryProdutosContratosvalorgrade2: TStringField;
+    qryProdutosContratoslinha: TStringField;
+    qryProdutosContratoscoluna: TStringField;
+    qryProdutosContratosqtdereservaprevia: TFloatField;
+    qryProdutosContratoscodigobarras: TLargeintField;
+    qryServicosContratos: TtecQuery;
+    qryServicosContratoscontrato: TStringField;
+    qryServicosContratosservico: TIntegerField;
+    qryServicosContratosdescricaoequipamento: TStringField;
+    qryServicosContratosquantidade: TIntegerField;
+    qryServicosContratosdescricaoservico: TStringField;
+    qryServicosContratosaliquotaissqn: TFloatField;
+    qryServicosContratosvalorservico: TFloatField;
+    qryServicosContratoscomplementoservico: TStringField;
+    qryServicosContratosreferencia: TStringField;
+    qryServicosContratosmarca: TIntegerField;
+    qryServicosContratosmodelo: TStringField;
+    qryServicosContratosopcionais: TStringField;
+    qryServicosContratosdescricaomarca: TStringField;
+    qryServicosContratosano: TIntegerField;
+    qryProcuraVendedor: TtecQuery;
+    qryProcuraVendedorcodigo: TIntegerField;
+    qryProcuraVendedornome: TStringField;
+    qryProcuraCargosCliente: TtecQuery;
+    qryProcuraCargosClientedescricao: TStringField;
+    qryProcuraCargosClientecodigo: TIntegerField;
+    qryConjuge: TtecQuery;
+    qryConjugecodigo: TIntegerField;
+    qryConjugenome: TStringField;
+    qryConjugenascto: TDateField;
+    qryConjugeemprua: TStringField;
+    qryConjugeempestado: TStringField;
+    qryConjugeempcidade: TIntegerField;
+    qryConjugenomecidadeempresa: TStringField;
+    qryConjugeempbairro: TIntegerField;
+    qryConjugenomebairroempresa: TStringField;
+    qryConjugeempcep: TIntegerField;
+    qryConjugeempfoneddd: TIntegerField;
+    qryConjugeempfonenumero: TIntegerField;
+    qryConjugeempfoneramal: TStringField;
+    qryConjugeempresa: TStringField;
+    qryConjugeempadmissao: TDateField;
+    qryConjugeemprendafaixa: TIntegerField;
+    qryConjugeemprendavalor: TFloatField;
+    qryConjugeconjuge: TIntegerField;
+    qryConjugeempcargo: TIntegerField;
+    qryConjugecivil: TStringField;
+    qryConjugecivildata: TDateField;
+    qryConjugerua: TStringField;
+    qryConjugeestado: TStringField;
+    qryConjugecidade: TIntegerField;
+    qryConjugebairro: TIntegerField;
+    qryConjugecep: TIntegerField;
+    qryConjugesexo: TStringField;
+    qryProcuraCargosConjuge: TtecQuery;
+    qryProcuraCargosConjugedescricao: TStringField;
+    qryProcuraCargosConjugecodigo: TIntegerField;
+    dsrContratos: TtecDataSource;
+    qryPlanoPagamento: TtecQuery;
+    qryPlanoPagamentodescricao: TStringField;
+    qryPlanoPagamentoagente: TIntegerField;
+    qryPlanoPagamentoenderecocompleto: TBooleanField;
+    qryPlanoPagamentointervaloparcelas: TIntegerField;
+    qryPlanoPagamentoquantidadeparcelas: TIntegerField;
+    qryPlanoPagamentomestrintadias: TBooleanField;
+    qryPlanoPagamentotaxamensaljuros: TFloatField;
+    qryPlanoPagamentotaxaanualjuros: TFloatField;
+    qryProcuraAvalista: TtecQuery;
+    qryProcuraAvalistacodigo: TIntegerField;
+    qryProcuraAvalistanome: TStringField;
+    frpContratosSimples: TfrReport;
+    qryContratosnomecargoconjuge: TStringField;
+    cdsParcelasdatapagto: TDateField;
+    cdsParcelascontrato: TStringField;
+    cdsParcelasnumero: TIntegerField;
+    qryParcelascontratoparcela: TStringField;
+    cdsParcelascontratoparcela: TStringField;
+    frpParcelas16: TfrReport;
+    fdsParcelasContratos: TfrDBDataSet;
+    frpDadoseProdutos_Linux: TfrReport;
+    frpParcelas_Linux_16: TfrReport;
+    frpDadoseProdutos_Windows: TfrReport;
+    frpPArcelas_Windows_16: TfrReport;
+    qryContratosentnumero: TIntegerField;
+    qryContratosentcomplemento: TStringField;
+    qryContratosendnumero: TIntegerField;
+    qryContratosendcomplemento: TStringField;
+    qryContratosempnumero: TIntegerField;
+    qryContratosempcomplemento: TStringField;
+    qryContratosconnumero: TIntegerField;
+    qryContratosconcomplemento: TStringField;
+    qryContratosrefnumero: TIntegerField;
+    qryContratosrefcomplemento: TStringField;
+    qryConjugenumero: TIntegerField;
+    qryConjugecomplemento: TStringField;
+    qryConjugeempnumero: TIntegerField;
+    qryConjugeempcomplemento: TStringField;
+    frpContratos_anterior: TfrReport;
+    qryParcelastiporecebimento: TIntegerField;
+    qryParcelasdescricaotiporecebimento: TStringField;
+    qryParcelasImprimirtiporecebimento: TIntegerField;
+    qryParcelasImprimirdescricaotiporecebimento: TStringField;
+    cdsParcelastiporecebimento: TIntegerField;
+    cdsParcelasdescricaotiporecebimento: TStringField;
+    qryContratosnomefilialvenda: TStringField;
+    qryProcuraAvalistapessoanumero: TStringField;
+    qryProcuraAvalistapessoatipo: TStringField;
+    qryProcuraAvalistaiddocumento: TStringField;
+    qryProcuraAvalistaidestado: TStringField;
+    qryProcuraAvalistaiddata: TDateField;
+    qryProcuraAvalistaidorgao: TStringField;
+    qryProdutosContratosnomevendedor: TStringField;
+    qryProdutosContratosreferencia: TStringField;
+    qryContratosconsideracoesm: TStringField;
+    qryContratosfrete_transportadora: TStringField;
+    qryContratosfrete_mensagem: TStringField;
+    qryContratosfrete_servico: TStringField;
+    qryContratosfrete_prazo_entrega: TIntegerField;
+    qryServicosContratosequipamento: TStringField;
+    qryContratosfilial_retirada: TIntegerField;
+    qryContratosnomefilialretirada: TStringField;
+    qryProdutosContratosdescricaolc: TStringField;
+    qryProdutosContratoscomplemento: TStringField;
+    qryProdutosContratosanvisa: TStringField;
+    qryProdutosContratoslocalizacao: TStringField;
+    qryContratosentnumero_opcional: TIntegerField;
+    qryContratosentcomplemento_opcional: TStringField;
+    qryContratosentestado_opcional: TStringField;
+    qryContratosentrua_opcional: TStringField;
+    qryContratosnomebairroentrega_opcional: TStringField;
+    qryContratosentcep_opcional: TIntegerField;
+    qryContratosnomecidadeentrega_opcional: TStringField;
+    qryProdutosContratosprodutovisual: TStringField;
+    qryProdutosContratoscompostovisual: TStringField;
+    qryProdutosporLocalizacao: TtecQuery;
+    qryProdutosEntregar_F_P: TtecQuery;
+    qryProdutosEntregar_O_R: TtecQuery;
+    frpProdutosPorLocalizacao: TfrxReport;
+    frxDBProdutosPorLocalizacao: TfrxDBDataset;
+    frxDBProdutosPorLocalizacao_: TfrxDBDataset;
+    qryProdutosporLocalizacaolocalizacao: TStringField;
+    qryProdutosporLocalizacaosublocalizacao: TStringField;
+    qryProdutosporLocalizacaoprodutovisual: TStringField;
+    qryProdutosporLocalizacaodescricao: TStringField;
+    qryProdutosporLocalizacaovalorgrade1: TStringField;
+    qryProdutosporLocalizacaovalorgrade2: TStringField;
+    qryProdutosporLocalizacaolistacontrato: TMemoField;
+    qryProdutosporLocalizacaopendente_contrato: TFloatField;
+    qryProdutosporLocalizacaofilial: TIntegerField;
+    frxPDFExport1: TfrxPDFExport;
+    frxHTMLExport1: TfrxHTMLExport;
+    frxXLSExport1: TfrxXLSExport;
+    frxXMLExport1: TfrxXMLExport;
+    frxRTFExport1: TfrxRTFExport;
+    frxBMPExport1: TfrxBMPExport;
+    frxTIFFExport1: TfrxTIFFExport;
+    frxJPEGExport1: TfrxJPEGExport;
+    frxGIFExport1: TfrxGIFExport;
+    frxSimpleTextExport1: TfrxSimpleTextExport;
+    frxCSVExport1: TfrxCSVExport;
+    frxTXTExport1: TfrxTXTExport;
+    frxMailExport1: TfrxMailExport;
+    frxTXTExport2: TfrxTXTExport;
+    frxODSExport1: TfrxODSExport;
+    frxODTExport1: TfrxODTExport;
+    qryProdutosporLocalizacaovendedor: TIntegerField;
+    qryProdutosporLocalizacaonomevendedor: TStringField;
+    frpContratosSimplesMeiaPagina_ComEndereco: TfrReport;
+    frpContratosSimplesMeiaPagina: TfrReport;
+    frpContratosSimplesMeiaPagina_SemEndereco: TfrReport;
+    qryContratoslocalizacao: TStringField;
+    frpContratos_2022_11_13: TfrReport;
+    qryContratosqtparcelas: TLargeintField;
+    procedure qryContratosAfterScroll(DataSet: TDataSet);
+    procedure qryContratosCalcFields(DataSet: TDataSet);
+    procedure frpContratosBeforePrint(Memo: TStringList; View: TfrView);
+    procedure frpContratosSimplesBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure frpParcelas16BeforePrint(Memo: TStringList; View: TfrView);
+    procedure frpDadoseProdutos_LinuxBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpParcelas_Linux_16BeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpDadoseProdutos_WindowsBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpPArcelas_Windows_16BeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryProdutosContratosCalcFields(DataSet: TDataSet);
+    procedure frpProdutosPorLocalizacaoGetValue(const VarName: String;
+      var Value: Variant);
+  private
+    parametrocabecalho: String;
+    FOrdenacaoProdutos: String;
+    procedure SetOrdenacaoProdutos(const Value: String);
+    function Contratosconsideracoesm: String;
+  public
+    procedure ImprimirContratos(Numero: String; SimplesMeiaPagina: Boolean = false);
+    procedure ImprimirListaProdutosporLocalizacao(Lista: String; Situacao: byte; qryProdutosEntregar: TtecQuery ); {Situacao 0: Reservar 1: Faturar usar _O_R 2:Nota usar _F_P}
+    property OrdenacaoProdutos: String read FOrdenacaoProdutos write SetOrdenacaoProdutos;
+  end;
+
+var
+  dtmImprimeContratos: TdtmImprimeContratos;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmImprimeContratos }
+
+procedure TdtmImprimeContratos.ImprimirContratos(Numero: String; SimplesMeiaPagina: Boolean);
+Var
+  Relatorio: TfrReport;
+//  frmPreviewPadrao: TfrmPreviewPadraoPadrao;
+  LinhaE: T_Extenso;
+  ValorExtenso, ResultExtenso: String;
+  arquivofast : String;
+
+  //  I:integer;
+begin
+
+  qryContratos.parambyname('numero').asString := Numero;
+  qryContratos.MacroByName('ListaNumeros').asString := Numero;
+
+//  ReFazConsulta(qryContratos,[0],[Numero]);
+  qryContratos.Close;
+  qryContratos.Open;
+
+{
+  Trocado para o afterscroll do contrato
+
+  if qryparcelas.recordcount > 36 then
+  begin
+    frVariables['IMPRIMINDOQUANTIDADE']  := True;
+    dspParcelas.DataSet := qryParcelasImprimir;
+    ReFazConsulta(qryParcelasImprimir, [0],[Numero]);
+  end
+  else
+  begin
+    qryParcelasImprimir.Close;
+    dspParcelas.DataSet := qryParcelas;
+    frVariables['IMPRIMINDOQUANTIDADE']  := False;
+  end;
+  cdsparcelas.close;
+  cdsParcelas.Open;
+}
+
+
+  frVariables['Juros']        := ParSistema.PercentualAtrasoJuros2;
+  if ParSistema.PercentualAtrasoMultas2 > 0 then
+    frVariables['Multa']      := 'e multa contratual de '+floattostr(ParSistema.PercentualAtrasoMultas2)+'% '
+  else
+    frVariables['Multa']      := '';
+  LinhaE.ExtTamLinha[1]:= 150;
+  Extenso(ParSistema.PercentualAtrasoJuros2,$92,'VIRGULA','VIRGULA',' ',' ',' ', LinhaE);
+  ValorExtenso:= Trim(LinhaE.ExtLinha[1]);
+  if Pos(',',floattostr(ParSistema.PercentualAtrasoJuros2)) = 0 then
+    ResultExtenso:= Trocar(ValorExtenso,'VIRGULA','')
+  else
+    ResultExtenso:= Trocar(ValorExtenso,'VIRGULA E ','VIRGULA ');
+  frVariables['JurosExtenso'] := ResultExtenso+ ' POR CENTO';
+  frVariables['RazaoSemAcento']:= RetiraAcento(RazaoFilialBase);
+
+  if not qryContratos.IsEmpty then
+  begin
+//     Trocado para o afterscroll do contrato
+//    RefazConsulta(qryContratosEntradas,[0],[Numero]);
+
+    frVariables['Nome']  := RazaoFilialBase;
+    frVariables['NomeCliente'] := RetiraAcento(qryContratosnome.asString);
+    frVariables['Rua']   := RuaFilialBase;
+    frVariables['RuaFilialBase']   := RuaFilialBase;
+    frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + Copy(CEPFilialBase,1,2)+'.'+Copy(CEPFilialBase,3,3)+'-'+Copy(CEPFilialBase,6,3);
+    frVariables['BairroFilialBase']:= BairroFilialBase + ' - CEP: ' + Copy(CEPFilialBase,1,2)+'.'+Copy(CEPFilialBase,3,3)+'-'+Copy(CEPFilialBase,6,3);
+    frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
+    frVariables['Fone']  := FormatarFone(DDDFilialBase,FoneFilialBase);
+    frVariables['Outras']:= RazaoFilialBase;
+// Trocado para o afterscroll do contrato
+//    frVariables['TabelaProdutosVazia']:= qryProdutosContratos.IsEmpty;
+//    frVariables['TabelaServicosVazia']:= qryServicosContratos.IsEmpty;
+
+    frVariables['titulo']:='CONTRATO DE COMPRA E VENDA';
+    frVariables['ImprimirTaxadeJuros'] := parsistema.ImprimirTaxadeJuros;
+
+
+    IF (qryProdutosContratos.RecordCount > 17) then
+      frVariables['PRODUTOS']:= 1
+    ELSE
+      frVariables['PRODUTOS']:= 0;
+
+//    frpContratosSimplesMeiaPagina.DesignReport;
+
+//    frpContratos.DesignReport;
+
+//    frpContratosSimples.DesignReport;
+
+
+    frmPreviewPadrao := TfrmPreviewPadrao.create(self.owner);
+    frmPreviewPadrao.cmbZoom.ItemIndex := 4;
+    try
+      Relatorio := frmPreviewPadrao.frCompositeReport;
+      frmPreviewPadrao.frCompositeReport.Reports.Clear;
+      if SimplesMeiaPagina then
+      begin
+//        frpContratosSimplesMeiaPagina.designreport;
+
+        arquivofast := ExtractFilePath(Application.ExeName) + 'frpContratosSimplesMeiaPagina.frf';
+
+        if FileExists(arquivofast) then
+           frpContratosSimplesMeiaPagina.LoadFromFile(arquivofast);
+
+        frmPreviewPadrao.frCompositeReport.Reports.Add(frpContratosSimplesMeiaPagina);
+      end
+      else
+      if ParSistema.ImprimirContratoSimples then
+      begin
+ //       frpContratosSimples.designreport;
+        frmPreviewPadrao.frCompositeReport.Reports.Add(frpContratosSimples)
+      end
+      {
+      else
+      if ParSistema.ImprimirContratoSimplesMeiaPagina then
+        frmPreviewPadrao.frCompositeReport.Reports.Add(frpContratosSimplesMeiaPagina)
+      }
+
+      else if ParSistema.ImprimirContratoPadrao then
+      begin
+//        frpContratos.DesignReport;
+        frmPreviewPadrao.frCompositeReport.Reports.Add(frpContratos)
+      end
+      else if ParSistema.ImprimirContratoFrenteVerso then
+      begin
+        {$IFDEF LINUX}
+        frmPreviewPadrao.frCompositeReport.Reports.Add(frpDadoseProdutos_Linux);
+        frmPreviewPadrao.frCompositeReport.Reports.Add(frpParcelas_Linux_16);
+        {$ELSE }
+        frmPreviewPadrao.frCompositeReport.Reports.Add(frpDadoseProdutos_Windows);
+        frmPreviewPadrao.frCompositeReport.Reports.Add(frpParcelas_Windows_16);
+        {$ENDIF}
+      end
+      else
+      begin
+        frmPreviewPadrao.frCompositeReport.Reports.Add(frpContratos);
+      end;
+      Relatorio.Preview := frmPreviewPadrao.frPreviewPadrao;
+      Relatorio.ShowReport;
+      frmPreviewPadrao.ShowModal;
+    finally
+
+ //          frmPreviewPadrao.Free;
+
+    end;
+  end;
+
+end;
+
+procedure TdtmImprimeContratos.qryContratosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryServicosContratos,[0],[qryContratosnumero.AsString]);
+  ReFazConsulta(qryParcelas,[0],[qryContratosnumero.AsString]);
+  ReFazConsulta(qryProcuraNaturalidade, [0, 1],
+                [qryContratosnaturalestado.AsString,
+                 qryContratosnaturalcidade.AsInteger]);
+  if not ParSistema.imprimircontratosimples then
+  begin
+    RefazConsulta(qryProcuraAvalista,[0],[qryContratosavalista.asinteger]);
+    RefazConsulta(qryProcuraCargosCliente,[0],[qryContratosempcargo.asinteger]);
+    RefazConsulta(qryConjuge,[0],[qryContratosconjuge.asinteger]);
+    RefazConsulta(qryProcuraCargosConjuge,[0],[qryConjugeempcargo.asinteger]);
+  end;
+  ReFazConsulta(qryprocuravendedor,[0], [qrycontratosvendedor.asinteger]);
+  RefazConsulta(qryplanopagamento,[0],[qrycontratosplano.asinteger]);
+  qryProdutosContratos.Close;
+  if FOrdenacaoProdutos='' then
+    OrdenacaoProdutos := 'numero';
+  ReFazConsulta(qryProdutosContratos,[3],[qryContratosnumero.AsString]);
+  qryProdutosContratos.Open;
+
+
+  if qryparcelas.recordcount > 36 then
+  begin
+    frVariables['IMPRIMINDOQUANTIDADE']  := True;
+    dspParcelas.DataSet := qryParcelasImprimir;
+    ReFazConsulta(qryParcelasImprimir, [0],[qryContratosNumero.asString]);
+  end
+  else
+  begin
+    qryParcelasImprimir.Close;
+    dspParcelas.DataSet := qryParcelas;
+    frVariables['IMPRIMINDOQUANTIDADE']  := False;
+  end;
+  cdsparcelas.close;
+  cdsParcelas.Open;
+
+  RefazConsulta(qryContratosEntradas,[0],[qryContratosNumero.asString]);
+
+  frVariables['TabelaProdutosVazia']:= qryProdutosContratos.IsEmpty;
+  frVariables['TabelaServicosVazia']:= qryServicosContratos.IsEmpty;
+
+
+
+end;
+
+procedure TdtmImprimeContratos.qryContratosCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryContratosTotalLiquidoServicos.AsCurrency := qryContratostotalservicos.AsCurrency - qryContratosimpostoretido.AsCurrency;
+  qryContratosconsideracoesm.asstring := Contratosconsideracoesm;
+end;
+
+procedure TdtmImprimeContratos.frpContratosBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpContratos, View);
+end;
+
+procedure TdtmImprimeContratos.frpContratosSimplesBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpContratosSimples,View);
+end;
+
+
+procedure TdtmImprimeContratos.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.Create;
+  arquivo := 'c:\AlterarImpressaoContratos.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+
+end;
+
+procedure TdtmImprimeContratos.frpParcelas16BeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpParcelas16, View);
+end;
+
+procedure TdtmImprimeContratos.frpDadoseProdutos_LinuxBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpDadoseProdutos_Linux, View);
+end;
+
+procedure TdtmImprimeContratos.frpParcelas_Linux_16BeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpParcelas_Linux_16, View);
+end;
+
+procedure TdtmImprimeContratos.frpDadoseProdutos_WindowsBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpDadoseProdutos_Windows, View);
+end;
+
+procedure TdtmImprimeContratos.frpPArcelas_Windows_16BeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpPArcelas_Windows_16, View);
+end;
+
+procedure TdtmImprimeContratos.SetOrdenacaoProdutos(const Value: String);
+begin
+  FOrdenacaoProdutos := Value;
+  if qryProdutosContratos.FindField(FOrdenacaoProdutos)<>nil then
+    qryProdutosContratos.macrobyname('OrderBy').AsString := 'ORDER BY '+FOrdenacaoProdutos + ', composto, ordem, produto '
+  else
+  begin
+    qryProdutosContratos.macrobyname('OrderBy').AsString := 'ORDER BY numero, composto, ordem, produto';
+    FOrdenacaoProdutos := 'numero';
+  end;
+end;
+
+function TdtmImprimeContratos.Contratosconsideracoesm: String;
+var
+  vObservacao: String;
+
+begin
+
+  result := trim(parsistema.Observacao_Padrao_Orcamento + ' ' +qryContratosconsideracoes.AsString);
+
+  if (qryContratosfrete_transportadora.asString <> '') then
+    vObservacao := ' TRANSPORTE: ' + qryContratosfrete_transportadora.asString;
+
+  if qryContratosfrete_mensagem.asString <> '' then
+  begin
+    if (vObservacao <> '') then
+      vObservacao := vObservacao + ' - ' + qryContratosfrete_mensagem.asString
+    else
+      vObservacao := ' TRANSPORTE: ' + qryContratosfrete_mensagem.asString;
+  end;
+
+  if qryContratosfrete_servico.asString <> '' then
+  begin
+    if vObservacao <> '' then
+      vObservacao := vObservacao + ' SERVIÇO: ' + qryContratosfrete_servico.asString
+    else
+      vObservacao := 'SERVIÇO: ' + qryContratosfrete_servico.asString;
+  end;
+
+  if qryContratosfrete_prazo_entrega.AsInteger <> 0 then
+  begin
+    if vObservacao <> '' then
+      vObservacao := vObservacao + ' PRAZO ENTREGA: ' + qryContratosfrete_prazo_entrega.AsString + ' DIAS UTEIS'
+    else
+      vObservacao := 'PRAZO ENTREGA: ' + qryContratosfrete_prazo_entrega.AsString + ' DIAS UTEIS';
+  end;
+
+  if not qryContratosfilial_retirada.IsNull then
+  begin
+    if vObservacao <> '' then
+      vObservacao := vObservacao + ' FILIAL DE RETIRADA: ' + qryContratosfilial_retirada.AsString + ' - ' + qryContratosnomefilialretirada.asString
+    else
+      vObservacao := ' FILIAL DE RETIRADA: ' + qryContratosfilial_retirada.AsString + ' - ' + qryContratosnomefilialretirada.asString;
+  end;
+
+  if not qryContratoslocalizacao.isnull then
+  begin
+    if vObservacao <> '' then
+      vObservacao := vObservacao + chr(13) + ' LOCALIZAÇÃO: ' + qryContratoslocalizacao.asString
+    else
+      vObservacao := ' LOCALIZAÇÃO: ' + qryContratoslocalizacao.asString;
+  end;
+
+  if vObservacao<>'' then
+    result := result + vObservacao;
+end;
+
+procedure TdtmImprimeContratos.qryProdutosContratosCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  if not qryProdutosContratosvalorgrade1.isnull and
+     not qryProdutosContratosvalorgrade2.isnull then
+
+    qryProdutosContratosdescricaolc.asString := qryProdutosContratosdescricao.asString+' '+
+                                                qryProdutosContratosvalorgrade1.asString+' '+
+                                                qryProdutosContratosvalorgrade2.asString
+
+  else
+  if not qryProdutosContratosvalorgrade1.isnull and
+         qryProdutosContratosvalorgrade2.isnull then
+
+    qryProdutosContratosdescricaolc.asString := qryProdutosContratosdescricao.asString+' '+
+                                                qryProdutosContratosvalorgrade1.asString
+
+  else
+  if     qryProdutosContratosvalorgrade1.isnull and
+     not qryProdutosContratosvalorgrade2.isnull then
+
+    qryProdutosContratosdescricaolc.asString := qryProdutosContratosdescricao.asString+' '+
+                                                qryProdutosContratosvalorgrade2.asString
+
+  else
+
+    qryProdutosContratosdescricaolc.asString := qryProdutosContratosdescricao.asString;
+
+
+ if qryProdutosContratosanvisa.asstring <> '' then
+   qryProdutosContratosdescricaolc.asString := qryProdutosContratosdescricaolc.asString + ' MS - ' +
+                                               qryProdutosContratosanvisa.asstring;
+
+
+end;
+
+procedure TdtmImprimeContratos.ImprimirListaProdutosporLocalizacao(
+  Lista: String;
+  Situacao: Byte;
+  qryProdutosEntregar: TtecQuery);
+
+var
+  PV: TfrxComponent;
+begin
+  case situacao of
+  0 : begin
+        parametrocabecalho := 'OPERAÇÃO : RESERVAR';
+        qryProdutosporLocalizacao.Sql.Text := qryProdutosEntregar_O_R.sql.Text;
+      end;
+
+  1 : begin
+        parametrocabecalho := 'OPERAÇÃO : FATURAR';
+        qryProdutosporLocalizacao.Sql.Text := qryProdutosEntregar_O_R.sql.Text;
+      end;
+
+  2 : begin
+        parametrocabecalho := 'OPERAÇÃO : IMPRIMIR NOTA';
+        qryProdutosporLocalizacao.Sql.Text := qryProdutosEntregar_F_P.sql.Text;
+      end;
+  end;
+
+  if qryProdutosEntregar <> nil then
+  begin
+    qryProdutosporLocalizacao.Macros := qryProdutosEntregar.Macros;
+    qryProdutosporLocalizacao.Params := qryProdutosEntregar.Params;
+  end;
+
+  qryProdutosporLocalizacao.MacroByName('contrato').AsString := 'and ct.numero in (' + Lista +')';
+  qryProdutosporLocalizacao.close;
+  qryProdutosporLocalizacao.open;
+
+
+
+  if FileExists(LogotipoFilialBase) then
+  begin
+    PV := frpProdutosPorLocalizacao.FindObject('fpvLogo');
+    if (PV is TfrxPictureView) then
+      TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+  end;
+
+//  frpProdutosPorLocalizacao.DesignReport;
+  frpProdutosPorLocalizacao.ShowReport;
+
+end;
+
+procedure TdtmImprimeContratos.frpProdutosPorLocalizacaoGetValue(
+  const VarName: String; var Value: Variant);
+begin
+  inherited;
+  if VarName = 'MascaraQuantidade' then
+    Value := ParSistema.MascaraQuantidadeGrade
+  else if VarName = 'CordoZebrado' then
+    Value :=  strtoint(parsistema.CorZebradoRelatorio)
+  else if VarName = 'RAZAOFILIALBASE' then
+    Value := RazaoFilialBase
+  else if VarName = 'ENDERECO_BAIRRO' then
+    Value :=  RuaFilialBase+ ' - '+BairroFilialBase
+  else if VarName = 'CEP_CIDADE_UF' then
+    Value :=  FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase
+  else if VarName = 'SUBTITULO' then
+    Value :=  parametrocabecalho;
+
+end;
+
+end.

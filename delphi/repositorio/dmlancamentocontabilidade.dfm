@@ -1,0 +1,670 @@
+inherited dtmLancamentoContabilidade: TdtmLancamentoContabilidade
+  OldCreateOrder = False
+  Left = 510
+  Top = 244
+  Height = 421
+  Width = 561
+  object qryLancamentosNotasEntradas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT *,'
+      '       CAST(CASE WHEN Origem = '#39'E'#39' THEN '#39'ENTRADA'#39
+      '                 WHEN Origem = '#39'M'#39' THEN '#39'MANUAL'#39
+      '                 WHEN Origem = '#39'P'#39' THEN '#39'PAGAMENTO'#39
+      '                 WHEN Origem = '#39'R'#39' THEN '#39'RECEBIMENTO'#39
+      '                 WHEN Origem = '#39'S'#39' THEN '#39'SA'#205'DA'#39
+      '            END AS VARCHAR'
+      '            ) AS DescricaoOrigem,'
+      '           false as numerocriado,'
+      '      cast('#39'N'#39' as char(1)) as DebitoVerificado,'
+      '      cast('#39'N'#39' as char(1)) as CreditoVerificado,'
+      
+        '      case when origem in ('#39'L'#39','#39'X'#39') then nrorigem else cast(null' +
+        ' as bigint) end as nrorigemlote'
+      ''
+      ''
+      'FROM lancamentos'
+      'Where origem = :origem'
+      '    and nrorigem = :nrorigem'
+      '    and exercicio=:exercicio'
+      'order by nrlancto')
+    RequestLive = True
+    Left = 85
+    Top = 25
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'origem'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nrorigem'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object qryLancamentosNotasEntradasexercicio: TIntegerField
+      FieldName = 'exercicio'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosNotasEntradasnrlancto: TIntegerField
+      FieldName = 'nrlancto'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosNotasEntradasfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosNotasEntradasdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryLancamentosNotasEntradasorigem: TStringField
+      FieldName = 'origem'
+      Size = 1
+    end
+    object qryLancamentosNotasEntradasdebitar: TIntegerField
+      FieldName = 'debitar'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosNotasEntradascreditar: TIntegerField
+      FieldName = 'creditar'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosNotasEntradashistorico: TIntegerField
+      FieldName = 'historico'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosNotasEntradascomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 512
+    end
+    object qryLancamentosNotasEntradasvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryLancamentosNotasEntradasdescricaoorigem: TStringField
+      FieldName = 'descricaoorigem'
+      Size = 50
+    end
+    object qryLancamentosNotasEntradasnrorigem: TLargeintField
+      FieldName = 'nrorigem'
+    end
+    object qryLancamentosNotasEntradasnumerocriado: TBooleanField
+      FieldName = 'numerocriado'
+    end
+    object qryLancamentosNotasEntradasdebitoverificado: TStringField
+      FieldName = 'debitoverificado'
+      Size = 1
+    end
+    object qryLancamentosNotasEntradascreditoverificado: TStringField
+      FieldName = 'creditoverificado'
+      Size = 1
+    end
+    object qryLancamentosNotasEntradasnrorigemlote: TLargeintField
+      FieldName = 'nrorigemlote'
+    end
+  end
+  object qryLancamentosDocumentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT *,'
+      '       CAST(CASE WHEN Origem = '#39'E'#39' THEN '#39'ENTRADA'#39
+      '                 WHEN Origem = '#39'M'#39' THEN '#39'MANUAL'#39
+      '                 WHEN Origem = '#39'P'#39' THEN '#39'PAGAMENTO'#39
+      '                 WHEN Origem = '#39'R'#39' THEN '#39'RECEBIMENTO'#39
+      '                 WHEN Origem = '#39'S'#39' THEN '#39'SA'#205'DA'#39
+      '            END AS VARCHAR'
+      '            ) AS DescricaoOrigem,'
+      '           false as numerocriado,'
+      '           cast('#39'N'#39' as char(1)) as DebitoVerificado,'
+      '           cast('#39'N'#39' as char(1)) as CreditoVerificado,'
+      
+        '          case when origem in ('#39'L'#39','#39'X'#39') then nrorigem else cast(' +
+        'null as bigint) end as nrorigemlote'
+      ''
+      'FROM lancamentos'
+      'Where origem = :origem'
+      '    and nrorigem = :nrorigem'
+      '    and exercicio = :exercicio'
+      'order by nrlancto')
+    RequestLive = True
+    Left = 85
+    Top = 89
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'origem'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nrorigem'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object qryLancamentosDocumentosexercicio: TIntegerField
+      FieldName = 'exercicio'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryLancamentosDocumentosnrlancto: TIntegerField
+      FieldName = 'nrlancto'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryLancamentosDocumentosfilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryLancamentosDocumentosdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryLancamentosDocumentosorigem: TStringField
+      FieldName = 'origem'
+      Size = 1
+    end
+    object qryLancamentosDocumentosdebitar: TIntegerField
+      FieldName = 'debitar'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosDocumentoscreditar: TIntegerField
+      FieldName = 'creditar'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosDocumentoshistorico: TIntegerField
+      FieldName = 'historico'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosDocumentoscomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 512
+    end
+    object qryLancamentosDocumentosvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryLancamentosDocumentosdescricaoorigem: TStringField
+      FieldName = 'descricaoorigem'
+      Size = 50
+    end
+    object qryLancamentosDocumentosnrorigem: TLargeintField
+      FieldName = 'nrorigem'
+    end
+    object qryLancamentosDocumentosnumerocriado: TBooleanField
+      FieldName = 'numerocriado'
+    end
+    object qryLancamentosDocumentosdebitoverificado: TStringField
+      FieldName = 'debitoverificado'
+      Size = 1
+    end
+    object qryLancamentosDocumentoscreditoverificado: TStringField
+      FieldName = 'creditoverificado'
+      Size = 1
+    end
+    object qryLancamentosDocumentosnrorigemlote: TLargeintField
+      FieldName = 'nrorigemlote'
+    end
+  end
+  object qryParametros: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * '
+      'from parametrosfiliais'
+      'where parametro in (221,222,223,226)')
+    RequestLive = True
+    Left = 216
+    Top = 24
+    object qryParametrosparametro: TIntegerField
+      FieldName = 'parametro'
+      DisplayFormat = '0'
+    end
+    object qryParametrosfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryParametrosvalor: TStringField
+      FieldName = 'valor'
+      Size = 50
+    end
+  end
+  object qryLancamentosNotasSaidas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT *,'
+      '       CAST(CASE WHEN Origem = '#39'E'#39' THEN '#39'ENTRADA'#39
+      '                 WHEN Origem = '#39'M'#39' THEN '#39'MANUAL'#39
+      '                 WHEN Origem = '#39'P'#39' THEN '#39'PAGAMENTO'#39
+      '                 WHEN Origem = '#39'R'#39' THEN '#39'RECEBIMENTO'#39
+      '                 WHEN Origem = '#39'S'#39' THEN '#39'SA'#205'DA'#39
+      '            END AS VARCHAR'
+      '            ) AS DescricaoOrigem,'
+      '      false as numerocriado,'
+      '      cast('#39'N'#39' as char(1)) as DebitoVerificado,'
+      '      cast('#39'N'#39' as char(1)) as CreditoVerificado,'
+      
+        '      case when origem in ('#39'L'#39','#39'X'#39') then nrorigem else cast(null' +
+        ' as bigint) end as nrorigemlote'
+      ''
+      ''
+      'FROM lancamentos'
+      'Where origem = :origem'
+      '    and nrorigem = :nrorigem'
+      '        and exercicio = :exercicio'
+      ''
+      'order by nrlancto')
+    RequestLive = True
+    Left = 85
+    Top = 153
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'origem'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nrorigem'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object qryLancamentosNotasSaidasexercicio: TIntegerField
+      FieldName = 'exercicio'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosNotasSaidasnrlancto: TIntegerField
+      FieldName = 'nrlancto'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosNotasSaidasfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosNotasSaidasdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryLancamentosNotasSaidasorigem: TStringField
+      FieldName = 'origem'
+      Size = 1
+    end
+    object qryLancamentosNotasSaidasdebitar: TIntegerField
+      FieldName = 'debitar'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosNotasSaidascreditar: TIntegerField
+      FieldName = 'creditar'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosNotasSaidashistorico: TIntegerField
+      FieldName = 'historico'
+      DisplayFormat = '0'
+    end
+    object qryLancamentosNotasSaidascomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 512
+    end
+    object qryLancamentosNotasSaidasvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryLancamentosNotasSaidasdescricaoorigem: TStringField
+      FieldName = 'descricaoorigem'
+      Size = 50
+    end
+    object qryLancamentosNotasSaidasnrorigem: TLargeintField
+      FieldName = 'nrorigem'
+    end
+    object qryLancamentosNotasSaidasnrorigemlote: TLargeintField
+      FieldName = 'nrorigemlote'
+    end
+    object qryLancamentosNotasSaidasnumerocriado: TBooleanField
+      FieldName = 'numerocriado'
+    end
+    object qryLancamentosNotasSaidasdebitoverificado: TStringField
+      FieldName = 'debitoverificado'
+      Size = 1
+    end
+    object qryLancamentosNotasSaidascreditoverificado: TStringField
+      FieldName = 'creditoverificado'
+      Size = 1
+    end
+  end
+  object qryDocumentosPagLancamentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dpl.*'
+      'from documentospaglancamentos dpl'
+      'where dpl.numerodocumentopag = :numerodocumentopag')
+    RequestLive = True
+    Left = 344
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numerodocumentopag'
+        ParamType = ptUnknown
+      end>
+    object qryDocumentosPagLancamentosnumerodocumentopag: TIntegerField
+      FieldName = 'numerodocumentopag'
+      DisplayFormat = '0'
+    end
+    object qryDocumentosPagLancamentoscontacontabil: TIntegerField
+      FieldName = 'contacontabil'
+      DisplayFormat = '0'
+    end
+    object qryDocumentosPagLancamentosvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryDocumentosPagLancamentostipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryDocumentosPagLancamentoshistoricocontabil: TIntegerField
+      FieldName = 'historicocontabil'
+      DisplayFormat = '0'
+    end
+    object qryDocumentosPagLancamentoscomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 512
+    end
+    object qryDocumentosPagLancamentospercentual: TFloatField
+      FieldName = 'percentual'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+  end
+  object qryLancamentosPagamentosDuplicatas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT *,'
+      '       CAST(CASE WHEN Origem = '#39'E'#39' THEN '#39'ENTRADA'#39
+      '                 WHEN Origem = '#39'M'#39' THEN '#39'MANUAL'#39
+      '                 WHEN Origem = '#39'P'#39' THEN '#39'PAGAMENTO'#39
+      '                 WHEN Origem = '#39'R'#39' THEN '#39'RECEBIMENTO'#39
+      '                 WHEN Origem = '#39'S'#39' THEN '#39'SA'#205'DA'#39
+      '            END AS VARCHAR'
+      '            ) AS DescricaoOrigem,'
+      '           false as numerocriado,'
+      '           cast('#39'N'#39' as char(1)) as DebitoVerificado,'
+      '           cast('#39'N'#39' as char(1)) as CreditoVerificado,'
+      
+        '          case when origem in ('#39'L'#39','#39'X'#39') then nrorigem else cast(' +
+        'null as bigint) end as nrorigemlote'
+      ''
+      'from lancamentos'
+      '          '
+      'Where origem = :origem'
+      '    and (case when :origem<>'#39'P'#39' then'
+      '               nrorigem = :nrorigem'
+      
+        '          else ((nrorigem/1000000000)*1000000000 = :nrorigem) an' +
+        'd (length(nrorigem) >9) end)'
+      '     and exercicio=:exercicio'
+      ''
+      'order by nrlancto')
+    RequestLive = True
+    Left = 85
+    Top = 217
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'origem'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nrorigem'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object qryLancamentosPagamentosDuplicatasexercicio: TIntegerField
+      FieldName = 'exercicio'
+      Required = True
+    end
+    object qryLancamentosPagamentosDuplicatasnrlancto: TIntegerField
+      FieldName = 'nrlancto'
+      Required = True
+    end
+    object qryLancamentosPagamentosDuplicatasfilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+    end
+    object qryLancamentosPagamentosDuplicatasdata: TDateField
+      FieldName = 'data'
+    end
+    object qryLancamentosPagamentosDuplicatasorigem: TStringField
+      FieldName = 'origem'
+      Size = 1
+    end
+    object qryLancamentosPagamentosDuplicatasdebitar: TIntegerField
+      FieldName = 'debitar'
+    end
+    object qryLancamentosPagamentosDuplicatascreditar: TIntegerField
+      FieldName = 'creditar'
+    end
+    object qryLancamentosPagamentosDuplicatashistorico: TIntegerField
+      FieldName = 'historico'
+    end
+    object qryLancamentosPagamentosDuplicatascomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 512
+    end
+    object qryLancamentosPagamentosDuplicatasvalor: TFloatField
+      FieldName = 'valor'
+    end
+    object qryLancamentosPagamentosDuplicatasdescricaoorigem: TStringField
+      FieldName = 'descricaoorigem'
+      Size = 50
+    end
+    object qryLancamentosPagamentosDuplicatasnrorigem: TLargeintField
+      FieldName = 'nrorigem'
+    end
+    object qryLancamentosPagamentosDuplicatasnrorigemlote: TLargeintField
+      FieldName = 'nrorigemlote'
+    end
+    object qryLancamentosPagamentosDuplicatasnumerocriado: TBooleanField
+      FieldName = 'numerocriado'
+    end
+    object qryLancamentosPagamentosDuplicatasdebitoverificado: TStringField
+      FieldName = 'debitoverificado'
+      Size = 1
+    end
+    object qryLancamentosPagamentosDuplicatascreditoverificado: TStringField
+      FieldName = 'creditoverificado'
+      Size = 1
+    end
+  end
+  object qryLancamentos_NaoUtilizado: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT *,'
+      '       CAST(CASE WHEN Origem = '#39'E'#39' THEN '#39'ENTRADA'#39
+      '                 WHEN Origem = '#39'M'#39' THEN '#39'MANUAL'#39
+      '                 WHEN Origem = '#39'P'#39' THEN '#39'PAGAMENTO'#39
+      '                 WHEN Origem = '#39'R'#39' THEN '#39'RECEBIMENTO'#39
+      '                 WHEN Origem = '#39'S'#39' THEN '#39'SA'#205'DA'#39
+      '            END AS VARCHAR'
+      '            ) AS DescricaoOrigem,'
+      '           false as numerocriado,'
+      '           cast('#39'N'#39' as char(1)) as DebitoVerificado,'
+      '           cast('#39'N'#39' as char(1)) as CreditoVerificado,'
+      
+        '          case when origem in ('#39'L'#39','#39'X'#39') then nrorigem else cast(' +
+        'null as bigint) end as nrorigemlote,'
+      '          false as JaVerificado'
+      ''
+      'FROM lancamentos'
+      ''
+      'Where origem = :origem'
+      '    and (case when :origem<>'#39'P'#39' then'
+      '          nrorigem = :nrorigem'
+      
+        '    else ((nrorigem/100000000)*100000000 = :nrorigem) and (lengt' +
+        'h(nrorigem) >8) end)'
+      '    and exercicio=:exercicio'
+      ''
+      ''
+      'order by nrlancto')
+    RequestLive = True
+    Left = 85
+    Top = 289
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'origem'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nrorigem'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object qryLancamentos_NaoUtilizadoexercicio: TIntegerField
+      FieldName = 'exercicio'
+    end
+    object qryLancamentos_NaoUtilizadonrlancto: TIntegerField
+      FieldName = 'nrlancto'
+    end
+    object qryLancamentos_NaoUtilizadofilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryLancamentos_NaoUtilizadodata: TDateField
+      FieldName = 'data'
+    end
+    object qryLancamentos_NaoUtilizadoorigem: TStringField
+      FieldName = 'origem'
+      Size = 1
+    end
+    object qryLancamentos_NaoUtilizadodebitar: TIntegerField
+      FieldName = 'debitar'
+    end
+    object qryLancamentos_NaoUtilizadocreditar: TIntegerField
+      FieldName = 'creditar'
+    end
+    object qryLancamentos_NaoUtilizadohistorico: TIntegerField
+      FieldName = 'historico'
+    end
+    object qryLancamentos_NaoUtilizadocomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 512
+    end
+    object qryLancamentos_NaoUtilizadovalor: TFloatField
+      FieldName = 'valor'
+    end
+    object qryLancamentos_NaoUtilizadodescricaoorigem: TStringField
+      FieldName = 'descricaoorigem'
+      Size = 50
+    end
+    object qryLancamentos_NaoUtilizadonrorigem: TLargeintField
+      FieldName = 'nrorigem'
+    end
+    object qryLancamentos_NaoUtilizadonrorigemlote: TLargeintField
+      FieldName = 'nrorigemlote'
+    end
+    object qryLancamentos_NaoUtilizadonumerocriado: TBooleanField
+      FieldName = 'numerocriado'
+    end
+    object qryLancamentos_NaoUtilizadodebitoverificado: TStringField
+      FieldName = 'debitoverificado'
+      Size = 1
+    end
+    object qryLancamentos_NaoUtilizadocreditoverificado: TStringField
+      FieldName = 'creditoverificado'
+      Size = 1
+    end
+    object qryLancamentos_NaoUtilizadojaverificado: TBooleanField
+      FieldName = 'javerificado'
+    end
+  end
+end

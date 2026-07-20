@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PROTÓTIPO — Busca Assistida · Resultados e Detalhe</title>
+<style>
+:root{--ink:#1f2937;--muted:#64748b;--line:#d8dee8;--bg:#f5f6f8;--card:#fff;--blue:#155e75;--blue2:#e6f5f8;--green:#166534;--green2:#ecfdf3;--amber:#92400e;--amber2:#fffbeb;--amber-line:#fde68a;--red:#b42318;--red2:#fff1f0;--shadow:0 1px 3px #0f172a14;--ia1:#0ea5e9;--ia2:#a855f7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px Inter,Segoe UI,Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;display:flex;flex-direction:column}
+.top{height:48px;background:#173a45;color:#fff;display:flex;align-items:center;padding:0 18px;gap:14px;flex-shrink:0}
+.brand{font-weight:800;letter-spacing:.4px}
+.crumb{opacity:.76;font-size:12px}
+.prototype{font-size:10px;color:#fbbf24;letter-spacing:.8px;margin-left:auto}
+.body{flex:1;display:flex;min-height:0}
+.host{flex:1;padding:14px 16px;overflow:auto}
+.host h1{font-size:19px;margin:0 0 3px}
+.host p.sub{margin:0 0 12px;color:var(--muted)}
+.host-toolbar{background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 10px;display:flex;gap:8px;align-items:center;box-shadow:var(--shadow);margin-bottom:10px}
+.host-toolbar .btn{border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:6px 10px;font-weight:650;color:#334155}
+.host-toolbar .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.host-grid{border:1px solid var(--line);border-radius:8px;background:#fff;box-shadow:var(--shadow);overflow:hidden}
+.host-grid table{width:100%;border-collapse:collapse;font-size:12px}
+.host-grid th{background:#eef2f6;color:#334155;text-align:left;padding:7px 9px;border-bottom:1px solid #cbd5e1}
+.host-grid td{padding:7px 9px;border-bottom:1px solid #eef1f5;color:#475569}
+.host-grid tr:last-child td{border-bottom:0}
+
+/* ---- Painel Busca Assistida ---- */
+.panel{width:420px;flex-shrink:0;background:#fff;border-left:1px solid var(--line);box-shadow:-10px 0 24px #0f172a14;display:flex;flex-direction:column;min-height:0;position:relative}
+.panel-head{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);flex-shrink:0}
+.ia-badge{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--ia1),var(--ia2));flex-shrink:0}
+.panel-head h2{font-size:14px;margin:0;flex:1}
+.panel-head button.x{border:0;background:transparent;color:#64748b;font-size:16px;line-height:1;padding:4px}
+.searchbar{padding:10px 14px;border-bottom:1px solid var(--line);flex-shrink:0}
+.searchbar textarea{width:100%;height:44px;border:1px solid #cbd5e1;border-radius:7px;padding:7px 9px;resize:none;color:#1f2937}
+.searchbar .row{display:flex;gap:6px;margin-top:6px}
+.searchbar .mic{width:30px;height:30px;border-radius:50%;border:1px solid #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.searchbar .btn{border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:6px 10px;font-weight:650;color:#334155}
+.searchbar .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.searchbar .spacer{flex:1}
+.searchbar .link{border:0;background:none;color:var(--blue);text-decoration:underline;font-size:12px}
+
+.tray{background:var(--amber2);border-bottom:1px solid var(--amber-line);padding:8px 14px;flex-shrink:0}
+.tray-top{display:flex;align-items:center;gap:8px}
+.tray-top b{color:var(--amber);font-size:12px}
+.count-pill{background:var(--red);color:#fff;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:800}
+.tray-top .spacer{flex:1}
+.tray-top button{border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:650;color:#334155}
+.tray-top button.primary{background:var(--amber);border-color:var(--amber);color:#fff}
+.tray-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.chip{display:flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--amber-line);border-radius:999px;padding:3px 4px 3px 9px;font-size:11px;color:#7c2d12}
+.chip button{border:0;background:#fde68a;color:#7c2d12;border-radius:50%;width:16px;height:16px;line-height:1;font-size:10px;padding:0}
+.tray-empty{color:#92400e;font-size:11.5px;opacity:.75}
+.cap-msg{color:var(--red);font-size:11px;margin-top:5px}
+
+.results{flex:1;overflow:auto;position:relative}
+.card{border-bottom:1px solid #eef1f5;padding:10px 14px;display:flex;gap:10px}
+.card.expanded{background:#f8fafc}
+.thumb{width:44px;height:44px;border-radius:6px;flex-shrink:0;border:1px solid var(--line)}
+.card .main{flex:1;min-width:0}
+.card .titleline{display:flex;align-items:flex-start;gap:8px}
+.card .titleline b{font-size:12.5px}
+.card .cod{color:var(--muted);font-size:11px}
+.card .evid{color:#475569;font-size:11.5px;font-style:italic;margin:3px 0}
+.card .meta-row{display:flex;gap:10px;align-items:center;margin-top:4px;font-size:11.5px;color:#334155}
+.card .meta-row .preco{font-weight:800;color:var(--green)}
+.card .actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.card .actions label{display:flex;align-items:center;gap:5px;font-size:11px}
+.card .actions input[type=checkbox]{width:16px;height:16px}
+.card .ver{border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:650;color:var(--blue)}
+.chevron{transition:transform .15s}
+.chevron.open{transform:rotate(180deg)}
+
+/* Variante A: expansão inline */
+.inline-detail{padding:0 14px 14px;background:#f8fafc;border-bottom:1px solid #eef1f5}
+
+/* Variante B: drill-in dentro do painel */
+.drill-head{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line);flex-shrink:0;background:#f8fafc}
+.drill-head button{border:0;background:none;color:var(--blue);font-weight:650;font-size:12px}
+
+/* Variante C: modal por cima */
+.modal-overlay{position:absolute;inset:0;background:#0f172a55;display:flex;align-items:center;justify-content:center;z-index:10}
+.modal-box{width:min(380px,92%);max-height:88%;overflow:auto;background:#fff;border-radius:10px;box-shadow:0 24px 60px #0f172a55}
+.modal-box .drill-head{border-radius:10px 10px 0 0}
+
+/* Conteúdo do detalhe (compartilhado) */
+.detail-body{padding:12px 14px}
+.gallery{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.gallery .main-photo{height:130px;border-radius:8px;border:1px solid var(--line)}
+.gallery .strip{display:flex;gap:6px}
+.gallery .strip div{width:38px;height:38px;border-radius:6px;border:2px solid transparent;cursor:pointer}
+.gallery .strip div.active{border-color:var(--blue)}
+.detail-body h3{font-size:12.5px;margin:12px 0 5px;color:#334155}
+.detail-body h3:first-of-type{margin-top:0}
+.html-desc{font-size:12px;color:#334155;background:#f8fafc;border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.html-desc p{margin:0 0 6px}
+.html-desc ul{margin:0;padding-left:18px}
+.carac-list{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:12px}
+.carac-list b{color:#475569;font-weight:650}
+.estoque-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
+.estoque-table th{text-align:left;color:#64748b;font-weight:650;border-bottom:1px solid var(--line);padding:4px 6px}
+.estoque-table td{padding:4px 6px;border-bottom:1px solid #f1f5f9}
+.price-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green2);color:var(--green);border-radius:6px;padding:5px 9px;font-weight:800;font-size:13px}
+.sanitized-note{font-size:10.5px;color:var(--muted);margin-top:4px}
+
+.switcher{position:fixed;z-index:50;bottom:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:#111827;color:#fff;border-radius:999px;padding:7px 10px;box-shadow:0 8px 30px #0f172a55}
+.switcher button{width:31px;height:31px;border-radius:50%;border:1px solid #64748b;background:#273449;color:#fff}
+.switcher strong{min-width:260px;text-align:center;font-size:12px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <span class="brand">tecLUX ERP</span>
+    <span class="crumb">Estoque / Consulta de Estoques</span>
+    <span class="prototype">PROTÓTIPO DESCARTÁVEL — não conectado ao backend</span>
+  </header>
+  <div class="body">
+    <main class="host">
+      <h1>Consulta de Estoques</h1>
+      <p class="sub">Contexto real da tela hospedeira, para julgar o painel com densidade de verdade — dados abaixo são estáticos.</p>
+      <div class="host-toolbar">
+        <button class="btn primary">Gerar <small>F6</small></button>
+        <button class="btn">Filtros de Produto</button>
+        <span style="flex:1"></span>
+        <span style="color:#64748b;font-size:11px">Filial 1 · Matriz</span>
+      </div>
+      <div class="host-grid">
+        <table>
+          <thead><tr><th>Código</th><th>Descrição</th><th>Estoque</th><th>Preço</th></tr></thead>
+          <tbody>
+            <tr><td>100234</td><td>Cadeira Luna Azul</td><td>18</td><td>R$ 449,00</td></tr>
+            <tr><td>100411</td><td>Mesa Íris 160 cm</td><td>3</td><td>R$ 1.169,00</td></tr>
+            <tr><td>100688</td><td>Poltrona Serena</td><td>12</td><td>R$ 809,00</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+    <aside class="panel" id="panel"></aside>
+  </div>
+</div>
+<nav class="switcher"><button id="prev">←</button><strong id="variantLabel"></strong><button id="next">→</button></nav>
+<script>
+const variants={
+  A:'Expansão inline no cartão',
+  B:'Drill-in dentro do painel',
+  C:'Modal sobreposto aos resultados'
+};
+
+const produtos=[
+  {id:100234,cod:'100234',desc:'Cadeira Luna Azul',evid:'"tecido impermeável, ideal para área externa"',preco:449.00,estoqueTotal:23,
+   fotos:['#7dd3fc','#38bdf8','#0284c7'],
+   html:'<p>Cadeira em tecido <strong>impermeável</strong> para área externa, estrutura em alumínio.</p><ul><li>Resistente a raios UV</li><li>Fácil limpeza</li></ul>',
+   carac:[['Cor','Azul'],['Material','Tecido náutico'],['Dimensões','62×58×82 cm']],
+   estoques:[['1 · Matriz',18,2],['2 · Filial Norte',5,0]]},
+  {id:100411,cod:'100411',desc:'Mesa Íris 160 cm',evid:'"tampo em vidro temperado, 160 cm, pés em madeira maciça"',preco:1169.00,estoqueTotal:3,
+   fotos:['#fca5a5','#f87171','#dc2626'],
+   html:'<p>Mesa de jantar com tampo em <strong>vidro temperado 10 mm</strong> e pés em madeira maciça.</p><ul><li>Capacidade 6 lugares</li><li>Vidro com bordas lapidadas</li></ul>',
+   carac:[['Cor','Natural'],['Material','Madeira e vidro'],['Dimensões','160×90×75 cm']],
+   estoques:[['1 · Matriz',3,1]]},
+  {id:100688,cod:'100688',desc:'Poltrona Serena',evid:'"encosto reclinável, tecido suede cinza"',preco:809.00,estoqueTotal:12,
+   fotos:['#c4b5fd','#a78bfa','#7c3aed'],
+   html:'<p>Poltrona reclinável com <strong>encosto ajustável em 3 posições</strong>.</p><ul><li>Revestimento em suede</li><li>Base giratória 360°</li></ul>',
+   carac:[['Cor','Cinza'],['Material','Suede'],['Dimensões','78×85×102 cm']],
+   estoques:[['1 · Matriz',12,0],['3 · Filial Sul',0,0]]},
+  {id:100512,cod:'100512',desc:'Aparador Nilo',evid:'"3 gavetas, acabamento laqueado fosco"',preco:779.00,estoqueTotal:6,
+   fotos:['#86efac','#4ade80','#16a34a'],
+   html:'<p>Aparador com <strong>3 gavetas</strong> e acabamento laqueado fosco.</p><ul><li>Puxadores em metal escovado</li></ul>',
+   carac:[['Cor','Branco'],['Material','MDF laqueado'],['Dimensões','140×40×80 cm']],
+   estoques:[['1 · Matriz',6,0]]},
+  {id:100701,cod:'100701',desc:'Banco Alto Lume',evid:'"altura de bancada, base em metal preto"',preco:319.00,estoqueTotal:24,
+   fotos:['#fde68a','#fbbf24','#d97706'],
+   html:'<p>Banco alto para bancada, estrutura em <strong>metal preto fosco</strong>.</p>',
+   carac:[['Cor','Preto'],['Material','Metal e madeira'],['Dimensões','40×40×75 cm']],
+   estoques:[['2 · Filial Norte',24,4]]},
+  {id:100522,cod:'100522',desc:'Rack Suspenso Vega',evid:'"180 cm, suporte para TV até 65 polegadas"',preco:999.00,estoqueTotal:9,
+   fotos:['#93c5fd','#60a5fa','#2563eb'],
+   html:'<p>Rack suspenso com <strong>180 cm</strong>, suporta TVs de até 65".</p><ul><li>Instalação com kit incluso</li></ul>',
+   carac:[['Cor','Preto'],['Material','MDF'],['Dimensões','180×32×35 cm']],
+   estoques:[['1 · Matriz',9,0]]},
+];
+
+const CAP=4; // protótipo usa 4 para caber na tela sem gerar mais itens fictícios; produção usa 15 (decisão do ticket "Definir multisseleção e contrato com o hospedeiro")
+let active='A';
+let selected=new Set();
+let capMsg=false;
+let expandedId=null;   // variante A
+let detailId=null;     // variante B
+let modalId=null;      // variante C
+let savedScrollTop=0;
+
+function money(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function produto(id){return produtos.find(p=>p.id===id)}
+
+function toggleSelect(id){
+  if(selected.has(id)){selected.delete(id);capMsg=false}
+  else{
+    if(selected.size>=CAP){capMsg=true;render();return}
+    selected.add(id);capMsg=false;
+  }
+  render();
+}
+function clearSelection(){selected=new Set();capMsg=false;render()}
+function applySelection(){
+  const n=selected.size;
+  alert(n===0
+    ? 'Simulação de Aplicar: full sync removeria todas as linhas item_produto.codigo eq existentes (seleção vazia é uma limpeza válida).'
+    : `Simulação de Aplicar: full sync escreveria ${n} linha(s) item_produto.codigo eq (encadeadas por OR), substituindo as anteriores. O painel permanece aberto.`);
+}
+
+function tray(){
+  const ids=[...selected];
+  return `<div class="tray">
+    <div class="tray-top">
+      <b>Selecionados</b>
+      <span class="count-pill">${ids.length}/${CAP}</span>
+      <span class="spacer"></span>
+      <button onclick="clearSelection()" ${ids.length===0?'disabled':''}>Limpar seleção</button>
+      <button class="primary" onclick="applySelection()">Aplicar seleção</button>
+    </div>
+    ${ids.length
+      ? `<div class="tray-chips">${ids.map(id=>{const p=produto(id);return `<span class="chip">${p.cod} · ${p.desc}<button onclick="toggleSelect(${id})">×</button></span>`}).join('')}</div>`
+      : `<div class="tray-chips"><span class="tray-empty">Nenhum produto selecionado ainda — marque cartões abaixo.</span></div>`}
+    ${capMsg?`<div class="cap-msg">Limite de ${CAP} produtos por vez atingido (protótipo; produção usa 15). Remova um selecionado para adicionar outro.</div>`:''}
+  </div>`;
+}
+
+function searchbar(){
+  return `<div class="searchbar">
+    <textarea readonly placeholder="Descreva o que o cliente precisa…">poltrona reclinável para área de descanso</textarea>
+    <div class="row">
+      <button class="mic">🎤</button>
+      <button class="btn primary">Buscar</button>
+      <span class="spacer"></span>
+      <button class="link">Abrir lupa tradicional</button>
+    </div>
+  </div>`;
+}
+
+function detailContent(p){
+  return `<div class="detail-body">
+    <div class="gallery">
+      <div class="main-photo" style="background:${p.fotos[0]}"></div>
+      <div class="strip">${p.fotos.map((c,i)=>`<div class="${i===0?'active':''}" style="background:${c}"></div>`).join('')}</div>
+    </div>
+    <h3>Descrição complementar</h3>
+    <div class="html-desc">${p.html}</div>
+    <div class="sanitized-note">HTML pré-sanitizado no servidor — nenhum script ou atributo de evento é renderizado.</div>
+    <h3>Características</h3>
+    <div class="carac-list">${p.carac.map(([k,v])=>`<b>${k}</b><span>${v}</span>`).join('')}</div>
+    <h3>Preço permitido</h3>
+    <span class="price-badge">${money(p.preco)}</span>
+    <h3>Estoque por Filial</h3>
+    <table class="estoque-table">
+      <thead><tr><th>Filial</th><th>Estoque</th><th>Reservado</th></tr></thead>
+      <tbody>${p.estoques.map(([f,q,r])=>`<tr><td>${f}</td><td>${q}</td><td>${r}</td></tr>`).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
+function cardRow(p,variant){
+  const checked=selected.has(p.id);
+  const verAction = variant==='A'
+    ? `<button class="ver" onclick="toggleExpand(${p.id})">Ver mais detalhes <span class="chevron ${expandedId===p.id?'open':''}">▾</span></button>`
+    : variant==='B'
+      ? `<button class="ver" onclick="openDrill(${p.id})">Ver mais detalhes</button>`
+      : `<button class="ver" onclick="openModal(${p.id})">Ver mais detalhes</button>`;
+  return `<div class="card ${expandedId===p.id?'expanded':''}">
+    <div class="thumb" style="background:${p.fotos[0]}"></div>
+    <div class="main">
+      <div class="titleline"><b>${p.desc}</b></div>
+      <div class="cod">${p.cod}</div>
+      <div class="evid">${p.evid}</div>
+      <div class="meta-row"><span class="preco">${money(p.preco)}</span><span>Estoque: ${p.estoqueTotal}</span></div>
+    </div>
+    <div class="actions">
+      <label><input type="checkbox" ${checked?'checked':''} onchange="toggleSelect(${p.id})"> Selecionar</label>
+      ${verAction}
+    </div>
+  </div>
+  ${variant==='A' && expandedId===p.id ? `<div class="inline-detail">${detailContent(p)}</div>` : ''}`;
+}
+
+function resultsListA(){
+  return `<div class="results" id="resultsScroll">${produtos.map(p=>cardRow(p,'A')).join('')}</div>`;
+}
+function resultsListPlain(variant){
+  return `<div class="results" id="resultsScroll">${produtos.map(p=>cardRow(p,variant)).join('')}</div>`;
+}
+
+function toggleExpand(id){expandedId=(expandedId===id?null:id);render()}
+
+function openDrill(id){
+  const el=document.getElementById('resultsScroll');
+  if(el)savedScrollTop=el.scrollTop;
+  detailId=id;render();
+}
+function closeDrill(){
+  detailId=null;render();
+  const el=document.getElementById('resultsScroll');
+  if(el)el.scrollTop=savedScrollTop;
+}
+
+function openModal(id){modalId=id;render()}
+function closeModal(){modalId=null;render()}
+
+function variantA(){
+  return `${searchbar()}${tray()}${resultsListA()}`;
+}
+function variantB(){
+  if(detailId){
+    const p=produto(detailId);
+    return `${tray()}<div class="drill-head"><button onclick="closeDrill()">← Voltar aos resultados</button><span style="color:#334155;font-weight:650">${p.desc}</span></div>${detailContent(p)}`;
+  }
+  return `${searchbar()}${tray()}${resultsListPlain('B')}`;
+}
+function variantC(){
+  const base=`${searchbar()}${tray()}${resultsListPlain('C')}`;
+  if(modalId){
+    const p=produto(modalId);
+    return `${base}<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal-box"><div class="drill-head"><button onclick="closeModal()">✕ Fechar</button><span style="color:#334155;font-weight:650">${p.desc}</span></div>${detailContent(p)}</div></div>`;
+  }
+  return base;
+}
+
+function panelHeader(){
+  return `<div class="panel-head"><div class="ia-badge"></div><h2>Busca Assistida de Produtos</h2><button class="x">✕</button></div>`;
+}
+
+function render(){
+  const body = active==='A'?variantA():active==='B'?variantB():variantC();
+  document.getElementById('panel').innerHTML = panelHeader()+body;
+  document.getElementById('variantLabel').textContent=`${active} — ${variants[active]}`;
+  history.replaceState({},'',`?variant=${active}`);
+}
+function cycle(d){
+  const k=Object.keys(variants);
+  active=k[(k.indexOf(active)+d+k.length)%k.length];
+  selected=new Set();capMsg=false;expandedId=null;detailId=null;modalId=null;savedScrollTop=0;
+  render();
+}
+
+document.getElementById('prev').onclick=()=>cycle(-1);
+document.getElementById('next').onclick=()=>cycle(1);
+document.addEventListener('keydown',e=>{
+  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;
+  if(e.key==='ArrowLeft')cycle(-1);
+  if(e.key==='ArrowRight')cycle(1);
+});
+
+active=new URLSearchParams(location.search).get('variant')||'A';
+if(!variants[active])active='A';
+render();
+</script>
+</body>
+</html>

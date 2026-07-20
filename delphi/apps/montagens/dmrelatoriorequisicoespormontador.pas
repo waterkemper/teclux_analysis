@@ -1,0 +1,546 @@
+unit dmrelatoriorequisicoespormontador;
+
+interface
+
+uses
+  SysUtils, Classes,
+  dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery,
+  ctconstantes, FR_Class, FR_DSet, FR_DBSet, fmpreviewpadrao,
+  clparametrossistema, biblio, ZTransact;
+
+type
+  TdtmRelatorioRequisicoesporMontador = class(TdtmBasico)
+    qryCliente: TtecQuery;
+    qryClientecodigo: TIntegerField;
+    qryClientenome: TStringField;
+    qryClientetipo: TStringField;
+    dsrCliente: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientestipoorig: TStringField;
+    qryMontador: TtecQuery;
+    qryMontadorcodigo: TIntegerField;
+    qryMontadornome: TStringField;
+    qryMontadortipo: TStringField;
+    dsrMontador: TtecDataSource;
+    qryConsultaMontador: TtecQuery;
+    qryConsultaMontadornome: TStringField;
+    qryConsultaMontadorcodigo: TIntegerField;
+    qryConsultaMontadortipo: TStringField;
+    qryConsultaMontadortipoorig: TStringField;
+    qryRequisicoes: TtecQuery;
+    qryRequisicoesmontador: TIntegerField;
+    qryRequisicoesnomemontador: TStringField;
+    qryRequisicoesabertura: TDateField;
+    qryRequisicoesrequisicao: TIntegerField;
+    qryRequisicoesproduto: TLargeintField;
+    qryRequisicoesdescricaoproduto: TStringField;
+    qryRequisicoesfilial: TIntegerField;
+    qryRequisicoesquantidade: TFloatField;
+    qryRequisicoesdatamontagem: TDateField;
+    qryRequisicoesvalorpagto: TFloatField;
+    qryRequisicoesdatapagto: TDateField;
+    frpRequisicoesporMontador: TfrReport;
+    fdsRequisicoesporMontador: TfrDBDataSet;
+    frpRequisicoesporMontadorResumo: TfrReport;
+    qryRequisicoesserie: TStringField;
+    qryRequisicoesnotafiscal: TIntegerField;
+    qryRequisicoesmaquina: TIntegerField;
+    qryRequisicoesintervensao: TIntegerField;
+    qryRequisicoescupomfiscal: TIntegerField;
+    qryFiliais: TtecQuery;
+    qryFiliaiscodigo: TIntegerField;
+    qryFiliaisnome: TStringField;
+    dsrFiliais: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryGrupoFiliais: TtecQuery;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisdescricao: TStringField;
+    dsrGrupoFiliais: TtecDataSource;
+    qryConsultaGrupoFiliais: TtecQuery;
+    qryConsultaGrupoFiliaisdescricao: TStringField;
+    qryConsultaGrupoFiliaiscodigo: TIntegerField;
+    qryRequisicoesfilialmontagem: TIntegerField;
+    qryRequisicoesnomefilialmontagem: TStringField;
+    qryRequisicoesgrupofilialmontagem: TIntegerField;
+    qryRequisicoesnomegrupofilialmontagem: TStringField;
+    qryRequisicoesnomecliente: TStringField;
+    qryRequisicoesfonenumero_1: TStringField;
+    qryRequisicoesfonenumero_2: TStringField;
+    qryRequisicoesfonenumero: TStringField;
+    procedure frpRequisicoesporMontadorBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpRequisicoesporMontadorGetValue(const ParName: String;
+      var ParValue: Variant);
+    procedure frpRequisicoesporMontadorResumoGetValue(
+      const ParName: String; var ParValue: Variant);
+    procedure qryRequisicoesCalcFields(DataSet: TDataSet);
+
+
+  private
+    FDataFinal: string;
+    FDataInicial: string;
+    FMontador: String;
+    FCliente: String;
+    FResumo: Integer;
+    FSituacaoRequisicaoItemPagto: Boolean;
+    FSituacaoRequisicaoItemMontagem: Boolean;
+    FSituacaodaMontagem: Integer;
+    FSituacaodoPagto: Integer;
+    FParametroCabecalho: String;
+    FAgruparFilial: boolean;
+    FAgruparGrupoFilial: boolean;
+    FAgruparMontador: boolean;
+    FDataInicialFechamento: string;
+    FDataFinalPagamento: string;
+    FDataInicialPagamento: string;
+    FDataFinalFechamento: string;
+    function GetConsultaClientes: TZDataSet;
+    function GetConsultaMontadores: TZDataSet;
+    procedure SetDataFinal(const Value: string);
+    procedure SetMontador(const Value: String);
+    procedure SetCliente(const Value: String);
+    procedure SetSituacaodaMontagem(const Value: Integer);
+    procedure SetSituacaodoPagto(const Value: Integer);
+    procedure SetSituacaoRequisicaoItemMontagem(const Value: Boolean);
+    procedure SetSituacaoRequisicaoItemPagto(const Value: Boolean);
+    function GetConsultaFilial: TZDataSet;
+    function GetConsultaGrupoFilial: TZDataSet;
+    procedure SetFiliais(const Value: String);
+    procedure SetGrupoFiliais(const Value: String);
+    procedure SetDataFinalFechamento(const Value: string);
+    procedure SetDataFinalPagamento(const Value: string);
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TipoProcuraRequisicoes);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TipoProcuraRequisicoes);
+    procedure Selecionar(TipoPesquisa: TipoProcuraRequisicoes);
+    procedure AbreConsultaCliente;
+    property ConsultaClientes: TZDataSet read GetConsultaClientes;
+    property ConsultaMontadores: TZDataSet read GetConsultaMontadores;
+    property ConsultaFilial: TZDataSet read GetConsultaFilial;
+    property ConsultaGrupoFilial: TZDataSet read GetConsultaGrupoFilial;
+    function ExisteCliente(NomeCampo: String; Value: Variant): Boolean;
+    function ExisteMontador(NomeCampo: String; Value: Variant): Boolean;
+    function ExisteFilial(NomeCampo: String; Value: Variant): Boolean;
+    function ExisteGrupoFilial(NomeCampo: String; Value: Variant): Boolean;
+    property DataInicial: string read FDataInicial write FDataInicial;
+    property DataFinal: string read FDataFinal write SetDataFinal;
+    property DataInicialFechamento: string read FDataInicialFechamento write FDataInicialFechamento;
+    property DataFinalFechamento: string read FDataFinalFechamento write SetDataFinalFechamento;
+    property DataInicialPagamento: string read FDataInicialPagamento write FDataInicialPagamento;
+    property DataFinalPagamento: string read FDataFinalPagamento write SetDataFinalPagamento;
+    property Montador: String read FMontador write SetMontador;
+    property Cliente: String read FCliente write SetCliente;
+    property SituacaodoPagto: Integer read FSituacaodoPagto write SetSituacaodoPagto;
+    property SituacaodaMontagem: Integer read FSituacaodaMontagem write SetSituacaodaMontagem;
+    property SituacaoRequisicaoItemPagto: Boolean read FSituacaoRequisicaoItemPagto write SetSituacaoRequisicaoItemPagto;
+    property SituacaoRequisicaoItemMontagem: Boolean read FSituacaoRequisicaoItemMontagem write SetSituacaoRequisicaoItemMontagem;
+    property Resumo: Integer read FResumo write FResumo;
+    procedure ImprimirRelatorio(tipo: String);
+    property Filiais: String write SetFiliais;
+    property GrupoFiliais: String write SetGrupoFiliais;
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    property AgruparGrupoFilial: boolean read FAgruparGrupoFilial write FAgruparGrupoFilial;
+    property AgruparFilial: boolean read FAgruparFilial write FAgruparFilial;
+    property AgruparMontador: boolean read FAgruparMontador write FAgruparMontador;
+    procedure MontarOrdenacao;
+  end;
+
+var
+  dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontador;
+
+implementation
+{$R *.dfm}
+const
+
+ WhereFiliais   = 32;
+ WhereCliente   = 33;
+ WhereMontador  = 34;
+ WhereSitucaoMontagemRequisicao = 35;
+ WhereSitucaoPagtoRequisicao = 36;
+ WhereSitucaoMontagemItensRequisicao = 37;
+ WhereSitucaoPagtoItensRequisicao = 38;
+ WhereOrdenacao = 39;
+
+{ TdtmRelatorioRequisicoesporMontador }
+
+procedure TdtmRelatorioRequisicoesporMontador.AbreConsultaCliente;
+begin
+ ExisteCliente('nome', '0')
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.AbreTabelaPesquisa(
+  TipoPesquisa: TipoProcuraRequisicoes);
+begin
+  case TipoPesquisa of
+   tpRequisicoesClientes   :AbreConsultaCliente;
+   tpRequisicoesMontadores :Abre(ctConsultaMontadoresMontagem);
+   tpRequisicoesFiliaisdeMontagem :Abre(ctConsultaFiliaisdeMontagem);
+   tpRequisicoesGrupoFiliaisdeMontagem :Abre(ctConsultaGrupoFiliaisMontagem);
+  end
+end;
+
+constructor TdtmRelatorioRequisicoesporMontador.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryFiliais.Tag                :=ctTabelas;
+  qryGrupoFiliais.Tag           :=ctTabelas;
+  qryCliente.Tag               := ctTabelas;
+  qryMontador.tag              := ctTabelas;
+  qryConsultaClientes.tag      := ctConsultaClientesMontagem;
+  qryConsultaMontador.Tag      := ctConsultaMontadoresMontagem;
+  qryConsultaFiliais.Tag        :=ctConsultaFiliaisdeMontagem;
+  qryConsultaGrupoFiliais.Tag   :=ctConsultaGrupoFiliaisMontagem;
+  qryMontador.Params[1].AsString := 'U';
+  qryCliente.Params[1].AsString  := 'C';
+  qryRequisicoesquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+
+end;
+
+function TdtmRelatorioRequisicoesporMontador.ExisteCliente(NomeCampo: String;
+  Value: Variant): Boolean;
+const
+  SQL = 'Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  qryConsultaClientes.Sql[9] := Format(SQL, [NomeCampo, ANSIUpperCase(Value), '%']);
+  qryConsultaClientes.Open;
+  Result := qryConsultaClientes.RecordCount > 0
+end;
+
+function TdtmRelatorioRequisicoesporMontador.ExisteFilial(
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result:=ExisteCodigo(qryConsultaFiliais, Nomecampo, Value);
+end;
+
+function TdtmRelatorioRequisicoesporMontador.ExisteGrupoFilial(
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result:=ExisteCodigo(qryConsultaGrupoFiliais, Nomecampo, Value);
+end;
+
+function TdtmRelatorioRequisicoesporMontador.ExisteMontador(NomeCampo: String;
+  Value: Variant): Boolean;
+begin
+  Result:=ExisteCodigo(qryConsultaMontador, Nomecampo, Value);
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.FechaTabelaPesquisa(
+  TipoPesquisa: TipoProcuraRequisicoes);
+begin
+  case TipoPesquisa of
+   tpRequisicoesClientes  : Fecha(ctConsultaClientesMontagem);
+   tpRequisicoesMontadores: Fecha(ctConsultaMontadoresMontagem);
+   tpRequisicoesFiliaisdeMontagem :Fecha(ctConsultaFiliaisdeMontagem);
+   tpRequisicoesGrupoFiliaisdeMontagem :Fecha(ctConsultaGrupoFiliaisMontagem);
+  end
+end;
+
+function TdtmRelatorioRequisicoesporMontador.GetConsultaClientes: TZDataSet;
+begin
+  result := qryConsultaClientes;
+end;
+
+function TdtmRelatorioRequisicoesporMontador.GetConsultaFilial: TZDataSet;
+begin
+  result := qryConsultaFiliais;
+end;
+
+function TdtmRelatorioRequisicoesporMontador.GetConsultaGrupoFilial: TZDataSet;
+begin
+ result := qryConsultaGrupoFiliais;
+end;
+
+function TdtmRelatorioRequisicoesporMontador.GetConsultaMontadores: TZDataSet;
+begin
+ result := qryConsultaMontador;
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.ImprimirRelatorio(tipo: String);
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  frVariables['Rua']   := RuaFilialBase;
+  frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + CEPFilialBase;
+  frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
+  frVariables['Fone']  := FoneFilialBase;
+  frVariables['Outras']:= FParametroCabecalho;
+  frVariables['ItensRequisicoesMontados']:=FSituacaoRequisicaoItemMontagem;
+  frVariables['ItensRequisicoesPagos']:=FSituacaoRequisicaoItemPagto;
+  frVariables['AgruparGrupoFilial']:=FAgruparGrupoFilial;
+  frVariables['AgruparFilial']:=FAgruparFilial;
+  frVariables['AgruparMontador']:=FAgruparMontador;
+  frVariables['Titulo']:= tipo;
+//  frpRequisicoesporMontadorResumo.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3;
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   with frmPreview do
+   begin
+    Case FResumo of
+     0: begin
+        frCompositeReport.Reports.Add(frpRequisicoesporMontador);
+        frCompositeReport.Reports.Add(frpRequisicoesporMontadorResumo);
+       end;
+     1: frCompositeReport.Reports.Add(frpRequisicoesporMontador);
+     2: frCompositeReport.Reports.Add(frpRequisicoesporMontadorResumo);
+    end;
+   end;
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+   frmPreview.ShowModal;
+  finally
+   frmPreview.Free
+  end;
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.MontarOrdenacao;
+var
+Ordenacao: String;
+begin
+  Ordenacao:='';
+  if FAgruparGrupoFilial then
+    Ordenacao:=Ordenacao+', nomegrupofilialmontagem, grupofilialmontagem ';
+  if FAgruparFilial then
+    Ordenacao:=Ordenacao+', nomefilialmontagem, filialmontagem ';
+  if FAgruparMontador then
+    Ordenacao:=Ordenacao+', nomemontador, montador ';
+  Ordenacao:=Ordenacao+', abertura, requisicao, p.descricao, p.valorgrade1, p.valorgrade2';
+  qryRequisicoes.MacroByName('WhereOrdenacao').AsString:='Order by '+copy(Ordenacao,2,length(Ordenacao)-1);
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.Selecionar(
+  TipoPesquisa: TipoProcuraRequisicoes);
+begin
+case TipoPesquisa of
+ tpRequisicoesClientes               :
+ begin
+  RefazConsulta(qryCliente,[0,1],[qryConsultaClientescodigo.AsVariant,
+                                  qryConsultaClientestipo.AsVariant]);
+  qryCliente.Params[1].AsString:=qryConsultaClientestipo.AsString;
+ end;
+ tpRequisicoesMontadores :
+ begin
+  RefazConsulta(qryMontador,[0,1], [qryConsultaMontadorcodigo.AsVariant,
+                                    qryConsultaMontadortipo.AsVariant]);
+  qryMontador.Params[1].AsString:=qryConsultaMontadortipo.AsString;
+ end;
+ tpRequisicoesFiliaisdeMontagem: RefazConsulta(qryFiliais,[0], [qryConsultaFiliaiscodigo.AsVariant]);
+ tpRequisicoesGrupoFiliaisdeMontagem: RefazConsulta(qryGrupoFiliais,[0], [qryConsultaGrupoFiliaiscodigo.AsVariant]);
+end;
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.SetCliente(const Value: String);
+begin
+  FCliente := Value;
+  if Value <> '' then
+  begin
+    qryRequisicoes.MacroByName('WhereCliente').Asstring:=
+    ' and (r.cliente = ' + Value +
+    ') and (r.tipocliente = ' + quotedstr(qryClientetipo.AsString) + ')';
+   FParametroCabecalho:=FParametroCabecalho+' Cliente: '+Value;
+  end
+  else
+    qryRequisicoes.MacroByName('WhereCliente').AsString:='';
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.SetDataFinal(
+  const Value: string);
+begin
+  FDataFinal:=Value;
+  If (not((FDataInicial='') or (FDataFinal=''))) then
+  begin
+    qryRequisicoes.MacroByName('WherePeriodoAbertura').AsString:= ' AND r.abertura between ('''+FDataInicial+''') and ('''+FDataFinal+''')';
+    FParametroCabecalho:=FParametroCabecalho+' Abertura: '+FDataInicial+' e '+FDataFinal;
+  end;
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.SetFiliais(
+  const Value: String);
+begin
+  if (Value <> '') then
+  begin
+   qryRequisicoes.MacroByName('WhereFiliais').AsString:= ' and (r.filialmontagem = ' + Value + ')';
+   FParametroCabecalho:=FParametroCabecalho+' Filial: '+Value;
+  end
+  else qryRequisicoes.MacroByName('WhereFiliais').AsString:= '';
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.SetGrupoFiliais(
+  const Value: String);
+begin
+  if (Value <> '') then
+  begin
+    qryRequisicoes.MacroByName('WhereFiliais').AsString:= ' and (r.filialmontagem in (Select filial From filiaisgruposfiliais Where grupo = ' + Value + '))';
+    FParametroCabecalho:=FParametroCabecalho+' Grupo de Filial: '+Value;
+  end;
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.SetMontador(
+  const Value: String);
+begin
+  FMontador := Value;
+  if Value <> '' then
+  begin
+    qryRequisicoes.MacroByName('WhereMontador').AsString:=
+    ' and (r.montador = ' + Value +
+    ') and (r.tipomontador = ' + quotedstr(qryMontadortipo.AsString) + ')';
+    FParametroCabecalho:=FParametroCabecalho+' Montador: '+Value;
+  end
+  else
+    qryRequisicoes.MacroByName('WhereMontador').AsString:='';
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.SetSituacaodaMontagem(
+  const Value: Integer);
+begin
+  FSituacaodaMontagem := Value;
+  case Value of
+  0: begin
+      qryRequisicoes.MacroByName('WhereSituacaoMontagem').AsString:=
+      'and ((select count(*) from requisicoesitens ri '+
+      'Where ri.requisicao=r.numero and ri.datamontagem is not null)=0)';
+      FParametroCabecalho:=FParametroCabecalho+' Montagem: em Aberto';
+     end;
+  1: begin
+      qryRequisicoes.MacroByName('WhereSituacaoMontagem').AsString:=
+      'and (select count(*) from requisicoesitens ri '+
+      'Where ri.requisicao=r.numero) not in '+
+      '((select count(*) from requisicoesitens ri where ri.requisicao=r.numero and ri.datamontagem is not null),'+
+      ' (select count(*) from requisicoesitens ri where ri.requisicao=r.numero and ri.datamontagem is null))';
+      FParametroCabecalho:=FParametroCabecalho+' Montagem: Parcial';
+     end;
+  2: begin
+      qryRequisicoes.MacroByName('WhereSituacaoMontagem').AsString:=
+      'and ((select count(*) from requisicoesitens ri '+
+      'Where ri.requisicao=r.numero and ri.datamontagem is null)=0)';
+      FParametroCabecalho:=FParametroCabecalho+' Montagem: Fechada';
+     end;
+  3: qryRequisicoes.MacroByName('WhereSituacaoMontagem').AsString:='';
+  end;
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.SetSituacaodoPagto(
+  const Value: Integer);
+begin
+ FSituacaodoPagto := Value;
+  case Value of
+  0: begin
+      qryRequisicoes.MacroByName('WhereSituacaoPagto').AsString:=
+      'and ((select count(*) from requisicoesitens ri '+
+      'Where ri.requisicao=r.numero and ri.datapagto is not null)=0)';
+      FParametroCabecalho:=FParametroCabecalho+' Pagamento: em Aberto';
+     end;
+  1: begin
+      qryRequisicoes.MacroByName('WhereSituacaoPagto').AsString:=
+      'and (select count(*) from requisicoesitens ri '+
+      'Where ri.requisicao=r.numero) not in '+
+      '((select count(*) from requisicoesitens ri where ri.requisicao=r.numero and ri.datapagto is not null),'+
+      ' (select count(*) from requisicoesitens ri where ri.requisicao=r.numero and ri.datapagto is null))';
+      FParametroCabecalho:=FParametroCabecalho+' Pagamento: Parcial';
+     end;
+  2: begin
+      qryRequisicoes.MacroByName('WhereSituacaoPagto').AsString:=
+      'and ((select count(*) from requisicoesitens ri '+
+      'Where ri.requisicao=r.numero and ri.datapagto is null)=0)';
+      FParametroCabecalho:=FParametroCabecalho+' Pagamento: Fechada';
+     end;
+  3: qryRequisicoes.MacroByName('WhereSituacaoPagto').AsString:='';
+  end;
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.SetSituacaoRequisicaoItemMontagem(
+  const Value: Boolean);
+begin
+  FSituacaoRequisicaoItemMontagem := Value;
+  if value then
+   qryRequisicoes.MacroByName('WhereSituacaoMontagemItens').AsString :=
+   ' and ri.datamontagem is not null'
+  else
+   qryRequisicoes.MacroByName('WhereSituacaoMontagemItens').AsString :='';
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.SetSituacaoRequisicaoItemPagto(
+  const Value: Boolean);
+begin
+  FSituacaoRequisicaoItemPagto := Value;
+  if value then
+   qryRequisicoes.MacroByName('WhereSituacaoPagtoItens').AsString :=
+   ' and ri.datapagto is not null'
+  else
+   qryRequisicoes.MacroByName('WhereSituacaoPagtoItens').AsString :='';
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.frpRequisicoesporMontadorBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if View.Name = 'logotipo' then
+   if FileExists(LogotipoFilialBase) then
+     try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.frpRequisicoesporMontadorGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+  IF ParName = 'QUANTIDADEPRODUTO' then
+   parValue := FormatarQuantidade(qryRequisicoesquantidade.AsCurrency)
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.frpRequisicoesporMontadorResumoGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+  IF ParName = 'QUANTIDADEPRODUTO' then
+   parValue := FormatarQuantidade(qryRequisicoesquantidade.AsCurrency)
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.SetDataFinalFechamento(
+  const Value: string);
+begin
+  FDataFinalFechamento := Value;
+  If (not ((FDataInicialFechamento='') or (FDataFinalFechamento=''))) then
+  begin
+    qryRequisicoes.MacroByName('WherePeriodoFechamento').AsString:= ' AND ri.datamontagem between ('''+FDataInicialFechamento+''') and ('''+FDataFinalFechamento+''')';
+    FParametroCabecalho:=FParametroCabecalho+' Fechamento: '+FDataInicialFechamento+' e '+FDataFinalFechamento;
+  end;
+end;
+
+procedure TdtmRelatorioRequisicoesporMontador.SetDataFinalPagamento(
+  const Value: string);
+begin
+  FDataFinalPagamento := Value;
+  If (not ((FDataInicialPagamento='') or (FDataFinalPagamento=''))) then
+  begin
+    qryRequisicoes.MacroByName('WherePeriodoPagamento').AsString:= ' AND ri.datapagto between ('''+FDataInicialPagamento+''') and ('''+FDataFinalPagamento+''')';
+    FParametroCabecalho:=FParametroCabecalho+' Pagamento: '+FDataInicial+' e '+FDataFinal;
+  end;
+end;
+procedure TdtmRelatorioRequisicoesporMontador.qryRequisicoesCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if (qryRequisicoesfonenumero_1.AsString <> '') and  (qryRequisicoesfonenumero_2.AsString <> '') then
+    qryRequisicoesfonenumero.AsString := qryRequisicoesfonenumero_1.AsString + ' / ' +
+                                         qryRequisicoesfonenumero_2.AsString
+  else
+  if qryRequisicoesfonenumero_1.AsString <> '' then
+    qryRequisicoesfonenumero.AsString := qryRequisicoesfonenumero_1.AsString
+  else
+  if qryRequisicoesfonenumero_2.AsString <> '' then
+    qryRequisicoesfonenumero.AsString := qryRequisicoesfonenumero_2.AsString;
+end;
+
+end.

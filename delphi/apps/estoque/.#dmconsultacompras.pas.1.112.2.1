@@ -1,0 +1,4242 @@
+unit dmconsultacompras;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, DB,
+  DateUtils, CheckLst,  IniFiles,
+  // Repositorio
+  dmbasico, dmtecsoft,
+  // Terceiros
+  ZQuery, ZPgSqlQuery, FR_DSet, FR_DBSet, FR_Class,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema,
+  // Componenetes
+  cpquery,cpdatasource, ZTransact, clusuario, Provider, DBClient,
+  AdvSmoothProgressBar, DBAdvGrid, cpdbgrid;
+
+type
+  TdtmConsultaCompras = class(TdtmBasico)
+    qryComprasTotal: TtecQuery;
+    dsrComprasTotal: TDataSource;
+    qryVVendas: TtecQuery;
+    dsrVVendas: TtecDataSource;
+    qryDetalhesCompra: TtecQuery;
+    dsrDetalhesCompra_Filiais: TtecDataSource;
+    qryComprasFiliaisGrupo: TtecQuery;
+    dsrComprasFiliaisGrupo: TtecDataSource;
+    qryDetalhesCompradatacompra: TDateField;
+    qryDetalhesCompraQtdecompra: TFloatField;
+    qryDetalhesCompracustomedio: TFloatField;
+    qryDetalhesCompramarkup: TFloatField;
+    frpCompras: TfrReport;
+    fdsCompras: TfrDBDataSet;
+    qryVVendastotalvendas: TFloatField;
+    qryComprasFiliaisGrupofilial: TIntegerField;
+    qryComprasFiliaisGrupototal_estoque: TFloatField;
+    qryComprasFiliaisGrupototal_pedido: TFloatField;
+    qryComprasFiliaisGrupototal_vendido: TFloatField;
+    qryComprasFiliaisGruposugestao: TFloatField;
+    qryComprasFiliaisGrupominimo: TFloatField;
+    qryComprasFiliaisGruposugestaominimo: TFloatField;
+    qryComprasFiliaisGrupomaximo: TFloatField;
+    qryComprasFiliaisGruposugestaomaximo: TFloatField;
+    qryComprasFiliaisGruporeservado: TFloatField;
+    qryComprasFiliaisGrupofuturo: TFloatField;
+    qryFiliais: TtecQuery;
+    qryFiliaiscodigo: TIntegerField;
+    qryFiliaisnome: TStringField;
+    qryGrupoFiliais: TtecQuery;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisdescricao: TStringField;
+    qryComprasFiliaisGrupomnemonico: TStringField;
+    qryDetalhesCompraprecocomicms: TFloatField;
+    qryDetalhesCompraprecosemicms: TFloatField;
+    qryDetalhesCompraaliquotaipi: TFloatField;
+    qryComprasGruposFiliais: TtecQuery;
+    dsrComprasGruposFiliais: TDataSource;
+    qryComprasGruposFiliaisgrupo: TIntegerField;
+    qryComprasGruposFiliaismnemonico: TStringField;
+    qryComprasGruposFiliaistotal_estoque: TFloatField;
+    qryComprasGruposFiliaistotal_pedido: TFloatField;
+    qryComprasGruposFiliaistotal_vendido: TFloatField;
+    qryComprasGruposFiliaissugestao: TFloatField;
+    qryComprasTotalproduto: TLargeintField;
+    qryComprasTotalnomeproduto: TStringField;
+    qryComprasTotalreferencia: TStringField;
+    qryComprasTotalcaracteristica: TLargeintField;
+    qryComprasTotalpreco: TIntegerField;
+    qryComprasTotalcodigomarca: TIntegerField;
+    qryComprasTotalmarca: TStringField;
+    qryComprasTotalfilial: TIntegerField;
+    qryComprasTotaltotal_estoque: TFloatField;
+    qryComprasTotaltotal_pedido: TFloatField;
+    qryComprasTotaltotal_vendido: TFloatField;
+    qryComprasTotalprecocomicms: TFloatField;
+    qryComprasTotalprecosemicms: TFloatField;
+    qryComprasTotalaliquotaipi: TFloatField;
+    qryComprasTotalQtdecompra: TFloatField;
+    qryComprasTotaldatacompra: TDateField;
+    qryComprasTotalcustomedio: TFloatField;
+    qryComprasTotalprecovenda: TFloatField;
+    qryComprasTotalmarkup: TFloatField;
+    qryComprasTotalsugestao: TFloatField;
+    qryComprasTotaltotalvenda: TFloatField;
+    qryComprasTotaltotalcusto: TFloatField;
+    qryComprasTotalvalorgrade1: TStringField;
+    qryComprasTotalvalorgrade2: TStringField;
+    qryComprasTotallinha: TStringField;
+    qryComprasTotalcoluna: TStringField;
+    qryComprasTotalfuturo: TFloatField;
+    qryComprasTotalminimo: TFloatField;
+    qryComprasTotalsugestaominimo: TFloatField;
+    qryComprasTotalmaximo: TFloatField;
+    qryComprasTotalsugestaomaximo: TFloatField;
+    qryComprasGruposFiliaisminimo: TFloatField;
+    qryComprasGruposFiliaissugestaominimo: TFloatField;
+    qryComprasGruposFiliaismaximo: TFloatField;
+    qryComprasGruposFiliaissugestaomaximo: TFloatField;
+    qryComprasTotalreservado: TFloatField;
+    qryComprasGruposFiliaisreservado: TFloatField;
+    qryComprasGruposFiliaisfuturo: TFloatField;
+    qryDetalhesComprafilial: TIntegerField;
+    qryProdutosSimilares: TtecQuery;
+    dsrProdutosSimilares: TtecDataSource;
+    qryComprasTotalcodigo_descricao: TStringField;
+    qryComprasTotalprodutovisual: TStringField;
+    qryDetalhesCompravalorultimacompra: TFloatField;
+    qryComprasTotalselecionado: TBooleanField;
+    qryVVendasmes: TStringField;
+    qryComprasTotalresultadocurvaabc: TStringField;
+    qryComprasGruposFiliaispercestoque: TFloatField;
+    qryComprasFiliaisGrupopercestoque: TFloatField;
+    qryComprasTotalfornecedor: TIntegerField;
+    qryComprasTotaltipofornecedor: TStringField;
+    qryComprasTotalnomefornecedor: TStringField;
+    qryComprasGruposFiliaisproduto: TLargeintField;
+    qryComprasFiliaisGrupogrupo: TIntegerField;
+    qryComprasFiliaisGrupoproduto: TLargeintField;
+    qryVVendas_porFilial: TtecQuery;
+    qryVVendasproduto: TLargeintField;
+    qryVVendas_porFilialproduto: TLargeintField;
+    qryVVendas_porFilialfilial: TIntegerField;
+    qryVVendas_porFilialtotalvendas: TFloatField;
+    qryVVendas_porFilialmes: TStringField;
+    qryVVendas_porGrupo: TtecQuery;
+    qryVVendas_porGrupoproduto: TLargeintField;
+    qryVVendas_porGrupogrupo: TIntegerField;
+    qryVVendas_porGrupototalvendas: TFloatField;
+    qryVVendas_porGrupomes: TStringField;
+    qryDetalhesCompraproduto: TLargeintField;
+    qryComprasGruposFiliais_Similares: TtecQuery;
+    qryComprasFiliaisGrupo_Similares: TtecQuery;
+    qryComprasGruposFiliais_Similaresgrupo: TIntegerField;
+    qryComprasGruposFiliais_Similaresmnemonico: TStringField;
+    qryComprasGruposFiliais_Similaresproduto: TLargeintField;
+    qryComprasGruposFiliais_Similarestotal_estoque: TFloatField;
+    qryComprasGruposFiliais_Similarestotal_pedidos_filiais: TFloatField;
+    qryComprasGruposFiliais_Similarestotal_vendido: TFloatField;
+    qryComprasGruposFiliais_Similaresreservado: TFloatField;
+    qryComprasGruposFiliais_Similaresminimo: TFloatField;
+    qryComprasGruposFiliais_Similaressugestaominimo: TFloatField;
+    qryComprasGruposFiliais_Similaresmaximo: TFloatField;
+    qryComprasGruposFiliais_Similaressugestaomaximo: TFloatField;
+    qryComprasGruposFiliais_Similaresfuturo: TFloatField;
+    qryComprasGruposFiliais_Similaressugestao: TFloatField;
+    qryComprasGruposFiliais_Similarespercestoque: TFloatField;
+    qryComprasGruposFiliais_SimilaresdiasEstoque: TCurrencyField;
+    qryComprasFiliaisGrupo_Similaresfilial: TIntegerField;
+    qryComprasFiliaisGrupo_Similaresproduto: TLargeintField;
+    qryComprasFiliaisGrupo_Similaresgrupo: TIntegerField;
+    qryComprasFiliaisGrupo_Similaresmnemonico: TStringField;
+    qryComprasFiliaisGrupo_Similarestotal_estoque: TFloatField;
+    qryComprasFiliaisGrupo_Similarestotal_pedidos_filiais: TFloatField;
+    qryComprasFiliaisGrupo_Similarestotal_vendido: TFloatField;
+    qryComprasFiliaisGrupo_Similaresreservado: TFloatField;
+    qryComprasFiliaisGrupo_Similaresminimo: TFloatField;
+    qryComprasFiliaisGrupo_Similaressugestaominimo: TFloatField;
+    qryComprasFiliaisGrupo_Similaresmaximo: TFloatField;
+    qryComprasFiliaisGrupo_Similaressugestaomaximo: TFloatField;
+    qryComprasFiliaisGrupo_Similaresfuturo: TFloatField;
+    qryComprasFiliaisGrupo_Similaressugestao: TFloatField;
+    qryComprasFiliaisGrupo_Similarespercestoque: TFloatField;
+    qryComprasFiliaisGrupo_SimilaresdiasEstoque: TCurrencyField;
+    qryDetalhesCompra_Similares: TtecQuery;
+    qryDetalhesCompra_Similaresproduto: TLargeintField;
+    qryDetalhesCompra_Similaresdatacompra: TDateField;
+    qryDetalhesCompra_Similaresprecocomicms: TFloatField;
+    qryDetalhesCompra_Similaresprecosemicms: TFloatField;
+    qryDetalhesCompra_Similaresqtdecompra: TFloatField;
+    qryDetalhesCompra_Similaresaliquotaipi: TFloatField;
+    qryDetalhesCompra_Similaresvalorultimacompra: TFloatField;
+    qryDetalhesCompra_Similaresfilial: TIntegerField;
+    qryDetalhesCompra_Similarescustomedio: TFloatField;
+    qryDetalhesCompra_Similaresmarkup: TFloatField;
+    qryVVendas_Similares: TtecQuery;
+    qryVVendas_porFilial_Similares: TtecQuery;
+    qryVVendas_porGrupo_Similares: TtecQuery;
+    qryVVendas_Similaresproduto: TLargeintField;
+    qryVVendas_Similarestotalvendas: TFloatField;
+    qryVVendas_Similaresmes: TStringField;
+    qryVVendas_porFilial_Similaresproduto: TLargeintField;
+    qryVVendas_porFilial_Similaresfilial: TIntegerField;
+    qryVVendas_porFilial_Similarestotalvendas: TFloatField;
+    qryVVendas_porFilial_Similaresmes: TStringField;
+    qryVVendas_porGrupo_Similaresproduto: TLargeintField;
+    qryVVendas_porGrupo_Similaresgrupo: TIntegerField;
+    qryVVendas_porGrupo_Similarestotalvendas: TFloatField;
+    qryVVendas_porGrupo_Similaresmes: TStringField;
+    qryAtualizarPedidosFiliais: TtecQuery;
+    qryAtualizarPedidosFiliaisproduto: TLargeintField;
+    qryAtualizarPedidosFiliaisdata: TDateTimeField;
+    qryAtualizarPedidosFiliaishora: TTimeField;
+    qryAtualizarPedidosFiliaisrequisitante: TIntegerField;
+    qryAtualizarPedidosFiliaisrequisitada: TIntegerField;
+    qryAtualizarPedidosFiliaisqtdepedida: TFloatField;
+    qryAtualizarPedidosFiliaissituacao: TStringField;
+    qryComprasFiliaisGrupodiasEstoque: TFloatField;
+    qryComprasGruposFiliaisdiasEstoque: TFloatField;
+    qryComprasTotaldiasEstoque: TFloatField;
+    qryMovimentos: TtecQuery;
+    qryMovimentosnumero: TIntegerField;
+    qryMovimentosproduto: TLargeintField;
+    qryMovimentosfilial: TIntegerField;
+    qryMovimentostipomovimento: TStringField;
+    qryMovimentosquantidade: TFloatField;
+    qryMovimentosreferencia: TStringField;
+    qryMovimentosoperacao: TStringField;
+    qryMovimentosemestoque: TFloatField;
+    qryMovimentosreservado: TFloatField;
+    qryMovimentostransito: TFloatField;
+    qryMovimentosdemonstracao: TFloatField;
+    qryMovimentosconserto: TFloatField;
+    qryMovimentosfuturo: TFloatField;
+    qryMovimentosdanificada: TFloatField;
+    qryMovimentosfinanceiro: TFloatField;
+    qryMovimentosvalor: TFloatField;
+    qryMovimentosdata: TDateField;
+    qryMovimentostrfproduto: TLargeintField;
+    qryMovimentostrffilial: TIntegerField;
+    qryMovimentoscliente: TIntegerField;
+    qryMovimentostipocliente: TStringField;
+    qryEstoqueBloqueio: TtecQuery;
+    qryEstoqueBloqueioproduto: TLargeintField;
+    qryEstoqueBloqueiofilial: TIntegerField;
+    qryEstoqueBloqueioemestoque: TFloatField;
+    spcMovimentosProximo: TtecQuery;
+    spcMovimentosProximonumero: TIntegerField;
+    spcPedidosTransferenciaProximoCodigo: TtecQuery;
+    spcPedidosTransferenciaProximoCodigonumero: TIntegerField;
+    qryAtualizarPedidosFiliaiscodigo: TIntegerField;
+    qryConsultaProdutosPedidos: TtecQuery;
+    qryConsultaProdutosPedidospedido: TIntegerField;
+    qryConsultaProdutosPedidosproduto: TLargeintField;
+    qryConsultaProdutosPedidosquantidade: TFloatField;
+    qryConsultaProdutosPedidosentrega: TDateField;
+    qryConsultaProdutosPedidosquantidadependente: TFloatField;
+    qryConsultaProdutosPedidosfilialentrega: TIntegerField;
+    dsrConsultaProdutosPedidos: TtecDataSource;
+    qryConsultaProdutosPedidosemissao: TDateField;
+    qryComprasTotaltotal_pedidos_filiais: TFloatField;
+    qryComprasGruposFiliaistotal_pedidos_filiais: TFloatField;
+    qryComprasFiliaisGrupototal_pedidos_filiais: TFloatField;
+    qryEstoques: TtecQuery;
+    qryEstoquesproduto: TLargeintField;
+    qryEstoquesfilial: TIntegerField;
+    qryEstoquesemestoque: TFloatField;
+    qryReducaoTabelaCompras: TtecQuery;
+    dsrReducaoTabelaCompras: TtecDataSource;
+    qryReducaoTabelaComprasestoquepara: TIntegerField;
+    qryReducaoTabelaComprassugestaopara: TIntegerField;
+    qryComprasTotal_ComTabelaReducao_TodasFiliais: TtecQuery;
+    qryComprasTotal_SemTabelaReducao: TtecQuery;
+    qryComprasTotal_ComTabelaReducao_FiliaisEspecificas: TtecQuery;
+    qryProdutosSimilareslinha: TStringField;
+    qryProdutosSimilarescoluna: TStringField;
+    qryProdutosSimilarescodigomarca: TIntegerField;
+    qryProdutosSimilaresmarca: TStringField;
+    qryProdutosSimilaresproduto: TLargeintField;
+    qryProdutosSimilaresprodutovisual: TStringField;
+    qryProdutosSimilaresnomeproduto: TStringField;
+    qryProdutosSimilaresvalorgrade1: TStringField;
+    qryProdutosSimilaresvalorgrade2: TStringField;
+    qryProdutosSimilarescaracteristica: TLargeintField;
+    qryProdutosSimilaresreferencia: TStringField;
+    qryProdutosSimilaresresultadocurvaabc: TStringField;
+    qryProdutosSimilarespreco: TIntegerField;
+    qryProdutosSimilaresfilial: TIntegerField;
+    qryProdutosSimilarestotal_estoque: TFloatField;
+    qryProdutosSimilarestotal_pedido: TFloatField;
+    qryProdutosSimilarestotal_pedidos_filiais: TFloatField;
+    qryProdutosSimilarestotal_vendido: TFloatField;
+    qryProdutosSimilaresreservado: TFloatField;
+    qryProdutosSimilaresfuturo: TFloatField;
+    qryProdutosSimilaresminimo: TFloatField;
+    qryProdutosSimilaressugestaominimo: TFloatField;
+    qryProdutosSimilaresmaximo: TFloatField;
+    qryProdutosSimilaressugestaomaximo: TFloatField;
+    qryProdutosSimilaresprecocomicms: TFloatField;
+    qryProdutosSimilaresprecosemicms: TFloatField;
+    qryProdutosSimilaresaliquotaipi: TFloatField;
+    qryProdutosSimilaresqtdecompra: TFloatField;
+    qryProdutosSimilaresdatacompra: TDateField;
+    qryProdutosSimilarescustomedio: TFloatField;
+    qryProdutosSimilaresprecovenda: TFloatField;
+    qryProdutosSimilaresmarkup: TFloatField;
+    qryProdutosSimilaressugestao1: TFloatField;
+    qryProdutosSimilaressugestao: TFloatField;
+    qryProdutosSimilaresfornecedor: TIntegerField;
+    qryProdutosSimilarestipofornecedor: TStringField;
+    qryProdutosSimilaresnomefornecedor: TStringField;
+    qryProdutosSimilaresselecionado: TBooleanField;
+    qryProdutosSimilaresdiasestoque: TFloatField;
+    qryTotalProdutosSimilares: TtecQuery;
+    qryTotalProdutosSimilarestotal_estoque: TFloatField;
+    qryTotalProdutosSimilarestotal_pedido: TFloatField;
+    qryTotalProdutosSimilarestotal_vendido: TFloatField;
+    qryTotalProdutosSimilaresreservado: TFloatField;
+    qryTotalProdutosSimilaresfuturo: TFloatField;
+    qryTotalProdutosSimilaresminimo: TFloatField;
+    qryTotalProdutosSimilaressugestaominimo: TFloatField;
+    qryTotalProdutosSimilaresmaximo: TFloatField;
+    qryTotalProdutosSimilaressugestaomaximo: TFloatField;
+    qryTotalProdutosSimilaressugestao: TFloatField;
+    dsrTotalProdutosSimilares: TtecDataSource;
+    qryTotalProdutosSimilaresTotal: TStringField;
+    qryProdutosSimilaresinativo: TDateField;
+    qryDetalhesCompradatacadastro: TDateField;
+    qryDetalhesCompra_Similaresdatacadastro: TDateField;
+    qryTotalProdutosSimilaresdiasestoque: TFloatField;
+    qryComprasTotallembrarpedido: TBooleanField;
+    qryAtualizarProduto: TtecQuery;
+    LargeintField4: TLargeintField;
+    DateTimeField1: TDateTimeField;
+    TimeField1: TTimeField;
+    IntegerField1: TIntegerField;
+    IntegerField2: TIntegerField;
+    FloatField8: TFloatField;
+    StringField10: TStringField;
+    IntegerField3: TIntegerField;
+    qryTabelaTempDetalhe: TtecQuery;
+    qryProdutosSimilaresPrincipal: TBooleanField;
+    qryVVendasQtContrato: TIntegerField;
+    qryVVendasMediaVendasContratos: TFloatField;
+    qryVVendas_SimilaresQtContrato: TIntegerField;
+    qryVVendas_porFilialQtContrato: TIntegerField;
+    qryVVendas_porFilial_Similaresqtcontrato: TIntegerField;
+    qryVVendas_porGrupoQtContrato: TIntegerField;
+    qryVVendas_porGrupo_Similaresqtcontrato: TIntegerField;
+    dsrComprasFiliaisGrupoSimilares: TtecDataSource;
+    dsrDetalhesCompra_FiliaisSimilares: TtecDataSource;
+    dsrVVendasSimilares: TtecDataSource;
+    dsrComprasGruposFiliaisSimilares: TDataSource;
+    qryEstoquesfilial_pedido: TIntegerField;
+    qryConceitos: TtecQuery;
+    qryConceitoscodigo: TIntegerField;
+    qryConceitosdescricao: TStringField;
+    qryComprasTotaldiasEstoqueSimilares: TFloatField;
+    qryComprasTotalcodigogrupo: TStringField;
+    qryComprasTotalgrupo: TStringField;
+    qryProdutosSimilarescodigogrupo: TStringField;
+    qryProdutosSimilaresgrupo: TStringField;
+    qryAtualizarPedidosFiliaisobservacao: TStringField;
+    qryDetalhesPrecos: TtecQuery;
+    dsrDetalhesPreco: TtecDataSource;
+    qryDetalhesPrecosproduto: TLargeintField;
+    qryDetalhesPrecosvalornormal: TFloatField;
+    qryDetalhesPrecosalteracaopreconormal: TDateField;
+    qryDetalhesPrecosvalorpromocao: TFloatField;
+    qryDetalhesPrecosvalidade: TDateField;
+    qryDetalhesPrecosdatacadastro: TDateField;
+    qryDetalhesPrecosdescricaopreco: TStringField;
+    qryDetalhesPrecos_Similiares: TtecQuery;
+    dsrDetalhesPreco_Similares: TtecDataSource;
+    qryDetalhesPrecos_Similiaresproduto: TLargeintField;
+    qryDetalhesPrecos_Similiaresvalornormal: TFloatField;
+    qryDetalhesPrecos_Similiaresalteracaopreconormal: TDateField;
+    qryDetalhesPrecos_Similiaresvalorpromocao: TFloatField;
+    qryDetalhesPrecos_Similiaresvalidade: TDateField;
+    qryDetalhesPrecos_Similiaresdescricaopreco: TStringField;
+    qryComprasTotalcodigoclasse: TStringField;
+    qryComprasTotalclasse: TStringField;
+    qryProdutosSimilarescodigoclasse: TStringField;
+    qryProdutosSimilaresclasse: TStringField;
+    qryComprasFiliaisGrupodatapedido: TDateTimeField;
+    qryComprasFiliaisGrupo_Similaresdatapedido: TDateTimeField;
+    qryComprasTotalcaracteristicavisual: TStringField;
+    qryProdutosSimilarescaracteristicavisual: TStringField;
+    qryComprasTotalprodutoempromocao: TBooleanField;
+    qryComprasTotalpromo: TStringField;
+    qryProdutosSimilaresprodutoempromocao: TBooleanField;
+    qryProdutosSimilarespromo: TStringField;
+    qryEstoquesmnemonico: TStringField;
+    qryComprasTotalpromocao: TIntegerField;
+    qryComprasTotaldescricaopromocao: TStringField;
+    qryProdutosSimilarespromocao: TIntegerField;
+    qryProdutosSimilaresdescricaopromocao: TStringField;
+    qryListaProdutosSimilares_: TtecQuery;
+    qryListaProdutosSimilares_codigo: TLargeintField;
+    qryComprasTotalcomposto: TBooleanField;
+    qryProdutosSimilarescomposto: TBooleanField;
+    qryVVendastotalinternet: TFloatField;
+    qryVVendasqtinternet: TIntegerField;
+    qryVVendastotalloja: TFloatField;
+    qryVVendasqtloja: TIntegerField;
+    qryVVendas_porFilialtotalinternet: TFloatField;
+    qryVVendas_porFilialqtinternet: TIntegerField;
+    qryVVendas_porFilialtotalloja: TFloatField;
+    qryVVendas_porFilialqtloja: TIntegerField;
+    qryVVendas_porGrupototalinternet: TFloatField;
+    qryVVendas_porGrupoqtinternet: TIntegerField;
+    qryVVendas_porGrupototalloja: TFloatField;
+    qryVVendas_porGrupoqtloja: TIntegerField;
+    qryVVendas_Similarestotalinternet: TFloatField;
+    qryVVendas_Similaresqtinternet: TIntegerField;
+    qryVVendas_Similarestotalloja: TFloatField;
+    qryVVendas_Similaresqtloja: TIntegerField;
+    qryVVendas_porFilial_Similarestotalinternet: TFloatField;
+    qryVVendas_porFilial_Similaresqtinternet: TIntegerField;
+    qryVVendas_porFilial_Similarestotalloja: TFloatField;
+    qryVVendas_porFilial_Similaresqtloja: TIntegerField;
+    qryVVendas_porGrupo_Similarestotalinternet: TFloatField;
+    qryVVendas_porGrupo_Similaresqtinternet: TIntegerField;
+    qryVVendas_porGrupo_Similarestotalloja: TFloatField;
+    qryVVendas_porGrupo_Similaresqtloja: TIntegerField;
+    qryAtualizarEstoque: TtecQuery;
+    qryDetalhesPrecosultimavenda: TDateField;
+    qryDetalhesPrecos_Similiaresultimavenda: TDateField;
+    qryComprasTotalcsosn: TStringField;
+    qryComprasTotalincidencia: TStringField;
+    qryProdutosSimilaresincidencia: TStringField;
+    qryProdutosSimilarescsosn: TStringField;
+    qryComprasTotaltotal_transito: TFloatField;
+    qryProdutosSimilarestotal_transito: TFloatField;
+    qryComprasGruposFiliaistotal_transito: TFloatField;
+    qryTotalProdutosSimilarestotal_transito: TFloatField;
+    qryComprasGruposFiliais_Similarestotal_transito: TFloatField;
+    qryComprasFiliaisGrupototal_transito: TFloatField;
+    qryComprasFiliaisGrupo_Similarestotal_transito: TFloatField;
+    qryComprasTotalreservaprevia: TFloatField;
+    qryProdutosSimilaresreservaprevia: TFloatField;
+    qryComprasGruposFiliaisreservaprevia: TFloatField;
+    qryComprasGruposFiliais_Similaresreservaprevia: TFloatField;
+    qryComprasFiliaisGruporeservaprevia: TFloatField;
+    qryTotalProdutosSimilaresreservaprevia: TFloatField;
+    qryComprasTotaltotal_pedidos_fornecedores: TFloatField;
+    qryProdutosSimilarestotal_pedidos_fornecedores: TFloatField;
+    qryTotalProdutosSimilarestotal_pedidos_filiais: TFloatField;
+    qryTotalProdutosSimilarestotal_pedidos_fornecedores: TFloatField;
+    qryComprasGruposFiliaistotal_pedidos_fornecedores: TFloatField;
+    qryComprasFiliaisGrupototal_pedidos_fornecedores: TFloatField;
+    qryComprasFiliaisGrupo_Similarestotal_pedidos_fornecedores: TFloatField;
+    qryComprasGruposFiliais_Similarestotal_pedidos_fornecedores: TFloatField;
+    qryDetalhesPrecosfilial: TIntegerField;
+    qryDetalhesPrecos_Similiaresfilial: TIntegerField;
+    qryDetalhesPrecos_Similiaresdatacadastro: TDateField;
+    qryComprasGruposFiliaisfilial: TIntegerField;
+    qryComprasFiliaisGrupoultimavenda: TDateField;
+    qryComprasFiliaisGrupo_Similaresultimavenda: TDateField;
+    qryComprasTotaldiasEstoqueCalculado: TFloatField;
+    qryComprasTotalperiodo: TIntegerField;
+    qryProdutosSimilaresdiasEstoqueCalculado: TFloatField;
+    qryProdutosSimilaresperiodo: TIntegerField;
+    qryComprasFiliaisGrupodiasEstoqueCalculado: TFloatField;
+    qryComprasFiliaisGrupoperiodo: TIntegerField;
+    qryComprasFiliaisGrupoemestoque: TFloatField;
+    dsrAtualizarPedidosFiliais: TtecDataSource;
+    qryComprasFiliaisGrupotipofilial: TStringField;
+    qryComprasTotalobslembrarpedido: TStringField;
+    qryProdutosSimilaresobslembrarpedido: TStringField;
+    qryListaPedidosFiliais_Requisitante: TtecQuery;
+    dsrListaPedidosFiliais_Requisitante: TtecDataSource;
+    qryListaPedidosFiliais_Requisitantecodigo: TIntegerField;
+    qryListaPedidosFiliais_Requisitanteproduto: TLargeintField;
+    qryListaPedidosFiliais_Requisitantedata: TDateTimeField;
+    qryListaPedidosFiliais_Requisitantehora: TTimeField;
+    qryListaPedidosFiliais_Requisitanterequisitante: TIntegerField;
+    qryListaPedidosFiliais_Requisitanterequisitada: TIntegerField;
+    qryListaPedidosFiliais_Requisitanteqtdepedida: TFloatField;
+    qryListaPedidosFiliais_Requisitanteqtderecebida: TFloatField;
+    qryListaPedidosFiliais_Requisitantesituacao: TStringField;
+    qryListaPedidosFiliais_Requisitantedadofiscal: TIntegerField;
+    qryListaPedidosFiliais_Requisitanteobservacao: TStringField;
+    qryListaPedidosFiliais_Requisitantelotetransferencia: TIntegerField;
+    qryListaPedidosFiliais_Requisitado: TtecQuery;
+    dsrListaPedidosFiliais_Requisitado: TtecDataSource;
+    qryListaPedidosFiliais_Requisitadocodigo: TIntegerField;
+    qryListaPedidosFiliais_Requisitadoproduto: TLargeintField;
+    qryListaPedidosFiliais_Requisitadodata: TDateTimeField;
+    qryListaPedidosFiliais_Requisitadohora: TTimeField;
+    qryListaPedidosFiliais_Requisitadorequisitante: TIntegerField;
+    qryListaPedidosFiliais_Requisitadorequisitada: TIntegerField;
+    qryListaPedidosFiliais_Requisitadoqtdepedida: TFloatField;
+    qryListaPedidosFiliais_Requisitadoqtderecebida: TFloatField;
+    qryListaPedidosFiliais_Requisitadosituacao: TStringField;
+    qryListaPedidosFiliais_Requisitadodadofiscal: TIntegerField;
+    qryListaPedidosFiliais_Requisitadoobservacao: TStringField;
+    qryListaPedidosFiliais_Requisitadolotetransferencia: TIntegerField;
+    qryVVendasDiaria: TtecQuery;
+    dsrVVendasDiaria: TtecDataSource;
+    qryVVendasDiariaproduto: TLargeintField;
+    qryVVendasDiariadata: TDateField;
+    qryVVendasDiariatotalvendas: TFloatField;
+    qryVVendasDiariaqtcontrato: TIntegerField;
+    qryVVendasDiariatotalinternet: TFloatField;
+    qryVVendasDiariaqtinternet: TIntegerField;
+    qryVVendasDiariatotalloja: TFloatField;
+    qryVVendasDiariaqtloja: TIntegerField;
+    qryProdutosSimilaresprodutosml: TLargeintField;
+    qryTotalProdutosSimilaresprodutosml: TLargeintField;
+    qryTotalProdutosSimilaresquantidadesimilares: TFloatField;
+    qryComprasTotalExisteSimilar: TBooleanField;
+    qryAtualizarObsProduto: TtecQuery;
+    LargeintField1: TLargeintField;
+    DateTimeField2: TDateTimeField;
+    TimeField2: TTimeField;
+    IntegerField4: TIntegerField;
+    IntegerField5: TIntegerField;
+    FloatField1: TFloatField;
+    StringField1: TStringField;
+    IntegerField6: TIntegerField;
+    qryComprasTotaldiasestoquecompedidosdecompra: TFloatField;
+    qryComprasTotaldiasEstoqueSimComPedCompra: TFloatField;
+    qryTotalProdutosSimilaresdiasestoquecompedidosdecompra: TFloatField;
+    qryProdutosSimilaresdiasestoquecompedidosdecompra: TFloatField;
+    qryComprasTotaldiasEstCalcPedCompra: TFloatField;
+    qryProdutosSimilaresdiasEstCalcPedCompra: TFloatField;
+    qryComprasGruposFiliaisdiasestoquecompedidosdecompra: TFloatField;
+    qryComprasFiliaisGrupodiasestoquecompedidosdecompra: TFloatField;
+    qryComprasGruposFiliais_Similaresdiasestoquecompedidosdecompra: TFloatField;
+    qryComprasFiliaisGrupo_Similaresdiasestoquecompedidosdecompra: TFloatField;
+    qryComprasFiliaisGrupodiasEstCalcPedCompra: TFloatField;
+    qryProdutosPendentes: TtecQuery;
+    dsrProdutosPendentes: TtecDataSource;
+    qryProdutosPendentescontrato: TStringField;
+    qryProdutosPendentessituacao: TStringField;
+    qryProdutosPendentesfilialvenda: TIntegerField;
+    qryProdutosPendentesdata: TDateField;
+    qryProdutosPendentesfilial: TIntegerField;
+    qryProdutosPendentesquantidadecontrato: TFloatField;
+    qryProdutosPendentesquantidadependente: TFloatField;
+    qryProdutosPendentesemestoque: TFloatField;
+    qryProdutosPendentesfuturo: TFloatField;
+    qryProdutosSelecionados: TtecQuery;
+    qryProdutosSelecionadosproduto: TLargeintField;
+    qryProdutosSelecionadosquantidade: TIntegerField;
+    qryPedidosFiliais: TtecQuery;
+    qryPedidosFiliaisdiasEstoqueCalculado: TFloatField;
+    qryPedidosFiliaisdiasEstCalcPedCompra: TFloatField;
+    dsrPedidosFiliais: TtecDataSource;
+    qryPedidosFiliaisfilial: TIntegerField;
+    qryPedidosFiliaisproduto: TLargeintField;
+    qryPedidosFiliaisprodutovisual: TStringField;
+    qryPedidosFiliaisdescricaoproduto: TStringField;
+    qryPedidosFiliaisperiodo: TIntegerField;
+    qryPedidosFiliaisgrupo: TIntegerField;
+    qryPedidosFiliaismnemonico: TStringField;
+    qryPedidosFiliaistipofilial: TStringField;
+    qryPedidosFiliaistotal_estoque: TFloatField;
+    qryPedidosFiliaisemestoque: TFloatField;
+    qryPedidosFiliaistotal_transito: TFloatField;
+    qryPedidosFiliaistotal_pedido: TFloatField;
+    qryPedidosFiliaistotal_pedidos_fornecedores: TFloatField;
+    qryPedidosFiliaistotal_pedidos_filiais: TFloatField;
+    qryPedidosFiliaistotal_vendido: TFloatField;
+    qryPedidosFiliaisreservado: TFloatField;
+    qryPedidosFiliaisreservaprevia: TFloatField;
+    qryPedidosFiliaisultimavenda: TDateField;
+    qryPedidosFiliaisminimo: TFloatField;
+    qryPedidosFiliaissugestaominimo: TFloatField;
+    qryPedidosFiliaismaximo: TFloatField;
+    qryPedidosFiliaissugestaomaximo: TFloatField;
+    qryPedidosFiliaisfuturo: TFloatField;
+    qryPedidosFiliaissugestao1: TFloatField;
+    qryPedidosFiliaispercestoque: TFloatField;
+    qryPedidosFiliaisdatapedido: TDateField;
+    qryPedidosFiliaissugestao: TFloatField;
+    qryPedidosFiliaisdiasestoque: TFloatField;
+    qryPedidosFiliaisdiasestoquecompedidosdecompra: TFloatField;
+    qryPedidosFiliaisdatapedido_1: TDateField;
+    qryPedidosFiliaisrequisitante: TIntegerField;
+    qryPedidosFiliaisemestoqueanterior: TFloatField;
+    qryPedidosFiliaisqtdepedida: TFloatField;
+    qryPedidosFiliaisobservacao: TStringField;
+    qryPedidosFiliaisqtdeAtendida: TFloatField;
+    qryPedidosFiliaisIrParaLista: TBooleanField;
+    qryPedidosFiliaistotalfiliaisemestoque: TFloatField;
+    qryPedidosFiliaisdescricaoprodutoaux: TStringField;
+    qryPedidosFiliaisquantidade: TFloatField;
+
+    procedure qryVVendasmesGetText(Sender: TField; var Text: String; DisplayText: Boolean);
+    procedure qryComprasTotalAfterScroll(DataSet: TDataSet);
+    procedure frpComprasEndDoc;
+    procedure frpComprasBeginDoc;
+    procedure frpComprasBeforePrint(Memo: TStringList; View: TfrView);
+    procedure qryComprasTotalCalcFields(DataSet: TDataSet);
+    procedure frpComprasGetValue(const ParName: String;
+      var ParValue: Variant);
+    procedure qryComprasGruposFiliaisAfterOpen(DataSet: TDataSet);
+    procedure qryProdutosSimilaresAfterScroll(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryComprasGruposFiliaisCalcFields(DataSet: TDataSet);
+    procedure qryComprasFiliaisGrupoCalcFields(DataSet: TDataSet);
+    procedure qryComprasTotalAfterInsert(DataSet: TDataSet);
+    procedure qryComprasFiliaisGrupo_SimilaresCalcFields(
+      DataSet: TDataSet);
+    procedure qryReducaoTabelaComprasAfterPost(DataSet: TDataSet);
+    procedure qryReducaoTabelaComprasAfterDelete(DataSet: TDataSet);
+    procedure dsrComprasTotalDataChange(Sender: TObject; Field: TField);
+    procedure qryVVendasCalcFields(DataSet: TDataSet);
+    procedure qryProdutosSimilaresCalcFields(DataSet: TDataSet);
+    procedure qryComprasGruposFiliaisAfterScroll(DataSet: TDataSet);
+    procedure qryComprasFiliaisGrupo_SimilaresAfterScroll(
+      DataSet: TDataSet);
+    procedure qryComprasGruposFiliais_SimilaresAfterScroll(
+      DataSet: TDataSet);
+    procedure qryComprasTotalAfterOpen(DataSet: TDataSet);
+    procedure qryProdutosSimilaresAfterOpen(DataSet: TDataSet);
+    procedure dsrProdutosSimilaresDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryPedidosFiliais__CalcFields(DataSet: TDataSet);
+    procedure qryDetalhesCompraCalcFields(DataSet: TDataSet);
+    procedure qryDetalhesCompra_SimilaresCalcFields(DataSet: TDataSet);
+    procedure qryPedidosFiliais__AfterScroll(DataSet: TDataSet);
+    procedure qryComprasTotalBeforeScroll(DataSet: TDataSet);
+    procedure qryPedidosFiliais__BeforeScroll(DataSet: TDataSet);
+    procedure qryProdutosSimilaresBeforeScroll(DataSet: TDataSet);
+    procedure qryComprasFiliaisGrupoBeforeScroll(DataSet: TDataSet);
+    procedure qryComprasGruposFiliaisBeforeScroll(DataSet: TDataSet);
+    procedure qryComprasTotalFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryComprasFiliaisGrupoFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryComprasGruposFiliaisFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryPedidosFiliaisAfterScroll(DataSet: TDataSet);
+    procedure dsrPedidosFiliaisDataChange(Sender: TObject; Field: TField);
+    procedure qryPedidosFiliaisCalcFields(DataSet: TDataSet);
+//    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    vProdutoAtualaSerFiltrado: String;
+//    vAuxFilialAntesScroll: String;
+//    vAuxGrupoAntesScroll: String;
+
+    vListadeProdutos: String;
+    FListaFiliais: TStringList;
+    FListaConceitos: TStringList;
+    FListaGruposFiliais: TStringList;
+    FParametroDiasEstoque: String;
+    FParametroMarca: String;
+    FParametroFornecedor: String;
+    FGerandoRelatorio: Boolean;
+    FGTotalVenda : double;
+    FGTotalCusto : double;
+    FParametroDataInicial: String;
+    FParametroDataFinal: String;
+    FParametroEstoque: string;
+    FParametroSugestaoNula: Boolean;
+    FParametroCabecalho: String;
+    FprodutoEmLinha: Boolean;
+    FProdutoNaoBrinde: Boolean;
+    FProdutoBrinde: Boolean;
+    FProdutoSemMontagem: Boolean;
+    FprodutoForadeLinha: Boolean;
+    FProdutoComMontagem: Boolean;
+    FFilial: String;
+    FGrupoFilial: String;
+    FVisualizacao: Integer;
+    FCabecalhoSaldoEstoque: String;
+    FprodutoInativo: Boolean;
+    FprodutoAtivo: Boolean;
+    FParametroPercentual: String;
+    FAbaSimilares: Boolean;
+    FParametroTotalizacao: Integer;
+    FParametroOrdenacao: Integer;
+    fCurvaABC_A: Boolean;
+    fCurvaABC_NaoDefinido: Boolean;
+    fCurvaABC_B: Boolean;
+    fCurvaABC_C: Boolean;
+    fFilialRequisitante: String;
+//    fSomenteUmaFilialSelecionada: boolean;
+    FParametroDiasEstoqueProporcional: String;
+    FPedidosEntreFiliais: boolean;
+    FProdutosLembradosparaPedido: Boolean;
+    FParametroDataInicialUltimaVenda: String;
+    FParametroDataFinalCadastroProduto: String;
+    FParametroDataInicialCadastroProduto: String;
+    FParametroDataFinalEntradaNF: String;
+    FParametroDataFinalUltimaVenda: String;
+    FParametroDataInicialEntradaNF: String;
+    FComprasTotalAfterScroll: TNotifyEvent;
+    FOnScrollLinhaColunaGradeSimilares: TNotifyEvent;
+    FFilialEstoque: String;
+    fListaGruposFornecedores: String;
+    FFilialsemEstoque: String;
+    fListaCondicaoItemProduto: String;
+    fListaCondicaoProduto: String;
+    fListaCondicaoGrupoProduto: String;
+    fListaCondicaoMarcaProduto: String;
+    fListaCondicaoClasseProduto: String;
+    fListaCondicaoPromocoesProduto: String;
+    FProdutoNaoComposto: Boolean;
+    FProdutoComposto: Boolean;
+    FNaoConsiderarPedidosCompras: boolean;
+    FNaoConsiderarPedidosComprasparaDiasEstoque: boolean;
+    FdrawGridPedidosFiliais: TNotifyEvent;
+    fPeriodo: String;
+    FAfterPostPedidosFiliais: TNotifyEvent;
+    fdtmConsultaCompras_: TdtmConsultaCompras;
+//    fListadeProdutosMarcados: tStringList;
+    function GetCodigoGrupoFilialCompras: Integer;
+    function GetCodigoProdutoCompras: String;
+    function GetPeriodo: String;
+    function GetConsultaVazia: Boolean;
+    function GetListaFiliais: TStrings;
+    function GetListaGruposFiliais: TStrings;
+    procedure SetVisualizacao(const Value: Integer);
+    function GetCodigoFilialCompras: Integer;
+    procedure SetParametroFornecedor(const Value: String);
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+    procedure SetParametroPercentual(const Value: String);
+    function GetColunadaGradeSimilares: String;
+    function GetLinhadaGradeSimilares: String;
+    procedure BloquearEstoque;
+    function GetListaConceitos: TStrings;
+    procedure SetConceitos(const Value: String);
+    procedure SetListaGruposFornecedores(const Value: String);
+    function GetdtmConsultaCompras_: TdtmConsultaCompras;
+//    function GetListadeProdutosMarcados: tStringList;
+    procedure AdicionarRetirarProdutoMarcado;
+  public
+//    ExisteAlgumEstoquenaFilialRequisitada: Boolean;
+    ListadeProdutosRequisitados: String;
+    ListadeQuantidadesRequisitadas: String;
+    requisicoesgeradas: boolean;
+    TodasFiliais: Boolean;
+    SomenteUmaFilialMarcada: Boolean;
+    TodasFiliaisEstoque: Boolean;
+    TodasFiliaissemEstoque: Boolean;
+
+    TodosGrupos: Boolean;
+    vTotalAtendido : Currency;
+
+    constructor Create(AOwner: TComponent); override;
+    procedure AbreConsultaCompras;
+    procedure RefazConsultaProdutosSimilares(SomenteTotais: Boolean);
+    property ListaConceitos: TStrings read GetListaConceitos;
+    property Conceitos: String write SetConceitos;
+
+    property CodigoProdutoCompras: String read GetCodigoProdutoCompras;
+    property CodigoGrupoFilialCompras: Integer read GetCodigoGrupoFilialCompras;
+    property CodigoFilialCompras: Integer read GetCodigoFilialCompras;
+
+    property ParametroDiasEstoque: String read FParametroDiasEstoque write FParametroDiasEstoque;
+    property ParametroDiasEstoqueProporcional: String read FParametroDiasEstoqueProporcional write FParametroDiasEstoqueProporcional;
+    property PedidosEntreFiliais: boolean read FPedidosEntreFiliais write FPedidosEntreFiliais;
+    property NaoConsiderarPedidosCompra: boolean read FNaoConsiderarPedidosCompras write FNaoConsiderarPedidosCompras;
+
+
+    property ParametroFornecedor: String read FParametroFornecedor write SetParametroFornecedor;
+    property ListaGruposFornecedores: String read fListaGruposFornecedores write SetListaGruposFornecedores;
+    property ParametroMarca: String read FParametroMarca write FParametroMarca;
+
+    property ParametroDataInicial: String read FParametroDataInicial write FParametroDataInicial;
+    property ParametroDataFinal: String read FParametroDataFinal write FParametroDataFinal;
+
+    property ParametroDataInicialCadastroProduto: String read FParametroDataInicialCadastroProduto write FParametroDataInicialCadastroProduto;
+    property ParametroDataFinalCadastroProduto: String read FParametroDataFinalCadastroProduto write FParametroDataFinalCadastroProduto;
+
+    property ParametroDataInicialEntradaNF: String read FParametroDataInicialEntradaNF write FParametroDataInicialEntradaNF;
+    property ParametroDataFinalEntradaNF: String read FParametroDataFinalEntradaNF write FParametroDataFinalEntradaNF;
+
+    property ParametroDataInicialUltimaVenda: String read FParametroDataInicialUltimaVenda write FParametroDataInicialUltimaVenda;
+    property ParametroDataFinalUltimaVenda: String read FParametroDataFinalUltimaVenda write FParametroDataFinalUltimaVenda;
+
+
+    property Periodo: String read GetPeriodo write fPeriodo;
+    property ConsultaVazia: Boolean read GetConsultaVazia;
+    procedure ImprimirRelatorio;
+    property ParametroEstoque: string read FParametroEstoque write FParametroEstoque;
+    property ParametroSugestaoNula: Boolean read FParametroSugestaoNula write FParametroSugestaoNula;
+    property ProdutosLembradosparaPedido: Boolean read FProdutosLembradosparaPedido write fProdutosLembradosparaPedido;
+
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    property ProdutoEmLinha: Boolean read FprodutoEmLinha write FProdutoEmLinha;
+    property ProdutoAtivo: Boolean read FprodutoAtivo write FProdutoAtivo;
+    property ProdutoInativo: Boolean read FprodutoInativo write FProdutoInativo;
+    Property ProdutoForadeLinha: Boolean read FprodutoForadeLinha write FProdutoForadeLinha;
+    property ProdutoComMontagem: Boolean read FProdutoComMontagem write FProdutoComMontagem;
+    property ProdutoSemMontagem: Boolean read FProdutoSemMontagem write FProdutoSemMontagem;
+    property ProdutoBrinde: Boolean read FProdutoBrinde write FProdutoBrinde;
+    property ProdutoNaoBrinde: Boolean read FProdutoNaoBrinde write FProdutoNaoBrinde;
+
+    property ProdutoComposto: Boolean read FProdutoComposto write FProdutoComposto;
+    property ProdutoNaoComposto: Boolean read FProdutoNaoComposto write FProdutoNaoComposto;
+
+    property CurvaABC_A: Boolean read fCurvaABC_A write fCurvaABC_A;
+    property CurvaABC_B: Boolean read fCurvaABC_B write fCurvaABC_B;
+    property CurvaABC_C: Boolean read fCurvaABC_C write fCurvaABC_C;
+    property CurvaABC_NaoDefinido: Boolean read fCurvaABC_NaoDefinido write fCurvaABC_NaoDefinido;
+
+
+    property ListaFiliais: TStrings read GetListaFiliais;
+    property ListaGruposFiliais: TStrings read GetListaGruposFiliais;
+    procedure MontarFiltroFiliais(Usar: TCheckListBox);
+    procedure MontarFiltroFiliaisEstoque(Usar: TCheckListBox);
+    procedure MontarFiltroFiliaissemEstoque(Usar: TCheckListBox);
+
+    procedure MontarFiltroGrupoFiliais(Usar: TCheckListBox);
+    procedure SelecionarProdutos(Marcar,Todos: Boolean);
+    property Filial: String read FFilial write  FFilial;
+    property FilialEstoque: String read FFilialEstoque write  FFilialEstoque;
+    property FilialsemEstoque: String read FFilialsemEstoque write  FFilialsemEstoque;
+
+    property GrupoFilial: String read FGrupoFilial write FGrupoFilial;
+
+    property ListaCondicaoItemProduto: String read fListaCondicaoItemProduto write fListaCondicaoItemProduto;
+
+    property ListaCondicaoProduto: String read fListaCondicaoProduto write fListaCondicaoProduto;
+
+    property ListaCondicaoGrupoProduto: String read fListaCondicaoGrupoProduto write fListaCondicaoGrupoProduto;
+
+    property ListaCondicaoClasseProduto: String read fListaCondicaoClasseProduto write fListaCondicaoClasseProduto;
+
+    property ListaCondicaoMarcaProduto: String read fListaCondicaoMarcaProduto write fListaCondicaoMarcaProduto;
+
+    property ListaCondicaoPromocoesProduto: String read fListaCondicaoPromocoesProduto write fListaCondicaoPromocoesProduto;
+
+
+    property ParametroPercentual: String read FParametroPercentual write SetParametroPercentual;
+    property ParametroTotalizacao: Integer read FParametroTotalizacao write FParametroTotalizacao;
+    property ParametroOrdenacao: Integer read FParametroOrdenacao write FParametroOrdenacao;
+
+    property Visualizacao : Integer read FVisualizacao write SetVisualizacao;
+    property CabecalhoSaldoEstoque: String read FCabecalhoSaldoEstoque write FCabecalhoSaldoEstoque;
+    property LinhadaGrade: String read GetLinhadaGrade;
+    property ColunadaGrade: String read GetColunadaGrade;
+    property OnScrollLinhaColunaGradeSimilares: TNotifyEvent read FOnScrollLinhaColunaGradeSimilares write FOnScrollLinhaColunaGradeSimilares;
+    property ComprasTotalAfterScroll: TNotifyEvent read FComprasTotalAfterScroll write FComprasTotalAfterScroll;
+
+    property drawGridPedidosFiliais: TNotifyEvent read FdrawGridPedidosFiliais write FdrawGridPedidosFiliais;
+    property AfterPostPedidosFiliais: TNotifyEvent read FAfterPostPedidosFiliais write FAfterPostPedidosFiliais;
+
+
+
+    property LinhadaGradeSimilares: String read GetLinhadaGradeSimilares;
+    property ColunadaGradeSimilares: String read GetColunadaGradeSimilares;
+    property AbaSimilares: Boolean read FAbaSimilares write FAbaSimilares;
+    function VerificarSelecionados: Boolean;
+    property FilialRequisitante: String read fFilialRequisitante write fFilialRequisitante;
+
+    function GerarDadosRequisicoes(SomenteRegistroAtual: Boolean): Boolean;
+
+    procedure PreencherRequisicaoFilialSolicitada(FilialSolicitada: Integer);
+    procedure RetirarRequisicaoFilialSolicitada(FilialSolicitada: Integer);
+
+    function VerificarEstoqueFilialRequisitada(FilialRequisitada, mnemonico: String;
+          { UsarFilialGeral,}
+           ChecarEstoqueFilialSolicitada: boolean): boolean;
+
+    procedure CalcularTotalAtendido(CalcularProduto: Boolean = false);
+
+    function IncluirPedidosFiliais: boolean;
+//    property SomenteUmaFilialSelecionada: boolean read fSomenteUmaFilialSelecionada write fSomenteUmaFilialSelecionada;
+    function LerArquivoCFG(Gravar: Boolean = false; ValorPedidosEntreFiliais: boolean = false): Boolean;
+    procedure MontarFiltroConceitos(Usar: TCheckListBox);
+    function GetProduto: String;
+    procedure abrirListaPedidosFiliais;
+    procedure AbrirListaProdutosPendentesNF;
+    procedure AbrirVendasDiarias;
+
+    procedure Reatualizar(vListaProdutos: String);
+
+    property dtmConsultaCompras_ : TdtmConsultaCompras read GetdtmConsultaCompras_ write fdtmConsultaCompras_;
+//    property ListadeProdutosMarcados: tStringList read GetListadeProdutosMarcados write fListadeProdutosMarcados;
+
+    function ListaProdutosAtualeMarcados: String;
+
+end;
+
+
+var
+  dtmConsultaCompras: TdtmConsultaCompras;
+
+  
+implementation
+uses fmpreviewpadrao, fmconsultacompras;
+
+{$R *.dfm}
+
+const
+
+FiltroConceito    = '  ( %sconceito IN (%s)) ' +#13#10;
+
+constructor TdtmConsultaCompras.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryReducaoTabelaCompras.Tag   := ctTabelas;
+
+  qryComprasGruposFiliais.Tag   := ctTabelasConsultaCompras;
+
+  qryComprasTotaltotal_estoque.DisplayFormat            := '#######'; //ParSistema.MascaraQuantidadeGrade;// '#######';
+
+  qryComprasTotaltotal_transito.DisplayFormat            := '#######'; //ParSistema.MascaraQuantidadeGrade;// '#######';
+
+  qryComprasTotalreservado.DisplayFormat                := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasTotalfuturo.DisplayFormat                   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasTotaltotal_pedido.DisplayFormat             := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasTotaltotal_vendido.DisplayFormat            := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasTotalsugestao.DisplayFormat                 := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasTotalminimo.DisplayFormat                   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasTotalsugestaominimo.DisplayFormat           := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasTotalmaximo.DisplayFormat                   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasTotalsugestaomaximo.DisplayFormat           := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasGruposFiliaistotal_estoque.displayformat    := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasGruposFiliaistotal_transito.displayformat    := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasGruposFiliaisreservado.displayformat        := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliaisfuturo.displayformat           := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliaistotal_pedido.displayformat     := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliaistotal_vendido.displayformat    := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliaissugestao.displayformat         := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliaisminimo.displayformat           := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliaissugestaominimo.displayformat   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliaismaximo.displayformat           := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliaissugestaomaximo.displayformat   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasFiliaisGrupototal_estoque.displayformat     := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupoemestoque.displayformat     := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasFiliaisGrupototal_transito.displayformat     := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasFiliaisGrupototal_pedido.displayformat      := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupototal_vendido.displayformat     := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGruposugestao.displayformat          := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupominimo.displayformat            := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGruposugestaominimo.displayformat    := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupomaximo.displayformat            := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGruposugestaomaximo.displayformat    := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGruporeservado.displayformat         := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupofuturo.displayformat            := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryVVendastotalvendas.DisplayFormat                   := ParSistema.MascaraQuantidadeGrade;
+  qryVVendastotalinternet.DisplayFormat                   := ParSistema.MascaraQuantidadeGrade;
+  qryVVendastotalloja.DisplayFormat                   := ParSistema.MascaraQuantidadeGrade;
+
+  qryVVendas_porFilialtotalvendas.DisplayFormat                       := ParSistema.MascaraQuantidadeGrade;
+  qryVVendas_porFilialtotalinternet.DisplayFormat                       := ParSistema.MascaraQuantidadeGrade;
+  qryVVendas_porFilialtotalloja.DisplayFormat                       := ParSistema.MascaraQuantidadeGrade;
+
+  qryVVendas_porGrupototalvendas.DisplayFormat                        := ParSistema.MascaraQuantidadeGrade;
+  qryVVendas_porGrupototalinternet.DisplayFormat                        := ParSistema.MascaraQuantidadeGrade;
+  qryVVendas_porGrupototalloja.DisplayFormat                        := ParSistema.MascaraQuantidadeGrade;
+
+  qryVVendas_Similarestotalvendas.DisplayFormat                       := ParSistema.MascaraQuantidadeGrade;
+  qryVVendas_porFilial_Similarestotalvendas.DisplayFormat             := ParSistema.MascaraQuantidadeGrade;
+  qryVVendas_porGrupo_Similarestotalvendas.DisplayFormat              := ParSistema.MascaraQuantidadeGrade;
+
+  qryProdutosSimilarestotal_estoque.DisplayFormat            := '#######'; //ParSistema.MascaraQuantidadeGrade;// '#######';
+ 
+  qryProdutosSimilarestotal_transito.DisplayFormat            := '#######'; //ParSistema.MascaraQuantidadeGrade;// '#######';
+
+  qryProdutosSimilaresreservado.DisplayFormat                := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryProdutosSimilaresfuturo.DisplayFormat                   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryProdutosSimilarestotal_pedido.DisplayFormat             := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryProdutosSimilarestotal_vendido.DisplayFormat            := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryProdutosSimilaressugestao.DisplayFormat                 := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryProdutosSimilaresminimo.DisplayFormat                   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryProdutosSimilaressugestaominimo.DisplayFormat           := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryProdutosSimilaresmaximo.DisplayFormat                   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryProdutosSimilaressugestaomaximo.DisplayFormat           := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryTotalProdutosSimilarestotal_estoque.DisplayFormat            := '#######'; //ParSistema.MascaraQuantidadeGrade;// '#######';
+
+  qryTotalProdutosSimilarestotal_transito.DisplayFormat            := '#######'; //ParSistema.MascaraQuantidadeGrade;// '#######';
+
+  qryTotalProdutosSimilaresreservado.DisplayFormat                := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryTotalProdutosSimilaresfuturo.DisplayFormat                   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryTotalProdutosSimilarestotal_pedido.DisplayFormat             := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryTotalProdutosSimilarestotal_vendido.DisplayFormat            := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryTotalProdutosSimilaressugestao.DisplayFormat                 := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryTotalProdutosSimilaresminimo.DisplayFormat                   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryTotalProdutosSimilaressugestaominimo.DisplayFormat           := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryTotalProdutosSimilaresmaximo.DisplayFormat                   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryTotalProdutosSimilaressugestaomaximo.DisplayFormat           := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+
+
+  qryComprasGruposFiliais_Similarestotal_estoque.displayformat    := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasGruposFiliais_Similarestotal_transito.displayformat    := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasGruposFiliais_Similaresreservado.displayformat        := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliais_Similaresfuturo.displayformat           := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliais_Similarestotal_pedidos_filiais.displayformat     := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliais_Similarestotal_pedidos_fornecedores.displayformat     := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasGruposFiliais_Similarestotal_vendido.displayformat    := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliais_Similaressugestao.displayformat         := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliais_Similaresminimo.displayformat           := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliais_Similaressugestaominimo.displayformat   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliais_Similaresmaximo.displayformat           := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasGruposFiliais_Similaressugestaomaximo.displayformat   := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasFiliaisGrupo_Similarestotal_estoque.displayformat     := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasFiliaisGrupo_Similarestotal_transito.displayformat     := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasFiliaisGrupo_Similarestotal_pedidos_filiais.displayformat      := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupo_Similarestotal_pedidos_fornecedores.displayformat      := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+  qryComprasFiliaisGrupo_Similarestotal_vendido.displayformat     := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupo_Similaressugestao.displayformat          := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupo_Similaresminimo.displayformat            := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupo_Similaressugestaominimo.displayformat    := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupo_Similaresmaximo.displayformat            := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupo_Similaressugestaomaximo.displayformat    := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupo_Similaresreservado.displayformat         := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+  qryComprasFiliaisGrupo_Similaresfuturo.displayformat            := '#######'; //ParSistema.MascaraQuantidadeGrade;//'#######';
+
+
+end;
+
+
+function TdtmConsultaCompras.GetPeriodo: String;
+begin
+  if daysbetween(strtodate(FParametroDataFinal),
+                 strtodate(FParametroDataInicial)) > 0 then
+    fPeriodo := inttostr(daysbetween(strtodate(FParametroDataFinal),
+                                   strtodate(FParametroDataInicial)))
+  else
+    fPeriodo := inttostr(1);
+
+  result := fPeriodo;
+end;
+
+
+function TdtmConsultaCompras.GetCodigoGrupoFilialCompras: Integer;
+begin
+  Result := qryComprasGruposFiliaisgrupo.AsInteger;
+end;
+
+function TdtmConsultaCompras.GetCodigoProdutoCompras: String;
+begin
+  Result := qryComprasTotalproduto.Asstring;
+end;
+
+function TdtmConsultaCompras.GetConsultaVazia: Boolean;
+begin
+  Result := qryComprasTotal.IsEmpty;
+  if Result then
+    MensagemAviso(ctCONSULTAVAZIA);
+end;
+
+
+procedure TdtmConsultaCompras.AbreConsultaCompras;
+const
+ FiltroFornecedor = ' (p.caracteristica in (select fp.caracteristica from fornecedoresprodutos fp where fp.fornecedor = %s))';
+ FiltroGruposFornecedores = ' (p.caracteristica in (select fp.caracteristica from fornecedoresprodutos fp where fp.fornecedor in (select f.codigo from fornecedores f join gruposfornecedores gf on f.grupofornecedor = gf.codigo where %s)))';
+
+ FiltroFilial      = ' ( e.filial IN (%s)) ';
+ FiltroFilialUltimaVenda = '  and df.filialvenda IN (%s) ';
+
+ FiltroFilialEstoque      = ' (select sum(e.emestoque) from estoques e where e.filial in (%s) and e.produto = p.codigo )>0';
+ FiltroFilialsemEstoque      = ' (select sum(e.emestoque) from estoques e where e.filial in (%s) and e.produto = p.codigo )=0';
+
+
+ FiltroGrupoFilial = ' ( e.filial IN (SELECT filial ' +
+                                    'FROM filiaisgruposfiliais fgf '+
+                                    'WHERE fgf.grupo IN (%s))) ';
+
+ datacadastroproduto_IF = ' p.datacadastro between %s and %s ';
+ datacadastroproduto_I = ' p.datacadastro >= %s ';
+ datacadastroproduto_F = ' p.datacadastro <= %s ';
+
+ DataEntradaNF_IF = ' p.codigo in (select distinct pnp.produto '+
+	 			      ' from produtosnotaspag pnp,notaspag np '+
+	 			      '	where np.codigo=pnp.codigonota and np.situacao = ''N'''+
+	 				 ' and pnp.codigofiscal in (%s) '+
+					 ' and np.data between %s and %s) ';
+
+ DataEntradaNF_I = ' p.codigo in (select distinct pnp.produto '+
+	 			      ' from produtosnotaspag pnp,notaspag np '+
+	 			      '	where np.codigo=pnp.codigonota and np.situacao = ''N'''+
+	 				 ' and pnp.codigofiscal in (%s) '+
+					 ' and np.data >= %s ) ';
+
+ DataEntradaNF_F = ' p.codigo in (select distinct pnp.produto '+
+	 			      ' from produtosnotaspag pnp,notaspag np and np.situacao = ''N'''+
+	 			      '	where np.codigo=pnp.codigonota '+
+	 				 ' and pnp.codigofiscal in (%s) '+
+					 ' and np.data <= %s ) ';
+
+ DataUltimaVenda_IF = ' p.codigo in '+
+                      ' (select m.produto '+
+                      ' from movimentos m '+
+                      ' where m.cmpmovimento in ( '+
+                      ' select distinct m.numero '+
+                      ' from produtosdadosfiscais pdf '+
+                      '      join produtos p '+
+                      '      join caracteristicas ccomp '+
+                      '           on p.caracteristica = ccomp.codigo '+
+                      '      on pdf.produto = p.codigo '+
+                      ' join dadosfiscais df '+
+                      '   on pdf.dadofiscal = df.numero '+
+                      '      and df.situacao = ''N'' '+
+                      ' join movimentos m '+
+                      ' on pdf.dadofiscal = m.dadofiscal '+
+                      ' and pdf.produto = m.produto '+
+                      ' where coalesce(ccomp.composto,FALSE) '+
+                      '   and coalesce(ccomp.discriminarcomposto,'''') = ''N'' '+
+                      '   and pdf.codigofiscal in (%s) '+
+                      '   and df.data between %s and %s %s ) '+
+                      '  UNION '+
+                      ' select distinct pdf.produto '+
+                      ' from produtosdadosfiscais pdf '+
+                      ' join dadosfiscais df '+
+                      '   on pdf.dadofiscal = df.numero '+
+                      ' and df.situacao = ''N'' '+
+                      ' join movimentos m '+
+                      ' on pdf.dadofiscal = m.dadofiscal '+
+                      ' and pdf.produto = m.produto '+
+                      ' Where pdf.codigofiscal in (%s) '+
+                      '   and df.data between %s and %s %s ) '+
+
+                      ' and p.codigo not in '+
+                      ' (select m.produto '+
+                      ' from movimentos m '+
+                      ' where m.cmpmovimento in ( '+
+                      ' select distinct m.numero '+
+                      ' from produtosdadosfiscais pdf '+
+                      '      join produtos p '+
+                      '      join caracteristicas ccomp '+
+                      '           on p.caracteristica = ccomp.codigo '+
+                      '      on pdf.produto = p.codigo '+
+                      ' join dadosfiscais df '+
+                      '   on pdf.dadofiscal = df.numero '+
+                      '      and df.situacao = ''N'' '+
+                      ' join movimentos m '+
+                      ' on pdf.dadofiscal = m.dadofiscal '+
+                      ' and pdf.produto = m.produto '+
+                      ' where coalesce(ccomp.composto,FALSE) '+
+                      '   and coalesce(ccomp.discriminarcomposto,'''') = ''N'' '+
+                      '   and pdf.codigofiscal in (%s) '+
+                      '   and df.data > %s %s ) '+
+
+                      '  UNION '+
+
+                      ' select distinct pdf.produto '+
+                      ' from produtosdadosfiscais pdf '+
+                      ' join dadosfiscais df '+
+                      '   on pdf.dadofiscal = df.numero '+
+                      ' and df.situacao = ''N'' '+
+                      ' join movimentos m '+
+                      ' on pdf.dadofiscal = m.dadofiscal '+
+                      ' and pdf.produto = m.produto '+
+                      ' Where pdf.codigofiscal in (%s) '+
+                      '   and df.data > %s %s ) ';
+
+
+ DataUltimaVenda_I = ' p.codigo in '+
+                      ' (select m.produto '+
+                      ' from movimentos m '+
+                      ' where m.cmpmovimento in ( '+
+                      ' select distinct m.numero '+
+                      ' from produtosdadosfiscais pdf '+
+                      '      join produtos p '+
+                      '      join caracteristicas ccomp '+
+                      '           on p.caracteristica = ccomp.codigo '+
+                      '      on pdf.produto = p.codigo '+
+                      ' join dadosfiscais df '+
+                      '   on pdf.dadofiscal = df.numero '+
+                      '      and df.situacao = ''N'' '+
+                      ' join movimentos m '+
+                      ' on pdf.dadofiscal = m.dadofiscal '+
+                      ' and pdf.produto = m.produto '+
+                      ' where coalesce(ccomp.composto,FALSE) '+
+                      '   and coalesce(ccomp.discriminarcomposto,'''') = ''N'' '+
+                      '   and pdf.codigofiscal in (%s) '+
+                      '   and df.data df.data >= %s %s ) '+
+                      '  UNION '+
+                      ' select distinct pdf.produto '+
+                      ' from produtosdadosfiscais pdf '+
+                      ' join dadosfiscais df '+
+                      '   on pdf.dadofiscal = df.numero '+
+                      ' and df.situacao = ''N'' '+
+                      ' join movimentos m '+
+                      ' on pdf.dadofiscal = m.dadofiscal '+
+                      ' and pdf.produto = m.produto '+
+                      ' where pdf.codigofiscal in (%s) '+
+                      '   and df.data df.data >= %s %s ) ';
+
+ DataUltimaVenda_F = ' p.codigo in '+
+                      ' (select m.produto '+
+                      ' from movimentos m '+
+                      ' where m.cmpmovimento in ( '+
+                      ' select distinct m.numero '+
+                      ' from produtosdadosfiscais pdf '+
+                      '      join produtos p '+
+                      '      join caracteristicas ccomp '+
+                      '           on p.caracteristica = ccomp.codigo '+
+                      '      on pdf.produto = p.codigo '+
+                      ' join dadosfiscais df '+
+                      '   on pdf.dadofiscal = df.numero '+
+                      '      and df.situacao = ''N'' '+
+                      ' join movimentos m '+
+                      ' on pdf.dadofiscal = m.dadofiscal '+
+                      ' and pdf.produto = m.produto '+
+                      ' where coalesce(ccomp.composto,FALSE) '+
+                      '   and coalesce(ccomp.discriminarcomposto,'''') = ''N'' '+
+                      '   and pdf.codigofiscal in (%s) '+
+                      '   and df.data <= %s %s ) '+
+                      '  UNION '+
+                      ' select distinct pdf.produto '+
+                      ' from produtosdadosfiscais pdf '+
+                      ' join dadosfiscais df '+
+                      '   on pdf.dadofiscal = df.numero '+
+                      ' and df.situacao = ''N'' '+
+                      ' join movimentos m '+
+                      ' on pdf.dadofiscal = m.dadofiscal '+
+                      ' and pdf.produto = m.produto '+
+                      '   where pdf.codigofiscal in (%s) '+
+                      '   and df.data <= %s %s ) '+
+
+                      ' and p.codigo not in '+
+                      ' (select m.produto '+
+                      ' from movimentos m '+
+                      ' where m.cmpmovimento in ( '+
+                      ' select distinct m.numero '+
+                      ' from produtosdadosfiscais pdf '+
+                      '      join produtos p '+
+                      '      join caracteristicas ccomp '+
+                      '           on p.caracteristica = ccomp.codigo '+
+                      '      on pdf.produto = p.codigo '+
+                      ' join dadosfiscais df '+
+                      '   on pdf.dadofiscal = df.numero '+
+                      '      and df.situacao = ''N'' '+
+                      ' join movimentos m '+
+                      ' on pdf.dadofiscal = m.dadofiscal '+
+                      ' and pdf.produto = m.produto '+
+                      ' where coalesce(ccomp.composto,FALSE) '+
+                      '   and coalesce(ccomp.discriminarcomposto,'''') = ''N'' '+
+                      '   and pdf.codigofiscal in (%s) '+
+                      '   and df.data > %s %s ) '+
+
+                      '  UNION '+
+
+                      ' select distinct pdf.produto '+
+                      ' from produtosdadosfiscais pdf '+
+                      ' join dadosfiscais df '+
+                      '   on pdf.dadofiscal = df.numero '+
+                      ' and df.situacao = ''N'' '+
+                      ' join movimentos m '+
+                      ' on pdf.dadofiscal = m.dadofiscal '+
+                      ' and pdf.produto = m.produto '+
+                      ' where pdf.codigofiscal in (%s) '+
+                      '   and df.data > %s %s ) ';
+var
+ SQLFilial, SQLFilialUltimaVenda, SQLFilialEstoque, SQLFilialsemEstoque, SQLEstoque, SQLProdutos, SQLProdutosVendas, SQLSituacaoProdutos, SQLCurvaABC, SQLdatacadastroproduto, SQLDataEntradaNF,
+ SQLDataUltimaVenda  : String;
+begin
+  //qryComprasTotal.Sql[49]:=FParametroEstoque;
+
+  qryProdutosSelecionados.close;
+  qryProdutosSelecionados.open;
+  qryProdutosSelecionados.delete;
+
+  if qryReducaoTabelaCompras.IsEmpty then
+    qryComprasTotal.sql.text := qryComprasTotal_SemTabelaReducao.sql.text
+  else
+  if TodasFiliais and TodosGrupos then
+    qryComprasTotal.sql.text := qryComprasTotal_ComTabelaReducao_TodasFiliais.sql.text
+  else
+    qryComprasTotal.sql.text := qryComprasTotal_ComTabelaReducao_FiliaisEspecificas.sql.text;
+
+  if (ParametroDataInicialCadastroProduto <> '') and
+     (ParametroDataFinalCadastroProduto <> '') then
+    SQLdatacadastroproduto := format(datacadastroproduto_IF,
+                                     [quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataInicialCadastroProduto))),
+                                      quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataFinalCadastroProduto)))])
+  else
+  if (ParametroDataInicialCadastroProduto <> '') and
+     (ParametroDataFinalCadastroProduto = '') then
+    SQLdatacadastroproduto := format(datacadastroproduto_I,
+                                     [quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataInicialCadastroProduto)))])
+  else
+  if (ParametroDataInicialCadastroProduto = '') and
+     (ParametroDataFinalCadastroProduto <> '') then
+    SQLdatacadastroproduto := format(datacadastroproduto_F,
+                         [quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataFinalCadastroProduto)))])
+  else
+    SQLdatacadastroproduto := '';
+
+
+  if (ParametroDataInicialEntradaNF <> '') and
+     (ParametroDataFinalEntradaNF <> '') then
+    SQLDataEntradaNF := format(DataEntradaNF_IF,
+                                     [ctListaCodigosFiscaisCompra,
+                                      quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataInicialEntradaNF))),
+                                      quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataFinalEntradaNF)))])
+  else
+  if (ParametroDataInicialEntradaNF <> '') and
+     (ParametroDataFinalEntradaNF = '') then
+    SQLDataEntradaNF := format(DataEntradaNF_I,
+                                     [ctListaCodigosFiscaisCompra,
+                                      quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataInicialEntradaNF)))])
+  else
+  if (ParametroDataInicialEntradaNF = '') and
+     (ParametroDataFinalEntradaNF <> '') then
+    SQLDataEntradaNF := format(DataEntradaNF_F,
+                         [ctListaCodigosFiscaisCompra,
+                          quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataFinalEntradaNF)))])
+  else
+    SQLDataEntradaNF := '';
+
+  SQLFilialUltimaVenda := '';
+  if (FFilial<>'') then
+    SQLFilialUltimaVenda := format(FiltroFilialUltimaVenda,[FFilial]);
+
+  if (ParametroDataInicialUltimaVenda <> '') and
+     (ParametroDataFinalUltimaVenda <> '') then
+    SQLDataUltimaVenda := format(DataUltimaVenda_IF,
+                                     [ctListaCodigosFiscaisVenda,
+                                      quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataInicialUltimaVenda))),
+                                      quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataFinalUltimaVenda))),
+                                      SQLFilialUltimaVenda,
+
+                                      ctListaCodigosFiscaisVenda,
+                                      quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataInicialUltimaVenda))),
+                                      quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataFinalUltimaVenda))),
+                                      SQLFilialUltimaVenda,
+
+                                      ctListaCodigosFiscaisVenda,
+                                      quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataFinalUltimaVenda))),
+                                      SQLFilialUltimaVenda,
+
+                                      ctListaCodigosFiscaisVenda,
+                                      quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataFinalUltimaVenda))),
+                                      SQLFilialUltimaVenda])
+  else
+  if (ParametroDataInicialUltimaVenda <> '') and
+     (ParametroDataFinalUltimaVenda = '') then
+    SQLDataUltimaVenda := format(DataUltimaVenda_I,
+                                     [ctListaCodigosFiscaisVenda,
+                                      quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataInicialUltimaVenda))),
+                                      SQLFilialUltimaVenda,
+
+                                      ctListaCodigosFiscaisVenda,
+                                      quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataInicialUltimaVenda))),
+                                      SQLFilialUltimaVenda
+                                      ])
+  else
+  if (ParametroDataInicialUltimaVenda = '') and
+     (ParametroDataFinalUltimaVenda <> '') then
+    SQLDataUltimaVenda :=  format(DataUltimaVenda_F,
+                         [ctListaCodigosFiscaisVenda,
+                          quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataFinalUltimaVenda))),
+                          SQLFilialUltimaVenda,
+
+                          ctListaCodigosFiscaisVenda,
+                          quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataFinalUltimaVenda))),
+                          SQLFilialUltimaVenda,
+
+                          ctListaCodigosFiscaisVenda,
+                          quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataFinalUltimaVenda))),
+                          SQLFilialUltimaVenda,
+
+                          ctListaCodigosFiscaisVenda,
+                          quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(ParametroDataFinalUltimaVenda))),
+                          SQLFilialUltimaVenda])
+  else
+    SQLDataUltimaVenda := '';
+
+  qryComprasTotal.MacroByName('quantidadeemestoque').AsString := FParametroEstoque;
+  qryComprasGruposFiliais.MacroByName('quantidadeemestoque').AsString := FParametroEstoque;
+  qryComprasFiliaisGrupo.MacroByName('quantidadeemestoque').AsString := FParametroEstoque;
+
+  qryComprasGruposFiliais_Similares.MacroByName('quantidadeemestoque').AsString := FParametroEstoque;
+  qryComprasFiliaisGrupo_Similares.MacroByName('quantidadeemestoque').AsString := FParametroEstoque;
+  qryProdutosSimilares.MacroByName('quantidadeemestoque').AsString := FParametroEstoque;
+  qryTotalProdutosSimilares.MacroByName('quantidadeemestoque').AsString := FParametroEstoque;
+
+
+
+  SQLFilial := '';
+  SQLEstoque := '';
+  SQLProdutos := '';
+  SQLSituacaoProdutos := '';
+
+  if (FFilial<>'') then
+    SQLFilial := ' and '+ format(FiltroFilial,[FFilial]);
+
+  if (FFilialEstoque<>'') then
+    SQLFilialEstoque := ' and '+ format(FiltroFilialEstoque,[FFilialEstoque]);
+
+  if (FFilialsemEstoque<>'') then
+    SQLFilialsemEstoque := ' and '+ format(FiltroFilialsemEstoque,[FFilialsemEstoque]);
+
+  if (FGrupoFilial<>'') then
+    SQLFilial := SQLFilial + ' and ' + format(FiltroGrupoFilial,[FGrupoFilial]);
+
+  if length(SQLFilial)<>0 then
+    qryComprasTotal.Macrobyname('Filiais').asstring := SQLFilial
+  else
+    qryComprasTotal.Macrobyname('Filiais').asstring := '';
+
+  if length(SQLFilialEstoque)<>0 then
+    qryComprasTotal.Macrobyname('FiliaisEstoque').asstring := SQLFilialEstoque
+  else
+    qryComprasTotal.Macrobyname('FiliaisEstoque').asstring := '';
+
+  if length(SQLFilialsemEstoque)<>0 then
+    qryComprasTotal.Macrobyname('FiliaisEstoque').asstring :=
+      qryComprasTotal.Macrobyname('FiliaisEstoque').asstring +
+      SQLFilialsemEstoque;
+
+  if ListaCondicaoItemProduto<>'' then
+  begin
+    SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (' + ListaCondicaoItemProduto + ')';
+    FParametroCabecalho := FParametroCabecalho + ' Item de Produto: '+ListaCondicaoItemProduto;
+  end;
+
+
+  if ListaCondicaoProduto<>'' then
+  begin
+    SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (' + ListaCondicaoProduto + ')';
+    FParametroCabecalho := FParametroCabecalho + ' Produto: '+ListaCondicaoProduto;
+  end;
+
+  if ListaCondicaoGrupoProduto<>'' then
+  begin
+    SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (' + ListaCondicaoGrupoProduto + ')';
+    FParametroCabecalho := FParametroCabecalho + ' Grupo de Produto: '+ListaCondicaoGrupoProduto;
+  end;
+
+  if ListaCondicaoClasseProduto<>'' then
+  begin
+    SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (' + ListaCondicaoClasseProduto + ')';
+    FParametroCabecalho := FParametroCabecalho + ' Classe de Produto: '+ListaCondicaoClasseProduto;
+  end;
+
+  if ListaCondicaoMarcaProduto<>'' then
+  begin
+    SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (' + ListaCondicaoMarcaProduto + ')';
+    FParametroCabecalho := FParametroCabecalho + ' Classe de Produto: '+ListaCondicaoMarcaProduto;
+  end;
+
+  if ListaCondicaoPromocoesProduto<>'' then
+  begin
+    SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (' + ListaCondicaoPromocoesProduto + ')';
+    FParametroCabecalho := FParametroCabecalho + ' Promoções do Produto: '+ListaCondicaoPromocoesProduto;
+  end;
+
+  if (FParametroFornecedor<>'') then
+     SQLSituacaoProdutos := SQLSituacaoProdutos +  ' and ' + format(FiltroFornecedor, [FParametroFornecedor]);
+
+  if ListaGruposFornecedores<>'' then
+     SQLSituacaoProdutos := SQLSituacaoProdutos +  ' and ' + format(FiltroGruposFornecedores, [ListaGruposFornecedores]);
+
+  if FProdutoEmLinha and not FprodutoForadeLinha then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (p.foralinha is null) and (c.foralinha is null)'
+  else
+  if FprodutoForadeLinha and not Fprodutoemlinha then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and  (p.foralinha is not null or c.foralinha is not null)';
+
+  if FProdutoAtivo and not FprodutoInativo then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and  (p.inativo is null) and (c.inativo is null)'
+  else
+  if FprodutoInativo and not FprodutoAtivo then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and  (p.inativo is not null or c.inativo is not null)';
+
+  if FProdutoComMontagem and not FProdutoSemMontagem then
+    SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (c.montagem)'
+  else
+  if FProdutoSemMontagem and not FProdutoComMontagem then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and not (c.montagem)';
+
+  if FProdutoBrinde and not FProdutoNaoBrinde then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (c.brinde)'
+  else
+  if FProdutoNaoBrinde and not FProdutoBrinde then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and not (c.brinde)';
+
+  if FProdutoComposto and not FProdutoNaoComposto then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and coalesce(c.composto,false)'
+  else
+  if FProdutoNaoComposto and not FProdutoComposto then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and not coalesce(c.composto,false)';
+
+  if (length(SQLSituacaoProdutos)<>0) then
+//   SQLProdutos := ' and ' + SQLSituacaoProdutos;
+   SQLProdutos := SQLSituacaoProdutos;
+
+  if (length(SQLdatacadastroproduto)<>0) then
+   SQLProdutos := SQLProdutos + ' and ' + SQLdatacadastroproduto;
+
+  if (length(SQLDataEntradaNF)<>0) then
+   SQLProdutos := SQLProdutos + ' and ' + SQLDataEntradaNF;
+
+  if (length(SQLDataUltimaVenda)<>0) then
+   SQLProdutos := SQLProdutos + ' and ' + SQLDataUltimaVenda;
+
+  if (length(SQLProdutos)<>0) then
+  begin
+
+    qryComprasTotal.MacroByName('produtos').AsString := SQLProdutos;
+    qryComprasGruposFiliais.MacroByName('produtos').AsString := SQLProdutos;
+    qryComprasFiliaisGrupo.MacroByName('produtos').AsString := SQLProdutos;
+
+  end
+  else
+  begin
+    qryComprasTotal.MacroByName('produtos').AsString := '';
+    qryComprasGruposFiliais.MacroByName('produtos').AsString := '';
+    qryComprasFiliaisGrupo.MacroByName('produtos').AsString := '';
+  end;
+
+  SQLCurvaABC := '';
+  if CurvaABC_A then
+     SQLCurvaABC := SQLCurvaABC + ' p.resultadocurvaabc = ''A''';
+
+  if CurvaABC_B then
+    if (length(SQLCurvaABC)<>0) then
+      SQLCurvaABC := SQLCurvaABC + ' or  p.resultadocurvaabc = ''B'''
+    else
+      SQLCurvaABC := ' p.resultadocurvaabc = ''B''';
+
+  if CurvaABC_C then
+    if (length(SQLCurvaABC)<>0) then
+      SQLCurvaABC := SQLCurvaABC + ' or p.resultadocurvaabc = ''C'''
+    else
+      SQLCurvaABC := ' p.resultadocurvaabc = ''C''';
+
+  if CurvaABC_NaoDefinido then
+    if (length(SQLCurvaABC)<>0) then
+      SQLCurvaABC := SQLCurvaABC + ' or  coalesce(p.resultadocurvaabc,'''') = '''''
+    else
+      SQLCurvaABC := ' coalesce(p.resultadocurvaabc,'''') = ''''';
+
+  if (length(SQLCurvaABC)<>0) then
+  begin
+    SQLCurvaABC := SQLCurvaABC + ')';
+    Insert(' and (', SQLCurvaABC, 0)
+  end;
+
+  if (length(SQLCurvaABC)<>0) then
+  begin
+
+    qryComprasTotal.MacroByName('resultadocurvaabc').AsString := SQLCurvaABC;
+    qryComprasGruposFiliais.MacroByName('resultadocurvaabc').AsString := SQLCurvaABC;
+    qryComprasFiliaisGrupo.MacroByName('resultadocurvaabc').AsString := SQLCurvaABC;
+
+  end
+  else
+  begin
+
+    qryComprasTotal.MacroByName('resultadocurvaabc').AsString := '';
+    qryComprasGruposFiliais.MacroByName('resultadocurvaabc').AsString := '';
+    qryComprasFiliaisGrupo.MacroByName('resultadocurvaabc').AsString := '';
+
+  end;
+
+
+  if (length(SQLEstoque)<>0) then
+  begin
+    Insert('and ', SQLEstoque, 0);
+    if (StrToInt(ParametroPercentual)>0) then
+        SQLEstoque := SQLEstoque + 'and (((e.emestoque+e.reservado+e.transito+e.demonstracao+e.conserto+e.danificada+e.reservaprevia)' +
+                      '+pedidos_estoquepedido(e.produto,e.filial))-coalesce(e.futuro,0))<=' +
+                      '(case when coalesce(e.minimo,0)=0 then 0 else (e.minimo+((e.minimo*' +
+                      ParametroPercentual + ')/100)) end)';
+
+    qryComprasTotal.MacroByName('estoques').AsString := SQLEstoque;
+    qryComprasGruposFiliais.MacroByName('estoques').AsString := SQLEstoque;
+    qryComprasFiliaisGrupo.MacroByName('estoques').AsString := SQLEstoque;
+
+  end
+  else
+  begin
+    qryComprasTotal.MacroByName('estoques').AsString := '';
+    qryComprasGruposFiliais.MacroByName('estoques').AsString := '';
+    qryComprasFiliaisGrupo.MacroByName('estoques').AsString := '';
+  end;
+
+
+  if FParametroSugestaoNula then
+  begin
+    qryComprasTotal.MacroByName('sugestao2').AsString :='Where (sugestao2 >= 0 or (sugestaominimo>0 or sugestaomaximo>0))';
+    qryComprasTotal.MacroByName('sugestao8').AsString :='Where (sugestao >= 0 or (sugestaominimo>0 or sugestaomaximo>0))';
+  end
+  else
+  begin
+    if ProdutosLembradosparaPedido then
+    begin
+      qryComprasTotal.MacroByName('sugestao2').AsString :='Where (lembrarpedido or (sugestao2 > 0 or (sugestaominimo>0 or sugestaomaximo>0)))';
+      qryComprasTotal.MacroByName('sugestao8').AsString :='where (lembrarpedido or (sugestao > 0 or (sugestaominimo>0 or sugestaomaximo>0)))';
+    end
+    else
+    begin
+      qryComprasTotal.MacroByName('sugestao2').AsString :='Where (sugestao2 > 0 or (sugestaominimo>0 or sugestaomaximo>0))';
+      qryComprasTotal.MacroByName('sugestao8').AsString :='Where (sugestao > 0 or (sugestaominimo>0 or sugestaomaximo>0))';
+    end
+  end;
+
+  if FParametroOrdenacao = 1 then
+    qryComprasTotal.MacroByName('ORDERBY').AsString := 'ORDER BY UPPER(TO_ASCII(nomeproduto,''LATIN1'')), produto, valorgrade1, valorgrade2, codigomarca, UPPER(TO_ASCII(marca,''LATIN1''))'
+  else
+    qryComprasTotal.MacroByName('ORDERBY').AsString := 'ORDER BY produto, UPPER(TO_ASCII(nomeproduto,''LATIN1'')), valorgrade1, valorgrade2, codigomarca, UPPER(TO_ASCII(marca,''LATIN1''))';
+
+
+  qryComprasTotal.AfterScroll := nil;
+  qryComprasTotal.oncalcfields := nil;
+
+  RefazConsultaPorNome(qryComprasTotal,['periodo','diasproporcional','diasestoque',
+                                        'filialbase','PedidosEntreFiliais',
+                                        'NaoConsiderarPedidosCompra',
+                                        'inicio','fim'],
+                                       [GetPeriodo,
+                                        FParametroDiasEstoqueProporcional,
+                                        FParametroDiasEstoque,
+                                        FilialBase,
+                                        PedidosEntreFiliais,
+                                        NaoConsiderarPedidosCompra,
+                                        FParametroDataInicial,
+                                        FParametroDataFinal]);
+
+  vListadeProdutos := RetornarLista(qryComprasTotal, qryComprasTotalproduto, nil, true);
+
+  if (vListadeProdutos<>'') then
+   SQLProdutos := SQLProdutos + ' and p.codigo in (' + vListadeProdutos +')';
+
+  qryComprasGruposFiliais.MacroByName('produtos').AsString := SQLProdutos;
+  qryComprasFiliaisGrupo.MacroByName('produtos').AsString := SQLProdutos;
+
+  qryComprasTotal.AfterScroll := qryComprasTotalAfterScroll;
+
+  RefazConsultapornome(qryComprasGruposFiliais,['periodo','diasproporcional',
+                                                'diasestoque','PedidosEntreFiliais',
+                                                'NaoConsiderarPedidosCompra',
+                                                'Inicio','Fim'],
+                                          [GetPeriodo,
+                                           FParametroDiasEstoqueProporcional,
+                                           FParametroDiasEstoque,
+                                           PedidosEntreFiliais,
+                                           NaoConsiderarPedidosCompra,
+                                           FParametroDataInicial,
+                                           FParametroDataFinal]);
+
+     
+  RefazConsultapornome(qryComprasFiliaisGrupo,['periodo','diasproporcional',
+                                               'diasestoque','estoquetotal',
+                                               'PedidosEntreFiliais',
+                                               'NaoConsiderarPedidosCompra',
+                                               'Inicio','Fim'],
+                                          [GetPeriodo,
+                                           FParametroDiasEstoqueProporcional,
+                                           FParametroDiasEstoque,
+                                                      {qryComprasGruposFiliaistotal_estoque.AsCurrency} 0,
+                                                      PedidosEntreFiliais,
+                                                      NaoConsiderarPedidosCompra,
+                                                      FParametroDataInicial,
+                                                      FParametroDataFinal]);
+
+
+
+ SQLProdutosVendas := SQLProdutos;
+ {
+ delete(SQLProdutosVendas,1,19);
+ delete(SQLProdutosVendas, length(SQLProdutosVendas)-1,2);
+ }
+
+
+ qryVVendas.MacroByName('produtos').AsString := SQLProdutosVendas;
+ qryVVendas.MacroByName('resultadocurvaabc').AsString := SQLCurvaABC;
+
+ qryVVendasDiaria.MacroByName('produtos').AsString := SQLProdutosVendas;
+ qryVVendasDiaria.MacroByName('resultadocurvaabc').AsString := SQLCurvaABC;
+ qryVVendasDiaria.parambyname('datainicial').asDateTime := strtodate(FParametroDataInicial);
+ qryVVendasDiaria.parambyname('datafinal').asDateTime := strtodate(FParametroDataFinal);
+
+ qryVVendas_porFilial.MacroByName('produtos').AsString := SQLProdutosVendas;
+ qryVVendas_porFilial.MacroByName('resultadocurvaabc').AsString := SQLCurvaABC;
+
+ qryVVendas_porGrupo.MacroByName('produtos').AsString := SQLProdutosVendas;
+ qryVVendas_porGrupo.MacroByName('resultadocurvaabc').AsString := SQLCurvaABC;
+
+
+ RefazConsulta(qryVVendas,[0,1],[FParametroDataInicial, FParametroDataFinal]);
+ RefazConsulta(qryVVendas_porFilial,[0,1],[FParametroDataInicial, FParametroDataFinal]);
+ RefazConsulta(qryVVendas_porGrupo,[0,1],[FParametroDataInicial, FParametroDataFinal]);
+
+ qryDetalhesCompra.MacroByName('produtos').AsString := SQLProdutos;
+ qryDetalhesCompra.MacroByName('resultadocurvaabc').AsString := SQLCurvaABC;
+ qryDetalhesCompra.MacroByName('estoques').AsString := SQLEstoque;
+
+ if (FFilial<>'') then
+   qryDetalhesCompra.MacroByName('CondicaoListaFiliais').AsString :=
+   ' and e1.filial in ('+FFilial+')'
+ else
+   qryDetalhesCompra.MacroByName('CondicaoListaFiliais').AsString :='';
+
+ qryDetalhesPrecos.MacroByName('produtos').AsString := SQLProdutos;
+ qryDetalhesPrecos.MacroByName('resultadocurvaabc').AsString := SQLCurvaABC;
+ qryDetalhesPrecos.MacroByName('estoques').AsString := SQLEstoque;
+
+ RefazConsulta(qryDetalhesPrecos,[],[]);
+ RefazConsulta(qryDetalhesCompra,[],[]);
+
+ RefazConsulta(qryConsultaProdutosPedidos,[],[]);
+
+
+ RefazConsultaProdutosSimilares(true);
+ qryComprasTotal.oncalcfields := qryComprasTotalCalcfields;
+ qryComprasTotalCalcfields(qryComprasTotal);
+ 
+end;
+
+
+procedure TdtmConsultaCompras.qryComprasTotalAfterScroll(DataSet: TDataSet);
+begin
+  if FGerandoRelatorio and not qryComprasTotal.eof then
+  begin
+   FGTotalVenda := FGTotalVenda + qryComprasTotaltotalvenda.AsFloat;
+   FGTotalCusto := FGTotalCusto + qryComprasTotaltotalcusto.AsFloat;
+  end
+  else
+  begin
+  if Assigned(ComprasTotalAfterScroll) then
+    ComprasTotalAfterScroll(DataSet)
+  end;
+
+{
+  if qryComprasGruposFiliais.active then
+    qryComprasGruposFiliais.locate('grupo', vAuxGrupoAntesScroll, []);
+
+  if qryComprasFiliaisGrupo.active then
+  begin
+    qryComprasFiliaisGrupo.locate('filial', vAuxFilialAntesScroll, []);
+    TDBAdvGrid(self.owner.findcomponent('dbgProdutosFiliais_')).row := qryComprasFiliaisGrupo.recno;
+  end;
+}
+
+
+//  Visualizacao := fVisualizacao;
+end;
+
+procedure TdtmConsultaCompras.qryVVendasmesGetText(Sender: TField; var Text: String; DisplayText: Boolean);
+begin
+  if TField(Sender).IsNull then
+    Text := ' '
+  else
+    Text := TField(Sender).AsString;
+end;
+
+procedure TdtmConsultaCompras.frpComprasEndDoc;
+begin
+  FGerandoRelatorio := False;
+end;
+
+procedure TdtmConsultaCompras.frpComprasBeginDoc;
+begin
+  FGerandoRelatorio := True;
+  FGTotalVenda := 0;
+  FGTotalCusto := 0;
+end;
+
+procedure TdtmConsultaCompras.frpComprasBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpCompras, view);
+end;
+
+procedure TdtmConsultaCompras.ImprimirRelatorio;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+  RegistroAtual : TBookmark;
+begin
+ RegistroAtual := qryComprasTotal.GetBookmark;
+ frVariables['Outras'] := FParametroCabecalho;
+ frVariables['Rua']   := RuaFilialBase;
+ frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + CEPFilialBase;
+ frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
+ frVariables['Fone']  := FoneFilialBase;
+ frVariables['EmLinha']:=FprodutoEmLinha;
+ frVariables['ForadeLinha']:=FprodutoForadeLinha;
+ frVariables['Ativo']:=Fprodutoativo;
+ frVariables['Inativo']:=Fprodutoinativo;
+ frVariables['ComMontagem']:=FProdutoComMontagem;
+ frVariables['SemMontagem']:=FProdutoSemMontagem;
+ frVariables['Brinde']:=FProdutoBrinde;
+ frVariables['NaoBrinde']:=FProdutoNaoBrinde;
+
+ frVariables['Composto']:=FProdutoComposto;
+ frVariables['NaoComposto']:=FProdutoNaoComposto;
+
+ delete(FCabecalhoSaldoEstoque, (length(FCabecalhoSaldoEstoque)-2), 2);
+ frVariables['SaldoEstoque']:= FCabecalhoSaldoEstoque;
+
+ qryComprasTotal.DisableControls;
+// frpCompras.DesignReport;
+ frmPreview := TfrmPreviewPadrao.create(self);
+ frmPreview.cmbZoom.ItemIndex := 3; //125%
+ frmPreview.sbnLarguraPaginaClick(nil);
+ try
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   frmPreview.frCompositeReport.Reports.Add(frpCompras);
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+
+   frmPreview.ShowModal;
+
+  finally
+
+   frmPreview.Free
+
+ end;
+
+ qryComprasTotal.EnableControls;
+ qryComprasTotal.GotoBookmark(RegistroAtual);
+ qryComprasTotal.FreeBookmark(RegistroAtual);
+end;
+
+function TdtmConsultaCompras.GetListaFiliais: TStrings;
+begin
+  FListaFiliais:= TStringList.Create;
+  qryFiliais.Open;
+  while not qryFiliais.Eof do
+  begin
+    FListaFiliais.AddObject(format('%3s',[qryFiliaiscodigo.AsString])+'.'+qryFiliaisnome.AsString, Pointer(qryFiliaiscodigo.AsInteger));
+    qryFiliais.Next;
+  end;
+  qryFiliais.Close;
+  Result := FListaFiliais;
+end;
+
+function TdtmConsultaCompras.GetListaGruposFiliais: TStrings;
+begin
+  FListaGruposFiliais:= TStringList.Create;
+  qryGrupoFiliais.Open;
+  while not qryGrupoFiliais.Eof do
+  begin
+    FListaGruposFiliais.AddObject(format('%2s',[qryGrupoFiliaiscodigo.asstring])+'.'+qryGrupoFiliaisdescricao.AsString, Pointer(qryGrupoFiliaiscodigo.AsInteger));
+    qryGrupoFiliais.Next;
+  end;
+  qryGrupoFiliais.Close;
+  Result := FListaGruposFiliais;
+
+end;
+
+procedure TdtmConsultaCompras.MontarFiltroFiliais(Usar: TCheckListBox);
+var
+  STRFiliais: String;
+  cnt: Integer;
+begin
+  TodasFiliais := True;
+  STRFiliais := '';
+  FilialRequisitante := inttostr(FilialBase);
+//  SomenteUmaFilialSelecionada := false;
+
+  for cnt := 0 to FListaFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+    begin
+      STRFiliais := STRFiliais + '''' + IntToStr(Integer(FListaFiliais.Objects[cnt])) + ''',';
+      {
+      if (FilialRequisitante = '') and not SomenteUmaFilialSelecionada then
+      begin
+        FilialRequisitante := IntToStr(Integer(FListaFiliais.Objects[cnt]));
+        SomenteUmaFilialSelecionada := true;
+      end
+      }
+    end
+    else
+      TodasFiliais := False;
+
+  STRFiliais := Copy(STRFiliais, 0, Length(STrFiliais) - 1);
+
+  SomenteUmaFilialMarcada := false;
+  if Trim(STRFiliais) <> '' then
+    SomenteUmaFilialMarcada := pos(',',STRFiliais)=0;
+
+  Filial := STRFiliais;
+  if Trim(STRFiliais) <> '' then
+    if not TodasFiliais then
+      FParametroCabecalho:=FParametroCabecalho+' Filiais: '+STRFiliais
+    else Filial:='';
+
+  if (Trim(STRFiliais) = '') then
+    TodasFiliais := true;
+
+
+end;
+
+procedure TdtmConsultaCompras.MontarFiltroGrupoFiliais(
+  Usar: TCheckListBox);
+var
+  STRGruposFiliais: String;
+  cnt: Integer;
+begin
+  STRGruposFiliais := '';
+  TodosGrupos := True;
+  for cnt := 0 to FListaGruposFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRGruposFiliais := STRGruposFiliais + '''' + IntToStr(Integer(FListaGruposFiliais.Objects[cnt])) + ''','
+    else
+      TodosGrupos := False;
+
+  STRGruposFiliais := Copy(STRGruposFiliais, 0, Length(STrGruposFiliais) - 1);
+  GrupoFilial:=STRGruposFiliais;
+  if Trim(STRGruposFiliais) <> '' then
+    if not TodosGrupos then
+     FParametroCabecalho:=FParametroCabecalho+' Grupo de Filiais: '+STRGruposFiliais
+    else
+     GrupoFilial:='';
+
+  if (Trim(STRGruposFiliais) = '') then
+    TodosGrupos := true;
+
+end;
+
+
+
+
+procedure TdtmConsultaCompras.qryComprasTotalCalcFields(
+  DataSet: TDataSet);
+var
+  vListaProdutosSimilares: String;
+
+begin
+  inherited;
+
+  if qryComprasTotalprodutoempromocao.asBoolean then
+    qryComprasTotalpromo.asString := 'S'
+  else
+    qryComprasTotalpromo.clear;
+
+  if FParametroTotalizacao = 0 then
+  begin
+    qryComprasTotaltotalvenda.AsFloat := (qryComprasTotalsugestao.AsCurrency *
+                                           qryComprasTotalprecovenda.asfloat);
+
+    qryComprasTotaltotalcusto.AsFloat := (qryComprasTotalsugestao.AsCurrency *
+                                           qryComprasTotalprecocomicms.asfloat);
+  end
+  else
+  begin
+    qryComprasTotaltotalvenda.AsFloat := (qryComprasTotaltotal_vendido.AsCurrency *
+                                           qryComprasTotalprecovenda.asfloat);
+
+    qryComprasTotaltotalcusto.AsFloat := (qryComprasTotaltotal_vendido.AsCurrency *
+                                           qryComprasTotalprecocomicms.asfloat);
+  end;
+
+  qryComprasTotalcodigo_descricao.AsString := (qryComprasTotalprodutovisual.AsString + ' - ' +
+                                               qryComprasTotalnomeproduto.AsString);
+
+  if qryComprasTotalExisteSimilar.asBoolean then
+  begin
+    if qryTotalProdutosSimilares.mastersource <> nil then
+      qryTotalProdutosSimilares.mastersource := nil;
+
+    if qryTotalProdutosSimilares.locate('produtosml', qryComprasTotalproduto.asString, []) then
+    begin
+      qryComprasTotaldiasEstoqueSimilares.AsVariant := qryTotalProdutosSimilaresDiasEstoque.asVariant;
+      qryComprasTotaldiasEstoqueSimComPedCompra.asVariant := qryTotalProdutosSimilaresdiasestoquecompedidosdecompra.asVariant;
+    end;
+    
+  end
+  else
+  begin
+    qryComprasTotaldiasEstoqueSimilares.clear;
+    qryComprasTotaldiasEstoqueSimComPedCompra.clear;
+  end;
+
+
+{
+  if qryComprasTotaltotal_vendido.AsCurrency<>0 then
+    qryComprasTotaldiasestoque.AsCurrency := ((qryComprasTotaltotal_estoque.AsCurrency + qryComprasTotaltotal_pedidos_filiais.AsCurrency)/
+                                             (qryComprasTotaltotal_vendido.AsCurrency  /
+                                              DaysBetween(strtoDateTime(ParametroDataInicial), StrToDateTime(ParametroDataFinal))))
+  else
+    qryComprasTotaldiasestoque.AsCurrency := 0;
+
+}
+
+  if qryComprasTotaltotal_vendido.asFloat <> 0 then
+  begin
+//    if NaoConsiderarPedidosCompraparaDiasEstoque then
+      qryComprasTotaldiasEstoqueCalculado.asFloat :=
+         (qryComprasTotaltotal_estoque.AsFloat +
+  {        qryComprasTotaltotal_pedido.AsFloat +  ver com JR }
+          qryComprasTotalsugestao.AsFloat) /
+          (qryComprasTotaltotal_vendido.AsFloat / qryComprasTotalperiodo.AsInteger);
+
+//    else
+
+      qryComprasTotaldiasEstCalcPedCompra.asFloat :=
+         (qryComprasTotaltotal_estoque.AsFloat +
+          qryComprasTotaltotal_pedido.AsFloat +
+          qryComprasTotalsugestao.AsFloat) /
+          (qryComprasTotaltotal_vendido.AsFloat / qryComprasTotalperiodo.AsInteger);
+  end
+  else
+  begin
+    qryComprasTotaldiasEstoqueCalculado.asFloat := 999999.99;
+    qryComprasTotaldiasEstCalcPedCompra.asFloat := 999999.99;
+  end;
+
+end;
+
+procedure TdtmConsultaCompras.frpComprasGetValue(const ParName: String;
+  var ParValue: Variant);
+begin
+  inherited;
+  if ParName = 'PRODUTO' then
+   ParValue := qryComprasTotalprodutovisual.AsString
+  else
+  if ParName = 'NOMEPRODUTO' then
+   ParValue := qryComprasTotalnomeproduto.AsString
+  else
+  if ParName = 'MARCA' then
+   ParValue := qryComprasTotalmarca.AsString
+  else
+  if ParName = 'REFERENCIA' then
+   ParValue := qryComprasTotalreferencia.AsString
+  else
+  if ParName = 'TOTAL_ESTOQUE' then
+   ParValue := qryComprasTotaltotal_estoque.AsCurrency
+  else
+  if ParName = 'TOTAL_PEDIDO' then
+   ParValue := qryComprasTotaltotal_pedido.AsInteger
+  else
+  if ParName = 'TOTAL_VENDIDO' then
+   ParValue := qryComprasTotaltotal_vendido.AsCurrency
+  else
+  if ParName = 'SUGESTAO' then
+   ParValue := qryComprasTotalsugestao.AsCurrency
+  else
+  if ParName = 'PRECOVENDA' then
+   ParValue := FormatarValor(qryComprasTotalprecovenda.AsFloat,2)
+  else
+  if ParName = 'TOTALVENDA' then
+   ParValue := FormatarValor(qryComprasTotaltotalvenda.AsFloat,2)
+  else
+  if ParName = 'MARKUP' then
+   ParValue := FormatarValor(qryComprasTotalmarkup.AsFloat,2)
+  else
+  if ParName = 'TOTALCUSTO' then
+   ParValue := FormatarValor(qryComprasTotaltotalcusto.AsFloat,2)
+  else
+  if ParName = 'PRECOCOMICMS' then
+   ParValue := FormatarValor(qryComprasTotalprecocomicms.AsFloat,2)
+  else
+  if ParName = 'DATACOMPRA' then
+   ParValue := formatdatetime('dd/mm/yy', qryComprasTotaldatacompra.AsDateTime)
+  else
+  if ParName = 'QtDECOMPRA' then
+   ParValue := qryComprasTotalQtdecompra.AsCurrency
+  else
+  if ParName = 'GTOTALVENDA' then
+   ParValue := FormatarValor(FGTotalVenda,2)
+  else
+  if ParName = 'GTOTALCUSTO' then
+   ParValue := FormatarValor(FGTotalCusto,2)
+  else
+  if ParName = 'ABC' then
+   ParValue := qryComprasTotalresultadocurvaabc.asstring;
+
+end;
+
+procedure TdtmConsultaCompras.SetVisualizacao(const Value: Integer);
+begin
+  FVisualizacao := Value;
+  if not AbaSimilares then
+  begin
+
+    case FVisualizacao of
+      0: dsrVVendas.DataSet := qryVVendas;
+      1: dsrVVendas.DataSet := qryVVendas_porGrupo;
+      2: dsrVVendas.DataSet := qryVVendas_porFilial;
+    end;
+
+  end
+  else
+  begin
+
+    case FVisualizacao of
+      0: dsrVVendasSimilares.DataSet := qryVVendas_Similares;
+      1: dsrVVendasSimilares.DataSet := qryVVendas_porGrupo_Similares;
+      2: dsrVVendasSimilares.DataSet := qryVVendas_porFilial_Similares;
+    end;
+
+  end;
+end;
+
+function TdtmConsultaCompras.GetCodigoFilialCompras: Integer;
+begin
+ result := qryComprasFiliaisGrupofilial.AsInteger;
+end;
+
+procedure TdtmConsultaCompras.SetParametroFornecedor(const Value: String);
+begin
+  FParametroFornecedor := Value;
+  if (value <>'') then
+   ParametroCabecalho := ParametroCabecalho+' Fornec.: '+value;
+end;
+
+function TdtmConsultaCompras.GetColunadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryComprasTotalcoluna.AsString)
+end;
+
+function TdtmConsultaCompras.GetLinhadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryComprasTotallinha.AsString)
+end;
+
+
+procedure TdtmConsultaCompras.qryComprasGruposFiliaisAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+end;
+
+{procedure TdtmConsultaCompras.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\consulta_compras.sql') then
+    Listar.loadfromfile('c:\consulta_compras.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\consulta_compras.sql');
+  listar.free;
+end;
+}
+procedure TdtmConsultaCompras.SetParametroPercentual(const Value: String);
+begin
+  FParametroPercentual := Value;
+  if (FParametroPercentual<>'0') and
+     (FParametroPercentual<>'') then
+   FParametroCabecalho := FParametroCabecalho+' com '+FParametroPercentual+'% acima do minimo ';
+end;
+
+procedure TdtmConsultaCompras.qryProdutosSimilaresAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  RefazConsultapornome(qryComprasGruposFiliais_similares,['periodo','diasproporcional',
+                                                    'diasestoque',
+                                                    'PedidosEntreFiliais',
+                                                    'NaoConsiderarPedidosCompra',
+                                                    'Inicio','Fim','similar'],
+                                            [GetPeriodo,
+                                             FParametroDiasEstoqueProporcional,
+                                             FParametroDiasEstoque,
+                                             PedidosEntreFiliais,
+                                             NaoConsiderarPedidosCompra,
+                                             FParametroDataInicial,
+                                             FParametroDataFinal,
+                                             qryProdutosSimilaresproduto.asString
+
+                                             ], true);
+
+   RefazConsultapornome(qryVVendas_Similares,['datainicial','datafinal','similar'],[FParametroDataInicial, FParametroDataFinal, qryProdutosSimilaresproduto.asString], true);
+   RefazConsultapornome(qryDetalhesCompra_Similares,['similar'],[qryProdutosSimilaresproduto.asString], true);
+   RefazConsultapornome(qryDetalhesPrecos_Similiares,['similar'],[qryProdutosSimilaresproduto.asString],true);
+
+{
+  if qryComprasGruposFiliais_similares.active then
+    qryComprasGruposFiliais_similares.locate('grupo', vAuxGrupoAntesScroll, []);
+
+  if qryComprasFiliaisGrupo.active then
+    qryComprasFiliaisGrupo_Similares.locate('filial', vAuxFilialAntesScroll, []);
+    }
+
+
+   if Assigned(OnScrollLinhaColunaGradeSimilares) then
+     OnScrollLinhaColunaGradeSimilares(qryProdutosSimilares);
+
+
+end;
+
+function TdtmConsultaCompras.GetColunadaGradeSimilares: String;
+begin
+  Result := PrimeiraLetraEmMaiuscula(qryProdutosSimilarescoluna.AsString);
+end;
+
+function TdtmConsultaCompras.GetLinhadaGradeSimilares: String;
+begin
+  Result := PrimeiraLetraEmMaiuscula(qryProdutosSimilareslinha.AsString);
+end;
+
+procedure TdtmConsultaCompras.RefazConsultaProdutosSimilares(SomenteTotais: Boolean);
+begin
+
+    if FParametroOrdenacao = 1 then
+      qryProdutosSimilares.MacroByName('ORDERBY').AsString := 'ORDER BY UPPER(TO_ASCII(nomeproduto,''LATIN1'')), valorgrade1, valorgrade2, produtovisual'
+    else
+      qryProdutosSimilares.MacroByName('ORDERBY').AsString := 'ORDER BY produtovisual, UPPER(TO_ASCII(nomeproduto,''LATIN1'')), valorgrade1, valorgrade2';
+    qryProdutosSimilares.MacroByName('Filiais').AsString := qryComprasTotal.MacroByName('Filiais').AsString;
+
+    if not somentetotais then
+      ReFazConsultaporNome(qryProdutosSimilares,['produto','PedidosEntreFiliais',
+                           'NaoConsiderarPedidosCompra',
+                           'inicio','fim', 'periodo', 'diasproporcional',
+                           'diasestoque', 'filialbase'],
+                         [qryComprasTotalproduto.AsString,
+                          PedidosEntreFiliais,
+                          NaoConsiderarPedidosCompra,
+                          FParametroDataInicial,
+                          FParametroDataFinal,
+                          GetPeriodo,
+                          FParametroDiasEstoqueProporcional,
+                          FParametroDiasEstoque,
+                          filialbase
+                          ]);
+
+    qryTotalProdutosSimilares.MacroByName('ListadeProdutos').AsString := vListadeProdutos;
+    qryTotalProdutosSimilares.MacroByName('Filiais').AsString := qryComprasTotal.MacroByName('Filiais').AsString;
+
+    if somentetotais and (vListadeProdutos<>'') then
+      ReFazConsultaporNome(qryTotalProdutosSimilares,['PedidosEntreFiliais',
+                                                    'NaoConsiderarPedidosCompra',
+                                                    'inicio','fim', 'periodo',
+                                                    'diasproporcional',
+                                                    'diasestoque'],
+                       [PedidosEntreFiliais,
+                        NaoConsiderarPedidosCompra,
+                        FParametroDataInicial,
+                        FParametroDataFinal,
+                        GetPeriodo,
+                        FParametroDiasEstoqueProporcional,
+                        FParametroDiasEstoque
+                        ]);
+
+
+
+  if qryComprasFiliaisGrupo_Similares.active then
+    qryComprasFiliaisGrupo_Similares.locate('filial', qryComprasFiliaisGrupofilial.AsInteger, []);
+
+end;
+
+procedure TdtmConsultaCompras.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ FileName: String;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  FileName := 'c:\teclux\Compras.sql';
+
+  if fileexists(FileName) then
+    Listar.loadfromfile(FileName);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(FileName);
+  listar.free;
+end;
+
+procedure TdtmConsultaCompras.SelecionarProdutos(Marcar, Todos: Boolean);
+begin
+ if qryComprasTotal.Active then
+ begin
+   if Todos then
+    begin
+      try
+        GuardarRegistroAtual(qryComprasTotal,true);
+        qryComprasTotal.First;
+        while not qryComprasTotal.Eof do
+        begin
+          qryComprasTotal.Edit;
+          qryComprasTotalselecionado.Asboolean:= Marcar;
+          qryComprasTotal.Post;
+
+          AdicionarRetirarProdutoMarcado;
+
+          qryComprasTotal.Next;
+        end;
+      finally
+        VoltarRegistroAtual(qryComprasTotal);
+      end;
+    end
+    else
+    begin
+//      GuardarRegistroAtual(qryComprasTotal,True);
+
+      try
+
+//        qryComprasTotal.oncalcFields := nil;
+
+        qryComprasTotal.Edit;
+        qryComprasTotalselecionado.asBoolean:= not qryComprasTotalselecionado.asBoolean;
+        qryComprasTotal.Post;
+
+        AdicionarRetirarProdutoMarcado;
+
+      finally
+//        qryComprasTotal.oncalcFields := qryComprasTotalCalcFields;
+      end;
+//      VoltarRegistroAtual(qryComprasTotal);
+    end;
+  end;
+end;
+
+function TdtmConsultaCompras.VerificarSelecionados: Boolean;
+var i:Integer;
+begin
+  i:=0;
+  try
+    GuardarRegistroAtual(qryComprasTotal,True);
+    qryComprasTotal.First;
+    while not qryComprasTotal.Eof do
+    begin
+      if qryComprasTotalselecionado.Asboolean then
+      begin
+         inc(i);
+         break;
+      end;
+      qryComprasTotal.Next;
+    end;
+  finally
+    VoltarRegistroAtual(qryComprasTotal);
+  end;
+  Result:= i =0;
+end;
+
+procedure TdtmConsultaCompras.qryComprasGruposFiliaisCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  {
+  if qryComprasGruposFiliaistotal_vendido.AsCurrency<>0 then
+    qryComprasGruposFiliaisdiasestoque.AsCurrency := ((qryComprasGruposFiliaistotal_estoque.AsCurrency + qryComprasGruposFiliaistotal_pedidos_filiais.AsCurrency)/
+                                             (qryComprasGruposFiliaistotal_vendido.AsCurrency  /
+                                              DaysBetween(strtoDateTime(ParametroDataInicial), StrToDateTime(ParametroDataFinal))))
+  else
+    qryComprasGruposFiliaisdiasestoque.clear;
+  }
+end;
+
+procedure TdtmConsultaCompras.qryComprasFiliaisGrupoCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+       {
+  if qryComprasFiliaisGrupototal_vendido.AsCurrency<>0 then
+    qryComprasFiliaisGrupodiasestoque.AsCurrency := ((qryComprasFiliaisGrupototal_estoque.AsCurrency + qryComprasFiliaisGrupototal_pedidos_filiais.AsCurrency)/
+                                             (qryComprasFiliaisGrupototal_vendido.AsCurrency  /
+                                              DaysBetween(strtoDateTime(ParametroDataInicial), StrToDateTime(ParametroDataFinal))))
+  else
+    qryComprasFiliaisGrupodiasestoque.clear;
+       }
+
+  if qryComprasGruposFiliaistotal_estoque.AsFloat <> 0 then
+    qryComprasFiliaisGrupopercestoque.AsFloat := qryComprasFiliaisGrupototal_estoque.AsFloat * 100  / qryComprasGruposFiliaistotal_estoque.AsFloat
+  else
+    qryComprasFiliaisGrupopercestoque.AsFloat := 0;
+
+  if qryComprasFiliaisGrupototal_vendido.asFloat <> 0 then
+  begin
+      qryComprasFiliaisGrupodiasEstoqueCalculado.asFloat :=
+         (qryComprasFiliaisGrupototal_estoque.AsFloat +
+{         (qryComprasFiliaisGrupoemEstoque.AsFloat +}
+
+  {        qryComprasFiliaisGrupototal_pedido.AsFloat +  ver com JR }
+          qryComprasFiliaisGruposugestao.AsFloat) /
+          (qryComprasFiliaisGrupototal_vendido.AsFloat / qryComprasFiliaisGrupoperiodo.AsInteger);
+
+      qryComprasFiliaisGrupodiasEstCalcPedCompra.asFloat :=
+         (qryComprasFiliaisGrupototal_estoque.AsFloat +
+          qryComprasFiliaisGrupototal_pedido.AsFloat +
+          qryComprasFiliaisGruposugestao.AsFloat) /
+          (qryComprasFiliaisGrupototal_vendido.AsFloat / qryComprasFiliaisGrupoperiodo.AsInteger);
+  end
+  else
+  begin
+    qryComprasFiliaisGrupodiasEstoqueCalculado.asFloat := 999999.99;
+    qryComprasFiliaisGrupodiasEstCalcPedCompra.asFloat := 999999.99;
+  end;
+
+
+end;
+
+function TdtmConsultaCompras.GerarDadosRequisicoes(SomenteRegistroAtual: Boolean): Boolean;
+var
+  vPosition : Double;
+  vtotalfiliaisemestoque : Currency;
+  vRecnoFilialRequisitante : integer;
+
+  (*
+  procedure AdicionarPedidosFiliais;
+  begin
+    qryPedidosFiliais_.Append;
+    qryPedidosFiliais_produto.AsString := qryComprasFiliaisGrupoProduto.AsString;
+    qryPedidosFiliais_produtovisual.AsString := qryComprasTotalProdutovisual.AsString;
+
+    if qryComprasFiliaisGrupofilial.AsString = FilialRequisitante then
+      qryPedidosFiliais_descricaoproduto.AsString := 'TOTAL FILIAL REQUISITANTE: '+FilialRequisitante+' - '+MnemonicoFilialBase
+    else
+      qryPedidosFiliais_descricaoproduto.AsString := qryComprasTotalnomeproduto.AsString;
+
+    qryPedidosFiliais_requisitante.AsString := FilialRequisitante;
+
+    qryPedidosFiliais_quantidade.AsCurrency := qryComprasTotalsugestao.AsCurrency;
+
+    qryPedidosFiliais_requisitada.Asinteger := qryComprasFiliaisGrupofilial.asinteger;
+    qryPedidosFiliais_mnemonico.AsString := qryComprasFiliaisGrupomnemonico.asString;
+    qryPedidosFiliais_emestoque.AsCurrency :=  qryComprasFiliaisGrupoemestoque.asCurrency;
+    qryPedidosFiliais_emestoqueanterior.AsCurrency :=  qryComprasFiliaisGrupoemestoque.asCurrency;
+
+    qryPedidosFiliais_estoquetotal.AsCurrency :=  qryComprasFiliaisGrupototal_estoque.asCurrency;
+
+    qryPedidosFiliais_diasestoque.AsCurrency :=  qryComprasFiliaisGrupodiasestoque.asCurrency;
+    qryPedidosFiliais_diasestoquecalculado.AsCurrency :=  qryComprasFiliaisGrupodiasEstoqueCalculado.asCurrency;
+
+    qryPedidosFiliais_reservado.AsCurrency :=  qryComprasFiliaisGruporeservado.AsCurrency;
+    qryPedidosFiliais_transito.AsCurrency :=  qryComprasFiliaisGrupototal_transito.AsCurrency;
+    qryPedidosFiliais_reservaprevia.AsCurrency :=  qryComprasFiliaisGruporeservaprevia.AsCurrency;
+    qryPedidosFiliais_futuro.AsCurrency :=  qryComprasFiliaisGrupofuturo.AsCurrency;
+    qryPedidosFiliais_total_vendido.AsCurrency :=  qryComprasFiliaisGrupototal_vendido.AsCurrency;
+    qryPedidosFiliais_sugestao.AsCurrency :=  qryComprasFiliaisGruposugestao.AsCurrency;
+
+    {
+    if FilialSolicitada = qryPedidosFiliais_requisitada.Asinteger then
+       qryPedidosFiliais_qtdepedida.AsCurrency := qryPedidosFiliais_quantidade.AsCurrency;
+       }
+
+    IF qryComprasFiliaisGrupoperiodo.asinteger = 0 THEN
+      qryPedidosFiliais_periodo.asinteger := 1
+    else
+      qryPedidosFiliais_periodo.asinteger := qryComprasFiliaisGrupoperiodo.asinteger;
+
+    qryPedidosFiliais_total_pedido.asCurrency :=  qryComprasFiliaisGrupototal_pedido.AsCurrency;
+
+
+    qryPedidosFiliais_.post;
+
+  end;
+  *)
+
+begin
+
+
+  TtecDBGrid(self.owner.FindComponent('dbgProdutos')).SalvarPosicaoGrid;
+  TtecDBGrid(self.owner.FindComponent('dbgProdutosGrupos')).SalvarPosicaoGrid;
+  TtecDBGrid(self.owner.FindComponent('dbgProdutosFiliais')).SalvarPosicaoGrid;
+
+
+  result := true;
+
+  requisicoesgeradas := false;
+  if SomenteRegistroAtual then
+  begin
+    ListadeProdutosRequisitados := qryComprasTotalProduto.asstring;
+    ListadeQuantidadesRequisitadas := qryComprasTotalsugestao.asstring;
+  end
+  else
+  begin
+    ListadeProdutosRequisitados := RetornarLista(qryprodutosselecionados, qryProdutosSelecionadosproduto, nil, false);
+    ListadeQuantidadesRequisitadas := RetornarLista(qryprodutosselecionados, qryProdutosSelecionadosquantidade, nil, false);
+  end;
+
+  qryPedidosFiliais.params := qryComprasFiliaisGrupo.params;
+  qryPedidosFiliais.macros := qryComprasFiliaisGrupo.macros;
+  qryPedidosFiliais.macrobyname('produtos').asString :=
+    qryPedidosFiliais.macrobyname('produtos').asString + ' and p.codigo in (' +
+      ListadeProdutosRequisitados + ')';
+
+  qryPedidosFiliais.parambyname('requisitante').asString := FilialRequisitante;
+  qryPedidosFiliais.macrobyname('ArrayProduto').asString := ListadeProdutosRequisitados;
+  qryPedidosFiliais.macrobyname('ArrayQuantidade').asString := ListadeQuantidadesRequisitadas;
+
+  qryPedidosFiliais.close;
+  qryPedidosFiliais.open;
+
+   {
+  if SomenteRegistroAtual then
+  begin
+    qryPedidosFiliais.edit;
+    qryPedidosFiliaissugestao.asCurrency := qryComprasTotalSugestao.asCurrency;
+    qryPedidosFiliais.post;
+  end
+  else
+  begin
+    qryprodutosselecionados.first;
+    while not qryprodutosselecionados.eof do
+    begin
+      if qryPedidosFiliais.locate('produto', qryprodutosselecionadosproduto.asstring, []) then
+      begin
+        qryPedidosFiliais.edit;
+        qryPedidosFiliaissugestao.asCurrency := qryProdutosSelecionadosquantidade.asCurrency;
+        qryPedidosFiliais.post;
+      end;
+
+      qryprodutosselecionados.next;
+
+    end;
+  end;
+  }
+
+
+  if result then
+  begin
+    qryComprasTotal.linkFields := 'produto=produto';
+    qryComprasTotal.mastersource := dsrPedidosFiliais;
+  end;
+
+
+  (*
+
+
+  qryPedidosFiliais_.close;
+  qryPedidosFiliais_.open;
+
+  qryPedidosFiliais_.readonly := false;
+
+  try
+
+    if SomenteRegistroAtual then
+      vProdutoAtualaSerFiltrado := qrycomprastotalproduto.asstring
+    else
+      vProdutoAtualaSerFiltrado := '';
+
+
+    qryComprasGruposFiliais.mastersource := nil;
+    qryComprasFiliaisGrupo.mastersource := nil;
+
+    dsrPedidosFiliais_.onDataChange := nil;
+    qryPedidosFiliais_.AfterScroll := nil;
+    qryPedidosFiliais_.beforepost := nil;
+
+    qryComprasTotal.AfterScroll := nil;
+
+    qryComprasGruposFiliais.afterscroll := nil;
+
+
+    qryComprasTotal.GuardarRegistroAtual(true);
+    qryComprasGruposFiliais.GuardarRegistroAtual(true);
+    qryComprasFiliaisGrupo.GuardarRegistroAtual(true);
+
+    qryComprasTotal.filtered := true;
+    qryComprasGruposFiliais.filtered := true;
+    qryComprasFiliaisGrupo.filtered := true;
+
+
+    if not SomenteRegistroAtual then
+      qryComprasTotal.First;
+
+    qryComprasFiliaisGrupo.SortDescByField('produto,grupo,diasestoque,emestoque,filial');
+
+    while not qryComprasTotal.Eof do
+    begin
+      vPosition :=  (qryComprasTotal.RecNo * 100) / qryComprasTotal.recordcount;
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Position := vPosition;
+      Application.ProcessMessages;
+
+      if (qryComprasTotalselecionado.AsBoolean {and
+         (qryComprasTotalsugestao.AsCurrency <> 0)}) or SomenteRegistroAtual then
+      begin
+
+        vtotalfiliaisemestoque := 0;
+        ListadeProdutosRequisitados := ListadeProdutosRequisitados + qryComprasTotalproduto.AsString +',';
+
+        try
+          qryComprasGruposFiliais.first;
+
+          while not qryComprasGruposFiliais.eof do
+          begin
+            IF (qryComprasGruposFiliaisproduto.asstring = qrycomprastotalproduto.asstring) then
+            begin
+
+              vRecnoFilialRequisitante := -1;
+
+              qryComprasFiliaisGrupo.first;
+
+              while not qryComprasFiliaisGrupo.eof do
+              begin
+                IF (qryComprasFiliaisGrupoproduto.asstring = qryComprasGruposFiliaisproduto.asstring) and
+                   (qryComprasFiliaisGrupogrupo.asString = qryComprasGruposFiliaisgrupo.asString) then
+                begin
+
+                  IF (qryComprasFiliaisGrupototal_estoque.ascurrency <> 0) and
+                     (qryComprasFiliaisGrupofilial.asString <> FilialRequisitante) and
+                     (qryComprasFiliaisGrupotipofilial.asString <> 'V') {and
+                     not qryPedidosFiliais_.locate('produto;requisitada',
+                         VarArrayOf([qryComprasFiliaisGrupoProduto.asString,
+                                     qryComprasFiliaisGrupoFilial.asString]), [])} then
+                  begin
+                    vtotalfiliaisemestoque := vtotalfiliaisemestoque + qryComprasFiliaisGrupototal_estoque.asCurrency;
+                    AdicionarPedidosFiliais;
+                  end
+                  else
+                  begin
+                  IF (qryComprasFiliaisGrupofilial.asString = FilialRequisitante) and
+                     (qryComprasFiliaisGrupotipofilial.asString <> 'V') then
+                    vRecnoFilialRequisitante := qryComprasFiliaisGrupo.recno;
+                  end;
+                end;
+
+                qryComprasFiliaisGrupo.next;
+
+              end;
+
+              if (vRecnoFilialRequisitante <> -1) then
+              begin
+                qryComprasFiliaisGrupo.recno := vRecnoFilialRequisitante;
+                AdicionarPedidosFiliais;
+              end;
+            end;
+
+            qryComprasGruposFiliais.next
+
+          end;
+
+        finally
+
+
+        end;
+
+      end;
+
+      AtribuirDados(qryPedidosFiliais_,
+                    [qryPedidosFiliais_totalfiliaisemestoque],
+                    [vtotalfiliaisemestoque],
+                    [qryPedidosFiliais_produto],
+                    [qryComprasTotalproduto.asVariant],
+                    ['=']);
+
+      if not SomenteRegistroAtual then
+      begin
+      {
+        qryComprasTotal.enablecontrols;
+        qryComprasGruposFiliais.enablecontrols;
+        qryComprasFiliaisGrupo.enablecontrols;
+        }
+
+        qryComprasTotal.next
+      end
+      else
+        break;
+    end;
+
+  finally
+
+
+//    qryComprasFiliaisGrupo.SortClear;
+//    qryComprasFiliaisGrupo.SortByfield('mnemonico');
+//    qryComprasTotal.filtered := false;
+
+    result := qryPedidosFiliais_.recordcount <> 0;
+
+    qryComprasTotal.VoltarRegistro;
+    qryComprasGruposFiliais.VoltarRegistro;
+    qryComprasFiliaisGrupo.VoltarRegistro;
+//    dsrComprasFiliaisGrupo.enabled := true;
+
+
+    if length(ListadeProdutosRequisitados)<>0 then
+      delete(ListadeProdutosRequisitados, length(ListadeProdutosRequisitados), 1);
+
+
+    dsrPedidosFiliais_.onDataChange := dsrPedidosFiliais_DataChange;
+    qryPedidosFiliais_.AfterScroll := qryPedidosFiliais_AfterScroll;
+
+    qryComprasTotal.AfterScroll := qryComprasTotalAfterScroll;
+    qryComprasGruposFiliais.afterscroll := qryComprasGruposFiliaisafterscroll;
+
+    {
+    qryComprasGruposFiliais.mastersource := dsrComprasTotal;
+    qryComprasFiliaisGrupo.mastersource := dsrComprasGruposFiliais;
+
+
+    qryComprasTotal.filtered := false;
+    qryComprasGruposFiliais.filtered := false;
+    qryComprasFiliaisGrupo.filtered := false;
+    }
+
+    if result then
+    begin
+      qryPedidosFiliais_.filtered := true;
+//      qryComprasTotal.linkFields := 'produto=produto';
+//      qryComprasTotal.mastersource := dsrPedidosFiliais_;
+    end;
+
+  end;
+  *)
+
+end;
+
+procedure TdtmConsultaCompras.qryComprasTotalAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryComprasTotal.cancel;
+
+end;
+
+procedure TdtmConsultaCompras.qryComprasFiliaisGrupo_SimilaresCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  if qryComprasGruposFiliais_Similarestotal_estoque.AsFloat <> 0 then
+    qryComprasFiliaisGrupo_Similarespercestoque.AsFloat := qryComprasFiliaisGrupo_Similarestotal_estoque.AsFloat * 100  / qryComprasGruposFiliais_Similarestotal_estoque.AsFloat
+  else
+    qryComprasFiliaisGrupo_Similarespercestoque.AsFloat := 0;
+
+end;
+
+function TdtmConsultaCompras.VerificarEstoqueFilialRequisitada(
+           FilialRequisitada, mnemonico : String;
+          { UsarFilialGeral,}
+           ChecarEstoqueFilialSolicitada: boolean): boolean;
+var
+  vQuantidadeEstoque: Currency;
+  vRegistroAtual : Tbookmark;
+  vExisteDiferencaSaldoEstoque : Boolean;
+  vLista : String;
+begin
+  vTotalAtendido := 0;
+
+  if (qryPedidosFiliais.state in [dsinsert, dsedit]) then
+    qryPedidosFiliais.post;
+
+  result := qryPedidosFiliais.recordcount <> 0;
+  if result then
+  begin
+    vExisteDiferencaSaldoEstoque  := false;
+    qryEstoques.Close;
+             {
+    if usarfilialgeral then
+      qryEstoques.MacroByName('Condicao').AsString := ' and f.codigo = ' + FilialRequisitada + ' and e.produto in ('+
+        RetornarLista(qryPedidosFiliais, qryPedidosFiliaisproduto) + ')'
+    else
+    }
+     vLista := RetornarLista(qryPedidosFiliais, [qryPedidosFiliaisproduto, qryPedidosFiliaisfilial], nil) + ')';
+
+      qryEstoques.MacroByName('Condicao').AsString := ' and (e.produto, e.filial) in ('+
+        RetornarLista(qryPedidosFiliais, [qryPedidosFiliaisproduto, qryPedidosFiliaisfilial], nil) + ')';
+
+    qryEstoques.Open;
+
+//    ExisteAlgumEstoquenaFilialRequisitada := false;
+    vRegistroAtual := qryComprasTotal.GetBookmark;
+    GuardarRegistroAtual(qryPedidosFiliais,True);
+  //  qryComprasTotal.DisableControls;
+  //  qryComprasGruposFiliais.DisableControls;
+  //  qryComprasFiliaisGrupo.DisableControls;
+
+    try
+      qryPedidosFiliais.First;
+      while not qryPedidosFiliais.Eof do
+      begin
+
+      {
+        qryPedidosFiliais.Edit;
+        qryPedidosFiliaisemestoque.clear;
+        qryPedidosFiliais.post;
+        }
+
+        if {(usarfilialgeral and
+            qryEstoques.Locate('produto', qryPedidosFiliaisproduto.AsString, [])) or}
+
+           ({not usarfilialgeral and  }
+            qryEstoques.Locate('produto;filial', VarArrayOf([qryPedidosFiliaisproduto.AsString, qryPedidosFiliaisfilial.asinteger]), [])) then
+
+        begin
+
+          if qryPedidosFiliaisemestoque.AsCurrency <> qryEstoquesemestoque.AsCurrency then
+          begin
+            qryPedidosFiliais.readonly := false;
+
+            qryPedidosFiliais.Edit;
+            qryPedidosFiliaisemestoque.AsCurrency := qryEstoquesemestoque.AsCurrency;
+
+  //          if not ChecarEstoqueFilialSolicitada then
+  //            qryPedidosFiliaisqtdeestoqueanterior.AsCurrency := qryEstoquesemestoque.AsCurrency;
+
+  {
+            if usarfilialgeral then
+            begin
+              qryPedidosFiliaisfilial.AsString := FilialRequisitada;
+              qryPedidosFiliaismnemonico.asString := mnemonico;
+            end;
+            }
+
+            qryPedidosFiliais.post;
+          end;
+
+          if qryPedidosFiliaisrequisitante.asinteger <> qryPedidosFiliaisfilial.asinteger then
+            vTotalAtendido := vTotalAtendido + qryPedidosFiliaisqtdepedida.asCurrency;
+
+          if ChecarEstoqueFilialSolicitada and
+             (qryPedidosFiliaisemestoque.AsCurrency <> qryPedidosFiliaisemestoqueanterior.AsCurrency) then
+               vExisteDiferencaSaldoEstoque  := true;
+
+//          ExisteAlgumEstoquenaFilialRequisitada := true;
+        end
+        else
+          MensagemAviso(format('O produto %s não esta presente na filial requisitada %s.',
+            [qryPedidosFiliaisprodutovisual.AsString,
+              qryPedidosFiliaisfilial.asString]));
+
+        qryPedidosFiliais.Next;
+      end;
+
+      if vExisteDiferencaSaldoEstoque then
+      begin
+         if assigned(drawGridPedidosFiliais) then
+            drawGridPedidosFiliais(nil);
+
+         result := MensagemConfirmacao('Existem diferenças no saldo do estoque de alguns produtos.') = smbOk;
+      end;
+
+    finally
+
+      VoltarRegistroAtual(qryPedidosFiliais);
+      qryComprasTotal.GotoBookmark(vRegistroAtual);
+      qryComprasTotal.FreeBookmark(vRegistroAtual);
+  //    qryComprasTotal.EnableControls;
+  //    qryComprasGruposFiliais.EnableControls;
+  //    qryComprasFiliaisGrupo.EnableControls;
+    end;
+  end;
+
+end;
+
+
+function TdtmConsultaCompras.IncluirPedidosFiliais: boolean;
+var
+ DadosFilial : TVariantArray;
+ FilialEstoque : String;
+ vRetornoMensagem : TMessageButton;
+ vRegistrosGravados : boolean;
+ vProdutos_e_Filiais_Pedidos : String;
+ vProdutos_Pedidos : String;
+ vposition : Double;
+
+begin
+  try
+
+    GuardarRegistroAtual(qryPedidosFiliais, true);
+    qryComprasTotal.mastersource := nil;
+
+    vRegistrosGravados := false;
+    result := true;
+
+    {Se o pedido já existir e estiver em aberto: acrescentar qtde ao pedido}
+
+    vProdutos_e_Filiais_Pedidos := RetornarLista(qryPedidosFiliais, [qryPedidosFiliaisproduto, qryPedidosFiliaisfilial], qryPedidosFiliaisIrParaLista);
+    vProdutos_Pedidos := '';
+
+
+    qryAtualizarPedidosFiliais.Close;
+    qryAtualizarPedidosFiliais.MacroByName('ListadeProdutosFilialRequisitada').AsString := vProdutos_e_Filiais_Pedidos;
+    qryAtualizarPedidosFiliais.parambyname('Requisitante').AsString := FilialRequisitante;
+    qryAtualizarPedidosFiliais.open;
+
+
+    qryPedidosFiliais.First;
+
+    while not qryPedidosFiliais.Eof do
+    begin
+
+      vPosition :=  (qryPedidosFiliais.RecNo * 100) / qryPedidosFiliais.recordcount;
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Position := vPosition;
+      Application.ProcessMessages;
+
+
+      IF (qryPedidosFiliaisqtdepedida.AsCurrency > 0) and
+         (qryPedidosFiliaisrequisitante.asinteger <> qryPedidosFiliaisfilial.asinteger) THEN
+      BEGIN
+        result := true;
+
+        if not parsistema.Permitir_Requisicoes_de_Produtos_Duplicadas and
+
+           qryAtualizarPedidosFiliais.Locate('produto;requisitada',
+           VarArrayOf([qryPedidosFiliaisproduto.asstring,
+                       qryPedidosFiliaisfilial.asstring]), []) then
+        begin
+
+          vRetornoMensagem := smbYES;
+
+          if qryAtualizarPedidosFiliaisqtdepedida.AsCurrency = qryPedidosFiliaisqtdepedida.AsCurrency then
+            vRetornoMensagem := MensagemSelecionaOpcao(
+                                  format('A quantidade requisitada para a filial ''%s'' e produto ''%s'' ficará com quantidade dobrada.',
+                                         [qryPedidosFiliaisfilial.asstring,
+                                          qryPedidosFiliaisprodutovisual.asstring]));
+
+
+          case vRetornoMensagem of
+          smbYES: begin
+                    result := true;
+                    qryAtualizarPedidosFiliais.Edit;
+                    qryAtualizarPedidosFiliaisqtdepedida.AsCurrency := qryAtualizarPedidosFiliaisqtdepedida.AsCurrency + qryPedidosFiliaisqtdepedida.AsCurrency {qryPedidosFiliaisqtdeAtendida.AsCurrency};
+                    qryAtualizarPedidosFiliaisdata.AsDateTime := DataServidor;
+                    qryAtualizarPedidosFiliaishora.AsDateTime := HoraServidor;
+
+                    if qryPedidosFiliaisobservacao.asString<>'' then
+                    begin
+                      if qryAtualizarPedidosFiliaisobservacao.asString <> '' then
+                        qryAtualizarPedidosFiliaisobservacao.asString := qryAtualizarPedidosFiliaisobservacao.asString + ' ';
+
+                      qryAtualizarPedidosFiliaisobservacao.asString := qryAtualizarPedidosFiliaisobservacao.asString +
+                                                                       qryPedidosFiliaisobservacao.asString;
+                    end;
+                    qryAtualizarPedidosFiliais.post;
+                    vRegistrosGravados := true;
+                    vProdutos_Pedidos := vProdutos_Pedidos + qryPedidosFiliaisproduto.AsString+', ';
+                  end;
+
+          smbNo: result := false;
+          smbCancel : begin
+                        result := false;
+                        vProdutos_Pedidos := '';
+                        exit;
+                      end;
+          end;
+        end
+        else
+        begin
+          result := true;
+          qryAtualizarPedidosFiliais.Append;
+          spcPedidosTransferenciaProximoCodigo.Open;
+          qryAtualizarPedidosFiliaiscodigo.AsInteger:= spcPedidosTransferenciaProximoCodigonumero.AsInteger;
+          spcPedidosTransferenciaProximoCodigo.Close;
+          qryAtualizarPedidosFiliaisproduto.asstring := qryPedidosFiliaisproduto.AsString;
+          qryAtualizarPedidosFiliaisdata.asdatetime := DataServidor;
+          qryAtualizarPedidosFiliaishora.AsDateTime := HoraServidor;
+          qryAtualizarPedidosFiliaisrequisitante.AsString := FilialRequisitante;
+          qryAtualizarPedidosFiliaisrequisitada.asstring := qryPedidosFiliaisfilial.asstring;
+          qryAtualizarPedidosFiliaisqtdepedida.AsCurrency := qryPedidosFiliaisqtdepedida.AsCurrency {qryPedidosFiliaisqtdeAtendida.AsCurrency};
+          qryAtualizarPedidosFiliaissituacao.asstring := 'A';
+          qryAtualizarPedidosFiliaisobservacao.asVAriant := qryPedidosFiliaisobservacao.asVariant;
+
+          qryAtualizarPedidosFiliais.post;
+          vProdutos_Pedidos := vProdutos_Pedidos + qryPedidosFiliaisproduto.AsString+', ';
+          vRegistrosGravados := true;
+
+        end;
+
+        if result then
+        begin
+          if (ParSistema.RequisicaoSubtraiEstoque) then
+          begin
+            if not qryMovimentos.Active then
+              qryMovimentos.Open;
+
+            qryEstoqueBloqueio.Sql[05] := '((e.produto = ' + qryAtualizarPedidosFiliaisproduto.AsString + ')and' +
+                                    '(e.filial = '   + qryAtualizarPedidosFiliaisrequisitada.asstring  + '))';
+            qryEstoqueBloqueio.Open;
+            qryMovimentos.Append;
+
+            (*
+            spcMovimentosProximo.Open;
+            qryMovimentosnumero.AsInteger := spcMovimentosProximonumero.AsInteger;
+            spcMovimentosProximo.Close;
+            *)
+
+            qryMovimentosproduto.AsLargeInt   := qryAtualizarPedidosFiliaisproduto.AsLargeInt;
+
+            DadosFilial := ValorCampodaTabela('filiais', ['codigo'], [qryAtualizarPedidosFiliaisrequisitada.asstring], ['tipofilial', 'filial_estoque']);
+
+
+            if DadosFilial[1]<>null then
+              FilialEstoque := DadosFilial[1];
+
+            if (DadosFilial[0]='V') and (DadosFilial[1]=Null) then
+              FilialEstoque := qryAtualizarPedidosFiliaisrequisitada.asstring
+            else
+            if (DadosFilial[0]<>'V') then
+              FilialEstoque := qryAtualizarPedidosFiliaisrequisitada.asstring;
+
+            //qryMovimentosfilial.AsVariant    := qryAtualizarPedidosFiliaisrequisitada.AsVariant;
+            qryMovimentosfilial.AsVariant    := StrToInt(FilialEstoque);
+            qryMovimentosreferencia.AsString :='REQUISIÇÃO ' + qryAtualizarPedidosFiliaiscodigo.AsString;
+            qryMovimentosquantidade.Ascurrency := qryPedidosFiliaisqtdepedida.AsCurrency {qryPedidosFiliaisqtdeAtendida.AsCurrency};
+            qryMovimentostipomovimento.AsString:='TEP';
+            qryMovimentos.Post;
+
+          end;
+
+        end;
+
+
+      END;
+
+      qryPedidosFiliais.next;
+    end;
+
+  finally
+
+    VoltarRegistroAtual(qryPedidosFiliais);
+    qryComprasTotal.mastersource := dsrPedidosFiliais;
+
+    if vRegistrosGravados  then
+    begin
+      result := Perpetrar([qryAtualizarPedidosFiliais,qryMovimentos]);
+      if result then
+      begin
+        requisicoesgeradas := true;
+        MensagemAviso('Requisições geradas com sucesso.');
+        delete(vProdutos_Pedidos, length(vProdutos_Pedidos)-1, 2);
+
+        try
+          TfrmConsultaCompras(self.owner).DesativarFontesdeDados;
+          Reatualizar(vProdutos_Pedidos);
+        finally
+          TfrmConsultaCompras(self.owner).VoltarFontedeDados;
+        end;
+      end;
+    end
+    else
+    begin
+      requisicoesgeradas := false;
+      MensagemAviso('Nenhuma Requisição foi gerada.');
+      result := false;
+    end;
+
+  end;
+
+end;
+
+procedure TdtmConsultaCompras.BloquearEstoque;
+begin
+
+end;
+
+function TdtmConsultaCompras.LerArquivoCFG(Gravar: Boolean = false; ValorPedidosEntreFiliais: boolean = false): Boolean;
+var
+  ArquivoCFG: TIniFile;
+  PosSeparador: Integer;
+  Barra: String;
+begin
+{$IFDEF LINUX}
+  Barra := '/';
+{$ELSE }
+  Barra := '\';
+{$ENDIF}
+  if ParamCount >= 1 then
+    NomeArquivoCFG := ParamStr(1) + Barra + ctNomeArquivoCFG
+  else
+    NomeArquivoCFG := ExtractFilePath(Application.ExeName)+ ctNomeArquivoCFG;
+
+  if FileExists(NomeArquivoCFG) then
+  begin
+    ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+    try
+{$IFDEF LINUX}
+      ArquivoCFG.CaseSensitive := False;
+{$ENDIF}
+      try
+        if not ArquivoCFG.SectionExists(ConsultaComprasSection) then
+        begin
+          ArquivoCFG.Writebool(ConsultaComprasSection,'PedidosEntreFiliais',false);
+          ArquivoCFG.UpdateFile;
+        end;
+        
+        if Gravar then
+        begin
+          ArquivoCFG.WriteBool(ConsultaComprasSection, 'PedidosEntreFiliais', ValorPedidosEntreFiliais);
+          ArquivoCFG.UpdateFile;
+        end
+        else
+          PedidosEntreFiliais := ArquivoCFG.ReadBool(ConsultaComprasSection, 'PedidosEntreFiliais', false);
+
+      finally
+      end;
+    finally
+      ArquivoCFG.Free
+    end;
+  end
+  else
+  begin
+    MensagemErro(Format(ctERRORARQUIVOCFGNAOENCONTRADO, [NomeArquivoCFG]));
+    Result := False
+  end;
+end;
+
+procedure TdtmConsultaCompras.qryReducaoTabelaComprasAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  Perpetrar([qryReducaoTabelaCompras]);
+end;
+
+procedure TdtmConsultaCompras.qryReducaoTabelaComprasAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  Perpetrar([qryReducaoTabelaCompras]);
+end;
+
+procedure TdtmConsultaCompras.dsrComprasTotalDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if Field = qryComprasTotallembrarpedido   then
+  begin
+      qryAtualizarProduto.parambyname('lembrarpedido').asBoolean := Field.asBoolean;
+      qryAtualizarProduto.parambyname('datalembrarpedido').asDateTime := datahoraservidor;
+      qryAtualizarProduto.parambyname('usuariolembrarpedido').asInteger := usuariologin.CodigoUsuario;
+      qryAtualizarProduto.parambyname('codigo').asString := qryComprasTotalproduto.asString;
+      qryAtualizarProduto.execSQL;
+      perpetrar([qryAtualizarProduto]);
+
+  end
+  else
+  if Field = qryComprasTotalobslembrarpedido   then
+  begin
+      qryAtualizarObsProduto.parambyname('obslembrarpedido').asString := qryComprasTotalobslembrarpedido.asString;
+      qryAtualizarObsProduto.parambyname('codigo').asString := qryComprasTotalproduto.asString;
+      qryAtualizarObsProduto.execSQL;
+      perpetrar([qryAtualizarObsProduto]);
+  end
+  else
+
+  if (Field = qryComprasTotalminimo) or (Field = qryComprasTotalmaximo) then
+  begin
+
+      if qryComprasTotalmaximo.isnull then
+        qryAtualizarEstoque.ParamByName('maximo').Clear
+      else
+        qryAtualizarEstoque.ParamByName('maximo').asCurrency := qryComprasTotalmaximo.asCurrency;
+
+      if qryComprasTotalminimo.isnull then
+        qryAtualizarEstoque.ParamByName('minimo').Clear
+      else
+        qryAtualizarEstoque.ParamByName('minimo').asCurrency := qryComprasTotalminimo.asCurrency;
+
+      qryAtualizarEstoque.ParamByName('produto').asString := qryComprasTotalproduto.AsString;
+      qryAtualizarEstoque.ParamByName('filial').AsString := somentenumero(Filial);
+
+      qryAtualizarEstoque.ExecSql;
+      perpetrar([qryAtualizarEstoque]);
+
+
+  end
+  else
+  if field = qryComprasTotalsugestao then
+  begin
+    try
+//      qryComprasTotal.onCalcFields := nil;
+//      dsrComprasTotal.onDataChange := nil;
+
+      if (qryComprasTotalsugestao.AsCurrency > 0) and
+         not (qryComprasTotalselecionado.asBoolean) then
+         SelecionarProdutos(true, False)
+      else
+      if (qryComprasTotalsugestao.AsCurrency <= 0) and
+         (qryComprasTotalselecionado.asBoolean) then
+        SelecionarProdutos(false, False)
+    finally
+//      qryComprasTotal.onCalcFields := qryComprasTotalCalcFields;
+//      dsrComprasTotal.onDataChange := dsrComprasTotalDataChange;
+      AdicionarRetirarProdutoMarcado;
+    end;
+  end
+  else
+  if field = qryComprasTotalselecionado then
+     AdicionarRetirarProdutoMarcado
+     
+end;
+
+procedure TdtmConsultaCompras.MontarFiltroFiliaisEstoque(
+  Usar: TCheckListBox);
+var
+  STRFiliais: String;
+  cnt: Integer;
+begin
+  TodasFiliaisEstoque := True;
+  STRFiliais := '';
+
+  for cnt := 0 to FListaFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRFiliais := STRFiliais + '''' + IntToStr(Integer(FListaFiliais.Objects[cnt])) + ''','
+    else
+      TodasFiliaisEstoque := False;
+
+  STRFiliais := Copy(STRFiliais, 0, Length(STrFiliais) - 1);
+  FilialEstoque:=STRFiliais;
+  if Trim(STRFiliais) <> '' then
+    if not TodasFiliaisEstoque then
+      FParametroCabecalho:=FParametroCabecalho+' Filiais Estoque: '+STRFiliais
+    else FilialEstoque := '';
+
+  if (Trim(STRFiliais) = '') then
+    TodasFiliaisEstoque := true;
+end;
+
+procedure TdtmConsultaCompras.qryVVendasCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  if qryVVendasQtContrato.asinteger <> 0 then
+    qryVVendasMediaVendasContratos.asFloat := qryVVendastotalvendas.asFloat / qryVVendasQtContrato.asinteger
+  else
+    qryVVendasMediaVendasContratos.asFloat := 0;
+
+end;
+
+
+function TdtmConsultaCompras.GetListaConceitos: TStrings;
+begin
+  FListaConceitos:= TStringList.Create;
+  qryConceitos.Open;
+  while not qryConceitos.Eof do
+  begin
+    FListaConceitos.AddObject(format('%2s',[qryConceitoscodigo.AsString])+'.'+qryConceitosdescricao.AsString, Pointer(qryConceitoscodigo.AsInteger));
+    qryConceitos.Next;
+  end;
+  qryConceitos.Close;
+  Result := FListaConceitos;
+
+end;
+
+procedure Tdtmconsultacompras.MontarFiltroConceitos(
+  Usar: TCheckListBox);
+var
+  STRConceitos: String;
+  TodosConceitos : Boolean;
+  cnt: Integer;
+begin
+  TodosConceitos := True;
+  STRConceitos := '';
+  for cnt := 0 to FListaConceitos.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRConceitos := STRConceitos + IntToStr(Integer(FListaConceitos.Objects[cnt])) + ','
+    else
+      TodosConceitos:=false;
+  STRConceitos := Copy(STRConceitos, 0, Length(STRConceitos) - 1);
+  Conceitos := STRConceitos ;
+  if Trim(STRConceitos) = '' then
+      Conceitos := ''
+  else
+      Conceitos :=''+STRConceitos+'';
+end;
+
+procedure TdtmConsultaCompras.SetConceitos(const Value: String);
+begin
+
+
+  if (Value <> '') then
+  begin
+    qryComprasTotal.ParamByName('conceitos').AsString:=value;
+    qryComprasGruposFiliais.ParamByName('conceitos').AsString:=Value;
+    qryComprasFiliaisGrupo.ParamByName('conceitos').AsString:=Value;
+    qryVVendas.ParamByName('conceitos').AsString:=value;
+    qryVVendas.MacroByName('FILTRO_CONCEITO').AsString := Format(FiltroConceito,['fc.',Value]);
+
+    qryVVendasDiaria.ParamByName('conceitos').AsString:=value;
+    qryVVendasDiaria.MacroByName('FILTRO_CONCEITO').AsString := Format(FiltroConceito,['fc.',Value]);
+
+
+  end
+  ELSE
+  BEGIN
+    qryComprasGruposFiliais.ParamByName('conceitos').AsString:='';
+    qryComprasFiliaisGrupo.ParamByName('conceitos').AsString:='';
+    qryVVendas.ParamByName('conceitos').AsString:='';
+    qryVVendas.MacroByName('FILTRO_CONCEITO').AsString := '(select true=true) ';
+
+    qryVVendasDiaria.ParamByName('conceitos').AsString:='';
+    qryVVendasDiaria.MacroByName('FILTRO_CONCEITO').AsString := '(select true=true) ';
+
+  END;
+  {
+   FParametroCabecalho:=FParametroCabecalho+' Conceitos: '+Value;
+
+
+   qryDadosFiscaisProdutosVendas.SQL[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.SQL,
+                          '%WhereConceito')+1] := Format(FiltroConceito,['df.',Value]);
+
+   qryDadosFiscaisProdutosDevolucoes.Sql[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,
+                          '%WhereConceito')+1] := Format(FiltroConceito,['ct.',Value]);
+
+
+   qryDadosFiscaisProdutosVendaFrenteCaixa.SQL[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.SQL,
+                          '%WhereConceito')+1] := Format(FiltroConceito,['df.',Value]);
+
+   qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,
+                          '%WhereConceito')+1] := Format(FiltroConceito,['vf.',Value]);
+  end
+  else
+  begin
+
+   qryDadosFiscaisProdutosVendas.SQL[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.SQL,
+                          '%WhereConceito')+1] := '';
+
+   qryDadosFiscaisProdutosDevolucoes.Sql[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,
+                          '%WhereConceito')+1] := '';
+
+   qryDadosFiscaisProdutosVendaFrenteCaixa.SQL[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.SQL,
+                          '%WhereConceito')+1] := '';
+
+   qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,
+                          '%WhereConceito')+1] := '';
+  end;
+}
+end;
+
+function TdtmConsultaCompras.GetProduto: String;
+begin
+  if AbaSimilares then
+    result := qryProdutosSimilaresproduto.asString
+  else
+    result := qryComprasTotalproduto.asString;
+end;
+
+procedure TdtmConsultaCompras.SetListaGruposFornecedores(
+  const Value: String);
+begin
+  fListaGruposFornecedores := Value;
+  if (value <>'') then
+   ParametroCabecalho := ParametroCabecalho+' Grupos Fornecedores: '+value;
+end;
+
+procedure TdtmConsultaCompras.qryProdutosSimilaresCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryProdutosSimilaresprodutoempromocao.asBoolean then
+    qryProdutosSimilarespromo.asString := 'S'
+  else
+    qryProdutosSimilarespromo.clear;
+
+  if qryProdutosSimilarestotal_vendido.asFloat <> 0 then
+  begin
+
+    qryProdutosSimilaresdiasEstoqueCalculado.asFloat :=
+       (qryProdutosSimilarestotal_estoque.AsFloat +
+{        qryProdutosSimilarestotal_pedido.AsFloat + }
+        qryProdutosSimilaressugestao.AsFloat) /
+        (qryProdutosSimilarestotal_vendido.AsFloat / qryProdutosSimilaresperiodo.AsInteger);
+
+    qryProdutosSimilaresdiasEstCalcPedCompra.asFloat :=
+       (qryProdutosSimilarestotal_estoque.AsFloat +
+        qryProdutosSimilarestotal_pedido.AsFloat +
+        qryProdutosSimilaressugestao.AsFloat) /
+        (qryProdutosSimilarestotal_vendido.AsFloat / qryProdutosSimilaresperiodo.AsInteger);
+
+  end
+  else
+  begin
+    qryProdutosSimilaresdiasEstoqueCalculado.asFloat := 999999.99;
+    qryProdutosSimilaresdiasEstCalcPedCompra.asFloat := 999999.99
+  end;
+
+
+end;
+
+procedure TdtmConsultaCompras.CalcularTotalAtendido(CalcularProduto: Boolean = false);
+var
+  vTotalProdutoAtendido : Double;
+  v_recno : integer;
+begin
+  try
+    qrycomprastotal.mastersource := nil;
+    qryPedidosFiliais.afterscroll := nil;
+
+    qryPedidosFiliais.disablecontrols;
+
+    v_recno := qryPedidosFiliais.recno;
+    vTotalAtendido := SomarValores(qryPedidosFiliais, [qryPedidosFiliaisqtdepedida], [qryPedidosFiliaisfilial], [filialrequisitante], ['<>']);
+    qryPedidosFiliais.enablecontrols;
+
+    qryPedidosFiliais.recno := v_recno;
+
+    if CalcularProduto then
+    begin
+      dsrPedidosFiliais.onDataChange := nil;
+
+      qryPedidosFiliais.GuardarRegistroAtual(true);
+
+      vTotalProdutoAtendido := SomarValores(qryPedidosFiliais,
+                                            [qryPedidosFiliaisqtdepedida],
+                                            [qryPedidosFiliaisfilial, qryPedidosFiliaisproduto],
+                                            [filialrequisitante, qryPedidosFiliaisproduto.asString], ['<>','=']);
+
+      qryPedidosFiliais.readonly := false;
+      AtribuirDados(qryPedidosFiliais,
+                     [qryPedidosFiliaisqtdepedida],
+                     [vTotalProdutoAtendido],
+                     [qryPedidosFiliaisfilial, qryPedidosFiliaisproduto],
+                     [filialrequisitante, qryPedidosFiliaisproduto.asString], ['=','=']);
+
+      dsrPedidosFiliais.onDataChange := dsrPedidosFiliaisDataChange;
+      qryPedidosFiliais.VoltarRegistro;
+    end;
+  finally
+
+    qryPedidosFiliais.afterscroll := qryPedidosFiliaisafterscroll;
+    qryComprasTotal.mastersource := dsrPedidosFiliais;
+  end;
+
+end;
+
+procedure TdtmConsultaCompras.MontarFiltroFiliaissemEstoque(
+  Usar: TCheckListBox);
+var
+  STRFiliais: String;
+  cnt: Integer;
+begin
+  TodasFiliaissemEstoque := True;
+  STRFiliais := '';
+
+  for cnt := 0 to FListaFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRFiliais := STRFiliais + '''' + IntToStr(Integer(FListaFiliais.Objects[cnt])) + ''','
+    else
+      TodasFiliaissemEstoque := False;
+
+  STRFiliais := Copy(STRFiliais, 0, Length(STrFiliais) - 1);
+  FilialsemEstoque := STRFiliais;
+  if Trim(STRFiliais) <> '' then
+    if not TodasFiliaissemEstoque then
+      FParametroCabecalho := FParametroCabecalho+' Filiais sem Estoque: '+STRFiliais
+    else FilialsemEstoque := '';
+
+  if (Trim(STRFiliais) = '') then
+    TodasFiliaissemEstoque := true;
+end;
+
+procedure TdtmConsultaCompras.qryComprasGruposFiliaisAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  visualizacao := fvisualizacao;
+end;
+
+procedure TdtmConsultaCompras.qryComprasFiliaisGrupo_SimilaresAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultapornome(qryVVendas_porFilial_Similares,['datainicial','datafinal','similar'],
+      [FParametroDataInicial, FParametroDataFinal, qryProdutosSimilaresproduto.asString], true);
+
+               {
+  if visualizacao < 2 then
+    visualizacao := fvisualizacao;
+    }
+
+end;
+
+procedure TdtmConsultaCompras.qryComprasGruposFiliais_SimilaresAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+    RefazConsultapornome(qryComprasFiliaisGrupo_similares,['periodo',
+                          'diasproporcional','diasestoque',
+                          'estoquetotal','PedidosEntreFiliais',
+                          'NaoConsiderarPedidosCompra',
+                          'Inicio','Fim','similar'],
+                                            [GetPeriodo,
+                                             FParametroDiasEstoqueProporcional,
+                                             FParametroDiasEstoque,
+                                                        {qryComprasGruposFiliaistotal_estoque.AsCurrency} 0,
+                                                        PedidosEntreFiliais,
+                                                        NaoConsiderarPedidosCompra,
+                                                        FParametroDataInicial,
+                                                        FParametroDataFinal,
+                                                        qryProdutosSimilaresproduto.asString
+                                                        ], true);
+
+
+    RefazConsultapornome(qryVVendas_porGrupo_Similares,['datainicial','datafinal','similar'],
+      [FParametroDataInicial, FParametroDataFinal, qryProdutosSimilaresproduto.asString], true);
+
+
+
+end;
+
+procedure TdtmConsultaCompras.qryComprasTotalAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryComprasTotalminimo.readonly := not SomenteUmaFilialMarcada;
+  qryComprasTotalmaximo.readonly := not SomenteUmaFilialMarcada;
+
+
+
+
+end;
+
+procedure TdtmConsultaCompras.qryProdutosSimilaresAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosSimilaresminimo.readonly := not SomenteUmaFilialMarcada;
+  qryProdutosSimilaresmaximo.readonly := not SomenteUmaFilialMarcada;
+
+end;
+
+procedure TdtmConsultaCompras.dsrProdutosSimilaresDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if (Field = qryProdutosSimilaresminimo) or (Field = qryProdutosSimilaresmaximo) then
+  begin
+
+      if qryProdutosSimilaresmaximo.isnull then
+        qryAtualizarEstoque.ParamByName('maximo').Clear
+      else
+        qryAtualizarEstoque.ParamByName('maximo').asCurrency := qryProdutosSimilaresmaximo.asCurrency;
+
+      if qryProdutosSimilaresminimo.isnull then
+        qryAtualizarEstoque.ParamByName('minimo').Clear
+      else
+        qryAtualizarEstoque.ParamByName('minimo').asCurrency := qryProdutosSimilaresminimo.asCurrency;
+
+      qryAtualizarEstoque.ParamByName('produto').asString := qryProdutosSimilaresproduto.AsString;
+      qryAtualizarEstoque.ParamByName('filial').AsString := somentenumero(Filial);
+
+      qryAtualizarEstoque.ExecSql;
+      perpetrar([qryAtualizarEstoque]);
+
+      if qryProdutosSimilaresPrincipal.asBoolean then
+      begin
+        dsrComprasTotal.onDataChange := nil;
+        qryComprasTotal.edit;
+        qryComprasTotalmaximo.value := qryProdutosSimilaresmaximo.value;
+        qryComprasTotalminimo.value := qryProdutosSimilaresminimo.value;
+        qryComprasTotal.post;
+        dsrComprasTotal.onDataChange := dsrComprasTotalDataChange; 
+      end;
+
+
+  end;
+end;
+
+procedure TdtmConsultaCompras.qryPedidosFiliais__CalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  (*
+  qryPedidosFiliais_IrParaLista.asBoolean :=
+          (qryPedidosFiliais_requisitante.asinteger <>
+           qryPedidosFiliais_requisitada.asinteger) and
+          (qryPedidosFiliais_qtdepedida.ascurrency <> 0);
+
+
+  if qryPedidosFiliais_totalfiliaisemestoque.AsCurrency >= qryPedidosFiliais_quantidade.AsCurrency then
+    qryPedidosFiliais_qtdeAtendida.AsCurrency := qryPedidosFiliais_quantidade.AsCurrency
+  else
+    qryPedidosFiliais_qtdeAtendida.AsCurrency := qryPedidosFiliais_totalfiliaisemestoque.AsCurrency;
+
+
+  if (qryPedidosFiliais_total_vendido.asFloat <> 0) and
+     (qryPedidosFiliais_periodo.AsInteger <> 0) then
+  begin
+    if qryPedidosFiliais_requisitante.asinteger = qryPedidosFiliais_requisitada.asinteger then
+    begin
+      qryPedidosFiliais_diasestoquecalculado.asFloat :=
+           (qryPedidosFiliais_estoquetotal.AsFloat +
+  {          qryPedidosFiliais_total_pedido.AsFloat +  ver com JR }
+{            qryPedidosFiliais_sugestao.AsFloat +}
+            qryPedidosFiliais_qtdepedida.asFloat
+            ) /
+            (qryPedidosFiliais_total_vendido.AsFloat / qryPedidosFiliais_periodo.AsInteger);
+
+        qryPedidosFiliais_diasEstCalcPedCompra.asFloat :=
+           (qryPedidosFiliais_estoquetotal.AsFloat +
+            qryPedidosFiliais_total_pedido.AsFloat +
+{            qryPedidosFiliais_sugestao.AsFloat +}
+            qryPedidosFiliais_qtdepedida.asFloat
+            ) /
+            (qryPedidosFiliais_total_vendido.AsFloat / qryPedidosFiliais_periodo.AsInteger);
+
+    end
+    else
+    begin
+      qryPedidosFiliais_diasestoquecalculado.asFloat :=
+           (qryPedidosFiliais_estoquetotal.AsFloat {
+  {          qryPedidosFiliais_total_pedido.AsFloat +  ver com JR }
+  {          qryPedidosFiliais_sugestao.AsFloat } -
+            qryPedidosFiliais_qtdepedida.asFloat
+            ) /
+            (qryPedidosFiliais_total_vendido.AsFloat / qryPedidosFiliais_periodo.AsInteger);
+
+      qryPedidosFiliais_diasEstCalcPedCompra.asFloat :=
+           (qryPedidosFiliais_estoquetotal.AsFloat +
+            qryPedidosFiliais_total_pedido.AsFloat {+
+            qryPedidosFiliais_sugestao.AsFloat } -
+            qryPedidosFiliais_qtdepedida.asFloat
+            ) /
+            (qryPedidosFiliais_total_vendido.AsFloat / qryPedidosFiliais_periodo.AsInteger);
+    end;
+  end
+  else
+  begin
+    qryPedidosFiliais_diasestoquecalculado.asFloat := 999999.99;
+    qryPedidosFiliais_diasEstCalcPedCompra.asFloat := 999999.99;
+  end;
+  *)
+
+end;
+
+procedure TdtmConsultaCompras.qryDetalhesCompraCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryDetalhesCompracustomedio.asCurrency <> 0 then
+    qryDetalhesCompramarkup.asCurrency :=
+      ((qryDetalhesPrecosvalornormal.asCurrency / qryDetalhesCompracustomedio.asCurrency) -1) * 100
+end;
+
+procedure TdtmConsultaCompras.qryDetalhesCompra_SimilaresCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryDetalhesCompra_Similarescustomedio.asCurrency <> 0 then
+    qryDetalhesCompra_Similaresmarkup.asCurrency :=
+      ((qryDetalhesPrecos_Similiaresvalornormal.asCurrency / qryDetalhesCompra_Similarescustomedio.asCurrency) -1) * 100
+
+end;
+
+procedure TdtmConsultaCompras.qryPedidosFiliais__AfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  {
+  qryPedidosFiliais_.readonly := qryPedidosFiliais_requisitante.asinteger =
+                                 qryPedidosFiliais_requisitada.asinteger;
+
+  qryComprasTotalAfterScroll(DataSet);
+  }
+end;
+
+procedure TdtmConsultaCompras.abrirListaPedidosFiliais;
+begin
+  RefazConsultaPornome(qryListaPedidosFiliais_Requisitante,
+                       ['filialRequisitante','produto'],
+                       [qryComprasFiliaisGrupofilial.asinteger,
+                        qryComprasFiliaisGrupoproduto.asString]);
+
+  RefazConsultaPornome(qryListaPedidosFiliais_Requisitado,
+                       ['filialrequisitada','produto'],
+                       [qryComprasFiliaisGrupofilial.asinteger,
+                        qryComprasFiliaisGrupoproduto.asString]);
+
+
+
+end;
+
+procedure TdtmConsultaCompras.AbrirVendasDiarias;
+begin
+  qryVVendasDiaria.paramByName('codigoproduto').asString := qryComprasTotalproduto.asString;
+  qryVVendasDiaria.close;
+  qryVVendasDiaria.open;
+end;
+
+procedure TdtmConsultaCompras.Reatualizar(vListaProdutos: String);
+var
+ vrecno: integer;
+
+begin
+  try
+
+    if qryComprasTotal.mastersource <> nil then
+    begin
+      qrycomprastotal.GuardarRegistroAtual(false);
+      qryComprasTotal.mastersource := nil;
+      qryComprasTotal.VoltarRegistro;
+    end;
+
+    qrycomprastotal.GuardarRegistroAtual(true);
+    qryComprasGruposFiliais.GuardarRegistroAtual(true);
+    qryComprasFiliaisGrupo.GuardarRegistroAtual(true);
+
+    {
+    qryComprasGruposFiliais.mastersource := nil;
+    qryComprasFiliaisGrupo.mastersource := nil;
+    }
+
+    self.dsrComprasTotal.onDataChange := nil;
+
+    dtmconsultacompras_.qryComprasTotal.sql.text := self.qryComprasTotal.sql.text;
+    dtmconsultacompras_.qryComprasTotal.macros := self.qryComprasTotal.macros;
+    dtmconsultacompras_.qryComprasTotal.params := self.qryComprasTotal.params;
+
+    dtmconsultacompras_.qryTotalProdutosSimilares.sql.text := self.qryTotalProdutosSimilares.sql.text;
+    dtmconsultacompras_.qryTotalProdutosSimilares.macros := self.qryTotalProdutosSimilares.macros;
+    dtmconsultacompras_.qryTotalProdutosSimilares.params := self.qryTotalProdutosSimilares.params;
+
+    dtmconsultacompras_.qryComprasGruposFiliais.sql.text := self.qryComprasGruposFiliais.sql.text;
+    dtmconsultacompras_.qryComprasGruposFiliais.macros := self.qryComprasGruposFiliais.macros;
+    dtmconsultacompras_.qryComprasGruposFiliais.params := self.qryComprasGruposFiliais.params;
+
+    dtmconsultacompras_.qryComprasFiliaisGrupo.sql.text := self.qryComprasFiliaisGrupo.sql.text;
+    dtmconsultacompras_.qryComprasFiliaisGrupo.macros := self.qryComprasFiliaisGrupo.macros;
+    dtmconsultacompras_.qryComprasFiliaisGrupo.params := self.qryComprasFiliaisGrupo.params;
+
+    dtmconsultacompras_.qryComprasTotal.MacroByName('produtos').AsString :=
+      dtmconsultacompras_.qryComprasTotal.MacroByName('produtos').AsString +
+       ' and p.codigo in (' + vListaProdutos + ')';
+
+    dtmconsultacompras_.qryComprasTotal.MacroByName('sugestao2').AsString :='Where (sugestao2 >= 0 or (sugestaominimo>0 or sugestaomaximo>0))';
+    dtmconsultacompras_.qryComprasTotal.MacroByName('sugestao8').AsString :='Where (sugestao >= 0 or (sugestaominimo>0 or sugestaomaximo>0))';
+
+    dtmconsultacompras_.qryTotalProdutosSimilares.MacroByName('ListadeProdutos').AsString := vListaProdutos;
+
+    dtmconsultacompras_.qryComprasGruposFiliais.MacroByName('produtos').AsString :=
+       dtmconsultacompras_.qryComprasGruposFiliais.MacroByName('produtos').AsString +
+       ' and p.codigo in (' + vListaProdutos + ')';
+
+    dtmconsultacompras_.qryComprasFiliaisGrupo.MacroByName('produtos').AsString :=
+       dtmconsultacompras_.qryComprasFiliaisGrupo.MacroByName('produtos').AsString +
+       ' and p.codigo in (' + vListaProdutos + ')';
+
+    dtmconsultacompras_.qryComprasTotal.close;
+    dtmconsultacompras_.qryTotalProdutosSimilares.close;
+
+    dtmconsultacompras_.qryComprasGruposFiliais.close;
+    dtmconsultacompras_.qryComprasFiliaisGrupo.close;
+
+    dtmconsultacompras_.qryTotalProdutosSimilares.open;
+    dtmconsultacompras_.qryComprasTotal.open;
+
+//    dtmconsultacompras_.qryComprasGruposFiliais.mastersource := nil;
+//    dtmconsultacompras_.qryComprasGruposFiliais.AfterScroll := nil;
+    dtmconsultacompras_.qryComprasGruposFiliais.open;
+//    dtmconsultacompras_.qryComprasGruposFiliais.mastersource := dtmconsultacompras_.dsrComprasTotal;
+
+//    dtmconsultacompras_.qryComprasFiliaisGrupo.mastersource := nil;
+    dtmconsultacompras_.qryComprasFiliaisGrupo.open;
+////    dtmconsultacompras_.qryComprasFiliaisGrupo.mastersource := dtmconsultacompras_.dsrComprasGruposFiliais;
+
+    dtmconsultacompras_.qryComprasTotal.first;
+
+    while not dtmconsultacompras_.qryComprasTotal.eof do
+    begin
+      if self.qryComprasTotal.locate('produto', dtmconsultacompras_.qryComprasTotalproduto.asstring, []) then
+      begin
+
+        CopiaRegistrosporNome(dtmconsultacompras_.qryComprasTotal, self.qryComprasTotal, false, false, false, true, true, true);
+
+        if self.qryprodutosselecionados.locate('produto', dtmconsultacompras_.qryComprasTotalproduto.asstring, []) then
+          self.qryprodutosselecionados.delete;
+
+         {
+        if ListadeProdutosMarcados.IndexOf(self.qryComprasTotalproduto.asString)<>-1 then
+          ListadeProdutosMarcados.Delete(ListadeProdutosMarcados.IndexOf(self.qryComprasTotalproduto.asString));
+          }
+
+
+        if self.qryTotalProdutosSimilares.locate('produtosml', dtmconsultacompras_.qryComprasTotalproduto.asstring, []) then
+          CopiaRegistrosporNome(dtmconsultacompras_.qryTotalProdutosSimilares, self.qryTotalProdutosSimilares, false, false, false, true, true, true);
+
+        dtmconsultacompras_.qryComprasGruposFiliais.first;
+        while not dtmconsultacompras_.qryComprasGruposFiliais.eof do
+        begin
+
+          if self.qryComprasGruposFiliais.locate('produto;grupo',
+               VarArrayOf([
+               dtmconsultacompras_.qryComprasGruposFiliaisproduto.asString,
+               dtmconsultacompras_.qryComprasGruposFiliaisgrupo.asString]),[]) then
+          begin
+            vrecno := dtmconsultacompras_.qryComprasGruposFiliais.recno;
+            CopiaRegistrosporNome(dtmconsultacompras_.qryComprasGruposFiliais, self.qryComprasGruposFiliais, false, false, false, true, true, true);
+            dtmconsultacompras_.qryComprasGruposFiliais.recno := vrecno;
+
+            dtmconsultacompras_.qryComprasFiliaisGrupo.first;
+            while not dtmconsultacompras_.qryComprasFiliaisGrupo.eof do
+            begin
+              if self.qryComprasFiliaisGrupo.locate('produto;grupo;filial',
+                   VarArrayOf([
+                   dtmconsultacompras_.qryComprasFiliaisGrupoproduto.asString,
+                   dtmconsultacompras_.qryComprasFiliaisGrupogrupo.asString,
+                   dtmconsultacompras_.qryComprasFiliaisGrupofilial.asString]),[]) then
+              begin
+                vrecno := dtmconsultacompras_.qryComprasFiliaisGrupo.recno;
+                CopiaRegistrosporNome(dtmconsultacompras_.qryComprasFiliaisGrupo, self.qryComprasFiliaisGrupo, false, false, false, true, true, true);
+                dtmconsultacompras_.qryComprasFiliaisGrupo.recno := vrecno;
+              end;
+
+
+              dtmconsultacompras_.qryComprasFiliaisGrupo.next;
+            end;
+          end;
+          dtmconsultacompras_.qryComprasGruposFiliais.next;
+        end;
+      end;
+      dtmconsultacompras_.qryComprasTotal.next
+    end;
+
+
+  finally
+    qrycomprastotal.VoltarRegistro;
+    qryComprasGruposFiliais.VoltarRegistro;
+    qryComprasFiliaisGrupo.VoltarRegistro;
+
+//    qryComprasGruposFiliais.mastersource := dsrComprasTotal;
+//    qryComprasFiliaisGrupo.mastersource := dsrComprasGruposFiliais;
+
+
+    self.dsrComprasTotal.onDataChange := self.dsrComprasTotalDataChange;
+
+//    dtmconsultacompras_.free;
+//    dtmconsultacompras_ := nil;
+
+
+  end;
+
+end;
+
+function TdtmConsultaCompras.GetdtmConsultaCompras_: TdtmConsultaCompras;
+begin
+  try
+
+  if not assigned(fdtmConsultaCompras_) then
+    fdtmConsultaCompras_ := TdtmConsultaCompras.Create(self);
+
+  except
+
+  end;
+
+  Result := fdtmConsultaCompras_;
+
+
+end;
+
+function TdtmConsultaCompras.ListaProdutosAtualeMarcados: String;
+begin
+  result := '';
+
+  if qryProdutosSelecionados.recordcount <> 0 then
+    result := RetornarLista(qryprodutosselecionados, qryProdutosSelecionadosproduto, nil, false);
+
+//    result := ListadeProdutosMarcados.DelimitedText;
+
+  if result <> '' then
+  begin
+    if pos(qrycomprastotalproduto.asString, result)=0 then
+      result := result + ',' + qrycomprastotalproduto.asString
+  end
+  else
+    result := qrycomprastotalproduto.asString;
+end;
+
+{
+function TdtmConsultaCompras.GetListadeProdutosMarcados: tStringList;
+begin
+  if not assigned(fListadeProdutosMarcados) then
+  begin
+    fListadeProdutosMarcados := tStringList.create;
+    fListadeProdutosMarcados.Duplicates := dupIgnore;
+    fListadeProdutosMarcados.Delimiter := ',';
+  end;
+
+  Result := fListadeProdutosMarcados;
+end;
+}
+
+procedure TdtmConsultaCompras.qryComprasTotalBeforeScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+//  vAuxFilialAntesScroll := qryComprasFiliaisGrupofilial.asString;
+//  vAuxGrupoAntesScroll  := qryComprasFiliaisGrupogrupo.asString;
+end;
+
+procedure TdtmConsultaCompras.qryPedidosFiliais__BeforeScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+//  qryComprasTotalBeforeScroll(DataSet);
+
+end;
+
+procedure TdtmConsultaCompras.qryProdutosSimilaresBeforeScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+//  vAuxFilialAntesScroll := qryComprasFiliaisGrupo_Similaresfilial.asString;
+//  vAuxGrupoAntesScroll  := qryComprasFiliaisGrupo_Similaresgrupo.asString;
+
+end;
+
+procedure TdtmConsultaCompras.PreencherRequisicaoFilialSolicitada(
+  FilialSolicitada: Integer);
+var
+ vPosition : double;
+ vTotalqtPedida : Double;
+begin
+  try
+    qryPedidosFiliais.GuardarRegistroAtual(true);
+    qryComprasTotal.mastersource := nil;
+
+    vTotalqtPedida := 0;
+    vTotalAtendido := 0;
+
+    qryPedidosFiliais.first;
+    while not qryPedidosFiliais.eof do
+    begin
+
+      vPosition :=  (qryPedidosFiliais.RecNo * 100) / qryPedidosFiliais.recordcount;
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Position := vPosition;
+      Application.ProcessMessages;
+
+      if (FilialSolicitada = qryPedidosFiliaisfilial.Asinteger) and
+         (qryPedidosFiliaisfilial.Asinteger <> qryPedidosFiliaisrequisitante.Asinteger) and
+         (qryPedidosFiliaisqtdepedida.AsCurrency <> qryPedidosFiliaisquantidade.AsCurrency)
+          then
+      begin
+        if qryPedidosFiliaisquantidade.AsCurrency > qryPedidosFiliaisemestoque.AsCurrency then
+        begin
+
+          qryPedidosFiliais.readonly := false;
+          
+          qryPedidosFiliais.edit;
+          qryPedidosFiliaisqtdepedida.AsCurrency := qryPedidosFiliaisquantidade.AsCurrency;
+          qryPedidosFiliais.enablecontrols;
+
+          TDBAdvGrid(self.owner.findcomponent('dbgPedidosFiliais_')).row := qryPedidosFiliais.recno;
+          application.processmessages;
+
+          MensagemErro(format('O produto %s possui uma quantidade que excede à existente na filial requisitada %s!',
+            [QuotedStr(qryPedidosFiliaisprodutovisual.asString), quotedstr(qryPedidosFiliaisfilial.asString)]));
+
+          qryPedidosFiliais.disablecontrols;
+          qryPedidosFiliais.readonly := false;
+          qryPedidosFiliais.edit;
+          qryPedidosFiliaisqtdepedida.clear;
+
+        end
+        else
+        begin
+          qryPedidosFiliais.readonly := false;
+          qryPedidosFiliais.edit;
+          qryPedidosFiliaisqtdepedida.AsCurrency := qryPedidosFiliaisquantidade.AsCurrency;
+          if qryPedidosFiliais.state = dsedit then
+            qryPedidosFiliais.post;
+        end;
+      end;
+
+      if (qryPedidosFiliaisrequisitante.Asinteger <> qryPedidosFiliaisfilial.Asinteger) then
+        vTotalqtPedida := vTotalqtPedida + qryPedidosFiliaisqtdepedida.AsCurrency;
+
+      if (qryPedidosFiliaisrequisitante.Asinteger = qryPedidosFiliaisfilial.Asinteger) then
+      begin
+        qryPedidosFiliais.readonly := false;
+        qryPedidosFiliais.edit;
+        qryPedidosFiliaisqtdepedida.AsCurrency := vTotalqtPedida;
+        if qryPedidosFiliais.state = dsedit then
+          qryPedidosFiliais.post;
+
+        vTotalAtendido := vTotalAtendido + vTotalqtPedida;
+        vTotalqtPedida := 0;
+      end;
+
+      qryPedidosFiliais.next;
+    end;
+
+  finally
+    qryComprasTotal.mastersource := dsrPedidosFiliais;
+    qryPedidosFiliais.VoltarRegistro;
+  end;
+
+end;
+
+procedure TdtmConsultaCompras.RetirarRequisicaoFilialSolicitada(
+  FilialSolicitada: Integer);
+var
+ vTotalqtPedida : Double;
+ vPosition : Double;
+
+begin
+  try
+    qryPedidosFiliais.GuardarRegistroAtual(true);
+    qryComprasTotal.mastersource := nil;
+
+    qryPedidosFiliais.first;
+
+    vTotalqtPedida := 0;
+    vTotalAtendido := 0;
+
+    while not qryPedidosFiliais.eof do
+    begin
+
+      vPosition :=  (qryPedidosFiliais.RecNo * 100) / qryPedidosFiliais.recordcount;
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Position := vPosition;
+      Application.ProcessMessages;
+
+      if ((FilialSolicitada = qryPedidosFiliaisfilial.Asinteger) or  (FilialSolicitada = 0)) and
+         (qryPedidosFiliaisfilial.Asinteger <> qryPedidosFiliaisrequisitante.Asinteger) then
+      begin
+      
+        qryPedidosFiliais.readonly := false;
+        qryPedidosFiliais.edit;
+        qryPedidosFiliaisqtdepedida.clear;
+
+        if qryPedidosFiliais.state = dsedit then
+          qryPedidosFiliais.post;
+
+      end;
+
+      if (qryPedidosFiliaisrequisitante.Asinteger <> qryPedidosFiliaisfilial.Asinteger) then
+        vTotalqtPedida := vTotalqtPedida + qryPedidosFiliaisqtdepedida.AsCurrency;
+
+      if (qryPedidosFiliaisrequisitante.Asinteger = qryPedidosFiliaisfilial.Asinteger) then
+      begin
+        qryPedidosFiliais.readonly := false;
+        qryPedidosFiliais.edit;
+        qryPedidosFiliaisqtdepedida.AsCurrency := vTotalqtPedida;
+        if qryPedidosFiliais.state = dsedit then
+          qryPedidosFiliais.post;
+
+        vTotalAtendido := vTotalAtendido + vTotalqtPedida;
+        vTotalqtPedida := 0;
+      end;
+
+      qryPedidosFiliais.next;
+
+    end;
+  finally
+    qryComprasTotal.mastersource := dsrPedidosFiliais;
+    qryPedidosFiliais.VoltarRegistro;
+
+  end;
+end;
+
+procedure TdtmConsultaCompras.qryComprasFiliaisGrupoBeforeScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+//  vAuxFilialAntesScroll := qryComprasFiliaisGrupofilial.asString;
+//  vAuxGrupoAntesScroll  := qryComprasFiliaisGrupogrupo.asString;
+end;
+
+procedure TdtmConsultaCompras.qryComprasGruposFiliaisBeforeScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+//  vAuxGrupoAntesScroll  := qryComprasGruposFiliaisgrupo.asString;
+
+end;
+
+procedure TdtmConsultaCompras.qryComprasTotalFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  if qryComprasTotal.filtered then
+  begin
+    if qrypedidosfiliais.filtered then
+      Accept := (qryComprasTotalproduto.asString = qryPedidosFiliaisproduto.asString)
+    else
+    if vProdutoAtualaSerFiltrado<>'' then
+      Accept := (qryComprasTotalproduto.asString = vProdutoAtualaSerFiltrado)
+    else
+      Accept := qryComprasTotalselecionado.AsBoolean;
+  end;
+end;
+
+procedure TdtmConsultaCompras.AbrirListaProdutosPendentesNF;
+begin
+  RefazConsultaPornome(qryProdutosPendentes,
+                       ['produto'],
+                       [qryComprasFiliaisGrupoproduto.asString]);
+
+end;
+
+procedure TdtmConsultaCompras.qryComprasFiliaisGrupoFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  if qryComprasFiliaisGrupo.filtered then
+     Accept := (qryComprasFiliaisGrupoproduto.asString = qrycomprastotalproduto.asstring) and
+               (qryComprasFiliaisGrupoGrupo.asstring = qryComprasGruposFiliaisgrupo.asString);
+end;
+
+procedure TdtmConsultaCompras.qryComprasGruposFiliaisFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  if qryComprasGruposFiliais.filtered then
+     Accept := (qryComprasGruposFiliaisproduto.asString = qrycomprastotalproduto.asstring)
+
+end;
+
+procedure TdtmConsultaCompras.AdicionarRetirarProdutoMarcado;
+begin
+  if qrycomprastotalselecionado.asBoolean then
+  begin
+    if not qryProdutosSelecionados.locate('produto', qrycomprastotalproduto.asstring,[]) then
+    begin
+      qryProdutosSelecionados.append;
+      qryProdutosSelecionadosproduto.asstring := qrycomprastotalproduto.asstring;
+      qryProdutosSelecionadosquantidade.ascurrency := qrycomprastotalsugestao.ascurrency;
+      qryProdutosSelecionados.post;
+    end
+    else
+    begin
+      qryProdutosSelecionados.edit;
+      qryProdutosSelecionadosproduto.asstring := qrycomprastotalproduto.asstring;
+      qryProdutosSelecionadosquantidade.ascurrency := qrycomprastotalsugestao.ascurrency;
+      qryProdutosSelecionados.post;
+    end;
+  end
+  else
+  if qryProdutosSelecionados.locate('produto', qrycomprastotalproduto.asstring,[]) then
+    qryProdutosSelecionados.delete;
+
+
+end;
+
+procedure TdtmConsultaCompras.qryPedidosFiliaisAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryPedidosFiliais.readonly := qryPedidosFiliaisrequisitante.asinteger =
+                                 qryPedidosFiliaisfilial.asinteger;
+//  qryComprasTotalAfterScroll(DataSet);
+
+end;
+
+procedure TdtmConsultaCompras.dsrPedidosFiliaisDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if not qryPedidosFiliais.readonly then
+  begin
+    if field = qryPedidosFiliaisqtdepedida then
+    begin
+      if field.ascurrency > qryPedidosFiliaisemestoque.ascurrency then
+      begin
+
+        MensagemErro(format('O produto %s possui uma quantidade que excede à existente na filial requisitada %s!',
+          [QuotedStr(qryPedidosFiliaisprodutovisual.asString),
+           quotedstr(qryPedidosFiliaisfilial.asString)]));
+
+//        dsrPedidosFiliais_.onDataChange := nil;
+        field.clear;
+
+        if assigned(AfterPostPedidosFiliais) then
+          AfterPostPedidosFiliais(Sender);
+
+//        field.focuscontrol;
+//        dsrPedidosFiliais_.onDataChange := dsrPedidosFiliais_DataChange;
+      end
+      else
+      begin
+
+        CalcularTotalAtendido(true);
+        if assigned(AfterPostPedidosFiliais) then
+          AfterPostPedidosFiliais(Sender);
+
+      end;
+    end
+    else
+    if field = qryPedidosFiliaisobservacao then
+    begin
+      try
+        dsrPedidosFiliais.ondatachange := nil;
+        qryPedidosFiliais.GuardarRegistroAtual(true);
+
+        AtribuirDados(qryPedidosFiliais,
+                      [qryPedidosFiliaisobservacao],
+                      [qryPedidosFiliaisobservacao.AsVariant],
+                      [qryPedidosFiliaisproduto, qryPedidosFiliaisfilial, qryPedidosFiliaisobservacao ],
+                      [qryPedidosFiliaisproduto.asvariant, filialrequisitante, Null],
+                      ['=','<>','=']);
+      finally
+        dsrPedidosFiliais.ondatachange := dsrPedidosFiliaisdatachange;
+        qryPedidosFiliais.VoltarRegistro;
+      end;
+
+
+    end;
+
+  end;
+
+end;
+
+procedure TdtmConsultaCompras.qryPedidosFiliaisCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  if qryPedidosFiliaisfilial.asinteger = qryPedidosFiliaisrequisitante.asinteger then
+    qryPedidosFiliaisdescricaoprodutoaux.asString := 'TOTAL FILIAL REQUISITANTE:'
+  else
+    qryPedidosFiliaisdescricaoprodutoaux.asString := qryPedidosFiliaisdescricaoproduto.asString;
+
+  qryPedidosFiliaisIrParaLista.asBoolean :=
+          (qryPedidosFiliaisrequisitante.asinteger <>
+           qryPedidosFiliaisfilial.asinteger) and
+          (qryPedidosFiliaisqtdepedida.ascurrency <> 0);
+
+
+  if qryPedidosFiliaistotalfiliaisemestoque.AsCurrency >= qryPedidosFiliaisquantidade.AsCurrency then
+    qryPedidosFiliaisqtdeAtendida.AsCurrency := qryPedidosFiliaisquantidade.AsCurrency
+  else
+    qryPedidosFiliaisqtdeAtendida.AsCurrency := qryPedidosFiliaistotalfiliaisemestoque.AsCurrency;
+
+
+  if (qryPedidosFiliaistotal_vendido.asFloat <> 0) and
+     (qryPedidosFiliaisperiodo.AsInteger <> 0) then
+  begin
+    if qryPedidosFiliaisrequisitante.asinteger = qryPedidosFiliaisfilial.asinteger then
+    begin
+      qryPedidosFiliaisdiasestoquecalculado.asFloat :=
+           (qryPedidosFiliaistotal_estoque.AsFloat +
+  {          qryPedidosFiliaistotal_pedido.AsFloat +  ver com JR }
+{            qryPedidosFiliaissugestao.AsFloat +}
+            qryPedidosFiliaisqtdepedida.asFloat
+            ) /
+            (qryPedidosFiliaistotal_vendido.AsFloat / qryPedidosFiliaisperiodo.AsInteger);
+
+        qryPedidosFiliaisdiasEstCalcPedCompra.asFloat :=
+           (qryPedidosFiliaistotal_estoque.AsFloat +
+            qryPedidosFiliaistotal_pedido.AsFloat +
+{            qryPedidosFiliaissugestao.AsFloat +}
+            qryPedidosFiliaisqtdepedida.asFloat
+            ) /
+            (qryPedidosFiliaistotal_vendido.AsFloat / qryPedidosFiliaisperiodo.AsInteger);
+
+    end
+    else
+    begin
+      qryPedidosFiliaisdiasestoquecalculado.asFloat :=
+           (qryPedidosFiliaistotal_estoque.AsFloat {
+  {          qryPedidosFiliaistotal_pedido.AsFloat +  ver com JR }
+  {          qryPedidosFiliaissugestao.AsFloat } -
+            qryPedidosFiliaisqtdepedida.asFloat
+            ) /
+            (qryPedidosFiliaistotal_vendido.AsFloat / qryPedidosFiliaisperiodo.AsInteger);
+
+      qryPedidosFiliaisdiasEstCalcPedCompra.asFloat :=
+           (qryPedidosFiliaistotal_estoque.AsFloat +
+            qryPedidosFiliaistotal_pedido.AsFloat {+
+            qryPedidosFiliaissugestao.AsFloat } -
+            qryPedidosFiliaisqtdepedida.asFloat
+            ) /
+            (qryPedidosFiliaistotal_vendido.AsFloat / qryPedidosFiliaisperiodo.AsInteger);
+    end;
+  end
+  else
+  begin
+    qryPedidosFiliaisdiasestoquecalculado.asFloat := 999999.99;
+    qryPedidosFiliaisdiasEstCalcPedCompra.asFloat := 999999.99;
+  end;
+
+end;
+
+end.

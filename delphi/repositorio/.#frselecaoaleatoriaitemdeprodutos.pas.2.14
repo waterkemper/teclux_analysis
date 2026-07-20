@@ -1,0 +1,330 @@
+unit frselecaoaleatoriaitemdeprodutos;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, 
+  Dialogs, frselecaoaleatoria, db, frConsulta, frConsultaCodigo, cpdbfindcontrols, ctconstantes, biblio,
+  ExtCtrls, StdCtrls;
+
+type
+  TfraSelecaoAleatoriaItemdeProdutos = class(TFrame)
+    fraSelecaoAleatoriaItemdeProduto: TfraSelecaoAleatoria;
+    pnlParametros: TPanel;
+    ckbProdutosComAgendamento: TCheckBox;
+    procedure fraSelecaoAleatoriaItemdeProdutodbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaItemdeProdutodbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure fraSelecaoAleatoriaItemdeProdutosbnProcuraClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaItemdeProdutoqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaItemdeProdutoqrySelecaoAleatoriaNewRecord(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaItemdeProdutopnlAbaixoDireitaClick(
+      Sender: TObject);
+    procedure ckbProdutosComAgendamentoClick(Sender: TObject);
+  private
+    fonEnter_: TtecProcedure;
+    { Private declarations }
+    procedure AcionarPesquisaGrade;
+    procedure AtribuirDadosItemproduto;
+    function GetListaCondicional: String;
+    procedure CondicoesdaConsultaItemdeProdutos;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    property ListaCondicional: String read GetListaCondicional;
+    procedure SetarCodigo(Codigo: Variant);
+    property onEnter_: TtecProcedure read fonEnter_ write fOnEnter_;
+
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TfraSelecaoAleatoriaItemdeProdutos }
+
+procedure TfraSelecaoAleatoriaItemdeProdutos.AcionarPesquisaGrade;
+begin
+  with fraSelecaoAleatoriaItemdeProduto do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar('Item de Produto');
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+constructor TfraSelecaoAleatoriaItemdeProdutos.Create(AOwner: TComponent);
+begin
+  inherited;
+//  if ((owner is TTabSheet) and  TTabSheet(owner).tabvisible) or not (owner is TTabSheet) then
+  begin
+
+    fraSelecaoAleatoriaItemdeProduto.pnlAbaixoDireita.visible := true;
+
+    fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.Sql.Text :=
+  //     'SELECT  Codigo, descricao FROM produtos WHERE false';
+       'SELECT  cast(null as char(30)) as Codigo, '+
+              ' cast(null as char(1)) as tipo, '+
+              ' cast(null as varchar(162)) as descricao, '+
+              ' cast(null as varchar(11)) as campo, '+
+              ' cast(null as varchar(20)) as opcomparacao, '+
+              ' cast(null as varchar(2)) as oplogico ';
+
+
+
+    fraSelecaoAleatoriaItemdeProduto.CampoParaLista := 'codigo';
+
+
+    with fraSelecaoAleatoriaItemdeProduto do
+    begin
+      ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+      ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoriaItemdeProduto';
+      ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 30;
+      ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+      ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+      ConsultaSelecaoAleatoria.edfCodigo.DataaFieldInterno := 'codigo';
+      ConsultaSelecaoAleatoria.edfCodigo.DataaFieldVisual := 'codigo';
+
+      ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+      ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraItemProdutos;
+      ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'produtovisual';
+      ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'produtovisual';
+      ConsultaSelecaoAleatoria.edfCodigo.LookupaFieldinterno := 'produtovisual';
+      ConsultaSelecaoAleatoria.edfCodigo.LookupaFieldVisual := 'produtovisual';
+      ConsultaSelecaoAleatoria.edfCodigo.NaoExecutarLookupFound := true;
+
+      ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+      ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesdaConsultaItemdeProdutos;
+      ConsultaSelecaoAleatoria.TipoPesquisa := pesITEMPRODUTOS;
+      ConsultaSelecaoAleatoria.OnFound := AtribuirDadosItemProduto;
+      ConsultaSelecaoAleatoria.edfCodigo.ExibirMensagem := false;
+
+    end;
+    fraSelecaoAleatoriaItemdeProduto.UtilizarCamparacaoeLogica := true;
+  end;  
+end;
+
+procedure TfraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProdutodbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  if (fraSelecaoAleatoriaItemdeProduto.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.FieldByName('codigo')) then
+    acionarPesquisaGrade;
+
+end;
+
+procedure TfraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProdutodbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     if (fraSelecaoAleatoriaItemdeProduto.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.FieldByName('codigo')) then
+                     begin
+                       fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                       if (Shift = []) or fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.CtrlOn then
+                         AcionarPesquisaGrade
+                     end;    
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if (fraSelecaoAleatoriaItemdeProduto.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.FieldByName('codigo')) then
+                begin
+//                  fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.qryProcuraItemProdutos.ParamByName('produtovisual').asstring := qryselecaoaleatoria.fiel
+                  fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.edfCodigo.text := fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.FieldByName('codigo').asString;
+                  fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.edfCodigo.exist;
+                  if not fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.qryProcuraItemProdutos.IsEmpty then
+                  begin
+                    AtribuirDadosItemProduto;
+                    if assigned(onEnter_) then
+                      onEnter_;
+                  end
+                  else
+                  begin
+                    key := 0;
+                    fraSelecaoAleatoriaItemdeProduto.dbgSelecaoAleatoria.SelectedIndex := 0;
+                    fraSelecaoAleatoriaItemdeProduto.dbgSelecaoAleatoria.SetFocus;
+                  end;
+                end;
+  end;
+
+end;
+
+procedure TfraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProdutosbnProcuraClick(
+  Sender: TObject);
+begin
+  AcionarPesquisaGrade;
+
+end;
+
+procedure TfraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProdutoqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+begin
+  with fraSelecaoAleatoriaItemdeProduto do
+  begin
+    qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'Item';
+//    qrySelecaoAleatoria.FieldByName('codigo').SetFieldType(ftLargeInt);
+    qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('descricao').DisplayLabel := 'Descrição';
+    qrySelecaoAleatoria.FieldByName('descricao').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('campo').DisplayLabel := 'Aplicar a';
+    qrySelecaoAleatoria.FieldByName('campo').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('opcomparacao').DisplayLabel := 'Comparação';
+    qrySelecaoAleatoria.FieldByName('opcomparacao').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('oplogico').DisplayLabel := 'Lógica';
+    qrySelecaoAleatoria.FieldByName('oplogico').ReadOnly := false;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+  end;
+
+end;
+
+procedure TfraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProdutoqrySelecaoAleatoriaNewRecord(
+  DataSet: TDataSet);
+begin
+  with fraSelecaoAleatoriaItemdeProduto do
+  begin
+    qrySelecaoAleatoria.FieldByName('campo').asString := 'codigo';
+    qrySelecaoAleatoria.FieldByName('opcomparacao').asString := '= Igual a';
+    qrySelecaoAleatoria.FieldByName('oplogico').asString := 'ou';
+  end;
+end;
+
+procedure TfraSelecaoAleatoriaItemdeProdutos.AtribuirDadosItemproduto;
+var
+vTEste : String;
+begin
+  with fraSelecaoAleatoriaItemdeProduto do
+  begin
+  {
+    case ConsultaSelecaoAleatoria.TipoPesquisa of
+
+      pesITEMPRODUTOS:
+      begin
+      }
+        qrySelecaoAleatoria.Edit;
+        qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+            ConsultaSelecaoAleatoria.qryProcuraItemProdutos.fieldbyname('produtovisual').AsString;
+
+        vTeste := ConsultaSelecaoAleatoria.qryProcuraItemProdutos.fieldbyname('descricaolc').AsString;
+        qrySelecaoAleatoria.FieldByName('descricao').AsString :=
+            ConsultaSelecaoAleatoria.qryProcuraItemProdutos.fieldbyname('descricaolc').AsString;
+        vTeste := qrySelecaoAleatoria.FieldByName('descricao').AsString;
+
+
+        if qrySelecaoAleatoria.FieldByName('campo').asString = '' then
+          qrySelecaoAleatoria.FieldByName('campo').asString := 'codigo';
+
+        if qrySelecaoAleatoria.FieldByName('opcomparacao').asString = '' then
+          qrySelecaoAleatoria.FieldByName('opcomparacao').asString := '= Igual a';
+
+        if qrySelecaoAleatoria.FieldByName('oplogico').asString = '' then
+          qrySelecaoAleatoria.FieldByName('oplogico').asString := 'ou';
+
+        qrySelecaoAleatoria.Post;
+
+{     end;
+
+      pesItemProdutosConsulta:
+      begin
+
+        qrySelecaoAleatoria.Edit;
+        qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+            ConsultaSelecaoAleatoria.qryProcuraItemProdutosprodutovisual.AsString;
+
+
+        qrySelecaoAleatoria.FieldByName('descricao').AsString :=
+            ConsultaSelecaoAleatoria.qryProcuraItemProdutosdescricaolc.AsString;
+
+
+        if qrySelecaoAleatoria.FieldByName('campo').asString = '' then
+          qrySelecaoAleatoria.FieldByName('campo').asString := 'codigo';
+
+        if qrySelecaoAleatoria.FieldByName('opcomparacao').asString = '' then
+          qrySelecaoAleatoria.FieldByName('opcomparacao').asString := '= Igual a';
+
+        if qrySelecaoAleatoria.FieldByName('oplogico').asString = '' then
+          qrySelecaoAleatoria.FieldByName('oplogico').asString := 'ou';
+
+        qrySelecaoAleatoria.Post;
+
+      end;
+    end;
+}
+
+
+  end;
+end;
+
+function TfraSelecaoAleatoriaItemdeProdutos.GetListaCondicional: String;
+begin
+  result := trocar(fraSelecaoAleatoriaItemdeProduto.ListaCondicional, 'codigo', 'p.codigovisual');
+  result := trocar(result, 'descricao','p.descricao');
+  result := trocar(result, 'valorgrade1','p.valorgrade1');
+  result := trocar(result, 'valorgrade2','p.valorgrade2');
+
+end;
+
+procedure TfraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProdutopnlAbaixoDireitaClick(
+  Sender: TObject);
+begin
+  if pnlParametros.visible then
+  begin
+    pnlParametros.visible := false;
+    fraSelecaoAleatoriaItemdeProduto.pnlAbaixoDireita.caption := '<<<';
+  end
+  else
+  begin
+    pnlParametros.visible := true;
+    fraSelecaoAleatoriaItemdeProduto.pnlAbaixoDireita.caption := '>>>';
+  end;
+end;
+
+procedure TfraSelecaoAleatoriaItemdeProdutos.CondicoesdaConsultaItemdeProdutos;
+begin
+  if ckbProdutosComAgendamento.checked and pnlParametros.visible then
+    fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.qryConsultaitemprodutos.macrobyname('SQLProdutosAgendamentos').asString := 'and coalesce((select true from produtosagendamentos pa where pa.produto = p.codigo limit 1),false)'
+  else
+    fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.qryConsultaitemprodutos.macrobyname('SQLProdutosAgendamentos').asString := '';
+end;
+
+procedure TfraSelecaoAleatoriaItemdeProdutos.ckbProdutosComAgendamentoClick(
+  Sender: TObject);
+begin
+  CondicoesdaConsultaItemdeProdutos;
+end;
+
+procedure TfraSelecaoAleatoriaItemdeProdutos.SetarCodigo(Codigo: Variant);
+begin
+  inherited;
+  fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.append;
+  fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.FieldByName('codigo').asVariant := Codigo;
+  fraSelecaoAleatoriaItemdeProduto.dbgSelecaoAleatoria.SelectedField := fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.FieldByName('codigo');
+  fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.edfCodigo.text := fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.FieldByName('codigo').asString;
+  fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.edfCodigo.exist;
+  if not fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.qryProcuraItemProdutos.IsEmpty then
+    AtribuirDadosItemProduto
+  else
+  begin
+    fraSelecaoAleatoriaItemdeProduto.dbgSelecaoAleatoria.SelectedIndex := 0;
+    fraSelecaoAleatoriaItemdeProduto.dbgSelecaoAleatoria.SetFocus;
+  end;
+
+end;
+
+end.

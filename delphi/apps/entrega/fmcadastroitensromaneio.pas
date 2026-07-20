@@ -1,0 +1,597 @@
+unit fmcadastroitensromaneio;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, DBCtrls, DB,
+  Mask, ComCtrls, Buttons,
+  ExtCtrls,
+  dmcadastroromaneios,
+ // Terceiros
+  ZQuery,
+  // Repositorio
+  fmconsultabasica, fmconsultaporcampo, fmcadastropadrao,
+  // Biblio
+  ctconstantes, biblio,
+  // Componentes
+  cpnumero, cpdbfindcontrols, cpdbdata, cpdbtext,
+  ZPgSqlQuery, cpquery, cpdbmemo, cptexto, cppagecontrol, ToolWin,
+  windows, FLabel;
+
+
+type
+  TfrmCadastroItensRomaneio = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    pgcNotasCupons: TtecPageControl;
+    tstNotasFiscais: TTabSheet;
+    gbxNotas: TGroupBox;
+    sbnFilialNota: TSpeedButton;
+    sbnProcuraDadosFiscaisNota: TSpeedButton;
+    sbnProcuraSeriesFiliais: TSpeedButton;
+    dtxFilialNota: TtecDBText;
+    edfNotaFiscal: TtecDbEditFind;
+    flkSerie: TtecDBFindLookup;
+    tstCuponsFiscais: TTabSheet;
+    gbxCuponsFiscais: TGroupBox;
+    sbnFilialCupon: TSpeedButton;
+    sbnProcuraDadosFiscaisCupom: TSpeedButton;
+    dtxFilialCupon: TtecDBText;
+    flkFilialEmissaoCupom: TtecDBFindLookup;
+    edtECF: TDBEditNumero;
+    edtIntervensao: TDBEditNumero;
+    edfCupomFiscal: TtecDbEditFind;
+    gbxFrete: TGroupBox;
+    sbnProcuraTipodeFrete: TSpeedButton;
+    dtxitemRomaneioTipodeFrete: TtecDBText;
+    edtitemRomaneioValordoFrete: TDBEditNumero;
+    flkRomaneioNCTipodeFrete: TtecDBFindLookup;
+    dtxEmissaoNota: TtecDBText;
+    edtValorTabela: TDBEditNumero;
+    mmObservacoes: TtecDBMemo;
+    ckbCancelado: TDBCheckBox;
+    flkFilialEmissaoNota: TtecDBFindLookup;
+    gbxFilialNota: TGroupBox;
+    gbxSerieNota: TGroupBox;
+    gbxNrNota: TGroupBox;
+    gbxFilialCupom: TGroupBox;
+    gbxECF: TGroupBox;
+    gbxIntervencao: TGroupBox;
+    gbxNrCupom: TGroupBox;
+    gbxEmissaoNota: TGroupBox;
+    gbxValorTabela: TGroupBox;
+    gbxValorFrete: TGroupBox;
+    gbxTipoFrete: TGroupBox;
+    gbxObservacoes: TGroupBox;
+    gbx_chaveNFE: TGroupBox;
+    edtChaveNFe: TDBEditTexto;
+    ckbAutoIncluir: TCheckBox;
+    lblMensagemIncluidno: TFLabel;
+    ckbSomenteNFComItensdeEntrega: TCheckBox;
+    Timer1: TTimer;
+    procedure flkFilialEmissaoNotaExit(Sender: TObject);
+    procedure sbnFilialNotaClick(Sender: TObject);
+    procedure sbnProcuraSeriesFiliaisClick(Sender: TObject);
+    procedure flkSerieExit(Sender: TObject);
+    procedure sbnProcuraDadosFiscaisNotaClick(Sender: TObject);
+    procedure sbnProcuraTipodeFreteClick(Sender: TObject);
+    procedure sbnFilialCuponClick(Sender: TObject);
+    procedure flkFilialEmissaoCupomExit(Sender: TObject);
+    procedure edtECFExit(Sender: TObject);
+    procedure edtIntervensaoExit(Sender: TObject);
+    procedure sbnProcuraDadosFiscaisCupomClick(Sender: TObject);
+    procedure edfNotaFiscalExit(Sender: TObject);
+    procedure edfCupomFiscalExit(Sender: TObject);
+    procedure edtitemRomaneioDatadeEntregaChange(Sender: TObject);
+    procedure pgcNotasCuponsChange(Sender: TObject);
+    procedure edtNFEKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtChaveNFeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure ckbSomenteNFComItensdeEntregaClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+
+  protected
+    { Private declarations }
+    function  InternoIncluir: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+
+    function  PermitirProcura: boolean;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure Selecionar(value: TipoProcuraRomaneios);
+    function  TabelaDePesquisa: TZDataSet; override;
+
+    function  TituloPesquisa(Tipo: TipoProcuraRomaneios): String;
+  public
+    tipoProcura: TipoProcuraRomaneios;
+    procedure  HabilitarCampos(tipo: boolean);
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmCadastroItensRomaneio: TfrmCadastroItensRomaneio;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmCadastroRomaneiosNotasCupons }
+
+
+destructor TfrmCadastroItensRomaneio.Destroy;
+begin
+  inherited;
+  frmCadastroItensRomaneio := nil;
+end;
+
+function TfrmCadastroItensRomaneio.ExisteInformacao(
+  Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmCadastroRomaneios do
+  begin
+   case tipoProcura of
+    tpItensRomaneioFiliais     : result := ExisteFilial(NomeCampo,Value);
+    tpItensRomaneioTipodeFrete : result := ExisteTipodeFretes(NomeCampo, Value);
+    tpItensRomaneioSerie       : result := ExisteSerie(NomeCampo, Value);
+    tpItensRomaneioNotas       : result := ExisteNota(NomeCampo, Value);
+    tpItensRomaneioCupons      : result := ExisteCupom(NomeCampo, Value);
+   else
+    result := false;
+   end;
+  end;
+end;
+
+procedure TfrmCadastroItensRomaneio.HabilitarCampos(tipo: boolean);
+begin
+
+end;
+
+function TfrmCadastroItensRomaneio.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if not CtrlOn then begin
+    if Result then
+    begin
+      dtmCadastroRomaneios.ExcluirItensRomaneio;
+      dtmCadastroRomaneios.LerNotasCuponsIncluidos(False);
+      if pgcNotasCupons.ActivePage = tstCuponsFiscais then
+       flkFilialEmissaoCupom.SetFocus
+      else
+       flkFilialEmissaoNota.SetFocus;
+    end;
+  end;
+end;
+
+function TfrmCadastroItensRomaneio.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+  begin
+   with dtmCadastroRomaneios do
+   begin
+    qryItensRomaneioserie.Required        := pgcNotasCupons.ActivePage = tstNotasFiscais;
+    qryItensRomaneionumero_nf.Required    := pgcNotasCupons.ActivePage = tstNotasFiscais;
+    qryItensRomaneionumero_cupom.Required := pgcNotasCupons.ActivePage = tstCuponsFiscais;
+    qryItensRomaneiomaquina.Required      := pgcNotasCupons.ActivePage = tstCuponsFiscais;
+    qryItensRomaneiointervensao.Required  := pgcNotasCupons.ActivePage = tstCuponsFiscais;
+
+    if pgcNotasCupons.ActivePage = tstNotasFiscais then
+    begin
+      edtChaveNFe.setfocus;
+      edtChaveNFe.selectall;
+//     flkFilialEmissaoNota.SetFocus
+    end
+    else
+     flkFilialEmissaoCupom.SetFocus;
+
+{    if edtitemRomaneioDatadeEntrega.Criticar(False) then}
+      GravarItensRomaneio;
+{    else
+      edtitemRomaneioDatadeEntrega.SetFocus;}
+   end;
+  end;
+end;
+
+function TfrmCadastroItensRomaneio.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if not CtrlOn then begin
+    if Result then
+     result := dtmCadastroRomaneios.IncluirItensRomaneio
+  end;
+end;
+
+function TfrmCadastroItensRomaneio.InternoPesquisar(
+  Titulo: String): Integer;
+begin
+  if PermitirProcura then
+  begin
+   with dtmCadastroRomaneios do
+   begin
+    AbreTabelaPesquisa(tipoprocura);
+    Titulo := TituloPesquisa(tipoprocura);
+    result:=inherited internopesquisar(Titulo);
+    if Result = mrOK then
+      Selecionar(tipoProcura);
+    FechaTabelaPesquisa(tipoprocura);
+   end;
+  end
+  else
+   Result := mrNone
+end;
+
+function TfrmCadastroItensRomaneio.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+end;
+
+function TfrmCadastroItensRomaneio.PermitirProcura: boolean;
+begin
+  Result := False;
+  if CtrlOn then
+  begin
+    if flkRomaneioNCTipodeFrete.Focused then begin
+      Result := True;
+      tipoProcura := tpItensRomaneioTipodeFrete
+    end;
+    if flkFilialEmissaoNota.Focused then begin
+      Result := True;
+      tipoProcura := tpItensRomaneioFiliais;
+    end;
+    if flkFilialEmissaoCupom.Focused then begin
+      Result := True;
+      tipoProcura := tpItensRomaneioFiliais;
+    end;
+    if flkSerie.Focused then begin
+      Result := True;
+      tipoProcura := tpItensRomaneioSerie;
+    end;
+    if edfNotaFiscal.Focused then begin
+      flkFilialEmissaoNotaExit(self);
+      flkSerieExit(self);
+      Result := True;
+      tipoProcura := tpItensRomaneioNotas;
+    end;
+    if edfCupomFiscal.Focused then begin
+      flkFilialEmissaoCupomExit(self);
+      edtECFExit(self);
+      edtIntervensaoExit(self);
+      Result := True;
+      tipoProcura := tpItensRomaneioCupons;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroItensRomaneio.Selecionar(
+  value: TipoProcuraRomaneios);
+begin
+ with dtmCadastroRomaneios do
+ begin
+  case value of
+   tpItensRomaneioFiliais     : ItensRomaneioFiliais := qryConsultaFiliaiscodigo.Asstring;
+   tpItensRomaneioTipodeFrete : ItensRomaneioTipodeFrete := qryConsultaTabeladeFretescodigo.Value;
+   tpItensRomaneioSerie       : ItensRomaneioSerie := qryConsultaSeriesFiliaisvalor.asstring;
+   tpItensRomaneioNotas       :
+   begin
+    ItensRomaneioFiliais     := qryConsultaDadosFiscaisNotasfilialemissao.asstring;
+    ItensRomaneioSerie       := qryConsultaDadosFiscaisNotasserie.asstring;
+    ItensRomaneioNota        := qryConsultaDadosFiscaisNotasnota.asstring;
+    ItensRomaneioMaquina     := qryConsultaDadosFiscaisNotasmaquina.asstring;
+    ItensRomaneioIntervensao := qryConsultaDadosFiscaisNotasintervensao.asstring;
+    ItensRomaneioCupom       := qryConsultaDadosFiscaisNotascupom.asstring;
+   end;
+   tpItensRomaneioCupons      :
+   begin
+    ItensRomaneioFiliais     := qryConsultaDadosFiscaisCuponsfilialemissao.asstring;
+    ItensRomaneioSerie       := qryConsultaDadosFiscaisCuponsserie.asstring;
+    ItensRomaneioNota        := qryConsultaDadosFiscaisCuponsnota.asstring;
+    ItensRomaneioMaquina     := qryConsultaDadosFiscaisCuponsmaquina.asstring;
+    ItensRomaneioIntervensao := qryConsultaDadosFiscaisCuponsintervensao.asstring;
+    ItensRomaneioCupom       := qryConsultaDadosFiscaisCuponscupom.asstring;
+   end;
+  end;
+ end;
+end;
+
+function TfrmCadastroItensRomaneio.TabelaDePesquisa: TZDataSet;
+begin
+  Result := inherited TabelaDePesquisa;
+  with dtmCadastroRomaneios do
+  begin
+   case tipoProcura of
+    tpItensRomaneioFiliais     : result := ConsultaFiliais;
+    tpItensRomaneioTipodeFrete : result := ConsultaTipodeFretes;
+    tpItensRomaneioSerie       : result := ConsultaSerie;
+    tpItensRomaneioNotas       : result := ConsultaNotas;
+    tpItensRomaneioCupons      : result := ConsultaCupons;
+   end;
+  end;
+end;
+
+procedure TfrmCadastroItensRomaneio.flkFilialEmissaoNotaExit(
+  Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroRomaneios do
+  if flkFilialEmissaoNota.Text<>'' then
+    ParametroFilialEmissaoNota:=flkFilialEmissaoNota.Text
+  else
+    ParametroFilialEmissaoNota:='';
+end;
+
+procedure TfrmCadastroItensRomaneio.sbnFilialNotaClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkFilialEmissaoNota, ctFILIAIS)
+end;
+
+function TfrmCadastroItensRomaneio.TituloPesquisa(
+  Tipo: TipoProcuraRomaneios): String;
+begin
+  case tipo of
+    tpItensRomaneioNotas              : result := ctNOTASFISCAIS;
+    tpItensRomaneioCupons             : result := ctCUPONSFISCAIS;
+    tpItensRomaneioFiliais            : result := ctFILIAIS;
+    tpItensRomaneioTipodeFrete        : result := ctFRETE;
+  else
+    result := '';
+  end;
+end;
+
+procedure TfrmCadastroItensRomaneio.sbnProcuraSeriesFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkSerie, ctSERIES)
+end;
+
+procedure TfrmCadastroItensRomaneio.flkSerieExit(Sender: TObject);
+begin
+  inherited;
+
+  with dtmCadastroRomaneios do
+    if flkSerie.Text<>'' then
+      ParametroSerie:=flkSerie.Text
+    else
+      ParametroSerie:='';
+end;
+
+procedure TfrmCadastroItensRomaneio.sbnProcuraDadosFiscaisNotaClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfNotaFiscal, ctNOTASFISCAIS);
+end;
+
+constructor TfrmCadastroItensRomaneio.Create(AOwner: TComponent);
+begin
+  inherited;
+  DataSet := dtmCadastroRomaneios.qryItensRomaneio;
+  SetarActivePage(self);
+end;
+
+procedure TfrmCadastroItensRomaneio.sbnProcuraTipodeFreteClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkRomaneioNCTipodeFrete, ctFRETE)
+end;
+
+procedure TfrmCadastroItensRomaneio.sbnFilialCuponClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkFilialEmissaoCupom, ctFILIAIS)
+end;
+
+procedure TfrmCadastroItensRomaneio.flkFilialEmissaoCupomExit(
+  Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroRomaneios do
+  if flkFilialEmissaoCupom.Text<>'' then
+    ParametroFilialEmissaoCupom:=flkFilialEmissaoCupom.Text
+  else
+    ParametroFilialEmissaoCupom:='';
+end;
+
+procedure TfrmCadastroItensRomaneio.edtECFExit(Sender: TObject);
+begin
+  inherited;
+ with dtmCadastroRomaneios do
+ if edtECF.Text<>'' then
+  ParametroECF:=edtECF.Text
+ else
+  ParametroECF:='';
+end;
+
+procedure TfrmCadastroItensRomaneio.edtIntervensaoExit(Sender: TObject);
+begin
+  inherited;
+  With dtmCadastroRomaneios do
+  if edtIntervensao.Text<>'' then
+   ParametroIntervensao:=edtIntervensao.Text
+  else
+   ParametroIntervensao:='';
+end;
+
+
+procedure TfrmCadastroItensRomaneio.sbnProcuraDadosFiscaisCupomClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfCupomFiscal, ctCUPONSFISCAIS);
+end;
+
+procedure TfrmCadastroItensRomaneio.edfNotaFiscalExit(Sender: TObject);
+begin
+ inherited;
+
+ with dtmCadastroRomaneios do
+ begin
+   if NotaFiscalAlterada(flkFilialEmissaoNota.Text,
+                                     flkserie.Text,
+                                edfNotaFiscal.Text,
+                                edtChaveNFe.Text
+                                ) then
+
+   if not AtualizaItensRomaneiosNotas(flkFilialEmissaoNota.Text,
+                                                  flkserie.Text,
+                                             edfNotaFiscal.Text,
+                                             ''
+                                             ) then
+     edfNotaFiscal.SetFocus;
+ end;
+
+end;
+
+procedure TfrmCadastroItensRomaneio.edfCupomFiscalExit(Sender: TObject);
+begin
+  inherited;
+ with dtmCadastroRomaneios do
+ begin
+    if CupomFiscalAlterado(flkFilialEmissaoCupom.Text,
+                                          edtECF.Text,
+                                  edtIntervensao.Text,
+                                  edfCupomFiscal.Text)  then
+    if not AtualizaItensRomaneiosCupons(flkFilialEmissaoCupom.Text,
+                                                       edtECF.Text,
+                                               edtIntervensao.Text,
+                                               edfCupomFiscal.Text
+                                               ) then
+      edfCupomFiscal.SetFocus;
+ end;
+end;
+
+procedure TfrmCadastroItensRomaneio.edtitemRomaneioDatadeEntregaChange(
+  Sender: TObject);
+begin
+  inherited;
+  {
+  with dtmCadastroRomaneios do
+  begin
+  if Entrega_Anterior='' then
+    Entrega_Anterior:=edtitemRomaneioDatadeEntrega.Text;
+  end;
+  }
+end;
+
+procedure TfrmCadastroItensRomaneio.pgcNotasCuponsChange(Sender: TObject);
+begin
+  inherited;
+  if pgcNotasCupons.ActivePage = tstNotasFiscais then
+  begin
+    flkFilialEmissaoNota.SetFocus;
+    ckbSomenteNFComItensdeEntrega.parent := gbxNotas;
+    ckbSomenteNFComItensdeEntrega.taborder := 3;
+  end
+  else
+  begin
+    flkFilialEmissaoCupom.SetFocus;
+    ckbSomenteNFComItensdeEntrega.parent := gbxCuponsFiscais;
+    ckbSomenteNFComItensdeEntrega.taborder := 4;
+  end;
+end;
+
+procedure TfrmCadastroItensRomaneio.edtNFEKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+  begin
+    
+  end;
+end;
+
+procedure TfrmCadastroItensRomaneio.edtChaveNFeKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+var
+  vChave_nfe : String;
+  vProsseguir : Boolean;
+begin
+  inherited;
+
+  if key = vk_return then
+    if somentenumero(edtChaveNFe.text)<>'' then
+    begin
+      pgcNotasCupons.activepage := tstNotasFiscais;
+      with dtmCadastroRomaneios do
+      begin
+        if NotaFiscalAlterada(flkFilialEmissaoNota.Text,
+                                           flkserie.Text,
+                                      edfNotaFiscal.Text,
+                                      edtChaveNFe.Text
+                                      ) then
+
+        begin
+          vChave_nfe := edtChaveNFe.text;
+
+          if ckbAutoIncluir.Checked then
+            vProsseguir := internoincluir;
+
+          if not AtualizaItensRomaneiosNotas('0','','0',vChave_nfe) then
+          begin
+
+            edtChaveNFe.SetFocus;
+            edtChaveNFe.selectall;
+          end
+          else
+          if InternoGravar then
+          begin
+            if ckbAutoIncluir.Checked then
+            begin
+              lblMensagemIncluidno.Flashenabled := true;
+              Application.ProcessMessages;
+              lblMensagemIncluidno.Flashenabled := false;
+              edtChaveNFe.SetFocus;
+              edtChaveNFe.selectall;
+            end;
+          end;
+        end;
+      end;
+    end;
+end;
+
+procedure TfrmCadastroItensRomaneio.ckbSomenteNFComItensdeEntregaClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroRomaneios.SomenteNFComItensdeEntrega := ckbSomenteNFComItensdeEntrega.checked;
+end;
+
+procedure TfrmCadastroItensRomaneio.FormCreate(Sender: TObject);
+begin
+  inherited;
+//  edtChaveNFe.setfocus;
+  edtChaveNFe.selectall;
+  
+
+
+end;
+
+procedure TfrmCadastroItensRomaneio.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+
+  sbnFilialNota.enabled := not dtmCadastroRomaneios.qryItensRomaneiodadofiscal.readonly;
+  sbnProcuraSeriesFiliais.enabled := not dtmCadastroRomaneios.qryItensRomaneiodadofiscal.readonly;
+  sbnProcuraDadosFiscaisNota.enabled := not dtmCadastroRomaneios.qryItensRomaneiodadofiscal.readonly;
+
+  sbnIncluir.enabled := dtmCadastroRomaneios.PermiteAlterarDocumento;
+
+  sbnExcluir.enabled := dtmCadastroRomaneios.PermiteAlterarDocumento and
+                        dtmCadastroRomaneios.PermiteExcluirItens and
+                        not dtmCadastroRomaneios.qryItensRomaneio.isempty;
+
+
+
+end;
+
+end.

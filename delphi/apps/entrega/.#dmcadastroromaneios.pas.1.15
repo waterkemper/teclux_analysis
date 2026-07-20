@@ -1,0 +1,1993 @@
+unit dmcadastroromaneios;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Controls, Forms, DB,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Componentes
+  cpquery,cpdatasource,
+  // Biblio
+
+  ctconstantes, Variants, biblio, clusuario,
+  // Repositorio
+  dmbasico, dmtecsoft, FR_DSet, FR_DBSet, FR_Class,
+  clparametrossistema,
+  fmpreviewpadrao, FR_Desgn, ZTransact, Windows;
+
+type
+  TdtmCadastroRomaneios = class(TdtmBasico)
+    qryRomaneios: TtecQuery;
+    dsrRomaneios: TtecDataSource;
+    spcRomaneioProximoCodigo: TtecQuery;
+    qryConsultaRomaneios: TtecQuery;
+    qryRomaneiosnumero: TIntegerField;
+    qryRomaneiostipo: TStringField;
+    qryRomaneiosfornecedor: TIntegerField;
+    qryRomaneiosemissao: TDateField;
+    spcRomaneioProximoCodigonumero: TIntegerField;
+    qryConsultaFornecedores: TtecQuery;
+    dsrProcuraFornecedores: TtecDataSource;
+    qryConsultafornecedoresrazao: TStringField;
+    qryConsultafornecedorescodigo: TIntegerField;
+    qryConsultaRomaneiosnumero: TIntegerField;
+    qryConsultaRomaneiosrazao: TStringField;
+    qryProcuraFornecedores: TtecQuery;
+    StringField1: TStringField;
+    IntegerField1: TIntegerField;
+    qryProcuraFiliais: TtecQuery;
+    dsrProcuraFiliais: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryProcuraFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisnome: TStringField;
+    qryProcuraTabeladeFretes: TtecQuery;
+    dsrProcuraTabeladeFretes: TtecDataSource;
+    qryConsultaTabeladeFretes: TtecQuery;
+    qryProcuraTabeladeFretescodigo: TIntegerField;
+    qryProcuraTabeladeFretesdescricao: TStringField;
+    qryConsultaTabeladeFretesdescricao: TStringField;
+    qryConsultaTabeladeFretescodigo: TIntegerField;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryProcuraTabeladeFretesvalorfornecedor: TFloatField;
+    qryValorEntrada: TtecQuery;
+    dsrValorEntrada: TtecDataSource;
+    qryRomaneiosdatapagto: TDateField;
+    qryRomaneiosvalorpagto: TFloatField;
+    qryItensRomaneio: TtecQuery;
+    dsrItensRomaneio: TtecDataSource;
+    qryProcuraSeriesFiliais: TtecQuery;
+    qryProcuraSeriesFiliaisfilial: TIntegerField;
+    qryProcuraSeriesFiliaisvalor: TStringField;
+    dsrProcuraSeriesFiliais: TtecDataSource;
+    qryConsultaSeriesFiliais: TtecQuery;
+    qryConsultaSeriesFiliaisvalor: TStringField;
+    qryProcuraDadosFiscaisNotas: TtecQuery;
+    dsrProcuraDadosFiscaisNotas: TtecDataSource;
+    qryConsultaDadosFiscaisNotas: TtecQuery;
+    qryItensRomaneioromaneio: TIntegerField;
+    qryItensRomaneiodadofiscal: TIntegerField;
+    qryItensRomaneioobservacao: TStringField;
+    qryItensRomaneioentrega: TDateField;
+    qryItensRomaneiovalor: TFloatField;
+    qryItensRomaneiocodigofrete: TIntegerField;
+    qryItensRomaneiocancelado: TBooleanField;
+    qryItensRomaneiodataemissao: TDateField;
+    qryItensRomaneionomefilial: TStringField;
+    qryItensRomaneiofilialemissao: TIntegerField;
+    qryItensRomaneioserie: TStringField;
+    qryItensRomaneionumero_nf: TIntegerField;
+    qryItensRomaneiomaquina: TIntegerField;
+    qryItensRomaneiointervensao: TIntegerField;
+    qryItensRomaneionumero_cupom: TIntegerField;
+    qryItensRomaneiodescricaofrete: TStringField;
+    qryItensRomaneiovalorfornecedor: TFloatField;
+    qryProcuraDadosFiscaisCupons: TtecQuery;
+    dsrProcuraDadosFiscaisCupons: TtecDataSource;
+    qryProcuraDadosFiscaisCuponsdadofiscal: TIntegerField;
+    qryProcuraDadosFiscaisCuponsserie: TStringField;
+    qryProcuraDadosFiscaisCuponsmaquina: TIntegerField;
+    qryProcuraDadosFiscaisCuponsintervensao: TIntegerField;
+    qryProcuraDadosFiscaisCuponscupom: TIntegerField;
+    qryProcuraDadosFiscaisCuponsdata: TDateField;
+    qryProcuraDadosFiscaisCuponscodigofrete: TIntegerField;
+    qryProcuraDadosFiscaisCuponsromaneio: TIntegerField;
+    qryConsultaDadosFiscaisCupons: TtecQuery;
+    qryProcuraDadosFiscaisNotasdadofiscal: TIntegerField;
+    qryProcuraDadosFiscaisNotasfilialemissao: TIntegerField;
+    qryProcuraDadosFiscaisNotasnomefilialemissao: TStringField;
+    qryProcuraDadosFiscaisNotasserie: TStringField;
+    qryProcuraDadosFiscaisNotasnota: TIntegerField;
+    qryProcuraDadosFiscaisNotasmaquina: TIntegerField;
+    qryProcuraDadosFiscaisNotasintervensao: TIntegerField;
+    qryProcuraDadosFiscaisNotascupom: TIntegerField;
+    qryProcuraDadosFiscaisNotasdata: TDateField;
+    qryProcuraDadosFiscaisNotascodigofrete: TIntegerField;
+    qryProcuraDadosFiscaisNotasromaneio: TIntegerField;
+    qryProcuraDadosFiscaisCuponsfilialemissao: TIntegerField;
+    qryProcuraDadosFiscaisCuponsnota: TIntegerField;
+    qryProcuraDadosFiscaisCuponsnomefilialemissao: TStringField;
+    qryConsultaDadosFiscaisCuponsdadofiscal: TIntegerField;
+    qryConsultaDadosFiscaisCuponsfilialemissao: TIntegerField;
+    qryConsultaDadosFiscaisCuponsnota: TIntegerField;
+    qryConsultaDadosFiscaisCuponsserie: TStringField;
+    qryConsultaDadosFiscaisCuponsmaquina: TIntegerField;
+    qryConsultaDadosFiscaisCuponsintervensao: TIntegerField;
+    qryConsultaDadosFiscaisCuponscupom: TIntegerField;
+    qryConsultaDadosFiscaisCuponsdata: TDateField;
+    qryConsultaDadosFiscaisCuponscodigofrete: TIntegerField;
+    qryConsultaDadosFiscaisCuponsnomefilialemissao: TStringField;
+    qryConsultaDadosFiscaisNotasdadofiscal: TIntegerField;
+    qryConsultaDadosFiscaisNotasfilialemissao: TIntegerField;
+    qryConsultaDadosFiscaisNotasnota: TIntegerField;
+    qryConsultaDadosFiscaisNotasserie: TStringField;
+    qryConsultaDadosFiscaisNotasmaquina: TIntegerField;
+    qryConsultaDadosFiscaisNotasintervensao: TIntegerField;
+    qryConsultaDadosFiscaisNotascupom: TIntegerField;
+    qryConsultaDadosFiscaisNotasdata: TDateField;
+    qryConsultaDadosFiscaisNotascodigofrete: TIntegerField;
+    qryConsultaDadosFiscaisNotasnomefilialemissao: TStringField;
+    qryValorEntradavalorentregue: TFloatField;
+    qryValorEntradavaloraentregar: TFloatField;
+    qryValorEntradavalorvencimento: TCurrencyField;
+    frpImprimirRomaneios: TfrReport;
+    qryItensRomaneionomecliente: TStringField;
+    fdsImprimirRomaneio: TfrDBDataSet;
+    qryProcuraDadosFiscaisNotasnomecliente: TStringField;
+    qryProcuraDadosFiscaisCuponsnomecliente: TStringField;
+    frpImprimirItensRomaneios: TfrReport;
+    qryProdutosDadosFiscais: TtecQuery;
+    qryProdutosDadosFiscaisnumeroitemnota: TIntegerField;
+    qryProdutosDadosFiscaiscodigoproduto: TLargeintField;
+    qryProdutosDadosFiscaisquantidade: TFloatField;
+    qryProdutosDadosFiscaisproduto: TStringField;
+    qryProdutosDadosFiscaismarca: TStringField;
+    fdsProdutosDadosFiscais: TfrDBDataSet;
+    qryProdutosDadosFiscaisdadofiscal: TIntegerField;
+    fdsRomaneios: TfrDBDataSet;
+    qryConsultaRomaneiosemissao: TStringField;
+    qryProdutosDadosFiscaisreferencia: TStringField;
+    qryItensRomaneioobservacao_2: TStringField;
+    qryNotasRomaneio: TtecQuery;
+    qryNotasRomaneiodadofiscal: TIntegerField;
+    qryNotasRomaneiodata: TDateField;
+    qryNotasRomaneiocliente: TIntegerField;
+    qryNotasRomaneiotipocliente: TStringField;
+    qryNotasRomaneionomecliente: TStringField;
+    qryNotasRomaneionomefilialemissao: TStringField;
+    qryNotasRomaneiocodigofrete: TIntegerField;
+    qryNotasRomaneiofilialemissao: TIntegerField;
+    qryNotasRomaneioserie: TStringField;
+    qryNotasRomaneionota: TIntegerField;
+    qryNotasRomaneiomaquina: TIntegerField;
+    qryNotasRomaneiointervensao: TIntegerField;
+    qryNotasRomaneiocupom: TIntegerField;
+    qryNotasRomaneiovalorfornecedor: TFloatField;
+    qryNotasRomaneioobservacao: TStringField;
+    qryNotasRomaneioentrega: TDateField;
+    qryNotasRomaneiovalor: TFloatField;
+    dsrNotasRomaneio: TtecDataSource;
+    qryNotasRomaneioselecionarregistro: TBooleanField;
+    qryTabeladeFretes: TtecQuery;
+    dsrTabeladeFretes: TtecDataSource;
+    qryTabeladeFretescodigo: TIntegerField;
+    qryTabeladeFretescodigodescricaofrete: TStringField;
+    qryNotasRomaneiorow_number: TLargeintField;
+    qryNotasRomaneiocodigodescricaofrete: TStringField;
+    qryItensRomaneiochv_nfe: TStringField;
+    qryProcuraDadosFiscaisNotaschv_nfe: TStringField;
+    qryRomaneiosdocumentopag: TIntegerField;
+    qryNotasRomaneiochv_nfe: TStringField;
+    qryProcuraDadosFiscaisNotascliente: TIntegerField;
+    qryProcuraDadosFiscaisNotastipocliente: TStringField;
+    qryProcuraDadosFiscaisNotasvalorfornecedor: TFloatField;
+    qryNotasRomaneiorua: TStringField;
+    qryNotasRomaneionomebairro: TStringField;
+    qryProcuraDadosFiscaisNotasrua: TStringField;
+    qryProcuraDadosFiscaisNotasnomebairro: TStringField;
+    dsrDuplicatasRomaneios: TtecDataSource;
+    qryDuplicatasRomaneios: TtecQuery;
+    qryDuplicatasRomaneiosdatavencto: TDateField;
+    qryDuplicatasRomaneiosvalorvencto: TFloatField;
+    qryDuplicatasRomaneiosdatapagto: TDateField;
+    qryDuplicatasRomaneiosvalorpagto: TFloatField;
+    qryDuplicatasRomaneiosdocumentopag: TIntegerField;
+    qryItensRomaneiodata_hora_recebimento: TDateTimeField;
+    qryAssinaturaItensRomaneio: TtecQuery;
+    qryAssinaturaItensRomaneioassinatura_recebimento: TMemoField;
+    qryNotasRomaneiodata_hora_recebimento: TDateTimeField;
+    qryProcuraDadosFiscaisNotasdata_hora_recebimento: TDateTimeField;
+    qryProcuraDadosFiscaisCuponsdata_hora_recebimento: TDateTimeField;
+    qryRomaneiosnomeusuarioconferencia: TStringField;
+    qryRomaneiosdatahorausuarioconferencia: TDateTimeField;
+    qryRomaneiosdescricaosituacao: TStringField;
+    qryItensRomaneiocliente: TStringField;
+    qryItensRomaneiovolumes: TIntegerField;
+    qryProcuraDadosFiscaisCuponscliente: TIntegerField;
+    qryProcuraDadosFiscaisCuponstipocliente: TStringField;
+    procedure qryRomaneiosAfterScroll(DataSet: TDataSet);
+    procedure qryRomaneiosAfterOpen(DataSet: TDataSet);
+    procedure qryRomaneiosNotasAfterDelete(DataSet: TDataSet);
+    procedure qryRomaneiosCuponsAfterDelete(DataSet: TDataSet);
+    procedure frpImprimirRomaneiosBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryItensRomaneioAfterDelete(DataSet: TDataSet);
+    procedure qryItensRomaneioAfterInsert(DataSet: TDataSet);
+    procedure qryItensRomaneioAfterPost(DataSet: TDataSet);
+    procedure qryItensRomaneioAfterScroll(DataSet: TDataSet);
+    procedure qryValorEntradaCalcFields(DataSet: TDataSet);
+    procedure frpImprimirRomaneiosBeginDoc;
+    procedure frpImprimirRomaneiosEndDoc;
+    procedure frpImprimirItensRomaneiosBeginDoc;
+    procedure frpImprimirItensRomaneiosEndDoc;
+    procedure qryProdutosDadosFiscaisAfterScroll(DataSet: TDataSet);
+    procedure frpImprimirItensRomaneiosGetValue(const ParName: String;
+      var ParValue: Variant);
+    procedure qryRomaneiosAfterInsert(DataSet: TDataSet);
+    procedure frpImprimirItensRomaneiosBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryNotasRomaneioselecionarregistroChange(Sender: TField);
+    procedure qryNotasRomaneiocodigofreteChange(Sender: TField);
+    procedure qryItensRomaneioNewRecord(DataSet: TDataSet);
+    procedure qryItensRomaneioBeforeInsert(DataSet: TDataSet);
+    procedure qryRomaneiosNewRecord(DataSet: TDataSet);
+    procedure dsrNotasRomaneioDataChange(Sender: TObject; Field: TField);
+    procedure qryItensRomaneioAfterOpen(DataSet: TDataSet);
+  private
+
+    qryItensRomaneioentrega_oldvalue : TDateTime;
+    qryItensRomaneiocodigofrete_oldvalue : integer;
+    qryItensRomaneiovalorfornecedor_oldvalue : Currency;
+    qryItensRomaneiovalor_oldvalue : Currency;
+    qryItensRomaneioobservacao_oldvalue : String;
+
+    qryItensRomaneioFilialEmissao_oldvalue : integer;
+    qryNotasRomaneiofilialemissao_oldvalue : integer;
+    qtNotasRomaneiofilialemissao_oldvalue : integer;
+
+    FEntrega_Anterior: String;
+    FSerie_Atual: String;
+    FFilialEmissaoNota_Atual: String;
+    FCupom_Atual: String;
+    FFilialEmissaoCupom_Atual: String;
+    FMaquina_Atual: String;
+    FIntervensao_Atual: String;
+    FNota_Atual: String;
+    FParametrofilialEmissaoNota: String;
+    FParametroSerie: String;
+    FParametroFilialEmissaoCupom: String;
+    FParametroECF: String;
+    FParametroIntervensao: String;
+    FImprimirCancelados: Boolean;
+    FImprimindoRelatorio: Boolean;
+    FTipodeRelatorio: Integer;
+    Fchv_nfe_Atual: String;
+    function GetItensRomaneiochv_nfe: String;
+    procedure setItensRomaneiochv_nfe(const Value: String);
+
+    { Private declarations }
+  protected
+    procedure FiltrarNotasCuponsRomaneios;
+    function GetConsultaRomaneios: TZDataSet;
+    function GetTabelaRomaneios: TZDataSet;
+    function GetTabelaItensRomaneio: TZDataset;
+    function GetConsultafornecedor: TZDataSet;
+    function GetConsultaFiliais: TZDataSet;
+    function GetConsultaTipodeFretes: TZDataSet;
+    function GetConsultaSerie: TZDataSet;
+    function GetConsultaNotas: TZDataSet;
+    function GetConsultaCupons: TZDataSet;
+
+    function GetItensRomaneioCupom: String;
+    function GetItensRomaneioFiliais: String;
+    function GetItensRomaneioIntervensao: String;
+    function GetItensRomaneioMaquina: String;
+    function GetItensRomaneioNota: String;
+    function GetItensRomaneioSerie: String;
+    function GetItensRomaneioDadoFiscal: String;
+
+    procedure SetRomaneiofornecedor(const Value: integer);
+
+    procedure setItensRomaneioTipodeFrete(const Value: integer);
+    procedure SetItensRomaneioDadoFiscal(const Value: String);
+    procedure SetItensRomaneioFiliais(const Value: String);
+    procedure setItensRomaneioSerie(const Value: String);
+    procedure setItensRomaneioNota(const Value: String);
+    procedure setItensRomaneioMaquina(const Value: String);
+    procedure setItensRomaneioIntervensao(const Value: String);
+    procedure setItensRomaneioCupom(const Value: String);
+
+    procedure SetEntrega_Anterior(const Value: String);
+    procedure SetParametroFilialEmissaoNota(const Value: String);
+    procedure SetParametroSerie(const Value: String);
+    procedure SetParametroFilialEmissaoCupom(const Value: String);
+    procedure SetParametroECF(const Value: String);
+    procedure SetParametroIntervensao(const Value: String);
+    procedure SetCupom_Atual(const Value: String);
+    procedure SetFilialEmissaoCupom_Atual(const Value: String);
+    procedure SetFilialEmissaoNota_Atual(const Value: String);
+    procedure SetIntervensao_Atual(const Value: String);
+    procedure SetMaquina_Atual(const Value: String);
+    procedure SetNota_Atual(const Value: String);
+    procedure SetSerie_Atual(const Value: String);
+
+    procedure SetImprimirCancelados(const Value: Boolean);
+
+    function GetNumeroRomaneio: Integer;
+  public
+    SomenteNFComItensdeEntrega: Boolean;
+    RegistrosSelecionados : integer;
+    constructor Create(AOwner: TComponent); override;
+    function  IncluirRomaneios: boolean;
+    function  IncluiritensRomaneio:Boolean;
+    function  GravarRomaneios: boolean;
+    function  GravarItensRomaneio:boolean;
+    function  CancelarRomaneios: boolean;
+    procedure CancelarPagamentoRomaneios;
+    function  ExisteRomaneios(campo, codigo: string): Boolean;
+    function  ExcluirRomaneios: boolean;
+    function  ExcluirItensRomaneio: boolean;
+    procedure PosicionarRomaneios(numero: integer);
+    property  TabelaRomaneios: TZDataSet read GetTabelaRomaneios;
+    property  TabelaItensRomaneio: TZDataset read GetTabelaItensRomaneio;
+    property  ConsultaRomaneios: TZDataSet read GetConsultaRomaneios;
+    property  ConsultaFiliais: TZDataSet read GetConsultaFiliais;
+    property  ConsultaTipodeFretes: TZDataSet read GetConsultaTipodeFretes;
+    property  Consultafornecedor: TZDataSet read GetConsultafornecedor;
+    property  ConsultaSerie: TZDataSet read GetConsultaSerie;
+    property  ConsultaNotas: TZDataSet read GetConsultaNotas;
+    property  ConsultaCupons: TZDataSet read GetConsultaCupons;
+
+    function  Existefornecedor(campo, codigo: string): boolean;
+    function  ExisteFilial(campo, codigo: string): boolean;
+    function  ExisteTipodeFretes(campo, codigo: string): boolean;
+    function  ExisteSerie(campo, codigo: string): boolean;
+    function  ExisteNota(campo, codigo: string): boolean;
+    function  ExisteCupom(campo, codigo: string): boolean;
+
+
+    property  Romaneiofornecedor: integer write SetRomaneiofornecedor;
+
+    property  ItensRomaneioDadoFiscal: String read GetItensRomaneioDadoFiscal write SetItensRomaneioDadoFiscal;
+    property  ItensRomaneioFiliais: String read GetItensRomaneioFiliais write SetItensRomaneioFiliais;
+    property  ItensRomaneioTipodeFrete: integer write setItensRomaneioTipodeFrete;
+    property  ItensRomaneioSerie: String read GetItensRomaneioSerie write setItensRomaneioSerie;
+    property  ItensRomaneioNota: String read GetItensRomaneioNota write setItensRomaneioNota;
+    property  ItensRomaneiochv_nfe: String read GetItensRomaneiochv_nfe write setItensRomaneiochv_nfe;
+    property  ItensRomaneioCupom: String read GetItensRomaneioCupom write setItensRomaneioCupom;
+    property  ItensRomaneioMaquina: String read GetItensRomaneioMaquina write setItensRomaneioMaquina;
+    property  ItensRomaneioIntervensao: String read GetItensRomaneioIntervensao write setItensRomaneioIntervensao;
+
+    property  NumeroRomaneio: Integer read GetNumeroRomaneio;
+
+    procedure AtualizarCampos;
+
+    procedure ImprimirRelatorio;
+    procedure EntregarRomaneios(dataentrega: string);
+    function PermiteAlterarDocumento: Boolean;
+
+    procedure EdicaoCampos(Bloquear: Boolean);
+    procedure MarcarSelecionadosItens();
+
+    property Entrega_Anterior: String read FEntrega_Anterior write SetEntrega_Anterior;
+
+    property ParametroFilialEmissaoNota: String read FParametrofilialEmissaoNota write SetParametroFilialEmissaoNota;
+    property ParametroSerie: String read FParametroSerie write SetParametroSerie;
+
+    property ParametroFilialEmissaoCupom: String read FParametroFilialEmissaoCupom write SetParametroFilialEmissaoCupom;
+    property ParametroECF: String read FParametroECF write SetParametroECF;
+    property ParametroIntervensao: String read FParametroIntervensao write SetParametroIntervensao;
+
+    function AtualizaItensRomaneiosNotas(FilialEmissao,Serie,NumeroNota,chv_nfe:String):boolean;
+    function AtualizaItensRomaneiosCupons(FilialEmissao,ECF,Intervensao,NumeroCupom:String):Boolean;
+
+    function NotaFiscalAlterada(FilialEmissao,Serie,NumeroNota,chv_nfe:String):boolean;
+    function CupomFiscalAlterado(FilialEmissao,ECF,Intervensao,NumeroCupom:String):Boolean;
+
+    procedure AbreTabelaPesquisa(TipoPesquisa: TipoProcuraRomaneios);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TipoProcuraRomaneios);
+
+    procedure LerNotasCuponsIncluidos(Incluindo: Boolean);
+    function NotaExistenteRomaneioAtual(Filial, Serie, Numero, chv_nfe: String): Boolean;
+    function CupomExistenteRomaneioAtual(Filial, Maquina, Intervensao, Numero: String): Boolean;
+
+    function ValidaNotaRomaneio(Filial, Serie, Numero, chv_nfe, Romaneio: String): Boolean;
+
+    function ValidaNotaRomaneioConsulta(DadoFiscal, Romaneio: String): Boolean;
+
+    function ValidaCupomRomaneio(Filial, Maquina, Intervensao, Numero, Romaneio: String): Boolean;
+
+    property FilialEmissaoNota_Atual: String read FFilialEmissaoNota_Atual write SetFilialEmissaoNota_Atual;
+    property Serie_Atual: String read FSerie_Atual write SetSerie_Atual;
+    property Nota_Atual: String read FNota_Atual write SetNota_Atual;
+    property chv_nfe_Atual: String read Fchv_nfe_Atual write Fchv_nfe_Atual;
+
+    property FilialEmissaoCupom_Atual: String read FFilialEmissaoCupom_Atual write SetFilialEmissaoCupom_Atual;
+    property Maquina_Atual: String read FMaquina_Atual write SetMaquina_Atual;
+    property Intervensao_Atual: String read FIntervensao_Atual write SetIntervensao_Atual;
+    property Cupom_Atual: String read FCupom_Atual write SetCupom_Atual;
+    property ImprimirCancelados: Boolean read FImprimirCancelados write FImprimirCancelados;
+    property TipodeRelatorio: Integer read FTipodeRelatorio write FTipodeRelatorio;
+    function DadosFiscaisdoRomaneio: String;
+
+    function AbrirConsultaNotasRomaneio(
+         DataInicial, DataFinal,
+         DataInicialEntrega, DataFinalEntrega,
+         ListaFiliais, ListaCondicionalClientes: String;
+         SomenteNFComItensdeEntrega_: Boolean
+         ): boolean;
+
+    procedure IncluirMultiplosItensdeRomaneio;
+    procedure LocalizarNfe(chv_nfe: String);
+
+  end;
+
+var
+  dtmCadastroRomaneios: TdtmCadastroRomaneios;
+
+implementation
+{$R *.dfm}
+
+var
+  aNotaCupomRomaneio: array of record
+    Dadofiscal,
+    FilialEmissao,
+    Nota,
+    Serie,
+    chv_nfe,
+    Maquina,
+    Intervensao,
+    Cupom: String;
+    Cancelado: Boolean
+  end;
+
+{ TdtmCadastroRomaneios }
+constructor TdtmCadastroRomaneios.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryRomaneios.Tag                  := ctTabelas;
+  qryItensRomaneio.Tag              := ctTabelas;
+  qryProcuraFiliais.Tag             := ctTabelas;
+  qryTabeladeFretes.Tag             := ctTabelas;
+
+  qryConsultaRomaneios.Tag          := ctConsultaRomaneios;
+  qryConsultafornecedores.Tag       := ctConsultaRomaneiosFornecedor;
+  qryConsultaFiliais.Tag            := ctConsultaRomaneiosFiliais;
+  qryConsultaTabeladeFretes.Tag     := ctConsultaRomaneiosFretes;
+  qryConsultaSeriesFiliais.Tag      := ctConsultaRomaneiosSeries;
+  qryConsultaDadosFiscaisNotas.Tag  := ctConsultaRomaneiosNotas;
+  qryConsultaDadosFiscaisCupons.Tag := ctConsultaRomaneiosCupons;
+
+  SomenteNFComItensdeEntrega := true;
+  
+end;
+
+function TdtmCadastroRomaneios.ExcluirRomaneios: boolean;
+begin
+  Result:= False;
+  if not qryRomaneios.IsEmpty then
+  begin
+    qryItensRomaneio.First;
+    while not qryItensRomaneio.Eof do
+    begin
+     if qryItensRomaneioentrega.AsString<>'' then
+      begin
+       MensagemAviso(format(ctROMANEIONAOPODESEREXCLUIDO, ['notas/cupons']));
+       result:=false;
+       exit;
+      end
+     else
+      qryItensRomaneio.Next;
+    end;
+
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o ROMANEIO e os registros associados'])) = smbOk then
+    begin
+
+      try
+//        qryItensRomaneio.AfterDelete := nil;
+//        qryItensRomaneio.AfterScroll := nil;
+
+        qryRomaneios.AfterScroll := nil;
+
+        qryItensRomaneio.First;
+        while not qryItensRomaneio.Eof do
+          qryItensRomaneio.Delete;
+
+        qryRomaneios.Delete;
+
+        result := Perpetrar([qryitensRomaneio,qryRomaneios]);
+
+      finally
+        qryRomaneios.AfterScroll := qryRomaneiosAfterScroll;
+        qryRomaneiosAfterScroll(qryRomaneios);
+//        qryItensRomaneio.AfterDelete := qryItensRomaneioAfterDelete;
+//        qryItensRomaneio.AfterScroll := qryItensRomaneioAfterScroll;
+      end;
+
+    end;
+  end;
+end;
+
+function TdtmCadastroRomaneios.ExisteFilial(campo,
+  codigo: string): boolean;
+begin
+  result:=ExisteCodigo(qryConsultaFiliais, campo, codigo)
+end;
+
+function TdtmCadastroRomaneios.ExisteRomaneios(campo,
+  codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaRomaneios, campo, codigo);
+end;
+
+function TdtmCadastroRomaneios.ExisteTipodeFretes(campo,
+  codigo: string): boolean;
+begin
+  Result:=ExisteCodigo(qryConsultaTabeladeFretes, campo, codigo)
+end;
+
+function TdtmCadastroRomaneios.Existefornecedor(campo,
+  codigo: string): boolean;
+begin
+  result:=ExisteCodigo(qryConsultafornecedores, campo, codigo)
+end;
+
+function TdtmCadastroRomaneios.GetConsultaFiliais: TZDataSet;
+begin
+  result := qryConsultaFiliais;
+end;
+
+function TdtmCadastroRomaneios.GetConsultaRomaneios: TZDataSet;
+begin
+  result := qryConsultaRomaneios;
+end;
+
+
+function TdtmCadastroRomaneios.GetConsultaTipodeFretes: TZDataSet;
+begin
+  result := qryConsultaTabeladeFretes;
+end;
+
+function TdtmCadastroRomaneios.GetConsultafornecedor: TZDataSet;
+begin
+  result := qryConsultafornecedores;
+end;
+
+function TdtmCadastroRomaneios.GetTabelaRomaneios: TZDataSet;
+begin
+  Result:= qryRomaneios
+end;
+
+function TdtmCadastroRomaneios.GravarRomaneios: boolean;
+var
+  vNumeroDocumentoPag : integer;
+begin
+  if qryRomaneios.CheckRequiredFields then
+  begin
+   if qryitensRomaneio.IsEmpty then
+   begin
+    result:=false;
+    MensagemAviso(format(ctITEMNAOCADASTRADO, ['Romaneio']));
+    exit;
+   end;
+
+   if qryRomaneios.State = dsinsert then
+   begin
+    spcRomaneioProximoCodigo.Open;
+    qryRomaneiosnumero.Value:=spcRomaneioProximoCodigonumero.Value;
+    spcRomaneioProximoCodigo.Close;
+   end;
+
+   try
+     qryItensRomaneio.DisableControls;
+     qryItensRomaneio.First;
+     while not qryItensRomaneio.Eof do
+     begin
+       qryItensRomaneio.Edit;
+       qryItensRomaneioromaneio.Value:=qryRomaneiosnumero.Value;
+       qryItensRomaneio.Post;
+       qryItensRomaneio.Next;
+     end;
+   finally
+     qryItensRomaneio.EnableControls;
+   end;
+
+   qryRomaneios.Post;
+   Result:= Perpetrar([qryRomaneios,qryItensRomaneio], AguardareTerminarDentroDm );
+   AtualizarCampos();
+
+   vNumeroDocumentoPag := qryRomaneiosdocumentopag.asinteger;
+   if result then
+   begin
+     if qryValorEntradavalorvencimento.ascurrency = 0 then
+     begin
+       qryRomaneios.edit;
+       qryRomaneiosdocumentopag.clear;
+       qryRomaneios.post;
+     end;
+
+     result := perpetrar([qryRomaneios,qryItensRomaneio]);
+   end;
+
+   if result then
+   begin
+
+     case IncluirDocumentosPag(self, Romaneios, vNumeroDocumentoPag,
+          [qryRomaneios, qryValorEntrada, qryItensRomaneio]) of
+
+       ErroGravacao   : MensagemAviso('Ocorreu um erro de gravação ao cadastrar o ''Contas a Pagar''.');
+       DuplicataPaga : MensagemAviso('O documento a pagar vinculado a este romaneio esta quitado e não será atualizado.');
+       ok : begin
+              Result:= Perpetrar([qryRomaneios]);
+              if result then
+                ReFazConsultaPorNome(qryDuplicatasRomaneios,['documentopag'], [qryRomaneiosdocumentopag.asVariant]);
+            end;
+
+     end;
+   end;
+
+  end
+  else
+    result:=false;
+end;
+
+function TdtmCadastroRomaneios.IncluirRomaneios: boolean;
+begin
+  EdicaoCampos(false);
+//  qryRomaneios.Close;
+  qryRomaneios.ParamByName('numero').AsInteger:=0;
+ // qryRomaneios.Open;
+  qryRomaneios.Insert;
+  qryRomaneiostipo.Value:='N';
+  qryRomaneiosemissao.Value:=date();
+  result := true;
+end;
+
+procedure TdtmCadastroRomaneios.PosicionarRomaneios(numero: integer);
+begin
+  RefazConsulta(qryRomaneios, [0], [numero]);
+end;
+
+procedure TdtmCadastroRomaneios.SetItensRomaneioFiliais(
+  const Value: String);
+begin
+    if Not (qryItensRomaneio.State in [dsInsert, dsEdit]) then
+      qryItensRomaneio.Edit;
+    qryItensRomaneiofilialemissao.AsString := Value
+end;
+
+procedure TdtmCadastroRomaneios.setItensRomaneioTipodeFrete(
+  const Value: integer);
+begin
+    if Not (qryItensRomaneio.State in [dsInsert, dsEdit]) then
+    qryItensRomaneio.Edit;
+  qryItensRomaneiocodigofrete.AsInteger := Value
+
+end;
+
+procedure TdtmCadastroRomaneios.SetRomaneiofornecedor(
+  const Value: integer);
+begin
+  if Not (qryRomaneios.State in [dsInsert, dsEdit]) then
+    qryRomaneios.Edit;
+  qryRomaneiosfornecedor.AsInteger := Value
+
+end;
+
+procedure TdtmCadastroRomaneios.qryRomaneiosAfterScroll(DataSet: TDataSet);
+begin
+  RefazConsulta(qryItensRomaneio, [0], [qryRomaneiosnumero.AsVariant]);
+  
+  ReFazConsulta(qryValorEntrada,[0], [qryRomaneiosnumero.AsVariant]);
+  ReFazConsultaPorNome(qryDuplicatasRomaneios,['documentopag'], [qryRomaneiosdocumentopag.asVariant]);
+  EdicaoCampos(not PermiteAlterarDocumento);
+end;
+
+function TdtmCadastroRomaneios.GetNumeroRomaneio: Integer;
+begin
+  Result:= qryRomaneiosnumero.AsInteger;
+end;
+
+procedure TdtmCadastroRomaneios.AtualizarCampos;
+begin
+  ReFazConsulta(qryValorEntrada,[0], [NumeroRomaneio]);
+end;
+
+function TdtmCadastroRomaneios.CancelarRomaneios: boolean;
+begin
+  result := CancelarAtualizacoes([qryitensRomaneio,qryRomaneios])
+end;
+
+procedure TdtmCadastroRomaneios.ImprimirRelatorio;
+const
+  SQLItensNotas = 'where pdf.dadofiscal in (%s)';
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+  RegistroAtual: TBookMark;
+
+begin
+  qryItensRomaneio.DisableControls;
+  RegistroAtual := qryItensRomaneio.GetBookmark;
+  frVariables['Rua']   := RuaFilialBase;
+  frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + CEPFilialBase;
+  frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
+  frVariables['Fone']  := FoneFilialBase;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   with frmPreview do
+   begin
+     case TipodeRelatorio of
+      0: begin
+          frVariables['Titulo']:= 'ROMANEIO DE TRANSPORTE';
+//          frpImprimirRomaneios.DesignReport;
+          frCompositeReport.Reports.Add(frpImprimirRomaneios)
+
+         end;
+      1: begin
+          LerNotasCuponsIncluidos(True);
+          qryProdutosDadosFiscais.Sql[10]:=format(SQLItensNotas, [DadosFiscaisdoRomaneio]);
+          ReFazConsulta(qryProdutosDadosFiscais,[],[]);
+          frVariables['Titulo']:= 'ITENS DE NOTAS DO ROMANEIO';
+//          frpImprimirItensRomaneios.DesignReport;
+          frCompositeReport.Reports.Add(frpImprimirItensRomaneios)
+         end;
+     end;
+   end;
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.DoublePass:=True;
+   Relatorio.ShowReport;
+   frmPreview.ShowModal;
+  finally
+   frmPreview.Free
+  end;
+  qryItensRomaneio.GotoBookmark(RegistroAtual);
+  qryItensRomaneio.FreeBookmark(RegistroAtual);
+  qryItensRomaneio.enableControls;
+end;
+
+procedure TdtmCadastroRomaneios.CancelarPagamentoRomaneios;
+begin
+ EdicaoCampos(false);
+ if not (qryRomaneios.State in [dsinsert, dsedit]) then
+   qryRomaneios.Edit;
+ qryRomaneiosdatapagto.AsString:='';
+ qryRomaneiosvalorpagto.Value  :=0;
+end;
+
+procedure TdtmCadastroRomaneios.EntregarRomaneios(dataentrega: string);
+begin
+
+with qryItensRomaneio do
+ begin
+  DisableControls;
+  try
+   First;
+   while not Eof do
+   begin
+     if (qryItensRomaneioentrega.AsString='') and
+       not (qryItensRomaneiocancelado.Value) then
+     begin
+
+       if not (qryRomaneios.State in [dsedit, dsinsert]) then
+         qryRomaneios.Edit;
+
+       Edit;
+       qryItensRomaneioentrega.AsString:=dataentrega;
+       Post;
+       
+     end;
+     Next;
+   end;
+
+  finally
+     EnableControls
+  end;
+ end;
+end;
+
+function TdtmCadastroRomaneios.PermiteAlterarDocumento: Boolean;
+begin
+  result := qryRomaneiosdatapagto.AsString=''
+end;
+
+procedure TdtmCadastroRomaneios.EdicaoCampos(Bloquear: Boolean);
+begin
+ qryRomaneios.ReadOnly       :=bloquear;
+ qryitensRomaneio.ReadOnly   :=bloquear;
+end;
+
+procedure TdtmCadastroRomaneios.qryRomaneiosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsulta(qryItensRomaneio, [0], [qryRomaneiosnumero.AsVariant]);
+end;
+
+procedure TdtmCadastroRomaneios.qryRomaneiosNotasAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryRomaneios.State in [dsinsert, dsedit]) then
+    qryRomaneios.Edit;
+end;
+
+procedure TdtmCadastroRomaneios.qryRomaneiosCuponsAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryRomaneios.State in [dsinsert, dsedit]) then
+    qryRomaneios.Edit;
+end;
+
+
+procedure TdtmCadastroRomaneios.SetEntrega_Anterior(const Value: String);
+begin
+  FEntrega_Anterior := Value;
+end;
+
+procedure TdtmCadastroRomaneios.frpImprimirRomaneiosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpImprimirRomaneios,View);
+end;
+
+function TdtmCadastroRomaneios.GetTabelaItensRomaneio: TZDataset;
+begin
+  Result:= qryItensRomaneio
+end;
+
+function TdtmCadastroRomaneios.IncluirItensRomaneio: Boolean;
+begin
+  if (qryItensRomaneio.State in [dsEdit,dsInsert]) then
+    qryItensRomaneio.Cancel;
+  LerNotasCuponsIncluidos(True);
+  qryItensRomaneio.insert;
+  Result:=True;
+end;
+
+procedure TdtmCadastroRomaneios.MarcarSelecionadosItens;
+begin
+  if PermiteAlterarDocumento then
+  begin
+   qryItensRomaneio.Edit;
+   if qryItensRomaneiocancelado.Value then
+    qryItensRomaneiocancelado.Value:=false
+   else
+    qryItensRomaneiocancelado.Value:=true;
+   qryItensRomaneio.Post;
+  end;
+end;
+
+function TdtmCadastroRomaneios.ExcluirItensRomaneio: boolean;
+begin
+  Result:= False;
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a NOTA/CUPOM'])) = smbOk then begin
+    if not qryItensRomaneio.IsEmpty then begin
+      qryItensRomaneio.delete;
+      Result:= True;
+    end;
+  end
+end;
+
+function TdtmCadastroRomaneios.GravarItensRomaneio: boolean;
+begin
+  Result:=false;
+  if qryItensRomaneioentrega.AsString<>'' then
+    qryItensRomaneiovalor.Required:=true
+  else
+    qryItensRomaneiovalor.Required:=false;
+
+  if qryItensRomaneio.CheckRequiredFields then
+  begin
+   if (qryItensRomaneioentrega.AsString='') and (FEntrega_Anterior<>'') then
+    if MensagemConfirmacao(format(ctCONFIRMECANCELAR,['esta entrega']))=smbCancel then
+     begin
+      result:=false;
+      exit;
+     end
+    else
+     Entrega_Anterior:='';
+
+   qryItensRomaneio.Post;
+   AtualizarCampos;
+   Result:=True;
+  end;
+end;
+
+procedure TdtmCadastroRomaneios.SetParametroFilialEmissaoNota(
+  const Value: String);
+begin
+  FParametrofilialEmissaoNota := Value;
+  if value<>'' then
+  begin
+    qryProcuraSeriesFiliais.Sql[4]:='and sf.filial='+value;
+    qryConsultaSeriesFiliais.Sql[4]:='Where sf.filial='+value;
+    qryConsultaDadosFiscaisNotas.Sql[19]:='where n.filial = '+value;
+  end
+  else
+  begin
+    qryProcuraSeriesFiliais.Sql[4]:='';
+    qryConsultaSeriesFiliais.Sql[4]:='';
+    qryConsultaDadosFiscaisNotas.Sql[19]:='';
+  end;
+end;
+
+procedure TdtmCadastroRomaneios.AbreTabelaPesquisa(
+  TipoPesquisa: TipoProcuraRomaneios);
+begin
+  case TipoPesquisa of
+   tpRomaneios                :abre(ctConsultaRomaneios);
+   tpRomaneiosFornecedores    :abre(ctConsultaRomaneiosFornecedor);
+   tpItensRomaneioTipodeFrete :abre(ctConsultaRomaneiosFretes);
+   tpItensRomaneioFiliais     :abre(ctConsultaRomaneiosFiliais);
+   tpItensRomaneioSerie       :abre(ctConsultaRomaneiosSeries);
+   tpItensRomaneioNotas       :abre(ctConsultaRomaneiosNotas);
+   tpItensRomaneioCupons      :abre(ctConsultaRomaneiosCupons);
+  end;
+end;
+
+procedure TdtmCadastroRomaneios.FechaTabelaPesquisa(
+  TipoPesquisa: TipoProcuraRomaneios);
+begin
+  case TipoPesquisa of
+   tpRomaneios                :Fecha(ctConsultaRomaneios);
+   tpRomaneiosFornecedores    :Fecha(ctConsultaRomaneiosFornecedor);
+   tpItensRomaneioTipodeFrete :Fecha(ctConsultaRomaneiosFretes);
+   tpItensRomaneioFiliais     :Fecha(ctConsultaRomaneiosFiliais);
+   tpItensRomaneioSerie       :Fecha(ctConsultaRomaneiosSeries);
+   tpItensRomaneioNotas       :Fecha(ctConsultaRomaneiosNotas);
+   tpItensRomaneioCupons      :Fecha(ctConsultaRomaneiosCupons);
+  end;
+end;
+
+function TdtmCadastroRomaneios.ExisteSerie(campo, codigo: string): boolean;
+begin
+  Result:=ExisteCodigo(qryConsultaSeriesFiliais, campo, codigo)
+end;
+
+function TdtmCadastroRomaneios.GetConsultaSerie: TZDataSet;
+begin
+  result := qryConsultaSeriesFiliais;
+end;
+
+procedure TdtmCadastroRomaneios.setItensRomaneioSerie(
+  const Value: String);
+begin
+    if Not (qryItensRomaneio.State in [dsInsert, dsEdit]) then
+    qryItensRomaneio.Edit;
+  qryItensRomaneioserie.AsString := Value
+end;
+
+procedure TdtmCadastroRomaneios.SetParametroSerie(const Value: String);
+begin
+  FParametroSerie := Value;
+  if value<>'' then
+  begin
+   if (FParametrofilialEmissaoNota<>'') then
+    qryConsultaDadosFiscaisNotas.Sql[20]:=' and n.serie = '+quotedstr(value)
+   else
+    qryConsultaDadosFiscaisNotas.Sql[20]:=' where n.serie = '+quotedstr(value);
+  end
+  else
+   qryConsultaDadosFiscaisNotas.Sql[20]:='';
+end;
+
+function TdtmCadastroRomaneios.AtualizaItensRomaneiosNotas(FilialEmissao,
+  Serie, NumeroNota, chv_nfe: String): boolean;
+begin
+  Result :=false;
+  if ((FilialEmissao<>'') and (Serie<>'') and (NumeroNota<>'')) or (somentenumero(chv_nfe)<>'') then
+  begin
+    RefazConsulta(qryProcuraDadosFiscaisNotas,[0,1,2,3,4],
+        [FilialEmissao,Serie,NumeroNota,somentenumero(chv_nfe), SomenteNFComItensdeEntrega]);
+
+    if qryProcuraDadosFiscaisNotas.recordcount = 0 then
+    begin
+      biblio.PlaySound(nil);
+      MensagemAviso('A nota fiscal não foi encontrada.')
+    end
+
+  end
+  else
+    RefazConsulta(qryProcuraDadosFiscaisNotas,[],[]);
+
+  if not qryProcuraDadosFiscaisNotas.IsEmpty then
+  begin
+    if ValidaNotaRomaneio(FilialEmissao,
+                          Serie,
+                          NumeroNota,
+                          chv_nfe,
+                          qryProcuraDadosFiscaisNotasromaneio.AsString) then
+    begin
+      ItensRomaneiodadofiscal           := qryProcuraDadosFiscaisNotasdadofiscal.asstring;
+      if not (qryItensRomaneio.State in [dsedit]) then
+        if (qryProcuraDadosFiscaisNotascodigofrete.Value<>0) then
+          ItensRomaneioTipodeFrete        := qryProcuraDadosFiscaisNotascodigofrete.Value;
+      ItensRomaneioFiliais              := qryProcuraDadosFiscaisNotasfilialemissao.asstring;
+      ItensRomaneioserie                := qryProcuraDadosFiscaisNotasserie.Value;
+      ItensRomaneioNota                 := qryProcuraDadosFiscaisNotasnota.asstring;
+      ItensRomaneiochv_nfe              := qryProcuraDadosFiscaisNotaschv_nfe.AsString;
+      ItensRomaneioCupom                := qryProcuraDadosFiscaisNotascupom.AsString;
+      ItensRomaneiomaquina              := qryProcuraDadosFiscaisNotasmaquina.AsString;
+      ItensRomaneiointervensao          := qryProcuraDadosFiscaisNotasintervensao.AsString;
+      qryItensRomaneiodataemissao.Value := qryProcuraDadosFiscaisNotasdata.Value;
+      qryItensRomaneionomefilial.Value  := qryProcuraDadosFiscaisNotasnomefilialemissao.Value;
+
+      if qryProcuraDadosFiscaisNotastipocliente.AsString<>'C' then
+        qryItensRomaneiocliente.asstring := qryProcuraDadosFiscaisNotascliente.AsString+
+                                            qryProcuraDadosFiscaisNotastipocliente.AsString
+      else
+        qryItensRomaneiocliente.asstring := qryProcuraDadosFiscaisNotascliente.AsString;
+
+      qryItensRomaneionomecliente.asstring := qryProcuraDadosFiscaisNotasnomecliente.AsString;
+      qryItensRomaneiodata_hora_recebimento.asVariant := qryProcuraDadosFiscaisNotasdata_hora_recebimento.asVariant;
+
+
+      Entrega_Anterior                  := qryItensRomaneioentrega.AsString;
+      FilialEmissaoNota_Atual           := ItensRomaneioFiliais;
+      Serie_Atual                       := ItensRomaneioSerie;
+      Nota_Atual                        := ItensRomaneioNota;
+      chv_nfe_Atual                     := ItensRomaneiochv_nfe; {*+}
+      FilialEmissaoCupom_Atual          := ItensRomaneioFiliais;
+      Maquina_Atual                     := ItensRomaneioMaquina;
+      Intervensao_Atual                 := ItensRomaneioIntervensao;
+      Cupom_Atual                       := ItensRomaneioCupom;
+
+      Result := True;
+    end;
+  end
+  else
+    MensagemAviso(ctNOTANAOENCONTRADA);
+end;
+
+procedure TdtmCadastroRomaneios.setItensRomaneioNota(const Value: String);
+begin
+  if Not (qryItensRomaneio.State in [dsInsert, dsEdit]) then
+   qryItensRomaneio.Edit;
+  qryItensRomaneionumero_nf.Asstring := Value;
+end;
+
+function TdtmCadastroRomaneios.ExisteCupom(campo, codigo: string): boolean;
+begin
+  Result:=ExisteCodigo(qryConsultaDadosFiscaisCupons, campo, codigo)
+end;
+
+function TdtmCadastroRomaneios.ExisteNota(campo, codigo: string): boolean;
+begin
+  Result:=ExisteCodigo(qryConsultaDadosFiscaisNotas, campo, codigo)
+end;
+
+function TdtmCadastroRomaneios.GetConsultaNotas: TZDataSet;
+begin
+  result := qryConsultaDadosFiscaisNotas;
+end;
+
+procedure TdtmCadastroRomaneios.qryItensRomaneioAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryRomaneios.State in [dsinsert, dsedit]) then
+    qryRomaneios.Edit;
+end;
+
+procedure TdtmCadastroRomaneios.qryItensRomaneioAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryItensRomaneiocancelado.Value:=false;
+end;
+
+procedure TdtmCadastroRomaneios.qryItensRomaneioAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryRomaneios.State in [dsinsert, dsedit]) then
+     qryRomaneios.Edit;
+end;
+
+procedure TdtmCadastroRomaneios.qryItensRomaneioAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if FImprimindoRelatorio then
+  begin
+   if not FImprimirCancelados then
+     if qryItensRomaneiocancelado.AsBoolean then
+       qryItensRomaneio.Next;
+  end
+  else
+  begin
+    Entrega_Anterior               :=qryItensRomaneioentrega.AsString;
+    FilialEmissaoNota_Atual        :=ItensRomaneioFiliais;
+    Serie_Atual                    :=ItensRomaneioSerie;
+    Nota_Atual                     :=ItensRomaneioNota;
+    chv_nfe_Atual                  :=ItensRomaneiochv_nfe;
+    FilialEmissaoCupom_Atual       :=ItensRomaneioFiliais;
+    Maquina_Atual                  :=ItensRomaneioMaquina;
+    Intervensao_Atual              :=ItensRomaneioIntervensao;
+    Cupom_Atual                    :=ItensRomaneioCupom;
+  end;
+end;
+
+procedure TdtmCadastroRomaneios.SetParametroFilialEmissaoCupom(
+  const Value: String);
+begin
+  FParametroFilialEmissaoCupom := Value;
+  if value<>'' then
+    qryConsultaDadosFiscaisCupons.Sql[18]:='Where cp.filial='+value
+  else
+    qryConsultaDadosFiscaisCupons.Sql[18]:='';
+end;
+
+procedure TdtmCadastroRomaneios.SetParametroECF(const Value: String);
+begin
+  FParametroECF := Value;
+  if value<>'' then
+  begin
+   if (FParametroFilialEmissaoCupom<>'') then
+    qryConsultaDadosFiscaisCupons.Sql[19]:='and cp.maquina='+value
+   else
+    qryConsultaDadosFiscaisCupons.Sql[19]:='where cp.maquina='+value;
+  end
+  else
+   qryConsultaDadosFiscaisCupons.Sql[19]:='';
+end;
+
+procedure TdtmCadastroRomaneios.SetParametroIntervensao(
+  const Value: String);
+begin
+  FParametroIntervensao := value;
+  if value<>'' then
+  begin
+   if (FParametroFilialEmissaoCupom<>'') or
+      (FParametroECF<>'') then
+    qryConsultaDadosFiscaisCupons.Sql[20]:='and cp.intervensao='+value
+   else
+    qryConsultaDadosFiscaisCupons.Sql[20]:='where cp.intervensao='+value;
+  end
+  else
+    qryConsultaDadosFiscaisCupons.Sql[20]:=''
+end;
+
+function TdtmCadastroRomaneios.AtualizaItensRomaneiosCupons(
+  FilialEmissao, ECF, Intervensao, NumeroCupom: String): Boolean;
+begin
+ Result :=false;
+ if (FilialEmissao<>'') and (ECF<>'') and
+    (Intervensao<>'')   and (NumeroCupom<>'') then
+  RefazConsulta(qryProcuraDadosFiscaisCupons,[0,1,2,3],[FilialEmissao,ECF,Intervensao,NumeroCupom, SomenteNFComItensdeEntrega])
+ else
+  RefazConsulta(qryProcuraDadosFiscaisCupons,[],[]);
+
+ if not qryProcuraDadosFiscaisCupons.IsEmpty then
+ begin
+  if ValidaCupomRomaneio(FilialEmissao,
+                         ECF,
+                         Intervensao,
+                         NumeroCupom,
+                         qryProcuraDadosFiscaisCuponsromaneio.AsString) then
+  begin
+   ItensRomaneiodadofiscal   := qryProcuraDadosFiscaisCuponsdadofiscal.asstring;
+   if not (qryItensRomaneio.State in [dsedit]) then
+    if (qryProcuraDadosFiscaisCuponscodigofrete.Value<>0) then
+     ItensRomaneioTipodeFrete       := qryProcuraDadosFiscaisCuponscodigofrete.asinteger;
+   ItensRomaneioFiliais             := qryProcuraDadosFiscaisCuponsfilialemissao.asstring;
+   ItensRomaneioserie               := qryProcuraDadosFiscaisCuponsserie.Value;
+   ItensRomaneioNota                := qryProcuraDadosFiscaisCuponsnota.AsString;
+   ItensRomaneioMaquina             := qryProcuraDadosFiscaisCuponsmaquina.asstring;
+   ItensRomaneiointervensao         := qryProcuraDadosFiscaisCuponsintervensao.asstring;
+   ItensRomaneioCupom               := qryProcuraDadosFiscaisCuponscupom.asstring;
+   qryItensRomaneionomefilial.Value := qryProcuraDadosFiscaisCuponsnomefilialemissao.Value;
+   qryItensRomaneiodataemissao.Value:= qryProcuraDadosFiscaisCuponsdata.Value;
+
+   if qryProcuraDadosFiscaisCuponstipocliente.AsString<>'C' then
+     qryItensRomaneiocliente.asstring := qryProcuraDadosFiscaisCuponscliente.AsString+
+                                        qryProcuraDadosFiscaisCuponstipocliente.AsString
+   else
+     qryItensRomaneiocliente.asstring := qryProcuraDadosFiscaisCuponscliente.AsString;
+
+   qryItensRomaneionomecliente.asstring := qryProcuraDadosFiscaisCuponsnomecliente.AsString;
+   qryItensRomaneiodata_hora_recebimento.asVariant := qryProcuraDadosFiscaisCuponsdata_hora_recebimento.asVariant;
+   Entrega_Anterior               := qryItensRomaneioentrega.AsString;
+   FilialEmissaoNota_Atual        := ItensRomaneioFiliais;
+   Serie_Atual                    := ItensRomaneioSerie;
+   Nota_Atual                     := ItensRomaneioNota;
+   chv_nfe_Atual                  := ItensRomaneiochv_nfe;
+   FilialEmissaoCupom_Atual       := ItensRomaneioFiliais;
+   Maquina_Atual                  := ItensRomaneioMaquina;
+   Intervensao_Atual              := ItensRomaneioIntervensao;
+   Cupom_Atual                    := ItensRomaneioCupom;
+
+   Result := True;
+  end;
+ end
+ else
+  MensagemAviso(ctCUPOMNAOENCONTRADO);
+end;
+
+procedure TdtmCadastroRomaneios.setItensRomaneioCupom(const Value: String);
+begin
+  if Not (qryItensRomaneio.State in [dsInsert, dsEdit]) then
+   qryItensRomaneio.Edit;
+  qryItensRomaneionumero_cupom.Asstring := Value;
+end;
+
+function TdtmCadastroRomaneios.GetConsultaCupons: TZDataSet;
+begin
+  result := qryConsultaDadosFiscaisCupons;
+end;
+
+procedure TdtmCadastroRomaneios.setItensRomaneioIntervensao(
+  const Value: String);
+begin
+  if Not (qryItensRomaneio.State in [dsInsert, dsEdit]) then
+   qryItensRomaneio.Edit;
+  qryItensRomaneiointervensao.Asstring := Value;
+end;
+
+procedure TdtmCadastroRomaneios.setItensRomaneioMaquina(
+  const Value: String);
+begin
+  if Not (qryItensRomaneio.State in [dsInsert, dsEdit]) then
+   qryItensRomaneio.Edit;
+  qryItensRomaneiomaquina.Asstring := Value;
+end;
+
+procedure TdtmCadastroRomaneios.FiltrarNotasCuponsRomaneios;
+const
+  SQLDFStr = ' and (%s)';
+  SQLRStr1 =  'or (df.numero in '+
+              '(select rn.dadofiscal '+
+              'from romaneiosnotas rn '+
+              'where rn.romaneio=:romaneio and (%s)))';
+  SQLRStr2 =  'or (df.numero in '+
+              '(select rn.dadofiscal '+
+              'from romaneiosnotas rn '+
+              'where rn.romaneio=:romaneio))';
+var
+  SQLDFN, SQLDFC, SQLR: String;
+  a: Integer;
+begin
+  inherited;
+  for a := 0 to High(aNotaCupomRomaneio) do
+  begin
+   SQLDFN:= SQLDFN + '(notasromaneios.dadofiscal <> ' + aNotaCupomRomaneio[a].Dadofiscal +') and ';
+   SQLDFC:= SQLDFC + '(cuponsromaneios.dadofiscal <> ' + aNotaCupomRomaneio[a].Dadofiscal +') and ';
+   SQLR := SQLR + '(rn.dadofiscal <> ' + aNotaCupomRomaneio[a].Dadofiscal +') and ';
+  end;
+  // não seleciona dadofiscal ja cadastrado
+  if SQLDFN = '' then
+  begin
+    qryConsultaDadosFiscaisNotas.Sql[50]     := '';
+    qryConsultaDadosFiscaisCupons.Sql[47]     := '';
+  end
+  else
+  begin
+    Delete(SQLDFN, Length(SQLDFN)-4, 5);
+    Delete(SQLDFC, Length(SQLDFC)-4, 5);
+    qryConsultaDadosFiscaisNotas.Sql[50]     := Format(SQLDFStr, [SQLDFN]);
+    qryConsultaDadosFiscaisCupons.Sql[47]     := Format(SQLDFStr, [SQLDFC]);
+  end;
+
+  // se não for inclusão
+  if (NumeroRomaneio<>0) then
+  begin
+   if SQLR = '' then   // se não tiver dadosfiscais cadastrados
+   begin
+    qryConsultaDadosFiscaisNotas.Sql[46] := SQLRStr2;
+    qryConsultaDadosFiscaisCupons.Sql[43] := SQLRStr2;
+   end
+   else
+   begin
+    Delete(SQLR, Length(SQLR)-4, 5);
+    qryConsultaDadosFiscaisNotas.Sql[46] := Format(SQLRStr1, [SQLR]);
+    qryConsultaDadosFiscaisCupons.Sql[43] := Format(SQLRStr1, [SQLR]);
+   end;
+   qryConsultaDadosFiscaisNotas.ParamByName('romaneio').AsInteger := NumeroRomaneio;
+   qryConsultaDadosFiscaisCupons.ParamByName('romaneio').AsInteger := NumeroRomaneio;
+  end;
+end;
+
+procedure TdtmCadastroRomaneios.LerNotasCuponsIncluidos(Incluindo: Boolean);
+var
+  Pos: TBookmark;
+  a, DadoFiscal: Integer;
+begin
+  inherited;
+  qryItensRomaneio.DisableControls;
+  Pos := qryItensRomaneio.GetBookmark;
+  try
+    a := 0;
+    aNotaCupomRomaneio := nil;
+    DadoFiscal   := qryItensRomaneiodadofiscal.AsInteger;
+    qryConsultaDadosFiscaisNotas.ParamByName('dadofiscal').AsInteger:=DadoFiscal;
+    qryConsultaDadosFiscaisCupons.ParamByName('dadofiscal').AsInteger:=DadoFiscal;
+    qryItensRomaneio.First;
+    while Not qryItensRomaneio.Eof do
+    begin
+      if Incluindo or (qryItensRomaneiodadofiscal.AsInteger<>DadoFiscal) then
+      begin
+       SetLength(anotaCupomRomaneio, a + 1);
+       aNotaCupomRomaneio[a].DadoFiscal   := qryItensRomaneiodadofiscal.AsString;
+       aNotaCupomRomaneio[a].FilialEmissao:= qryItensRomaneiofilialemissao.AsString;
+       aNotaCupomRomaneio[a].Nota         := qryItensRomaneionumero_nf.AsString;
+       aNotaCupomRomaneio[a].chv_nfe      := qryItensRomaneiochv_nfe.AsString;
+       aNotaCupomRomaneio[a].Serie        := qryItensRomaneioserie.AsString;
+       aNotaCupomRomaneio[a].Maquina      := qryItensRomaneiomaquina.AsString;
+       aNotaCupomRomaneio[a].Intervensao  := qryItensRomaneiointervensao.AsString;
+       aNotaCupomRomaneio[a].Cupom        := qryItensRomaneionumero_cupom.AsString;
+       aNotaCupomRomaneio[a].Cancelado    := qryItensRomaneiocancelado.AsBoolean;
+       Inc(a);
+      end;
+      qryItensRomaneio.Next;
+    end;
+  finally
+    qryItensRomaneio.GotoBookmark(Pos);
+    qryItensRomaneio.FreeBookmark(Pos);
+    qryItensRomaneio.EnableControls;
+  end;
+  FiltrarNotasCuponsRomaneios
+end;
+
+function TdtmCadastroRomaneios.NotaExistenteRomaneioAtual(Filial, Serie, Numero, chv_nfe: String): Boolean;
+var
+  a: Integer;
+begin
+ Result := False;
+ for a := 0 to High(aNotaCupomRomaneio) do
+  if ((Filial=aNotaCupomRomaneio[a].FilialEmissao) and
+      (Serie=aNotaCupomRomaneio[a].Serie) and
+      (Numero=aNotaCupomRomaneio[a].Nota)) or
+     (chv_nfe=aNotaCupomRomaneio[a].chv_nfe) then
+    Result := True;
+end;
+
+function TdtmCadastroRomaneios.ValidaNotaRomaneio(Filial, Serie, Numero, chv_nfe,
+  Romaneio: String): Boolean;
+begin
+   result := True ;
+
+   if (qryRomaneiostipo.asString = 'T') and
+      (qryItensRomaneioFilialEmissao_oldvalue<>0) and
+      (qryItensRomaneioFilialEmissao_oldvalue <> qryItensRomaneioFilialEmissao.AsInteger) then
+   begin
+     MensagemAviso('A NF não pode ser de uma filial diferente pois é um romaneio de Transferência.');
+     result := False;
+   end
+   else
+   if (Romaneio<>'') and (strtoint(Romaneio)<>NumeroRomaneio) then
+   begin
+     MensagemAviso(format(ctNOTAEXISTENTE, ['no Romaneio '+Romaneio]));
+     result := False ;
+   end
+   else
+   begin
+     if NotaExistenteRomaneioAtual(Filial, Serie, Numero, chv_nfe) then
+     begin
+       if (qryItensRomaneio.state in [dsinsert, dsedit]) then
+         qryItensRomaneio.cancel;
+
+       if (Filial <> '0') and
+          (Serie  <> '') and
+          (Numero <> '0') then
+         qryItensRomaneio.Locate('filialemissao;serie;numero_nf', VarArrayOf([Filial, Serie, Numero]), [])
+       else
+       if (chv_nfe<>'') then
+         qryItensRomaneio.Locate('chv_nfe', chv_nfe, []);
+
+       MensagemAviso(format(ctNOTAEXISTENTE, ['no Romaneio atual']));
+       result := False ;
+     end;
+   end;
+end;
+
+function TdtmCadastroRomaneios.ValidaCupomRomaneio(Filial, Maquina,
+  Intervensao, Numero, Romaneio: String): Boolean;
+begin
+  result := True ;
+
+  if (qryRomaneiostipo.asString = 'T') and
+     (qryItensRomaneioFilialEmissao_oldvalue<>0) and
+     (qryItensRomaneioFilialEmissao_oldvalue <> qryItensRomaneioFilialEmissao.AsInteger) then
+  begin
+    MensagemAviso('A NF não pode ser de uma filial diferente pois é um romaneio de Transferência.');
+    result := False;
+  end
+  else
+  if (Romaneio<>'') and (strtoint(Romaneio)<>NumeroRomaneio) then
+  begin
+    MensagemAviso(format(ctCUPOMEXISTENTE, ['no Romaneio '+Romaneio]));
+    result := False ;
+  end
+  else
+  begin
+    if CupomExistenteRomaneioAtual(Filial, Maquina, Intervensao, Numero) then
+    begin
+      MensagemAviso(format(ctCUPOMEXISTENTE, ['no Romaneio atual']));
+      result := False ;
+    end;
+  end;
+end;
+
+function TdtmCadastroRomaneios.CupomExistenteRomaneioAtual(Filial, Maquina,
+  Intervensao, Numero: String): Boolean;
+var
+  a: Integer;
+begin
+ Result := False;
+ for a := 0 to High(aNotaCupomRomaneio) do
+  if (Filial=aNotaCupomRomaneio[a].FilialEmissao) and
+     (Maquina=aNotaCupomRomaneio[a].Maquina) and
+     (Intervensao=aNotaCupomRomaneio[a].Intervensao) and
+     (Numero=aNotaCupomRomaneio[a].Cupom) then
+    Result := True;
+end;
+
+function TdtmCadastroRomaneios.CupomFiscalAlterado(FilialEmissao, ECF,
+  Intervensao, NumeroCupom: String): Boolean;
+begin
+Result := False;
+if (FilialEmissao<>FilialEmissaoCupom_Atual) or
+             (ECF<>Maquina_Atual) or
+     (Intervensao<>Intervensao_Atual) or
+     (NumeroCupom<>Cupom_Atual) then
+     Result := True;
+end;
+
+function TdtmCadastroRomaneios.NotaFiscalAlterada(FilialEmissao, Serie,
+  NumeroNota, chv_nfe: String): boolean;
+begin
+  Result := False;
+  if (FilialEmissao <> FilialEmissaoNota_Atual) or
+             (Serie <> Serie_Atual) or
+        (NumeroNota <> Nota_Atual) or
+           (chv_nfe <> chv_nfe_Atual) then
+   Result := True;
+
+end;
+
+procedure TdtmCadastroRomaneios.SetCupom_Atual(const Value: String);
+begin
+  FCupom_Atual := Value;
+end;
+
+procedure TdtmCadastroRomaneios.SetFilialEmissaoCupom_Atual(
+  const Value: String);
+begin
+  FFilialEmissaoCupom_Atual := Value;
+end;
+
+procedure TdtmCadastroRomaneios.SetFilialEmissaoNota_Atual(
+  const Value: String);
+begin
+  FFilialEmissaoNota_Atual := Value;
+end;
+
+procedure TdtmCadastroRomaneios.SetIntervensao_Atual(const Value: String);
+begin
+  FIntervensao_Atual := Value;
+end;
+
+procedure TdtmCadastroRomaneios.SetMaquina_Atual(const Value: String);
+begin
+  FMaquina_Atual := Value;
+end;
+
+procedure TdtmCadastroRomaneios.SetNota_Atual(const Value: String);
+begin
+  FNota_Atual := Value;
+end;
+
+procedure TdtmCadastroRomaneios.SetSerie_Atual(const Value: String);
+begin
+  FSerie_Atual := Value;
+end;
+
+function TdtmCadastroRomaneios.GetItensRomaneioCupom: String;
+begin
+result := qryItensRomaneionumero_cupom.AsString;
+end;
+
+function TdtmCadastroRomaneios.GetItensRomaneioFiliais: String;
+begin
+result := qryItensRomaneiofilialemissao.AsString;
+end;
+
+function TdtmCadastroRomaneios.GetItensRomaneioIntervensao: String;
+begin
+result := qryItensRomaneiointervensao.AsString;
+end;
+
+function TdtmCadastroRomaneios.GetItensRomaneioMaquina: String;
+begin
+result := qryItensRomaneiomaquina.AsString;
+end;
+
+function TdtmCadastroRomaneios.GetItensRomaneioNota: String;
+begin
+result := qryItensRomaneionumero_nf.AsString;
+end;
+
+function TdtmCadastroRomaneios.GetItensRomaneioSerie: String;
+begin
+result := qryItensRomaneioserie.AsString;
+end;
+
+function TdtmCadastroRomaneios.GetItensRomaneioDadoFiscal: String;
+begin
+result := qryItensRomaneiodadofiscal.AsString;
+end;
+
+procedure TdtmCadastroRomaneios.SetItensRomaneioDadoFiscal(
+  const Value: String);
+begin
+    if Not (qryItensRomaneio.State in [dsInsert, dsEdit]) then
+      qryItensRomaneio.Edit;
+    qryItensRomaneiodadofiscal.AsString := Value
+end;
+
+procedure TdtmCadastroRomaneios.qryValorEntradaCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryValorEntradavalorvencimento.Value :=
+     qryValorEntradavalorentregue.Value + qryValorEntradavaloraentregar.Value;
+end;
+
+procedure TdtmCadastroRomaneios.SetImprimirCancelados(
+  const Value: Boolean);
+begin
+//  qryImprimirRomaneios.ParamByName('IncluirCancelados').AsBoolean := Value;
+//  qryImprimirRomaneioItensNotas.ParamByName('IncluirCancelados').AsBoolean := Value;
+end;
+
+procedure TdtmCadastroRomaneios.frpImprimirRomaneiosBeginDoc;
+begin
+  inherited;
+  FImprimindoRelatorio := True;
+end;
+
+procedure TdtmCadastroRomaneios.frpImprimirRomaneiosEndDoc;
+begin
+  inherited;
+  FImprimindoRelatorio := False;
+end;
+
+procedure TdtmCadastroRomaneios.frpImprimirItensRomaneiosBeginDoc;
+begin
+  inherited;
+  FImprimindoRelatorio := True;
+end;
+
+procedure TdtmCadastroRomaneios.frpImprimirItensRomaneiosEndDoc;
+begin
+  inherited;
+  FImprimindoRelatorio := True;
+end;
+
+function TdtmCadastroRomaneios.DadosFiscaisdoRomaneio: String;
+var
+ DadosFiscais : String;
+ a: Integer;
+begin
+  for a := 0 to High(aNotaCupomRomaneio) do
+  begin
+   if FImprimirCancelados then
+    DadosFiscais := DadosFiscais + aNotaCupomRomaneio[a].Dadofiscal+' ,'
+   else
+     if not aNotaCupomRomaneio[a].Cancelado then
+       DadosFiscais := DadosFiscais + aNotaCupomRomaneio[a].Dadofiscal+' ,';
+  end;
+  if (DadosFiscais<>'') then
+   Delete(DadosFiscais, Length(Dadosfiscais)-1, 2);
+  result := Dadosfiscais;
+end;
+
+procedure TdtmCadastroRomaneios.qryProdutosDadosFiscaisAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if (qryProdutosDadosFiscaisdadofiscal.AsString<>
+      qryItensRomaneiodadofiscal.AsString) then
+    qryProdutosDadosFiscais.Next;
+end;
+
+procedure TdtmCadastroRomaneios.frpImprimirItensRomaneiosGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+  IF ParName = 'QUANTIDADEPRODUTO' then
+   parValue := FormatarQuantidade(qryProdutosDadosFiscaisquantidade.AsCurrency)
+end;
+
+procedure TdtmCadastroRomaneios.qryRomaneiosAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+    RefazConsulta(qryItensRomaneio, [0], [qryRomaneiosnumero.AsVariant]);
+end;
+
+
+procedure TdtmCadastroRomaneios.frpImprimirItensRomaneiosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpImprimirItensRomaneios,View);
+
+end;
+
+function TdtmCadastroRomaneios.AbrirConsultaNotasRomaneio(
+  DataInicial, DataFinal,
+         DataInicialEntrega, DataFinalEntrega,
+         ListaFiliais, ListaCondicionalClientes: String;
+         SomenteNFComItensdeEntrega_: Boolean
+         ): boolean;
+
+Const
+
+ ctSQLDataEntrega =
+
+ ' and exists (select pdf.dadofiscal                                      ' +
+ '             from produtosdadosfiscais pdf                              ' +
+ '                  left join produtoscontratos pc                        ' +
+ '                    on pc.contrato = df.contrato                        ' +
+ '                   and pc.produto = pdf.produto                         ' +
+ '                                                                        ' +
+ '             where pdf.dadofiscal = df.numero                           ' +
+ '               and coalesce(pc.dataentrega, df.data)                   ';
+
+ ctDatasEntregas = 'between :dataInicialEntrega and :dataFinalEntrega limit 1) ';
+ ctDataInicialEntrega = ' >= :dataInicialEntrega limit 1) ';
+ ctDataFinalEntrega = ' <= :dataFinalEntrega limit 1) ';
+
+begin
+  qryNotasRomaneio.MacroByName('VerdadeiroouFalso').asString := ' and true and ';
+
+  qryNotasRomaneio.ParamByName('datainicial').asString := DataInicial;
+  qryNotasRomaneio.ParamByName('datafinal').asString := DataFinal;
+
+  qryNotasRomaneio.ParamByName('datainicialentrega').asString := DataInicialEntrega;
+  qryNotasRomaneio.ParamByName('datafinalentrega').asString := DataFinalEntrega;
+
+  qryNotasRomaneio.ParamByName('SomenteNFComItensdeEntrega').asBoolean := SomenteNFComItensdeEntrega_;
+
+  if (DataInicialEntrega <> '') and (DataFinalEntrega <> '') then
+    qryNotasRomaneio.MacroByName('PeriodoDataEntrega').asString := ctSQLDataEntrega + ctDatasEntregas
+  else
+  if (DataInicialEntrega <> '') and (DataFinalEntrega = '') then
+    qryNotasRomaneio.MacroByName('PeriodoDataEntrega').asString := ctSQLDataEntrega + ctDataInicialEntrega
+  else
+  if (DataInicialEntrega = '') and (DataFinalEntrega <> '') then
+    qryNotasRomaneio.MacroByName('PeriodoDataEntrega').asString := ctSQLDataEntrega + ctDataFinalEntrega
+  else
+  if (DataInicialEntrega = '') and (DataFinalEntrega = '') then
+    qryNotasRomaneio.MacroByName('PeriodoDataEntrega').asString := '';
+
+  if ListaFiliais <> '' then
+    qryNotasRomaneio.MacroByName('ListaFiliais').asString :=
+      format('and df.filialemissao in (%s)', [ListaFiliais]);
+
+  if ListaCondicionalClientes <> '' then
+    qryNotasRomaneio.MacroByName('ListaCondicionalClientes').asString :=
+      ' and (' + ListaCondicionalClientes + ')';
+
+  qryNotasRomaneio.close;
+  qryNotasRomaneio.open;
+  result := not qryNotasRomaneio.isempty;
+
+  if not result then
+    MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']));
+
+  RegistrosSelecionados := 0;
+  qryNotasRomaneiofilialemissao_oldvalue := 0;
+  qtNotasRomaneiofilialemissao_oldvalue := 0;
+
+
+
+end;
+
+procedure TdtmCadastroRomaneios.qryNotasRomaneioselecionarregistroChange(
+  Sender: TField);
+begin
+  inherited;
+  if tbooleanfield(sender).AsBoolean then
+    inc(RegistrosSelecionados)
+  else
+    dec(RegistrosSelecionados);
+
+  if RegistrosSelecionados < 0 then
+    RegistrosSelecionados := 0;  
+
+end;
+
+procedure TdtmCadastroRomaneios.qryNotasRomaneiocodigofreteChange(
+  Sender: TField);
+begin
+  inherited;
+  if qryNotasRomaneiocodigofrete.value <> 0 then
+    qryNotasRomaneiocodigodescricaofrete.asString := qryTabeladeFretescodigodescricaofrete.asString
+  else
+    qryNotasRomaneiocodigodescricaofrete.clear;
+end;
+
+procedure TdtmCadastroRomaneios.IncluirMultiplosItensdeRomaneio;
+begin
+  try
+
+    qryItensRomaneio.disablecontrols;
+
+    qryNotasRomaneio.first;
+    while not qryNotasRomaneio.eof do
+    begin
+      if qryNotasRomaneioselecionarregistro.AsBoolean then
+      begin
+        if qryItensRomaneio.locate('dadofiscal', qryNotasRomaneiodadofiscal.asVariant, []) then
+          qryItensRomaneio.edit
+        else
+          qryItensRomaneio.append;
+
+        qryItensRomaneionomefilial.asVariant      := qryNotasRomaneionomefilialemissao.asVariant ;
+        qryItensRomaneioserie.asVariant           := qryNotasRomaneioserie.asVariant;
+        qryItensRomaneionumero_nf.asVariant       := qryNotasRomaneionota.asVariant;
+        qryItensRomaneiomaquina.asVariant         := qryNotasRomaneiomaquina.asVariant;
+        qryItensRomaneiointervensao.asVariant     := qryNotasRomaneiointervensao.asVariant;
+        qryItensRomaneionumero_cupom.asVariant    := qryNotasRomaneiocupom.asVariant;
+        qryItensRomaneiodataemissao.asVariant     := qryNotasRomaneiodata.asVariant;
+        qryItensRomaneioentrega.asVariant         := qryNotasRomaneioentrega.asVariant;
+        qryItensRomaneiovalor.asVariant           := qryNotasRomaneiovalor.asVariant;
+        qryItensRomaneiocancelado.asVariant       := false;
+        qryItensRomaneioobservacao.asVariant      := qryNotasRomaneioobservacao.asVariant;
+        qryItensRomaneioromaneio.asVariant        := qryRomaneiosnumero.asVariant;;
+        qryItensRomaneiocodigofrete.asVariant     := qryNotasRomaneiocodigofrete.asVariant;
+        qryItensRomaneiofilialemissao.asVariant   := qryNotasRomaneiofilialemissao.asVariant;
+        qryItensRomaneiodescricaofrete.asVariant  := qryNotasRomaneiocodigodescricaofrete.asVariant;
+        qryItensRomaneiovalorfornecedor.asVariant := qryNotasRomaneiovalorfornecedor.asVariant;
+
+        if qryNotasRomaneiotipocliente.AsString<>'C' then
+          qryItensRomaneiocliente.asstring := qryNotasRomaneiocliente.asString+
+                                              qryNotasRomaneiotipocliente.AsString
+        else
+          qryItensRomaneiocliente.asstring := qryNotasRomaneiocliente.asString;
+
+        qryItensRomaneionomecliente.asVariant     := qryNotasRomaneionomecliente.asVariant;
+        qryItensRomaneiochv_nfe.AsVariant         := qryNotasRomaneiochv_nfe.AsVariant;
+
+        qryItensRomaneiodata_hora_recebimento.asVariant := qryNotasRomaneiodata_hora_recebimento.AsVariant;
+
+  //      qryItensRomaneioobservacao_2.asVariant    := ;
+        qryItensRomaneiodadofiscal.asVariant      := qryNotasRomaneiodadofiscal.asVariant ;
+        qryItensRomaneio.post;
+      end;
+
+      qryNotasRomaneio.Next;
+    end;
+
+  finally
+    qryItensRomaneio.enablecontrols;
+  end;  
+
+end;
+
+function TdtmCadastroRomaneios.GetItensRomaneiochv_nfe: String;
+begin
+  result := qryItensRomaneiochv_nfe.AsString;
+end;
+
+procedure TdtmCadastroRomaneios.setItensRomaneiochv_nfe(
+  const Value: String);
+begin
+  if Not (qryItensRomaneio.State in [dsInsert, dsEdit]) then
+   qryItensRomaneio.Edit;
+  qryItensRomaneiochv_nfe.Asstring := Value;
+end;
+
+procedure TdtmCadastroRomaneios.qryItensRomaneioNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryItensRomaneioentrega_oldvalue <> 0 then
+    qryItensRomaneioentrega.value         := qryItensRomaneioentrega_oldvalue;
+
+  if qryItensRomaneiocodigofrete_oldvalue <> 0 then
+    qryItensRomaneiocodigofrete.value     := qryItensRomaneiocodigofrete_oldvalue;
+
+  qryItensRomaneiovalorfornecedor.value := qryItensRomaneiovalorfornecedor_oldvalue;
+
+  qryItensRomaneiovalor.value           := qryItensRomaneiovalor_oldvalue;
+  qryItensRomaneioobservacao.value      := qryItensRomaneioobservacao_oldvalue;
+end;
+
+procedure TdtmCadastroRomaneios.qryItensRomaneioBeforeInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  qryItensRomaneioentrega_oldvalue :=  qryItensRomaneioentrega.asDateTime;
+  qryItensRomaneiocodigofrete_oldvalue := qryItensRomaneiocodigofrete.asinteger;
+  qryItensRomaneiovalorfornecedor_oldvalue := qryItensRomaneiovalorfornecedor.asCurrency;
+  qryItensRomaneiovalor_oldvalue := qryItensRomaneiovalor.AsCurrency;
+  qryItensRomaneioobservacao_oldvalue := qryItensRomaneioobservacao.AsString;
+
+  qryItensRomaneioFilialEmissao_oldvalue := qryItensRomaneiofilialemissao.asInteger;
+
+end;
+
+procedure TdtmCadastroRomaneios.LocalizarNfe(chv_nfe: String);
+var
+  vFilial, vSerie, vNumeroNFE : String;
+
+  procedure MarcarNotasRomaneios;
+  begin
+    if not qryNotasRomaneioselecionarregistro.AsBoolean then
+    begin
+      qryNotasRomaneio.edit;
+      qryNotasRomaneioselecionarregistro.AsBoolean := true;
+      qryNotasRomaneio.post;
+    end;
+  end;
+
+begin
+//  LerNotasCuponsIncluidos(true);
+  if not qryNotasRomaneio.Locate('chv_nfe', chv_nfe, []) then
+  begin
+
+    RefazConsulta(qryProcuraDadosFiscaisNotas,[0,1,2,3],['0','','0',chv_nfe]);
+
+    if not qryProcuraDadosFiscaisNotas.IsEmpty then
+    begin
+
+      if not qryNotasRomaneio.Active then
+      begin
+        qryNotasRomaneio.MacroByName('VerdadeiroouFalso').asString := ' and false and ';
+        qryNotasRomaneio.open;
+      end;
+
+      if ValidaNotaRomaneioConsulta(qryProcuraDadosFiscaisNotasdadofiscal.AsString,
+                            qryProcuraDadosFiscaisNotasromaneio.AsString) then
+      begin
+        if qryNotasRomaneio.Locate('chv_nfe', chv_nfe, []) then
+          MarcarNotasRomaneios
+        else
+        begin
+
+          vFilial    := ValorCampodaTabela('filiais', ['cnpj'], [(copy(chv_nfe,7,14))], ['codigo'])[0];
+          vSerie     := copy(chv_nfe,23,3);
+          vNumeroNFE := copy(chv_nfe,26,9);
+
+          if (MensagemConfirmacao(
+                format('A NFe da Filial ''%s'' Série %s Número %s não esta contida nesta lista selecionada. Deseja adicioná-la?',
+                       [vFilial,vSerie,vNumeroNFE])) =  smbOK) then
+          begin
+            qryNotasRomaneio.Append;
+            qryNotasRomaneioselecionarregistro.AsBoolean := true;
+            qryNotasRomaneiodadofiscal.AsInteger        := qryProcuraDadosFiscaisNotasdadofiscal.AsInteger;
+            qryNotasRomaneiodata.AsDateTime             := qryProcuraDadosFiscaisNotasdata.AsDateTime;
+            qryNotasRomaneiocliente.AsInteger           := qryProcuraDadosFiscaisNotascliente.AsInteger;
+            qryNotasRomaneiotipocliente.asString        := qryProcuraDadosFiscaisNotastipocliente.asString;
+            qryNotasRomaneionomecliente.AsString        := qryProcuraDadosFiscaisNotasnomecliente.AsString;
+            qryNotasRomaneionomefilialemissao.AsString := qryProcuraDadosFiscaisNotasnomefilialemissao.asString;
+
+            if qryProcuraDadosFiscaisNotascodigofrete.AsInteger <> 0 then
+              qryNotasRomaneiocodigofrete.AsInteger       := qryProcuraDadosFiscaisNotascodigofrete.AsInteger;
+
+            qryNotasRomaneiofilialemissao.AsInteger     := qryProcuraDadosFiscaisNotasfilialemissao.AsInteger;
+            qryNotasRomaneioserie.AsString              := qryProcuraDadosFiscaisNotasserie.asString;
+            qryNotasRomaneionota.AsInteger              := qryProcuraDadosFiscaisNotasnota.AsInteger;
+
+            qryNotasRomaneiorua.AsString :=  qryProcuraDadosFiscaisNotasrua.AsString;
+            qryNotasRomaneionomebairro.AsString := qryProcuraDadosFiscaisNotasnomebairro.AsString;
+
+
+  //          qryNotasRomaneiomaquina          := TIntegerField;
+  //          qryNotasRomaneiointervensao      := TIntegerField;
+  //          qryNotasRomaneiocupom            := TIntegerField;
+
+            qryNotasRomaneiovalorfornecedor.AsCurrency  := qryProcuraDadosFiscaisNotasvalorfornecedor.AsCurrency;
+
+            qryNotasRomaneiochv_nfe.AsString            := qryProcuraDadosFiscaisNotaschv_nfe.AsString;
+  //          qryNotasRomaneioobservacao.AsString         := ;
+  //          qryNotasRomaneioentrega.AsDateTime          := ;
+  //          qryNotasRomaneiovalor.AsCurrency            := ;
+
+            qryNotasRomaneio.post;
+
+          end;
+        end;
+
+      end;
+    end
+    else
+      MensagemAviso(ctNOTANAOENCONTRADA);
+  end
+  else
+    MarcarNotasRomaneios;
+end;
+
+function TdtmCadastroRomaneios.ValidaNotaRomaneioConsulta(DadoFiscal,
+  Romaneio: String): Boolean;
+begin
+   result := True ;
+
+   if (qryRomaneiostipo.asString = 'T') and
+      (qryItensRomaneioFilialEmissao_oldvalue<>0) and
+      (qryItensRomaneioFilialEmissao_oldvalue <> qryItensRomaneioFilialEmissao.AsInteger) then
+   begin
+     MensagemAviso('A NF não pode ser de uma filial diferente pois é um romaneio de Transferência.');
+     result := False;
+   end
+   else
+   if (Romaneio<>'') and (strtoint(Romaneio)<>NumeroRomaneio) then
+   begin
+     MensagemAviso(format(ctNOTAEXISTENTE, ['no Romaneio '+Romaneio]));
+     result := False ;
+   end
+   else
+   begin
+     if qryItensRomaneio.Locate('dadofiscal', DadoFiscal, []) then
+     begin
+       MensagemAviso(format(ctNOTAEXISTENTE, ['no Romaneio atual']));
+       result := False ;
+     end;
+
+   end;
+
+end;
+
+procedure TdtmCadastroRomaneios.qryRomaneiosNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryRomaneiosdescricaosituacao.asString := 'ABERTA';
+end;
+
+procedure TdtmCadastroRomaneios.dsrNotasRomaneioDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if field = qryNotasRomaneioselecionarregistro then
+  begin
+    if (qryRomaneiostipo.asString = 'T') then
+    begin
+      if ((qryItensRomaneioFilialEmissao_oldvalue <> 0) and
+          (qryNotasRomaneiofilialemissao.asinteger <>
+           qryItensRomaneioFilialEmissao_oldvalue)) or
+
+         ((qryNotasRomaneiofilialemissao_oldvalue <> 0) and
+          (qryNotasRomaneiofilialemissao.asinteger <>
+           qryNotasRomaneiofilialemissao_oldvalue)) then
+
+      begin
+        if field.asBoolean then
+        begin
+          MensagemAviso('A NF não pode ser de uma filial diferente pois é um romaneio de Transferência.');
+          dsrNotasRomaneio.onDataChange := nil;
+          field.asboolean := false;
+          dsrNotasRomaneio.onDataChange := dsrNotasRomaneioDataChange;
+        end
+        else
+        begin
+          dec(qtNotasRomaneiofilialemissao_oldvalue);
+          if qtNotasRomaneiofilialemissao_oldvalue = 0 then
+            qryNotasRomaneiofilialemissao_oldvalue := 0;
+        end;
+      end
+      else
+      begin
+        qryNotasRomaneiofilialemissao_oldvalue := qryNotasRomaneiofilialemissao.asinteger;
+        inc(qtNotasRomaneiofilialemissao_oldvalue);
+      end;
+    end;
+    qryItensRomaneiofilialemissao.asInteger
+  end;
+end;
+
+procedure TdtmCadastroRomaneios.qryItensRomaneioAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryItensRomaneioFilialEmissao_oldvalue := qryItensRomaneiofilialemissao.asInteger;
+end;
+
+end.
+
+

@@ -1,0 +1,160 @@
+unit frConsultaProduto;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
+  Dialogs, StdCtrls, Mask, DBCtrls, cpdbtext, frconsulta, frconsultacodigo,
+  ctconstantes, AdvEdit, AdvEdBtn, PlannerDatePicker, PlannerDBDatePicker,
+  biblio, DB;
+
+type
+  TfraConsultaProduto = class(TFrame)
+    gbxConsultaProduto: TGroupBox;
+    fraConsultaItemProduto: TfraConsultaCodigo;
+    gbxLote: TGroupBox;
+    fraConsultaLote: TfraConsultaCodigo;
+    StaticText1: TStaticText;
+    StaticText2: TStaticText;
+    PlannerDBDatePickerFabricacao: TPlannerDBDatePicker;
+    PlannerDBDatePickerValidade: TPlannerDBDatePicker;
+  private
+    { Private declarations }
+    procedure AtribuirInformacoesProdutos;
+    procedure AtribuirInformacoesLotes;
+    procedure CondicoesdaProcuraLote;
+    procedure CondicoesdaConsultaLote(DataSet: TDataSet);
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmConsultaProduto }
+
+constructor TfraConsultaProduto.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  fraConsultaItemProduto.TipoPesquisa := pesITEMPRODUTOS;
+  fraConsultaItemProduto.edfCodigo.OnFound := fraConsultaItemProduto.edfCodigoFound;
+  fraConsultaItemProduto.OnFound := AtribuirInformacoesProdutos;
+
+  fraConsultaLote.TipoPesquisa := pesLOTESPRODUTOS;
+//  fraConsultaLote.CondicoesdaConsulta := CondicoesdaProcuraLote;
+//  fraConsultaLote.qryConsultaLotesProdutos.BeforeOpen := CondicoesdaConsultaLote;
+  fraConsultaLote.edfCodigo.OnFound := fraConsultaLote.edfCodigoFound;
+  fraConsultaLote.OnFound := AtribuirInformacoesLotes;
+
+
+  PlannerDBDatePickerFabricacao.ButtonWidth := 0; {16}
+  PlannerDBDatePickerFabricacao.readonly := True; {16}
+  PlannerDBDatePickerFabricacao.color := clBtnFace; {clWindow}
+
+  PlannerDBDatePickerValidade.ButtonWidth := 0; {16}
+  PlannerDBDatePickerValidade.readonly := true;
+  PlannerDBDatePickerValidade.color := clBtnFace {clWindow}
+
+end;
+
+destructor TfraConsultaProduto.Destroy;
+begin
+  inherited;
+end;
+
+procedure TfraConsultaProduto.AtribuirInformacoesProdutos;
+begin
+  fraConsultaLote.edfCodigo.clear;
+  fraConsultaLote.edfCodigo.exist;
+
+  if (fraConsultaItemProduto.qryProcuraItemProdutos.findfield('gerenciarloteevalidade') <> nil) and
+      fraConsultaItemProduto.qryProcuraItemProdutos.FieldByName('gerenciarloteevalidade').asboolean then
+  begin
+    fraConsultaLote.edfcodigo.DataSource.DataSet.fieldbyname(fraConsultaLote.edfcodigo.datafield).Required := true;
+    fraConsultaLote.edfcodigo.tabstop := true;
+
+  end
+  else
+  begin
+    fraConsultaLote.edfcodigo.DataSource.DataSet.fieldbyname(fraConsultaLote.edfcodigo.datafield).Required := false;
+    fraConsultaLote.edfcodigo.tabstop := false;
+
+//    fraConsultaLote.edfcodigo.setfocus;
+//    SelectNext(tform(owner).ActiveControl, true, True);
+//    SelectNext(tform(owner).ActiveControl, true, True);
+//     Keybd_event(VK_RETURN,0,0,0);
+//     Keybd_event(VK_RETURN,0,0,0);
+
+  end;
+
+  fraConsultaLote.qryProcuraLotesProdutos.Parambyname('produto').asString :=
+   fraConsultaItemProduto.qryProcuraItemProdutoscodigo.asString;
+
+  fraConsultaLote.qryConsultaLotesProdutos.Macrobyname('SQLCondicao').asString :=
+    ' and l.produto = '+fraConsultaItemProduto.qryProcuraItemProdutos.FieldByName('codigo').asString;
+
+end;
+
+procedure TfraConsultaProduto.AtribuirInformacoesLotes;
+begin
+
+  if not fraConsultaLote.qryProcuraLotesProdutos.isempty then
+  begin
+
+    if fraConsultaLote.qryProcuraLotesProdutosproduto.asString <>
+       fraConsultaItemProduto.qryProcuraItemProdutosproduto.asString then
+    begin
+
+      if fraConsultaItemProduto.qryProcuraItemProdutosproduto.asString = '' then
+      begin
+        fraConsultaItemProduto.edfCodigo.text :=
+          fraConsultaLote.qryProcuraLotesProdutos.fieldbyname('produtovisual').asString;
+        fraConsultaItemProduto.edfCodigo.exist;
+      end
+      else
+      begin
+
+        if MensagemConfirmacao(format('O número do Lote: ''%s'' e Produto: ''%s'' esta diferente do produto selecionado: ''%s''. Confirma?',
+          [fraConsultaLote.qryProcuraLotesProdutosnrlote.asString,
+           fraConsultaLote.qryProcuraLotesProdutosprodutovisual.asString,
+           fraConsultaItemProduto.qryProcuraItemProdutosprodutovisual.asString]))= smbOK then
+        begin
+          fraConsultaItemProduto.edfCodigo.text :=
+            fraConsultaLote.qryProcuraLotesProdutos.fieldbyname('produtovisual').asString;
+          fraConsultaItemProduto.edfCodigo.exist;
+        end
+        else
+        begin
+          fraConsultaLote.edfCodigo.clear;
+          fraConsultaLote.edfCodigo.exist;
+          fraConsultaLote.edfCodigo.setfocus;
+        end;
+      end;
+
+    end;
+  end;
+end;
+
+procedure TfraConsultaProduto.CondicoesdaProcuraLote;
+begin
+ fraConsultaLote.qryProcuraLotesProdutos.Parambyname('produto').asString :=
+  fraConsultaItemProduto.qryProcuraItemProdutoscodigo.asString;
+end;
+
+procedure TfraConsultaProduto.CondicoesdaConsultaLote(DataSet: TDataSet);
+begin
+  if fraConsultaLote.qryProcuraLotesProdutos.recordcount > 1 then
+  begin
+    fraConsultaLote.qryConsultaLotesProdutos.Macrobyname('SQLCondicao').asString :=
+      ' and l.nrlote = '+quotedstr(fraConsultaLote.edfCodigo.text)
+
+  end;
+end;
+
+end.

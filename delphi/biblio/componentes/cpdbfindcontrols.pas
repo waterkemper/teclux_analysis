@@ -1,0 +1,3999 @@
+unit cpdbfindcontrols;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Classes, Controls, StdCtrls, Mask, DB, DBCtrls,
+  Graphics, ctconstantes, variants, windows, cppagecontrol,
+  //Componentes
+  cpquery, clparametrossistema, Messages
+  {$IFNDEF DELPHI7}
+   , ZDatasetParam
+  {$ENDIF};
+
+type
+  TtecTipoOperacao = (opATRIBUICAO, opPESQUISA);
+  TtecDBFind = procedure(Found: Boolean) of object;
+  TtecOnMessage = procedure(var Msg: String) of object;
+  TtecSearchType = (stUndefined, stFound, stNotFound);
+
+  TtecControlItem = class(TCollectionItem)
+  protected
+    FControl: TControl;
+    function GetDisplayName: string; override;
+  published
+    property Control: TControl read FControl write FControl;
+  end;
+
+  TtecControlsCollection = class(TCollection)
+  protected
+    function  GetItem(Index: Integer): TtecControlItem;
+  public
+    property Items[Index: Integer]: TtecControlItem read GetItem; default;
+  end;
+
+  TtecFindCustom = class(TCustomMaskEdit)
+  private
+
+    FAlignment: TAlignment;
+    FDataBase: TDateTime;
+    FAdicional: Word;
+    FMinimo: Word;
+    FMaximo: Integer;
+    FOpcional: Boolean;
+    FPermitirZero: Boolean;
+    FPermitirNulo: Boolean;
+    FPermitirEditar: Boolean;
+    FOperacao: TtecTipoOperacao;
+    FExibirMensagem: Boolean;
+    fAllowNumericTypedString: Boolean;
+    FDatasetLocked: boolean;
+    fChecharForeing: Boolean;
+    function GetDataValida: Boolean;
+    function GetLastControl: TtecFindCustom;
+    function GetAlignment: TAlignment;
+    procedure SetAlignment(const Value: TAlignment);
+    procedure WMPaste(var Message: TMessage); message WM_PASTE;
+  protected
+    FTextLocked,
+    UpdateDataPassed,
+    DoExitPassed,
+    KeyESCPressed: Boolean;
+    FActiveSetControls: Boolean;
+    FDataLink: TFieldDataLink;
+    FDenyInsert,
+    FEditing,
+    FFinding: Boolean;
+    FForeignFound,
+    FPrevForeignFound: TtecSearchType;
+    FFound: Boolean;
+    FFieldName: String;
+    FGroup: String;
+    FKeyPreviewParentOld: Boolean;
+    FIndexList,
+    FIndexFormList: Integer;
+    FNoSetControls: TtecControlsCollection;
+    FOnFound: TtecDBFind;
+    FOnMessage: TtecOnMessage;
+    FParameter: String;
+    FSetControls: TtecControlsCollection;
+    FUseParameter: Boolean;
+    fDataaFieldInterno: String;
+    fDataaFieldVisual: String;
+    procedure CreateParams(var Params: TCreateParams); override;
+    procedure Change; override;
+    procedure DataChange(Sender: TObject); virtual;
+
+    {$IFNDEF DELPHI7}
+    procedure ActiveChange(Sender: TObject);
+    {$ENDIF}
+
+
+    procedure DefineProperties(Filer: TFiler); override;
+    procedure DoEnter; override;
+    procedure DoFound;
+    procedure Find(CallOnFound: Boolean = True); virtual;
+    procedure FindByParam;
+    function  FindQueryByParam(qr: {$IFNDEF DELPHI7} TTecReadOnlyQuery {$ELSE} TTecQuery {$ENDIF}; Param: String {TrocarLargeInt: boolean = false}): Boolean;
+    function  FoundValue(Ctrl: TtecFindCustom): TtecSearchType;
+    function  EditCanModify: Boolean; override;
+    function  ExistForeign: TtecSearchType;
+    function  GetActiveSetControls: Boolean;
+    function  GetDataField: string;
+    function  GetField: TField;
+    function  GetDataSource: TDataSource;
+    function  GetDenyInsert: Boolean;
+    function  GetFinding: Boolean;
+    function  GetForeignFound: TtecSearchType;
+    function  GetFieldText: string;
+    function  GetFirtsControl: TtecFindCustom;
+    function  GetForeignText: String;
+    function  GetGroup: String;
+    function  GetNoSetControls: TtecControlsCollection;
+    function  GetOnFound: TtecDBFind;
+    function  GetQuery: {$IFNDEF DELPHI7} TTecReadOnlyQuery {$ELSE} TTecQuery {$ENDIF};
+    function  GetQueryParameter: String;
+    function  GetSetControls: TtecControlsCollection;
+    function  GetTextSave: String;
+    procedure KeyPress(var Key: Char); override;
+    procedure Loaded; override;
+    procedure Resize; override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure ReadActiveSetControls(Reader: TReader);
+    procedure ReadDenyInsert(Reader: TReader);
+    procedure ReadNoSetControls(Reader: TReader);
+    procedure ReadParameter(Reader: TReader);
+    procedure ReadSetControls(Reader: TReader);
+    procedure RestoreControlsText;
+    function  SaveControlsText: String;
+    function  SelectNext(CurControl: TWinControl; GoForward, CheckTabStop: Boolean; Shift: TShiftState): Boolean;
+    procedure SetActiveSetControls(const Value: Boolean);
+    procedure SetControl(Sender: TControl; Flag: Boolean); overload;
+    procedure SetDataField(const Value: string);
+    procedure SetDataSource(const Value: TDataSource);
+    procedure SetDenyInsert(Value: Boolean);
+    procedure SetFinding(const Value: Boolean);
+    procedure SetForeignFound; overload; virtual;
+    procedure SetForeignFound(Value: TtecSearchType); overload; virtual;
+    procedure SetGroup(const Value: String);
+    procedure SetNoSetControls(Value: TtecControlsCollection);
+    procedure SetOnFound(const Value: TtecDBFind);
+//    procedure SetParent(const Value: TWinControl); override; CLX_TO_VCL
+    procedure SetParent(AParent: TWinControl); override;
+
+    procedure SetQueryParameter(const Value: String);
+    procedure SetSetControls(Value: TtecControlsCollection);
+    procedure ShowMessage(Message: String);
+    procedure UpdateData; overload; virtual;
+    procedure UpdateData(Sender: TObject); overload; virtual;
+    procedure UpdateReadOnly; virtual;
+    procedure WriteActiveSetControls(Writer: TWriter);
+    procedure WriteDenyInsert(Writer: TWriter);
+    procedure WriteNoSetControls(Writer: TWriter);
+    procedure WriteParameter(Writer: TWriter);
+    procedure WriteSetControls(Writer: TWriter);
+    property  Finding: Boolean read GetFinding write SetFinding;
+    property  ForeignText: String read GetForeignText;
+    property  TextSave: String read GetTextSave;
+    procedure CompletaAno;
+
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure DoExit; override;
+    function Exist(CallOnFound: Boolean = False): Boolean;
+
+    procedure SetControl(Flag: Boolean); overload;
+    property  FirtsControl: TtecFindCustom read GetFirtsControl;
+    property  LastControl: TtecFindCustom read GetLastControl;
+    property AllowNumericTypedString: Boolean read fAllowNumericTypedString write fAllowNumericTypedString;
+    property ChecharForeing: Boolean read fChecharForeing write fChecharForeing;
+
+    property  ForeignFound: TtecSearchType read GetForeignFound write fForeignFound;
+    property  Query: {$IFNDEF DELPHI7} TTecReadOnlyQuery {$ELSE} TTecQuery {$ENDIF} read GetQuery;
+    property  Field: TField    read GetField;
+    property  DataValida: Boolean read GetDataValida;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  ValoraDataFieldInterno: variant;
+    property DatasetLocked : boolean read FDatasetLocked write FDatasetLocked;
+
+  published
+    property Alignment: TAlignment read GetAlignment write SetAlignment;
+    property ActiveSetControls: Boolean read GetActiveSetControls write SetActiveSetControls stored false;
+    property Anchors;
+    property AutoSelect;
+    property AutoSize;
+    property BorderStyle;
+    property CharCase;
+    property Color;
+    property Constraints;
+    property DataaFieldInterno: String read fDataaFieldInterno write fDataaFieldInterno;
+    property DataaFieldVisual: String read fDataaFieldVisual write fDataaFieldVisual;
+    property DataField: string read GetDataField write SetDataField;
+    property DataSource: TDataSource read GetDataSource write SetDataSource;
+    property DenyInsert: boolean read GetDenyInsert write SetDenyInsert stored false;
+    property DragMode;
+    property Enabled;
+    property EditMask;
+    property Font;
+    property Group: String read GetGroup write SetGroup;
+    property MaxLength;
+    property Maximo: integer read FMaximo write FMaximo;
+    property Minimo: Word read FMinimo write FMinimo;
+    property Adicional: Word read FAdicional write FAdicional;
+    property Opcional: Boolean read FOpcional write FOpcional;
+    property NoSetControls: TtecControlsCollection read GetNoSetControls write SetNoSetControls stored false;
+    property OnChange;
+    property OnClick;
+    property OnDblClick;
+    property OnDragDrop;
+    property OnDragOver;
+    property OnEndDrag;
+    property OnEnter;
+    property OnExit;
+    property OnFound: TtecDBFind read GetOnFound write SetOnFound;
+    property OnKeyDown;
+    property OnKeyPress;
+    property OnKeyUp;
+    property OnMessage: TtecOnMessage read FOnMessage write FOnMessage;
+    property OnMouseDown;
+    property OnMouseMove;
+    property OnMouseUp;
+    property OnStartDrag;
+    property ParentColor;
+    property ParentFont;
+    property ParentShowHint;
+    property PopupMenu;
+    property QueryParameter: String read GetQueryParameter write SetQueryParameter stored false;
+    property ReadOnly;
+    property SetControls: TtecControlsCollection read GetSetControls write SetSetControls stored false;
+    property ShowHint;
+    property TabOrder;
+    property TabStop;
+    property Visible;
+    property PermitirZero: Boolean read FPermitirZero write FPermitirZero;
+    property PermitirNulo: Boolean read FPermitirNulo write FPermitirNulo;
+    property PermitirEditar: Boolean read FPermitirEditar write FPermitirEditar default true;
+
+    property Operacao: TtecTipoOperacao read FOperacao write FOperacao;
+    property ExibirMensagem: Boolean read FExibirMensagem write FExibirMensagem default true;
+
+  end;
+
+  TtecDbEditFind = class(TtecFindCustom)
+  protected
+    procedure Find(CallOnFound: Boolean = True); override;
+  public
+    procedure DoExit; override;
+  end;
+
+  TtecDBFindLookup = class(TtecFindCustom)
+  private
+    CamposDigitados: array of Variant;
+    CamposEncontrados: array of Variant;
+    CamposProcurados: array of string;
+//    NumerodeCampos: integer;
+    FLookupParameters: String;
+    FLookupParametersLabel: String;
+    FLocateParameters: String;
+    FDataFieldTotal: string;
+    FPosicionarProdutoNaoEncontrado: Boolean;
+    fNaoExecutarLookupFound: boolean;
+    fFocarnoControle: boolean;
+    fLimparCampoQuandoNaoExiste: boolean;
+    fLookupaFieldinterno: String;
+    fLookupaFieldVisual: String;
+    procedure SetLookupParameters(const Value: String);
+    procedure SetlocateParameters(const Value: String);
+    procedure SetLookupParametersLabel(const Value: String);
+    procedure GuardarCamposDigitados(ValorEncontrado: String);
+    procedure RestaurarCamposDigitados;
+    function LocateQueryParameterExistente: boolean;
+
+    procedure LimparParametrosLookupSource;
+    function GetLookupUseParameter: boolean;
+    procedure SetLookupUseParameter(const Value: boolean);
+
+  protected
+    FDataLinkLookup: TFieldDataLink;
+    FLookupFound: Boolean;
+    FLookupParameter: String;
+//    FLookupParameterDefault: String;
+
+    FLookupUseParameter: Boolean;
+    FLocateUseParameter: Boolean;
+
+    procedure DataChange(Sender: TObject); override;
+    procedure DefineProperties(Filer: TFiler); override;
+    procedure Find(CallOnFound: Boolean = True); override;
+
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure SetForeignFound; override;
+    procedure SetForeignFound(Value: TtecSearchType); override;
+    procedure UpdateData(Sender: TObject); override;
+
+    procedure FindLookup;
+    function  GetLookupField: String;
+    function  GetLookupQueryParameter: String;
+    function  GetLookupQuery: {$IFNDEF DELPHI7} TTecReadOnlyQuery {$ELSE} TTecQuery {$ENDIF};
+    function  GetLookupSource: TDataSource;
+
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure ReadLookupParameter(Reader: TReader);
+    procedure SetLookupField(const Value: String);
+    procedure SetLookupQueryParameter(const Value: String);
+    procedure SetLookupSource(const Value: TDataSource);
+    procedure WriteLookupParameter(Writer: TWriter);
+
+  public
+    FParameterLabel: String;
+    vCampoPesquisa : vstring;
+    vCampoPesquisaLocate : vstring;
+    LocateQueryParameter: String;
+    ConfirmarQuantidade: Boolean;
+
+    vCampoLabel: vstring;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    property LookupQuery: {$IFNDEF DELPHI7} TTecReadOnlyQuery {$ELSE} TTecQuery {$ENDIF} read GetLookupQuery;
+    function DefinirCampoPesquisa(PrimeiroDefault:Boolean): String;
+    function DefinirCampoPesquisaLocate(PrimeiroDefault:Boolean): String;
+    procedure DefinirCampoLabel;
+    procedure DoExit; override;
+    property PosicionarProdutoNaoEncontrado: Boolean
+             read FPosicionarProdutoNaoEncontrado
+             write FPosicionarProdutoNaoEncontrado;
+
+    property NaoExecutarLookupFound: boolean read fNaoExecutarLookupFound write fNaoExecutarLookupFound;
+
+    property FocarnoControle: boolean read fFocarnoControle write fFocarnoControle default true;
+    property LimparCampoQuandoNaoExiste: boolean read fLimparCampoQuandoNaoExiste write fLimparCampoQuandoNaoExiste default false;
+    property LookupUseParameter: boolean read GetLookupUseParameter write SetLookupUseParameter;
+    procedure EditarDataLink;
+
+  published
+
+    property DataFieldTotal: string read FDataFieldTotal write FDataFieldTotal;
+    property LookupaFieldinterno: String read fLookupaFieldinterno write fLookupaFieldinterno;
+    property LookupaFieldVisual: String read fLookupaFieldVisual write fLookupaFieldVisual;
+    property LookupField: String read GetLookupField write SetLookupField;
+    property LookupSource: TDataSource read GetLookupSource write SetLookupSource;
+    property LookupQueryParameter: String read GetLookupQueryParameter write SetLookupQueryParameter {stored false};
+    property LookupParametersLabel: String read FLookupParametersLabel write SetLookupParametersLabel;
+    property LookupParameters: String read FLookupParameters write SetLookupParameters;
+    property LocateParameters: String read FLocateParameters write SetlocateParameters;
+
+
+
+  end;
+
+implementation
+
+Uses
+  //CLX
+  DBConsts, Forms, {Qete,}
+  //Biblio
+  biblio;
+
+type
+
+  TtecFindGroup = class
+  private
+    function GetLastControl: TtecFindCustom;
+  protected
+    FActiveSetControls: Boolean;
+    FCtrlsList: TStringList;
+    FDenyInsert: boolean;
+    FFinding: Boolean;
+    FFocusedControlIndex: Integer;
+    FForeignFound: TtecSearchType;
+    FNoSetControls: TtecControlsCollection;
+    FOnFound: TtecDBFind;
+    FSetControls: TtecControlsCollection;
+    FTabOrderPrev: Integer;
+    procedure ActiveChange(Sender: TObject);
+    function  GetCount: Integer;
+    function  GetFirtsControl: TtecFindCustom;
+    function  GetForeignFound: TtecSearchType;
+    function  GetForeignText: String;
+    function  GetItems(Index: Integer): TtecFindCustom;
+    function  GetModified: Boolean;
+    procedure SetForeignFound(const Value: TtecSearchType);
+    procedure SetNoSetControls(const Value: TtecControlsCollection);
+    procedure SetSetControls(const Value: TtecControlsCollection);
+  public
+    procedure Add(Ctrl: TtecFindCustom; var Index: Integer);
+    procedure replace(Ctrl: TtecFindCustom; var Index: Integer);
+    constructor Create;
+    procedure Delete(Index: Integer);
+    destructor Destroy; override;
+    function  ExistControl(Ctrl: TtecFindCustom): Boolean;
+    procedure RestoreControlsText;
+    procedure SaveControlsText;
+    procedure UpdateData;
+    procedure UpdateGroupListOrder;
+    property ActiveSetControls: Boolean read FActiveSetControls write FActiveSetControls;
+    property FocusedControlIndex: Integer read FFocusedControlIndex write FFocusedControlIndex;
+    property TabOrderPrev: Integer read FTabOrderPrev write FTabOrderPrev;
+    property Count: Integer read GetCount;
+    property DenyInsert: boolean read FDenyInsert write FDenyInsert;
+    property Finding: Boolean read FFinding write FFinding;
+    property FirtsControl: TtecFindCustom read GetFirtsControl;
+    property LastControl: TtecFindCustom read GetLastControl;
+    property ForeignFound: TtecSearchType read GetForeignFound write SetForeignFound;
+    property ForeignText: String read GetForeignText;
+    property Items[Index: Integer]: TtecFindCustom read GetItems; default;
+    property Modified: Boolean read GetModified;
+    property NoSetControls: TtecControlsCollection read FNoSetControls write SetNoSetControls;
+    property OnFound: TtecDBFind read FOnFound write FOnFound;
+    property SetControls: TtecControlsCollection read FSetControls write SetSetControls;
+  end;
+
+  TtecFindCustomList = class
+  protected
+    FItems: TStringList;
+    function GetCount(FormIndex: Integer; Group: String): Integer;
+    function GetFindCustom(FormIndex, Index: Integer; Group: String): TtecFindCustom;
+    function GetWindowName(Ctrl: TtecFindCustom): String;
+    function GetItems(FormIndex: Integer; Group: String): TtecFindGroup;
+    function GetText(Ctrl: TtecFindCustom): String;
+    property WindowName[Ctrl: TtecFindCustom]: String read GetWindowName;
+  public
+    procedure Add(Ctrl: TtecFindCustom; var FormIndex, Index: Integer);
+    constructor Create;
+    procedure Delete(FormIndex, Index: Integer; Group: String);
+    destructor  Destroy; override;
+    function  GetFirtsControl(Ctrl: TtecFindCustom; FormIndex: Integer): TtecFindCustom;
+    function  GetLastControl(Ctrl: TtecFindCustom; FormIndex: Integer): TtecFindCustom;
+    procedure RestoreControlsText(FormIndex: Integer; Group: String);
+    procedure SaveControlsText(FormIndex: Integer; Group: String);
+    procedure SetGroup(Ctrl: TtecFindCustom; var FormIndex, Index: Integer; Group: String);
+    procedure UpdateData(FormIndex: Integer; Group: String);
+    property Count[FormIndex: Integer; Group: String]: Integer read GetCount;
+    property FindCustom[FormIndex, Index: Integer; Group: String]: TtecFindCustom read GetFindCustom;
+    property Items[FormIndex: Integer; Group: String]: TtecFindGroup read GetItems; default;
+    property Text[Ctrl: TtecFindCustom]: String read GetText;
+  end;
+
+var
+  FindCustomList: TtecFindCustomList;
+
+{ TtecControlItem }
+
+
+
+{$IFNDEF DELPHI7}
+procedure TtecFindCustom.ActiveChange(Sender: TObject);
+begin
+  if Assigned(FDataLink) then
+    if Assigned(FDataLink.DataSet) then
+    begin
+      if not FDataLink.DataSet.Active then
+        Text := '';
+    end
+    else
+    begin
+      Text := '';
+    end;
+end;
+{$ENDIF}
+
+procedure TtecFindCustom.Change;
+var vText : String;
+begin
+  if not FTextLocked then
+  begin
+    FDatasetLocked := True;
+    try
+     FDataLink.Modified;
+
+    if not assigned(FDataLink.field) then
+      if assigned(FDataLink.dataset) then
+        begin
+          vText := self.Text;
+          self.text := '';
+
+          FDatasetLocked := True;
+          FDataLink.dataset.active := true;
+          FDatasetLocked := false;
+
+          self.Text := vText;
+          SelStart := length(Text);
+        end;
+
+    finally
+      FDatasetLocked := False;
+    end;
+    inherited Change;
+  end;
+end;
+
+procedure TtecFindCustom.CompletaAno;
+var
+  Data: String;
+  Ano: String;
+begin
+  Data:= Trim(Text);
+  if Length(Data) = 8 then
+  begin
+    Ano:= Copy(Data,07,02);
+    try
+      if (StrToInt(Ano) >= ParSistema.Seculo) then Insert('19',Data,7)
+                                              else Insert('20',Data,7);
+
+    except
+    end;
+    Text := Data;
+  end;
+end;
+
+constructor TtecFindCustom.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FDataLink              := TFieldDataLink.Create;
+  FDataLink.Control      := Self;
+  FDataLink.OnDataChange := DataChange;
+  FDataLink.OnUpdateData := UpdateData;
+
+  {$IFNDEF DELPHI7}
+   FDataLink.OnActiveChange := ActiveChange;
+  {$ENDIF};
+
+
+
+  MaxLength := 0;
+  Height := 23;
+  ControlStyle := ControlStyle + [csReplicatable];
+  FIndexList             := -1;
+  FIndexFormList         := -1;
+  FSetControls           := TtecControlsCollection.Create(TtecControlItem);
+  FNoSetControls         := TtecControlsCollection.Create(TtecControlItem);
+
+//  FdataLink.DataSourceFixed := false;
+  FDataBase := Date;
+  FOpcional := True;
+  FMinimo := 37353;
+  FMaximo := 0;
+  PermitirEditar := true;
+  ExibirMensagem := true;
+  Operacao := opPESQUISA;
+
+end;
+
+procedure TtecFindCustom.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  case FAlignment of
+    taLeftJustify  : Params.Style  := Params.Style or ES_LEFT;
+    taRightJustify : Params.Style := Params.Style or ES_RIGHT;
+    taCenter       : Params.Style := Params.Style or ES_CENTER;
+  end;
+end;
+
+procedure TtecFindCustom.DataChange(Sender: TObject);
+var
+  Ctrl: TtecFindCustom;
+begin
+  if Not (csDestroying in ComponentState) then
+    if not FDatasetLocked then begin
+      FTextLocked := True;
+      try
+        if Not (Finding or FEditing) then begin
+          if Group <> '' then begin
+            if FIndexList = 0 then begin
+              if (Query.State = dsInsert) and
+                 (DenyInsert or
+		 Not FindCustomList[FIndexFormList, Group].Modified) then
+ 	      begin
+	       if (QueryParameter<>'') or ((Group<>'') and (Operacao=opATRIBUICAO)) then
+               begin
+                 SetForeignFound(stFound);
+                 SetControl(ForeignFound=stFound);
+               end
+	       else
+               begin
+                 SetForeignFound(stUndefined);
+                 SetControl(true);
+               end
+              end else if FDataLink.DataSet.IsEmpty and (stFound = ForeignFound) then begin
+                Ctrl := FirtsControl;
+                if Not Ctrl.Enabled then
+                  Ctrl.Enabled := True;
+
+                if Ctrl.CanFocus then
+                begin
+                  try
+                    Ctrl.SetFocus;
+                  except end
+                end;
+                SetControl(False);
+                SetForeignFound(stUndefined);
+              end
+            end;
+
+            if (Query.State = dsInsert) and (Field.AutoGenerateValue = arAutoInc) then
+            begin
+              Text := GetFieldText;
+              if Focused then
+                SelectNext(Self, True, True, []);
+               Enabled := False
+            end
+            else
+            if (Query.State = dsedit) and (Field.AutoGenerateValue = arDefault) then
+            begin
+              if Focused then
+                SelectNext(Self, True, True, []);
+               Enabled := False
+            end
+            else
+            if (Query.State = dsInsert) and (Field.AutoGenerateValue = arNone) then
+            begin
+             Enabled := True;
+             Text := GetFieldText;
+            end
+            else
+              Enabled := True
+          end;
+
+          if (not (Query.State in [dsInsert, dsEdit])) or Query.Modified then
+          begin
+            Text := GetFieldText;
+            Modified := False
+          end
+
+        end else if Not FDataLink.Editing and (Query.State <> dsInactive) then begin
+          Text := GetFieldText;
+          Modified := False
+        end
+      finally
+        FTextLocked := False;
+      end;
+    end;
+end;
+
+procedure TtecFindCustom.DefineProperties(Filer: TFiler);
+begin
+  inherited;
+  Filer.DefineProperty('Parameter', ReadParameter, WriteParameter, True);
+  FUseParameter := Trim(FParameter) <> '';
+  if (FIndexList = 0) or (Group = '') then begin
+    Filer.DefineProperty('ActiveSetControls', ReadActiveSetControls, WriteActiveSetControls, True);
+    Filer.DefineProperty('DenyInsert', ReadDenyInsert, WriteDenyInsert, True);
+    Filer.DefineProperty('NoSetControls', ReadNoSetControls, WriteNoSetControls, True);
+    Filer.DefineProperty('SetControls', ReadSetControls, WriteSetControls, True);
+  end
+end;
+
+destructor TtecFindCustom.Destroy;
+begin
+  FindCustomList.Delete(FIndexFormList, FIndexList, Group);
+  FDataLink.Free;
+  FSetControls.Free;
+  FNoSetControls.Free;
+  inherited;
+end;
+
+procedure TtecFindCustom.DoEnter;
+begin
+  inherited;
+  if Self.Focused then
+    Color := CorFundoControle;
+
+  if Group <> '' then begin
+    if Assigned(Query) then begin
+      if (Query.State = dsInsert) and (Field.AutoGenerateValue = arAutoInc) then
+        FindCustomList[FIndexFormList, Group].FocusedControlIndex := FIndexList;
+      if ActiveSetControls and
+         (ForeignFound <> stFound) and
+         (Query.State <> dsInsert) and
+         Not(csDesigning in ComponentState)
+      then
+        SetControl(False)
+    end else
+      SetControl(False)
+  end
+end;
+
+procedure TtecFindCustom.DoExit;
+var
+ Continuar : Boolean;
+
+begin
+  UpdateDataPassed := false;
+
+  Continuar := true;
+  Color:= clWindow;
+  if Assigned(FDataLink.Field) then
+    if FDataLink.Field.DataType in [ftDate, ftDateTime] then
+    begin
+      CompletaAno;
+      if not GetDataValida then
+      begin
+        Continuar := false;
+        if CanFocus then
+          SetFocus;
+      end;
+    end;
+
+  if Continuar then
+  begin
+    if Modified or FPermitirNulo then
+    begin
+
+      if Modified or (Query.State = dsBrowse)  then
+      begin
+
+        {$IFNDEF DELPHI7}
+        if (fForeignFound in [stNotFound, stUndefined]) then   {25/04/24 Excessão...chamada mais de uma vez find}
+        {$ENDIF};
+        Find;
+
+        DoExitPassed := True;
+      end;
+
+      if (ForeignFound in [stNotFound, stUndefined]) and DenyInsert then begin   {stUndefined aqui}
+        if Group = '' then
+        begin
+          FDataLink.Reset;
+          SetFocus;
+        end;
+        SetControl(False);
+
+      end else begin
+        if (ForeignFound = stFound) and (Group <> '') then begin
+          SetControl(True);
+          if {shifton} ShiftIsOn then
+            SelectNext(Self, True, True, [ssShift])
+          else
+            SelectNext(Self, True, True, []);
+        end
+        else
+        if Group <> '' then
+        begin
+          if QueryParameter<>'' then
+          begin
+            if Query.State = dsInsert then
+              if (ForeignFound = stUndefined) and not FPermitirNulo then
+    //          if ForeignFound = stFound then Gedovar 27/04/08
+    { não desabilitava os campos na entrada de notas }
+              begin
+//                SaveControlsText;
+                SetFocus;
+                SetControl(False);
+//                Query.Cancel;         Gedovar 27/04/08
+//                RestoreControlsText;  Gedovar 27/04/08
+              end else begin
+                SetControl(True);
+                SelectNext(Self, True, True, [])
+              end
+            else
+            begin
+              if FIndexList = FindCustomList[FIndexFormList, Group].Count - 1 then
+                if (FPrevForeignFound <> ForeignFound) and (FPrevForeignFound <> stNotFound) then
+                  SetFocus;
+              SetControl(False)
+            end;
+          end
+          else
+          begin
+            if ForeignFound = stFound then
+            begin
+              SaveControlsText;
+              SetFocus;
+              SetControl(False);
+              Query.Cancel;
+              RestoreControlsText
+            end
+            else
+            begin
+              if FIndexList = FindCustomList[FIndexFormList, Group].Count - 1 then
+                if (FPrevForeignFound <> ForeignFound) and (FPrevForeignFound <> stNotFound) then
+                  SetFocus;
+              SetControl(False)
+            end;
+          end;
+        end;
+
+        if (Group <> '') then
+        begin
+  //        if (QueryParameter<>'') then
+            FindCustomList.UpdateData(FIndexFormList, Group)
+        end
+        else
+        begin
+          if not UpdateDataPassed then
+            UpdateData
+          else
+          begin
+            if (text<>'') and  (FDataLink.DataSet.FieldByName(DataField).asString='') then
+            begin
+              self.clear;
+              self.setfocus;
+            end;
+          end;
+        end;
+      end;
+    end;
+    inherited;
+    if Group <> '' then
+      FindCustomList[FIndexFormList, Group].FocusedControlIndex := -1
+  end;
+end;
+
+procedure TtecFindCustom.DoFound;
+begin
+{$IFNDEF DELPHI7}
+  if Assigned(fOnFound)  then
+   GetOnFound;
+{$ELSE}
+   OnFound
+{$ENDIF}
+
+end;
+
+function TtecFindCustom.EditCanModify: Boolean;
+begin
+  Result := FDataLink.CanModify
+end;
+
+function TtecFindCustom.Exist(CallOnFound: Boolean = False): Boolean;
+begin
+  Find(CallOnFound);
+  Result := ForeignFound = stFound
+end;
+
+function TtecFindCustom.ExistForeign: TtecSearchType;
+var
+  a, Count: Integer;
+  Ctrl: TtecFindCustom;
+  QueryInsert: {$IFNDEF DELPHI7} TTecReadOnlyQuery {$ELSE} TTecQuery {$ENDIF};
+begin
+  Result := stUndefined;
+  QueryInsert := {$IFNDEF DELPHI7} TTecReadOnlyQuery {$ELSE} TTecQuery {$ENDIF}.Create(Owner);
+
+  {$IFNDEF DELPHI7}
+  QueryInsert.Connection := Query.Connection;
+  {$ELSE}
+  QueryInsert.DataBase := Query.DataBase;
+  {$ENDIF}
+
+  QueryInsert.Sql.Assign(Query.Sql);
+  Count := FindCustomList.Count[FIndexFormList, Group];
+
+  {$IFNDEF DELPHI7}
+  for a := 0 to Query.Params.Count - 1 do
+  {$ELSE}
+  for a := 0 to Query.ParamCount - 1 do
+  {$ENDIF}
+   QueryInsert.Params[a].Value := Query.Params[a].Value;
+
+  for a := 0 to Count - 1 do
+  begin
+    Ctrl := FindCustomList.FindCustom[FIndexFormList, a, Group];
+
+    if assigned(FDataLink.field) then
+      if (Query.State = dsInsert) and (Ctrl.GetField.AutoGenerateValue = arAutoInc) then
+        Result := stNotFound;
+  end;
+
+  if Result = stUndefined then
+    for a := 0 to Count - 1 do begin
+      Ctrl := FindCustomList.FindCustom[FIndexFormList, a, Group];
+      Ctrl.FFound := Ctrl.FindQueryByParam(QueryInsert, Ctrl.FParameter);
+      Result := FoundValue(Ctrl);
+      if Result = stUndefined then
+        break;
+    end;
+end;
+
+
+procedure TtecFindCustom.Find(CallOnFound: Boolean = True);
+begin
+  SetForeignFound;
+  if ForeignFound = stNotFound then
+  begin
+
+    if DenyInsert then
+    begin
+//      if operacao = opATRIBUICAO then {Verificar a razão pois esta incompativel com as pesquisas dos relatórios}
+      begin
+        if ExibirMensagem then
+           ShowMessage(Format(ctCODIGOINEXISTENTE, [ForeignText]));
+
+        modified := true;
+
+        {Mudança devido ao fato de que muitos componentes de pesquisa nos relatorios
+         estaão com a operação sendo opAtribuicao e deveria ser opPesquisa}
+        if {(operacao = opPESQUISA)} self.CanFocus then
+        begin
+          self.SetFocus;
+          self.SelectAll
+        end;
+      end
+    end
+    else begin
+      SaveControlsText;
+      FEditing := True;
+      Finding := True;
+      FDataLink.Edit;
+      FEditing := False;
+      Finding := False;
+      RestoreControlsText;
+      FDataLink.Modified;
+      SetForeignFound(stFound);
+      if query.State = dsinsert then
+        if Group <> '' then
+          FindCustomList.UpdateData(FIndexFormList, Group);
+    end
+  end
+  else
+  if ForeignFound = stFound then
+  begin
+    SetControl(True);
+    if Group = ''  then
+      UpdateData
+    else
+      FindCustomList.UpdateData(FIndexFormList, Group);
+  end
+  else
+  if ForeignFound = stUndefined then
+  begin
+    if query.state = dsinsert then
+    begin
+      //    SetControl(True);
+
+      if Group = ''  then
+        UpdateData
+      else
+        FindCustomList.UpdateData(FIndexFormList, Group);
+    end
+  end;
+
+
+
+  if CallOnFound then
+  begin
+//    if ForeignFound <> stUndefined then
+      if (text <> FDataLink.DataSet.FieldByName(DataField).asString) and
+         (FDataLink.DataSet.FieldByName(DataField).asString<>'') then
+        Text := FDataLink.DataSet.FieldByName(DataField).asString;
+
+    DoFound;
+  end
+end;
+
+
+procedure TtecFindCustom.FindByParam;
+begin
+  if Assigned(Query) and Query.active then
+    FFound := FindQueryByParam(Query, FParameter)
+  else
+    FFound := False
+end;
+
+function TtecFindCustom.FindQueryByParam(qr: {$IFNDEF DELPHI7} TTecReadOnlyQuery {$ELSE} TTecQuery {$ENDIF}; Param: String {TrocarLargeInt: boolean = false}): Boolean;
+var
+  Str: String;
+  Par: TParam;
+  a,vParIndex: Integer;
+  TrocarDataTypeLargeint : Boolean;
+begin
+  TrocarDataTypeLargeint := false;
+
+      {$IFNDEF DELPHI7}
+  if qr.Params.Count = 0 then
+      {$ELSE}
+  if qr.ParamCount = 0 then
+      {$ENDIF}
+    Result := False
+  else
+  begin
+    Par := qr.Params.FindParam(Param);
+    if Assigned(Par) and (Par.Index > -1) then begin
+
+      {$IFNDEF DELPHI7}
+      for a := 0 to qr.Params.Count - 1 do begin
+      {$ELSE}
+      for a := 0 to qr.ParamCount - 1 do begin
+      {$ENDIF}
+        Str := qr.Params[a].AsString;
+        if (Length(Str) > 0) or PermitirNulo then
+        begin
+          case qr.params[a].DataType of
+          ftString, ftWideString, ftUnknown : qr.Params[a].AsString := Trim(Str);
+          ftInteger, ftSmallint : qr.Params[a].AsInteger := qr.Params[a].AsInteger;
+          ftVariant : qr.Params[a].value := qr.Params[a].value;
+          ftLargeInt            : begin
+                                    qr.Params[a].AsString := Trim(Str);
+                                    qr.Params[a].DataType := ftLargeInt;
+                                  end;
+          ftDateTime : qr.Params[a].AsDateTime := qr.Params[a].AsDateTime;
+          ftCurrency : qr.Params[a].AsCurrency := qr.Params[a].AsCurrency;
+          ftBoolean  : qr.Params[a].AsBoolean := qr.Params[a].AsBoolean;
+          end;
+        end;
+      end;
+      Str := Trim(SaveControlsText);
+      Finding := True;
+      try
+        if (Str <> '') or PermitirNulo then
+        begin
+            if ((ANSIUpperCase(qr.Params[Par.Index].AsString) <> ANSIUpperCase(Trim(Str))) or
+                (qr.active and (qr.RecordCount = 0))) or (group <> '') then
+
+            begin
+              if Assigned(FDataLink.Field) then
+              begin
+                case FDataLink.Field.DataType of
+                  ftString, ftWideString, ftUnknown   :
+                  begin
+                    if (qr.Params[Par.Index].DataType = ftString) or
+                       (qr.Params[Par.Index].DataType = ftWideString) or
+                       (qr.Params[Par.Index].DataType = ftlargeint) or
+                       (qr.Params[Par.Index].DataType = ftUnknown) then
+                      qr.Params[Par.Index].AsString := ANSIUpperCase(Trim(Str));
+                  end;
+
+                  ftInteger, ftSmallint : begin
+                                           if trim(Str)='' then
+                                             qr.Params[Par.Index].Value := null
+                                           else
+                                             qr.Params[Par.Index].Asinteger := strtoint(Str);
+                                          end;
+
+                  ftLargeInt            : begin
+                                            case qr.Params[Par.Index].datatype of
+                                            ftString, ftWideString, ftUnknown :  qr.Params[Par.Index].Asstring :=   ANSIUpperCase(Trim(Str));
+                                            ftlargeint: begin
+                                                          if PossuiSomenteNumero(Str)  then
+                                                          begin
+                                                            vParIndex := Par.Index;
+                                                            qr.Params[Par.Index].AsString := Trim(Str);
+                                                            TrocarDataTypeLargeint := true;
+                                                          end
+                                                          else
+                                                            qr.Params[Par.Index].value := null;
+                                                        end;
+                                            end;
+                                          end;
+                  ftDateTime, ftDate    : qr.Params[Par.Index].AsDateTime := StrToDateTime(Str);
+                  ftCurrency            : qr.Params[Par.Index].AsCurrency := StrToCurr(Str);
+                end;
+                //qr.active := false;
+                qr.Close;
+              end;
+            end;{
+          end
+          else
+            if qr.Params[Par.Index].AsString <> Trim(Str) then
+            begin
+              qr.Params[Par.Index].Value := Trim(Str);
+              qr.active := false;
+            end;}
+        end
+        else
+        begin
+          if qr.Params[Par.Index].AsString <> Trim(Str) then
+          begin
+            qr.Params[Par.Index].Clear;
+//            qr.active := false;
+            qr.Close;
+          end;
+        end;
+
+        if qr.Name = Query.Name then
+        begin
+//          qr.active := false;
+          if qr.active then
+            qr.close;
+        end
+        else
+        if ChecharForeing then
+        begin
+          if qr.active then
+            qr.close;
+          ChecharForeing := False;  
+        end;
+
+        if ((Str <> '') or (Group <> '')) then
+        begin
+//          qr.active := true;
+          qr.Open;
+        end;
+
+        if TrocarDataTypeLargeint then
+{           if TrocarLargeInt then}
+              qr.Params[vParIndex].DataType := ftLargeInt;
+
+      finally
+        Finding := False;
+        if Group = '' then
+          Text := Str
+        else
+          RestoreControlsText;
+
+        Result := Not qr.IsEmpty
+      end
+
+    end else
+      Result := False
+  end
+end;
+
+function TtecFindCustom.FoundValue(Ctrl: TtecFindCustom): TtecSearchType;
+var
+  mask: String;
+  PosPV: Integer;
+begin
+  PosPV := Pos(';', Ctrl.EditMask);
+  if PosPV = 0 then
+    mask := ''
+  else begin
+    mask := Copy(Ctrl.EditMask, 1, PosPV-1);
+    mask := StringReplace(mask, '0', ' ', [rfReplaceAll]);
+    mask := Trim(StringReplace(mask, '9', ' ', [rfReplaceAll]));
+  end;
+  if Ctrl.FFound then
+    Result := stFound
+  else if (Trim(Ctrl.Text) <> mask) then
+    Result := stNotFound
+  else
+    Result := stUndefined;
+end;
+
+function TtecFindCustom.GetActiveSetControls: Boolean;
+begin
+  if Group = '' then
+    Result := FActiveSetControls
+  else
+    Result := FindCustomList[FIndexFormList, Group].ActiveSetControls
+end;
+
+function TtecFindCustom.GetAlignment: TAlignment;
+begin
+  Result := FAlignment;
+end;
+
+function TtecFindCustom.GetDataField: string;
+begin
+  Result := FDataLink.FieldName;
+end;
+
+function TtecFindCustom.GetDataSource: TDataSource;
+begin
+  if(Assigned(FDataLink)) then
+  begin
+    if(Assigned(FDataLink.DataSource)) then
+      Result := FDataLink.DataSource
+    else
+      Result:=nil;
+  end;
+end;
+
+function TtecFindCustom.GetDataValida: Boolean;
+var
+  Data: TDateTime;
+begin
+  inherited;
+  Result := True;
+  Data := 0;
+  CompletaAno;
+  if not DataEmBranco(Text) then begin
+    try
+      Data := StrToDate(Text) - FAdicional;
+    except
+      on E: EConvertError do Result := False;
+    end;
+
+    if Result then
+    begin
+      if (Data < FDataBase - FMinimo) then
+      begin
+        MensagemAviso(format('Data inferior ao(s) %d dia(s) permitido(s)!',[FMinimo]));
+        Result := False;
+      end;
+    end
+    else
+      if (Data > FDataBase + FMaximo) then
+      begin
+        MensagemAviso(format('Data superior ao(s) %d dia(s) permitido(s)!',[FMaximo]));
+        Result := False;
+      end;
+  end
+  else
+     if not FOpcional then begin
+       MensagemAviso('Data não preenchida!');
+       Result := False;
+     end
+     else
+       Result := True;
+//  FDataValida:= Result;
+end;
+
+function TtecFindCustom.GetDenyInsert: Boolean;
+begin
+  if Group = '' then
+    Result := FDenyInsert
+  else
+    Result := FindCustomList[FIndexFormList, Group].DenyInsert
+end;
+
+function TtecFindCustom.GetField: TField;
+begin
+  Result := FDataLink.Field;
+end;
+
+function TtecFindCustom.GetFieldText: string;
+begin
+  if Assigned(FDataLink.Field) then begin
+    if FDataLink.Field.DataType in [ftString, ftWideString] then
+    begin
+      if MaxLength <> -1 then
+        //MaxLength := self.DataSource.DataSet.fieldbyname(datafield).Size;
+        MaxLength := FDataLink.Field.Size;
+
+    end
+    else
+    if FDataLink.Field.DataType in [ftDate, ftDateTime] then
+      MaxLength := 10;
+
+    if not (FDataLink.Field.DataType in [ftDate, ftDateTime]) then
+      if editmask='' then
+        EditMask := FDataLink.Field.EditMask;
+
+
+    Result := FDataLink.Field.Text;
+
+    {
+    if PermitirZero and (text = '0')  then
+      Result := Text
+    else
+    }
+    if {(}(Result = '0') and not PermitirZero {) and (Query.State = dsInsert)} then
+      Result := '';
+
+    Alignment := FDataLink.Field.Alignment;
+  end else begin
+    Alignment:=taLeftJustify;
+    if csDesigning in ComponentState then
+      Result := Name
+    else
+      Result  := '';
+  end;
+       {
+  if Text <> result then
+    FTextLocked := false;
+    }
+
+
+end;
+
+function TtecFindCustom.GetFinding: Boolean;
+begin
+  if Group = '' then
+    Result := FFinding
+  else
+    Result := FindCustomList[FIndexFormList, Group].Finding
+end;
+
+function TtecFindCustom.GetFirtsControl: TtecFindCustom;
+begin
+  Result := FindCustomList.GetFirtsControl(Self, FIndexFormList);
+  if Not Assigned(Result) then
+    Result := Self;
+end;
+
+function TtecFindCustom.GetForeignFound: TtecSearchType;
+begin
+  if Group = '' then
+    Result := FForeignFound
+  else
+    Result := FindCustomList[FIndexFormList, Group].ForeignFound
+end;
+
+function TtecFindCustom.GetForeignText: String;
+begin
+  if Group = '' then
+    Result := Text
+  else
+    Result := FindCustomList.Items[FIndexFormList, Group].ForeignText
+end;
+
+function TtecFindCustom.GetGroup: String;
+begin
+  Result := FGroup
+end;
+
+function TtecFindCustom.GetLastControl: TtecFindCustom;
+begin
+  Result := FindCustomList.GetLastControl(Self, FIndexFormList);
+  if Not Assigned(Result) then
+    Result := Self;
+end;
+
+function TtecFindCustom.GetNoSetControls: TtecControlsCollection;
+begin
+  if Group = '' then
+    Result := FNoSetControls
+  else if Assigned(FindCustomList[FIndexFormList, Group]) then
+    Result := FindCustomList[FIndexFormList, Group].NoSetControls
+  else
+    Result := nil
+end;
+
+function TtecFindCustom.GetOnFound: TtecDBFind;
+begin
+  if csDesigning in ComponentState then
+    if Group = '' then
+      Result := FOnFound
+    else
+     Result := FindCustomList.Items[FIndexFormList, Group].OnFound
+
+  else
+  if Group = '' then
+  begin
+    If Assigned(FOnFound) then
+      fOnFound(ForeignFound = stFound)
+  end
+  else
+  if Assigned(FindCustomList.Items[FIndexFormList, Group].fOnFound) then
+
+
+
+  {$IFNDEF DELPHI7}
+    FindCustomList.Items[FIndexFormList, Group].fOnFound(
+     FindCustomList.Items[FIndexFormList, Group].ForeignFound = stFound);
+
+  {$ELSE}
+    FindCustomList.Items[FIndexFormList, Group].OnFound(ForeignFound = stFound);
+
+  {$ENDIF};
+
+
+end;
+
+function TtecFindCustom.GetQuery: {$IFNDEF DELPHI7} TTecReadOnlyQuery {$ELSE} TTecQuery {$ENDIF};
+begin
+
+  if Assigned(FDataLink.DataSet) then
+    Result := {$IFNDEF DELPHI7} TTecReadOnlyQuery {$ELSE} TTecQuery {$ENDIF}(FDataLink.DataSet)
+  else
+    Result := nil;
+end;
+
+function TtecFindCustom.GetQueryParameter: String;
+var
+  Par: TParam;
+begin
+  if Assigned(Query) then begin
+    Par := Query.Params.FindParam(FParameter);
+    if Assigned(Par) then
+      Result := Par.DisplayName
+    else
+      Result := ''
+  end else
+    Result := FParameter
+end;
+
+function TtecFindCustom.GetSetControls: TtecControlsCollection;
+begin
+  if Group = '' then
+    Result := FSetControls
+  else if Assigned(FindCustomList[FIndexFormList, Group]) then
+    Result := FindCustomList[FIndexFormList, Group].SetControls
+  else
+    Result := nil
+end;
+
+function TtecFindCustom.GetTextSave: String;
+begin
+  if Group = '' then
+    Result := Text
+  else
+    Result := FindCustomList.Text[Self]
+end;
+
+procedure TtecFindCustom.KeyDown(var Key: Word; Shift: TShiftState);
+var
+  a: Integer;
+  Ctrl: TtecFindCustom;
+{  Novo: String;}
+begin
+  if not self.ReadOnly then
+  begin
+    if Assigned(FDataLink.Field) then
+    begin
+      if FDataLink.Field.DataType in [ftDate, ftDateTime] then
+        Modified := true;
+    end;
+
+
+    if (Key = VK_escape) and (Shift = []) then
+    begin
+      if (Group <> '') and Not ReadOnly then
+      begin
+        KeyESCPressed := True;
+        FDataLink.Reset;
+
+        KeyESCPressed := False;
+        for a := 0 to FindCustomList.Count[FIndexFormList, Group] - 1 do
+        begin
+          Ctrl := FindCustomList.FindCustom[FIndexFormList, a, Group];
+          if QueryParameter<>'' then
+            Query.Params[a].Clear;
+          Ctrl.Text := '';
+          Ctrl.Modified := False;
+        end;
+        SetForeignFound;
+        if ForeignFound = stFound then
+          text := GetFieldText
+        else
+          SetControl(False);
+      End
+    end
+    else
+    if (TeclaEnterOuReturn(Key)  or
+
+                (((key = VK_NEXT)  or
+                  (key = VK_PRIOR) or
+                  ((ssCtrl in Shift) and ((key = VK_HOME) or (key = VK_END)))) and
+                 (group<>'') and
+                 not ExibirMensagem))
+
+       and (([ssShift] = Shift) or (Shift = []))then
+    begin
+
+      if Not DoExitPassed then
+      begin
+        if (((Group <> '') or (Trim(Text) <> '')) and (((Group = '') and Modified) or
+                                                       ((Group <> '') and FindCustomList[FIndexFormList, Group].Modified))) or
+
+           (not modified and (ForeignFound = stUndefined) {and PermitirZero} and PermitirNulo)    then
+          Find;
+
+        if ForeignFound = stFound then
+        begin
+          SetControl(True);
+          if Not Modified then
+            SelectNext(Self, True, True, Shift)
+        end
+        else
+        if (ForeignFound = stNotFound) then
+        begin
+          if Not DenyInsert then
+          begin
+            SetControl(True);
+            if Not Modified or ((Trim(Text) = '') {and PermitirZero} and PermitirNulo) then
+              SelectNext(Self, True, True, Shift)
+          end;
+        end
+        else
+        if (not modified and (ForeignFound = stUndefined) {and PermitirZero} and PermitirNulo) then
+          SelectNext(Self, True, True, Shift);
+
+      end;
+
+      DoExitPassed := False;
+    end{ else if (Key = VK_F5) and (Shift = []) and (Group = '') and Modified and (Query.State = dsBrowse) then
+      MensagemAviso('')}
+    else
+    begin
+      if Assigned(FDataLink.Field) then
+      begin
+        fForeignFound := stUndefined;   {???}
+        if FDataLink.Field.DataType in [ftDate, ftDateTime] then
+        begin
+          Modified := true;
+          if FDataLink.CanModify then
+          begin
+            {
+            if (Key = VK_Delete) or ((Key = VK_INSERT) and (ssShift in Shift)) then
+              FDataLink.Edit;
+              }
+
+            if (GetCharFromVirtualKey(Key)<>'') and
+               (GetCharFromVirtualKey(Key)[1] in CharSemAcentos + CharComAcentos) then
+            begin
+  //              Key := 0;
+  //              messagebeep(0);
+  //          end
+  //          else
+  //          begin
+  //            Novo:= Trim(Text);
+
+              if (Length(Text) = 2) and (sellength=0) then
+              begin
+  //              Insert('/',Novo,3);
+                Text := Text + '/';
+                SelStart := length(Text);
+              end
+              else
+              if (Length(Text) = 5) and (sellength=0) then
+              begin
+  //              Insert('/',Novo,6);
+                Text := Text + '/';
+                SelStart := length(Text);
+              end;
+
+              {
+              if (Length(Novo) < 10) or ((Length(Novo) = 10) and (SelLength = 10)) and (Text <> Novo)then
+              begin
+                Text:= Novo;
+                SelStart := length(Text);
+              end
+              else
+              begin
+                Key:= 0;
+                MessageBeep(0);
+              end;
+              }
+            end;
+          end;
+        end;
+      end;
+    end;
+
+    inherited KeyDown(Key, Shift);
+
+    if (Group = '') and (((Key = VK_Delete) and (Shift = [])) or (Key = VK_SPACE)) then
+    begin
+      if Not EditCanModify then
+        Key := 0
+    end
+  end
+  else
+   if CtrlOn then
+     inherited KeyDown(Key, Shift);
+
+
+end;
+
+procedure TtecFindCustom.KeyPress(var Key: Char);
+var vText : String;
+begin
+  if Not Assigned(FDataLink.Field) then
+  begin
+
+    if not FTextLocked then
+    begin
+      FDatasetLocked := True;
+      try
+       FDataLink.Modified;
+
+      if not assigned(FDataLink.field) then
+        if assigned(FDataLink.dataset) then
+          begin
+            vText := self.Text;
+            self.text := '';
+
+            FDatasetLocked := True;
+            FDataLink.dataset.active := true;
+            FDatasetLocked := false;
+
+            self.Text := vText;
+            SelStart := length(Text);
+          end;
+
+      finally
+        FDatasetLocked := False;
+      end;
+    end;
+  end;
+
+  inherited;
+
+  if (FDataLink.Field.DataType in [ftstring, ftWideString])
+     and (Key in [#32..#255])
+     and  Not (Key in [#8] + CharSemAcentos + CharComAcentos) then
+    Key := #0
+  else
+  if (FDataLink.Field.DataType in [ftSmallint, ftInteger, ftWord, ftAutoInc, ftLargeint])
+     and (Key in [#32..#255])
+     and Not (Key in ['0'..'9']) and
+     not AllowNumericTypedString then
+    Key := #0
+  else
+  if (Group = '') and Not EditCanModify then
+    Key := #0
+end;
+
+procedure TtecFindCustom.Loaded;
+var
+  CountAux: Integer;
+begin
+  inherited;
+
+  if (Group <> '') and (FIndexList = 0) then
+    FDataLink.OnActiveChange := FindCustomList[FIndexFormList, Group].ActiveChange;
+
+
+  CountAux := SetControls.Count;
+  if (SetControls.Count = 0) and Not (csDesigning in ComponentState) Then
+    TtecControlItem(SetControls.Add).Control := Parent;
+  if FIndexList = 0 then
+    FindCustomList[FIndexFormList, Group].UpdateGroupListOrder;
+  if CountAux = 0 then
+    SetControl(False)
+end;
+
+
+procedure TtecFindCustom.Notification(AComponent: TComponent; Operation: TOperation);
+var
+  a: Integer;
+begin
+  inherited Notification(AComponent, Operation);
+
+  if (Operation = opRemove) and (AComponent <> Self) then
+  begin
+
+
+
+{$IFNDEF DELPHI7}
+
+    if Assigned(FDataLink) and (AComponent = fDataLInk.DataSource) then
+      fDataLink.DataSource := nil;
+
+
+{$ELSE}
+
+    if Assigned(FDataLink) and (AComponent = DataSource) then
+      DataSource := nil;
+
+    if Assigned(SetControls) then
+      for a := 0 to SetControls.Count - 1 do
+        if SetControls[a].Control = AComponent then
+          SetControls[a].Control := nil;
+
+    if Assigned(NoSetControls) then
+      for a := 0 to NoSetControls.Count - 1 do
+        if NoSetControls[a].Control = AComponent then
+          NoSetControls[a].Control := nil;
+
+
+{$ENDIF};
+
+
+  end
+
+end;
+
+procedure TtecFindCustom.ReadActiveSetControls(Reader: TReader);
+begin
+  ActiveSetControls := Reader.ReadBoolean
+end;
+
+procedure TtecFindCustom.ReadDenyInsert(Reader: TReader);
+begin
+  FindCustomList[FIndexFormList, Group].DenyInsert := Reader.ReadBoolean
+end;
+
+procedure TtecFindCustom.ReadNoSetControls(Reader: TReader);
+begin
+  Reader.ReadCollection(FindCustomList[FIndexFormList, Group].NoSetControls)
+end;
+
+procedure TtecFindCustom.ReadParameter(Reader: TReader);
+begin
+  FParameter := Reader.ReadString
+end;
+
+procedure TtecFindCustom.ReadSetControls(Reader: TReader);
+begin
+  Reader.ReadCollection(FindCustomList[FIndexFormList, Group].SetControls);
+end;
+
+procedure TtecFindCustom.Resize;
+begin
+  if (csDesigning in ComponentState) then
+    Height := 23
+  else
+    inherited;
+end;
+
+procedure TtecFindCustom.RestoreControlsText;
+begin
+  FindCustomList.RestoreControlsText(FIndexFormList, Group)
+end;
+
+function TtecFindCustom.SaveControlsText: String;
+begin
+  FindCustomList.SaveControlsText(FIndexFormList, Group);
+  Result := TextSave;
+end;
+
+type
+  TtecWidgetControl = class(TWinControl);
+
+function TtecFindCustom.SelectNext(CurControl: TWinControl; GoForward,
+  CheckTabStop: Boolean; Shift: TShiftState): Boolean;
+var
+  Par: TWinControl;
+begin
+  Par := Parent;
+  while Assigned(Par) and Not (Par is TCustomForm) do
+    Par := Par.Parent;
+
+  if Assigned(Par) then
+    if ssShift in Shift then
+    begin
+//      Result := TtecWidgetControl(Par).SelectNext(Self, False, True) CLX_TO_VCL
+     Result := true;
+     TtecWidgetControl(Par).SelectNext(Self, False, True);
+//     TtecWidgetControl(Par).SelectNext(tform(par).ActiveControl, False, True);
+
+    end
+    else
+    begin
+//       result := TtecWidgetControl(Par).SelectNext(Self, True, True);
+      result := true;
+      TtecWidgetControl(Par).SelectNext(Self, True, True);
+//      TtecWidgetControl(Par).SelectNext(tform(par).ActiveControl, true, True);
+    end
+  else
+    Result := False
+end;
+
+procedure TtecFindCustom.SetActiveSetControls(const Value: Boolean);
+begin
+  if Group = '' then
+    FActiveSetControls := Value
+  else
+    FindCustomList[FIndexFormList, Group].ActiveSetControls := Value
+end;
+
+type
+
+  TtecCustomLabel = Class(TCustomLabel);
+
+procedure TtecFindCustom.SetAlignment(const Value: TAlignment);
+begin
+  if FAlignment <> Value then
+  begin
+    FAlignment := Value;
+    RecreateWnd
+  end;
+end;
+
+procedure TtecFindCustom.SetControl(Flag: Boolean);
+var
+  a: Integer;
+begin
+  if ActiveSetControls then
+    for a := 0 to SetControls.Count - 1 do
+      if Assigned(TtecControlItem(SetControls.Items[a]).Control) then
+        SetControl(TtecControlItem(SetControls.Items[a]).Control, Flag)
+end;
+
+procedure TtecFindCustom.SetControl(Sender: TControl; Flag: Boolean);
+var
+  a:integer;
+  wcontrol: TWinControl;
+
+  function IsSetControl(wc: TControl): Boolean;
+  var
+    b: Integer;
+  begin
+    Result := Assigned(wc);
+    if wc = Self then
+      Result := False
+    else if Parent = wc then
+      Result := False
+    else begin
+      for b := 0 to NoSetControls.Count - 1 do
+        if Assigned(NoSetControls[b]) and
+           (wc = TtecControlItem(NoSetControls[b]).Control)
+        then begin
+          Result := False;
+          break
+        end;
+      if Result then
+        If Group = '' Then Begin
+          if (Self = wc) then
+            Result := False
+          Else If wc Is TCustomLabel Then
+            {na vcl d6 groupbox e pagecontrol o enabled é indiferente na cor, portanto para ficar tudo igual o enabled do label não será alterado} 
+            If TtecCustomLabel(wc).FocusControl = Self Then
+              Result := False
+        End Else
+          for b := 0 to FindCustomList.Count[FIndexFormList, Group] - 1 do
+            if (FindCustomList.FindCustom[FIndexFormList, b, Group] = wc) or
+               ((wc is TCustomLabel) and
+                (TtecCustomLabel(wc).FocusControl = FindCustomList.FindCustom[FIndexFormList, b, Group]))
+            then begin
+              Result := False;
+              break
+            end
+    end
+  end;
+begin
+  if (Sender is TWinControl) then
+  begin
+    wcontrol := TWinControl(Sender);
+    for a := 0 to wcontrol.ControlCount - 1 do
+      if IsSetControl(wcontrol.Controls[a]) then
+      begin
+
+        if (wcontrol.Controls[a] is TWinControl) then
+          SetControl(TWinControl(wcontrol.Controls[a]), Flag);
+
+        wcontrol.Controls[a].Enabled := Flag;
+      end;
+    if IsSetControl(wcontrol) then
+      wcontrol.Enabled := Flag
+  end
+  else
+  if IsSetControl(Sender) then
+    Sender.Enabled := Flag
+end;
+
+procedure TtecFindCustom.SetDataField(const Value: string);
+var
+ vValue : String;
+begin
+
+  if (value = DataaFieldInterno) or
+     (value = DataaFieldVisual) then
+  begin
+{    if parsistema.PermitirProdutoAlfanumerico then}
+      vValue := DataaFieldVisual;
+{    else
+      vValue := DataaFieldInterno;}
+  end
+  else
+    vValue := Value;
+
+
+  if FDataLink.FieldName <> vValue then
+    FDataLink.FieldName := vValue;
+end;
+
+procedure TtecFindCustom.SetDataSource(const Value: TDataSource);
+begin
+  if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
+  begin
+
+
+ {$IFNDEF DELPHI7}
+    FDatasetLocked := True;
+    FDataLink.DataSource := Value;
+    FDatasetLocked := false;
+
+    if not assigned(FDataLink.field) then
+      if assigned(FDataLink.dataset) then
+      if self.Operacao = opPESQUISA then
+        begin
+          FDatasetLocked := True;
+          FDataLink.dataset.active := true;
+          FDatasetLocked := false;
+        end;
+
+ {$ELSE}
+    FDataLink.DataSource := Value;
+
+
+ {$ENDIF};
+
+  end;
+  ReadOnly := Not Assigned(FDataLink.DataSource);
+  if Assigned(Value) then
+    Value.FreeNotification(Self);
+end;
+
+
+procedure TtecFindCustom.SetDenyInsert(Value: Boolean);
+begin
+  if Group = '' then
+    FDenyInsert := Value
+  else
+    FindCustomList[FIndexFormList, Group].DenyInsert := Value
+end;
+
+procedure TtecFindCustom.SetFinding(const Value: Boolean);
+begin
+  if Group = '' then
+    FFinding := Value
+  else
+    FindCustomList[FIndexFormList, Group].Finding := Value
+end;
+
+procedure TtecFindCustom.SetForeignFound;
+var
+  a: Integer;
+  Ctrl: TtecFindCustom;
+  Count: Integer;
+  FoundAux: TtecSearchType;
+begin
+  if Group = '' then
+  begin
+    FindByParam;
+    if FFound then
+      FForeignFound := stFound
+    else
+      FForeignFound := stNotFound
+  end
+  else
+  begin
+    Count := FindCustomList.Count[FIndexFormList, Group];
+    FPrevForeignFound := FindCustomList[FIndexFormList, Group].ForeignFound;
+    FoundAux := FPrevForeignFound;
+    if Query.State = dsInsert then
+    begin
+      FoundAux := ExistForeign;
+      if FoundAux = stFound then
+      begin
+        Query.Close;
+        Query.Open;
+      end
+      else
+      if FoundAux = stNotFound then
+        FoundAux := stFound;
+    end
+    else
+{    for a := 0 to Count - 1 do}
+    begin
+    {
+      Ctrl := FindCustomList.FindCustom[FIndexFormList, a, Group];
+      Ctrl.FindByParam;
+      }
+
+      FindByParam;
+      FoundAux := FoundValue(self);
+
+      if (FoundAux = stFound) then
+//        break
+      else
+      begin
+        if (FoundAux = stNotFound) then
+        begin
+//          if QueryParameter = query.Params[count-1].Name then
+          if self = LastControl then
+//            break
+          else
+          begin
+            FoundAux := stUndefined;
+//            break;
+          end;
+        end
+        else
+          if FoundAux = stUndefined then
+          begin
+            if not PermitirNulo then
+//              break
+            else
+            if self = LastControl then
+            begin
+              FoundAux := stNotFound;
+//              break;
+            end;
+          end;
+      end;
+    end;
+
+    if FindCustomList[FIndexFormList, Group].ForeignFound <> FoundAux then
+      FindCustomList[FIndexFormList, Group].ForeignFound := FoundAux;
+  end
+end;
+
+procedure TtecFindCustom.SetForeignFound(Value: TtecSearchType);
+begin
+  if Group = '' then
+    FForeignFound := Value
+  else
+    FindCustomList[FIndexFormList, Group].ForeignFound := Value
+end;
+
+procedure TtecFindCustom.SetGroup(const Value: String);
+var
+  Gr: String;
+begin
+   if FGroup <> Value then
+  begin
+    Gr := Group;
+    FGroup := Trim(Value);
+    FindCustomList.SetGroup(Self, FIndexFormList, FIndexList, Gr)
+  end
+end;
+
+procedure TtecFindCustom.SetNoSetControls(Value: TtecControlsCollection);
+begin
+  if Group = '' then
+    FNoSetControls.Assign(Value)
+  else
+    FindCustomList[FIndexFormList, Group].NoSetControls := Value
+end;
+
+procedure TtecFindCustom.SetOnFound(const Value: TtecDBFind);
+begin
+  if Group = '' then
+    FOnFound := Value
+  else
+    FindCustomList.Items[FIndexFormList, Group].
+   {$IFNDEF DELPHI7} fOnFound {$ELSE} OnFound {$ENDIF} := Value;
+
+end;
+
+{
+CLX_TO_VCL
+
+procedure TtecFindCustom.SetParent(const Value: TWinControl);
+begin
+  inherited SetParent(Value);
+  if Assigned(Value) and (Name <> '') and (Group <> '') then
+    FindCustomList.Add(Self, FIndexFormList, FIndexList);
+end;
+
+}
+
+procedure TtecFindCustom.SetParent(AParent: TWinControl);
+begin
+  if Assigned(Aparent) then
+  begin
+    inherited SetParent(Aparent);
+    if Assigned(Aparent) and (Name <> '') and (Group <> '') then
+      FindCustomList.Add(Self, FIndexFormList, FIndexList);
+  end;    
+end;
+
+procedure TtecFindCustom.SetQueryParameter(const Value: String);
+var
+  Par: TParam;
+begin
+  if Assigned(Query) then
+  begin
+    Par := Query.Params.FindParam(Value);
+    if Assigned(Par) then begin
+      FParameter := Par.DisplayName;
+    end else
+      FParameter := '';
+    FUseParameter := FParameter <> '';
+  end
+  else
+  begin
+    FParameter := Value;
+    FUseParameter := FParameter <> '';
+  end;
+
+end;
+
+procedure TtecFindCustom.SetSetControls(Value: TtecControlsCollection);
+begin
+  if Group = '' then
+    FSetControls.Assign(Value)
+  else
+    FindCustomList[FIndexFormList, Group].SetControls := Value
+end;
+
+procedure TtecFindCustom.ShowMessage(Message: String);
+var
+  Str: String;
+begin
+  str := Message;
+  if Assigned(OnMessage) then
+    OnMessage(str);
+
+  if Str <> '' then
+  begin
+    if (self.ClassType = TtecDBFindLookup) then
+    begin
+       if (TtecDBFindLookup(self).LookupQueryParameter = 'codigobarras') then
+         MensagemAviso(str, True)
+       else
+         MensagemAviso(str);
+    end
+    else
+      MensagemAviso(str);
+  end;
+end;
+
+procedure TtecFindCustom.UpdateData;
+begin
+  FDataLink.Modified;
+  FDataLink.UpdateRecord;
+  UpdateDataPassed := true;
+end;
+
+procedure TtecFindCustom.UpdateData(Sender: TObject);
+  procedure EditarDataLink;
+  begin
+    if not FDataLink.Editing then
+    begin
+      if PermitirEditar or (Query.State = dsinsert) then
+      begin
+        SaveControlsText;
+        FEditing := True;
+        Finding := True;
+        FDataLink.Edit;
+        FEditing := False;
+        Finding := False;
+        RestoreControlsText;
+      end;
+    end;
+  end;
+begin
+  if Assigned(FDataLink.Field) and (Query.State = dsInsert) then begin
+    if Group = '' then begin
+      EditarDataLInk;
+      FDataLink.Field.Text := Trim(Text);
+      Modified := False;
+    end else if Focused and Modified then begin
+      if Not Exist then begin
+        EditarDataLink;
+        FDataLink.Field.Text := Trim(Text);
+        Modified := False
+      end
+    end else begin
+      EditarDataLink;
+      FDataLink.Field.Text := Trim(Text);
+      Modified := False
+    end
+  end;
+end;
+
+procedure TtecFindCustom.UpdateReadOnly;
+begin
+{$IFDEF DELPHI7}
+  if Assigned(Query) then
+    if FUseParameter then
+      if FFound then
+        Query.RequestLive := True
+      else
+        Query.RequestLive := Not DenyInsert
+    else
+      Query.RequestLive := False;
+{$ENDIF};
+end;
+
+function TtecFindCustom.ValoraDataFieldInterno: variant;
+begin
+  result := '';
+
+  if FDataLink.DataSet.active then
+    if DataaFieldInterno<>'' then
+      result := FDataLink.DataSet.FieldByName(DataaFieldInterno).asString
+    else
+      result := FDataLink.DataSet.FieldByName(DataField).asString;
+end;
+
+procedure TtecFindCustom.WMPaste(var Message: TMessage);
+begin
+  if Message.Msg = WM_Paste then
+  begin
+    inherited;
+    self.Modified := true;
+  end
+end;
+
+procedure TtecFindCustom.WriteActiveSetControls(Writer: TWriter);
+begin
+  Writer.WriteBoolean(ActiveSetControls)
+end;
+
+procedure TtecFindCustom.WriteDenyInsert(Writer: TWriter);
+begin
+  Writer.WriteBoolean(DenyInsert);
+end;
+
+procedure TtecFindCustom.WriteNoSetControls(Writer: TWriter);
+begin
+  Writer.WriteCollection(NoSetControls);
+end;
+
+procedure TtecFindCustom.WriteParameter(Writer: TWriter);
+begin
+  if Trim(QueryParameter) = '' then
+    Writer.WriteString(' ')
+  else
+    Writer.WriteString(FParameter);
+end;
+
+procedure TtecFindCustom.WriteSetControls(Writer: TWriter);
+begin
+  Writer.WriteCollection(SetControls);
+end;
+
+
+{ TtecDbEditFind }
+
+procedure TtecDbEditFind.DoExit;
+begin
+  if (Group = '') and (Trim(Text) = '') then begin
+    if Modified then begin
+      FindByParam;
+      SetForeignFound(stNotFound);
+      FEditing := True;
+      FDataLink.Edit;
+      FEditing := False;
+      FDataLink.Modified;
+      FDataLink.UpdateRecord;
+    end
+  end else
+    inherited
+end;
+
+procedure TtecDbEditFind.Find(CallOnFound: Boolean = True);
+var
+  Par: TParam;
+begin
+  if Assigned(Query) then
+  begin
+    Par := Query.Params.FindParam(FParameter);
+    if Assigned(Par) then
+    begin
+      if Assigned(FDataLink.Field) then
+      begin
+        if (Field.DataType in [ftSmallint, ftInteger, ftWord, ftFloat, ftCurrency, ftLargeint]) and (Trim(Text) = '') then
+          Par.Clear
+        else
+          Par.AsString := Text;
+        inherited Find(CallOnFound);
+      end
+      else
+      begin
+        Par.AsString := Text;
+        inherited Find(CallOnFound);
+      end;
+    end
+    else
+      if Group <> '' then
+        SetFocus
+  end;
+end;
+
+{ TtecDBFindLookup }
+
+constructor TtecDBFindLookup.Create(AOwner: TComponent);
+begin
+  inherited;
+  //ControlStyle := ControlStyle + [csReplicatable];
+  FDataLink.OnUpdateData := UpdateData;
+  FDataLinkLookup := TFieldDataLink.Create;
+//  FDataLinkLookup.DataSourceFixed := false;
+
+  FDataLinkLookup.Control := Self;
+//  FocarnoControle := True;
+end;
+
+procedure TtecDBFindLookup.DataChange(Sender: TObject);
+begin
+  inherited;
+  if not dataSetLocked then
+  begin
+    case Operacao of
+    opATRIBUICAO :
+      begin
+        if Not (csDestroying in ComponentState) then
+
+  //        if Not Finding {and (ForeignFound = stNotFound)} then
+  //          if Not Modified {and (Group = '') }then
+  //            FindLookup
+
+          if Not Finding then
+  {não estava refazendo a consulta após o internopesquisar nas tabelas de procura}
+  {          if Not Modified and (Group = '') then }
+            if Not Modified {and (Group = '')}then
+              if not query.ControlsDisabled and not NaoExecutarLookupFound then
+  //            if query.State = dsbrowse then
+                   FindLookup;
+      end;
+    end;
+  end;
+end;
+
+procedure TtecDBFindLookup.DefineProperties(Filer: TFiler);
+begin
+  inherited;
+  case Operacao of
+    opATRIBUICAO :
+    begin
+      Filer.DefineProperty('LookupParameter', ReadLookupParameter, WriteLookupParameter, True);
+      LookupUseParameter := Trim(FLookupParameter) <> '';
+    end;
+  end;
+end;
+
+procedure TtecDBFindLookup.DefinirCampoLabel;
+var
+ i:integer;
+begin
+  for i:=0 to high(vCampoPesquisa) do
+  begin
+//    if FLookupParameterDefault = vCampoPesquisa[i] then
+    if FLookupParameter = vCampoPesquisa[i] then
+    begin
+      FParameterLabel := vCampoLabel[i] ;
+      break;
+    end;
+  end;
+end;
+
+function TtecDBFindLookup.DefinirCampoPesquisa(PrimeiroDefault:Boolean): String;
+var
+ i: integer;
+ campoIgual: String;
+
+begin
+  campoIgual := '';
+//  LookupQuery.ParamByName(LookupQueryParameter).value := null;
+  if PrimeiroDefault then
+    i:=0
+  else
+  begin
+    LookupQuery.ParamByName(LookupQueryParameter).value := null;
+    for i:=0 to high(vCampoPesquisa) do
+    begin
+      if CampoIgual<>''then
+        break;
+      if LookupQueryParameter = vCampoPesquisa[i] then
+        CampoIgual := vCampoPesquisa[i];
+    end;
+    if i>high(vCampoPesquisa) then
+     i:=0;
+  end;
+  FParameterLabel := vCampoLabel[i];
+  result := vCampoPesquisa[i];
+end;
+
+function TtecDBFindLookup.DefinirCampoPesquisaLocate(
+  PrimeiroDefault: Boolean): String;
+var
+ i: integer;
+ campoIgual: String;
+
+begin
+  campoIgual := '';
+  if PrimeiroDefault then
+    i:=0
+  else
+  begin
+    for i:=0 to high(vCampoPesquisaLocate) do
+    begin
+      if CampoIgual<>''then
+        break;
+      if LocateQueryParameter = vCampoPesquisaLocate[i] then
+        CampoIgual := vCampoPesquisaLocate[i];
+    end;
+    if i>high(vCampoPesquisaLocate) then
+     i:=0;
+  end;
+  if vCampoPesquisaLocate <> nil then
+    result := vCampoPesquisaLocate[i]
+  else
+    result := '';  
+end;
+
+destructor TtecDBFindLookup.Destroy;
+begin
+  FDataLinkLookup.Free;
+  inherited;
+end;
+
+procedure TtecDBFindLookup.DoExit;
+var
+ Quantidade : Real;
+ Texto : String;
+
+ LookupQueryParameterAnterior, LocateQueryParameterAnterior : String;
+
+begin
+  LookupQueryParameterAnterior := '';
+  LocateQueryParameterAnterior := '';
+
+  if assigned(FDataLink.OnDataChange) then
+  begin
+    case Operacao of
+      opATRIBUICAO :
+      begin
+        Quantidade := 1;
+        if FDataFieldTotal <> '' then
+         if ConfirmarQuantidade then
+           Quantidade := DataSource.DataSet.FieldByName(FDataFieldTotal).AsCurrency;
+
+
+        if (FDAtaLink.Field.Text <> '') and
+           (Text = '') then
+          Texto := FDAtaLink.Field.Text
+        else
+          Texto := Text;
+
+        GuardarCamposDigitados(Texto);
+
+
+        {
+        if ParSistema.GravarProdutoContratoAutomaticamente then
+        begin
+          if FLocateUseParameter and
+             modified and
+             (text<>'') then
+          begin
+            if DataSource.DataSet.state in [dsedit,dsinsert] then
+              DataSource.DataSet.cancel;
+
+            Cadastrado := DataSource.DataSet.Locate(LocateQueryParameter,VarArrayOf(CamposDigitados),[]);
+            if cadastrado then
+            begin
+              DataSource.DataSet.Edit;
+              DataSource.DataSet.FieldByName(FDataFieldTotal).AsCurrency := DataSource.DataSet.FieldByName(FDataFieldTotal).AsCurrency + Quantidade;
+              FindLookup;
+              ConfirmarQuantidade := false;
+            end
+            else
+            begin
+              DataSource.DataSet.append;
+              DataSource.DataSet.FieldByName(FDataFieldTotal).AsCurrency := Quantidade;
+              ConfirmarQuantidade := false;
+              RestaurarCamposDigitados;
+              text := texto;
+            end;
+          end;
+        end;
+        }
+
+        if (Group = '') and ((Trim(Text) = '') {or ((Trim(Text)='0') and not fpermitirzero)} ) then
+        begin
+          if FDataLink.Field.Required then
+            FDataLink.Reset
+          else
+          if Modified then
+          begin
+            FindLookup;
+            SetForeignFound(stNotFound);
+            FEditing := True;
+            FDataLink.Edit;
+            FEditing := False;
+            FDataLink.Modified;
+            FDataLink.UpdateRecord
+          end
+        end
+        else
+        if Not Modified then
+        begin
+          if Not FLookupFound and (Group = '') then
+          begin
+            if ExibirMensagem then
+              ShowMessage(Format(ctCODIGOINEXISTENTE, [Text]));
+
+{            if self.canfocus then}
+              query.FieldByName(DataField).FocusControl;
+//            SetFocus
+          end else if Group <> '' then
+            FindCustomList[FIndexFormList, Group].FocusedControlIndex := -1
+        end
+        else
+        begin
+          if group = '' then
+          begin
+            if not FLocateUseParameter then
+              FindLookup
+            else
+            {if FLookupFound then}
+            begin
+              if ParSistema.GravarProdutoContratoAutomaticamente and  (FDataFieldTotal<>'') {or
+                 (LocateParameters<>'')} then
+              begin
+                LimparParametrosLookupSource;
+                FLookupFound := FindQueryByParam(LookupQuery, FLookupParameter{, true});
+
+                if FLookupFound then
+                begin
+
+                  if parsistema.PermitirProdutoAlfanumerico then
+                  begin
+                    if LookupaFieldVisual<>'' then
+                       Texto := lookupsource.dataset.fieldbyname(LookupaFieldVisual).asstring
+                    else
+                       Texto := lookupsource.dataset.fieldbyname(LookupField).asstring;
+                  end
+                  else
+                  begin   {
+                    if LookupaFieldInterno<>'' then
+                      Texto := lookupsource.dataset.fieldbyname(LookupaFieldInterno).asstring
+                    else
+                      Texto := lookupsource.dataset.fieldbyname(LookupField).asstring;
+                      }
+
+                    if LookupaFieldVisual<>'' then
+                       Texto := lookupsource.dataset.fieldbyname(LookupaFieldVisual).asstring
+                    else
+                       Texto := lookupsource.dataset.fieldbyname(LookupField).asstring;
+                      
+
+                  end;
+
+
+//                  Texto := Text;
+
+                  LookupQueryParameterAnterior := LookupQueryParameter;
+                  LocateQueryParameterAnterior := LocateQueryParameter;
+
+                  LookupQueryParameter := DefinirCampoPesquisa(true);
+                  LocateQueryParameter := DefinirCampoPesquisaLocate(true);
+
+                  GuardarCamposDigitados(Texto);
+
+                  FDataLink.OnDataChange := nil;
+                  if DataSource.DataSet.state in [dsedit,dsinsert] then
+                    DataSource.DataSet.cancel;
+                  FDataLink.OnDataChange := DataChange;
+
+                  if LocateQueryParameterExistente then
+                  begin
+                    ConfirmarQuantidade := false;
+//                    Text := Texto;
+                    if fDataFieldTotal<>'' then
+                    begin
+                      DataSource.DataSet.Edit;
+                      DataSource.DataSet.FieldByName(self.DataField).AsString := Text;
+                      DataSource.DataSet.FieldByName(FDataFieldTotal).AsCurrency := DataSource.DataSet.FieldByName(FDataFieldTotal).AsCurrency + Quantidade;
+                    end;
+                    EditarDataLInk;    //???
+                    FDataLink.Field.Text := Text;
+                    FindLookup;
+                    Modified := true;
+
+                  end
+                  else
+                  begin
+                    DataSource.DataSet.append;
+                    if fDataFieldTotal<>'' then
+                      DataSource.DataSet.FieldByName(FDataFieldTotal).AsCurrency := Quantidade;
+                    ConfirmarQuantidade := false;
+                    RestaurarCamposDigitados;
+//                    Text := Texto;
+                    FDataLink.Field.Text := Text;
+                    DataSource.DataSet.FieldByName(DataField).AsString := text;
+                    Modified := true;
+                  end;
+                end;
+              end
+              else
+              if PosicionarProdutoNaoEncontrado then
+              begin
+                LimparParametrosLookupSource;
+                FLookupFound := FindQueryByParam(LookupQuery, FLookupParameter{, true});
+
+                if FLookupFound then
+                begin
+
+                  if parsistema.PermitirProdutoAlfanumerico then
+                  begin
+                    if LookupaFieldVisual<>'' then
+                       Texto := lookupsource.dataset.fieldbyname(LookupaFieldVisual).asstring
+                    else
+                       Texto := lookupsource.dataset.fieldbyname(LookupField).asstring;
+                  end
+                  else
+                  begin
+                    if LookupaFieldInterno<>'' then
+                      Texto := lookupsource.dataset.fieldbyname(LookupaFieldInterno).asstring
+                    else
+                      Texto := lookupsource.dataset.fieldbyname(LookupField).asstring;
+                  end;
+
+//                  Texto := Text;
+
+                  LookupQueryParameterAnterior := LookupQueryParameter;
+                  LocateQueryParameterAnterior := LocateQueryParameter;
+
+                  LookupQueryParameter := DefinirCampoPesquisa(true);
+                  LocateQueryParameter := DefinirCampoPesquisaLocate(true);
+
+                  GuardarCamposDigitados(Texto);
+
+                  FDataLink.OnDataChange := nil;
+                  if DataSource.DataSet.state in [dsedit,dsinsert] then
+                    DataSource.DataSet.cancel;
+                  FDataLink.OnDataChange := DataChange;
+
+                  if LocateQueryParameterExistente then
+                  begin
+//                    Text := Texto;
+                    EditarDataLInk; //???
+                    FDataLink.Field.Text := Text;
+                    FindLookup;
+                    Modified := true;
+                  end
+                  else
+                  begin
+                    DataSource.DataSet.append;
+                    RestaurarCamposDigitados;
+                    //DataSource.DataSet.FieldByName(FDataFieldTotal).AsCurrency := Quantidade;
+//                    Text := Texto;
+                    FDataLink.Field.Text := Text;
+                    Modified := true;
+                  end;
+                end;
+              end
+              else
+                 FindLookup;
+
+
+            end;
+          end;
+        end;
+
+        inherited ;
+
+        if FLocateUseParameter and
+           (ParSistema.GravarProdutoContratoAutomaticamente or
+            PosicionarProdutoNaoEncontrado) and
+           (LookupQueryParameterAnterior<>'') and
+           (LocateQueryParameterAnterior<>'') then
+        begin
+//          LookupQuery.ParamByName(LookupQueryParameter).value := null;
+          LookupQueryParameter := LookupQueryParameterAnterior;
+          LocateQueryParameter := LocateQueryParameterAnterior;
+        end
+        else
+        if LookupUseParameter and
+           (LookupQueryParameterAnterior<>'') and
+           (LookupQueryParameter <> LookupQueryParameterAnterior) then
+        begin
+          LookupQuery.ParamByName(LookupQueryParameter).value := null;
+          LookupQueryParameter := LookupQueryParameterAnterior;
+        end;
+      end;
+      opPESQUISA :
+      begin
+        if (Group = '') and (Trim(Text) = '') then begin
+          if Modified then begin
+            FindByParam;
+            SetForeignFound(stNotFound);
+            FEditing := True;
+            FDataLink.Edit;
+            FEditing := False;
+            FDataLink.Modified;
+            FDataLink.UpdateRecord;
+          end
+        end else
+          inherited
+      end;
+    end;
+  end;
+end;
+
+procedure TtecDBFindLookup.EditarDataLink;
+begin
+
+    if not FDataLink.Editing then
+    begin
+      if PermitirEditar or (Query.State = dsinsert) then
+      begin
+        SaveControlsText;
+        FEditing := True;
+        Finding := True;
+        FDataLink.Edit;
+        FEditing := False;
+        Finding := False;
+        RestoreControlsText;
+      end;
+    end;
+
+end;
+
+procedure TtecDBFindLookup.Find(CallOnFound: Boolean = True);
+var
+  Par: TParam;
+begin
+  case Operacao of
+    opATRIBUICAO :
+    begin
+      if Assigned(LookupQuery) then
+      begin
+        FindLookup;
+        if Assigned(Query) and Assigned(FDataLinkLookup.Field) then begin
+          Par := nil;
+          if FLookupFound then begin
+            if ((Group = '') or (QueryParameter<>'')) then
+            begin
+              if Group = '' then
+                FForeignFound := stFound;
+              Par := Query.Params.FindParam(FParameter);
+              if Assigned(Par) then begin
+                Par.AsString := FDataLinkLookup.Field.AsString;
+                inherited Find;
+              end else if Modified then begin
+                SaveControlsText;
+                FEditing := True;
+                FDataLink.Edit;
+                FEditing := False;
+                RestoreControlsText;
+                FDataLink.Modified
+              end;
+              if operacao = opATRIBUICAO then
+              begin
+                if (Group <> '') then
+                 FindCustomList.UpdateData(FIndexFormList, Group)
+                else
+                  UpdateData;
+              end;
+            end
+            else
+            begin
+              SetForeignFound;
+              if (Group <> '') then
+               FindCustomList.UpdateData(FIndexFormList, Group)
+              else
+                UpdateData;
+            end;
+
+          end else if Text = '' then
+            inherited SetForeignFound
+          else
+          begin
+            SetForeignFound;
+
+            if ExibirMensagem then
+              ShowMessage(Format(ctCODIGOINEXISTENTE, [Text]));
+
+            if FocarnoControle then
+              query.FieldByName(DataField).FocusControl;
+            if LimparCampoQuandoNaoExiste then
+              query.FieldByName(DataField).clear;
+//            SetFocus;
+          end;
+
+          if Not Assigned(Par) and CallOnFound then
+          begin
+            if ForeignFound = stFound then //???
+              DoFound
+          end;
+        end
+      end
+      else
+      begin
+
+        if Assigned(Query) then
+        begin
+          Par := Query.Params.FindParam(FParameter);
+          if Assigned(Par) then
+          begin
+            if Assigned(FDataLink.Field) then
+            begin
+              if (Field.DataType in [ftSmallint, ftInteger, ftWord, ftFloat, ftCurrency, ftLargeint]) and (Trim(Text) = '') then
+                Par.Clear
+              else
+                Par.AsString := Text;
+
+              fLookupFound := true;
+              inherited Find(CallOnFound);
+            end;
+          end
+          else
+            if Group <> '' then
+              SetFocus
+        end;
+
+      end;
+    end;
+    opPESQUISA:
+    begin
+
+      if Assigned(Query) then
+      begin
+        Par := Query.Params.FindParam(FParameter);
+        if Assigned(Par) then
+        begin
+          if Assigned(FDataLink.Field) then
+          begin
+            if (Field.DataType in [ftSmallint, ftInteger, ftWord, ftFloat, ftCurrency, ftLargeint]) and (Trim(Text) = '') then
+              Par.Clear
+            else
+              Par.AsString := Text;
+
+            inherited Find(CallOnFound);
+          end;
+        end
+        else
+          if Group <> '' then
+            SetFocus
+      end;
+
+    end;
+  end;
+end;
+
+procedure TtecDBFindLookup.FindLookup;
+var
+ parametrotrocado: Boolean;
+ LookupQueryParameterAnterior, LocateQueryParameterAnterior : String;
+
+begin
+
+  parametrotrocado := false;
+  if Assigned(LookupQuery) then
+  begin
+
+    if not modified then
+      if text<>'' then
+        if LookupParameters<>'' then
+          if pos(LookupQueryParameter,LookupParameters)<>0 then
+            if LookupQueryParameter<>vCampoPesquisa[0] then
+            begin
+              parametrotrocado := true;
+              LookupQueryParameterAnterior := LookupQueryParameter;
+              LocateQueryParameterAnterior := LocateQueryParameter;
+
+              LookupQueryParameter := DefinirCampoPesquisa(true);
+              LocateQueryParameter := DefinirCampoPesquisaLocate(true); //alterado pois so estava trocando LookupQueryParameter
+
+            end;
+
+     FLookupFound := FindQueryByParam(LookupQuery, FLookupParameter);
+
+     if FLookupFound then                { 25/04/24 alterado corrigir excessão pela chamda doexit}
+       SetForeignFound(stFound);         { ??? }
+
+     if( not(FlookUpFound) and (LookupQuery.Name='qryProcuraItemProdutos') and (FLookupParameter='codigovisual')) then
+     begin
+      FLookupParameter:='produtovisual';          // alterado por joão ricardo em 20/jun/2013
+      FLookupFound := FindQueryByParam(LookupQuery, FLookupParameter);
+     end;
+{
+    if (LocateQueryParameter<>'') then
+      FLookupFound := FindQueryByParam(LookupQuery, FLookupParameter, true)
+    else
+      FLookupFound := FindQueryByParam(LookupQuery, FLookupParameter, false);
+ }
+    if parametrotrocado then
+    begin
+      LookupQuery.ParamByName(LookupQueryParameter).value := null;
+      LookupQueryParameter := LookupQueryParameterAnterior;
+      LocateQueryParameter := LocateQueryParameterAnterior;
+
+//      LookupQuery.ParamByName(LookupQueryParameter).Clear;
+//      LookupQueryParameter := FLookupParameterDefault;
+    end;
+    if Not FLookupFound and (Group <> '') then
+      Modified := True
+  end
+end;
+
+function TtecDBFindLookup.GetLookupField: String;
+begin
+ if assigned(FDataLinkLookup) then
+   Result := FDataLinkLookup.FieldName
+end;
+
+function TtecDBFindLookup.GetLookupQuery: {$IFNDEF DELPHI7} TTecReadOnlyQuery {$ELSE} TTecQuery {$ENDIF};
+begin
+  if Assigned(FDataLinkLookup.DataSet) then
+    Result := {$IFNDEF DELPHI7} TTecReadOnlyQuery {$ELSE} TTecQuery {$ENDIF}(FDataLinkLookup.DataSet)
+  else
+    Result := nil
+end;
+
+function TtecDBFindLookup.GetLookupQueryParameter: String;
+var
+  Par: TParam;
+begin
+  if Assigned(LookupQuery) then begin
+    Par := LookupQuery.Params.FindParam(FLookupParameter);
+    if Assigned(Par) then
+      Result := Par.DisplayName
+    else
+      Result := ''
+  end else
+    Result := FLookupParameter;
+end;
+
+function TtecDBFindLookup.GetLookupSource: TDataSource;
+begin
+  if(Assigned(FDataLinkLookup)) then
+  begin
+    if(Assigned(FDataLinkLookup.DataSource)) then
+      Result := FDataLinkLookup.DataSource
+    else
+      Result:=nil;
+  end;
+end;
+
+procedure TtecDBFindLookup.GuardarCamposDigitados(ValorEncontrado: STring);
+
+  procedure GuardarCampo;
+  var i: integer;
+  campo : String;
+  begin
+    for i:= 1 to length(LocateQueryParameter) do
+    begin
+      if (LocateQueryParameter[i]<>';') then
+        campo := campo+LocateQueryParameter[i];
+
+      if (LocateQueryParameter[i]=';') or (i = length(LocateQueryParameter)) then
+      begin
+        SetLength(Camposdigitados, length(CamposDigitados)+1);
+        SetLength(CamposEncontrados, length(CamposEncontrados)+1);
+        SetLength(CamposProcurados, length(CamposProcurados)+1);
+
+        if (campo = DataField) or
+           ((DataaFieldInterno<>'') and
+            (DataaFieldVisual<>'') and
+            ((Trocar(DataField,'digitado','')=DataaFieldInterno) or
+             (trocar(DataField,'digitado','visual')=DataaFieldVisual))) then
+          CamposDigitados[length(CamposDigitados)-1] := Text;
+          (*
+        else
+        begin
+//          CamposDigitados[length(CamposDigitados)-1] := Text;
+//          DataSource.DataSet.fieldbyname(campo).AsVariant;
+// 04/02/12 não estava funcionando corretamente na pesquisa de codibo de barras nos produtoscontratos
+// 09/03/2012 voltada atras
+{
+          case DataSource.DataSet.fieldbyname(campo).DataType of
+            ftLargeint, ftinteger, ftstring : CamposDigitados[length(CamposDigitados)-1] := DataSource.DataSet.fieldbyname(campo).asstring;
+          else
+            CamposDigitados[length(CamposDigitados)-1] := DataSource.DataSet.fieldbyname(campo).asVariant;
+          end;
+}
+        end;
+        *)
+        CamposProcurados[length(CamposProcurados)-1] := campo;
+        CamposEncontrados[length(CamposEncontrados)-1] := ValorEncontrado;
+
+
+        campo := '';
+      end;
+    end;
+  end;
+
+begin
+ CamposDigitados := nil;
+ CamposEncontrados := nil;
+ CamposProcurados := nil;
+  GuardarCampo;
+end;
+
+procedure TtecDBFindLookup.KeyDown(var Key: Word; Shift: TShiftState);
+var
+  a: Integer;
+  Ctrl: TtecFindCustom;
+begin
+  if not self.ReadOnly then
+  begin
+    case Operacao of
+      opATRIBUICAO :
+      begin
+        //  if Shift = [] then
+        if key <> VK_F11 then
+        begin
+          inherited;
+          if Key = VK_ESCAPE then begin
+            if Group <> '' then begin
+              for a := 0 to FindCustomList.Count[FIndexFormList, Group] - 1 do begin
+                Ctrl := FindCustomList.FindCustom[FIndexFormList, a, Group];
+                if Ctrl is TtecDBFindLookup then
+                  TtecDBFindLookup(Ctrl).FindLookup
+              end
+            End Else
+              FindLookup
+          end
+        end
+        else
+        //if Shift = [ssCtrl] then
+        //begin
+          if key = VK_F11 then
+           begin
+             if LookupParameters<>'' then
+               if pos(LookupQueryParameter,LookupParameters)<>0 then
+                 LookupQueryParameter := DefinirCampoPesquisa(false);
+             if LocateParameters<>'' then
+               if pos(LocateQueryParameter,LocateParameters)<>0 then
+                 LocateQueryParameter := DefinirCampoPesquisaLocate(false);
+             inherited KeyDown(Key, Shift);
+           end;
+        //end;
+      end;
+      opPESQUISA : inherited;
+    end;
+  end
+  else
+   if CtrlOn then
+     inherited KeyDown(Key, Shift);
+
+
+end;
+
+
+procedure TtecDBFindLookup.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited Notification(AComponent, Operation);
+  if (Operation = opRemove) and (AComponent <> Self) then
+  begin
+    if Assigned(FDataLinkLookup) and (AComponent = FDataLinkLookup.DataSource) then
+      FDataLinkLookup.DataSource := nil;
+  end
+end;
+
+
+procedure TtecDBFindLookup.ReadLookupParameter(Reader: TReader);
+begin
+  FLookupParameter := Reader.ReadString
+end;
+
+procedure TtecDBFindLookup.SetForeignFound;
+begin
+  case Operacao of
+    opATRIBUICAO :
+    begin
+      if FLookupFound then
+        inherited SetForeignFound
+      else if Group = '' then
+        FForeignFound := stNotFound
+      else
+        FindCustomList[FIndexFormList, Group].ForeignFound := stUndefined
+    end;
+    opPESQUISA : inherited;
+  end;
+end;
+
+
+procedure TtecDBFindLookup.RestaurarCamposDigitados;
+  procedure GuardarCampo;
+  var i,j: integer;
+  campo : String;
+  begin
+    J:=0;
+    for i:= 1 to length(LocateQueryParameter) do
+    begin
+      if (LocateQueryParameter[i]<>';') then
+        campo := campo+LocateQueryParameter[i];
+
+      if (LocateQueryParameter[i]=';') or (i = length(LocateQueryParameter)) then
+      begin
+        if (campo = DataField) or
+           ((DataaFieldInterno<>'') and
+            (DataaFieldVisual<>'') and
+            ((Trocar(DataField,'digitado','')=DataaFieldInterno) or
+             (trocar(DataField,'digitado','visual')=DataaFieldVisual))) then
+          text := CamposDigitados[j]
+        else
+          DataSource.DataSet.FieldByName(campo).AsVariant := CamposDigitados[j];
+
+        campo := '';
+        j:=j+1
+      end;
+    end;
+  end;
+begin
+  GuardarCampo;
+end;
+
+procedure TtecDBFindLookup.SetForeignFound(Value: TtecSearchType);
+var
+  a: Integer;
+begin
+  case Operacao of
+    opATRIBUICAO :
+    begin
+      if Group <> '' then
+        for a := 0 to FindCustomList[FIndexFormList, Group].Count - 1 do
+          if FindCustomList[FIndexFormList, Group].Items[a] is TtecDBFindLookup then
+            TtecDBFindLookup(FindCustomList[FIndexFormList, Group].Items[a]).FLookupFound := Value = stFound;
+    end;
+  end;
+  inherited;
+end;
+
+procedure TtecDBFindLookup.SetlocateParameters(const Value: String);
+var
+ vValue: String;
+
+  procedure GuardarCampo;
+  var i: integer;
+  campo : String;
+  begin
+    for i:= 1 to length(LocateParameters) do
+    begin
+      if (LocateParameters[i]<>',') then
+        campo := campo+LocateParameters[i];
+
+      if (LocateParameters[i]=',') or (i = length(LocateParameters)) then
+      begin
+        if (pos(',',LocateParameters)=0) then
+           VCampoPesquisaLocate := nil;
+        SetLength(VCampoPesquisaLocate, length(VCampoPesquisaLocate)+1);
+        VCampoPesquisaLocate[length(VCampoPesquisaLocate)-1] := campo;
+        campo := '';
+      end;
+    end;
+  end;
+begin
+  VCampoPesquisaLocate := nil;
+
+  {
+  if (DataaFieldInterno<>'') and
+     (DataaFieldVisual<>'') and
+     ((pos(DataaFieldVisual+';', value)<>0) or (DataaFieldVisual=value)) and
+     not parsistema.PermitirProdutoAlfanumerico then
+  begin
+    if DataaFieldVisual=value then
+      vValue := trocar(value, DataaFieldVisual, DataaFieldInterno)
+    else
+      vValue := trocar(value, DataaFieldVisual+';', DataaFieldInterno+';')
+  end
+  else
+  }
+  (*
+  if (DataaFieldInterno<>'') and
+     (DataaFieldVisual<>'') and
+     ((pos(DataaFieldInterno+';', value)<>0) or (DataaFieldInterno=value)) {and
+      parsistema.PermitirProdutoAlfanumerico} then
+  begin
+    if DataaFieldInterno=value then
+      vValue := trocar(value, DataaFieldInterno, DataaFieldVisual)
+    else
+      vValue := trocar(value, DataaFieldInterno+';', DataaFieldVisual+';')
+  end
+  else
+  if (LookupaFieldinterno<>'') and
+     (LookupaFieldVisual<>'') and
+     (DataaFieldInterno<>'') and
+     (DataaFieldVisual<>'') and
+     (DataField<>DataaFieldInterno) and
+     (datafield<>DataaFieldVisual) and
+     ((pos(DataaFieldinterno+';', value)<>0) or (DataaFieldinterno=value)) then {Neste caso existe o produtodgitado sempre sera string ou seja produto visual}
+  begin
+    if DataaFieldinterno=value then
+      vValue := trocar(value, DataaFieldinterno, DataaFieldVisual)
+    else
+      vValue := trocar(value, DataaFieldinterno+';', DataaFieldVisual+';')
+  end
+  else
+    vValue := value;
+
+  *)
+
+  FLocateParameters := Value;
+
+  GuardarCampo;
+  FLocateUseParameter := FLocateParameters <> '';
+  if FLocateUseParameter then
+    locateQueryParameter:=VCampoPesquisaLocate[0];
+end;
+
+procedure TtecDBFindLookup.SetLookupField(const Value: String);
+begin
+  if (value = LookupaFieldinterno) or
+     (value = LookupaFieldVisual) then
+  begin
+    (*
+    if parsistema.PermitirProdutoAlfanumerico or
+
+     ((LookupaFieldinterno<>'') and
+      (LookupaFieldVisual<>'') and
+      (DataaFieldInterno<>'') and
+      (DataaFieldVisual<>'') and
+      (DataField<>DataaFieldInterno) and
+      (datafield<>DataaFieldVisual)) then  {Seja ou nao visual com o digitado é obrigado a ser visual}
+    *)
+      FDataLinkLookup.FieldName := LookupaFieldVisual
+
+    {else
+      FDataLinkLookup.FieldName := LookupaFieldinterno};
+
+  end
+  else
+    FDataLinkLookup.FieldName := value;
+end;
+
+procedure TtecDBFindLookup.SetLookupParameters(const Value: String);
+{var
+  vValue: String;}
+
+  procedure GuardarCampo;
+  var i: integer;
+  campo : String;
+  begin
+    for i:= 1 to length(LookupParameters) do
+    begin
+      if (LookupParameters[i]<>',') then
+        campo := campo+LookupParameters[i];
+
+      if (LookupParameters[i]=',') or (i = length(LookupParameters)) then
+      begin
+        if (pos(',',LookupParameters)=0) then
+           VCampoPesquisa := nil;
+        SetLength(VCampoPesquisa, length(VCampoPesquisa)+1);
+        VCampoPesquisa[length(VCampoPesquisa)-1] := campo;
+        campo := '';
+      end;
+    end;
+  end;
+begin
+  (*
+  if (LookupaFieldinterno<>'') and
+     (LookupaFieldVisual<>'') and
+     ((pos(LookupaFieldinterno+';', value)<>0) or (LookupaFieldinterno=value)) then
+  begin
+    if LookupaFieldinterno=value then
+      vValue := trocar(value, LookupaFieldinterno, LookupaFieldVisual)
+    else
+      vValue := trocar(value, LookupaFieldinterno+';', LookupaFieldVisual+';')
+  end
+  else
+  if (LookupaFieldinterno<>'') and
+     (LookupaFieldVisual<>'') and
+     (DataaFieldInterno<>'') and
+     (DataaFieldVisual<>'') and
+     (DataField<>DataaFieldInterno) and
+     (datafield<>DataaFieldVisual) and
+     ((pos(LookupaFieldinterno+';', value)<>0) or (LookupaFieldinterno=value)) then {Neste caso existe o produtodgitado sempre sera string ou seja produto visual}
+  begin
+    if LookupaFieldinterno=value then
+      vValue := trocar(value, LookupaFieldinterno, LookupaFieldVisual)
+    else
+      vValue := trocar(value, LookupaFieldinterno+';', LookupaFieldVisual+';')
+  end
+  else
+    vValue := value;
+  *)
+
+
+  VCampoPesquisa := nil;
+  FLookupParameters := Value;
+  GuardarCampo;
+end;
+
+procedure TtecDBFindLookup.SetLookupParametersLabel(const Value: String);
+ procedure GuardarCampoLabel;
+ var
+   i: integer;
+   campo:String;
+ begin
+  for i:= 1 to length(LookupParametersLabel) do
+  begin
+    if (LookupParametersLabel[i]<>',') then
+      campo := campo+LookupParametersLabel[i];
+
+    if (LookupParametersLabel[i]=',') or (i = length(LookupParametersLabel)) then
+    begin
+      SetLength(VCampoLabel, length(VCampoLabel)+1);
+      VCampoLabel[length(VCampoLabel)-1] := campo;
+      campo := '';
+    end;
+  end;
+ end;
+begin
+  FLookupParametersLabel := Value;
+  GuardarCampoLabel;
+end;
+
+procedure TtecDBFindLookup.SetLookupQueryParameter(const Value: String);
+var
+  Par: TParam;
+begin
+  if Assigned(LookupQuery) then
+  begin
+    Par := LookupQuery.Params.FindParam(Value);
+
+    if Assigned(Par) then
+      FLookupParameter := Par.DisplayName
+    else
+      FLookupParameter := '';
+
+    if (LookupParameters <> '') and
+       (LookupQuery.ParamByName(value).DataType in [ftString, ftWideString]) and
+       (FDataLink.Field.DataType  in [ftSmallint, ftInteger, ftWord, ftAutoInc, ftLargeint]) then
+      AllowNumericTypedString := True
+    else
+      AllowNumericTypedString := False;
+  end;
+
+  LookupUseParameter := FLookupParameter <> '';
+
+end;
+
+procedure TtecDBFindLookup.SetLookupSource(const Value: TDataSource);
+begin
+  if FDataLinkLookup.DataSource <> Value then
+    if not (FDataLinkLookup.DataSourceFixed and (csLoading in ComponentState)) then
+      if Query.IsLinkedTo(Value) then
+        DatabaseError(SCircularDataLink)
+      else
+        FDataLinkLookup.DataSource := Value;
+
+
+        {
+    if not assigned(FDataLinkLookup.field) then
+      if assigned(FDataLinkLookup.dataset) then
+       begin
+          FDatasetLocked := True;
+          FDataLinkLookup.dataset.active := true;
+          FDatasetLocked := false;
+        end;
+        }
+
+
+  if Assigned(Value) then
+    Value.FreeNotification(Self);
+
+end;
+
+procedure TtecDBFindLookup.UpdateData(Sender: TObject);
+{
+  procedure EditarDataLink;
+  begin
+    if not FDataLink.Editing then
+    begin
+      if PermitirEditar or (Query.State = dsinsert) then
+      begin
+        SaveControlsText;
+        FEditing := True;
+        Finding := True;
+        FDataLink.Edit;
+        FEditing := False;
+        Finding := False;
+        RestoreControlsText;
+      end;
+    end;
+  end;
+  }
+begin
+  case Operacao of
+    opATRIBUICAO :
+    begin
+      if FLookupFound and (ForeignFound = stFound) then
+      begin
+
+        if Assigned(FDataLink.Field) and Assigned(FDataLinkLookup.Field) then
+        begin
+
+          if (DataaFieldInterno='') and (DataaFieldVisual='') then
+          begin
+            if (FDataLink.Field.Text <> FDataLinkLookup.Field.AsString) then
+            begin
+              EditarDataLink;
+              FDataLink.Field.Text := FDataLinkLookup.Field.AsString;
+            end;
+
+            if Text <> FDataLinkLookup.Field.AsString then
+              Text := FDataLinkLookup.Field.AsString;
+          end
+          else
+          begin
+            if (FDataLink.Field.Text <> text) then
+            begin
+              EditarDataLink;
+              FDataLink.Field.Text := text;
+            end;
+          end;
+
+          Modified := False;
+
+
+          if (DataaFieldInterno<>'') and (LookupaFieldinterno<>'') then
+          begin
+            if FDataLink.DataSet.FieldByName(DataaFieldInterno).AsString <> LookupSource.DataSet.fieldByName(LookupaFieldinterno).asString then
+            begin
+              EditarDataLink;
+              FDataLink.DataSet.FieldByName(DataaFieldInterno).asString := LookupSource.DataSet.fieldByName(LookupaFieldinterno).asString;
+            end;
+          end;
+
+          if (DataaFieldVisual<>'') and (LookupaFieldVisual<>'') then
+          begin
+            if FDataLink.DataSet.FieldByName(DataaFieldVisual).AsString <> LookupSource.DataSet.fieldByName(LookupaFieldVisual).asString then
+            begin
+              EditarDataLink;
+              FDataLink.DataSet.FieldByName(DataaFieldVisual).asString := LookupSource.DataSet.fieldByName(LookupaFieldVisual).asString;
+            end;
+          end;
+
+        end
+        else
+        if Assigned(FDataLink.Field) then
+        begin
+          if group <> '' then
+          begin
+            if FDataLink.Field.Text <> text then
+            begin
+              EditarDataLink;
+              FDataLink.Field.Text := text;
+            end;
+            Modified := False;
+          end;
+        end;
+      end else if Group = '' then begin
+        if Assigned(FDataLink.Field) then
+        begin
+          if (Query.state in [dsinsert, dsedit]) then
+            FDataLink.Field.Clear;
+
+          Text := ''
+        end;
+        Modified := False
+      end
+      else
+      begin
+        if not FLookupFound then
+        begin
+          if Assigned(FDataLink.Field) then
+            if not fDataLink.Field.IsNull then
+            begin
+              FDataLink.Field.Clear;
+              Modified := False;
+            end;
+        end;
+      end;
+    end;
+    opPESQUISA : inherited;
+  end;
+end;
+
+procedure TtecDBFindLookup.WriteLookupParameter(Writer: TWriter);
+begin
+  if Trim(FLookupParameter) = '' then
+    Writer.WriteString(' ')
+  else
+    Writer.WriteString(FLookupParameter);
+end;
+
+procedure TtecDBFindLookup.LimparParametrosLookupSource;
+var i: integer;
+begin
+  for i:=0 to high(vCampoPesquisa) do
+    if FLookupParameter <> vCampoPesquisa[i] then
+       LookupQuery.ParamByName(vCampoPesquisa[i]).value := null;
+end;
+
+function TtecDBFindLookup.GetLookupUseParameter: boolean;
+begin
+  result := fLookupUseParameter;
+end;
+
+procedure TtecDBFindLookup.SetLookupUseParameter(const Value: boolean);
+begin
+  fLookupUseParameter := Value;
+  if value then
+    DefinirCampoLabel;
+end;
+
+{ TtecFindCustomList }
+
+procedure TtecFindCustomList.Add(Ctrl: TtecFindCustom; var FormIndex, Index: Integer);
+var
+  GroupIndex: Integer;
+  GrList: TStringList;
+  CtrlWindowName : String;
+
+begin
+  if FormIndex = -1 then
+  begin
+    CtrlWindowName := WindowName[Ctrl];
+    if CtrlWindowName<>'' then
+    begin
+      FormIndex := FItems.IndexOf(CtrlWindowName);
+      if FormIndex = -1 then
+        FormIndex := FItems.AddObject(CtrlWindowName, TStringList.Create);
+
+      GrList := TStringList(FItems.Objects[FormIndex]);
+      GroupIndex := GrList.IndexOf(Ctrl.Group);
+      if GroupIndex = -1 then
+        GrList.AddObject(Ctrl.Group, TtecFindGroup.Create);
+
+      if Not Items[FormIndex, Ctrl.Group].ExistControl(Ctrl) then
+        Items[FormIndex, Ctrl.Group].Add(Ctrl, Index)
+    end;
+  end
+  else
+  begin
+      GrList := TStringList(FItems.Objects[FormIndex]);
+      GroupIndex := GrList.IndexOf(Ctrl.Group);
+      if GroupIndex = -1 then
+        GrList.AddObject(Ctrl.Group, TtecFindGroup.Create);
+
+      if Not Items[FormIndex, Ctrl.Group].ExistControl(Ctrl) then
+        Items[FormIndex, Ctrl.Group].Add(Ctrl, Index)
+      else
+        Items[FormIndex, Ctrl.Group].Replace(Ctrl, Index);
+  end;
+
+end;
+
+constructor TtecFindCustomList.Create;
+begin
+  FItems := TStringList.Create;
+end;
+
+procedure TtecFindCustomList.Delete(FormIndex, Index: Integer; Group: String);
+var
+  a: Integer;
+  FindGroup: TtecFindGroup;
+  GrList: TStringList;
+begin
+  FindGroup := Items[FormIndex, Group];
+  if Assigned(FindGroup) then Begin
+    FindGroup.Delete(Index);
+    If FindGroup.Count = 0 Then Begin
+      GrList := TStringList(FItems.Objects[FormIndex]);
+      FindGroup.Free;
+      GrList.Delete(GrList.IndexOf(Group));
+    End Else
+      for a := Index to FindGroup.Count - 1 do
+        Dec(TtecFindCustom(FindCustom[FormIndex, a, Group]).FIndexList);
+  end
+end;
+
+destructor TtecFindCustomList.Destroy;
+var
+  GrList: TStringList;
+begin
+  while FItems.Count > 0 do begin
+    GrList := TStringList(FItems.Objects[0]);
+    while GrList.Count > 0 do begin
+      TtecFindGroup(GrList.Objects[0]).Free;
+      GrList.Delete(0);
+    end;
+    FItems.Delete(0);
+  end;
+  FItems.Free;
+  inherited;
+end;
+
+function TtecFindCustomList.GetCount(FormIndex: Integer; Group: String): Integer;
+begin
+  if Assigned(Items[FormIndex, Group]) then
+    Result := Items[FormIndex, Group].Count
+  else
+    Result := 0
+end;
+
+function TtecFindCustomList.GetFindCustom(FormIndex, Index: Integer; Group: String): TtecFindCustom;
+begin
+  if Assigned(Items[FormIndex, Group]) then
+    Result := Items[FormIndex, Group].Items[Index]
+  else
+    Result := nil
+end;
+
+function TtecFindCustomList.GetFirtsControl(Ctrl: TtecFindCustom; FormIndex: Integer): TtecFindCustom;
+var
+  a, Max, Inicio: Integer;
+  GrFindCustom: TtecFindGroup;
+  Gr: String;
+begin
+  If Ctrl.Group = '' Then begin
+    Inicio := 0;
+
+    FormIndex := FItems.IndexOf(WindowName[Ctrl]);
+
+    If FormIndex = -1 then
+      Gr := ''
+    else
+      Gr := TStringList(FItems.Objects[FormIndex]).Strings[0]
+  End Else begin
+    Inicio := TStringList(FItems.Objects[FormIndex]).IndexOf(Ctrl.Group);
+    Gr := Ctrl.Group
+  End ;
+  a := Inicio;
+  if FormIndex = -1 then
+    Result := nil
+  else begin
+    Max := TStringList(FItems.Objects[FormIndex]).Count;
+    repeat
+      GrFindCustom := Items[FormIndex, Gr];
+      if Assigned(GrFindCustom) then begin
+        Result := GrFindCustom.FirtsControl;
+        if Assigned(Result) and Result.CanFocus then
+          break
+        else begin
+          a := (a + 1) mod Max;
+          Gr := TStringList(FItems.Objects[FormIndex]).Strings[a];
+          Result := nil
+        end
+      end else
+        Result := nil;
+    until a = Inicio;
+  end
+end;
+
+function TtecFindCustomList.GetItems(FormIndex: Integer; Group: String): TtecFindGroup;
+var
+  List: TStringList;
+  IdxGr: Integer;
+begin
+  if FItems.Count = 0 then
+    Result := nil
+  else if (0 > FormIndex) or (FormIndex >= FItems.Count) then
+    Result := nil
+  else begin
+    List := TStringList(FItems.Objects[FormIndex]);
+    IdxGr := List.IndexOf(Group);
+    if IdxGr = -1 then
+      Result := nil
+    else
+      Result := TtecFindGroup(List.Objects[IdxGr]);
+  end
+end;
+
+function TtecFindCustomList.GetLastControl(Ctrl: TtecFindCustom;
+  FormIndex: Integer): TtecFindCustom;
+var
+  a, Max, Inicio: Integer;
+  GrFindCustom: TtecFindGroup;
+  Gr: String;
+begin
+  If Ctrl.Group = '' Then begin
+    Inicio := 0;
+    FormIndex := FItems.IndexOf(WindowName[Ctrl]);
+    If FormIndex = -1 then
+      Gr := ''
+    else
+      Gr := TStringList(FItems.Objects[FormIndex]).Strings[0]
+  End Else begin
+    Inicio := TStringList(FItems.Objects[FormIndex]).IndexOf(Ctrl.Group);
+    Gr := Ctrl.Group
+  End ;
+  a := Inicio;
+  if FormIndex = -1 then
+    Result := nil
+  else begin
+    Max := TStringList(FItems.Objects[FormIndex]).Count;
+    repeat
+      GrFindCustom := Items[FormIndex, Gr];
+      if Assigned(GrFindCustom) then begin
+        Result := GrFindCustom.LastControl;
+        if Assigned(Result) and Result.CanFocus then
+          break
+        else begin
+          a := (a + 1) mod Max;
+          Gr := TStringList(FItems.Objects[FormIndex]).Strings[a];
+          Result := nil
+        end
+      end else
+        Result := nil;
+    until a = Inicio;
+  end
+end;
+
+function TtecFindCustomList.GetText(Ctrl: TtecFindCustom): String;
+begin
+  Result := FindCustom[Ctrl.FIndexFormList, Ctrl.FIndexList, Ctrl.Group].Text;
+end;
+
+function TtecFindCustomList.GetWindowName(Ctrl: TtecFindCustom): String;
+var
+//  Par: TWinControl;
+  parcomp : Tcomponent;
+begin
+{
+  Par := Ctrl.Parent;
+
+    while Assigned(Par.Parent) do
+      Par := Par.Parent;
+
+  Result := Par.Name;
+  }
+
+  Parcomp := Ctrl.owner;
+
+  while not (parcomp is tform) do
+    parcomp := parcomp.owner;
+
+  if not (parcomp is tform) then
+    MensagemErro('Erro no componente cpdfindcontrol!');
+
+  result := parcomp.name;
+
+//  result := screen.activeform.name;
+
+end;
+
+procedure TtecFindCustomList.RestoreControlsText(FormIndex: Integer; Group: String);
+begin
+  if Assigned(Items[FormIndex, Group]) then
+    Items[FormIndex, Group].RestoreControlsText
+end;
+
+procedure TtecFindCustomList.SaveControlsText(FormIndex: Integer; Group: String);
+begin
+  if Assigned(Items[FormIndex, Group]) then
+    Items[FormIndex, Group].SaveControlsText;
+end;
+
+procedure TtecFindCustomList.SetGroup(Ctrl: TtecFindCustom; var FormIndex, Index: Integer; Group: String);
+var
+  GrList: TStringList;
+  FindGroup: TtecFindGroup;
+begin
+{
+  if Group <> '' then
+    Delete(FormIndex, Index, Group);
+    }
+  if Ctrl.Group <> '' then
+    Add(Ctrl, FormIndex, Index);
+  FindGroup := Items[FormIndex, Ctrl.Group];
+  if Assigned(FindGroup) and (FindGroup.Count = 0) then begin
+    GrList := TStringList(FItems.Objects[FormIndex]);
+    FindGroup.Free;
+    GrList.Delete(GrList.IndexOf(Group));
+  end
+end;
+
+procedure TtecFindCustomList.UpdateData(FormIndex: Integer; Group: String);
+begin
+  Items[FormIndex, Group].UpdateData
+end;
+
+{ TtecControlItem }
+
+function TtecControlItem.GetDisplayName: string;
+begin
+  if Assigned(Control) then
+    Result := Control.Name
+  else
+    Result := inherited GetDisplayName;
+end;
+
+{ TtecControlsCollection }
+
+function TtecControlsCollection.GetItem(Index: Integer): TtecControlItem;
+begin
+  Result := TtecControlItem(inherited Items[Index])
+end;
+
+{ TtecFindGroup }
+
+var
+  ActiveChangeAux: Boolean = True;
+
+procedure TtecFindGroup.ActiveChange(Sender: TObject);
+begin
+  if ActiveChangeAux then begin
+    ActiveChangeAux := False;
+    try
+      if Assigned(Items[0]) then
+        if TFieldDataLink(Sender).Active and Not Finding then begin
+          {alterarado para evitar abrir banco duas vezes}
+          if not TFieldDataLink(Sender).Field.isnull then
+          begin
+            Items[0].SetForeignFound(Items[0].ExistForeign);
+            if Items[0].ForeignFound = stFound then
+              Items[0].SetControl(True);
+            Items[0].DoFound;
+          end;
+        end
+    finally
+      ActiveChangeAux := True
+    end
+  end
+end;
+
+procedure TtecFindGroup.Add(Ctrl: TtecFindCustom; var Index: Integer);
+begin
+  Index := FCtrlsList.AddObject('', Ctrl);
+end;
+
+constructor TtecFindGroup.Create;
+begin
+  FActiveSetControls := True;
+  FDenyInsert        := True;
+  FCtrlsList         := TStringList.Create;
+  FSetControls       := TtecControlsCollection.Create(TtecControlItem);
+  FNoSetControls     := TtecControlsCollection.Create(TtecControlItem)
+end;
+
+procedure TtecFindGroup.Delete(Index: Integer);
+begin
+  FCtrlsList.Delete(Index)
+end;
+
+destructor TtecFindGroup.Destroy;
+begin
+  while FSetControls.Count > 0 do
+    FSetControls.Delete(0);
+  FSetControls.Free;
+  while FNoSetControls.Count > 0 do
+    FNoSetControls.Delete(0);
+  FNoSetControls.Free;
+  while FCtrlsList.Count > 0 do
+    FCtrlsList.Delete(0);
+  FCtrlsList.Free;
+  inherited;
+end;
+
+function TtecFindGroup.ExistControl(Ctrl: TtecFindCustom): Boolean;
+begin
+  Result := FCtrlsList.IndexOfObject(Ctrl) <> -1;
+end;
+
+function TtecFindGroup.GetCount: Integer;
+begin
+  Result := FCtrlsList.Count;
+end;
+
+function TtecFindGroup.GetFirtsControl: TtecFindCustom;
+var
+  a: Integer;
+begin
+  Result := Items[0];
+  for a := 1 to Count - 1 do
+    if Items[a].TabOrder < Result.TabOrder then
+      Result := Items[a];
+end;
+
+function TtecFindGroup.GetForeignFound: TtecSearchType;
+begin
+  Result := FForeignFound
+end;
+
+function TtecFindGroup.GetForeignText: String;
+var
+  a: Integer;
+begin
+  Result := '[';
+  for a := 0 to Count - 2 do
+    Result := Result + Items[a].Text + ', ';
+  Result := Result + Items[Count - 1].Text;
+  Result := Result + ']';
+end;
+
+function TtecFindGroup.GetItems(Index: Integer): TtecFindCustom;
+begin
+  if FCtrlsList.Count = 0 then
+    Result := nil
+  else
+  begin
+    if assigned(FCtrlsList.Objects[Index]) then
+      Result := TtecFindCustom(FCtrlsList.Objects[Index])
+  end;
+end;
+
+function TtecFindGroup.GetLastControl: TtecFindCustom;
+var
+  a: Integer;
+begin
+  Result := Items[count-1];
+{
+  Result := Items[0];
+  for a := 1 to Count - 1 do
+    if Items[a].TabOrder > Result.TabOrder then
+      Result := Items[a];
+}
+end;
+
+function TtecFindGroup.GetModified: Boolean;
+var
+  a: Integer;
+begin
+  Result := False;
+  for a := 0 to Count - 1 do
+    if Items[a].Modified then begin
+      Result := True;
+      break
+    end
+end;
+
+procedure TtecFindGroup.replace(Ctrl: TtecFindCustom; var Index: Integer);
+begin
+//  Index := FCtrlsList.AddObject('', Ctrl);
+  FCtrlsList.Objects[Index] := Ctrl;
+
+end;
+
+procedure TtecFindGroup.RestoreControlsText;
+var
+  a: Integer;
+begin
+  for a := 0 to Count - 1 do begin
+    if assigned(FCtrlsList.Objects[a]) then
+    begin
+      TtecFindCustom(FCtrlsList.Objects[a]).Text := FCtrlsList.Strings[a];
+      TtecFindCustom(FCtrlsList.Objects[a]).Modified := False;
+  //    FCtrlsList.Strings[a] := ''
+    end;
+  end;
+end;
+
+procedure TtecFindGroup.SaveControlsText;
+var
+  a: Integer;
+begin
+  for a := 0 to Count - 1 do
+    if assigned(FCtrlsList.Objects[a]) then
+      FCtrlsList.Strings[a] := TtecFindCustom(FCtrlsList.Objects[a]).Text;
+end;
+
+procedure TtecFindGroup.SetForeignFound(const Value: TtecSearchType);
+begin
+  FForeignFound := Value
+end;
+
+procedure TtecFindGroup.SetNoSetControls(const Value: TtecControlsCollection);
+begin
+  FNoSetControls.Assign(Value)
+end;
+
+procedure TtecFindGroup.SetSetControls(const Value: TtecControlsCollection);
+begin
+ FSetControls.Assign(Value)
+end;
+
+procedure TtecFindGroup.UpdateData;
+var
+  a: Integer;
+begin
+  for a := 0 to Count - 1 do
+    Items[a].UpdateData
+end;
+
+function CompareTabOrder(List: TStringList; Index1, Index2: Integer): Integer;
+begin
+  if TtecFindCustom(List.Objects[Index1]).TabOrder > TtecFindCustom(List.Objects[Index2]).TabOrder then
+    Result := 1
+  else if TtecFindCustom(List.Objects[Index1]).TabOrder < TtecFindCustom(List.Objects[Index2]).TabOrder then
+    Result := -1
+  else
+    Result := 0
+end;
+
+procedure TtecFindGroup.UpdateGroupListOrder;
+var
+  a: Integer;
+begin
+  FCtrlsList.CustomSort(CompareTabOrder);
+  for a := 0 to Count - 1 do
+    Items[a].FIndexList := a;
+end;
+
+function TtecDBFindLookup.LocateQueryParameterExistente: boolean;
+var
+  i,j: integer;
+  function Maiusculo(valor: variant): Variant;
+  begin
+    if valor = null then
+      result := valor
+    else
+      result := AnsiUpperCase(valor);
+  end;
+begin
+  result := false;
+  FDataLink.OnDataChange := nil;
+  fdatalink.Dataset.DisableControls;
+  DataSource.DataSet.first;
+  j:=high(camposprocurados);
+  while not DataSource.DataSet.eof do
+  begin
+    for i:=0 to j do
+    begin
+      case datasource.DataSet.FieldByName(camposprocurados[i]).DataType of
+      ftLargeint :
+        begin
+          if CamposEncontrados[i]<>null then
+          begin
+            if datasource.DataSet.FieldByName(camposprocurados[i]).asstring =
+              RetiraZeroaEsquerda(CamposEncontrados[i]) then
+              result := true
+          end;
+        end;
+
+      ftInteger, ftSmallInt :
+        begin
+          if CamposEncontrados[i]<>null then
+          begin
+            if datasource.DataSet.FieldByName(camposprocurados[i]).asstring =
+               RetiraZeroaEsquerda(CamposEncontrados[i]) then
+              result := true;
+          end;
+        end;
+
+      ftString, ftWideString :
+        begin
+          if CamposEncontrados[i]<>null then
+          begin
+            if Maiusculo(datasource.DataSet.FieldByName(camposprocurados[i]).Value) =
+               Maiusculo(CamposEncontrados[i]) then
+              result := true
+          end;
+        end
+      end;
+
+      if not result then
+      begin
+        result := false;
+        break;
+      end;
+
+    end;
+
+    if result then
+      break;
+
+    DataSource.DataSet.next;
+  end;
+  fdatalink.Dataset.EnableControls;
+  FDataLink.OnDataChange := DataChange;
+
+end;
+
+initialization
+  FindCustomList := TtecFindCustomList.Create;
+
+finalization
+  FindCustomList.Free
+
+end.
+
+
+

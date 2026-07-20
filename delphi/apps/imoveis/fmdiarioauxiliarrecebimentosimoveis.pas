@@ -1,0 +1,319 @@
+unit fmdiarioauxiliarrecebimentosimoveis;
+
+interface
+
+uses
+  SysUtils, Windows, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmrelatoriopadrao, ExtCtrls, Buttons, cpdata, Mask,
+  ComCtrls, cpnumero, DBCtrls, cpdbtext, cpdbfindcontrols, Grids,
+  DBGrids, cpdbgrid, dmdiarioauxiliarrecebimentosimoveis, frconsulta,
+  frconsultacodigo, frconsultacontabil, frconsultacodigocontabil,
+  clparametrossistema, biblio, ctconstantes, {Qete,} Db, ActnList, ToolWin;
+
+type
+  TfrmDiarioAuxiliarRecebimentosImoveis = class(TFrmRelatorioPadrao)
+    gbxFiliais: TGroupBox;
+    gbxNumeracao: TGroupBox;
+    gbxLivro: TGroupBox;
+    edtLivro: TEditNumero;
+    gbxPagina: TGroupBox;
+    edtPagina: TEditNumero;
+    gbxMaximo: TGroupBox;
+    edtMaximo: TEditNumero;
+    rgpRelatorio: TRadioGroup;
+    gbxLancamentosDiario: TGroupBox;
+    dbgLancamentosNaturezas: TtecDBGrid;
+    gbxContaContabil: TGroupBox;
+    gbxHistorico: TGroupBox;
+    sbnSalvar: TSpeedButton;
+    fraConsultaFilial: TfraConsultaCodigo;
+    dtxFilial: TtecDBText;
+    actHabilitar: TActionList;
+    actVerificarAlteracao: TAction;
+    gbxPeriodo: TGroupBox;
+    pgcPeriodo: TPageControl;
+    tstMes: TTabSheet;
+    GroupBox1: TGroupBox;
+    EdtMesAno: TEditMesAno;
+    tstPeriodo: TTabSheet;
+    GroupBox2: TGroupBox;
+    edtDataInicial: TEditData;
+    GroupBox3: TGroupBox;
+    edtDataFinal: TEditData;
+    StaticText1: TStaticText;
+    procedure dbgLancamentosNaturezasKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure dbgLancamentosNaturezasDblClick(Sender: TObject);
+    procedure edtMesAno_Exit(Sender: TObject);
+    procedure actVerificarAlteracaoUpdate(Sender: TObject);
+    procedure rgpRelatorioClick(Sender: TObject);
+    procedure sbnSalvarClick(Sender: TObject);
+    procedure EdtMesAnoExit(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    fraConsultaContaContabil : TfraConsultaCodigoContabil;
+    fraConsultaHistoricoContabil : TfraConsultaCodigoContabil;
+    procedure AtribuirDadosContaContabil(Found: Boolean);
+    procedure AtribuirDadosHistoricoContabil(Found: Boolean);
+    procedure AcionaPesquisaGrade;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure InternoImpressao; override;
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent);override;
+
+  end;
+
+var
+  frmDiarioAuxiliarRecebimentosImoveis: TfrmDiarioAuxiliarRecebimentosImoveis;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmDiarioAuxiliarRecebimentosImoveis }
+
+procedure TfrmDiarioAuxiliarRecebimentosImoveis.AcionaPesquisaGrade;
+begin
+  if dbgLancamentosNaturezas.Focused then
+  begin
+    case dbgLancamentosNaturezas.SelectedIndex of
+    0,1,2,3 :
+      begin
+        fraConsultaContaContabil.CtrlOn := True;
+        fraConsultaContaContabil.InternoPesquisar('Conta Contábil');
+        dbgLancamentosNaturezas.SetFocus;
+        dbgLancamentosNaturezas.SelectedIndex :=  0;
+      end;
+    5,6 :
+      begin
+        fraConsultaHistoricoContabil.CtrlOn := True;
+        fraConsultaHistoricoContabil.InternoPesquisar('Histórico Contábil');
+        dbgLancamentosNaturezas.SetFocus;
+        dbgLancamentosNaturezas.SelectedIndex :=  5;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmDiarioAuxiliarRecebimentosImoveis.AtribuirDadosContaContabil(Found: Boolean);
+begin
+  dtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliar.Edit;
+  dtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliardescricaoplano.AsString     := fraConsultaContaContabil.qryProcuraCreditardescricao.AsString;
+  dtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliarclassificacaoplano.AsString := fraConsultaContaContabil.qryProcuraCreditarclassificacao.AsString;
+  dtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliartipocontacontabil.AsString  := fraConsultaContaContabil.qryProcuraCreditartipo.AsString;
+end;
+
+procedure TfrmDiarioAuxiliarRecebimentosImoveis.AtribuirDadosHistoricoContabil(Found: Boolean);
+begin
+  dtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliar.Edit;
+  dtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliardescricaohistorico.AsString :=
+    fraConsultaHistoricoContabil.qryProcuraHistoricodescricao.AsString;
+end;
+
+constructor TfrmDiarioAuxiliarRecebimentosImoveis.Create(
+  AOwner: TComponent);
+var
+  vvalor: String;
+begin
+
+  dtmDiarioAuxiliarRecebimentosImoveis := TdtmDiarioAuxiliarRecebimentosImoveis.Create(Self);
+  inherited;
+  if ParSistema.LivrosFiscaisFolhaouPagina = 0 then
+    gbxPagina.Caption := 'FOLHA' {ctFOLHA}
+  else
+    gbxPagina.Caption := 'PÁGINA'; {ctPAGINA;}
+
+  edtPagina.Text := '2';
+  edtMaximo.Text := '499';
+
+  edtDataInicial.Text := DateToStr(PrimeiroDiaMesPassado(1));
+  edtDataFinal.Text := DateToStr(UltimoDiaMesPassado(1));
+
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+  fraConsultaFilial.edfCodigo.Text := inttostr(dtmDiarioAuxiliarRecebimentosImoveis.filialbase);
+  fraConsultaFilial.edfCodigo.exist;
+
+
+  fraConsultaContaContabil := TfraConsultaCodigoContabil.Create(self);
+  fraConsultaContaContabil.Name := 'fraConsultaContaContabil';
+  fraConsultaContaContabil.TipoContaContabilCreditoSelecionavel := '';
+  fraConsultaContaContabil.TipoContaContabilConsultaSelecionavel := '';
+  fraConsultaContaContabil.edfCodigo.MaxLength := 6;
+  fraConsultaContaContabil.edfCodigo.DataSource := dtmDiarioAuxiliarRecebimentosImoveis.dsrImoveisDiarioAuxiliar;
+  fraConsultaContaContabil.edfCodigo.DataField := 'conta';
+  fraConsultaContaContabil.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaContaContabil.edfCodigo.LookupSource := fraConsultaContaContabil.dsrProcuraCreditar;
+  fraConsultaContaContabil.edfCodigo.LookupField := 'codigo';
+  fraConsultaContaContabil.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaContaContabil.AbrirTabelaProcura := false;
+  fraConsultaContaContabil.TipoPesquisa := pesCONTACREDITO;
+  fraConsultaContaContabil.OnFound := AtribuirDadosContaContabil;
+
+  fraConsultaHistoricoContabil := TfraConsultaCodigoContabil.Create(self);
+  fraConsultaHistoricoContabil.Name := 'fraConsultaHistoricoContabil';
+  fraConsultaHistoricoContabil.edfCodigo.MaxLength := 5;
+  fraConsultaHistoricoContabil.edfCodigo.DataSource := dtmDiarioAuxiliarRecebimentosImoveis.dsrImoveisDiarioAuxiliar;
+  fraConsultaHistoricoContabil.edfCodigo.DataField := 'Historico';
+  fraConsultaHistoricoContabil.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaHistoricoContabil.edfCodigo.LookupSource := fraConsultaHistoricoContabil.dsrProcuraHistorico;
+  fraConsultaHistoricoContabil.edfCodigo.LookupField := 'codigo';
+  fraConsultaHistoricoContabil.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaHistoricoContabil.AbrirTabelaProcura := false;
+  fraConsultaHistoricoContabil.TipoPesquisa := pesHISTORICOCONTABIL;
+  fraConsultaHistoricoContabil.OnFound := AtribuirDadosHistoricoContabil;
+
+//  vvalor := Modulo11('4211100935170300013955002000000001103868901') ;
+//  MensagemAviso(vvalor);
+
+end;
+
+procedure TfrmDiarioAuxiliarRecebimentosImoveis.dbgLancamentosNaturezasKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 : AcionaPesquisaGrade;
+    end;
+  end
+  else
+  begin
+
+    case key of
+      VK_Return :
+      begin
+
+        case dbgLancamentosNaturezas.SelectedIndex of
+        0 : begin
+              if not fraConsultaContaContabil.edfCodigo.Exist then
+              begin
+                dtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliardescricaoplano.clear;
+                dtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliarclassificacaoplano.clear;
+                dtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliartipocontacontabil.clear;
+              end
+              else
+                AtribuirDadosContaContabil(true);
+
+              dbgLancamentosNaturezas.SelectedIndex := 0;
+              dbgLancamentosNaturezas.SetFocus;
+            end;
+        5 : begin
+              if not fraConsultaHistoricoContabil.edfCodigo.Exist then
+                dtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliardescricaohistorico.clear
+              else
+                AtribuirDadosHistoricoContabil(true);
+
+              dbgLancamentosNaturezas.SelectedIndex := 5;
+              dbgLancamentosNaturezas.SetFocus;
+            end;
+        end;
+
+        if dtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliar.State in [dsedit, dsinsert] then
+           dtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliar.Post;
+      end;
+
+    end;
+
+  end;
+end;
+
+procedure TfrmDiarioAuxiliarRecebimentosImoveis.dbgLancamentosNaturezasDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionaPesquisaGrade;
+end;
+
+procedure TfrmDiarioAuxiliarRecebimentosImoveis.edtMesAno_Exit(
+  Sender: TObject);
+begin
+  inherited;
+  dtmDiarioAuxiliarRecebimentosImoveis.AbreDiarioAuxiliarRecebimentosImoveis(fraconsultafilial.edfcodigo.text, edtMesAno.text);
+end;
+
+procedure TfrmDiarioAuxiliarRecebimentosImoveis.actVerificarAlteracaoUpdate(
+  Sender: TObject);
+begin
+  inherited;
+  sbnSalvar.Enabled := dtmDiarioAuxiliarRecebimentosImoveis.TabelaImoveisDiarioAuxiliarAlterada;
+  gbxLancamentosDiario.enabled := length(trim(edtMesAno.Text))=7;
+end;
+
+procedure TfrmDiarioAuxiliarRecebimentosImoveis.rgpRelatorioClick(
+  Sender: TObject);
+begin
+  inherited;
+  case rgpRelatorio.ItemIndex of
+  0: pgcPeriodo.ActivePage := tstMes;
+  1: pgcPeriodo.ActivePage := tstPeriodo;
+  end;
+end;
+
+procedure TfrmDiarioAuxiliarRecebimentosImoveis.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  case key of
+    VK_F5: begin
+              if not CtrlOn then
+                dtmDiarioAuxiliarRecebimentosImoveis.GravarImoveisDiarioAuxiliar(fraconsultafilial.edfcodigo.text, edtMesAno.text);
+            end;
+  end;
+  inherited;
+end;
+
+procedure TfrmDiarioAuxiliarRecebimentosImoveis.sbnSalvarClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmDiarioAuxiliarRecebimentosImoveis.GravarImoveisDiarioAuxiliar(fraconsultafilial.edfcodigo.text, edtMesAno.text);
+end;
+
+procedure TfrmDiarioAuxiliarRecebimentosImoveis.InternoImpressao;
+begin
+  inherited;
+
+  if (rgpRelatorio.ItemIndex = 0) then
+  begin
+    if (trim(EdtMesAno.text)='/') then
+    begin
+      EdtMesAno.setfocus;
+      EdtMesAno.selectall;
+      MensagemAviso('Informe o período!');
+    end
+    else
+      dtmDiarioAuxiliarRecebimentosImoveis.ImprimirRelatorio(fraconsultafilial.edfcodigo.text,
+                                                             edtMesAno.text, edtLivro.text,
+                                                             edtPagina.text, edtMaximo.text,
+                                                             rgpRelatorio.ItemIndex)
+  end
+  else
+  begin
+    if (edtDataInicial.Text = '') or
+       (edtDataFinal.Text = '') then
+    begin
+      edtDataInicial.setfocus;
+      edtDataInicial.selectall;
+      MensagemAviso('Informe a data inicial!');
+    end
+    else
+      dtmDiarioAuxiliarRecebimentosImoveis.ImprimirRelatorio(fraconsultafilial.edfcodigo.text,
+                                                         edtMesAno.text, edtLivro.text,
+                                                         edtPagina.text, edtMaximo.text,
+                                                         rgpRelatorio.ItemIndex);
+  end;
+
+end;
+
+procedure TfrmDiarioAuxiliarRecebimentosImoveis.EdtMesAnoExit(
+  Sender: TObject);
+begin
+  inherited;
+  dtmDiarioAuxiliarRecebimentosImoveis.AbreDiarioAuxiliarRecebimentosImoveis(fraconsultafilial.edfcodigo.text, edtMesAno.text);
+end;
+
+end.

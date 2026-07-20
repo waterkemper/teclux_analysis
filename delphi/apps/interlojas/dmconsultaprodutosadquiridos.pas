@@ -1,0 +1,547 @@
+unit dmconsultaprodutosadquiridos;
+
+interface
+
+uses
+  SysUtils, Classes, Forms, dmbasico, dmtecsoft, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, ctconstantes, biblio,clparametrossistema, ZTransact;
+
+type
+  TdtmConsultaProdutosAdquiridos = class(TdtmBasico)
+    qryProcuraFiliais: TtecQuery;
+    qryProcuraFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisnome: TStringField;
+    dsrProcuraFiliais: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryProcuraFornecedores: TtecQuery;
+    dsrProcuraFornecedores: TtecDataSource;
+    qryConsultaFornecedores: TtecQuery;
+    qryConsultaFornecedoresnome: TStringField;
+    qryConsultaFornecedorescodigo: TIntegerField;
+    qryConsultaFornecedorestipo: TStringField;
+    qryConsultaFornecedorestipocliente: TStringField;
+    qryProdutosAdquiridos: TtecQuery;
+    dsrProdutosAdquiridos: TtecDataSource;
+    qryProcuraFornecedorescodigo: TIntegerField;
+    qryProcuraFornecedoresnome: TStringField;
+    qryProcuraFornecedorestipo: TStringField;
+    qryRequisicaoExposicao: TtecQuery;
+    qryRequisicaoExposicaocodigo: TIntegerField;
+    qryRequisicaoExposicaoproduto: TLargeintField;
+    qryRequisicaoExposicaoqtdepedida: TFloatField;
+    qryRequisicaoExposicaodata: TDateTimeField;
+    spcPedidosFiliaisProximoCodigo: TtecQuery;
+    spcPedidosFiliaisProximoCodigonovocodigo: TIntegerField;
+    qryProdutoJaRequisitado: TtecQuery;
+    qryProdutoJaRequisitadocodigo: TIntegerField;
+    qryProdutoJaRequisitadoproduto: TLargeintField;
+    qryRequisicaoExposicaosituacao: TStringField;
+    qryRequisicaoExposicaorequisitante: TIntegerField;
+    qryRequisicaoExposicaorequisitada: TIntegerField;
+    qryProdutosAdquiridosfilial: TIntegerField;
+    qryProdutosAdquiridosproduto: TLargeintField;
+    qryProdutosAdquiridosquantidade: TFloatField;
+    qryProdutosAdquiridosfornecedor: TIntegerField;
+    qryProdutosAdquiridostipofornecedor: TStringField;
+    qryProdutosAdquiridosdescricao: TStringField;
+    qryProdutosAdquiridosnome: TStringField;
+    qryProdutosAdquiridosselecionar: TBooleanField;
+    qryProdutosAdquiridosrequisitado: TBooleanField;
+    qryProdutosAdquiridossemvalor: TFloatField;
+    qryProdutosAdquiridosdata: TDateField;
+    qryConsultaFornecedorespessoanumero: TStringField;
+    qryConsultaFornecedoresestado: TStringField;
+    qryConsultaFornecedoresnomecidade: TStringField;
+    qryProdutosAdquiridoslinha: TStringField;
+    qryProdutosAdquiridoscoluna: TStringField;
+    qryProdutosAdquiridosvalorgrade1: TStringField;
+    qryProdutosAdquiridosvalorgrade2: TStringField;
+    qryProdutosAdquiridosreferencia: TStringField;
+    qryEstoqueBloqueio: TtecQuery;
+    qryEstoqueBloqueioproduto: TLargeintField;
+    qryEstoqueBloqueiofilial: TIntegerField;
+    qryEstoqueBloqueioemestoque: TFloatField;
+    qryMovimentos: TtecQuery;
+    qryMovimentosnumero: TIntegerField;
+    qryMovimentosproduto: TLargeintField;
+    qryMovimentosfilial: TIntegerField;
+    qryMovimentostipomovimento: TStringField;
+    qryMovimentosquantidade: TFloatField;
+    qryMovimentosreferencia: TStringField;
+    qryMovimentosoperacao: TStringField;
+    qryMovimentosemestoque: TFloatField;
+    qryMovimentosreservado: TFloatField;
+    qryMovimentostransito: TFloatField;
+    qryMovimentosdemonstracao: TFloatField;
+    qryMovimentosconserto: TFloatField;
+    qryMovimentosfuturo: TFloatField;
+    qryMovimentosdanificada: TFloatField;
+    qryMovimentosfinanceiro: TFloatField;
+    qryMovimentosvalor: TFloatField;
+    qryMovimentosdata: TDateField;
+    qryMovimentostrfproduto: TLargeintField;
+    qryMovimentostrffilial: TIntegerField;
+    qryMovimentoscliente: TIntegerField;
+    qryMovimentostipocliente: TStringField;
+    spcMovimentosProximo: TtecQuery;
+    spcMovimentosProximonumero: TIntegerField;
+    qryProdutosAdquiridosemestoque: TFloatField;
+    qryProdutosAdquiridoscomposto: TBooleanField;
+    qryRequisicaoExposicaofilial_estoque: TIntegerField;
+    qryProdutosAdquiridosfilial_estoque: TIntegerField;
+    qryEstoqueBloqueiofuturo: TFloatField;
+  private
+    FDataInicial: String;
+    FDataFinal: String;
+    FIncluirQtdeAdquirida: Boolean;
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+//    FIncluirTransferencias: Boolean;
+    function GetProdutoSelecionado: Boolean;
+    function GetTipoFornecedor: String;
+    function GetRequisicaoOk: Boolean;
+    function GetNrRegistros: Integer;
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+    procedure SetIncluirTransferencias(const Value: Boolean);
+  protected
+    procedure SetDataFinal(const Value: String);
+    procedure SetDataInicial(const Value: String);
+    procedure SetFilial(const Value: String);
+    procedure SetFornecedor(const Value: String);
+    function  GetConsultaFiliais: TtecQuery;
+    function  GetConsultaFornecedores: TtecQuery;
+    procedure MontaIntervaloData;
+    function ReservaPreviaProduto: boolean;
+    procedure BloquearEstoque;
+  public
+    procedure AbrirTabelas(TipoPesquisa: TtecProdutosAdquiridos);
+    procedure FecharTabelas(TipoPesquisa: TtecProdutosAdquiridos);
+    procedure Selecionar(TipoPesquisa: TtecProdutosAdquiridos);
+    function  ExisteFiliais(Campo, Codigo: String): Boolean;
+    function  ExisteFornecedores(Campo, Codigo: String): Boolean;
+    function  GerarConsultaProdutos: Boolean;
+    procedure FecharTabelaProdutosAdquiridos;
+    procedure SelecionarRegistros;
+    function  IncluirRequisicaoExposicao: Boolean;
+    constructor Create(AOwner: TComponent); override;
+    property  ConsultaFiliais: TtecQuery read GetConsultaFiliais;
+    property  ConsultaFornecedores: TtecQuery read GetConsultaFornecedores;
+    property  Filial: String write SetFilial;
+    property  Fornecedor: String write SetFornecedor;
+    property  DataInicial: String read FDataInicial write SetDataInicial;
+    property  DataFinal: String read FDataFinal write SetDataFinal;
+    property  ProdutoSelecionado: Boolean read GetProdutoSelecionado;
+    property  TipoFornecedor: String read GetTipoFornecedor;
+    property  RequisicaoOk: Boolean read GetRequisicaoOk;
+    property  NrRegistros: Integer read GetNrRegistros;
+    property  OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property  LinhadaGrade: String read GetLinhadaGrade;
+    property  ColunadaGrade: String read GetColunadaGrade;
+    property  IncluirQtdeAdquirida: Boolean read FIncluirQtdeAdquirida write FIncluirQtdeAdquirida;
+    property  IncluirTransferencias: Boolean write SetIncluirTransferencias;
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+
+  end;
+
+//var
+//  dtmConsultaProdutosAdquiridos: TdtmConsultaProdutosAdquiridos;
+implementation
+
+{$R *.dfm}
+
+{ TdtmConsultaProdutosAdquiridos }
+
+procedure TdtmConsultaProdutosAdquiridos.AbrirTabelas(TipoPesquisa:TtecProdutosAdquiridos);
+begin
+  case TipoPesquisa of
+         tpiFILIAIS: Abre(ctLOJTabelaConsultaFiliais);
+    tpiFORNECEDORES: begin
+                       qryConsultaFornecedores.Sql[08]:= 'Where (v.codigo = 0)';
+                       qryConsultaFornecedores.Open;
+                     end;
+  end;
+end;
+
+procedure TdtmConsultaProdutosAdquiridos.BloquearEstoque;
+begin
+  qryEstoqueBloqueio.Sql[06] := '((e.produto = ' + qryRequisicaoExposicaoproduto.AsString + ')and' +
+                                '(e.filial = '   + qryRequisicaoExposicaofilial_estoque.AsString  + '))';
+  qryEstoqueBloqueio.Open;
+end;
+
+constructor TdtmConsultaProdutosAdquiridos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryProcuraFiliais.Tag       := ctTabelas;
+  qryProcuraFornecedores.Tag  := ctTabelas;
+  qryConsultaFiliais.Tag      := ctLOJTabelaConsultaFiliais;
+  qryConsultaFornecedores.Tag := ctLOJTabelaConsultaFornecedores;
+  qryProcuraFornecedores.Params[1].AsString:= 'F';
+//  qryProcuraFiliais.Params[1].AsInteger    := FilialBase;
+//  qryConsultaFiliais.Params[0].AsInteger   := FilialBase;
+  qryProdutosAdquiridosemestoque.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosAdquiridosquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+end;
+
+function TdtmConsultaProdutosAdquiridos.ExisteFiliais(Campo, Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, campo, codigo);
+end;
+
+function TdtmConsultaProdutosAdquiridos.ExisteFornecedores(Campo, Codigo: String): Boolean;
+const
+  SQL = 'Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  if Campo = 'nomecidade' then
+    Campo:= 'c.nome'
+  else if Campo = 'tipocliente' then
+    Campo:= 'v.tipo'
+  else
+    Campo:= 'v.' + Campo;
+  qryConsultaFornecedores.Sql[08] := Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaFornecedores.Open;
+  Result := qryConsultaFornecedores.RecordCount > 0
+end;
+
+procedure TdtmConsultaProdutosAdquiridos.FecharTabelaProdutosAdquiridos;
+begin
+  qryProdutosAdquiridos.Close;
+end;
+
+procedure TdtmConsultaProdutosAdquiridos.FecharTabelas(TipoPesquisa: TtecProdutosAdquiridos);
+begin
+  case TipoPesquisa of
+         tpiFILIAIS: Fecha(ctLOJTabelaConsultaFiliais);
+    tpiFORNECEDORES: Fecha(ctLOJTabelaConsultaFornecedores);
+  end;
+end;
+
+function TdtmConsultaProdutosAdquiridos.GerarConsultaProdutos: Boolean;
+begin
+  if qryProdutosAdquiridos.Active then
+    qryProdutosAdquiridos.Close;
+  qryProdutosAdquiridos.Open;
+  Result:= qryProdutosAdquiridos.IsEmpty;
+  if Result then
+    qryProdutosAdquiridos.Close;
+end;
+
+function TdtmConsultaProdutosAdquiridos.GetColunadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosAdquiridoscoluna.AsString)
+end;
+
+function TdtmConsultaProdutosAdquiridos.GetConsultaFiliais: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmConsultaProdutosAdquiridos.GetConsultaFornecedores: TtecQuery;
+begin
+  Result:= qryConsultaFornecedores;
+end;
+
+function TdtmConsultaProdutosAdquiridos.GetLinhadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosAdquiridoslinha.AsString)
+end;
+
+function TdtmConsultaProdutosAdquiridos.GetNrRegistros: Integer;
+begin
+  Result:= qryProdutosAdquiridos.RecordCount;
+end;
+
+function TdtmConsultaProdutosAdquiridos.GetProdutoSelecionado: Boolean;
+begin
+  Result:= qryProdutosAdquiridosselecionar.AsBoolean;
+end;
+
+function TdtmConsultaProdutosAdquiridos.GetRequisicaoOk: Boolean;
+begin
+  Result:= qryProdutosAdquiridosrequisitado.AsBoolean;
+end;
+
+function TdtmConsultaProdutosAdquiridos.GetTipoFornecedor: String;
+begin
+  if qryProcuraFornecedorestipo.AsString <> '' then
+       Result:= qryProcuraFornecedorestipo.AsString
+  else Result:= 'F';
+end;
+
+function TdtmConsultaProdutosAdquiridos.IncluirRequisicaoExposicao: Boolean;
+var
+  SituacaoProduto : TtecComposicao;
+  Cont,
+  Codigo: Integer;
+  Pos: TBookmark;
+  Msg: String;
+
+  procedure DesmarcarSelecionados;
+  begin
+    qryProdutosAdquiridos.First;
+    while not qryProdutosAdquiridos.Eof do begin
+      qryProdutosAdquiridos.Edit;
+      qryProdutosAdquiridosselecionar.AsBoolean:= False;
+      qryProdutosAdquiridos.Post;
+      qryProdutosAdquiridos.Next;
+    end;
+    QtdeMarcados:= 0;
+  end;
+
+begin
+  Result:= False;
+  if MensagemConfirmacao(ctCONFIRMAREQUISICAOAUTOMATICA) = smbOk then
+  begin
+    if qryRequisicaoExposicao.Active then
+      qryRequisicaoExposicao.Close;
+    qryRequisicaoExposicao.Open;
+
+    Cont:= 0;  Msg:= '';
+    Pos:= qryProdutosAdquiridos.GetBookmark;
+    qryProdutosAdquiridos.DisableControls;
+    try
+      for SituacaoProduto := stNAOCOMPOSTO to stCOMPOSTO do
+      begin
+        qryProdutosAdquiridos.First;
+        while not qryProdutosAdquiridos.Eof do
+        begin
+          if FiltrarComposto(qryProdutosAdquiridoscomposto.AsBoolean,SituacaoProduto) then
+          begin
+            if qryProdutosAdquiridosselecionar.AsBoolean then
+            begin
+              ReFazConsulta(qryProdutoJaRequisitado,[0,1,2],[qryProdutosAdquiridosproduto.AsLargeInt,
+                                                             qryProdutosAdquiridosFilial.AsInteger,
+                                                             FilialBase]);
+              if not qryProdutoJaRequisitado.IsEmpty then
+              begin
+                Inc(Cont);
+                Msg:= Msg + qryProdutosAdquiridosproduto.AsString + ' ' + qryProdutosAdquiridosdescricao.AsString + #10#13;
+                qryProdutosAdquiridos.Edit;
+                qryProdutosAdquiridosrequisitado.AsBoolean:= False;
+                qryProdutosAdquiridos.Post;
+              end
+              else if (ParSistema.RequisicaoSubtraiEstoque) and (qryProdutosAdquiridosemestoque.AsCurrency<1) then
+                    MensagemAviso('A quantidade solicitada do produto '+ qryProdutosAdquiridosproduto.AsString + ' não pode ser maior do que a em estoque da filial requisitada!')
+              else
+              begin
+                spcPedidosFiliaisProximoCodigo.Open;
+                Codigo:=spcPedidosFiliaisProximoCodigonovocodigo.AsInteger;
+                spcPedidosFiliaisProximoCodigo.Close;
+
+                qryRequisicaoExposicao.Insert;
+                qryRequisicaoExposicaocodigo.AsInteger      := Codigo;
+                qryRequisicaoExposicaodata.AsDateTime       := DataHoraLocal;
+                qryRequisicaoExposicaoproduto.AsLargeInt    := qryProdutosAdquiridosproduto.AsLargeInt;
+                qryRequisicaoExposicaorequisitante.AsInteger:= FilialBase;
+                qryRequisicaoExposicaorequisitada.AsInteger := qryProdutosAdquiridosfilial.AsInteger;
+                qryRequisicaoExposicaofilial_estoque.AsInteger:=qryProdutosAdquiridosfilial_estoque.AsInteger;
+
+                if(FIncluirQtdeAdquirida) then
+                begin
+                  if qryProdutosAdquiridosquantidade.AsCurrency>qryProdutosAdquiridosemestoque.AsCurrency then
+                    qryRequisicaoExposicaoqtdepedida.AsCurrency:=qryProdutosAdquiridosemestoque.AsCurrency
+                  else
+                    qryRequisicaoExposicaoqtdepedida.AsCurrency:=qryProdutosAdquiridosquantidade.AsCurrency
+                end
+                else
+                   qryRequisicaoExposicaoqtdepedida.AsCurrency  := 1;
+
+                qryRequisicaoExposicaosituacao.AsString     := 'A';
+                if (ParSistema.RequisicaoSubtraiEstoque) then
+                begin
+                  BloquearEstoque;
+                  result := ReservaPreviaProduto;
+                  if not result then
+                    break;
+                end;
+                qryRequisicaoExposicao.Post;
+              end;
+            end;
+          end;
+          qryProdutosAdquiridos.Next;
+        end;
+      end;
+
+      if result then
+        if (qryRequisicaoExposicao.RecordCount > 0) then
+        begin
+          if (ParSistema.RequisicaoSubtraiEstoque) then
+            Perpetrar([qryRequisicaoExposicao,qryMovimentos])
+          else
+            Perpetrar([qryRequisicaoExposicao]);
+        end;
+
+    finally
+      DesmarcarSelecionados;
+      qryProdutosAdquiridos.GotoBookmark(Pos);
+      qryProdutosAdquiridos.FreeBookmark(Pos);
+      qryProdutosAdquiridos.EnableControls;
+      if Cont > 0 then begin
+        MensagemAviso(Format(ctREQUISICOESNAOCONCLUIDAS,[Msg]));
+      end;
+    end;
+  end;
+end;
+
+procedure TdtmConsultaProdutosAdquiridos.MontaIntervaloData;
+const
+  Data_1: String = 'and (n.data = ';
+  Data_2: String = 'and (n.data between (';
+begin
+  if not DataEmBranco(FDataInicial) then begin
+    if DataEmBranco(FDataFinal) then
+         qryProdutosAdquiridos.MacroByName('Periodo').AsString:=Data_1 + '''' + FDataInicial + ''')'
+    else qryProdutosAdquiridos.MacroByName('Periodo').AsString:=Data_2 + '''' + FDataInicial + ''') and (''' + FDataFinal + '''))';
+  end
+  else begin
+    if not DataEmBranco(FDataFinal) then
+         qryProdutosAdquiridos.MacroByName('Periodo').AsString:= Data_1 + '''' + FDataFinal + ''')'
+    else qryProdutosAdquiridos.MacroByName('Periodo').AsString:='';
+  end;
+end;
+
+function TdtmConsultaProdutosAdquiridos.ReservaPreviaProduto: Boolean;
+
+procedure NovoMovimento(Produto: int64; Filial: Integer);
+begin
+  qryMovimentos.Append;
+  spcMovimentosProximo.Open;
+  qryMovimentosnumero.AsInteger := spcMovimentosProximonumero.AsInteger;
+  spcMovimentosProximo.Close;
+  qryMovimentosproduto.AsLargeInt   := Produto;
+  qryMovimentosfilial.AsInteger     := Filial;
+  qryMovimentosreferencia.AsString:='REQUISICAO ' + qryRequisicaoExposicaocodigo.AsString;
+end;
+
+begin
+  result := True;
+  if qryRequisicaoExposicaocodigo.Asinteger = 0 then
+  begin
+    result := false;
+    Mensagemerro('Entre em contato com o suporte [ConsultaProdutosAdquiridos], o Número da requisição não esta preenchido')
+  end
+  else
+  begin
+    if qryMovimentos.State = dsInactive then
+      qryMovimentos.Open;
+    //SE ESTA INSERINDO UMA REQUISIÇÃO ENTÃO GRAVA NOVO MOVIMENTO SE NÃO, SOMENTE ALTERA A QUANTIDADE
+    if qryRequisicaoExposicao.State = dsInsert then
+    begin
+      NovoMovimento(qryRequisicaoExposicaoproduto.AsLargeInt,qryRequisicaoExposicaofilial_estoque.AsInteger);
+      qryMovimentostipomovimento.AsString:='TEP';
+      qryMovimentosquantidade.AsCurrency:=qryRequisicaoExposicaoqtdepedida.AsCurrency;
+      qryMovimentos.Post;
+    end
+    else
+    if qryRequisicaoExposicao.State = dsEdit then
+    begin
+      if qryRequisicaoExposicaoqtdepedida.AsCurrency<>qryRequisicaoExposicaoqtdepedida.OldValue then
+      begin
+
+        if qryRequisicaoExposicaoqtdepedida.AsCurrency < qryRequisicaoExposicaoqtdepedida.OldValue then
+        begin
+          NovoMovimento(qryRequisicaoExposicaoproduto.AsLargeInt,qryRequisicaoExposicaofilial_estoque.AsInteger);
+          qryMovimentostipomovimento.AsString:='TPE';
+          qryMovimentosquantidade.AsCurrency:=qryRequisicaoExposicaoqtdepedida.AsCurrency - qryRequisicaoExposicaoqtdepedida.OldValue;
+          qryMovimentosreferencia.AsString    := 'REQUISICAO '+qryRequisicaoExposicaocodigo.AsString+' QTDE NAO CONFIRMADA';
+          qryMovimentos.Post;
+
+          if qryEstoqueBloqueiofuturo.asCurrency <> 0 then
+          begin
+            NovoMovimento(qryRequisicaoExposicaoproduto.AsLargeInt,qryRequisicaoExposicaofilial_estoque.AsInteger);
+            qryMovimentostipomovimento.AsString := 'TFR';
+            if qryEstoqueBloqueiofuturo.asCurrency > (qryRequisicaoExposicaoqtdepedida.AsCurrency - qryRequisicaoExposicaoqtdepedida.OldValue) then
+               // transfere para a reserva a quantidade do movimento
+              qryMovimentosquantidade.AsCurrency   := qryRequisicaoExposicaoqtdepedida.AsCurrency - qryRequisicaoExposicaoqtdepedida.OldValue
+            else
+               // transfere para a reserva a quantidade do futuro
+              qryMovimentosquantidade.AsCurrency   := qryEstoqueBloqueiofuturo.asCurrency;
+            qryMovimentosreferencia.AsString    := 'REQUISICAO '+qryRequisicaoExposicaocodigo.AsString+' QTDE NAO CONFIRMADA';
+            qryMovimentos.Post;
+
+          end;
+        end
+        else
+        begin
+          NovoMovimento(qryRequisicaoExposicaoproduto.AsLargeInt,qryRequisicaoExposicaofilial_estoque.AsInteger);
+          qryMovimentostipomovimento.AsString:='TEP';
+          qryMovimentosquantidade.AsCurrency:=qryRequisicaoExposicaoqtdepedida.AsCurrency - qryRequisicaoExposicaoqtdepedida.OldValue;
+          qryMovimentos.Post;
+        end;
+
+      end;
+    end;
+  end;
+
+end;
+
+procedure TdtmConsultaProdutosAdquiridos.Selecionar(TipoPesquisa: TtecProdutosAdquiridos);
+begin
+  case TipoPesquisa of
+         tpiFILIAIS: ReFazConsulta(qryProcuraFiliais,[0],[qryConsultaFiliaiscodigo.AsInteger]);
+    tpiFORNECEDORES: begin
+                       qryProcuraFornecedores.Params[1].AsString:= qryConsultaFornecedorestipo.AsString;
+                       ReFazConsulta(qryProcuraFornecedores,[0],[qryConsultaFornecedorescodigo.AsInteger]);
+                     end;
+  end;
+end;
+
+procedure TdtmConsultaProdutosAdquiridos.SelecionarRegistros;
+begin
+  if qryProdutosAdquiridosfilial.AsInteger <> FilialBase then
+    MarcarRegistros(qryProdutosAdquiridos,
+                    qryProdutosAdquiridosselecionar,
+                    qryProdutosAdquiridossemvalor, False,False);
+end;
+
+procedure TdtmConsultaProdutosAdquiridos.SetDataFinal(const Value: String);
+begin
+  if FDataFinal <> Value then
+    FDataFinal:= Value;
+  MontaIntervaloData;
+end;
+
+procedure TdtmConsultaProdutosAdquiridos.SetDataInicial(const Value: String);
+begin
+  if FDataInicial <> Value then
+    FDataInicial:= Value;
+  MontaIntervaloData;
+end;
+
+procedure TdtmConsultaProdutosAdquiridos.SetFilial(const Value: String);
+begin
+  if Value <> '' then
+       qryProdutosAdquiridos.MacroByName('filial').AsString:= 'and (pn.filial = ' + Value + ')'
+  else qryProdutosAdquiridos.MacroByName('filial').AsString:= 'and (pn.filial <> ' + IntToStr(FilialBase) + ')';
+end;
+
+procedure TdtmConsultaProdutosAdquiridos.SetFornecedor(const Value: String);
+begin
+  if Value <> '' then
+       qryProdutosAdquiridos.MacroByName('Fornecedor').AsString:= 'and (n.fornecedor = ' + Value +
+                                                    ') and (n.tipofornecedor = ' + QuotedStr(qryProcuraFornecedorestipo.AsString) + ')'
+  else qryProdutosAdquiridos.MacroByName('Fornecedor').AsString:= '';
+end;
+
+procedure TdtmConsultaProdutosAdquiridos.MarcarSelecionados(Marcando,
+  Todos: Boolean);
+begin
+  MarcarRegistros(qryProdutosAdquiridos,
+                  qryProdutosAdquiridosselecionar,
+                  qryProdutosAdquiridosquantidade,
+                  Marcando,
+                  Todos);
+end;
+
+procedure TdtmConsultaProdutosAdquiridos.SetIncluirTransferencias(
+  const Value: Boolean);
+begin
+  if (Value) then
+    qryProdutosAdquiridos.MacroByName('Transferencias').AsString:=''
+  else
+    qryProdutosAdquiridos.MacroByName('Transferencias').AsString:=' and not (n.codigofiscal in (1152,2152,3152)) ';
+end;
+
+end.

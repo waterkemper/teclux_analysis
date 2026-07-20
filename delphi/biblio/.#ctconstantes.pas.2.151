@@ -1,0 +1,3063 @@
+unit ctconstantes;
+
+interface
+
+Uses
+  //VCL/RTL
+{$ifndef LINUX }
+  Windows, Messages,
+{$endif }
+  Classes, {Qete,} clusuario,
+  //Terceiros
+  ZQuery, DB;
+
+//**************** Padrão ***********************************
+var
+  InsertLigado : Boolean;
+  FVelocidadePorta: String;
+
+
+Const
+
+  IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = $8000;
+  // Following are already defined in D7's Windows.pas
+  IMAGE_FILE_RELOCS_STRIPPED               = $0001;
+  IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP       = $0400;
+  IMAGE_FILE_NET_RUN_FROM_SWAP             = $0800;
+
+      CharSemAcentos = ['0'..'9','A'..'Z','a'..'z','&','@','''','"','*',',',';','.','-','(',')','[',']',':','/',' ', '_', '%', '+','º','ª','´','^','`','~','=','!','?'];
+
+      CharComAcentos = ['Á', 'Ã', 'À', 'Â', 'Ä', 'É', 'Ê', 'È', 'Í', 'Ó', 'Õ', 'Ô', 'Ö', 'Ú', 'Ü', 'Ç',
+                        'á', 'ã', 'à', 'â', 'ä', 'é', 'ê', 'è', 'í', 'ó', 'õ', 'ô', 'ö', 'ú', 'ü', 'ç'];
+
+      pronomes:array[1..6] of string = (' Da ',' Das ',' Do ',' Dos ',' De ', ' E ');
+
+      CR   = #$0D;
+      LF   = #$0A;
+      CrLf = CR + LF;
+      Tab  = #$09;
+
+
+  VK_0 = 48;
+  VK_1 = 49;
+  VK_2 = 50;
+  VK_3 = 51;
+  VK_4 = 52;
+  VK_5 = 53;
+  VK_6 = 54;
+  VK_7 = 55;
+  VK_8 = 56;
+  VK_9 = 57;
+
+  VK_A = 65;
+  VK_B = 66;
+  VK_C = 67;
+  VK_D = 68;
+  VK_E = 69;
+  VK_F = 70;
+  VK_G = 71;
+  VK_H = 72;
+  VK_I = 73;
+  VK_J = 74;
+  VK_K = 75;
+  VK_L = 76;
+  VK_M = 77;
+  VK_N = 78;
+  VK_O = 79;
+  VK_P = 80;
+  VK_Q = 81;
+  VK_R = 82;
+  VK_S = 83;
+  VK_T = 84;
+  VK_U = 85;
+  VK_V = 86;
+  VK_W = 87;
+  VK_X = 88;
+  VK_Y = 89;
+  VK_Z = 90;
+
+  VK_LISTATECLAS = [VK_SPACE, VK_PRIOR, VK_NEXT, VK_END, VK_HOME, VK_LEFT, VK_UP,
+                    VK_RIGHT, VK_DOWN, VK_Return, VK_SHIFT, VK_TAB, VK_DELETE, VK_BACK];
+
+Const
+
+  ctNomeArquivoCFG       = 'tecsoft.ini';
+  ctNomeArquivoECFs      = 'ecfs.ini';
+  ECFSection             = 'ecf';
+  BlocoXSection          = 'BlocoX';
+  IMPCHQSection          = 'impchq';
+  TEFSection             = 'tef';
+  ConfigSection          = 'configdb';
+  ModulosSection         = 'modulos';
+  LoginSection           = 'login';
+  ImpressoraSection      = 'impressoras';
+  AutenticacaoSection    = 'autenticacao';
+  MovimentacaoSection    = 'MovimentacaoDiaria';
+  ConsultaComprasSection = 'ConsultaComnpras';
+  TipoImpEtiquetaSection = 'impressoraetiqueta';
+  FrenteCaixaSection     = 'frentecaixa';
+  ProducaoSection        = 'producao';
+  SoacredSection         = 'soacred';
+  NFeSection             = 'NFe';
+  NFeEntradaSection      = 'NFeEntrada';
+  NFSeSection            = 'NFSe';
+  PAFECFSetion           = 'PAF-ECF';
+
+  ReinfSection = 'Reinf';
+
+  PCPSection             = 'PCP';
+  SpedSection            = 'SPED';
+  ExportacaoSection      = 'EXPORTAÇÃO';
+  ExportacaoProdutosSection  = 'EXPORTAÇÃO PRODUTOS';
+  ImportacaoProdutosSection  = 'IMPORTAÇÃO PRODUTOS';
+  
+
+  ExportacaoNotasTransferenciaSection  = 'EXPORTAÇÃO NOTAS TRANSFERENCIA';
+  ImportacaoNotasTransferenciaSection  = 'IMPORTAÇÃO NOTAS TRANSFERENCIA';
+
+  Empresa_DesenvolvedoraSection = 'Empresa_Desenvolvedora';
+
+  ECFS: array[1..6] of string = ('Bematech', 'Daruma', 'Elgin', 'Mecaf', 'Sweda', 'Epson');
+  lstImpressorasCheque: array[1..2] of string = ('Bematech', 'TSP');
+  ctSEMERRO = 0;
+  LimiteTentativasLogin = 3;
+  TamanhoMinimoSenha = '5';
+  MinutoEmDelphi = 0.000694444444444444444444444444444444;
+  MascaraData = '99/99/9999;1; ';
+//  MascaraDataVazia = '  /  /    ';
+  MascaraPessoaFisica   = '999.999.999-99;0;_';
+  MascaraPessoaFisica_  = '000\.000\.000\-00;0;_';
+
+  MascaraPessoaJuridica = '99.999.999/9999-99;0;_';
+  MascaraPessoaJuridica_ = '00\.000\.000\/0000-00;0;_';
+
+  CorFundoControle = $00D0EBFF;
+
+  ctPORTEFILIALMICROEMPRESA   = 'M';
+  ctPORTEFILIALPEQUENAEMPRESA = 'p';
+  ctPORTEFILIALOUTRA          = 'O';
+
+  ctSIMPLESUNICO              = 'U';
+  ctSIMPLESCENTRALIZADO       = 'C';
+  ctSIMPLESCENTRALIZADOR      = 'T';
+  ctSIMPLESNAOOPTANTE         = 'N';
+
+  // Tipos de Parcela
+  ctTIPOPARCELA_E         = 'E';  //Parcela extra adicionada ao contrato
+
+  // Tipos de Pagamentos de Parcelas
+  ctTIPOPAGTO_E           = 'E'; //Extorno da parcela (dev. merc.)
+  ctTIPOPAGTO_J           = 'J'; //Perda, quitação sem pagamento
+  ctTIPOPAGTO_D           = 'D'; //Dev. merc. p/ saque no caixa
+  ctTIPOPAGTO_C           = 'C'; //Dev. merc. depois retirada caixa
+  ctTIPOPAGTO_P           = 'P'; //Dev. numerário p/ saque (cria nova parcela)
+  ctTIPOPAGTO_X           = 'X'; //Dev. numerário depois retirada caixa
+  ctTIPOPAGTO_R           = 'R'; //Dev. merc. valor fica retido (não saca)
+
+  // Tipos de Causa obsoleta das parcelascartas
+  ctNOVACARTA    =  'Nova Carta';
+  ctQUITACAO     =  'Quitação';
+  ctRENEGOCIACAO =  'Renegociação';
+  ctAUTORIAZACAO =  'Autorização';
+
+  //Situação de tributação de icms
+  ctTRIBUTADA                 = '00'; //Normal
+  ctTRIBUTADASUBSTITUICAO     = '10'; //Substituição
+  ctREDUCAOBASE               = '20'; //Normal
+  ctISENTASUBSTITUICAO        = '30'; //Substituição
+  ctISENTA                    = '40'; //Normal
+  ctNAOTRIBUTADA              = '41'; //Normal
+  ctSUSPENSAO                 = '50'; //Normal
+  ctDIFERIMENTO               = '51'; //Normal
+  ctCOBRADOSUSTITUICAO        = '60'; //Substituição
+  ctREDUCAOBASESUBSTITUICAO   = '70'; //Substituição
+
+  ctOUTROS                    = '90'; //Outros
+
+
+  ctSNTributadaSNCPC    = '101'; // Tributada pelo Simples Nacional com permissão de crédito
+  ctSNTributadaSNSPC    = '102'; // Tributada pelo Simples Nacional sem permissão de crédito
+  ctSNIsencaoSNFRB      = '103'; // Isenção do ICMS no Simples Nacional para faixa de receita bruta
+  ctSNTributadaSNCPCCST = '201'; // Tributada pelo Simples Nacional com permissão de crédito e com cobrança do ICMS por substituição tributária
+  ctSNTributadaSNSPCCST = '202'; // Tributada pelo Simples Nacional sem permissão de crédito e com cobrança do ICMS por substituição tributária
+  ctSNIsencaoSNFRBCST   = '203'; // Isenção do ICMS no Simples Nacional para faixa de receita bruta e com cobrança do ICMS por substituição tributária
+  ctSNImume             = '300'; // Imune
+  ctSNNTSN              = '400'; // Não tributada pelo Simples Nacional
+  ctSNICMSCobAntST      = '500'; // ICMS cobrado anteriormente por substituição tributária (substituído) ou por antecipação
+  ctSNOutrosS           = '900'; // Outros
+
+
+  //Situação de tributação do IPI
+  ctIPIEntRecCred             = '00'; // Entrada com recuperação de crédito
+  ctIPIEntTribAliqZero        = '01'; // Entrada tributada com alíquota zero
+  ctIPIEntIsenta              = '02'; // Entrada isenta
+  ctIPIEntNaoTrib             = '03'; // Entrada não-tributada
+  ctIPIEntImune               = '04'; // Entrada imune
+  ctIPIEntSuspensao           = '05'; // Entrada com suspensão
+  ctIPIEntOutras              = '49'; // Outras entradas
+  ctIPISaiTributada           = '50'; // Saída tributada
+  ctIPISaiTribAliqZero        = '51'; // Saída tributada com alíquota zero
+  ctIPISaiIsenta              = '52'; // Saída isenta
+  ctIPISaiNaoTrib             = '53'; // Saída não-tributada
+  ctIPISaiImune               = '54'; // Saída imune
+  ctIPISaiSuspensao           = '55'; // Saída com suspensão
+  ctIPISaiOutras              = '99'; // Outras saídas
+   
+
+  mrITAU = 'ITAU';
+  mrBESC = 'BESC';
+
+  // Constantes sobre informações do sistema
+  ctAjuda = 'teclux.htm';
+
+  // Constantes para operacoes nos formularios.
+  TeclaEditarRegistro  = VK_F2;
+  TeclaInserirRegistro = VK_F3;
+  TeclaExcluirRegistro = VK_F6;
+  TeclaExcluirLista    = VK_Delete;
+
+  // Constantes para identificar os Códigos Fiscais de Operação
+  ctCFOTRANSFERENCIA_150                     = 150;
+  ctCFOTRANSFERENCIA_151                     = 151;
+  ctCFOTRANSFERENCIA_152                     = 152;
+
+  ctCFOTRANSFERENCIANAOTRANS                 = 156;
+  ctCFOTRANSFERENCIASUBSTITUICAO             = 409;
+  ctCFODEVOLUCAOSUBSTITUICAO                 = 411;
+  ctCFOTRANSFERENCIACREDITOICMS              = 601;
+  ctCFOTRANSFERENCIASALDOCREDORICMS          = 602;
+  ctCFOTRANSFERENCIASALDODEVEDORICMS         = 605;
+
+  ctCFOVENDAS = '101,102,103,104,105,106,109,110,111,112,113,114,115,116,117,' +
+                '118,119,120,122,123,127,250,251,252,253,254,255,256,257,258,' +
+                '401,402,403,404,405,501,551';
+
+  ctNOTAFISCALVINCULADA                      = 929;
+  tcNOTASIMPLESREMESSA                       = 949;
+
+  ctNOTASDIVERSASDENTROESTADO                = 5949;
+  ctNOTASDIVERSASFORAESTADO                  = 6949;
+  ctNOTASDIVERSASESTRANGEIRO                 = 7949;
+
+  ctVENDADENTROESTADO                        = 5102;
+  ctVENDAFORAESTADO                          = 6102;
+  ctVENDAESTRANGEIRO                         = 7102;
+
+  ctVENDASUBSTITUICAODENTROESTADO            = 5401;
+  ctVENDASUBSTITUICAOFORAESTADO              = 6401;
+
+  ctVENDASUBSTITUIDODENTROESTADO             = 5405;
+  ctVENDASUBSTITUIDOFORAESTADO               = 6404;
+
+  ctVENDABRINDE                              = 910;
+  ctVENDABRINDEDENTROESTADO                  = 5910;
+  ctVENDABRINDEFORAESTADO                    = 6910;
+
+  cfDEVOLUCAODENTROESTADO                    = 1202;
+  cfDEVOLUCAOFORAESTADO                      = 2202;
+  cfDEVOLUCAOESTRANGEIRO                     = 3202;
+  cfDEVOLUCAOSUBSTITUICAODENTROESTADO        = 1411;
+  cfDEVOLUCAOSUBSTITUACAOFORAESTADO          = 2411;
+
+  ctDEVOLUCAO                                = 202;
+
+  cfSERVICOTRANSPORTENOESTADO                = 1353;
+  cfSERVICOTRANSPORTEFORAESTADO              = 2353;
+  cfSERVICOTRANSPORTEESTRANGEIRO             = 3353;
+
+  cfSERVICOTRANSPORTE                        = 353;
+
+  cfCOMPRADENTROESTADO                       = 1102;
+  cfCOMPRAFORAESTADO                         = 2102;
+  cfCOMPRASUBSTITUICAODENTROESTADO           = 1403;
+  cfCOMPRASUBSTITUICAOFORAESTADO             = 2403;
+  cfCOMPRAESTRANGEIRO                        = 3202;
+
+  ctPRESTACAOSERVICOSDENTROESTADO            = 5933;
+  ctPRESTACAOSERVICOSFORAESTADO              = 6933;
+
+  ctICMSACRESCIMOFINANCEIRO                  = 1649;
+
+  ctVENDAPRODUCAOPROPRIADENTROESTADO         = 5101;
+  ctVENDAPRODUCAOPROPRIAFORAESTADO           = 6101;
+
+
+
+  ctListaCodigosFiscaisVenda = ('5101,5102,5103,5104,5105,5106,5109,5110,5111,5112,5113,5114,5115,5116,5117,5118,5119,5120,5122,5123,6101,6102,6103,6104,'+
+                                '6105,6106,6107,6108,6109,6110,6111,6112,6113,6114,6115,6116,6117,6118,6119,6120,6122,6123,5401,5402,5403,5405,6401,6402,'+
+                                '6403,6404,7101,7102,7105,7106,7127,5551,6551,7551,7949,6949,5949,5933,6933') ;
+
+  ctListaCodigosFiscaisCompra = '1101,1102,1401,1403,2101,2102,2401,2403,3101,3102,3401,3403';
+
+  ctNotaFiscalFornecEnergia: String = '06';
+  ctNotaFiscalFornecGas: String = '28';
+
+
+  // Constantes para identificar as Naturezas de Operação
+  noDEVOLUCAOMERCADORIA: String = 'DEVOLUÇÕES DE MERCADORIAS';
+  noDEVOLUCAOMERCADORIASUBSTTRIB: String = 'DEVOLUÇÕES DE MERCADORIAS C/ SUBST. TRIBUTÁRIA';
+
+  noDEVMERCPRODPROPRIA: String = 'DEVOL. MERC. PROD. PROÓPRIA';
+  noDEVMERCPRODPROPRIAST: String = 'DEVOL. MERC. PROD. PROÓPRIA ST';
+
+  noVENDAMERCADORIA: String = 'VENDA DE MERCADORIAS';
+
+  noTRANSFERENCIAMERCADORIASENTRADA: String = 'TRANSFERÊNCIA DE MERCADORIAS - E';
+  noTRANSFERENCIAMERCADORIASSAIDA: String = 'TRANSFERÊNCIA DE MERCADORIAS - S';
+
+  noVENDAS_TRANSFERENCIA_ENTRE_EMPRESA: String = 'VENDAS - TRANSFERENCIA ENTRE EMPRESAS';
+  noVENDAS_TRANSFERENCIA_ENTRE_EMPRESAST: String = 'VENDAS - TRANSFERENCIA ENTRE EMPRESAS ST';
+
+  noSAIDADEVOLUCAO_TRANSFERENCIA_ENTRE_EMPRESA: String = 'SAIDA DEVOLUÇÃO - TRANSFERENCIA ENTRE EMPRESAS';
+  noSAIDADEVOLUCAO_TRANSFERENCIA_ENTRE_EMPRESAST: String = 'SAIDA DEVOLUÇÃO - TRANSFERENCIA ENTRE EMPRESAS ST';
+
+  noENTRADADEVOLUCAO_TRANSFERENCIA_ENTRE_EMPRESA: String = 'ENTRADA DEVOLUÇÃO - TRANSFERENCIA ENTRE EMPRESAS';
+  noENTRADADEVOLUCAO_TRANSFERENCIA_ENTRE_EMPRESAST: String = 'ENTRADA DEVOLUÇÃO - TRANSFERENCIA ENTRE EMPRESAS ST';
+
+  noCOMPRAS_TRANSFERENCIA_ENTRE_EMPRESA: String = 'COMPRAS - TRANSFERENCIA ENTRE EMPRESAS';
+  noCOMPRAS_TRANSFERENCIA_ENTRE_EMPRESAST: String = 'COMPRAS - TRANSFERENCIA ENTRE EMPRESAS ST';
+
+  noTRANSFERENCIAAUTOMATICAMERCADORIASENTRADA: String = 'TRANSFERÊNCIA AUTOMÁTICA DE MERCADORIAS - E';
+  noTRANSFERENCIAAUTOMATICAMERCADORIASSAIDA: String = 'TRANSFERÊNCIA AUTOMÁTICA DE MERCADORIAS - S';
+
+  noVENDAMERCADORIAVISTA: String = 'VENDA DE MERCADORIAS A VISTA';
+  noCOMPRACOMERC: sTRING = 'COMPRA PARA COMERCIALIZAÇÃO';
+  noCOMPRAIND : String =  'COMPRA P/ INDUSTRIALIZAÇÃO';
+  noCOMPRAINDSUBSTTRIBUT : String =  'COMPRA P/ INDUSTRIALIZAÇÃO C/ SUBST. TRIBUTÁRIA';
+  noCOMPRACOMERCSUBSTTRIBUT : String = 'COMPRA P/ COMERCIALIZAÇÃO C/ SUBST. TRIBUTÁRIA';
+  noACRESCIMOFINANCEIRO : String = 'CREDITO DE ICMS SOBRE ACRESCIMO FINANCEIRO';
+
+  // Constantes para abertura de Tabelas nos DataModulos atravês dos métodos Abre e Fecha
+  ctTabelas                                      = 0;
+
+  //Intervalo de Constantes para o Módulo Principal   - 0001 a 2000
+  ctTabelaCadastroValorParametro                 = 0001;
+  ctTabelaGruposUsuarios                         = 0002;
+  ctTabelaConsultaModulos                        = 0003;
+  ctTabelaConsultaParametros                     = 0004;
+  ctTabelaConsultaFiliais                        = 0005;
+  ctTabelaConsultaValorParametros                = 0006;
+  ctTabelaConsultaGrupoUsuarios                  = 0007;
+  ctTabelaConsultaGrupoPostgreSQL                = 0008;
+  ctTabelaConsultaFrete                          = 0009;
+  ctTabelaConsultaSeguro                         = 0010;
+  ctTabelaConsultaCarne                          = 0011;
+  ctTabelaConsultaAgente                         = 0012;
+  ctTabelaConsultaPlano                          = 0013;
+  ctTabelaConsultaBoleto                         = 0014;
+  ctTabelaConsultaNotasFiscais                   = 0015;
+  ctTabelaConsultaContratoMatricial              = 0016;
+
+
+  //Intervalo de Constantes para o Módulo SAC         - 0001 a 2000
+  ctCadastroPerguntas                            = 1;
+  ctCadastroQuestionarios                        = 2;
+  ctCadastroAtendimentos                         = 3;
+  ctCadastroContatos                             = 5;
+  ctSACTabelasConsultaContratos                  = 6;
+  ctSACTabelasSelecionaParametros                = 7;
+  ctSACTabelaConsultaVendedores                  = 8;
+  ctTabelasAplicarPerguntas                      = 9;
+  ctTabelasConsultaAtendimentos                  = 10;
+  ctTabelasConsultaPergNaoIncluidas              = 11;
+  ctTabelasConsultaPerguntas                     = 12;
+  ctTabelasConsultaContatos                      = 13;
+  ctSACTabelasConsultaInativos                   = 14;
+  ctSACTabelasConsultaAtrasados                  = 15;
+  ctAtendentes                                   = 16;
+  ctAtendentesConsulta                           = 17;
+  ctRelatorioQuestionario                        = 18;
+  ctRelatorioConsultaQuestionario                = 19;
+  ctRelatorioAtendimentos                        = 20;
+  ctRelatorioResumoLigacoes                      = 21;
+  ctRelatorioResumoLigacoesRelatorio             = 22;
+  ctRelatorioResumoLigacoesConsulta              = 23;
+  ctRelatorioEstatisticoAnalitico                = 24;
+  ctRelatorioEstatisticoAnaliticoConsulta        = 25;
+  ctRelatorioEstatisticoAnaliticoRelatorio       = 26;
+  ctRelatorioAtendimentosConsultaTipo            = 27;
+  ctRelatorioAtendimentosTipo                    = 28;
+  ctSACTabelasConsultaInativosProcura            = 29;
+  ctSACTabelasConsultaInativosFind               = 30;
+  ctCadastroFiltrosSAC                           = 31;
+  ctConsultaFiltrosSAC                           = 32;
+  ctTabelasConsultaFiltrosSAC                    = 33;  //usado no cadastro de usuarios;
+  ctTabelasConsultaQuestionarios                 = 34;
+  ctTabelaManutencaoLigacao                      = 34;
+  ctAtendConsultaTiposAtendimentos               = 35;
+  ctRelatorioQuestionarioQuestionario            = 36;
+  ctSACConsultaGruposFiliais                     = 37;
+  ctSACConsultaFiliais                           = 38;
+  ctSACConsultaUsuarios                          = 39;
+  ctSACConsultaAgentes                           = 40;
+  ctSACConsultaConceitos                         = 41;
+  ctSACConsultaRegioes                           = 42;
+
+{ ****** Intervalo de Constantes para o Módulo Crediário  - 4001 a 6000  ****** }
+
+  ctCrediarioConsultaClientes              = 4001;
+//  ctCrediarioConsultaContratosCliente      = 4002;
+  ctCrediarioClienteCadastro               = 4003;
+  ctCrediarioClienteConsulta               = 4004;
+  ctCrediarioClienteConceito               = 4005;
+  ctCrediarioClienteEstado                 = 4006;
+  ctCrediarioClienteCidade                 = 4007;
+  ctCrediarioClienteCargo                  = 4008;
+  ctCrediarioTabelaAgentes                 = 4009;
+  ctCrediarioTabelaCargos                  = 4010;
+  ctCrediarioTabelaConceitos               = 4011;
+  ctCrediarioTabelaPlanos                  = 4012;
+  ctCrediarioTabelaMotivos                 = 4013;
+  ctCrediarioTabelaTiposPlanos             = 4014;
+  ctCrediarioTabelaTiposCartas             = 4015;
+  ctCrediarioTabelaNaturezas               = 4016;
+  ctCrediarioTabelaConsultaAgentes         = 4017;
+  ctCrediarioTabelaConsultaCargos          = 4018;
+  ctCrediarioTabelaConsultaConceitos       = 4019;
+  ctCrediarioTabelaConsultaPlanos          = 4020;
+  ctCrediarioTabelaConsultaMotivos         = 4021;
+  ctCrediarioTabelaConsultaTiposCartas     = 4022;
+  ctCrediarioTabelaConsultaTiposPlanos     = 4023;
+  ctCrediarioTabelaConsultaNaturezas       = 4024;
+  ctCrediarioTabelaConsultaGrupoFiliais    = 4025;
+  ctCrediarioTabelaConsultaFiliais         = 4026;
+  ctCrediarioConsultaContratos             = 4027;
+  ctCrediarioConsultaAgentes               = 4028;
+  ctCrediarioConsultaUsuarios              = 4029;
+  ctCrediarioContratos                     = 4030;
+  ctCrediarioClientesTransferencia         = 4031;
+  ctCrediarioConsultaGrupos                = 4032;
+  ctCrediarioConsultaClasses               = 4033;
+  ctCrediarioClientes                      = 4034;
+  ctTabelaConsultaCodigoFiscal             = 4035;
+  ctCrediarioConsultaAnalista              = 4036;
+  ctCrediarioClienteEquipamento            = 4037;
+  ctTabelaConsultaSetores                  = 4038;
+  ctCrediarioTabelaConsultaAgentesTiposCartas = 4039;
+  ctCrediarioTabelaConsultaConceitosTiposCartas = 4040;
+  ctCrediarioTabelaConsultaTiposCartasPrecedente = 4041;
+  ctCrediarioTabelaTiposRecebimentos       = 4042;
+  ctCrediarioTabelasProdutosCargos         =4043;
+
+
+{ ****** Intervalo de Constantes para o Módulo Estoque  - 4001 a 6000  ****** }
+
+  ctTabelaCadastroNotaFiscal         = 4001;
+  ctTabelaConsultaNotaFiscal         = 4002;
+  ctTabelaConsultaSerieFornecedor    = 4003;
+  ctTabelaNaturezaOperacoes          = 4004;
+  ctTabelaConsultaEstado             = 4005;
+  ctTabelaConsultaHistorico          = 4006;
+  ctTabelaConsultaPedidosNotafiscal  = 4007;
+  ctTabelaConsultaProdutosNotafiscal = 4008;
+  ctTabelaConsultaConhecimentoFrete  = 4009;
+  ctTabelaGrupos                     = 4010;
+  ctTabelaUnidades                   = 4011;
+  ctTabelaObsLegaisNotas             = 4012;
+  ctTabelaObsLegais                  = 4012;
+  ctTabelaColunas                    = 4013;
+  ctTabelaClasses                    = 4014;
+  ctTabelaICMS                       = 4015;
+  ctTabelaIPI                        = 4016;
+  ctTabelaMovimentos                 = 4017;
+  ctTabelaMarcas                     = 4018;
+  ctTabelaGruposFornecedores         = 4019;
+  ctTabelaConsultaClientes           = 4020;
+  ctTabelaConsultaFornecedores       = 4021;
+  ctTabelaConsultaFilial             = 4022;
+  ctTabelaConsultaSerie              = 4023;
+  ctEstoqueTransferencia             = 4024;
+  ctPedidosConsultaMotivo            = 4025;
+  ctTabelaConsultaFornecedoresTransp = 4026;
+  ctTabelaFatoresPreco               = 4027;
+  ctTabelaGrades                     = 4028;
+  ctTabelaConsultaContratos          = 4029;
+  ctTabelaConsultaAgentes            = 4030;
+  ctTabelaConsultaCaracteristicas    = 4031;
+  ctTabelaConsultaTabloides          = 4032;
+  ctTabelaConsultaProdutosTabloide   = 4033;
+  ctTabelaConsultaEvento             = 4034;
+  ctTabelaConsultaCategoria          = 4035;
+  ctTabelaObsLegaisLivros            = 4036;
+
+
+  //Intervalo de Constantes para o Módulo CEP         - 6001 a 8000
+  ctTabelasCadastroEnderecos           = 6001;
+  ctTabelasConsultaEnderecos           = 6002;
+
+  //Intervalo de Constantes para o Módulo CONTÁBIL - 7001 a 7200
+  ctCadastroPlanoContas = 7001;
+  ctConsultaPlanoContas = 7002;
+  ctConsultaLancamentos = 7003;
+  ctConsultaContaContabil = 7004;
+  
+  //Intervalo de Constantes para o Módulo Vendas      - 8001 a 10000
+  ctVendaContratoAprovar               = 8001;
+  ctVendaTabelaCadastroContrato        = 8002;
+  ctVendaTabelaConsultaClientes        = 8003;
+  ctVendaTabelaConsultaContratos       = 8004;
+  ctVendaTabelaConsultaEstados         = 8005;
+  ctVendaTabelaConsultaConceitos       = 8006;
+  ctVendaTabelaConsultaCidades         = 8007;
+  ctVendaTabelaConsultaCargos          = 8008;
+  ctVendaTabelaConsultaCargosConjuge   = 8009;
+  ctVendaTabelaConsultaConjuges        = 8010;
+  ctVendaTabelaConsultaFiliais         = 8011;
+  ctVendaTabelaConsultaProdutos        = 8012;
+  ctVendaTabelaConsultaReservas        = 8013;
+  ctVendaTabelaConsultaAnalistaCredito = 8013;
+  ctVendaTabelaConsultaVendedores      = 8014;
+  ctVendaTabelaConsultaAgentes         = 8015;
+  ctVendaTabelaConsultaFilialProduto   = 8016;
+  ctVendaTabelaConsultaPlanos          = 8017;
+  ctVendaTabelaConsultaFornecedor      = 8018;
+  ctVendaTabelaConsultaMotivos         = 8019;
+  ctVendaTabelaConsultaListaCasamento  = 8020;
+  ctVendaTabelaConsultaGrupoFiliais    = 8021;
+  ctVendaTabelaConsultaGrupoProdutos   = 8022;
+  ctVendaTabelaConsultaItemProdutos    = 8023;
+  ctVendaTabelaConsultaClasses         = 8024;
+  ctVendaTabelaConsultaFornecedores    = 8025;
+  ctVendaTabelaConsultaServicos        = 8026;
+  ctVendaTabelaConsultaEquipamentos    = 8027;
+  ctVendaTabelaConsultaEquipamentosOS  = 8028;
+  ctVendaTabelaConsultaConjuge         = 8029;
+  ctVendaTabelaConsultaVendas          = 8030;
+  ctVendaTabelaVendasVista             = 8031;
+  ctVendaTabelaConsultaMotivo          = 8032;
+  ctVendaTabelaConsultaDependentes     = 8033;
+  ctVendaOrdemServico                  = 8034;
+  ctVendaTabelaConsultaOrdemServico    = 8035;
+  ctVendaTabelaConsultaClientesTroca   = 8036;
+  ctVendaTabelaConsultaEventos         = 8037;
+  ctVendaTabelaConsultaCFPS            = 8038;
+  ctVendaTabelaCadastroClientes        = 8039;
+  //Intervalo de Constantes para o Módulo Caixa       - 10001 a 12000
+
+  ctCaixaCadastroBancos              = 10001;
+  ctCaixaCadastroEventos             = 10002;
+  ctCaixaCadastroHistoricos          = 10003;
+  ctCaixaFechamento                  = 10004;
+  ctCaixaConsultaBanco               = 10005;
+  ctCaixaConsultaAgencia             = 10006;
+  ctCaixaConsultaCliente             = 10007;
+  //Intervalo de Constantes para o Módulo Pagamento      - 12001 a 14000
+
+  ctPagamentoConsultaAgencias        = 12000;
+  ctPagamentoCadastroBancos          = 12001;
+  ctPagamentoConsultaBancos          = 12002;
+  ctVencimentoConsultaBancos         = 12003;
+
+  ctCaixaConsultaContratos           = 10004;
+  ctCaixaConsultaBancos              = 10005;
+  ctCaixaConsultaCheques             = 10006;
+  ctCaixaConsultaClientes            = 10007;
+  ctCaixaConsultaEventos             = 10008;
+  ctCaixaConsultaFornecedores        = 10009;
+  ctCaixaConsultaHistoricos          = 10010;
+  ctCaixaConsultaAgencias            = 10011;
+  ctCaixaConsultaMotivos             = 10012;
+//  tCaixaConsultaEventosCaixa        = 10013;
+//  tCaixaConsultaChequesCaixa        = 10014;
+//  tCaixaConsultaBancosCaixa         = 10015;
+//  ctCaixaConsultaAutenticacoes       = 10016;
+  ctCaixaConsultaCaixas              = 10017;
+//  tCaixaConsultaPrestacoes          = 10018;
+  ctCaixaConsultaDevolucoes          = 10029;
+//  tCaixaConsultaPerdas              = 10020;
+//  tCaixaAutenticacoesAuxiliar       = 10021;
+//  tCaixaEntradaVista                = 10022;
+  ctCaixaConsultaContratosPerda      = 10023;
+
+  ctCaixaParcelas                    = 10001;
+  ctCaixaDevolucao                   = 10002;
+  ctCaixaDocumentos                  = 10003;
+  ctCaixaCheques                     = 10004;
+  ctCaixaCancelamento                = 10005;
+  ctCaixaResgateCheques              = 10006;
+  ctCaixaTransferencia               = 10007;
+  ctCaixaConfirmRetornoTransferencia = 10008;
+  ctCaixaConfirmacaoTransferencia    = 10009;
+  ctCaixaPerda                       = 10010;
+  ctCaixaDepositos                   = 10011;
+  ctCaixaDuplicatas                  = 10012;
+  ctCaixaDevolucaoSaldo              = 10013;
+  ctCaixaParcelasAberto              = 10014;
+
+  //relação de constantes de erro do módulo caixa
+  tErroQuitarParcela                       = 11000;
+//  ctErroInserirParcelaContratoParcial      = 11001;
+  ctErroAtualizarParcelaContratoParcial    = 11002;
+//  ctErroAtualizarParcelaContrato           = 11003;
+  ctErroInserirAutenticacaoParcela         = 11004;
+//  ctErroPerpetrarAutenticacaoParcela       = 11005;
+  ctErroRefazconsultaPosAutenticacaoParcela= 11006;
+  ctErroImpressaoAutenticacaoParcela       = 11007;
+
+  ctErroInserirAutenticacaoDevolucao       = 11010;
+//  ctErroPerpetrarAutenticacaoDevolucao     = 11011;
+//  ctErroRefazconsultaParcelasDevolucao     = 11012;
+//  ctErroInserirParcelaDevolucao            = 11013;
+//  ctErroAtualizarParcelaDevolucao          = 11014;
+  ctErroImpressaoAutenticacaoDevolucao     = 11015;
+
+  ctErroInserirAutenticacaoCheque          = 11020;
+//  ctErroPerpetrarAutenticacaoCheque        = 11021;
+//  ctErroCadastrarCheque                    = 11022;
+  ctErroImpressaoAutenticacaoCheque        = 11023;
+  ctErroGravarChequeAutenticado            = 11024;
+
+  ctErroRefazconsultaParcelasResgate       = 11030;
+  ctErroQuitarParcelaResgate               = 11031;
+  ctErroAtualizarParcelaResgateParcial     = 11032;
+//  ctErroAtualizarParcelaResgate            = 11033;
+//  ctErroInserirParcelaResgateParcial       = 11034;
+//  ctErroInserirAutenticacaoResgate         = 11035;
+//  ctErroPerpetrarAutenticacaoResgate       = 11036;
+  ctErroImpressaoAutenticacaoResgate       = 11037;
+
+  ctErroInserirAutenticacaoDeposito        = 11040;
+  ctErroPerpetrarAutenticacaoDeposito      = 11041;
+  ctErroImpressaoAutenticacaoDeposito      = 11042;
+
+  ctErroInserirAutenticacaoCancelamento       = 11050;
+//  ctErroPerpetrarAutenticacaoCancelamento     = 11051;
+//  ctErroCancelarAutenticacao                  = 11052;
+  ctErroImpressaoAutenticacaoCancelamento     = 11053;
+  ctErroAtualizarParcelaContratoCancelamento  = 11900;
+//  ctErroDesfazerAutenticacao                  = 11901;
+  ctErroValoresDiferentesDevolucaoCancelamento= 11902;
+//  ctErroAtualizarParcelaDevolucaoCancelamento = 11903;
+  ctErroValoresDiferentesPerdaCancelamento    = 11904;
+//  ctErroAtualizarParcelasPerdaCancelamento    = 11905;
+  ctErroChequeAlteradoCancelamento            = 11906;
+  ctErroRemovendoChequeCancelamento           = 11907;
+  ctErroAtualizarParcelaChequeCancelamento    = 11909;
+  ctErroAtualizarDuplicataCancelamento        = 11910;
+
+  ctErroRefazconsultaContratosPerda        = 11060;
+//  ctErroQuitarParcelasPerda                = 11061;
+  ctErroInserirAutenticacaoPerda           = 11062;
+//  ctErroPerpetrarAutenticacaoPerda         = 11063;
+  ctErroImpressaoAutenticacaoPerda         = 11064;
+
+  ctErroInserirAutenticacaoDocumento       = 11070;
+//  ctErroPerpetrarAutenticacaoDocumento     = 11071;
+  ctErroImpressaoAutenticacaoDocumento     = 11072;
+
+  ctErroInserirAutenticacaoTransferencia   = 11080;
+//  ctErroPerpetrarAutenticacaoTransferencia = 11081;
+  ctErroImpressaoAutenticacaoTransferencia = 11082;
+
+  ctErroRefazconsultaDuplicata             = 11090;
+  ctErroAtualizarDuplicata                 = 11091;
+  ctErroInserirAutenticacaoDuplicata       = 11092;
+  ctErroPerpetrarAutenticacaoDuplicata     = 11093;
+  ctErroImpressaoAutenticacaoDuplicata     = 11094;
+
+  ctErroAtualizarAutenticacaoConfirmacaoTransferencia = 11100;
+  ctErroInserirAutenticacaoConfirmacaoTransferencia   = 11101;
+  ctErroPerpetrarAutenticacaoConfirmacaoTransferencia = 11102;
+  ctErroImpressaoAutenticacaoConfirmacaoTransferencia = 11103;
+
+  //Intervalo de Constantes para o Módulo Cheque      - 12001 a 13000
+
+  ctChequesCadastro                              = 12001;
+  ctChequesConsultaClientes                      = 12003;
+  ctChequesConsultaFilial                        = 12004;
+  ctChequesConsulta                              = 12005;
+  ctChequesDetalhe                               = 12006;
+  ctChequesCabecalho                             = 12007;
+  ctChequesVencimentos                           = 12008;
+  ctChequesDevolvidos                            = 12009;
+  ctChequesRelatorio                             = 12010;
+  ctManutencaoChequesPesquisa                    = 12011;
+  ctManutencaoCheques                            = 12012;
+  ctChequesTeste                                 = 12013;
+  ctChequesConsultaMotivos                       = 12014;
+  ctChequesCobradores                            = 12015;
+  ctChequesBanco                                 = 12016;
+  ctChequesMotivo                                = 12017;
+
+  //Intervalo de Constantes para o Módulo Faturamento - 13001 a 14000
+
+  //Intervalo de Constantes para o Módulo Pagamento   - 14001 a 16000
+  ctConsultaFilialPagamento                      = 14001;
+  ctConsultaTipoPagamento                        = 14002;
+  ctConsultaAgenciaPagamento                     = 14003;
+
+  //Intervalo de Constantes para o Módulo Montagem    - 16001 a 17000
+  ctConsultaTabelaMontagem                       = 16001;
+  ctConsultaDadosFiscaisNotasMontagem            = 16002;
+  ctConsultaDadosFiscaisCuponsMontagem           = 16003;
+  ctConsultaFiliaisdeMontagem                    = 16004;
+  ctConsultaVendedoresMontagem                   = 16005;
+  ctConsultaClientesMontagem                     = 16006;
+  ctConsultaMontadoresMontagem                   = 16007;
+  ctConsultaRequisicoesMontagem                  = 16008;
+  ctConsultaProdutosMontagem                     = 16009;
+  ctConsultaSeriesFiliaisMontagem                = 16010;
+  ctConsultaFilialProdutoMontagem                = 16011;
+  ctConsultaGrupoFiliaisMontagem                 = 16012;
+  ctConsultaFiliaisdeVendaMontagem               = 16013;
+
+
+  //Intervalo de Constantes para o Módulo Entrega     - 17001 a 19000
+  ctConsultaTabelaFrete                          = 17001;
+  ctConsultaRomaneios                            = 19001;
+  ctConsultaRomaneiosFornecedor                  = 19002;
+  ctConsultaRomaneiosFiliais                     = 19003;
+  ctConsultaRomaneiosFretes                      = 19004;
+  ctConsultaRomaneiosSeries                      = 19005;
+  ctConsultaRomaneiosNotas                       = 19006;
+  ctConsultaRomaneiosCupons                      = 19007;
+
+  ctConsultaQuitacaoRomaneios                    = 19008;
+  ctConsultaRelatorioRomaneios                   = 19009;
+
+  //Intervalo de Constantes para o Módulo Livros Fiscais - 19001 a 20000
+  ctLIVTabelaReceitasTributarias                 = 19001;
+  ctLIVTabelaClassesPagto                        = 19002;
+  ctLIVTabelaConsultaClassesPagto                = 19003;
+  ctLIVTabelaConsultaReceitasTributarias         = 19004;
+  ctLIVTabelaQuadrosGIA                          = 19005;
+  ctLIVTabelaConsultaFiliais                     = 19006;
+  ctLIVTabelaConsultaQuadrosGIA                  = 19007;
+  ctLIVTabelaQuadrosDIME                         = 19008;
+  ctLIVTabelaConsultaQuadrosDIME                 = 19009;
+  ctLIVTabelaConsultaGruposFiliais               = 19010;
+  ctLIVTabelaConsultaAgentes                     = 19011;
+  ctLIVTabelaConsultaCodigoFiscaisEntrada        = 19012;
+  ctLIVTabelaConsultaCodigoFiscaisSaida          = 19013;
+  ctLIVTabelaConsultaEstados                     = 19014;
+
+
+
+  //Intervalo de Constantes para o Módulo InterLojas - 20001 a 21000
+  ctLOJTabelaConsultaPedidosTransferencia        = 20001;
+  ctLOJTabelaConsultaFiliais                     = 20002;
+  ctLOJTabelaConsultaProdutos                    = 20003;
+  ctLOJTabelaConsultaFornecedores                = 20004;
+  ctLOJTabelaConsultaEstados                     = 20005;
+  ctLOJTabelaConsultaFornecedoresTransporte      = 20006;
+  ctLOJTabelaConsultaUsuarios                    = 20007;
+
+  // CEVAHUMOS
+
+  ctTabelaConsultaResidentes                     = 20001;
+  ctTabelaConsultaColaboradores                  = 20002;
+  ctTabelaConsultaColaboracoes                   = 20003;
+  ctTabelaConsultaTipoDrogas                     = 20004;
+
+  ctTabelasConsultaReservas                      = 35;
+  ctConsultaEstoque                              = 36;
+  ctCadastroEstoque                              = 37;
+  ctConsultaFichaProduto                         = 38;
+//  ctMenuEstoqueConsulta                          = 39;
+  ctConsultaPedidos                              = 40;
+  ctCadastroPedidos                              = 41;
+  ctPesquisaProdutos                             = 42;
+  ctPesquisaItemProdutos                         = 43;
+  ctPesquisaReservas                             = 44;
+  ctPesquisaProdutosReservas                     = 45;
+  ctConsultaCompra                               = 46;
+  ctPesquisaTiposMovimentos                      = 47;
+  ctConsultaGeralFichaProduto                    = 48;
+  ctConsultaGeralCompra                          = 49;
+  ctConsultaEntradaAuxiliar                      = 50;
+  ctProcuraFornecedorTransporte                  = 51;
+  ctProcuraPedidos                               = 52;
+  ctProcuraFornecedores                          = 53;
+  ctProcuraTransportadores                       = 54;
+  ctProcuraFiliais                               = 55;
+  ctProcuraProdutos                              = 56;
+  ctTabelasAuxiliaresCadastroReservas            = 57;
+  ctTabelasAuxiliaresLancamentosManuais          = 58;
+  ctConsultaEntradaGeral                         = 59;
+  ctProcuraGrupos                                = 60;
+  ctProcuraObsLegais                             = 61;
+  ctProcuraUnidades                              = 62;
+  ctProcuraIPI                                   = 63;
+  ctProcuraICMS                                  = 64;
+  ctProcuraMarcas                                = 65;
+  ctProcuraColunas                               = 66;
+  ctProcuraCaracteristicas                       = 67;
+  ctProcuraPrecos                                = 68;
+  ctConsultaPedidosGerais                        = 69;
+  ctRelatorioLista                               = 70;
+  ctConsultaProdutosNota                         = 71;
+  ctConsultaCalculosImpostos                     = 72;
+  ctConsultaDuplicatas                           = 73;
+  ctCobranca                                     = 74;
+  ctConsultaCobranca                             = 75;
+  ctCobrancaCliente                              = 76;
+  ctCobrancaPrevia                               = 77;
+  ctConsultaHistoricos                           = 79;
+  ctConsultaInventario                           = 91;
+  ctTabelasConsultaAvisos                        = 92;
+  ctInventario                                   = 93;
+  ctConsultaTabelas                              = 94;
+  ctCadastroCheques                              = 95;
+  ctPesquisaGrupoFilial                          = 97;
+  ctPesquisaConceito                             = 98;
+  ctConsultaAgentes                              = 99;
+  ctConsultaConceitos                            = 100;
+  ctPrestacoesAbertas                            = 101;
+  ctConsultaCargos                               = 102;
+  ctItens                                        = 109;
+  ctMalaDireta                                   = 111;
+  ctMalaDiretaFiltro                             = 112;
+  ctComissaoVendedor                             = 113;
+  ctCadastroHistoricoEventos                     = 114;
+  ctMalaDiretaMontada                            = 115;
+  ctMalaDiretaConsulta                           = 116;
+  ctLista                                        = 117;
+  ctListaConsulta                                = 118;
+  ctListaRelatorio                               = 119;
+  ctEtiquetasReservas                            = 124;
+  ctTabelasConsultaSPC                           = 129;
+  ctConsultas                                    = 130;
+  ctCadastroTiposAtendimentos                    = 131;
+  ctConsultaTiposAtendimentos                    = 132;
+  ctRelatorioVendasContatos                      = 133;
+  ctEmissaoEtiquetas                             = 134;
+  ctManutencaoPreco                              = 139;
+//  ctConsultaEstoqueCaracteristica                = 140;
+//  ctConsultaEstoqueGrupo                         = 141;
+  ctTabelasConsultaAtendimentosConceito          = 144;
+  ctTabelasConsultaAtendimentosConsultaConceito  = 146;
+  ctCadastroCodigoFiscal                         = 148;
+  ctConsultaCodigosFiscais                       = 149;
+  ctConsultaFornecedores                         = 150;
+  ctConsultaMarcas                               = 151;
+  ctConsultaGrupos                               = 152;
+  ctConsultaClasses                              = 153;
+  ctConsultaGruposFiliais                        = 154;
+  ctConsultaFiliais                              = 155;
+  ctConsultaGrades                               = 156;
+  ctConsultaProdutos                             = 157;
+  ctConsultaTipoMovimento                        = 158;
+  ctPesquisaCaracteristica                       = 159;
+  ctTabelasConsultaFichaProduto                  = 160;
+  ctConsultaPedidosCaracteristica                = 161;
+  ctPesquisaFornecedor                           = 162;
+  ctFornecedoresProdutos                         = 163;
+  ctTabelasConsultaCompras                       = 164;
+  ctProcuraCaracteristicasSimilar                = 165;
+  ctEtiquetasNotas                               = 166;
+  ctEtiquetasNotasConsulta                       = 167;
+  ctEtiquetasProdutosConsulta                    = 168;
+  ctEtiquetasClassesConsulta                     = 169;
+  ctEtiquetasGruposConsulta                      = 170;
+  ctEtiquetasFornecedoresConsulta                = 171;
+  ctEtiquetasMarcasConsulta                      = 172;
+  ctEtiquetasProduto                             = 173;
+  ctEtiquetasLista                               = 174;
+  ctEtiquetasNotasFornecedorConsulta             = 175;
+  ctEtiquetasNotasSerieConsulta                  = 176;
+  ctEtiquetasNotasNumeroConsulta                 = 177;
+  ctEtiquetasFiliaisConsulta                     = 178;
+  ctPesquisaMarca                                = 179;
+  ctTabelasConsultaEntradas                      = 180;
+  ctConsultaEstoqueFiliais                       = 181;
+  ctConsultaEstoqueProdutos                      = 182;
+  ctPesquisaClasse                               = 183;
+  ctPesquisaGrupo                                = 184;
+  ctTabelasConsultaColunas                       = 185;
+  ctPesquisaColuna                               = 186;
+  ctPesquisaSerie                                = 187;
+  ctPesquisaNota                                 = 189;
+  ctPesquisaVendedor                             = 190;
+  ctPesquisaFiliais                              = 191;
+  ctConsultaCartas                               = 192;
+  ctPesquisaTiposCartas                          = 193;
+  ctConsultaVendedores                           = 194;
+  ctConsultaRegioes                              = 195;
+  ctConsultaChequesFilial                        = 196;
+  ctCadastroFiliais                              = 197;
+  ctTabelasConsultaClientes                      = 198;
+  ctTabelasConsultaFornecedores                  = 200;
+  ctCadastroUsuarios                             = 201;
+  ctTabelasConsultaUsuarios                      = 202;
+  ctTabelasConsultaTabelas                       = 203;
+  ctTabelasFornecedores                          = 204;
+  ctTabelasFornecedoresConsulta                  = 205;
+  ctPesquisaTipoPlano                            = 206;
+  ctPesquisaAgente                               = 207;
+  ctTabelasConsultaRegioes                       = 210;
+  ctTabelasConsultaCaracteristicas               = 211;
+  ctTabelasConsultaProdutos                      = 212;
+  ctTabelasCaracteristicas                       = 213;
+  ctPesquisaFilial                               = 214;
+  ctPesquisaCastroEstoque                        = 215;
+  ctTabelasConsultaTransportadores               = 216;
+  ctCadastroTransportadores                      = 217;
+  ctPesquisaCodigoFiscal                         = 218;
+  ctProcuraEstados                               = 219;
+  ctConsultaUnidades                             = 220;
+  ctConsultaObsLegais                            = 221;
+  ctConsultaColunas                              = 222;
+  ctConsultaICMS                                 = 224;
+  ctConsultaIPI                                  = 225;
+  ctConsultaTiposMovimentos                      = 226;
+  ctProcuraOrigem                                = 227;
+  ctProcuraIncidencia                            = 228;
+  ctConsultaCobradores                           = 229;
+  ctPesquisaEstado                               = 230;
+  ctPesquisaNatureza                             = 213;
+  ctConsultaGruposFornecedores                   = 214;
+  ctPesquisaNoivos                               = 215;
+  ctPesquisaListaCasamento                       = 216;
+  ctPesquisaClientes                             = 217;
+  ctPesquisaBancos                               = 218;
+  ctCadastroAgencia                              = 219;
+  ctConsultaAgencias                             = 230;
+  ctConsultaDocumentosPag                        = 231;
+  ctConsultaTiposPagamentos                      = 232;
+  ctConsultaModeloNotaFiscal                     = 233;
+  ctPesquisaFornecedorNotas                      = 234;
+  ctPesquisaFornecedorProdutos                   = 235;
+  ctConsultaBancos                               = 236;
+  ctConsultaModelosCheques                       = 237;
+  ctTabelaClassesPagto                           = 238;
+  ctTabelaReceitasTributarias                    = 239;
+  ctTabelaConsultaClassesPagto                   = 240;
+  ctTabelaConsultaReceitasTributarias            = 241;
+  ctConsultaCodigosFiscaisServicos               = 252;
+  ctConsultaAtividadesEconomicas                 = 253;
+  ctConsultaEquipamentos                         = 254;
+  ctConsultaServicos                             = 255;
+  ctSugestaoCompra                               = 256;
+  ctConsultaFatoresPreco                         = 257;
+  ctConsultaModelosRemessa                       = 258;
+  ctFilialRegistroSPC                            = 259;
+  ctPesquisaModeloEtiqueta                       = 260;
+  ctConsultaElementosGrade                       = 261;
+  ctProcuraClasse                                = 262;
+  ctTabelasConsultaFiliais                       = 263;
+  ctTabelasConsultaVendedores                    = 264;
+  ctTabelasConsultaPlanos                        = 265;
+  ctTabelasConsultaMotivos                       = 266;
+  ctPesquisaCfop                                 = 267;
+  ctConsultaClientes                             = 268;
+  ctConsultaCidades                              = 269;
+  ctTabelasConsultaGrupos                        = 270;
+  ctTabelasConsultaClasses                       = 271;
+  ctConsultaContas                               = 272;
+  ctConsultaEventos                              = 273;
+  ctConsultaMovtosBancos                         = 274;
+  ctConsultaCategorias                           = 275;
+  ctConsultaTiposRecebimentos                    = 276;
+  ctConsultaObsLivrosFiscais                     = 277;
+
+  NomeMeses: array[1..12] of String = ('Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio',
+                                       'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro',
+                                       'Novembro', 'Dezembro');
+
+  NomeMesesAbrev: array[1..12] of String = ('Jan', 'Fev', 'Mar', 'Abr', 'Mai',
+                                       'Jun', 'Jul', 'Ago', 'Set', 'Out',
+                                       'Nov', 'Dez');
+
+
+  NomeTrimestres: array[1..4] of String = ('1°. Trimestre', '2°. Trimestre', '3°. Trimestre', '4°. Trimestre');
+
+
+
+
+{$ifdef WINDOWS}
+  tecWM_CONTROLCFGTEST = WM_USER + 1;
+
+// Teclas e seus usos
+
+   TeclaConsulta = VK_F3;
+
+{$endif }
+
+
+
+//CONSTANTES DE LEIS
+
+  ctLC123: String = 'Permite o aproveitamento do crédito de ICMS no valor de R$ %f ' +
+                    'correspondente à alíquota de %f , nos termos do Art. 23 da LC 123.';
+
+  ctRICMSSC01: String = 'Imposto Retido anteriormente por Subst. Tribut. - (RICMS-SC/01, Anexo 3, art. 29). ***BASE ICMS SUBST.  R$ %f ***VALOR ICMS SUBST. R$ %f';
+
+  ctRICMSSC01_b: String = 'Imposto Retido anteriormente por Subst. Tribut. - (RICMS-SC/01, Anexo 3, art. 29)'+ slinebreak +
+                          'DEV. SUA(S) NF(S) %s' + slinebreak +
+                          'BASE ICMS: %f VALOR ICMS: %f' +  slinebreak +
+                          'BASE ICMS ST: %f VALOR ICMS ST: %f';
+
+  ctRICMSSC01_b_comIPI: String = 'Imposto Retido anteriormente por Subst. Tribut. - (RICMS-SC/01, Anexo 3, art. 29)'+ slinebreak +
+                          'DEV. SUA(S) NF(S) %s' + slinebreak +
+                          'BASE ICMS: %f VALOR ICMS: %f' +  slinebreak +
+                          'VALOR IPI: %f' + slinebreak +
+                          'BASE ICMS ST: %f VALOR ICMS ST: %f';
+
+  ctIPINAODESTACADO: String = 'TOTAL DO IPI EM SUA NOTA ORIGINAL' + slinebreak +
+                              'DEV. SUA(S) NF(S) %s' + slinebreak +
+                              'VALOR IPI: %f';
+
+
+//constantes de Menssagens
+
+  ctImpDefault = 'Default';
+  ctNENHUMA   = 'nenhuma';
+  ctZEBRA     = 'zebra';
+  ctARGOX     = 'argox';
+  ctRABBIT    = 'rabbit';
+  ctJATO      = 'jato';
+  ctMATRICIAL = 'matricial';
+
+  ctADMINISTRADOR = 'Administrador do Sistema';
+  ctUSUARIOLOGINVAZIO = 'Usuário não informado.';
+  ctUSUARIOCOMESPACO = 'Usuário não pode conter espaços em branco.';
+  ctSENHALOGINVAZIO = 'Senha não informada.';
+  ctGRUPOUSUARIOS = 'Grupos de usuários';
+  ctOGRUPOUSUARIOS = 'o Grupos de usuários';
+  ctGRUPOPOSTGRESQL = 'Grupos do PostgreSQL';
+  ctCLIENTES: String = 'Clientes';
+  ctCLIENTE: String = 'Cliente';
+  ctERROINTREFVIOLADA: String = 'A informação está sendo usada e não pode ser excluída';
+  ctERROINTREFVIOLADAINSERT: String = 'A informação incluída não existe na tabela referenciada.';
+  ctERROPERMISSAONEGADA: String = 'Você não tem permissão de acesso';
+  ctCLASSENAOREGISTRADA: String = 'A classe ''%s'' não está registrada';
+  ctFORNECEDORES: String = 'Fornecedores';
+  ctFORNECEDOR : String = 'Fornecedor';
+  ctTRANSPORTE = 'Transporte';
+  ctTRANSPORTADORAS: String = 'Transportadoras';
+  ctNOTASFISCAIS: String = 'Notas fiscais';
+  ctNOTAFISCAL: String = 'Nota fiscal';
+  ctCUPONSFISCAIS: String = 'Cupons fiscais';
+  ctCODIGOFISCAL: String = 'Códigos fiscais';
+  ctOCODIGOFISCAL: String = 'o Código Fiscal';
+  ctOPRODUTO: String = 'o Produto';
+  ctITEMPRODUTO: String = 'Item de Produto';
+  ctPRODUTO: String = 'Produto';
+  ctLOCALIZACAO: String = 'Localização';
+  ctCLASSES: String = 'Classes';
+  ctMARCAS: String = 'Marcas';
+  ctCLASSESPAGTO = 'Classes de Pagamentos';
+  ctRECEITASTRIBUTARIAS = 'Receitas Tributárias';
+  ctIMPOSTOPAGARQUADROGIA = 'o Imposto a pagar';
+  ctQUADROSGIA = 'Quadros da GIA';
+  ctQUADROSDIME = 'Quadros da DIME';
+  ctESTADO: String = 'Estados';
+  ctCIDADES: String = 'Cidades';
+  ctFILIAL: String = 'Filial';
+  ctFILIALBASE: String = 'Filial Base';
+  ctFILIAIS: String = 'Filiais';
+  ctINCIDENCIA: String = 'Incidências';
+  ctDEPOSITOS: String = 'Depósitos';
+  ctCAIXAS: String = 'Caixas';
+  ctCAIXA: String = 'Caixa';
+  ctAberto: String = 'Aberto';
+  ctFechado: String = 'Fechado';
+  ctParcial: String = 'Parcial';
+  ctGRUPOFILIAIS: String = 'Grupo de Filiais';
+  ctGRUPODEFORNECEDOR: String = 'Grupo de Fornecedores';
+  ctBANCO: String = 'Banco';
+  ctCONTAS: String = 'Contas';
+  ctCONTADEBITO = 'Conta Débito';
+  ctCONTACREDITO = 'Conta Crédito';
+  ctCONTAREFERENCIAL = 'Conta Referencial';
+  ctREMESSA: String = 'Remessa';
+  ctHISTORICO: String = 'Histórico';
+  ctCATEGORIA: String = 'Categoria';
+  ctPLANOCONTAS: String = 'Plano de Contas';
+  ctEVENTO: String = 'Evento ';
+  ctOBANCO: String = 'o banco ';
+  ctOEVENTO: String = 'o evento ';
+  ctNOEVENTO: String = 'no evento ';
+  ctOHISTORICO: String = 'o histórico';
+  ctTIPOMOVIMENTO: String = 'Tipos de movimentos';
+  ctRESUMOGERALCAIXA: String = 'Resumo Geral de Caixa';
+  ctSERIEFORNECEDORES: String = 'Séries de fornecedores';
+  ctSERIESJACADASTRADA: String = 'Série já cadastrada';
+  ctSERIES: String = 'Séries';
+  ctPEDIDOSFORNECEDORES: String = 'Pedidos da nota fiscal %s';
+  ctPRODUTOSFORNECEDORES: String = 'Itens da nota fiscal %s';
+  ctQUANTIDADEZERO : String = 'Favor informar a quantidade.';
+  ctQUANTIDADEADEVOLVERMAIOR: String = 'Quantidade a devolver maior que'+#13#10+
+                                       'quantidade do produto.';
+  ctCONFIRMEEXCLUIR: String = 'Confirma a exclusão d%s?';
+  ctCONFIRMEDEVOLUCAO: String = 'Confirma a devolução d%s?';
+
+  ctCONFIRMEEXCLUIRPRODUTO: String = 'Confirma a exclusão do produto:'+#13#10+
+                                     '%d - %s ?';
+  ctCONFIRMECANCELAR: String = 'Confirme o cancelamento d%s ';
+  ctCONFIRMESAIR: String = 'Deseja finalizar o %s ?';
+  ctCANCELARQUITACAO: String = 'Deseja cancelar a quitação da parcela %s?';
+  ctERRORREFAZCONSULTA: String = 'Parâmetros ''Param'' e ''Valores'' estão com tamanhos diferentes';
+  ctINFORMACAO: String = 'a Informação';
+  ctLIGACAO   : String = 'a Ligação';
+  ctEDICAO: String = 'Edição';
+  ctINCLUSAO: String = 'Inclusão';
+  ctUSUARIOS: String = 'Usuários';
+  ctEXCLUSAO: String = 'Exclusão';
+  ctPLANOSPAGAMENTOS = 'Planos de pagamentos';
+  ctOPLANOPAGAMENTO = 'o PLANO DE PAGAMENTO';
+  ctAGENTES = 'Agentes';
+  ctTIPOSPLANOs = 'Tipos de planos';
+  ctTIPOSRECEBIMENTOS = 'Tipos de recebimentos';
+  ctOGRUPO = 'o GRUPO';
+  ctGRUPOS = 'Grupos';
+  ctGRUPO = 'Grupo';
+  ctACLASSE = 'a CLASSE';
+  ctSEGURO = 'Seguro';
+  ctFRETE = 'Frete';
+  ctCARNE = 'Carne';
+  ctBOLETO = 'Boleto';
+  ctCONTRATOMATRICIAL = 'Contrato Matricial';
+  ctCONCEITOS = 'Conceitos';
+  ctCARGOS = 'Cargos';
+  ctNATUREZAS = 'Naturezas';
+  ctCONJUGES = 'Cônjuges';
+  ctCAIXAABERTO = 'O CAIXA ESTÁ ABERTO!';
+  ctRESERVAS = 'Reservas de produtos';
+  ctLISTACASAMENTO = 'Lista de Casamento';
+  ctTABELADEMONTAGEM = 'Tabela de Montagem';
+  ctREFERENTEAOMOVIMENTO: String = 'Referente a movimentação de';
+  ctREFERENTECUPOMFISCAL: String = 'Referente ao Cupom Fiscal N.';
+  ctREFERENTENFCE: String = 'Referente a NFCe N.';
+  ctREFERENTEADEVOLUCAO: String = 'Referente a devolução de';
+  ctREFERENTEDOCUMENTO: String = 'Referente documento de';
+  ctREFERENTECHEQUE: String = 'Referente cheque:';
+  ctREFERENTEDEPOSITO: String = 'Referente depósito';
+  ctCANCELAMENTOAUTENTICACAO: String = 'Cancelamento de autenticação Nº';
+  ctREFERENTERESGATECHEQUE: String = 'Referente resgate cheque:';
+  ctREFERENTETRANSFERENCIASAIDA: String = 'Saída por transferência para o caixa';
+  ctREFERENTETRANSFERENCIAENTRADA: String = 'Entrada por transferência';
+  ctREFERENTEPERDA: String = 'Referente perda';
+  ctREFERENTEPAGAMENTODUPLICATA: String = 'Referente ao pagamento das duplicatas';
+  ctREFERENTEPAGAMENTOPARCELAS: String = 'Referente ao pagamento das parcelas';
+  ctMETODONAOIMPLEMENTADO: String = 'O Método ''%s'' não está definida em %s';
+  ctPROPRIEDADENAOIMPLEMENTADO: String = 'Propriedade ''%s'' não está definida em %s';
+  ctEXCLUIROPCOES: String = 'ATENÇÃO: Todas as opcões serão excluídas';
+  ctINFORMACAOSENDOEDITADA = 'A informação esta sendo editada por outro usuário.';
+
+  ctCONTRATOSENDOEDITADO = 'O contrato ''%s'' '+ #10#13 +
+                           'Está sendo editado pelo usuário'+ #10#13 +
+                           'Código/Login ''%s'''+ #10#13 +
+                           'no endereço ''%s'''+ #10#13 +
+                           'processo n. ''%s'''+ #10#13 +
+                           'desde ''%s''.'+ #10#13 +
+                           'Deseja liberar este contrato?';
+
+  ctCONTRATOBLOQUEADOGRAVADO = 'O contrato %s não pode ser gravado'+ #10#13 +
+                           'pois foi bloqueado pelo usuário'+ #10#13 +
+                           'Código/Login ''%s'''+ #10#13 +
+                           'no endereço ''%s'''+ #10#13 +
+                           'processo n. ''%s'''+ #10#13 +
+                           'desde ''%s''.'+ #10#13 +
+                           'Suas informações estão desatualizadas,' + #10#13 +
+                           'o contrato será atualizado e suas informações serão perdidas.';
+
+  ctCONTRATOBLOQUEADONAOGRAVADO = 'O contrato %s não pode ser gravado'+ #10#13 +
+                           'pois foi bloqueado pelo usuário'+ #10#13 +
+                           'Código/Login ''%s'''+ #10#13 +
+                           'no endereço ''%s'''+ #10#13 +
+                           'processo n. ''%s'''+ #10#13 +
+                           'desde ''%s''.'+ #10#13 +
+                           'Suas informações podem estar desatualizadas,' + #10#13 +
+                           'Continuar mesmo assim?';
+
+  ctRequisicaoDesatualizada = 'A requisição %s com o produto %s não pode ser gravada' + #10#13 +
+                              'pois foi bloqueada pelo usuário' + #10#13 +
+                              'Código/Login ''%s''' + #10#13 +
+                              'processo n. ''%s'''+ #10#13 +
+                              'desde ''%s''.'+ #10#13 +
+                              'Suas informações estão desatualizadas,'+ #10#13 +
+                              'A requisição será atualizada e suas informações serão perdidas.';
+
+  ctAVISO: String = 'Aviso';
+  ctERRO: String = 'Erro';
+  ctCONFIRME: String = 'Confirme';
+  ctCONFIRMEINPRESSAO: String = 'Continuar a impressão?';
+  ctDESEJACONTINUAR: String = 'Deseja continuar?';
+  ctOPCOESASSINALADAACIMALIMITE: String = 'Número de opções assinaladas está '+
+                                          'no limite máximo especificado '+
+                                          #13#10+'Máximo: %d';
+  ctOPCOESASSINALADAABAIXOLIMITE: String = 'Número de opções assinaladas está '+
+                                           'abaixo do limite mínimo especificado.'+
+                                           #13#10+ 'Salvar as alterações?'+ #13#10+'Mínimo: %d';
+  ctCODIGOINEXISTENTE: String = 'O código ''%s'' não está cadastrado ou está inativo.';
+
+  ctCODIGONECESSARIO: String = 'A informação é obrigatória.';
+  ctUSUARIOSEMCADASTRO: String = 'O usuário %s não está cadastrado.';
+  ctUSUARIONAODISPONIVEL = 'O usuário não está cadastrado OU não esta disponível para o seu acesso.';
+  ctLOGININVALIDO: String = 'Login inválido. Por favor tente novamente.';
+  ctENCERRAR: String = 'O limite de tentativas terminou.' +
+                       #13#10+'A aplicação ''%s'' será encerrada.';
+  ctERROCONEXAOBANCO: String = 'Problemas de conexão com o banco de dados';
+  ctGERARNOVASELECAO: String = 'Gerar nova seleção?';
+//  ctIDUSUARIONULO: String = 'O campo shadow não possui o identificador de usuário interno do banco válido';
+  ctERROCONEXAO: String = 'Erro de conexão com o banco: %s';
+  ctNOMEUSUARIO: String = 'Usuário: ';
+//  ctUSUARIOINVALIDO: String = 'Inválido';
+  ctCAMPOESTANULO: String = 'O controle ''%s'' está com a propriedade field nula';
+  ctINFORMECODIGO: String = 'Informe o código d%s';
+  ctVALORESNAOPODEMSERIGUAIS: String = 'As filiais informadas devem ser diferentes.';
+  ctINFORME: string = 'Informe %s';
+  ctREGISTROINCLUIDO: string = 'O ''%s'' já foi utilizado %s, ' +
+                               #10#13 + 'não está cadastrado ou está inativo.';
+//  ctPRODUTOINDISPONIVEL: String = 'Produto indisponível %s';
+  ctPRODUTONAOCADASTRADO: String = 'O produto %s não está cadastrado na filial %s.';
+  ctQUANTIDADEINDISPONIVEL: String = 'Quantidade a ser reservada não poderá ser superior a ''%s''.';
+  ctSEMPERMISSAOINCLUIR: String = 'Não é permitido incluir %s';
+  ctSEMPERMISSAOEXCLUIR: String = 'Não é permitido excluir %s';
+  ctSEMPERMISSAOALTERAR: String = 'Não é permitido efetuar alterações %s';
+  ctDEPENDENCIA: String = 'Para cadastrar um%s é preciso %s';
+  ctSELECAOLIGACOES: String = 'Nenhuma ligação foi selecionada';
+  ctCANCELACONVERSAO: String = 'Confirma cancelamento da conversão';
+  ctCONFIRMACONVERSAO: String = 'Confirma início da conversão';
+  ctCONVERSAOCANCELADA: String = 'Conversão cancelada';
+  ctCONVERSAOSUCESSO: String = 'Conversão realizada com sucesso';
+  ctIMPORTACAOSUCESSO: String = 'Importação realizada com sucesso';
+  ctCONVERSAOERRO: String = 'Houve erro na conversão do arquivo';
+  ctARQUIVOINEXISTENTE: String = 'Arquivo não foi encontrato';
+  ctLAYOUTERRO: String = 'Erro no layout do arquivo';
+  ctARQUIVOERRO: String = 'Erro %s no arquivo';
+  ctNAOCADASTRADO: String = '%s não cadastrado: %s';
+  ctESTADONOTAFISCAL: String = 'Estado está em branco';
+
+  ctNOTAINICIALMAIORQUENOTAFINAL: String = 'Nota inicial deve ser menor ou igual a nota final';
+
+  ctCODIGOFISCALNOTAFISCAL: String = 'O código fiscal é obrigatório';
+  ctERROVALORESPRODUTOSNOTAFISCAL: String = 'A soma dos valores dos produtos difere do total da nota fiscal.';
+  ctERROVALORESDUPLICATASNOTAFISCAL: String = 'A soma dos valores das duplicatas difere do total da nota fiscal.';
+  ctSOMATORIODIFERENTESTOTAL: String = 'Há diferença entre a soma dos valores d%s: R$ %s e do total d%s de R$ %s.'+#13#10+
+                                       'Valor da diferença: R$ %s';
+  ctERRODATASDUPLICATASNOTAFISCAL: String = 'O vencimento das duplicatas não pode ser anterior ao lançamento da nota fiscal.';
+  ctERRODATASDUPLICATASNULA: String = 'O vencimento das duplicatas é obrigatório.';
+  ctAVISODATAVENCTOCIMAUMANOEMISSAO : String = 'Existem vencimentos superiores a um ano a partir da data de emissão.';
+  ctVENCIMENTOSDUPLICADOS : String = 'Existem vencimentos duplicados.';
+  ctERRONOTAFISCALDATAEMISSAOMAIORLANCAMENTO: String = 'A data de emissão é posterior à de lançamento.';
+  ctERRONOTAFISCALDATALANCAMENTOMENORDATACONTABIL: String = 'A data de lançamento deve ser maior que a data contábil definida nos parâmetros.';
+  ctERRONOTAFISCALDATAMENORDATACONTABIL: String = 'A data de ''%s'' deve ser maior que a data contábil definida nos parâmetros.';
+  ctERROVALORESIMPOSTOSNOTAFISCAL: String = 'A soma dos impostos difere do valor total da nota fiscal.';
+  ctNAOPODEDEVOLVERCHEQUE: string = 'O cheque está cancelado.';
+  ctOPCOESPERGUNTASVAZIO: String = 'Perguntas objetivas necessitam de pelo menos uma opcão.';
+  ctNUMERODIASUTEISMETASMES: String = 'Número de dias úteis metas/mês excede o limite máximo.' + #10#13 +
+                                      'Limite Máximo: 31 dias';
+  ctLIMITEPRAZO: String   = 'Os valores definidos no "Limite a Prazo" estão fora ' + #10#13 +
+                            'dos limites permitidos';
+  ctLIMITEVISTA: String   = 'Os valores definidos no "Limite a Vista" estão fora ' + #10#13 +
+                            'dos limites permitidos';
+  ctERRORCHEQUEARQUIVO: String = 'O arquivo não pode ser editado';
+  ctERRORMALADIRETAFILTROSELECAO: String = 'Não tem nenhum filtro selecionado na lista';
+  ctERRORMALADIRETADADOS: String = 'Selecione pelo menos um campo para mala direta';
+  ctERRORMALADIRETAGERACAO: String = 'Está faltando filtro ou campo de mala direta.';
+  ctNUMEROCHEQUECADASTRADO: String = 'O cheque já está cadastrado';
+  ctCHEQUEAUTENTICADO: String = 'O cheque já está autenticado';
+  ctCHEQUENAONORMAL: String ='O cheque está cancelado ou foi devolvido.';
+  ctPARAMETROSINEXISTENTES: String = 'Parâmetros não informados para consulta.';
+  ctDTINICIALMAIORDTFINAL: String  = 'Data inicial deve ser menor ou igual à data final.';
+
+
+  ctDTFINALACUMULADOMAIORDTINICIAL: String = 'A data final do saldo acumulado deve ser o dia anterior à data inicial do relatório.';
+  ctINTERVALOMESINCORRETO: String = 'O mês inicial não pode ser superior ao mês final.';
+  ctINTERVALOINCORRETO: String = 'Número  d%s inicial maior que % final.';
+  ctERRORDADOSINCOMPLETOSAUTENTICACAO: String = 'Dados incompletos para autenticação.';
+  ctERRORDATAEMBRANCO: String = 'É necessário informar uma data.';
+  ctERRORVALORINVALIDO: String = 'O valor digitado não é válido!'+ #10#13 + 'Tente novamente.';
+  ctERRORVALORSUPERIORAODEBITO: String = 'O valor de pagamento deve ser menor que o valor de débito!'+ #10#13 + 'Tente novamente.';
+  ctERRORVALORSUPERIORAOVENCTO: String = 'O valor de pagamento deve ser menor que o valor do vencimento da parcela!'+#10#13 + 'Tente novamente.';
+  ctERRORPROCEDIMENTOAUTENTICACAO: String = 'Erro no procedimento de autenticação. [%d]';
+  ctPARCELAESTAAUTENTICADA: String = 'A parcela já foi quitada.';
+  ctERROQUANTIDADEADEVOLVER: String = 'A quantidade a devolver não pode'+ #10#13 +'ser maior que a quantidade total.';
+  ctPARCELAJASELECIONADA: String = 'A parcela "%s" do contrato "%s" já está selecionada para autenticação.';
+  ctPARCELAESTAANTERIORNAOAUTENTICADA: String = 'A parcela anterior precisa ser quitada.';
+  ctVERIFICARVALORESINFORMADOS :String = 'Verifique os valores informados.';
+  ctPARCELAEMATRASO: String = 'Parcelas em atraso não podem receber descontos.';
+  ctAUTENTICACAOPARACHEQUE: String = 'Serão copiados os dados da autenticação de prestação.';
+  ctCONFIRMARECEBERTRANSF: String = 'Confirme o recebimento de transferência. ';
+  ctERRORDEVOLUCAONAOAUTENTICAVEL: String = 'Devolução não autenticável.';
+  ctRESGATEESTAAUTENTICADO: String = 'Resgate já está autenticado.';
+  ctERRORDUPLICATANAOAUTENTICAVEL: String = 'RETIRAR ESTA CONSTANTE';
+  ctERRORDUPLICATANAOAUTORIZADA: String = 'A duplicata não está autorizada para pagamento.';
+  ctERRORQUESTIONARIOPERGUNTAOPCAOEMBRANCO: String = 'Deve ser preenchido o questionário, a pergunta e a opção';
+//  ctERRORARQUIVOCFGNAOENCONTRADO: String = 'Arquivo de configuração (%s) no servidor não foi encontrado.'+#13#10+'Por favor! entre em contato com o suporte.';
+  ctERRORARQUIVOCFGNAOENCONTRADO: String = 'Arquivo de configuração (%s) não foi encontrado.'+#13#10+'Por favor! entre em contato com o suporte.';
+  ctERRORARQUIVOCFGINVALIDO: String = 'Arquivo de configuração (%s) não está configurado corretamente.'+#13#10+'Por favor! entre em contato com o suporte.';
+//  ctERRORARQUIVOCFGCLIENTEINVALIDO: String = 'Arquivo de configuração (%s) no cliente não está configurado corretamente.'+#13#10+'Por favor! entre em contato com o suporte.';
+  ctERRORFILIALBASEINEXISTENTE: String = 'A filial base (%d) definida no arquivo de configuração não existe no banco de dados.'+#13#10+'Por favor! Cadastre as filiais.';
+  ctERRORDIASATRASOINICIAL : String = 'O dia inicial deve ser maior do que um';
+  ctERRORDIASATRASOFINAL : String = 'O dia de atraso final deve ser maior que o inicial';
+  ctAVISOINFORMEQUESTIONARIO: String = 'É necessário informar um questionário';
+  ctERRORPEDIDOVAZIO: String = 'Não foi possível efetuar a gravação.' + #10#13 +
+                               'O pedido não possui nenhum produto';
+  ctERRORPREVISAOVAZIO: String = 'Não foi possível efetuar a gravação.' + #10#13 +
+                                 'O pedido não possui nenhuma previsão.';
+  ctERRORPERCENTUALPREVISAOPEDIDOINCOMPLETO: String = 'Não foi possível efetuar a gravação.' + #10#13 +
+                                             'A soma dos percentuais das previsões do pedido não completaram 100%.';
+  ctERRORPERCENTUALPREVISAOPEDIDOCOMPLETO: String = 'A soma dos percentuais das previsões do pedido ultrapassaram 100%';
+  ctERRORINCLUIRPREVISAOPEDIDO : String = 'Erro ao incluir previsão do pedido.';
+  ctERRORSETARPARAMETROS: String = 'Erro ao informar o valor do(s) parâmetro(s).';
+  ctAVISOESTOQUEVAZIO: String = 'Não foi encontrado nenhum produto em estoque'#13#10'para esta pesquisa.';
+  ctAVISOSIMILARIGUAL: String = 'O produto similar deve ser diferente do produto principal.';
+  ctERRORPEDIDOSEMFORNECEDOR: String = 'O fornecedor é obrigatório';
+//  ctERRORCADASTROCARACTERISTICA: String = 'Não foi preenchido o(s) seguinte(s) campo(s): '#13#10'%s';
+  ctERRORVALORTRANSFERENCIA: String = 'O valor digitado para transferência é superior ao saldo atual.';
+  ctERRORVALORDEPOSITO: String = 'O valor digitado para o depósito é superior ao saldo atual.';
+  ctERRORSEMTRANSFERENCIAPENDENTE: String = 'Não existe transferência pendente para autenticar.';
+  ctERRORCARACTERISTICAEMBRANCO  : String = 'O produto é obrigatório.';
+  ctERRORCONSULTAESTOQUEEMBRANCO : String = 'Falta informar um dos seguines campos obrigatórios: '#13#10'característica, grupo ou classe';
+  ctCAMPOSCONSULTAOBRIGATORIOS: String = 'A consulta precisa dos seguintes campos: %s';
+  ctERRORDEVOLUCAOMESMODIA: String = 'Já foi efetuado devolução para o contrato, nesta data.';
+  ctPROBLEMAESTOQUEPRODUTO: String = 'Problemas com o estoque do produto: %s';
+  ctAVISOMANUTENCAOPRECOS : String = 'Falta informar a origem ou o destino.';
+  ctAVISODEVOLUCAONUMERARIO: String = 'O contrato %s não existe ou não há devolução de numerário pendente.';
+  ctAVISOCANCELAMENTOAUTENTICACAO: String = 'A autenticação %s não existe ou não pode ser cancelada.';
+  ctAVISORESGATECHEQUE: String = '- O cheque não está cadastrado ou' + #10#13 +
+                                 '- Já foi totalmente resgatado ou' + #10#13 +
+                                 '- Não foi devolvido.';
+  ctAVISOCAIXATRANSFERENCIA: String = 'O usuário %s não pode receber transferência.';
+  ctAVISOPERDA: String = 'O contrato %s não existe, está encerrado ou não foi emitido nota fiscal para ele.';
+  ctCONTRATONAOINFORMADO: String = 'Selecione um contrato para a autenticação';
+  ctTITULODEVOLUCAOCHEQUE: String = 'Devolução';
+  ctTITULOALTERARREMESSACHEQUE: String = 'Altera Remessa de Cheques';
+  ctEVENTONAOINFORMADO: String = 'Selecione um Evento para a autenticação';
+  ctCHEQUENAOINFORMADO: String = 'O número do cheque é obrigatório';
+//  ctAUTENTICACAONAOINFORMADO: String = 'Selecione uma autenticação para o cancelamento';
+  ctUSUARIONAOINFORMADO: String = 'Selecione um caixa para a transferência';
+  ctFORNECEDORNAOINFORMADO: String = 'Selecione um fornecedor com duplicatas em aberto';
+  ctBANCONAOINFORMADO: String = 'Selecione um banco para o depósito';
+  ctCAMPODEVESERPREENCHIDO: String = 'O campo ''%s'' é obrigatório.';
+  ctCONSULTAVAZIA: String = 'A consulta não apresentou nenhum resultado.';
+  ctSEMETIQUETASPARAIMPRIMIR: String = 'A seleção efetuada não apresentou etiquetas para serem impressas.';
+  crETIQUETASEMQUANTIDADE   : String = 'A quantidede de etiquetas está em branco.';
+  ctETIQUETASEMPRODUTO: String = 'Nenhum produto foi selecionado.';
+  ctDATAINVALIDA: String = 'Data inválida.';
+  ctDATAEMBRACO: String  = 'Campo de data não está preenchido.';
+  ctCLASSIFICACAOINVALIDA: String = 'Classificacao Inválida !';
+  ctETIQUETASEMQUANTIDADE: String = 'Falta a quantidade de etiquetas';
+  ctDATASUPERIORAATUAL: String = 'Data superior à data atual';
+  ctDATAMENOR: String = 'A data ''%s'' não pode ser menor que a data ''%s''';
+  ctDATAMENOREMISSAO: String = 'A data de ''%s'' não pode ser menor que a data de emissão';
+  ctERRORSEMPERIODO: String = 'Deve ser especificado um período.';
+  ctPERIODOINVALIDO: String = 'Período Inválido. Limite de 12 meses';
+  ctERROPERIODO: String = 'Período Inválido';
+  ctERRORDADOSEMBRANCO: String = 'Deve ser preenchido ao menos um campo para efetuar a seleção.';
+  ctERRORAUTORIZARDEVOLUCAO: String = 'Ocorreu um erro durante a devolução de numerário.';
+  ctERRORPARCELANAOAUTORIZAVEL: String = 'Não foi possível efetuar a devolução.' + #10#13 +
+                                         'A parcela está em aberto ou devolvida.';
+  ctPERGUNTAPARCELADEVOLUCAONUMERARIO: String = 'Confirma a devolução de numerário?';
+  ctSOMENTEULTIMAPODESERDEVOLVIDA: String = 'Não foi possível efetuar a devolução.' + #10#13 +
+                                            'A parcela a ser devolvida deve ser a última quitada.';
+  ctCONFIRMAREPLICACAOVALORICMS: String = 'Deseja alterar todos os valores de ICMS abaixo com o valores: '+ #10#13 +
+                                          'dentro do estado %f e fora do estado %f?';
+  ctUMHISTORICONOEVENTO:String = 'O evento deve ter pelo menos um histórico';
+  ctNOTANAOENCONTRADA: String = 'Nota não encontrada';
+  ctESTADORESERVADO  : String = 'R';
+  ctESTADOVENDIDO    : String = 'V';
+  ctESTADODISPONIVEL : String = 'D';
+  CTESTADOQUITADO    : String = 'Q';
+  ctCUPOMNAOENCONTRADO: String = 'Cupom não encontrado';
+  ctCONFIRMACANCELARCHEQUE: String = 'Confirme o cancelamento do cheque.';
+  ctCAIXADATAABERTURAFECHAMENTODIFEREM: String = 'A data de fechamento não corresponde à data de abertura';
+  ctSELECIONARIMPRESSORA = 'Selecione uma impressora para continuar.';
+  ctDATAFECHAMENTOCAIXANAOPREENCHIDA: String = 'A ''Data de fechamento'' é obrigatória';
+  ctCAIXAFECHAMENTONAOPREENCHIDO: String = 'O caixa de fechamento não está definido';
+
+  ctFILIALFECHAMENTONAOPREENCHIDO: String = 'A filial de fechamento não está definida';
+
+  ctCAIXAOPERADORUSUARIODIFEREM: String = 'O caixa de fechamento e o usuário que está utilizando não são o mesmo';
+  ctMSGFECHAMENTOCAIXA: String = 'Sendo a expressao da verdade, firmo o presente'+#10#13+
+                                 'documento, responsabilizando-me por quaisquer '+#10#13+
+                                 'diferencas eventuamente constatadas.'+#10#13;
+  ctPARCELANAOESTAAUTENTICADA: String = 'A parcela não está quitada.';
+  ctIMPRESSAOPARCELASHOJE: sTRING = 'Somente as parcelas quitadas hoje podem ser impressas.';
+
+  ctCLIENTEINVALIDO: String = 'Cliente inválido para transferência ou não informado.';
+  ctCLIENTESEMSALDO: String = 'O cliente nao possui saldo de troca.';
+  ctSENHAAUTORIZACAOINVALIDA: String = 'Senha inválida para o login "%s". Tente novamente.';
+  ctAUTORIZACAOFALHOU: String = 'Autorização não validada.';
+  ctGRUPOCADASTRADOOUINEXISTENTE: String = 'O %s (%s) está incluído no plano de pagamento ou não existe';
+  ctNENHUMREGISTROSELECIONADO: String = 'Nenhum %s foi selecionado.';
+  ctNENHUMREGISTROENCONTRADO: String = 'Nenhum %s foi encontrado.';
+  ctNUMEROPRESTACOES: string = 'O número de prestações foi excedido. Máximo %s.';
+  ctDESCONTOMAXIMOEXCEDIDO: string = 'O desconto máximo foi excedido.';
+
+  ctSEMPREMISSAODESCONTO: string = 'O Desconto não poderá ser concedido.' + #10#13 +
+                                   'O Contrato possui produtos em promoção.';
+
+  ctSEMPREMISSAODESCONTOZERADO: string = 'O contrato possui um desconto geral e será zerado , pois o mesmo possui produtos em promoção.';
+
+  ctAUTORIZARDESCONTOEXTRA: string = 'Autoriza desconto extra.';
+  ctSEMPERMISSAOTIPORECEBIMENTO: String = 'O plano de pagamento selecionado não permite alteração do tipo de recebimento';
+  ctPARCELAMINIMA: string = 'O valor mínimo da parcela deve ser de %s!';
+  ctPARCELAVALOREMINIMA: string = 'O valor da parcela é de %s e o valor mínimo da parcela definido deve ser de %s!';
+
+  ctPARCELASEMTIPODERECEBIMENTO: String = 'A parcela não possui o tipo de recebimento definido';
+  ctFINANCIADODIFERETOTALPARCELA = 'O valor financiado difere do total das parcelas';
+  ctVALORCOMPRAMINIMAMAXIMA: string = 'O valor da mercadoria deve estar entre %s e %s.';
+  ctSOMEMTEQUATROPARCELAS: string = 'Só pode haver 4 parcelas se o intervalo não for de 30 dias.';
+  ctMAXIMODIASINTERVALOPARCELAS: String = 'O "Máximo de Dias entre Parcelas" deve ser maior que o "Intervalo entre Parcelas".';
+  ctDATAMAXIMAPRIMEIRAPARCELA: String = 'Data máxima permitida para a primeira parcela: %s.';
+  ctDATAMAXIMAPARCELA: String = 'Data máxima permitida para a %s parcela: %s.'; 
+  ctPLANONAOPERMITEALTERACAOPARCELAS: string = 'O plano não permite alterar as parcelas.';
+  ctSEMPLANOSPARAVALORES: String = 'Todos os planos possuem limites de compra que não se enquadram no valor de %s a ser financiado.';
+  ctVALORPRIMEIRAPARCELA: string = 'A primeira parcela deve ser no mínimo %s do valor negociado.';
+  ctUSUARIONAOAUTORIZADO: String = 'Sem autorização para %s';
+  ctMODIFICAPRECO: String = 'Modificar preços';
+  ctAPROVARCONTRATOS: String = 'Faturar contratos';
+  ctCONFIRMEFATURAMENTO: String = 'Confirme o faturamento do contrato.';
+  ctAVALISTAS: String = 'Avalistas';
+  ctEXIGEANALISTACREDITO:  String = 'O "Analista" é obrigatório';
+  ctVENDEDORES: String = 'Vendedores';
+  ctREGIAO: String = 'Região';
+  ctDEPENDETES: String = 'Dependentes';
+  ctMONTADORES: String = 'Montadores';
+  ctCONTRATOS: String = 'Contratos';
+  ctCONTRATO: String = 'Contrato';
+  ctPEDIDOS: String = 'Pedidos';
+  ctREQUISICOES: String = 'Requisicoes';
+  ctMOTIVOS: String = 'Motivos';
+  ctMOTIVO: String = 'Motivo';
+  ctSALDODETROCA: String = 'Saldo de troca';
+  ctFILIAISVENDAS: String = 'Filiais de vendas';
+  ctFILIAISMONTAGEM: String = 'Filial de montagem';
+  ctCONFIRMAEMISSAONOTASCONTRATO: String = 'Confirme a emissão das notas fiscais vinculadas ao cupom do contrato';
+  ctCONFIRMAEMISSAONOTASSAIDA: String = 'Confirme a emissão das notas fiscais de saída.';
+  ctCONFIRMEIMPRESSAODOCUMENTOSFISCAIS: String = 'Confirme a impressão dos documentos fiscais do contrato';
+  ctCONTRATOSEMPRODUTO: String = 'O contrato %s está sem itens de produtos. Deve ter pelo menos um.';
+  ctCONTRATOSEMPRODUTOSERVICOS: String = 'O contrato %s está sem itens de produtos e sem serviços. Deve ter pelo menos um item de produto ou um serviço.';
+  ctOSSEMPRODUTOSERVICOS: String = 'A OS %s está sem itens de produtos e sem serviços.';
+  ctCONTRATOSEMPARCELAS: String = 'O contrato %s está sem prestações.';
+  ctFILIALSEMSERIE: String = 'A filial base ''''%d'''' não tem nenhuma série de notas fiscais de %s definida.';
+  ctERROTECSOFTLOCAL: String = 'O arquivo ''%s'' não está configurado corretamente.'+#13#10+
+                               'Entre em contato com o suporte técnico mencionando o nome do arquivo.';
+  ctERROTECSOFTLOCALPACOTES: String = 'Os módulos ''%s'' estão disponíveis neste computador, mas os arquivos'+#13#10+
+                                      '%s'+#13#10+
+                                      'não foram encontrados. Entre em contato com o suporte técnico.';
+  ctEMAILINVALIDO: String = 'Digite um e-mail válido ou deixe em branco!' + #10#13 + 'Ex: teclux@tecsoft.com.br';
+  ctsEMAILINVALIDO: String = 'O email %s esta incorreto.'+chr(13)+'Digite um e-mail válido ou deixe em branco!' + #10#13 + 'Ex: teclux@tecsoft.com.br';
+  ctDATAINCOMPATIVELDATANASCTO: String = 'Data ''%s'' incompatível com a data de nascimento.';
+  ctCONJUGENAOINFORMADO: String = 'Cônjuge não informado!';
+  ctCNPJOUCPFNAOCONFERE: String = 'Número informado não confere com CNPJ do fornecedor.';
+  ctUSUARIOSEMPERMISSAO: String = 'O usuário não tem permissão para executar esta operação.';
+  ctEXCLUIRVALORESCOLUNA: String = 'Confirma a exclusão dos valores da coluna ''%s'' ?';
+  ctINFORMACOESSERAOPERDIDAS: String = 'As operações realizadas serão perdidas. Deseja prosseguir ?';
+  ctQUANTIDADEPRODUTOSMAIORZERO: String = 'A quantidade de produtos é obrigatória.';
+  ctRENEGOCIACAODATAPARCELAMAIOR: String = 'A data a ser informada deve ser maior que a ' + #10#13 +
+                                           'data da última parcela.';
+  ctRENEGOCIACAODATAMAIORATUAL: String = 'A data de renegociação não pode ser inferior à data Atual.';
+  ctRECALCULARPARCELAS: String = 'Os valores foram alterados. Será necessário recalcular as parcelas.'+#13+#10+
+                                 'Pressione Ctrl-P para entrar na janela de cálculo de financiamento.';
+  ctIMPOSTOSRETIDOSRECALCULADOS: String = 'Os valores referentes aos impostos retidos foram recalculados '+#13#10+
+                                          'devido a alterações efetuadas nos parâmetros do sistema.'+#13#10+
+                                          'Grave o contrato para confirmar as alterações.';
+  ctLOGINUTILIZADO: String = 'O Login especificado está sendo utilizado pelo usuário %s (Cod: %d).';
+  ctSEMPERMISSAOCRIARUSUARIO = 'O Usuário logado não tem permissão para CRIAR usuários ou' + #10#13 +
+                               'ALTERAR senha de outros usuários.';
+  ctCOMPRASLISTACASAMENTO: String = 'Quantidades compradas não podem ultrapassar o máximo desejado';
+  ctPRECOZERO: String = 'O preço do produto é obrigatório.';
+  ctPRECOEMBRANCOSERAODESCONSIDERADOS:  String ='Existem preços em branco que serão desconsiderados.';
+  ctPRECOZERADO: String = 'O produto %s esta com preço zerado.';
+  ctPLANOCOMENDERECOCOMPLETO: String = 'O plano selecionado exige que o endereço do cliente esteja completo';
+  ctSEMESTOQUESEMVENDA: String = 'O produto ''%s'' na filial ''%s'' está sem estoque e não pode ser vendido.';
+  ctSEMESTOQUELOTESEMVENDA: String = 'O produto ''%s'' lote ''%s'' na filial ''%s'' está sem estoque e não pode ser vendido.';
+
+  ctECFINVALIDA: String = 'Terminal não autorizado a usar esta Impressora Fiscal';
+  ctVENDASEMESTOQUE: String = 'Para a venda sem estoque';
+  ctLANCAMENTOAVULSO: String = 'Para lançamento avulso';
+  ctPARACANCELAMENTOAUTENTICACAO = 'Para o cancelamento da autenticação';
+  ctPARAAUTORIZACAOOPERACOESOSP = 'Para autorização das operações da OSP';
+  ctPARAAUTORIZACAOSETUP = 'Para autorização do Setup da Operação';
+  ctPARAALTERACAOEVENTOCAIXA = 'Para a alteração dos eventos do caixa';
+  ctANALISTACREDITO: String = ' ANALISTA DE CRÉDITO';
+
+
+  ctCOBRADOR: String = ' COBRADOR';
+  ctEMISSORNOTAFISCAL: String = 'EMISSOR DE NOTA FISCAL';
+  ctGERENTEESTOQUE = ' GERENTE DE ESTOQUE';
+  ctGERENTECAIXA = ' GERENTE DE CAIXA';
+  ctRESPONSAVELSETUP = ' RESPONSÁVEL PELO SETUP';
+  ctGERENTEPRODUCAO = ' GERENTE DE PRODUÇÃO ';
+  ctGERENTEVENDAS = ' GERENTE DE VENDAS';
+
+  ctTEXTOAUTORIZACAO: String = '%s, solicite a autorização de um %s.';
+  ctALTERARPRECOVENDA: String = 'Para alterar o preço de venda';
+  ctAUTORIZADO: String = ' usuário autorizado';
+  ctFATURARCONTRATO: String = 'Para faturar contratos A PRAZO';
+  ctIMPRIMIRNOTAFISCAL: String = 'Para imprimir nota fiscal';
+  ctDEVOLUCAOPRODUTO: String = 'Para a devolução de produtos';
+  ctLIBERACAOCREDITO: String = 'Para a liberação de crédito';
+  ctTROCAPRODUTO: String   = 'Para a troca de produtos';
+  ctSOMENTEBRINDENOCONTRATO: String = 'O contrato não pode possuir somente produtos de brinde.';
+  ctSOMENTEBRINDEZERARPARCELASEPLANOS: String = 'O contrato possui somente produtos de brinde.' + #10#13 +
+                                                'As parcelas serão zeradas e o plano de pagamento será o padrão.';
+  ctSERIESUGESTAOSEMMODELO: String = 'A série sugestão não possui nenhum modelo de nota fiscal definido.';
+  ctMODELOCARNENAODEFINIDO: String = 'Nenhum modelo de Carnê foi definido para a filial.';
+  ctMODELOCONTRATOMATRICIALNAODEFINIDO: String = 'Nenhum modelo de Contrato Matricial foi definido para a filial.';
+  ctMODELOBOLETONAODEFINIDO: String = 'Nenhum modelo de Boleto foi definido para a filial.';
+  ctCONTABOLETONAODEFINIDO: String = 'Nenhuma conta para a emissão do Boleto foi definido para a filial.';
+  ctCONFIRMERESERVA: String = 'Confirme as reservas dos produtos do contrato.';
+  ctALTERARDADOSCONTABEIS: String = 'Para alterar os dados contábeis';
+  ctEMITIRNOTAFISCALVINCULADA: String = 'Para emitir a nota fiscal vinculada';
+  ctCADASTROABERTO: String = 'Existem informações a serem salvas em %s';
+  ctNOTAEXISTENTE: String = 'Nota fiscal já cadastrada %s ';
+  ctCUPOMEXISTENTE: String = 'Cupom fiscal já cadastrado %s ';
+  ctCUPOMFISCALABERTO = 'O Cupom fiscal está aberto. Será necessário fecha-lo primeiro.';
+  ctNOTANAOENCONTRADAROMANEIO: String = 'Nota não encontrada ou sem itens a serem entregues';
+  ctCUPOMNAOENCONTRADOROMANEIO: String = 'Cupom não encontrado ou sem itens a serem entregues';
+  ctITEMNAOCADASTRADO: String = 'Nenhum item de %s cadastrado.';
+
+  ctROMANEIONAOPODESEREXCLUIDO: String = 'O romaneio não pode ser excluído, pois há produto(s) de %s entregue(s).';
+  ctSUCESSOSPC: String = '%s no SPC gerada com sucesso';
+  ctSPCNAOGERADO: String = 'Os Registros do SPC não foram gerados.';
+  ctCLIENTESAINDOSPC: String = 'O cliente está saindo do SPC. Operação não permitida.';
+  ctFILIALEMISSORASPC: String = 'Verifique a filial emissora do SPC.';
+  ctSEXONOIVO: String = 'O noivo não é do sexo masculino';
+  ctSEXONOIVA: String = 'A noiva não é do sexo femenino';
+  ctNOTAENTRADADUPLICATASQUITADAS: String = 'Existem duplicatas quitadas na nota fiscal.';
+  ctDOCUMENTODUPLICATASQUITADAS: String = 'Existem duplicatas quitadas neste documento.';
+
+  ctNOTAENTRADADUPLICATASFRETEQUITADAS: String = 'Existem duplicatas quitadas no conhecimento de frete da nota fiscal.';
+  ctDATACONTABILMAIORDATANOTA = 'A contabilidade foi fechada em %s. Nota fiscal de entrada não pode ser excluída.';
+  ctDATACONTABILMAIORDATALANCTO = 'A data %s %s deve ser posterior à data %s %s.';
+  ctDATACONTABILMAIORPERIODO = 'O período %s deve ser posterior à data contábil %s.';
+  ctDATACONTABILMAIOROUIGUALDATALANCTO = 'A data %s %s deve ser posterior ou igual à data %s %s.';
+  ctDATACONTABILANTERIOR = '%s anterior a %s %s';
+
+  ctEXCLUSAONOTAENTRADA: String = 'Para a exclusão de nota de entrada';
+  ctEXCLUSAONOTASAIDA: String = 'Para a exclusão de nota de saída';
+  ctINCLUIRPRODNOFORNECEDOR:  String = 'O produto %s não pertence ao fornecedor %s.' + #10#13 +
+                                       'Deseja incluí-lo?';
+  ctPLANOCOMPRAMINIMOMAIORCOMPRAMAXIMA: String = 'O valor de compra máximo deve ser maior que o valor de compra mínimo.';
+  ctPLANOVALIDADEINICIALMAIORVALIDADEFINAL: String = 'A data de validade inicial do plano deve ser menor que a data de validade final.';
+  ctCANCELARPAGAMENTOROMANEIO: String = 'Cancelar Pagamento de Romaneio';
+  ctQTDADEPARCELASPLANO = 'A quantidade de parcelas do plano é obrigatória.';
+  ctTITULOENTREGAITENSROMANEIO: String = 'Entrega';
+  ctCANCELAMENTOQUITACAO: String = 'A quitação do documento ''%s'' e parcela ''%s'' não pode ser cancelada.' + #10#13 +
+                                   'Existem outras quitações com o mesmo número do cheque' + #10#13 +
+                                   'que não foram selecionadas';
+
+  ctCANCELAMENTOQUITACAONUMERO: String = 'O documento ''%s'' e parcela ''%s'' possuem ' + #10#13 +
+                                   'outras quitações com o número do cheque ''%s''' + #10#13 +
+                                   'que não foram selecionadas. Desejas prosseguir? ';
+
+  ctERROCOMUNICACAOECF: String = 'Erro de comunicação com a ECF ''%s'' na porta serial ''%s''.';
+  ctERROSERIEECFDIFERENTE: String = 'O ECF ''%s'' de série ''%s'' e número ''%s'' difere do ECF configurado no arquivo.';
+  ctERROCUPOMVINCULADO: String = 'Ocorreu o erro ''%s'' na ECF. '+#13+#10+'Deseja repetir a impressão?';
+  ctERROECF: String = 'Ocorreu um erro na ECF na inicialização do programa.'+#13+#10+
+                      'A emissão de cupons está desativada momentaneamente.';
+  ctATUALIZARMAPASECF : String = 'Atualizar os mapas da ECF?';
+  ctFUNCAONAOSUPORTADAECF: String = 'Função não suportada pelo modelo de ECF utilizado';                      
+  ctSERIEESGOTADA: String = 'Os números máximos (%s) definidos para a série estão esgotados.';
+  ctSEMESTOQUEEMITIRNOTACONTRATO: String = 'Não há produtos em estoque para emitir o Documento Fiscal' + #10#13 +
+                                           'referente ao contrato %s.';
+  ctSEMESTOQUEEMITIRNOTA = 'O(s) produto(s)/filial(is) (%s)'+ #10#13 +
+                           'não tem em ''RESERVADO'' para emitir o Documento Fiscal referente ao contrato %s.';
+  ctSEMESTOQUEEMITIRNOTAVENDAFUTURO = 'O(s) produto(s)/filial(is) (%s)'+ #10#13 +
+                                      'não tem em ''ESTOQUE'' para emitir o Documento Fiscal referente ao contrato %s.';
+  ctSEMESTOQUEEMITIRNOTASAIDA: String = 'O produto ''%s'' na filial ''%s'' está sem ''%s'' e não pode ser vendido.';
+  ctSEMESTOQUELANCAMENTOMANUAL: String = 'Não há quantidade suficiente em ''%s'' para o lançamento manual.';
+  ctTRANSFERENCIANAOPERMITIDA = 'A(s) filial(is) [%s] não permite(m) saída de produtos por transferências.';
+  ctNOTASAIDASEMPRODUTO: String = 'A inclusão de itens de produtos é obrigatória.';
+  ctCOMPRAMINIMAFORALIMITE = 'O valor mínimo para compra está fora dos limites.';
+  ctCOMPRAMAXIMAFORALIMITE = 'O valor para compra máxima esta fora dos limites.';
+  ctOPERACOESCONTRATOS = 'Confirme ''%s'' do(s) contrato(s).';
+  ctOPERACOESRESERVAS = 'Confirme ''%s'' da(s) reserva(s).';
+  ctSENHASDIFERENTES = 'O valores nos controles ''SENHA'' estão diferentes.';
+  ctCONTRATONAOFATURADONOTA = 'O contrato ''%s'' não está faturado, não tem nota fiscal impressa, foi renegociado ou já está quitado.';
+  ctCONTRATONAOFATURADO     = 'O contrato ''%s'' não está faturado.';
+  ctALIQUOTAPISALERTA = 'A alíquota de PIS ''%5.2f'' difere do valor padrão (''%5.2f''). Continuar?';
+  ctALIQUOTACOFINSALERTA = 'A alíquota de COFINS ''%5.2f'' difere do valor padrão (''%5.2f''). Continuar?';
+  ctPARAMETROSFILIAL = 'os parâmetros da filial';
+  ctSEMSIMILARES = 'Não há similares em estoque para o item de produto selecionado.';
+  ctINICIANDOECF = 'Verificando o ECF na porta serial ''%s''';
+  ctECFBLOQUEADA = 'Redução Z de hoje já emitida, ECF bloqueado até as 00:00';
+  ctPREPARARCARREGARPACOTES = 'Preparando para carregar as bibliotecas do ''%s''';
+  ctLIBERANDOACESSOS = 'Liberando acessos aos menus';
+  ctINFORMARFORNECEDORPEDIDO = 'Para a inclusão de produtos no pedido, ' + #10#13 +
+                               'um fornecedor é obrigatório.';
+  ctTROCAFORNECEDORPEDIDO = 'A troca do %s implicará na exclusão dos' + #10#13 +
+                            'produtos do pedido. Deseja continuar?';
+  ctCARREGANDOPACOTES = 'Carregando a biblioteca ''%s'' do ''%s''';
+  ctDEFININDOACESSOS = 'Definindo acessos a usuários';
+  ctATUALIZAITENSREQUISICOES = 'A atualização dos itens das requisições';
+  ctPESOBRUTOMAIORPESOLIQUIDO = 'O peso bruto não pode ser menor que o peso líquido.';
+  ctCARACTERISTICASEMPRODUTO = 'O produto não possui nenhum item cadastrado.';
+  ctCARACTERISTICASEMPRECO = 'O produto não possui nenhum preço cadastrado.';
+  ctPARCELANAOPODESEREXCLUIDA = 'A parcela não pode ser excluída.';
+  ctPARCELASNAOPODEMSEREXCLUIDAS = 'O contrato ''%s'' tem parcelas pagas e não pode ser excluído.';
+  ctFILIALMONTAGEMNULA = 'A filial de montagem, no contrato %s, não foi informada mas há' + #10#13 +
+                         'produtos a serem montados.';
+  ctCONHECIMENTOFRETEFORNECEDOR =  'A nota de entrada de conhecimento de frete está sendo cadastrada para' + #10#13 +
+                                   'um cliente, filial ou fornecedor que não é transportador.' + #10#13 +
+                                   'Será obrigatório usar um fornecedor transportador.';
+  ctPRODUTOSEMESTOQUECADASTRADO = 'O produto ''%s'' não está cadastrado na filial ''%s''';
+  ctNAOAPAGARNOTAENTRADA = 'A nota não pode ser excluída pois o movimento de estoque '+ #10#13 +
+                           'número ''%d'' ficará com o totalizador ''%s'' negativo.';
+  ctPARCELASPAGAS = 'A nota não pode se cancelada, porque existem parcelas quitadas '+ #10#13 +
+                    'no contrato ''%s'' referenciado por esta nota.';
+  ctPARCELAESTORNADA = 'Parcela estornada na data de ''%s''';
+  ctPARCELAS = 'Não foi possível encontrar a parcela digitada.';                  
+  ctINFORMACOESCONJUGE = 'O estado civil do cliente foi alterado.' + #10#13 +
+                         'As informações do cônjuge serão perdidas. Confirma?';
+  ctALTERACAOESCONJUGE = 'Confirma a alteração do cônjuge?';
+  ctCLIENTEPOSSUIATRASO = 'O Cliente "%S"' + #10#13 +
+                          'possui %s.' + #10#13 +   {parcelas em atraso, cheque devolvido}
+                          'Deseja visualizar a ficha financeira?';
+  ctVISUALIZARFICHAFINANCEIRA = 'Deseja visualizar a ficha financeira ' + #10#13 +
+                                'do cliente "%S"?';
+  ctCONFIRMAREDUCAOZ = 'A emissão da redução Z impossibilitará a emissão de qualquer outro cupom fiscal no dia de hoje.' +#10#13+
+                       'Confirme a emissão da Redução Z.';
+  ctCONFIRMALEITURAX = 'Confirme a emissão da Leitura X.';
+  ctAVISOREQUISICAOSEMMONTADOR = 'A opção ''Requisição sem Montador'' está selecionada';
+  ctCLIENTEJACADASTRADO = 'ATENÇÂO: Este número de CPF/CNPJ pertence ao' + #10#13 +
+                          '%s %s.' + #10#13 +
+                          'Deseja visualizar o registro?';
+  ctCPFCGCJACADASTRADO = 'Este número de CPF/CNPJ pertence a %s (código %s)' + #10#13 +
+                         'e não pode ser utilizado novamente.';
+  ctCHEQUEINVALIDO = 'Número de cheque inválido.';
+  ctNOTASENTDESCONTOMAIORPRECO = 'O valor de desconto não pode ser maior que o preço do produto.';
+  ctNOTAENTBASEREDUCAOMAIORTOTALPROD = 'O valor da base de redução de ICMS não pode ser maior que o preço total do produto.';
+  ctPRECOQTDADENOTAENTRADAMAIORZERO = 'O preço e a quantidade são obrigatórios.';
+  ctALTERARVALORPRESTACAO = 'Para alterar o valor de pagamento da prestação';
+  ctALTERARVALORPARCELASABERTO = 'Para pagamento parcial, desconto ou alteração no valor da parcela,' + #10#13 +
+                                  'a mesma deve estar selecionada.';
+  ctPERFILDESCONTOEXTRA = 'usuário com perfil de DESCONTO EXTRA';
+  ctNOTAPRODUTOENTREGAR = 'Existem produtos determinados para a entrega que foram selecionados para a impressão da nota.' + #13#10 +
+                          'Eles não serão selecionado para uma nova impressão e serão descartados de qualquer entrega.';
+  ctNOTAPRODUTOENTREGARMSG = 'Os produtos acima estão marcados para entrega.' + #13#10 +
+                             'Caso o cliente esteja levando o produto, altere a situação da entrega.';
+  ctNENHUMPRODUTOSELECIONADO = 'Nenhum produto foi selecionado.';
+  ctNENHUMPRODUTOADICIONADO  = 'Nenhum produto foi adicionado.';
+  ctPEDIDONAOPODEXCLUIR = 'O pedido não pode ser excluído. O mesmo está concluído'; {+ #10#13 +}
+{                          'ou está parcialmente entregue.';}
+  ctERRORTOTALPREVISAOPEDIDO: String = 'Não foi possível efetuar a gravação.' + #10#13 +
+                                       'O total das previsões difere do total do pedido.';
+
+  ctMODELOIMPRESSAOCHEQUE: String = 'O banco da conta não possui um modelo de cheque' + #13#10 +
+                                    'associado para a impressão de cheques';
+
+  ctNENHUMPRODUTONALISTA: string = 'Nenhum produto foi incluído na Lista %.';
+  ctESTEQUADROGIA = 'este quadro da GIA.';
+  ctESTEQUADRODIME = 'este quadro da DIME.';
+  ctQTDERESERVARFORALIMITE = 'A quantidade reservada está fora do limite.';
+  ctQTDEMAIORLISTACASAMENTO = 'A quantidade informada está maior que a solicitada.'+ #10#13 +
+                              'solicitada: %s '+ #10#13 +
+                              'informada: %s ';
+
+  ctMINIMOMAXIMOMAIORZERO = 'Os valores Mínimo e Máximo devem ser maior que zero.';
+  ctVALORMAIORQUEZERO = 'O valor deve ser maior que zero';
+  ctSALDONEGATIVO = 'O valor do saldo do cliente é de R$ %f.'+#10#13+
+                    'O saldo não pode ficar negativo.';
+  ctMINIMOMAXIMOINCOERENTES = 'Os valores Mínmo e Máximo estão incoerentes.';
+  ctINFORMACAOLIVROFILIAL = 'A emissão de um livro requer a informação da filial' + #10#13 +
+                            'e do primeiro e último dia do mês.';
+  ctCANCELARRESERVARPRODUTO: String = 'Para o cancelamento da reserva de produtos';
+  ctAUTORIZACAOPAGAMENTO: String = 'Para autorização de pagamento';
+  ctAUTORIZACAORECEBIMENTO: String = 'Para autorização de recebimento';
+  ctAUTORIZACAODESCONTO: String = 'Para autorização de desconto extra';
+  ctDATAGIAINVALIDA = 'Data para a geração da GIA não esta correta';
+  ctCONFIRMAENVIOEMAIL = 'Confirma o envio do Email?';
+  ctEMAILENVIADOCOMSUCESSO = 'Email enviado com sucesso.';
+
+  ctITEMPRODUTOJACADASTRADO = 'ATENÇÃO: O ITEM DE PRODUTO %s já esta cadastrado com %s.' ;
+  ctVINCULARCARACTERISTICAATUAL = 'Deseja vinculá-lo a característica atual?';
+  ctCANCELAMENTOCONTRATOABERTO = 'O ''Cadastro de Contratos'' esta inoperante por que o ''Cancelamento de Contratos'' esta aberto.';
+  ctDATAPARCELASINVALIDA = 'Existem parcelas com a data de vencimento menor que a data de faturamento';
+  ctIMPRIMIRNOTAENTRADA = 'Pronto para imprimir a nota fiscal de entrada.';
+  ctIMPRIMIRNOTASAIDA = 'Pronto para imprimir a nota fiscal de saída.';
+  ctIMPRIMIRNOTASIMPLESREMESSA = 'Pronto para imprimir a nota fiscal de simples remessa.';
+
+  ctCANCELARCONTRATOORCADO = 'Escolha o botão OK para EXCLUIR o contrato orçado'+#10#13+
+                             'ou o botão CANCELAR para CANCELAR o contrato orçado.';
+  ctCANCELARCONTRATOSIMOVEIS = 'Escolha o botão OK para EXCLUIR o contrato '+#10#13+
+                               'ou o botão CANCELAR para CANCELAR o contrato.';
+  ctCANCELARORCAMENTO = 'Escolha o botão OK para EXCLUIR o orçamento'+#10#13+
+                             'ou o botão CANCELAR para CANCELAR o orçamento.';
+  ctCANCELARNOTAAVULSA = 'Escolha o botão OK para EXCLUIR a nota fiscal'+#10#13+
+                             'ou o botão CANCELAR para CANCELAR o nota fiscal.';
+  ctLISTACASAMENTOCADASTRADA = 'Já existe uma Lista de Casamento cadastrada para' + #10#13 +
+                               '%s e %s.';
+  ctATIVIDADEECONOMICACADASTRADA = 'Atividade Econômica %s já está cadastrada.';
+  ctCONJUGEJACASADO = 'O conjugê informado é casado com o cliente' + #10#13 + '%s.';
+  ctCLIENTEIGUALCONJUGE = 'O Cliente tem o mesmo código do Conjugê';
+  ctNATUREZAGERARPAGAMENTO = 'O Natureza de Operação informada requer a geração' + #10#13 +
+                             'de Duplicatas. Confirma?';
+  ctNATUREZAEXCLUIRPAGAMENTO = 'A Natureza de Operação informada não requer Duplicatas.' + #10#13 +
+                               'Confirma a EXCLUSÃO das Duplicatas vinculadas a Nota Fiscal %s?';
+  ctDUPLICATASNAOEXCLUIR = 'As Duplicatas vinculadas a Nota Fiscal %s não podem ser excluídas.' + #10#13 +
+                           'Verifique se as Duplicatas estão quitadas.';
+  ctCAIXATRANSFERENCIANAOCONFIRMADA = 'Existe(m) transferência(s) pendente(s).'+#10#13+
+                                      'Nenhuma autenticação poderá ser realizada sem a confirmação ou'+#10#13+
+                                      'o cancelamento da referida transferência.';
+  ctAUTORIZACAOTRANSFERENCIA = 'Para Confirmar a Transferência';
+  ctVENDAVISTASEMPRODUTO: String = 'A Venda está sem itens de produtos. Deve ter pelo menos um.';
+  ctORCAMENTOSEMPRODUTOSERVICO: String = 'A Orçamento está sem itens de produtos ou serviços. Deve ter pelo menos um.';
+  ctTROCASEMPRODUTO: String = 'A troca está sem itens de produtos. Deve ter pelo menos um.';
+  ctSOMENTEBRINDENAVENDAVISTA: String = 'A Venda não pode possuir somente produtos de brinde.';
+  ctENDERECOIMCOMPLETO: String = 'O endereço do cliente esta incompleto.';
+  ctFILIALMONTAGEMNULAVENDAVISTA = 'A filial de montagem, não foi informada mas há' + #10#13 +
+                                   'produtos a serem montados.';
+  ctTEFTRANSNAOEFETUADA = 'Transação não foi efetuada. Favor reter o cupom.';
+  ctTEFERROECFNAOCANCVENDA = 'Existe uma venda com cartão que não poderá ser cancelada enquanto a ECF não estiver respondendo.';
+  ctTEFIMPNAOCONCLUIDA = 'Impressão não concluída. Repetir o processo.';
+  ctTEFIMPRIMIRNOVAMENTE = 'Deseja imprimir novamente?';
+  ctMENSAGEMIMPRIMIR = 'Deseja Imprimir %s';
+  ctTEFTERMINALNULO = 'TEF dedicado precisa ter o terminal definido.';
+  ctTEFIPNULO = 'TEF dedicado precisa ter o endereço de IP do servidor.';
+  ctTEFTEGERENCIADORINATIVO = 'Gerenciador Padrão não está ativo e será ativado automaticamente!';
+  ctTEFPINPADNAOENCONTRADO = 'Não foi possível conectar no pinpad.';
+  ctDEVOLUCAOPARCELAVIACAIXA = 'A devolução de numerário de parcelas quitadas no mesmo dia,' + #10#13 +
+                               'deve ser realizada pelo caixa - Cancelamento de Autenticações';
+  ctVALORFINANCIADO = 'O valor financiado não pode ser nulo.';
+  ctEXCEDEUPARCELA =  'O número de parcelas não pode ser superior ao definido' + #10#13 +
+                      'no plano de pagamento.';
+  ctDATADEFINIDAINVALIDA = 'Data inválida:' + #10#13 +
+                           '- Menor que a data atual ou' + #10#13 +
+                           '- Menor que a data da parcela anterior ou' + #10#13 +
+                           '- Incoerente com os parâmetros definidos no plano de pagamento.';
+  ctPRODUTOSNAOINCLUIDOSCUPOM = 'Alguns produtos do contrato não serão incluidos no cupom'+#13#10+
+                                'devido não terem em estoque ou a pertencerem a outra filial.';
+  ctSETUP = 'SET-UP DE PROCESSO';
+  ctCONTROLEPROCESSO = 'CONTROLE DE PROCESSO';
+  ctPRODUTOSEMESTOQUENOCARTAO = 'Não é permitida a venda de produto sem estoque utilizando cartões.';
+  ctCONTRATOQUITADO = 'O carnê está totalmente quitado.';
+  ctBANCONAOPREENCHIDO = 'As informações do cheque não foram preenchidas.';
+  ctVALORNAOPREENCHIDO = 'O valor do %s não foi informado.';
+  ctCHEQUE: String = 'Cheque';
+  ctDATACHEQUENAOPREENCHIDO = 'A data do cheque não foi informada.';
+  ctREPETICAOELEMENTOGRADE = 'Existem repetições nos elemento de grade. Será necessário corrigir.';
+  ctLINHACOLUNAGRADEINEXISTENTE = 'É necessário a informação de LINHAS/COLUNAS da grade.';
+  ctELEMENTOGRADEEMUSO = 'O elemento de grade esta em uso e não pode ser excluído.';
+  ctLOGINUSUARIOEXISTE = 'O Login ''%s'' já existe. Deseja vincula-lo ao usuário que esta sendo criado?';
+  ctFILIALUSUARIODIFFILIALBASE = 'O usuário não tem autorização para acessar o sistema com a filial base ''%d''.';
+  ctPRODUTOJACADASTRADOEDITAR = 'O produto ''%s'' e a filial ''%s'' já estão cadastrados neste %s.' + #10#13+
+                                'Deseja editá-lo?';
+  ctTABLOIDESEMPRODUTO = 'O tabloide %s está sem itens de produtos. Deve possuir pelo menos um item associado.';
+  ctTABLOIDE = 'Tabloides';
+  ctCLIENTEPARCELASABERTO = 'O cliente não possui parcelas em aberto';
+  ctDIASAVISOSENHA = 'Sua senha expira em %s, deseja atualizá-la agora?';
+  //Frente de Caixa
+  ctCONFIRMECANCELAMENTOITEM = 'Cancelar os ítens selecionados no cupom.';
+  ctCONFIRMECANCELAMENTOVENDA = 'Cancelar a venda de todos os ítens.';
+
+  // DEVOLUCAO MERCADORIAS
+  ctSEMDEVOLUCAO = 'Cliente %s não esta cadastrado' + #10#13 +
+                   'ou sem contrato a ser devolvido.';
+  ctCONFIRMADEVOLUCAOMERCADORIA = 'Confirma devolução da mercadoria?';
+  ctCONFIRMA_GERAR_SALDO_DE_TROCA = 'DESEJA REALMENTE GERAR SALDO DE CRÉDITO NA FICHA DO CLIENTE?';
+  ctPRECOADEVOLVER = 'O novo preço do produto tem que ser %s.';
+  ctQUANTIDADEADEVOLVER = ' A quantidade informada está fora dos limites.' + #10#13 +
+                          'O %s a ser devolvida deve ser %s.';
+  ctDEVOLVERBRINDE = 'Não é permitido a devolução de um brinde.';
+  ctPRODUTOAINDANAOENTREGUE = 'Esta operação não pode ser efetuada.'                  + #10#13 +
+                              'O produto correspondente não foi entregue ao cliente'  + #10#13 +
+                              'ou a quantidade a ser devolvida como AVARIADA é maior' + #10#13 +
+                              'que a quantidade entregue.';
+  ctQUANTIDADEENTREGUEADEVOLVER = ' A quantidade informada está fora dos limites.' + #10#13 +
+                                  'O máximo de produtos entregues ao cliente que pode ser devolvido deve ser %f.';
+  ctENTREGUEMAIORQUEDEVOLVER = ' A quantidade informada está fora dos limites.' + #10#13 +
+                               'A quantidade de produtos entregues ao cliente esta maior que a quantidade a ser devolvido.';
+  ctENTREGUEMENORQUEMINIMO = ' A quantidade informada está fora dos limites.' + #10#13 +
+                             'A quantidade de produtos entregues ao cliente esta menor que a quantidade mínima (%f) a ser devolvido.';
+  ctPRODUTONAOSELECIONADO = 'Nenhum produto foi selecionado para a devolução.';
+  ctPREENCHERCAMPOSDEVOLUCAO = 'Os campos "Série","Número" e "Data emissão" devem ser' + #10#13 +
+                               'preenchidos com uma informação válida';
+  ctDEVOLUCAONAOCONCLUIDA = 'A devolução não poderá ser concluída.' + #10#13 +
+                           ctPREENCHERCAMPOSDEVOLUCAO;
+  ctEMITIRNOTAFISCALDEVOLUCAO = 'Confirma a Impressão da nota fiscal de devolução?';
+  ctEMITIRCARNEDEVOLUCAO = 'Confirma a Impressão do Carnê de Pagamento com os' +#10#13 +
+                           'novos valores de vencimento?';
+  ctDEVOLUCAOCOMNOTA = 'Confirma a devolução da(s) mercadoria(s) conforme valores' + #10#13 +
+                       'da Nota Fiscal calculados pelo tecLUX?';
+  ctSOMENTEPRODUTOSENTREGUES = 'A devolução só poderá ser efetuada para' + #10#13 +
+                               'produtos entregues ao cliente.';
+  ctCUPOMFECHADO = 'O Cupom fiscal esta fechado.';
+  ctVALIDARCONTROLES = 'Alguns controles não foram preenchidos.';
+  ctCUPOMTOTALIZADO = 'O Cupom fiscal já esta totalizado.';
+  ctPRODUTOCANCELADOFRENTECAIXA = 'O produto %s já esta cancelado.';
+  ctCANCELAMENTOCUPOM = 'Para o cancelamento do cupom';
+  ctABERTURAGAVETA = 'Para realizar a abertura da gaveta';
+  ctREABERTURACAIXA = 'Para a reabertura de caixa';
+  ctCONTRATOCOMCREDITO = 'Este contrato possui crédito de troca. Utiliza a opção troca.';
+
+  //NOTA SAIDAS AVULSAS
+  ctPRODUTOSEMSUBSTTRIBUTARIA = 'O Produto ''%s'' não possui substituição tributária.';
+
+
+  // RENEGOCIACAO CONTRATOS.
+  ctRENEGOCIACAODIVIDA = 'Confirma a renegociação da dívida?';
+  ctALTERACAOCONTRATO = 'Confirma a alteração do contrato?';
+  ctTRANSFERENCIADIVIDA = 'Confirma a transferência da dívida' + #10#13 +
+                          'para o cliente %s.';
+  ctRENEGOCIACAOCLIENTESPC = 'O cliente %s possui registro no SPC.' + #10#13 +
+                             'Para prosseguir com a renegociação é preciso retirá-lo do spc.';
+  ctERROVALORESPARCELAS = 'A soma das parcelas difere do valor do contrato.';
+  ctVALORCONTRATOMENORQUERENEGOCIACAO = 'O valor da renegociação não pode ser' + #10#13 +
+                                        'menor que o valor renegociado';
+  ctVALORCREDITOMAIORPRODUTOS = 'O valor do crédito esta maior que o saldo do documento.' + #10#13 +
+                                'Valor do crédito: %f  Valor do Documento: %f';
+
+  ctVALORCASHBACKMAIORPRODUTOS = 'O valor do cashback deve ser menor que o total líquido dos produtos.' + #10#13 +
+                                'Valor do cashback: %f  Valor líquido dos Produtos: %f';
+
+  ctVALORCREDITOFORAINTERVALO = 'O valor do crédito esta fora da faixa de créditos.' + #10#13 +
+                                'Valor do crédito: %f Saldo Atual: %f';
+
+  ctVALORCASHBACKFORAINTERVALO = 'O valor do Cashback esta fora do limite existente.' + #10#13 +
+                                'Valor do cashback: %f Saldo Atual: %f';
+
+
+  ctENTRADACREDITODIFCONTRATO = 'O saldo de entrada esta menor que o de saida.'+ #10#13 +
+                                'Saldo de entrada: %f Saldo de saida: %f';
+  ctCLIENTEFICARACOMCREDITO = 'O cliente ficará com um crédito de %f.';                                
+  ctCONFIRMACANCELAMENTOCLIENTESPC = 'Confirme o cancelamento do SPC do Cliente %s' + #10#13 +
+                                     'Contrato %s';
+  ctCLIENTEINVALIDOTRANSFERENCIA = 'Código %s não esta cadastrado' + #10#13 +
+                                   'ou não pode ser utilizado para transferência.';
+  ctCLIENTEINVALIDORENEGOCIACAO = 'Cliente %s não esta cadastrado' + #10#13 +
+                                  'ou sem contrato para renegociar.';
+  ctPARARENEGOCIACAOCONTRATO = 'Para renegociação do contrato';
+  ctPARACANCELAMENTOCLIENTESPC = 'Para cancelamento do cliente no SPC';
+  ctPARCELASNAOPODEINSERIR = 'A operação de "ALTERAÇÂO" não permite a' + #10#13 +
+                             'inclusão de novas parcelas.';
+  ctPAGINAINICIAL = 'A página inicial deve ser superior a 1';
+  ctCONTRATONAOPODERENEGOCIAR = 'O contrato %s não pode ser renegociado.' + #10#13 +
+                                'A operação de "RENEGOCIAÇÂO" não é permitida para' + #10#13 +
+                                'contratos com entrega pendente.';
+  ctATRASOMINIMOPERMITIDO = 'O Contrato não pode ser Renegociado porque esta' + #10#13 +
+                            'fora do limite Mínimo de Atraso permitido.';
+  ctNUMEROMAXIMOPARCELA = 'O número máximo de parcelas permitido para Renegociação é %s.';
+  ctDATAMINIMAPRIMEIRAPARCELA = 'A data minima permitida para Renegociação é %s.';
+  ctALTERARDATAVENCTODEMAISPARCELAS = 'Alterar o Data de Vencimento das demais parcelas.';
+  ctALTERARVALORVENCTODEMAISPARCELAS = 'Alterar o Valor de Vencimento das demais parcelas.';
+  ctNAOULTRAPASSARVALORJAUTILIZADO = 'Ja foram utilizados R$ %f de um total de R$ %f. '+ #10#13 +
+                                     'O valor não pode ultrapassar a R$ %f';
+  // CADASTRO DE CHEQUES
+  ctCHEQUERESGATADO = 'O cheque foi resgatado pelo cliente. A situação não pode ser modificada.';
+  ctCHEQUENAOPODEEXCLUIR = 'O cheque foi resgatado e não pode ser excluído.';
+  ctERRORCHEQUEVALOR = 'O valor do cheque é obrigatório.';
+  ctERRORCHEQUENUMERO = 'O número do cheque informado está incorreto.';
+  ctSEMDATADEVOLUCAO = 'O Cheque está como DEVOLVIDO, porém nenhuma' + #10#13 +
+                       'data de devolução foi especificada.';
+
+  // MANUTENCAO DE CHEQUES
+  ctATRIBUIRCOBRADOR = 'Atribuir cobrador aos cheques selecionados.';
+  ctARQUIVOEXISTE = 'O arquivo já existe, e será excluído.';
+  ctGERARREMESSA = 'Confirma a geração da Remessa de Cheques?';
+  ctSEMMODELOREMESSA = 'O Sistema não provem de um Modelo de Remessa para o Banco Selecionado.';
+  ctGERARLISTACHEQUES = 'Gerar listagem dos cheques enviados para remessa.';
+  ctEXCLUIRREMESSA = 'Excluir a remessa de cheques.';
+  ctDEVOLVERCHEQUE = 'Devolver os cheques selecionados.';
+
+  // QUITACAO EXTRA CAIXA
+  ctEXISTEPARCELAANTERORQUITADA = 'Existem parcelas anteriores que não foram quitadas.';
+  ctEXISTEPARCELAPOSTERIORQUITADA = 'Existem parcelas posteriores que já foram quitadas.';
+  ctCONFIRMAALTERACOESPARCELAS = 'Confirma a alteração das parcelas?';
+  ctTOTALPARCELASDIFERECONTRATO = 'A soma das parcelas difere do total do contrato.';
+  ctAUTORIZARRECEBIMENTOPARCELA = 'autorizar o recebimento das parcelas.';
+  ctNAOPODEEXCLUIRPARCELA = 'A parcela não pode ser excluída porque possui um' + #10#13 +
+                            'pagamento via CAIXA ou possui Cartas de Aviso ou Cartas do SPC';
+  ctPAGAMENTOPARCIALPARCELA = 'Confirma o pagamento Parcial da parcela?';
+  ctSEMPERMISSAOALTERARPARCELA = 'A parcela não pode ser alterada porque não' + #10#13 +
+                                 'é um pagamento Extra Caixa.';
+
+  // ORÇAMENTO
+  ctORCAMENTO_MOTIVO = 'Nenhum motivo foi especificado.';
+  ctORCAMENTO_GERAR_COPIA = 'Gerar cópia do Orçamento.';
+  ctORCAMENTO_GERAR_CONTRATO = 'Gerar Contrato a partir do Orçamento.';
+  ctORCAMENTO_PLANO = 'Nenhum Plano de Pagamento selecionado.';
+  ctNENHUMPLANOVENDAAVISTA= 'Nenhum Plano de Pagamento para Venda Vista foi definido em Parâmetros do Sistema';
+  ctORCAMENTO_ENDERECO_CLIENTE = 'O endereço do cliente não está preenchido corretamente.';
+  ctORCAMENTO_PRODUTOSERVICO = 'Deve-se incluir um produto ou serviço antes de calcular as parcelas.';
+  ctORCAMENTO_DESCONTO_MAIOR = 'Desconto maior que o valor da compra.';
+
+  ctOCODIGOFISCALSERVICO = 'o Código Fiscal de Serviço';
+  ctATIVIDADEECONOMICA = 'a Atividade Econômica';
+  ctEQUIPAMENTOS = 'o Equipamento';
+  ctMAQUINAS = 'Máquinas';
+  ctOPERACOES = 'Operações';
+  ctSERVICOS = 'o Serviço';
+  ctCOBRADORES =  'Cobradores';
+  ctNOTAJAUTILIZADA = 'Número %s da nota já foi utilizado';
+  ctINICIALMAIORFINAL = 'O número %s está maior que o número %s';
+  ctCGCMF = 'C.G.C. M.F.';
+  ctIE = 'I.E.';
+  ctMOEDA = 'R$';
+  ctFLUXOGRAMA = 'Fluxograma';
+  ctINSTRUCOESTRABALHO = 'Instruções de Trabalho';
+  ctRECIBODEPAGAMENTO = 'Recibo de Pagamento %s';
+  ctAUTENTICACAO = 'Autenticacao %s';
+  ctCODIGO = 'Codigo';
+  ctBARRA =  'Barra';
+  ctPARCELA = 'Parcela';
+  ctDTVENDA = 'Dt.Venda';
+  ctVENCTO =  'Vencto';
+  ctPAGTOPARCIALPARCELA = 'Pagto parcial';
+  ctVALORPAGTOPARCIALPARCELA = 'Valor Pagto';
+  ctSALDOPAGARPARCELA =  'Saldo a pagar';
+  ctVALORPARCELA      =  'Valor Parcela';
+  ctJUROSDESCONTO =  'Juros/Desconto';
+  ctTOTALRECEBIDO =  'Total Recebido';
+  ctRECEBIDE =  'Recebi de';
+  ctIMPORTANCIADE = 'a importância de';
+  ctTITULAR = 'Titular';
+  ctDOCUMENTO = 'Documento';
+  ctDUPLICATA = 'Duplicata';
+  ctDUPLICATAS = 'Duplicatas';
+  ctTABELAVAZIA = 'A tabela %s está vazia';
+  ctTIPOSDECARTA = 'Tipo de Carta';
+  ctARQUIVONAOENCONTRADO = 'O arquivo %s '+ #10#13 + 'não foi encontrado';
+  ctDIRETORIONAOENCONTRADO = 'O diretório %s '+ #10#13 +'não foi encontrado';
+  ctNAOEXISTEMAVISOS = 'Não existem avisos para imprimir.';
+  ctNAOEXISTEMREGISTROSPC = 'Não existem novos registros para inscrição ou exclusão no SPC.';
+  ctCARTANAOIMPRESSA = 'Carta não impressa não pode ser alterada.';
+  ctMODELOCARTA = 'Modelo de Carta';
+  ctMODELOETIQUETA = 'Modelo de Etiqueta';
+  ctEXPORTACAO = 'Exportação';
+  ctARQUIVOSEXPORTADOSSUCESSO = 'Arquivo(s) exportado(s) com sucesso. '+ #10#13 +'%s';
+  ctSEMAVISOATE = 'Sem aviso até: %s';
+  ctSEMSPCATE = 'Não registrar no SPC até: %s';
+  ctENDERECOINCOMPLETO = 'End. incompleto';
+  ctCARTADEVOLVIDA = 'Carta devolvida';
+  ctDEVOLUCAOMENORENVIO = 'Data de devolução não pode ser menor que a data de envio.';
+  ctCONFIRMACAOMENORENVIO = 'Data de confirmação não pode ser menor que a data de envio.';
+  ctCARTAOBSOLETANAOIMPRESSA = 'Cartas obsoletas, bloqueadas, confirmadas ou devolvidas não podem ser impressas';
+  ctAVISOCARTASNAOIMPRESSAS =  'Existem cartas que ainda não foram impressas.' + #10#13 +
+                               'A geração de novas cartas poderá deixar essas cartas obsoletas.';
+  ctBLOQUEADA = 'Bloqueada';
+  ctENDERECOSCARTASCLIENTE = 'Endereço do Cliente';
+  ctENDERECOSCARTASAVALISTA = 'Endereço do Avalista';
+  ctREGISTRODIASSPCCONFIRMACAO ='Registro no SPC após          dias da confirmação';
+  ctREGISTRODIASSPCAVISO ='Registro no SPC após          dias do envio do aviso';
+  ctFILIALCOMREGISTROSPCNAOINFORMADA = 'A filial com registro no SPC não foi informada';
+  ctCLIENTENAOINFORMADO = 'O cliente não foi informado';
+  ctRETIRAROCLIENTEDOSPC: String = 'Forçar a saída do SPC';
+  ctCANCELARSAIDAFORCADA: STring = 'Cancelar a saída forçada';
+  ctOPERACAOREALIZADACOMSUCESSO : String = 'Operação realizada com sucesso';
+  ctSITUACAOEM = 'Situação em';
+  ctSPC = 'SPC';
+  ctINTERNO = 'Interno';
+  ctAVALISTADE = 'Avalista de: ';
+  ctAVALIZADOPOR = 'Avalizado por: ';
+  ctCONTRATOSPC = 'Este contrato está registrado no SPC. Deseja retirá-lo?';
+  ctCONTRATOCARTAS = 'Este contrato está vinculados a cartas de cobrança. Deseja retirá-las?';
+  ctLINHA = 'Linha';
+  ctCOLUNA = 'Coluna';
+  ctLINHAGRADENAOPODESERALTERADA = 'Já existem produtos cadastrados.'+ #10#13 +
+                                   'A LINHA ou COLUNA da grade não podem ser alteradas.';
+  ctCOMBINACOESINEXISTENTES = 'Não existem combinações de LINHAS ou COLUNAS disponíveis';
+  ctFOLHA = 'Folha';
+  ctPAGINA = 'Página';
+  ctARQUIVOGERADOSUCESSO = 'Arquivo %s'+ #10#13 + 'gerado(s) com sucesso.';
+  ctARQUIVOIMPORTADOSUCESSO = 'Arquivo %s'+ #10#13 + 'importado(s) com sucesso.';
+
+  ctCAMPONAOPODESERALTERADO = 'O campo %s não pode ser alterado.'+#10#13+'Existem variações nos valores';
+  ctELEMENTOVALORNAOCADASTRADO = 'O Elemento/Valor %s não esta cadastrado.'+#10#13+
+                                 'Deseja incluí-lo?';
+  ctNOTACOMPLEMENTAR          = 'A Nota não possui produtos selecionados'+#10#13+
+                                ' ou os valores estão nulos';
+  ctERRONOTACOMPLEMENTAR      = 'A nota %d é complementar da Nota Fiscal %d.'+#10#13+
+                                'Procedimento incorreto.';
+  ctELEMENTOVALORJACADASTRADO = 'O Elemento/Valor %s já esta cadastrado na grade.';
+  ctINCLUIROCONTRATO = 'Incluir o contrato?';
+  ctCONTRATOSERAINCLUIDO = 'Será gerado um novo contrato de R$ %f . Confirma?';
+  ctORCAMENTOSERAINCLUIDO = 'Será gerado um novo orçamento de R$ %f . Confirma?';
+
+  ctAVISTAFATURADO = 'A vista';
+  ctQTIDADESAIDAMAIORTROCA =  'A quantidade de saida do produto %s difere da quantidade a trocar';
+  ctCLIENTEPOSSUIDEBITOCREDITO = 'O cliente possui %s no valor de: %f . Deseja utilizá-lo?';
+
+  ctPRODUTOCONTRATOBRINDE = 'Os produtos do contratos são todos brindes.'+#10#13+
+                            'O contrato não possui saldo para calcular.';
+  ctSALDOCOBERTOPORCREDITO = 'O valor do crédito cobriu o saldo do contrato.'+#10#13+
+                             'O contrato não possui saldo para calcular.';
+  ctGERADOCONTRATO = 'Foi gerado um contrato %s com o número %s.';
+  ctAUT = 'AUT';
+  ctVPARCELA = 'VPARC';
+  ctVPAGO = 'VPAGO';
+  ctCONTR = 'CONTR';
+  ctVENDA = 'VENDA';
+  ctIMPRIMIRRECIBOACUMULADO = 'Deseja imprimir todas as parcelas acumuladas?';
+  ctSEMREGISTROSACUMULADOS = 'Nenhuma parcela registrada.';
+  ctENDERECODESATUALIZADO = 'O cliente "%S" está com o endereço desatualizado.'+#10#13+
+                               'Deseja atualizar o cadastro?';
+  ctPARAMETROSGRAVACAOINCOMPLETOS = 'Não foi possível efetuar a gravação.'+#10#13+
+                                    'Os parâmetros estão incompletos.';
+  ctRESUMONAOSERAIMPRESSO = 'O resumo não pode ser impresso.';
+  ctNAOEXISTEDIME = 'Não existe o cadastro da dime no mês: %s na filial: %s ';
+
+  ctTRANSFERENCIACANCELADA = 'A transferência foi cancelada.';
+  ctTRANSFERENCIAJACONFIRMADA = 'A transferência já foi confirmada.';
+  ctINVENTARIOESTOQUE = 'Inventário';
+
+
+  // ***************************** CONSULTA NOTAS ENTRADAS **************************** //
+  ctREIMPRIMIRNOTADEVOLUCAO = 'Confirma a reimpressão da Nota de Devolução' + #10#13 +
+                              'do contrato %s?';
+
+  // ***************************** CADASTRO DE ATENDIMENTOS *************************** //
+  ctATENDIMENTONAOPODEEXCLUIR = 'O atendimento não pode ser excluìdo.' + #10#13 +
+                                'A data de inclusão é diferente da data atual.';
+  ctCLIENTEJAPOSSUIATENDIMENTO = 'Um Atendimento de %s foi registrado para o cliente' + #10#13 +
+                                 '%s na data de hoje.';
+  ctINCLUIRINFORMES = 'Deseja incluir os Informes ao atendimento existente?';
+  ctCANCELARALTERACOES = 'As alterações realizadas no Atendimento serão canceladas.';
+  ctITEMDALISTANAOSALVOS = 'Existem itens da lista que não foram salvos.'+#10#13 +
+                           'Para reservar o item efetue a gravação da lista de casamento.';
+
+  ctAVISOCHEQUESSEMCOBRADOR = 'A opção Cheques sem cobrador esta selecionada';
+  ctAVISOCOMISSAO = 'O valor da comissão não pode exceder 100%';
+  ctIntervaloZeroaCem = 'O percentual deve estar entre 0 e 100';
+
+  // ***************************** REQUISICAO PARA EXPOSICAO ************************* //
+  ctREQUISICAONAOPODEEXCLUIR = 'A requisição não pode ser %s porque já foi concluída.';
+  ctPRODUTOJAREQUISITADO = 'O produto %s já foi requisitado para a filial %s na data %s.';
+  ctALTERARQUANTIDADE = 'Deseja alterar a quantidade solicitada?';
+  ctQUANTIDADEMAIORESTOQUE = 'A quantidade requisitada é maior que a quantidade' + #10#13 +
+                             'em estoque da filial destino.';
+  ctPRODUTONAOINFORMADO = 'O produto não foi especificado.';
+  ctFILIALIGUALFILIALBASE = 'O código %s não está cadastrado, está inativo, ' + #10#13 +
+                            'ou refere-se a Filial Base.';
+  ctCONFIRMAREQUISICAOAUTOMATICA = 'Confirma a geração de requisição para exposição' + #10#13 +
+                                   'dos produtos selecionados?';
+  ctREQUISICOESNAOCONCLUIDAS = 'O(s) produto(s) a seguir consta(m) em requisições para exposição' + #10#13 +
+                               'na situação de aberto:' + #10#13 + '%s';
+  ctCONFIRMATRANSFERENCIA = 'Confirma a transferência dos produtos selecionados?';
+  ctQUANTIDADEINDISPONILVEL = 'Quantidade solicitada indisponível no estoque.';
+  ctQTDETRANSFERIDAMAIORPEDIDA = 'A quantidade a ser transferida é maior que a' + #10#13 +
+                                 'quantidade solicitada. Confirma?';
+  ctNOTANAOCONFIRMADA = 'A nota de transferência de Número: %s, Série: %s, Filial: %s' + #10#13 +
+                        'não pôde ser confirmada.';
+  ctCONFIRMARNOTASTRANSFERENCIA = 'Confirmar as notas de transferência selecionadas?';
+  ctCONFIRMARPRODUTOSTRANSFERENCIA = 'Confirmar a transferência dos produtos selecionados?';
+  ctERROPROCESSAMENTO = 'Erro no Processamento %s.'+#13#10+'Por favor! entre em contato com o suporte.';
+  ctMENUPRINCIPAL = 'Para acessar o Menu Principal';
+  ctALTERARDATAMAXIMAPARCELA = 'Para alterar data limite primeira parcela';
+  ctDATALIMITEPARCELA = 'Data limite para vencimento da parcela ultrapassada';
+  ctCAIXAFECHADONODIA = 'O caixa foi fechado neste dia. Confirme a sua reabertura.';
+  ctPRECO = 'Preço';
+  ctDESCONTO = 'Desconto';
+  ctICMS = 'ICMS';
+  ctBASEICMS = 'Base ICMS';
+  ctVALORICMS = 'Valor ICMS';
+  ctIPI = 'IPI';
+  ctREDBASE = 'Redução Base';
+  ctCFOP = 'CFOP';
+  ctCFPS = 'CFPS';
+  ctIMPRESSORA = 'Impressora';
+  ctNOVOCLIENTE = 'Novo Cliente';
+  ctUSADOCLIENTE = 'Usado Cliente';
+  ctATIVOFIXO = 'Ativo Fixo';
+  ctESTOQUE = 'Estoque';
+  ctCANCELADA = 'Cancelada';
+  ctOSP = 'OSP';
+  ctNIVELSALARIAL = 'Nível Salarial';
+
+  //---------------- Módulo Gerar Remessas para Banco (Cobrança) ---------------
+   ctDIAMESBRANCO = 'O dia e/ou mês não foi informado.';
+   ctNUMEROSEQUENCIALBRANCO = 'O número de seqüência de arquivo não foi informado.';
+   ctAUTORIZACAOBRANCO = 'A autorização do arquivo não foi informada.';
+   ctERROGRAVARPARCELAS= 'Houve erro na gravação da parcela.';
+   ctCODIGOFILIALBRANCO = 'A filial não foi informada.';
+   ctCODIGOGRUPOFILIALBRANCO = 'A Filial ou Grupo de Filiais não foi informado.';
+   ctCONTABRANCO = 'A conta não foi informada.';
+   ctCHEQUEJAUTILIZADOS = 'Este cheque já foi utilizado em uma quitação no dia %s.';
+   ctCHEQUEJAUTILIZADOSNESTEDIA = 'Este cheque já foi utilizado neste dia.'+ #10#13 +
+                                  'Este pagamento é uma complementação deste cheque?';
+   ctCANCELAMENTOQUITACAOCHEQUE = 'Existem outras duplicatas quitadas com este cheque. Cancelar todas?';
+   ctCANCELAMENTOQUITACAOCHEQUENUMERO = 'Existem outras duplicatas quitadas com o cheque ''%s''. Cancelar todas?';
+
+   ctCANCELAMENTOQUITACAOLOTE = 'Existem outras duplicatas quitadas neste lote. Cancelar todas?';
+
+   ctDATASVENCTOSBRANCO = 'As datas de vencimento não foram informadas.';
+   ctRETORNOVAZIO = 'Não foi selecionado nenhum arquivo de retorno.';
+   ctERROABERTURARETORNO =  'Houve erro na abertura do arquivo de retorno.';
+   ctERROATUALIZACAOPARCELAS = 'Houve erro na atualização das parcelas.';
+   ctFALTOUTRAILLER = 'Faltou o "trailler" o arquivo.';
+   ctFALTOUTRAILLERLOTE = 'Faltou o "trailler" lote do arquivo.';
+   ctLAYOUTNAOCADASTRADO = 'O leiaute deste banco não está cadastrado.';
+   ctCARTEIRAEMBRANCO = 'O nº do convênio do Banco do Brasil não foi informado.';
+   ctCARTEIRACONVENIONAOCADASTRADO = 'A carteira ou convênio não estão cadastrados.';
+   ctFIMDEATUALIZACAO = 'Fim de atualização das parcelas';
+   ctNAOFOISELECIONADOPARCELAS = 'Não foi selecionada nenhuma parcela';
+   ctERROABERTURAARQUIVOTEXTO = 'Houve erro na abertura do arquivo: ';
+   ctHEADERNAOCONFERE = 'O banco da conta não confere com o banco do "header": ';
+   ctARQNAOTEMHEADER = 'O arquivo não possui "header".';
+   ctARQNAOTEMHEADERLOTE = 'O arquivo não possui "header" de lote.';
+   ctARQNAOERETORNO = 'O arquivo não é de retorno';
+   ctARQNAOEDECOBRANCA = 'O arquivo não é de cobrança.';
+   ctBANCODOARQTEXTO = 'O banco no arquivo lido é: ';
+   ctVERSAONAOE040 ='A versão do leiaute do arquivo não é a 040.';
+   ctVERSAONAOE030 ='A versão do leiaute do arquivo não é a 030.';
+   ctVERSAONAOE020 = 'A versão do leiaute do arquivo "header" lote não é a 020.';
+   ctDADOSCONTABILISTANAOFINFORMADOS = 'Os dados do contabilista não foram informados';
+   ctCONTANAOPODESEREXCLUIDA = 'Esta conta não pode ser excluida.'+ #10#13 +
+                               'Existem outras contas vinculadas.';
+   ctTIPOCONTANAOPODESERALTERADO = 'O tipo de conta nao pode ser alterado.'+#10#13 +
+                                   'Existem contas vinculadas ou lançamentos nesta conta.';
+   ctCLASSIFICACAOCADASTRADA = 'Esta classificação já esta cadastrada';
+   ctNOMECLASSIFICACAOCADASTRADA = 'Esta classificação e nome já estão cadastrados';
+   ctCLASSIFICACAONAOCADASTRADA = 'A classificacao %s não esta cadastrada';
+   ctCLASSIFICACAOSINTETICACADASTRADA = 'Esta classificação para conta sintética já esta cadastrada';
+   ctCREDITARDIFERENTEDEBITAR = 'As contas a débito e a crédito têm que ser diferentes.';
+   ctDIFERENCAALIQUOTAIPI = 'O Produto ''%s'' possui diferença na alíquota de IPI.'+ #10#13 +
+                            'Alíquota no contrato: %s'+ #10#13 +
+                            'Alíquota no cadastro: %s ';
+   ctDIFERENCATOTALDEBITOCREDITO = 'O total de débitos e créditos são diferentes.';
+   ctCONFIRMALANCAMENTOREGIMEDECAIXA = 'Confirma lançamento por regime de caixa?';
+   ctDIFERENCATOTALDEBITOCREDITOVALORDATA = 'Existe uma diferença de %s entre o total de débitos e créditos no dia %s';
+   ctDIFERENCATOTALCONTABILVALORNOTA = 'O valor da nota difere do total '+ #10#13 +
+                                       'de débitos e créditos';
+   ctNAOPOSSUILANCTOSCONTABEIS = 'Os lançamentos contábeis não foram lançados. ';
+   ctFORNECEDORSEMCONTACREDITOCONTABIL = 'O fornecedor ''%s'' '+ #10#13 +
+                                         'não possui conta crédito vinculada. '+ #10#13 +
+                                         'Verifique a aba contábil no cadastro de fornecedores.';
+   ctPROSSEGUIRGRAVACAO        = 'Deseja Prosseguir com a gravação?';
+   ctLANCAMENTOOBRIGATORIO     = 'O lancamento ''%s'' a ''%s'' é obrigatório.';
+   ctCREDITO                   = 'Crédito';
+   ctDEBITO                    = 'Débito';
+   ctLANCAMENTO                = 'Lançamento';
+   ctFORNECEDORPADRAONAOVINCULADO = 'O fornecedor padrão para a conta ''%s'' não está vinculado.'+#10#13 +
+                                    'Verifique a aba contabil nos parâmetros do sistema.';
+   ctNATUREZAPADRAONAOVINCULADA = 'A natureza padrão para esta nota fiscal não está vinculada.'+#10#13 +
+                                    'Verifique a aba Geral/Notas nos parâmetros do sistema.';
+   ctCONTAPADRAONAOVINCULADA = 'A conta de entrada padrão para ''%s'' não está vinculada.'+#10#13 +
+                                    'Verifique a aba contabil nos parâmetros do sistema.';
+   ctCONTAPADRAOISSNAOVINCULADA = 'A conta de entrada padrão para ''%s'' não está vinculada.'+#10#13 +
+                                    'Verifique o cadastro de natureza.';
+
+
+ctEXISTEPAGTOIMPOSTOSVINCULADOS = 'O documento: ''%s'' possui os seguinte(s) documento(s) vinculado(s):'+#10#13+
+                                     '''%s''.'+#10#13+
+                                     'referente a impostos retidos e pagos:'+#10#13+
+                                     'É necessário efetuar o cancelamento deste(s) primeiramente.';
+
+    ctBANCOSEMCONTACONTABIL = 'A conta ''%s'' '+ #10#13 +
+                             'não possui uma conta contábil vinculada. '+ #10#13 +
+                             'Verifique a conta no cadastro de bancos.';
+
+    ctFORNECEDORSEMADIANTAMENTO = 'O fornecedor ''%s'' '+ #10#13 +
+                             'não possui uma conta contábil de adiantamento vinculada. '+ #10#13 +
+                             'Verifique a conta no cadastro de fornecedores.';
+
+   ctLOTELANCAMENTOALTERADO = 'Este lote de lançamentos foi alterado.';
+   ctCONTAANALITICARECALCULO = 'A classificação desta conta foi alterada. '#10#13 +
+                               'Será necessário recalcular os saldos contábeis.'#10#13 +
+                               'Confirma a operação?';
+
+   ctNAOIMPLEMENTADOLINUX = 'Não implementado no LINUX';
+   ctNAOEXISTEMITENSCADASTRADOS = 'Não existem ítens cadastrados';
+   ctAUTORIZACAOCOMANDOSECF = 'Para autorizacao dos comandos ECF';
+
+   ctRECEBIMENTOSDIFEREAUTENTICADO = 'A soma dos recebimentos difere do valor da autenticação.';
+   ctEXISTEAUTENTICACAOMESMATRANSACAO = 'Existe(m) outra(s) autenticação(ões) na mesma transação.'#10#13 +
+                                        'Confirma o cancelamento das autenticações relacionadas à transação?';
+   ctMESMAALTERACAODEMAISITENS = 'Realizar a mesma alteração para os demais itens?';
+   ctCONFIRMAREXCLUSAOCHEQUES = 'Existe(m) cheque(s) associado(s) à(s) autenticação(ões) selecionada(s).' + sLineBreak +
+                                'Deseja excluir o(s) cheque(s) associado(s)?';
+   ctVENDACONSUMIDORFINAL = 'Venda para consumidor final?';
+
+   {PRODUÇÃO}
+   ctITEMNAOVINCULADOOSP = 'Não foi possível efetuar a gravação.'+#10#13+
+                           'Nenhum item foi vinculado a OSP.';
+   ctITEMNAOVINCULADOCLIENTE = 'Este produto não esta vinculado ao cliente.';
+   ctCODIGOBARRASINVALIDO    = 'Código de barras inválido.';
+   ctCODIGOBARRASJACADASTRADO = 'Código de barras já vinculado com o produto %s.';
+   ctOBSERVACOESCOMPLEMENTARESIPI = 'Nota fiscal complementar à NF série %s e nº %d, emitida '+
+                                    'nos termos dos arts. 26, inciso XII do RIPI e 174, '+
+                                    'inciso IV do RICMS-SC.';
+   ctOBSERVACOESCOMPLEMENTARESSEMIPI = 'Nota fiscal complementar à NF série %s e nº %d, emitida '+
+                                       'nos termos do art. 174, inciso IV do RICMS-SC.';
+   ctERROACRESCIMOFINANCEIRO  = 'Limite de acréscimo permitido pela impressora fiscal (99,99%) ultrapassado.' +#10#13+
+                                'Deseja alterar o contrato?';
+
+   ctERROEXCLUSAO = 'Não foi possível excluir o %s.'+#10#13+
+                    'O Contrato entá Bloqueado.';
+   ctERROEXCLUSAOPARCELA = 'Não foi possível excluir a parcela.'+#10#13+
+                           'Existe pagamento ou sua data está fora da data contábil.';
+
+
+
+
+type TtecOperacao = (topINSERT, topUPDATE, topDELETE);
+type TipoLancamento = (DEBITO, CREDITO);
+type TTecTiposValores = (icms, icmsst, ipi, pis, cofins);
+Type TipoFiltroSituacao = (SituacaoComErro, SituacaoComAlerta, numerosequencianfe, numerosequencianfeAlerta );
+type TipoInclusaoProdutoGrade = (manual, ViaXml);
+type TtecLeituraXML = (XMLNfe, XMLCte);
+
+type TipoOperacaoErroProdutoNFE = (opAdicionar, opRemover);
+
+type
+
+  TtecErroDuplicatas = (edNENHUM, edVALORES,
+                        edDATADUPLICADA, edDATADUPLICADAEACIMAUMANO,
+                        edDATAACIMAUMANO, edDATANULA);
+
+
+  TMessageButton = (smbOK, smbCancel, smbYes, smbNo, smbAbort, smbRetry, smbIgnore);
+  tResumo = (ComResumo, SemResumo, SoResumo);
+
+
+  vString = array of string;
+  vInteger = array of integer;
+  vTtecQuery = array of TZDataSet;
+
+
+  TtecWMCONTROLCFGTEST = record
+    Msg: Cardinal;
+    wparam: word;
+    lparam: longword;
+  end;
+
+  T_Extenso = Record
+    ExtLinha: Array [1..4] of String;
+    ExtTamLinha: Array [1..4] of Byte;
+  end;
+
+  TtecTipoAutorizacao = (taLOGIN, taSENHA);
+
+  TtecEndereco = (endESTADO, endCIDADE, endBAIRRO, endRUA, endREGIAO);
+  TtecTabelasEstoque = (tbeGRUPOS, tbeCLASSES, tbeUNIDADES,tbeICMS, tbeIPI, tbeOBSLEGAIS, tbeOBSLIVROSFISCAIS,
+                        tbeCOLUNAS, tbePROMOCOES, tbeCASHBACK, tbeMARCAS, tbeMODELOS, tbeGRUPOSFORNECEDORES, tbeFATORES, tbeGRADES, tbeATRIBUTOS);
+  TtecTabelasGIA = (tbgCLASSESPAGTO, tbgRECEITASTRIBUTARIAS);
+  TtecTabelasDIME = (tbFILIAIS, tbQuadrosDIME);
+  TtecTabelasCrediario = (tbcAGENTE, tbcAGENTETIPOCARTA, tbcCARGO, tbcCONCEITO,
+                          tbcCONCEITOTIPOCARTA, tbcMOTIVO, tbcTIPOPLANO,
+                          tbcTIPOCARTA, tbcTIPOCARTAPRECEDENTE, tbcNATUREZA,
+                          tbcTIPOMOVTO, tbcCFOP, tbcCONTADEBITO, tbcCONTACREDITO,
+                          tbcHISTORICO, tbcCONTACONTABIL, tbcTIPORECEBIMENTO,
+                          tbcQUALIDADE_VENDAS,
+                          tbcPRODUTOSCARGOS, tbcPRODUTOS, tbcTIPOATENDIMENTO,
+                          tbcCONTAS, tbcAGENTETIPORECEBIMENTO, tbcNENHUM);
+
+  TTecOperacaoGravarContrato = (tOGCVendasViaSite, tOGCOutras);                           
+
+  TtecLancamentosNaturezas = (lnAcrescimoFinanceiro,
+                              lnCOFINSaRecolher,
+                              lnCustodaMercadoria,
+                              lnDespesasAcessorias,
+                              lnDespesasCOFINS,
+                              lnDespesasICMS,
+                              lnDespesasIPI,
+                              lnDespesasISS,
+                              lnDespesasPIS,
+                              lnEstoqueMercadorias,
+                              lnFrete,
+                              lnICMSRecolher,
+                              lnICMSSubstituicao,
+                              lnIPIRecolher,
+                              lnISSRecolher,
+                              lnPISRecolher,
+                              lnReceitaProdutos,
+                              lnReceitaServicos,
+                              lnSeguro,
+                              lnTotaldaNota);
+
+  TtecLancamentosContasEntradas = (lceCOFINSretida,
+                                   lceCSLLretida,
+                                   lceDescontosObtidos,
+                                   lceDespesasFinanceiras,
+                                   lceINSSRetido,
+                                   lceIRRetido,
+                                   lceISSRetido,
+                                   lcePISRetido,
+                                   lcePIS_COFINS_CSLL);
+
+  TtecLancamentosContasSaidas = (lcsCOFINSacompensar,
+                                   lcsCSLLacompensar,
+                                   lcsDescontosConcedidos,
+                                   lcsINSSacompensar,
+                                   lcsIRRFaCompensar,
+{                                   lcsISSaCompensar,}
+                                   lcsPISaCompensar,
+                                   lcsReceitasFinanceiras);
+
+
+  TtecVerificaInformacaoNaTabela = function(Ind: Integer; NomeCampo: String; inf: Variant): boolean of object;
+  TtecTabelaPorIndice = function(Ind: Integer): TZDataSet of object;
+  TtecProcParametroInteger = procedure(Ind: Integer) of object;
+  TtecProcParametroBoolean = procedure(Valor: Boolean) of object;
+
+  TtecProcParametroString = procedure(str: String) of object;
+  TtecInformacaoPorIndice = procedure(Ind: Integer; var continuar: Boolean) of object;
+  TtecBeforeOpen = procedure(DataSet: TDataSet) of object;
+  TtecProcedure = procedure of object;
+  TtecVetorTabelas = array of TZDataSet;
+  TtecFuncaoBoolParametroString = function(var Str: String; Min, Max: Integer): Boolean of object;
+
+
+  TtecFuncaoBoolParVStringInt = function(Str: Array of String; var Int: Integer): Boolean of object;
+
+  TtecVerificarDados = (Normal, NaoPresseguir, Prosseguir, Prosseguir_e_ReabrirVerificacao);
+
+  TtecFuncaoVerificarDados = function(ds: array of TZDataSet): TtecVerificarDados of object;
+
+  TtecFuncaoBoolean = function: Boolean of object;
+  TtecAdicionarDocumento = procedure(Conta, Historio: Integer; Excluir:Boolean) of object;
+  TtecAnalistaLiberou = function: TTecUsuarios of object;
+  TTectipoemissaonfeservico = (Matricial, Matricial_Conjugada, Eletronica_Betha_Sistemas, Eletronica_Conujugada, Outras, Inexistente, Florianopolis_SoftPlan, Palhoca_IPM);
+
+  TtecValorRetorno = function: Currency of object;
+  TtecDataRetorno = function: TDateTime of object;
+  TTecIntegerRetorno = function: Integer of object;
+  TTecLargeIntRetorno = function: Int64 of object;
+  TTecBooleanRetorno = function: Boolean of object;
+  TTecStringRetorno = function: String of object;
+  TTecVariantRetorno = function : Variant of object;
+
+  tpImportacaoArquivo = (OrcamentosProdDescQtde, ProdDescQtde, Outros);
+  TOrigemEmail = (OutrosEmail, PedidosEmail, ContratosEmail, OrcamentoEmail, OrdemServicoEmail, EnvioNFeEmail);
+
+
+
+  //constantes para as procuras/consultas do modulo de cadastro de enderecos
+  tipoProcuraCEP = (tpESTADOS, tpESTADOSCIDADES, tpESTADOSBAIRROS, tpESTADOSRUAS,
+                    tpCIDADES, tpCIDADESBAIRROS, tpCIDADESRUAS,
+                    tpBAIRROS, tpBAIRROSRUAS, tpBAIRROSFRETES,
+                    tpRUAS,
+                    tpREGIOES, tpREGIOESBAIRROS, tpREGIOESFRETES, tpREGIOESCIDADES);
+
+  TtecProcuraCadastroNotasFiscais = (pnfNENHUMA, pnfFORNECEDOR, pnfSERIE, pnfEVENTO, pnfNOTAFISCAL,
+                                     pnfNATUREZA, pnfCONHECIMENTOFRETE, pnfTRANSPORTADOR,
+                                     pnfESTADOPLACA, pnfCONTADEBITO, pnfCONTACREDITO,
+                                     pnfHISTORICO, pnfCONTACONTABIL, pnfNOTAFISCALSAIDA, pnfPRODUTONFE,
+                                     pnfPEDIDOPRODUTONFE, pnfPEDIDONOTASPAG,
+                                     pnfNATUREZAPRODUTONFE);
+
+  TtecCadastroNotasFiscais = (cnfDUPLICATA, cnfPRODUTO, cnfIMPOSTOS, cnfCONTABILIDADE,
+                              cnfADICAO, cnfPRODUTOIMPORTADO);
+  TtecFreteInterno = (ComFreteInterno, SemFreteInterno);
+  TtecTipoFrete = (tfEmitente, tfDestinatario);
+  TtecCriterioVerificacaoImpostosNotaFiscal =
+    (cvnSEMFRETESEMSEGSEMACRESC,
+     cvnCOMFRETESEMSEGSEMACRESC,
+     cvnSEMFRETECOMSEGSEMACRESC,
+     cvnCOMFRETECOMSEGSEMACRESC,
+     cvnSEMFRETESEMSEGCOMACRESC,
+     cvnCOMFRETESEMSEGCOMACRESC,
+     cvnSEMFRETECOMSEGCOMACRESC,
+     cvnCOMFRETECOMSEGCOMACRESC,
+     cvnSEMFRETESEMSEGSEMACRESCARREND,
+     cvnCOMFRETESEMSEGSEMACRESCARREND,
+     cvnSEMFRETECOMSEGSEMACRESCARREND,
+     cvnCOMFRETECOMSEGSEMACRESCARREND,
+     cvnSEMFRETESEMSEGCOMACRESCARREND,
+     cvnCOMFRETESEMSEGCOMACRESCARREND,
+     cvnSEMFRETECOMSEGCOMACRESCARREND,
+     cvnCOMFRETECOMSEGCOMACRESCARREND);
+
+  TtecProdutosNotaFiscal = (dnfPEDIDO, dnfPRODUTO, dnfSERIE, dnfFILIAL, dnfNOTAFISCAL, dnfNATUREZA, dnfCSTICMS, dnfCSOSN );
+
+  TtecRelastorioLista = (filFORNECEDOR, filCLASSES, filGRUPOS, filCOLUNAS);
+
+  tipoProcuraProdutosEstoque = (tpCARACTERISTICAS, tpGRUPOS, tpOBSLEGAIS,tpUNIDADES,
+                                tpIPI, tpICMS, tpMARCAS, tpCOLUNASPRECOS, tpCOLUNASCOLUNASPRECOS,
+                                tpPRECOSCOLUNASPRECOS, tpPRECOS, tpORIGENS, tpINCIDENCIAS,
+                                tpPRODUTOS, tpPRODUTOSFIOS, tpPRODUTOSFITAS, tpPRECOSPRODUTOS, tpSIMILARES, tpFORNECEDORES,
+                                tpESTOQUES, tpFATORES, tpLINHAGRADE, tpCOLUNAGRADE,
+                                tpELEMENTOLINHAGRADE, tpELEMENTOCOLUNAGRADE,
+                                tpCONSULTAPRECOSPRODUTOS, tpCLASSE, tpCLIENTE,
+                                tpDebitarVendaaVista, tpCreditarVendaaVista, tpHistoricoVendaaVista,
+                                tpDebitarVendaaPrazo, tpCreditarVendaaPrazo, tpHistoricoVendaaPrazo,
+                                tpDebitarAbatimentos, tpCreditarAbatimentos, tpHistoricoAbatimentos,
+                                tpDebitarDevolucoes, tpCreditarDevolucoes, tpHistoricoDevolucoes,
+                                tpDescricaonaNF);
+
+  TtecProcuraTabloides = (ttcNENHUM, ttcTABLOIDE, ttcPRODUTO, ttcPLANO);
+
+  //constantes para as procuras/consultas do modulo de cadastro de pedidos e dependentes
+  tipoProcuraPedidosEstoque = (tpPEDIDOS,
+                               tpTRANSPORTADORESPEDIDOS, tpFORNECEDORESPEDIDOS,
+                               tpFILIALFATURAPEDIDOS, tpFILIALENTREGAPEDIDOS,
+                               tpFILIALCOBRANCAPEDIDOS, tpESTADOSPEDIDOS,
+                               tpPRODUTOSPRODUTOSPEDIDOS);
+                               
+  TtecTipoPesquisaProduto = (pesCODIGOBARRAS, pesPRODUTO);
+  TTecTipoExtratoContratoImoveis = (Completo, Simplificado, ParaCliente);
+
+
+  TtecPesquisa = (pesNENHUMA,
+                  pesITEMPRODUTOS, pesITEMPRODUTOSINICIAL, pesITEMPRODUTOSFINAL, pesitemPRODUTOSCONSULTA,
+                  pesITEMPRODUTOSFIOS, pesITEMPRODUTOSFITAS, pesITEMPRODUTOPN, pesITEMPRODUTOOS, 
+                  pesPRODUTOS, pesPRODUTOSPEDIDOS, pesPRODUTOSINICIAL, pesPRODUTOSFINAL,
+                  pesCaracteristicasProdutosClientes,
+                  pesAGENTES,pesTRANSFERENCIA, pesCONTAS,
+                  pesFILIAIS, pesTIPOSMOVIMENTOS, pesTIPOSPLANOS,
+                  pesGRUPOSPRODUTOS,pesGRUPOSCARACTERISTICAS,
+                  pesCLASSES, pesCLASSESINICIAL, pesCLASSESFINAL,
+                  pesCARACTERISTICAS, pesLOCALIZACAO, pesLOCALIZACAOESTOQUE,
+                  pesMARKETPLACE,
+                  pesSUBLOCALIZACAOESTOQUE, pesFORNECEDORES, pesFORNECEDORESTRANSPORTE,
+                  pesMARCAS, pesMARCASINICIAL, pesMARCASFINAL, pesNCMTABELAIPI,
+                  pesGRUPOS, pesGRUPOSINICIAL, pesGRUPOSFINAL, pesEQUIPAMENTO,
+                  pesGRUPOSFILIAIS, pesCODIGOFISCAL, pesCAIXAS, pesREGIOES, pesVENDEDORES,
+                  pesCONTRATOS, pesLICITACOES, pesORDEMSERVICO, pesVENDASPERDIDAS, pesLISTACASAMENTO,
+                  pesPEDIDOSSAIDA, pesPEDIDOS,
+                  pesCLIENTES, pesCLIENTESTROCA, pesBLOCOS, pesEMPREENDIMENTOS, pesIMOVEIS,
+                  pesCLIENTESINICIAL, pesCLIENTESFINAL, pesCLIENTESNOVAVENDA, pesNUMEROSIMOVEIS,
+                  pesCHEQUES, pesREMESSAS, pesTIPOCHEQUES, pesTIPOSUNIDADES, pesCONTRATOSIMOVEIS, pesCONTRATOSMANUTENCAO,
+                  pesSHADOW, pesFILTROSAC, pesCONCEITOS, pesPARCELASIMOVEIS,
+                  pesNOTASFORNECEDOR, pesNotasPag, pesNOTASSERIE, pesNOTASNUMERO, pesNOTASFILIAIS,
+                  pesCOLUNAS, pesSERIES, pesNOTAS, pesTRANSPORTADORES, pesESTADOS, pesESTADOCIDADES, pesCBENEF,
+                  pesNATUREZAS, pesGRUPOSFORNECEDORES, pesHISTORICOS, pesBANCOS, pesAGENCIAS,
+                  pesDOCUMENTOSPAG, pesFORNECEDORESNOTAS, pesFORNECEDORESPRODUTOS, pesFORNECEDORESPEDIDOS,
+                  pesTIPOCARTAS, pesMODELOETIQUETA, pesTIPOMOVIMENTOS, pesPLANO,
+                  pesCODIGOFISCALENTRADAINICIAL, pesCODIGOFISCALENTRADAFINAL,
+                  pesCODIGOFISCALSAIDAINICIAL, pesCODIGOFISCALSAIDAFINAL,
+                  pesCARGOS, pesCIDADES, pesCIDADESIBGE, pesCONTADEBITO, pesCONTACREDITO,
+                  pesCONTAREFERENCIAL,
+                  pesHISTORICOCONTABIL, pesCOBRADOR, pesCENTRODECUSTO,
+                  pesSERIESFORNECEDORES, pesNUMERONOTASPAGPRODUTOS, 
+                  pesINVENTARIO, pesIMOBILIZADO, pesTIPORECEBIMENTO,
+                  pesTIPOSATENDIMENTOS,
+                  pesTipoMovimentoEstoque,
+                  pesTIPOPAGAMENTO, pesEXPORTACAODADOS,
+                  pesMOEDAS, pesFLUXOGRAMA, pesINSTRUCOESTRABALHO, pesOSP, pesNATUREZASCFOP,
+                  pesNATUREZASCFOP_NF,
+                  pesNIVELSALARIAL, pesUSUARIOS, pesGRUPOSUSUARIOS, pesMAQUINAS, pesMAQUINASECF,
+                  pesINTERVENCAOECF, pesOPERACOES,
+                  pesMODALIDADEBCICMS, pesMODALIDADEBCICMSST,
+                  pesTRIBUTOSPIS, pesPISCOFINS_T435, pesPISCOFINS_T436, pesTRIBUTOSISSQN,
+                  pesPISCOFINS_T511, pespis_tdctf, pescofins_tdctf,
+                  pesTRIBUTOSCOFINS,pesINCIDENCIA, pesCUPOMFISCAL,
+                  pesTRIBUTOSIPI, pesTRIBUTOSICMS, pesEVENTO, pesTIPOPRODUTO, pesFALHAS,
+                  pesQuestionarios,
+                  pesSERVICOSLCP116, pesSERVICOS, pesMODELODOCTOSFISCAIS, pesICMSOBRIGACOES, pesICMS, pesIPI,
+                  pesCODIGODERECEITAS,
+                  pesTABELAAJUSTEICMS, pesTABELAAJUSTEIPI,
+                  pesINSTRESPADMCADASTRO, pesQUALIFICACAO, pesECD, pesECF, pesFCONT,
+                  pesEFD, pesEPC, pesDIPJ_IPI, pesCLASSIFICACAOIPI,
+                  pesNIVEISCONHECIMENTO, pesMOTIVOSPARADAS, pesTURNO, pesCSOSN,
+                  pesSETORESPRODUCAO, pesMODELO, pesESPECIFICACAO, pesREPASSECHEQUES, pesNATBCCRED,
+                  pesEFD_T53, pesUNIDADES, pesSETORESVENDA, pesORCAMENTO, pesEstoqueItemProdutos,
+                  pesMVAProtocolos, pesTiposPlanosreferenciais, pesLOTETRANSFERENCIA, pesLISTASPADRAO,
+                  pesPROMOCOES, pesCashBack, pesAtributos, pesclassificacao_vigilancia_sanitaria,
+                  pesProcessoJudicialReinf, pesSuspensaoExibilidadeTributos,
+                  pesMaoObraFornecedor, pesMaoObraFilial, pesCupons_Desconto,
+                  pesMOTIVOS, pesORIGENS, pesOBSLEGAIS, pesLOTESPRODUTOS, pesESTOQUESLOTESPRODUTOS,
+                  pesItemAtributoElemento, pesItemAtributoValor);
+{
+
+  TtecPesquisa = (pesNENHUMA,
+                  pesITEMPRODUTOS, pesITEMPRODUTOSINICIAL, pesITEMPRODUTOSFINAL,
+                  pesPRODUTOS, pesPRODUTOSINICIAL, pesPRODUTOSFINAL,
+                  pesAGENTES,pesTRANSFERENCIA, pesCONTAS,
+                  pesFILIAIS, pesTIPOSMOVIMENTOS, pesTIPOSPLANOS,
+                  pesGRUPOSPRODUTOS,pesGRUPOSCARACTERISTICAS,
+                  pesCLASSES, pesCLASSESINICIAL, pesCLASSESFINAL,
+                  pesCARACTERISTICAS, pesLOCALIZACAO, pesFORNECEDORES,
+                  pesMARCAS, pesMARCASINICIAL, pesMARCASFINAL, pesNCMTABELAIPI,
+                  pesGRUPOS, pesGRUPOSINICIAL, pesGRUPOSFINAL,
+                  pesGRUPOSFILIAIS, pesCODIGOFISCAL, pesCAIXAS, pesREGIOES, pesVENDEDORES,
+                  pesCONTRATOS, pesLISTACASAMENTO, pesPEDIDOSSAIDA, pesPEDIDOS,
+                  pesCLIENTES, pesCLIENTESTROCA, pesBLOCOS, pesEMPREENDIMENTOS, pesIMOVEIS,
+                  pesCLIENTESINICIAL, pesCLIENTESFINAL, pesCLIENTESNOVAVENDA, pesNUMEROSIMOVEIS,
+                  pesCHEQUES, pesREMESSAS, pesTIPOCHEQUES, pesTIPOSUNIDADES, pesCONTRATOSIMOVEIS,
+                  pesSHADOW, pesFILTROSAC, pesCONCEITOS, pesPARCELASIMOVEIS,
+                  pesNOTASFORNECEDOR, pesNOTASSERIE, pesNOTASNUMERO, pesNOTASFILIAIS,
+                  pesCOLUNAS, pesSERIES, pesNOTAS, pesTRANSPORTADORES, pesESTADOS, pesESTADOCIDADES,
+                  pesNATUREZAS, pesGRUPOSFORNECEDORES, pesHISTORICOS, pesBANCOS, pesAGENCIAS,
+                  pesDOCUMENTOSPAG, pesFORNECEDORESNOTAS, pesFORNECEDORESPRODUTOS,
+                  pesTIPOCARTAS, pesMODELOETIQUETA, pesTIPOMOVIMENTOS, pesPLANO,
+                  pesCODIGOFISCALENTRADAINICIAL, pesCODIGOFISCALENTRADAFINAL,
+                  pesCODIGOFISCALSAIDAINICIAL, pesCODIGOFISCALSAIDAFINAL,
+                  pesCARGOS, pesCIDADES, pesCONTADEBITO, pesCONTACREDITO,
+                  pesCONTAREFERENCIAL,
+                  pesHISTORICOCONTABIL, pesCOBRADOR, pesCENTRODECUSTO,
+                  pesSERIESFORNECEDORES, pesNUMERONOTASPAGPRODUTOS,
+                  pesINVENTARIO, pesIMOBILIZADO, pesTIPORECEBIMENTO, pesEXPORTACAODADOS,
+                  pesMOEDAS, pesFLUXOGRAMA, pesOSP, pesNATUREZASCFOP,
+                  pesNIVELSALARIAL, pesUSUARIOS, pesMAQUINAS, pesOPERACOES,
+                  pesMODALIDADEBCICMS, pesMODALIDADEBCICMSST,
+                  pesTRIBUTOSPIS, pesTRIBUTOSCOFINS,pesINCIDENCIA,
+                  pesTRIBUTOSIPI, pesTRIBUTOSICMS, pesEVENTO, pesTIPOPRODUTO, pesFALHAS,
+                  pesSERVICOSLCP116, pesMODELODOCTOSFISCAIS, pesICMSOBRIGACOES, pesTABELAAJUSTEICMS, pesTABELAAJUSTEIPI,
+                  pesINSTRESPADMCADASTRO, pesQUALIFICACAO, pesECD, pesFCONT, pesEFD, pesDIPJ_IPI, pesCLASSIFICACAOIPI,
+                  pesNIVEISCONHECIMENTO, pesTURNO, pesCSOSN, pesMODELO, pesREPASSECHEQUES);
+                  }
+
+  ttecTipoContratoServico = (ComServico, SemServico, SoServico);                
+  TtecChequeCadastroConsulta = (cccClientes, cccFiliais, cccCheques, cccMotivos, cccCobrador, cccNenhum);
+  TtecChequeConsultaFiliais = (ccfFILIAIS, ccfGRUPOSFILIAIS);
+
+  TtecCobranca = (cobCLIENTES, cobFILIAIS, cobGRUPOSFILIAIS, cobREGIOES, cobCOBRADOR, cobNENHUMA);
+
+  TtecProcuraClientesCrediario = (tpCLIENTES,
+                                  tpCONCEITOSCLIENTES, tpESTADOSCLIENTES,
+                                  tpNATURALCIDADECLIENTES, tpCONJUGECLIENTES,
+                                  tpCARGOSCLIENTES, tpCARGOSCONJUGECLIENTES,
+                                  tpEQUIPAMENTOS, tpCONTADEBITO, tpCONTACREDITO, tpPLANOPADRAO);
+
+  TtecProcuraFiliais = (tpFILIAIS, tpFILIALCONTABILFILIAIS, tpFILIALMONTAGEMFILIAIS,
+                        tpFILIALCONSOLIDADORADIME, tpCOLUNASPRECONORMALFILIAIS,
+                        tpCOLUNASPRECOPROMOCAOFILIAIS, tpfCONTADEBITO, tpfCONTACREDITO);
+
+  TtecProcuraUsuarios = (tpUSUARIO, tpFILIAL, tpFILTRO, tpGRUPOSUSUARIOS, tpSETORES,
+                         tpCOMISSOESGRUPOS, tpCOMISSOESCLASSES);
+
+  TtecConsultaAutenticacoes = (paCONTRATOS, paEVENTOS, paCHEQUES, paCLIENTESCHEQUES,
+                               paFORNECEDORES, paBANCOS, {paAUTENTICACOES, }paCAIXAS,
+                               paCONTRATOSPRESTACOES, paCONTRATOSDEVOLUCOES, paCLIENTESDEVOLUCOES,
+                               paCONTRATOSPERDAS, paMOTIVOSDEVOLUCAO,
+                               paMOTIVOSCANCELAMENTO, paMOTIVOSPERDA, paCLIENTEPARCELAS);
+
+  TtecPagamentoParcial = (ppPARCELAS,ppPARCELASSEMJUROS, ppALTERARPARCELAS, ppPARCELASCHEQUES,
+                          ppPARCELASABERTO, ppPARCELASABERTOSEMJUROS, ppALTERARPARCELASABERTO);
+
+  TtecCadastroCodigosFiscais = (cfCREDITO,cfDEBITO,cfHISTORICO, cfNENHUMA);
+
+  TtecAutenticacaoTransferencia = (atTransferenciaNaoConfirmada, atTransferenciaConfirmada, atTransferenciaRetornada);
+
+  TtecRenegociacao = (rgCLIENTE, rgAGENTE, rgVENDEDOR, rgANALISTA, rgAVALISTA, rgTRANSFERENCIA, rgCONTRATO, rgNENHUM);
+  TtecTipoOperacao = (tpNENHUM, tpRETIRASPC, tpTRANSFERENCIA, tpALTERACAO, tpRENEGOCIACAO, tpEXCLUSAO);
+  TtecFichaCobranca = (fcFILIAIS, fcGRUPOSFILIAIS, fcREGIOES, fcCOBRADORES, fcCOBRADORESCONTRATOS);
+  TtecCrediarioConsultaPlanoPagamento = (cppTIPOPLANO, cppAGENTES, cppTIPOSRECEBIMENTOS, cppNENHUM);
+  TtecCancelamentoContratos = (cctFILIAIS, cctVENDEDORES, cctMOTIVOS, cctNENHUM, cctCLIENTES);
+  TtecConsultaOrcamentos = (ccoNENHUM, ccoFILIAIS, ccoVENDEDORES, ccoCLIENTES, ccoPRODUTOS, ccoPLANOS);
+  TtecConsultaContratos = (cocNENHUM, cocFILIAIS, cocVENDEDORES, cocCLIENTES, cocPRODUTOS, cocPLANOS,
+                           cocCARACTERISTICAS, cocGRUPOS, cocCLASSES, cocFORNECEDORES);
+  TtecParametroSistemas = (psMODULO,psPARAMETRO,psFILIAL);
+  TtecTipoRelatorioCheque = (rcVENCIMENTOS, rcRECEBIMENTOS, rcDEVOLUCOES, rcCANCELAMENTOS, rcINUTILIZADOS);
+  TtecQuitacaoDuplicatas = (dupFILIAIS, dupGRUPOFILIAIS, dupFORNECEDORES, dupBANCO, dupEVENTO, dupFILIAISPAGTO,
+                            dupTIPOPAGTO, dupTIPOPAGTODOCUMENTOSPAG,
+                            dupCONTA, dupCONTADOCUMENTOSPAG,
+                            dupDOCUMENTOSPAG, dupHISTORICOS, dupNENHUM,
+                            dupBANCOVENCTO, dupCONTADEBITO, dupCONTACREDITO, dupCONTACREDITOPAGAMENTO,
+                            dupCONTACONTABIL, dupCONTABILIDADE);
+  TTecTipoRelatorioRomaneio =(rmROMANEIO, rmITENSNOTASROMANEIO, rmEMABERTO, rmQUITADOS,rmTODOS);
+  TtecRelatorioProdutosFornecedor = (rpfPRODUTOINICIAL, rpfPRODUTOFINAL, rpfFORNECEDORINICIAL,
+                                     rpfFORNECEDORFINAL, rpfNENHUM);
+  TtecQuitacaoEmLote = (qlNENHUM, qlFILIAIS, qlGRUPOFILIAIS, qlCLIENTE, qlFILIAISPAGTO, qlCONTA, qlEVENTO);
+
+  //constantes para as procuras/consultas do modulo de cadastro de Entrega
+  TipoProcuraRequisicoes = (tpRequisicoesMontagem,
+                            tpRequisicoesVendedores,
+                            tpRequisicoesMontadores,
+                            tpRequisicoesDadosFiscaisNota,
+                            tpRequisicoesDadosFiscaisCupom,
+                            tpRequisicoesFiliaisdeMontagem,
+                            tpRequisicoesGrupoFiliaisdeMontagem,
+                            tpRequisicoesFiliaisdeVenda,
+                            tpRequisicoesGrupoFiliaisdeVenda,
+                            tpRequisicoesClientes,
+                            tpRequisicoesFilialEmissaoNota,
+                            tpRequisicoesFilialEmissaoCupom,
+                            tpRequisicoesSerie,
+                            tpRequisicoesItensProdutos,
+                            tpRequisicoesItensTabeladeMontagem,
+                            tpRequisicoesItensFilialProduto,
+                            tpRequisicoesLerDadosTabeladeMontagem,
+                            tpRequisicoesLerDadosMontadores);
+
+  TipoProcuraRomaneios = (tpRomaneios,
+                          tpRomaneiosFornecedores,
+                          tpItensRomaneioFiliais,
+                          tpItensRomaneioTipodeFrete,
+                          tpItensRomaneioSerie,
+                          tpItensRomaneioNotas,
+                          tpItensRomaneioCupons);
+
+  TipoProcuraRomaneiosNotas =(tpRomaneiosNotas,
+                              tpRomaneiosCupons,
+                              tpRomaneiosNotasFiliais, tpRomaneiosCuponsFiliais,
+                              tpRomaneiosNotasTipodeFrete, tpRomaneiosCuponsTipodeFrete);
+
+  TipoProcuraSPC =(spcClientes, spcFilialRegistorSPC);
+  TtecQuitacaoRomaneios = (romFORNECEDOR);
+  TtecRelatorioRomaneios = (rrFORNECEDOR);
+  TtecCancelamentoQuitacao = (cdpFILIAIS, cdpGRUPOFILIAIS, cdpFORNECEDORES, cdpCONTA, cdpCONTACREDITOPAGAMENTO);
+  TtecChequesEmitidos = (cheFILIAIS, cheGRUPOFILIAIS, cheCONTA);
+  TtecRelatorioDuplicatas = (rdpNone, rdpFILIAIS, rdpGRUPOFILIAIS, rdpFORNECEDORES, rdpBANCOS, rdpEVENTOS, rdpGRUPOFORNECEDORES, rdpTIPOSPAGAMENTOS);
+  TtecRecebimentosPorCobrador = (rpcFILIAIS, rpcCOBRADORES, rpcAGENTES, rpcNENHUM);
+  TtecContribuicoes = (tctCONTRIBUICAO, tctCONTRIBUINTE);
+  TtecListaCasamento = (tlcLISTAS, tlcNOIVA, tlcNOIVO, tlcPRODUTOS, tlcLISTAPADRAO, tlcNENHUM);
+  TtecListaPadrao = (tlpLISTAS, tlpPRODUTOS, tlpNENHUM);
+  TtecProcuraBancos = (tpAGENCIAS, tpBANCOS);
+  TtecConsultaNotasCupons = (cncNENHUM, cncFILIAL, cncCLIENTE, cncCLIENTEDADOFISCAL, cncCFOP, cncTRANSPORTADOR, cncFORNECEDORTRANSPORTE, cncCFOPSELECAO);
+  TtecConsultaNotasEntradas = (cneNENHUM, cneFILIAIS, cneFORNECEDORES, cneSERIES, cneNATUREZA, cneCFOP);
+  TtecOperacoesContratos = (opcNENHUM, opcFILIAIS, opcVENDEDORES);
+  TtecLancamentosManuais = (lamFILIAIS, lamFILIAISTRANSF, lamPRODUTOS, lamTIPOSMOVIMENTOS, lamNENHUM);
+  TtecPedidosCompra = (pcoFILIALFATURA, pcoFILIALENTREGA, pcoFILIALCOBRANCA, pcoFORNECEDOR, pcoPEDIDO,
+                       pcoFORNECEDORTRANSPORTE, pcoPRODUTO,pcoNENHUM);
+  TtecTipoAtendimento = (tpaCOBRANCA, tpaRECLAMACAO, tpaVISITA);
+  TtecLigarClientes = (tlcFILIAIS, tlcGRUPOSFILIAIS, tlcCOBRADORES, tlcAGENTES, tlcCONCEITOS, tlcREGIOES);
+  TtecFichaFornecedor = (tfcFILIAIS, tfcGRUPOFILIAIS, tfcFORNECEDORES, tfcGRUPOFORNECEDORES, tfcCODIGOFISCAL);
+  TtecCancelamentoPedidos = (tcpFORNECEDORES, tcpMOTIVOS, tcpNENHUM);
+  TtecCadastroBancos = (tcbBANCOS, tcbMODELOSCHEQUE, tcbNENHUM);
+  TtecMovtosBancos = (tmbCONTAS, tmbEVENTOS, tmbMOVTOS, tmbNENHUM);
+  TtecConciliacao = (ccbCONTAS, ccbEVENTOS, ccbMOVTOS, ccbNENHUM);
+  TtecTipoOperacaoDuplicatas = (topINSERIR, topEDITAR, topPAGAMENTO, topCANCELAR);
+  TtecAutorizacaoDuplicatas = (audFILIAIS, audGRUPOSFILIAIS, audFORNECEDORES);
+  TtecCadastroCodigosFiscaisServicos = (cfsNENHUMA, cfsCFPS);
+  TtecCadastroAtividadesEconomicas = (atvNENHUMA, atvATIVIDADE);
+  TtecCadastroEquipamentos = (ceqNENHUMA, ceqEQUIPAMENTO, ceqMARCA, ceqPRODUTO);
+  TtecCadastroServicos = (csrNENHUMA, csrSERVICO,csrCNAE,
+                    csrDebitarVendaaVista, csrCreditarVendaaVista, csrHistoricoVendaaVista,
+                  csrDebitarVendaaPrazo, csrCreditarVendaaPrazo, csrHistoricoVendaaPrazo,
+                  csrDebitarAbatimentos, csrCreditarAbatimentos, csrHistoricoAbatimentos,
+                  csrDebitarDevolucoes, csrCreditarDevolucoes, csrHistoricoDevolucoes);
+
+  TtecManutencaoCheques = (tpManutencaoChequesFiliais, tpManutencaoChequesCobradores, tpManutencaoChequesDefinicaoCobrador,
+                           tpManutencaoChequesBanco, tpManutencaoChequesMotivo, tpManutencaoChequesNenhum,
+                           tpManutencaoChequesConta);
+  TtecConsultaPedidos = (tpcNENHUM, tpcFORNECEDOR, tpcCARACTERISTICA);
+  TtecPedidosTransferencia = (tptNENHUM, tptPEDIDOS, tptFILIAIS, tptPRODUTOS);
+  TtecProdutosAdquiridos = (tpiNENHUM, tpiFILIAIS, tpiFORNECEDORES);
+  TtecTransferenciaRequisicao = (ttrFORNECEDORES, ttrESTADOS, ttrFILIAIS, ttrNENHUM);
+  TtecQuitacaoExtraCaixa = (qecNENHUM, qecCLIENTE, qecCONTA, qecEVENTO);
+  TtecTipoNota = (tnNORMAL,tnSUBSTITUICAO,tnSUBSTITUIDO,tnPRODUCAOPROPRIA,tnBRINDE);
+  TtecEventos = (tevEVENTOS, tevCATEGORIAS, tevNENHUM, tevCONTACONTABIL);
+  TtecTipoContaFilial = (tcENTRADA, tcSAIDA);
+  TTecTipoOperacaoNotaAvulsa = (tnaNOTAJACADASTRADACOMCONTRATO, tnaNOTAJACADASTRADASEMCONTRATO, tnaNOTAINCLUSAO);
+  TipoNotaFiscal = (nfSAIDA, nfENTRADA, nfDEVOLUCAO);
+  TOrigemDocumentopag = (Romaneios, PagamentoCaixa);
+
+  tStatusDocumentosPag = (OK, ErroGravacao, DuplicataPaga);
+
+  TtecOrigemCalculo = (NotaAvulsa, Contrato, Orcamento, NotaContrato, Devolucao, Troca, NotaEntrada, NotaEntradaXML,
+                       {Transferencia,} TransferenciaSaida, TransferenciaEntrada, DevolucaoporTransferencia,
+                       NotaIndustria, FrentedeCaixa,
+                       NotaListaCasamento, NotaAcrescimoFinanceiro, NotaVinculada, OrdemdeServico, CalculoMargem,
+                       CadastroPedidos);
+
+  TtecModuloCaracteristicas = (mcaCARACTERISTICAS, mcaFORNECEDORES, mcaSIMILARES, mcaPRECOS,
+                               mcaPRODUTOS, mcaESTOQUES, mcaCODIGOSBARRAS, mcaCLIENTES, mcaPRODUTOSFORNECEDORES, mcaPRODUTOSCARGOS,
+                               mcaPRODUTOSFORNECEDORESUNIDADES, mcaPRODUTOSESTADOS);
+
+  TtecGerarRemessas = (grsFILIAIS, grsCLIENTES, grsCONTAS, grsNENHUM);
+  TtecImprimirDuplicatas = (idFILIAIS, idCLIENTES, idCONTAS, idNENHUM);
+
+
+  TtecTipoOperacaoLancamentosContabeis = (tlcMANUAL, tlcLOTES, tlcLOTESEXTERNO,
+                            tlcINSERIREXTERNO, tlcEDITAREXTERNO);
+                            
+  TtecTipoOperacaoNotaIndustria = (tonOSP, tonCOMPLEMENTAR);
+
+  TtecTipoLogin = (NaoInformado, GerenteProducao, Operador);
+
+  FormaPesquisaProduto = (fpCaracteristicas, fpItemProdutos, fpItemProdutosCliente);
+
+
+//**************** Modulo tecCAT **************************
+
+Const
+  catctMaxSituacoes = 2;
+  catctSituacoes : array[0..catctMaxSituacoes - 1] of String = (
+             'EM ABERTO', 'CONCLUÍDA');
+  catctMaxAtendimentos = 3;
+  catctAtendimentos: array[0..catctMaxAtendimentos - 1] of String = (
+             'CONTRATO', 'GARANTIA', 'AVULSO');
+  catctMaxManutencoes = 3;
+  catctManutencoes: array[0..catctMaxManutencoes - 1] of String = (
+             'CORRETIVA', 'PREVENTIVA', 'ADAPTATIVA');
+
+  catctCONCLUIDA = 1;
+
+  catctMaxPeriodicidade = 5;
+  catctPeriodicidade: array[0..catctMaxPeriodicidade - 1] of String = (
+              'QUINZENAL', 'MENSAL', 'BIMESTRAL', 'SEMESTRAL', 'ANUAL');
+
+  vstrLancamentosNaturezas: array[TtecLancamentosNaturezas] of String = (
+                'Acréscimo financeiro',
+                'COFINS a recolher',
+                'Custo da mercadoria',
+                'Despesas acessórias',
+                'Despesas de COFINS',
+                'Despesas de ICMS',
+                'Despesas de IPI',
+                'Despesas de ISS',
+                'Despesas de PIS',
+                'Estoque de Mercadorias',
+                'Frete',
+                'ICMS a recolher',
+                'ICMS substituição tributária',
+                'IPI a recolher',
+                'ISS a recolher',
+                'PIS a recolher',
+                'Receita de produtos',
+                'Receita de serviços',
+                'Seguro',
+                'Total da nota');
+
+{$ifdef WINDOWS}
+  tecWM_MOSTRARAC = WM_USER + 1;
+{$endif }
+
+type
+
+  TtecWMMOSTRARAC = record
+    Msg: Cardinal;
+    NumeroRAC: Cardinal;
+  end;
+
+procedure catAtendimentos(LstAtend: TStrings);
+procedure catManutencoes(LstManutencoes: TStrings);
+procedure catSituacoes(LstSituacoes: TStrings);
+
+//**************** Modulo tecContabil **************************
+
+const
+
+//***************** Menssagens ********************************************
+
+  cblctGRUPOCONTAINEXISTENTE : String = 'A conta sintética %s não esta cadastrada';
+  cblctINCLUINDOGRUPOANALITICO : String = 'A conta analítica %s não pode possuir a conta %s como subgrupo';
+  cblctSINTETICAPARAANALITICA : String = 'A Conta %s não pode ser modificada para sintética porque possui lançamentos';
+  cblctSINTETICATEMGRUPOS : String = 'A Conta %s não pode %s porque possui subgrupos';
+  cblctFORMATOCLASSERRADO: String = 'A conta %s de grupo superior não esta no formato "X."';
+
+  cblctMaxTipoConta = 2;
+  cblctANALITICA    = 0;
+  cblctSINTETICA    = 1;
+
+type
+
+  TtecRelatoriosContabil = (rcPLANOCONTAS, rcBALANCETE, rcRAZAOANALITICO);
+  TtecRelatorioComissao = (trANALITICO, trSINTETICO, trRESUMOFOLHA);
+  TtecTipoConta = (tcANALITICA, tcSINTETICA);
+  TtecConsultaPorTipoConta = (ctcAMBAS, ctcANALITICA, ctcSINTETICA);
+  TtecTipoLancamento = (tlCREDITO, tlDEBITO);
+  TtecTipoOrdenacaoPlContas = (ocCLASSIFICACAO, ocCODIGO, ocNOME, ocSEMORDENACAO);
+  TtecOrigemConsulta   = (ocNENHUMA, ocDEBITO); // ocDEBITO = Tecla F9
+  TtecLancamentoContas = (lacNENHUM, lacLANCAMENTO, lacDEBITAR, lacCREDITAR,
+                          lacHISTORICO, lacCONTACONTABIL, lacHISTORICOCONSULTA);
+
+const
+  cblctTipoConta: array[TtecTipoConta] of String = ('ANALITICA', 'SINTÉTICA');
+
+
+procedure cblTipoConta(LstTipoContas: TStrings);
+
+//**************** Modulo Caixa **************************
+
+Const
+  OnFechamentoCaixa: TtecProcedure = nil;
+
+Type
+  TtecConsultaBoletoParcela = (bpBANCO, bpAGENCIA);
+
+  TLista = array of record
+       codigo: string;
+    descricao: string;
+    ativa    : boolean;
+  end;
+
+  TtecParcelasTEF = record
+    Numero: Integer;
+    Valor: Real;
+    FormaPagto: String;
+//    Processado: Boolean;
+  end;
+
+//**************** Modulo tecSAC **************************
+
+type
+  TtecTipoPergunta = (tpDISCURSIVA, tpOBJETIVA, tpNENHUMA);
+  TtecTipoConsultaAtendimento = (tcaATENDIMENTO, tcaCLIENTE, tcaTIPOATENDIMENTO, tcaNENHUM);
+  TtecTipoConsultaQuestionario = (tcqQUESTIONARIO, tcqPERGUNTASNAOINCLUIDAS);
+  TtecSelecao = (slSIM, slNAO, slAMBOS);
+  TtecSelecao2 = (NAO, SIM, SOMENTE);
+
+  TtecSelecaoFiliais = (sfFILIAL, sfGRUPOS, sfTODAS);
+  TtecSACTipoVenda = (stvPRAZO, stvAVISTA, stvAMBAS);
+  TtecSACTipoAtraso = (taQUALQUERATRASO, taPRIMEIROATRASO, taNENHUM);
+  TtecTipoConsultaFiltrosSAC = (tcfFILTRO,tcfQUESTIONARIO);
+  TtecTipoConsultaOpcaoResposta = (tcoQUESTIONARIO, tcoPERGUNTA, tcoOPCAO, tcoNENHUMA);
+
+const
+
+     ctTIPORECLAMACAO           = 'R';
+     ctTIPOVISITA               = 'V';
+     ctTIPOCOBRANCA             = 'C';
+// Status Ligação
+     ctSACNenhuma               = '0';
+     ctSACReligando             = 'R';   //Religando
+     ctSACFazendoLigacao        = 'D';   //discando
+     ctSACAtendendoLigacao      = 'A';   //Atendida
+     ctSACCancelarLigacao       = 'C';   //Cancelada
+// Tipo Filtro
+     ctCompras                  = 'C';   //Compras
+     ctLembretes                = 'L';   //Lembretes;
+     ctInativos                 = 'I';   //Inativos;
+     ctAtrasados                = 'A';   //Atrasados;
+
+//**************** Modulo tecCrediario *************************
+
+//**************** Modulo tecEstoque ***************************
+
+const
+   TotalizadoresEstoque: Array[1..8] of String = ('Estoque', 'Reservada', 'Transito', 'Demonstracao',
+                                                 'Conserto', 'Futuro', 'Danificada', 'Financeiro');
+  ConfiguracaoJanela: TtecProcedure = nil;
+
+
+type
+ TtecOperacaoEstoque = (opVazio,opEmEstoque, opReservado,
+                        opTransito, opDemonstracao,
+                        opConserto, opFuturo,
+                        opDanificado, opEstoqueFisico,
+                        opReservaPrevia, opUltimaEntrada,
+                        opUltimaCompra, opFinanceiro,
+                        opTotalizaVenda, opTotalizaCompra,
+                        opNone3, opNone4, opNone5,
+                        opNone6, opNone7, opNone8);
+
+ TtecConsultaNotasSaida = (cnsNOTA, cnsNATUREZA, cnsCLIENTES,
+     cnsTRANSPORTADOR, cnsESTADO, cnsFILIAL, cnsSERIE, cnsCONTRATO,
+     cnsAGENTE, cnsCONTADEBITO, cnsCONTACREDITO, cnsHISTORICO);
+
+ TtecTipoNotaSaida = (tnsNORMAL, tnsTRANSFERENCIA, tnsTRANSFERENCIAICMS, tnsDEVOLUCAOFORNECEDOR, tnsDEVOLUCAOFORNECEDORST);
+ TtecTipoPrecoNotaSaida = (tpnVENDA, tpnCUSTOMEDIO, tpnULTIMOCUSTO, tpnULTIMACOMPRA);
+ TtecTipoPessoa = (tsFISICA, tsJURIDICA, tsNENHUMA);
+ TTecTipoGrade = (tpLINHA, tpCOLUNA);
+
+
+//************************* Modulo Administracao de Sistema ***************************
+
+type
+  TtecParSistemaTipoConsulta = (pscNENHUM, pscFRETE, pscSEGURO, pscCARNE, pscPLANO,
+                                pscPLANOORCAMENTOPADRAO, pscBOLETO, pscCONTRATOMATRICIAL,
+                  pscDebitarVendaaVista, pscCreditarVendaaVista, pscHistoricoVendaaVista,
+                  pscDebitarVendaaPrazo, pscCreditarVendaaPrazo, pscHistoricoVendaaPrazo,
+                  pscDebitarAbatimentos, pscCreditarAbatimentos, pscHistoricoAbatimentos,
+                  pscDebitarDevolucoes, pscCreditarDevolucoes, pscHistoricoDevolucoes,
+                  pscModeloContrato, pscContaContabilEntrada, pscHistoricoEntrada,
+                  pscHistoricoSaida, pscContaContabilSaida, pscCONTAEMISSAOBOLETO);
+
+  TtecParCreditoTipoTabela = (pcrNENHUM, pcrIDADE, pcrCASAMENTO, pcrRESIDENCIA, pcrSERVICO, pcrRENDACONJUGE, pcrMDA, pcrPRESTACOESPAGAS, pcrPONTUACAO);
+
+
+//************************* Modulo Vendas ***************************
+
+type
+
+  TtecContratoTipoConsulta = (ctcCONTRATO, ctcCLIENTES, ctcESTADOID,
+                              ctcNATURALIDADE, ctcCARGO, ctcCONJUGE,
+                              ctcCARGOCONJUGE, ctcCONCEITO, ctcAVALISTA,
+                              ctcVENDEDOR, ctcAGENTES, ctcFILIAISVENDA,
+                              ctcFILIAISMONTAGEM, ctcDEPENDENTE,
+                              ctcCFPS, ctcCLIENTESBONUS,
+                              ctcCLIENTESTROCA, ctcLISTACASAMENTO);
+
+  TtecVendasTipoConsulta = (vtcNENHUM, vtcVENDAS, vtcCLIENTES, vtcVENDEDOR, vtcLISTACASAMENTO, vtcPRODUTO,
+                            vtcRESERVA, vtcFILIAL, vtcVENDEDORPRODUTO, vtcFILIALMONTAGEM);
+  TtecConsultaProdutosContratos = (cpcPRODUTOS, cpcLISTADECASAMENTO, cpcPRODUTOSTROCA, cpcFILIAIS, cpcFILIAISTROCA, cpcRESERVAS, cpcVENDEDOR, cpcNENHUM);
+
+  TtecOrdemServicoTipoConsulta = (ctosORDEMSERVICO, ctosCLIENTES,
+                                  ctosFILIAISOS, ctosFILIALPRODUTO, ctosEQPTOSOS,ctosPRODUTOSOS,
+                                  ctosVENDEDOR,ctosVENDEDORPRODUTO, ctosPRODUTOS,ctosSERVICOSOS,ctosMotivos,
+                                  ctosCFPS, ctosNENHUM);
+
+  TtecSituacaoContratoImoveis  = (sciRESERVADO, sciCANCELADO, sciVENDIDO, sciQUITADO, sciRENEGOCIADO, sciRENEGOCIACAO,
+                                 sciTRANSFERIDO, sciTRANSFERENCIA, sciRESCINDIDO, sciNENHUM);
+  TtecSituacaoContrato = (scORCADO, scRESERVADO, scFATURADO, scNOTAPARCIAL,
+                          scNOTAFISCAL, scCANCELADO, scNENHUM);
+
+  TtecSituacaoContratoManutencao = (scmORCADO, scmASSINADO, scmFECHADO, scmCANCELADO, scmNENHUM);
+
+
+  TtecSituacaoCupom = (scFechado, scAberto, scProdutos, scTotalizado, scPagamento);
+  TtecComposicao = (stNAOCOMPOSTO,stCOMPOSTO);
+
+  TtecRelatorioVendas     = (rvNENHUM, rvFILIAIS, rvGRUPOFILIAIS, rvAGENTES, rvCONCEITOS, rvANALISTACREDITO,
+                             rvITEMPRODUTOS, rvITEMPRODUTOSINICIAL, rvITEMPRODUTOSFINAL,
+                             rvGRUPOPRODUTOS, rvGRUPOPRODUTOSINICIAL, rvGRUPOPRODUTOSFINAL,
+                             rvPRODUTOS, rvPRODUTOSINICIAL, rvPRODUTOSFINAL,
+                             rvCLASSES, rvCLASSESINICIAL, rvCLASSESFINAL,
+                             rvVENDEDORES, rvFORNECEDORES, rvCLIENTES, rvCLIENTESINICIAL, rvCLIENTESFINAL);
+  TtecTipoRelatorioVendas = (rvAVISTA, rvAPRAZO, rvTODOS);
+
+  TtecConsultaComplementoNota = (ccnFORNECEDORESTRANSPORTE, CCNESTADOPLACA);
+
+  TtecTipoCliente = (tcCLIENTE,tcFORNECEDOR,tcNENHUM);
+
+  TtecOrcamentosTipoConsulta = (vocNENHUM, vocORCAMENTO, vocCLIENTES, vocVENDEDOR, vocPRODUTO,
+                                vocFILIAL, vocFILIALMONTAGEM, vocVENDEDORPRODUTO, vocSERVICO);
+
+
+  TtecSaldoCliente = (ctscSALDO, ctscCLIENTES, ctscEVENTO);
+
+  TtecResumoParcelas = record
+    Parcelas: Integer;
+    Vencimento: TDateTime;
+    Valor: Currency;
+    FormaRecebimento : Integer;
+    FormaPagamento: String;
+    TipoRecebimento: Integer;
+    DescricaoTipoRecebimento: String;
+    Substituicao: Boolean;
+  end;
+  TResumosParcelas = array of TtecResumoParcelas;
+
+  TtecContratoCalcFinac = procedure(var Calcular: Boolean;
+                                    var Mercadoria,
+                                        Frete,
+                                        Seguro,
+                                        Desconto: Currency;
+                                    var Plano: Integer;
+                                        DataContrato: String;
+                                    var Parcelas: TResumosParcelas;
+                                    var Grupos,
+                                        Classes: vstring) of object;
+  TtecConsultaServicosContratos = (cscSERVICOS, cscEQUIPAMENTOS, cscNENHUM);
+  TtecTipoDesconto = (ctNENHUM, ctSEMPERMISSAO, ctDESCONTOEXCEDIDO);
+
+  TTecResumoAutenticacoes = record
+    Autenticacao: Integer;
+    Tipo: String;
+    Valor: Currency;
+  end;
+
+  TResumoAutenticacoes = array of TTecResumoAutenticacoes;
+
+const
+
+   ctstrCONTRATOS = 'Contratos';
+   ctstrOCONTRATO = 'o Contrato';
+   vstrSituacaoContrato: array[TtecSituacaoContrato] of String =
+    ('ORCADO', 'RESERVADO', 'FATURADO', 'NOTA PARCIAL', 'NOTA FISCAL', 'CANCELADO', 'NENHUM');
+
+   vstrSituacaoContratoManutencao: array[TtecSituacaoContratoManutencao] of String =
+    ('ORÇADO', 'ASSINADO', 'FECHADO', 'CANCELADO', 'NENHUM');
+
+   vstrSituacaoContratoImoveis: array[TtecSituacaoContratoImoveis] of String =
+    ('RESERVADO', 'CANCELADO', 'VENDIDO', 'QUITADO', 'RENEGOCIADO','RENEGOCIADO','TRANSFERIDO','TRANSFERIDO','RESCINDIDO','NENHUM');
+   vstrSituacaoOrdemServico: array[TtecSituacaoContrato] of String =
+    ('ORÇADO', 'RESERVADO', 'FATURADO', 'NOTA PARCIAL', 'NOTA FISCAL', 'CANCELADO', 'NENHUM');
+   vstrAlterarSituacaoContrato: array[TtecSituacaoContrato] of String =
+    ('Reservar', 'Faturar', 'Imp. Nota', 'Imp. Nota', 'Imp. Nota','Cancelado','Reservar');
+   vstrAlterarSituacaoOrdemServico: array[TtecSituacaoContrato] of String =
+    ('Reservar', 'Imp. Nota', 'Imp. Nota', 'Imp. Nota', 'Imp. Nota','Cancelado','Reservar');
+
+   vstrAlterarSituacaoContratoImoveis: array[TtecSituacaoContratoImoveis] of String =
+    ('Vender','Cancelado', 'Vendido', 'Quitado', 'Renegociado','Renegociado','Transferido','Transferido','Rescindido','Nenhum');
+
+   vstrHintSituacaoContrato: array[TtecSituacaoContrato] of String = (
+         'Reservar contrato orçado',
+         'Faturar contrato reservado',
+         'Imprimir Notas fiscais do contrato',
+         'Imprimir Notas fiscais do contrato',
+         '', '', '');
+
+   vstrHintSituacaoOrdemServico: array[TtecSituacaoContrato] of String = (
+         'Reservar contrato orçado',
+         'Imprimir Notas fiscais do contrato',
+         'Imprimir Notas fiscais do contrato',
+         'Imprimir Notas fiscais do contrato',
+         '', '', '');
+
+
+   ctstrVendas  = 'Vendas';
+   ctOrcamentos = 'Orçamentos';
+   ctOrcamento = 'Orçamento';
+   ctORDEMSERVICO='OS';
+
+
+
+  FilialContasEntradas: array[TtecLancamentosContasEntradas] of String = (
+                                                  'COFINS retida',
+                                                  'CSLL retida',
+                                                  'Descontos obtidos',
+                                                  'Despesas financeiras',
+                                                  'INSS retido',
+                                                  'IR retido',
+                                                  'ISS retido',
+                                                  'PIS retido',
+                                                  'PIS/COFINS/CSLL Retido');
+
+  FilialContasSaidas: array[TtecLancamentosContasSaidas] of String = (
+                                                'COFINS a compensar',
+                                                'CSLL a compensar',
+                                                'Descontos concedidos',
+                                                'INSS a compensar',
+                                                'IRRF a compensar',
+{                                                'ISS a compensar',}
+                                                'PIS a compensar',
+                                                'Receitas financeiras');
+
+   Private_VK_TecSOFT : Array[1..15] of String = ('-----BEGIN RSA PRIVATE KEY-----',
+                                                   'MIICXQIBAAKBgQC4wa4v/sXlSkPdTB3PKs0uCAGlOUoAR9JboLo9UtXNJVFjXwDN',
+                                                   'D+LTjVOZO1WhmBM9ta6uljYG25BpVmCkdAICcQ6yN9KEMbk5uSpZU90AHwyCLPAK',
+                                                   'owAkHpD/QgtSuBvPUkfMH3FTa9M3LT9bZ8NLLOclkvk5JpvK/FCFkAudcQIDAQAB',
+                                                   'AoGBAJL8a4L9kx1u7vzhMJn/uErVzdFP+aKtgRqqjWB6RWQ3Oz/udimuaMvblNXE',
+                                                   'kcTEwxIGN9nn4UWlaoeTU8GiFXHXwgvKnmBqVMqxvmYYRNt83o/53E66vBq6lOei',
+                                                   'GVznKm0L7tVTElSKfzdsKMx4oq9Ch/wK5DGBwNz09MseAHb9AkEA3I6hp/bgQEbO',
+                                                   '+ksf4jyfyzjlhp5Igt4rU52k6Ub21bS75uhZ3zFp/MR86vHMfer7HPlvj373LEeg',
+                                                   'CkQccfowewJBANZyRRrgpfy0Vn6L1aVS1un5AwPkUASc/QlZGw/2V5wxkO+I3Ego',
+                                                   'CCB0jjM89uTwbRByo+V/Cb6Spfhb5wJ3ZAMCQFSzMcGfPV9x0eqtDwGC5prUrtCT',
+                                                   '2KTpTRo/YCV16zUGw2JZuKnOADXh/1b6pN12cBkgcYdZ6vJGT1+h6Iqc2iECQHZI',
+                                                   '32883LGv80mn7fdb4yl5bb1W0QBKa5Qdbzz1v0trV6uYTREL67ejMtB2XyTWrQH2',
+                                                   'igrLcN+KWjvMzXZhzmsCQQCOR8sKJF+A6f5ZxvLfxv0I9uGKO8+8IsVAtxsWPAyl',
+                                                   'eCH0XpFPgvh2KWV+K5JZwReUCKTiB/FrPtFP7rADWYsx',
+                                                   '-----END RSA PRIVATE KEY-----');
+
+
+   Private_VK_TecSOFTKey = '-----BEGIN RSA PRIVATE KEY-----' + sLineBreak +
+                           'MIICXQIBAAKBgQC4wa4v/sXlSkPdTB3PKs0uCAGlOUoAR9JboLo9UtXNJVFjXwDN' + sLineBreak +
+                           'D+LTjVOZO1WhmBM9ta6uljYG25BpVmCkdAICcQ6yN9KEMbk5uSpZU90AHwyCLPAK' + sLineBreak +
+                           'owAkHpD/QgtSuBvPUkfMH3FTa9M3LT9bZ8NLLOclkvk5JpvK/FCFkAudcQIDAQAB' + sLineBreak +
+                           'AoGBAJL8a4L9kx1u7vzhMJn/uErVzdFP+aKtgRqqjWB6RWQ3Oz/udimuaMvblNXE' + sLineBreak +
+                           'kcTEwxIGN9nn4UWlaoeTU8GiFXHXwgvKnmBqVMqxvmYYRNt83o/53E66vBq6lOei' + sLineBreak +
+                           'GVznKm0L7tVTElSKfzdsKMx4oq9Ch/wK5DGBwNz09MseAHb9AkEA3I6hp/bgQEbO' + sLineBreak +
+                           '+ksf4jyfyzjlhp5Igt4rU52k6Ub21bS75uhZ3zFp/MR86vHMfer7HPlvj373LEeg' + sLineBreak +
+                           'CkQccfowewJBANZyRRrgpfy0Vn6L1aVS1un5AwPkUASc/QlZGw/2V5wxkO+I3Ego' + sLineBreak +
+                           'CCB0jjM89uTwbRByo+V/Cb6Spfhb5wJ3ZAMCQFSzMcGfPV9x0eqtDwGC5prUrtCT' + sLineBreak +
+                           '2KTpTRo/YCV16zUGw2JZuKnOADXh/1b6pN12cBkgcYdZ6vJGT1+h6Iqc2iECQHZI' + sLineBreak +
+                           '32883LGv80mn7fdb4yl5bb1W0QBKa5Qdbzz1v0trV6uYTREL67ejMtB2XyTWrQH2' + sLineBreak +
+                           'igrLcN+KWjvMzXZhzmsCQQCOR8sKJF+A6f5ZxvLfxv0I9uGKO8+8IsVAtxsWPAyl' + sLineBreak +
+                           'eCH0XpFPgvh2KWV+K5JZwReUCKTiB/FrPtFP7rADWYsx' + sLineBreak +
+                           '-----END RSA PRIVATE KEY-----' ;
+
+var
+  ErroECF: Boolean;
+  ehFrenteCaixa: Boolean;
+  NomeArquivoCFG,
+  NomeArquivoECFs: String;
+
+implementation
+
+procedure catAtendimentos(LstAtend: TStrings);
+var
+  a: byte;
+begin
+  if Not Assigned(LstAtend) then
+    LstAtend := TStringList.Create;
+  for a := 0 to catctMaxAtendimentos - 1 do
+    LstAtend.Add(catctAtendimentos[a])
+end;
+
+procedure catManutencoes(LstManutencoes: TStrings);
+var
+  a: Integer;
+begin
+  if Not Assigned(LstManutencoes) then
+    LstManutencoes := TStringList.Create;
+  for a := 0 to catctMaxManutencoes - 1 do
+    LstManutencoes.Add(catctManutencoes[a])
+end;
+
+procedure catSituacoes(LstSituacoes: TStrings);
+var
+  a: byte;
+begin
+  if Not Assigned(LstSituacoes) then
+    LstSituacoes := TStringList.Create;
+  for a := 0 to catctMaxSituacoes - 1 do
+    LstSituacoes.Add(catctSituacoes[a])
+end;
+
+//**************** Modulo tecContabil **************************
+
+procedure cblTipoConta(LstTipoContas: TStrings);
+var
+  a: TtecTipoConta;
+begin
+  if Not Assigned(LstTipoContas) then
+    LstTipoContas := TStringList.Create;
+  for a := tcANALITICA to tcSINTETICA  do
+    LstTipoContas.Add(cblctTipoConta[a])
+end;
+
+
+
+
+
+end.

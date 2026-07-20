@@ -1,0 +1,351 @@
+unit dmdiarioauxiliarrecebimentosimoveis;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, dmtecsoft, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, ZTransact, fr_class, fr_dset, fr_dbset, biblio,
+  fmpreviewpadrao, dmimprimetermos;
+
+type
+  TdtmDiarioAuxiliarRecebimentosImoveis = class(TdtmBasico)
+    qryImoveisDiarioAuxiliar: TtecQuery;
+    dsrImoveisDiarioAuxiliar: TtecDataSource;
+    qryImoveisDiarioAuxiliarperiodo: TStringField;
+    qryImoveisDiarioAuxiliarfilial: TIntegerField;
+    qryImoveisDiarioAuxiliarconta: TIntegerField;
+    qryImoveisDiarioAuxiliardeboucred: TStringField;
+    qryImoveisDiarioAuxiliarhistorico: TIntegerField;
+    qryImoveisDiarioAuxiliardescricaoplano: TStringField;
+    qryImoveisDiarioAuxiliarclassificacaoplano: TStringField;
+    qryImoveisDiarioAuxiliartipocontacontabil: TStringField;
+    qryImoveisDiarioAuxiliardescricaohistorico: TStringField;
+    qryImoveisDiarioAuxiliarnumero: TIntegerField;
+    qryLivroDiario: TtecQuery;
+    fdsLivroDiario: TfrDBDataSet;
+    frpLivroDiario: TfrReport;
+    qryImoveisDiarioAuxiliar_Anterior: TtecQuery;
+    qryImoveisDiarioAuxiliar_Anteriorperiodo: TStringField;
+    qryImoveisDiarioAuxiliar_Anteriorfilial: TIntegerField;
+    qryImoveisDiarioAuxiliar_Anteriorconta: TIntegerField;
+    qryImoveisDiarioAuxiliar_Anteriordeboucred: TStringField;
+    qryImoveisDiarioAuxiliar_Anteriorhistorico: TIntegerField;
+    qryImoveisDiarioAuxiliar_Anteriornumero: TIntegerField;
+    qryImoveisDiarioAuxiliar_Anteriordescricaoplano: TStringField;
+    qryImoveisDiarioAuxiliar_Anteriorclassificacaoplano: TStringField;
+    qryImoveisDiarioAuxiliar_Anteriortipocontacontabil: TStringField;
+    qryImoveisDiarioAuxiliar_Anteriordescricaohistorico: TStringField;
+    qryLivroDiariodata: TDateField;
+    qryLivroDiarionrlancto: TIntegerField;
+    qryLivroDiariofilial: TIntegerField;
+    qryLivroDiariohistorico: TIntegerField;
+    qryLivroDiariodescricaohistoricocomplemento: TMemoField;
+    qryLivroDiariocodigo: TIntegerField;
+    qryLivroDiariodescricao: TStringField;
+    qryLivroDiariovalor: TFloatField;
+    qryLivroDiariotipo: TStringField;
+    procedure qryImoveisDiarioAuxiliarAfterOpen(DataSet: TDataSet);
+    procedure qryImoveisDiarioAuxiliarAfterPost(DataSet: TDataSet);
+    procedure qryImoveisDiarioAuxiliarAfterDelete(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryImoveisDiarioAuxiliarNewRecord(DataSet: TDataSet);
+  private
+    fTabelaImoveisDiarioAuxiliarAlterada: boolean;
+    FUltimoNumero: integer;
+    { Private declarations }
+    function DataLivro(Data: TDateTime; Completo: Boolean): String;
+  protected
+    ImpressaoTermos: TdtmImprimeTermos;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent);override;
+    procedure AbreDiarioAuxiliarRecebimentosImoveis(Filial, mesAno: String);
+    property TabelaImoveisDiarioAuxiliarAlterada: boolean read fTabelaImoveisDiarioAuxiliarAlterada write fTabelaImoveisDiarioAuxiliarAlterada;
+    procedure GravarImoveisDiarioAuxiliar(Filial, mesAno: String);
+    procedure ImprimirRelatorio(Filial, mesAno, Livro, Pagina, Maximo: String;
+         TipoRelatorio: integer);
+
+    property UltimoNumero: integer read FUltimoNumero write FUltimoNumero;
+  end;
+
+var
+  dtmDiarioAuxiliarRecebimentosImoveis: TdtmDiarioAuxiliarRecebimentosImoveis;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmDiarioAuxiliarRecebimentosImoveis }
+
+procedure TdtmDiarioAuxiliarRecebimentosImoveis.AbreDiarioAuxiliarRecebimentosImoveis(
+  Filial, mesAno: String);
+
+begin
+  if (qryImoveisDiarioAuxiliar.ParamByName('filial').AsString<>Filial) or
+     (qryImoveisDiarioAuxiliar.ParamByName('periodo').AsString<>mesAno) then
+    RefazConsultaPorNome(qryImoveisDiarioAuxiliar,['filial','periodo'],[Filial, mesAno])
+end;
+
+constructor TdtmDiarioAuxiliarRecebimentosImoveis.Create(
+  AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+procedure TdtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliarAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryImoveisDiarioAuxiliar.recordcount <> 0 then
+  begin
+    qryImoveisDiarioAuxiliar.Last;
+    UltimoNumero := qryImoveisDiarioAuxiliarnumero.AsInteger;
+
+    if qryImoveisDiarioAuxiliar.RecordCount = 0 then
+      qryImoveisDiarioAuxiliar.Append;
+    TabelaImoveisDiarioAuxiliarAlterada := false;
+  end
+  else
+  begin
+    qryImoveisDiarioAuxiliar_Anterior.close;
+    qryImoveisDiarioAuxiliar_Anterior.ParamByName('filial').AsInteger :=
+      qryImoveisDiarioAuxiliar.ParamByName('filial').AsInteger;
+    qryImoveisDiarioAuxiliar_Anterior.ParamByName('periodo').AsString :=
+      qryImoveisDiarioAuxiliar.ParamByName('periodo').AsString;
+    qryImoveisDiarioAuxiliar_Anterior.Open;
+
+    if qryImoveisDiarioAuxiliar_Anterior.recordcount = 0 then
+    begin
+      qryImoveisDiarioAuxiliar.Last;
+      UltimoNumero := qryImoveisDiarioAuxiliarnumero.AsInteger;
+
+      if qryImoveisDiarioAuxiliar.RecordCount = 0 then
+        qryImoveisDiarioAuxiliar.Append;
+
+      TabelaImoveisDiarioAuxiliarAlterada := false;
+    end
+    else
+    begin
+      CopiarRegistros(qryImoveisDiarioAuxiliar_Anterior,qryImoveisDiarioAuxiliar);
+      AtribuirDados(qryImoveisDiarioAuxiliar,[qryImoveisDiarioAuxiliarperiodo],[qryImoveisDiarioAuxiliar.parambyname('periodo').asstring]);
+      TabelaImoveisDiarioAuxiliarAlterada := true;
+      qryImoveisDiarioAuxiliar.Last;
+      UltimoNumero := qryImoveisDiarioAuxiliarnumero.AsInteger;
+    end
+
+  end;
+end;
+
+procedure TdtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliarAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryImoveisDiarioAuxiliar.CheckRequiredFields then
+  begin
+    if (qryImoveisDiarioAuxiliar.State in [dsedit, dsinsert]) then
+      qryImoveisDiarioAuxiliar.Post;
+  end
+  else
+    qryImoveisDiarioAuxiliar.edit;
+
+  TabelaImoveisDiarioAuxiliarAlterada := true;
+end;
+
+procedure TdtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliarAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  TabelaImoveisDiarioAuxiliarAlterada := true;
+end;
+
+procedure TdtmDiarioAuxiliarRecebimentosImoveis.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\log150109.sql') then
+    Listar.loadfromfile('c:\log150109.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\log150109.sql');
+  listar.free;
+end;
+
+procedure TdtmDiarioAuxiliarRecebimentosImoveis.GravarImoveisDiarioAuxiliar(Filial, mesAno: String);
+begin
+  GuardarRegistroAtual(qryImoveisDiarioAuxiliar,true);
+
+  qryImoveisDiarioAuxiliar.First;
+  while not qryImoveisDiarioAuxiliar.Eof do
+  begin
+    if qryImoveisDiarioAuxiliarnumero.AsInteger = 0 then
+    begin
+      UltimoNumero := UltimoNumero + 1;
+      qryImoveisDiarioAuxiliar.Edit;
+      qryImoveisDiarioAuxiliarnumero.AsInteger := UltimoNumero;
+      qryImoveisDiarioAuxiliar.Post;
+    end;
+
+    if qryImoveisDiarioAuxiliarfilial.AsInteger = 0 then
+    begin
+      qryImoveisDiarioAuxiliar.Edit;
+      qryImoveisDiarioAuxiliarfilial.AsInteger := strtoint(Filial);
+      qryImoveisDiarioAuxiliar.Post;
+    end;
+
+    if qryImoveisDiarioAuxiliarperiodo.AsString = '' then
+    begin
+      qryImoveisDiarioAuxiliar.Edit;
+      qryImoveisDiarioAuxiliarperiodo.AsString := mesAno;
+      qryImoveisDiarioAuxiliar.Post;
+    end;
+
+    qryImoveisDiarioAuxiliar.Next;
+  end;
+  VoltarRegistroAtual(qryImoveisDiarioAuxiliar);
+  perpetrar([qryImoveisDiarioAuxiliar]);
+  TabelaImoveisDiarioAuxiliarAlterada := false;
+
+end;
+
+procedure TdtmDiarioAuxiliarRecebimentosImoveis.ImprimirRelatorio(Filial,
+  mesAno, Livro, Pagina, Maximo: String; TipoRelatorio: integer);
+var
+  vCondicaoAuxiliarRecebimentoImoveis : String;
+  vCondicaoRecebimentoImoveisDebito  : String;
+  vCondicaoRecebimentoImoveisCredito : String;
+
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+
+
+const
+  SQLClassificacaoContaSintetica = ' (position(%s in pl.classificacao)=1) ';
+  SQLClassificacaoContaAnalitica = ' (pl.codigo = %s) ';
+  SQLHistoricoDebito = ' and (ld.historico = %s) ';
+  SQLHistoricoCredito = ' and (lc.historico = %s) ';
+
+begin
+  vCondicaoRecebimentoImoveisDebito := '';
+  vCondicaoRecebimentoImoveisCredito := '';
+
+  qryImoveisDiarioAuxiliar.First;
+  while not qryImoveisDiarioAuxiliar.Eof do
+  begin
+
+    vCondicaoAuxiliarRecebimentoImoveis := '';
+    if qryImoveisDiarioAuxiliartipocontacontabil.AsString = 'S' then
+      vCondicaoAuxiliarRecebimentoImoveis := Format(SQLClassificacaoContaSintetica, [quotedstr(qryImoveisDiarioAuxiliarclassificacaoplano.AsString)])
+    else
+      vCondicaoAuxiliarRecebimentoImoveis := Format(SQLClassificacaoContaAnalitica, [qryImoveisDiarioAuxiliarconta.AsString]);
+
+    if qryImoveisDiarioAuxiliarhistorico.AsString <> '' then
+    begin
+      if qryImoveisDiarioAuxiliardeboucred.AsString = 'D' then
+        vCondicaoAuxiliarRecebimentoImoveis :=
+          vCondicaoAuxiliarRecebimentoImoveis + format(SQLHistoricoDebito,[qryImoveisDiarioAuxiliarhistorico.AsString])
+      else
+        vCondicaoAuxiliarRecebimentoImoveis :=
+          vCondicaoAuxiliarRecebimentoImoveis + format(SQLHistoricoCredito,[qryImoveisDiarioAuxiliarhistorico.AsString]);
+    end;
+
+    if qryImoveisDiarioAuxiliardeboucred.AsString = 'D' then
+      vCondicaoRecebimentoImoveisDebito :=  vCondicaoRecebimentoImoveisDebito + '(' + vCondicaoAuxiliarRecebimentoImoveis + ') or '+chr(13)
+    else
+      vCondicaoRecebimentoImoveisCredito := vCondicaoRecebimentoImoveisCredito + '(' + vCondicaoAuxiliarRecebimentoImoveis + ') or '+chr(13);
+
+    qryImoveisDiarioAuxiliar.next;
+  end;
+
+  delete(vCondicaoRecebimentoImoveisDebito, length(vCondicaoRecebimentoImoveisDebito)-4, 4);
+  delete(vCondicaoRecebimentoImoveisCredito, length(vCondicaoRecebimentoImoveisCredito)-4, 4);
+
+  qryLivroDiario.parambyname('datainicial').AsDateTime := strtodatetime('01/'+mesAno);
+  qryLivroDiario.parambyname('datafinal').AsDateTime := UltimoDiaMes(strtodatetime('01/'+mesAno));
+  qryLivroDiario.parambyname('filial').AsString := Filial;
+
+  if vCondicaoRecebimentoImoveisDebito<>'' then
+    qrylivroDiario.macrobyname('CondicoesImoveisDiarioAuxiliarDebito').AsString :=  ' and ' + vCondicaoRecebimentoImoveisDebito
+  else
+    qrylivroDiario.macrobyname('CondicoesImoveisDiarioAuxiliarDebito').AsString :=  ' and false';
+
+
+  if vCondicaoRecebimentoImoveisCredito<>'' then
+    qrylivroDiario.macrobyname('CondicoesImoveisDiarioAuxiliarCredito').AsString := ' and ' + vCondicaoRecebimentoImoveisCredito
+  else
+    qrylivroDiario.macrobyname('CondicoesImoveisDiarioAuxiliarCredito').AsString := ' and false';
+
+  qrylivroDiario.close;
+  qrylivroDiario.open;
+
+  frVariables['DataExtensoInicial']:= DataExtenso(strtodatetime('01/'+mesAno));
+  frVariables['DataExtensoFinal']:= DataExtenso(UltimoDiaMes(strtodatetime('01/'+mesAno)));
+  frVariables['DataInicial']:= FormatDateTime('dd/mm/yyyy', strtodatetime('01/'+mesAno));
+  frVariables['DataFinal']:= FormatDateTime('dd/mm/yyyy', UltimoDiaMes(strtodatetime('01/'+mesAno)));
+  frVariables['Titulo']:= 'LIVRO DIÁRIO AUXILIAR DE RECEBIMENTOS';
+  frVariables['subTitulo']:= 'PERÍODO DE ' + DataLivro(strtodatetime('01/'+mesAno),false) +
+                             ' A ' + DataLivro(UltimoDiaMes(strtodatetime('01/'+mesAno)),true);
+  if Livro = '' then
+    frVariables['Livro'] := 0
+  else frVariables['Livro'] := Livro;
+  frVariables['Pagina']:= Pagina;
+  frVariables['Maximo']:= Maximo;
+
+//  frpLivroDiario.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3;
+  try
+    Relatorio := frmPreview.frCompositeReport;
+    with frmPreview do
+    begin
+      case tiporelatorio of
+      0: begin
+           frCompositeReport.Reports.Clear;
+           frCompositeReport.Reports.Add(frpLivroDiario);
+         end;
+      1: begin
+          if not Assigned(ImpressaoTermos) then
+           ImpressaoTermos := TdtmImprimeTermos.Create(Self);
+          frCompositeReport.Reports.Add(ImpressaoTermos.frpTermos_R);
+         end;
+      end;
+    end;
+    Relatorio.Preview := frmPreview.frPreviewPadrao;
+    Relatorio.ShowReport;
+    frmPreview.ShowModal;
+  finally
+   frmPreview.Free;
+  end;
+
+end;
+
+procedure TdtmDiarioAuxiliarRecebimentosImoveis.qryImoveisDiarioAuxiliarNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryImoveisDiarioAuxiliardeboucred.AsString := 'D';
+end;
+
+function TdtmDiarioAuxiliarRecebimentosImoveis.DataLivro(Data: TDateTime;
+  Completo: Boolean): String;
+var
+  Dia, Mes, Ano: Word;
+begin
+  DecodeDate(Data, ano, mes, dia);
+  if Completo then
+    if dia < 10 then
+      result := '0' + inttostr(dia) + '/' + ANSIUpperCase(copy(mesextenso(mes),0,3)) + '/' + copy(inttostr(ano),3,2)
+    else
+      result := inttostr(dia) + '/' + ANSIUpperCase(copy(mesextenso(mes),0,3)) + '/' + copy(inttostr(ano),3,2)
+  else
+    if dia < 10 then
+      result := '0' + inttostr(dia) + '/' + ANSIUpperCase(copy(mesextenso(mes),0,3))
+    else
+      result := inttostr(dia) + '/' + ANSIUpperCase(copy(mesextenso(mes),0,3));
+end;
+
+end.

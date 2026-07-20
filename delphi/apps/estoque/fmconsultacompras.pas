@@ -1,0 +1,2489 @@
+unit fmconsultacompras;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, Grids, DBGrids, Buttons, Mask, DBCtrls, Windows,
+  ComCtrls,
+  // Repositorio
+  fmajudabt, fmconsultaporcampo, fmconsultabasica, clparametrossistema,
+  // Constantes
+  ctconstantes, biblio,
+  // Terceiros
+  ZQuery,
+  // Componenetes
+  cpnumero, cptexto, cpdbfindcontrols, cpdbgrid, cpdbtext, cpdata, cppagecontrol,
+  cpeditioncontrolvalidation, CheckLst, DB, ZPgSqlQuery, cpquery,
+  ToolWin, DateUtils, fmVisualizarImageURL,
+  frselecaoaleatoriagruposfornecedores, fmprincipalbasico, dmconsultacompras,
+  frconsulta, frconsultacodigo, frmultiplaselecaoaleatoria,
+  AdvObj, BaseGrid, AdvGrid, DBAdvGrid,
+  Menus, cpdbmemo, AdvSmoothProgressBar;
+
+ 
+type
+  TfrmConsultaCompras = class(TfrmAjudaBt)
+    pnlFundoJanela: TPanel;
+    sbnGerar: TSpeedButton;
+    sbnRelatorio: TSpeedButton;
+    tstParametros: TTabSheet;
+    tstConsulta: TTabSheet;
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    sbnMarcarFiliais: TSpeedButton;
+    sbnDesmarcarFiliais: TSpeedButton;
+    clbFiliais: TCheckListBox;
+    tstGrupoFilial: TTabSheet;
+    sbnmarcarGrupodeFiliais: TSpeedButton;
+    sbnDesmarcarGrupodeFiliais: TSpeedButton;
+    clbGrupodeFiliais: TCheckListBox;
+    gbxPeriodo: TGroupBox;
+    lblDataInicial: TLabel;
+    edtDataInicial: TEditData;
+    lblDataFinal: TLabel;
+    edtDataFinal: TEditData;
+    gbxDiasEstoque: TGroupBox;
+    edtDiasEstoque: TEditNumero;
+    lblDias: TLabel;
+    gbxProdutos: TGroupBox;
+    ckbProdutoEmLinha: TCheckBox;
+    ckbProdutoForadeLinha: TCheckBox;
+    ckbProdutoComMontagem: TCheckBox;
+    ckbProdutoSemMontagem: TCheckBox;
+    ckbProdutoNaoBrinde: TCheckBox;
+    ckbProdutoBrinde: TCheckBox;
+    gbxEstoque: TGroupBox;
+    ckbemEstoque: TCheckBox;
+    ckbReservado: TCheckBox;
+    ckbTransito: TCheckBox;
+    ckbDemonstracao: TCheckBox;
+    ckbConserto: TCheckBox;
+    ckbDanificada: TCheckBox;
+    pgcConsulta: TPageControl;
+    gbxIncluirItens: TGroupBox;
+    ckbSemSugestaoCompra: TCheckBox;
+    gxbUltimaCompra: TGroupBox;
+    dtxData: TtecDBText;
+    dtxQuantidade: TtecDBText;
+    dtxCustoMedio: TtecDBText;
+    dtxPrecoVenda: TtecDBText;
+    dtxMarkup: TtecDBText;
+    gbxVendas: TGroupBox;
+    gbxProdutosFiliais: TGroupBox;
+    dbgProdutosFiliais: TtecDBGrid;
+    dtxvaloripi: TtecDBText;
+    dtxprecosemicms: TtecDBText;
+    dtxPrecocomicms: TtecDBText;
+    rgpTotalizacao: TRadioGroup;
+    gbxProdutosGruposFiliais: TGroupBox;
+    dbgProdutosGrupos: TtecDBGrid;
+    ckbProdutoAtivo: TCheckBox;
+    ckbProdutoInativo: TCheckBox;
+    gbxAcimaMinimo: TGroupBox;
+    edtPercentual: TEditNumero;
+    dtxFilial: TtecDBText;
+    pgcProdutosConsulta: TtecPageControl;
+    tstProdutosTotal: TTabSheet;
+    tstProdutosSimilares: TTabSheet;
+    dbgProdutos: TtecDBGrid;
+    dtxProduto: TtecDBText;
+    rgpTotalizacaoSelecao: TRadioGroup;
+    rgpOrdenacao: TRadioGroup;
+    sbngerarPedido: TSpeedButton;
+    ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
+    pnlSelecionar: TPanel;
+    ckbSelecionartodosprodutos: TCheckBox;
+    gbxUltCompraFilial: TGroupBox;
+    gbxUltCompraData: TGroupBox;
+    gbxUltCompraPrecoCICMS: TGroupBox;
+    gbxUltCompraPrecoSICMS: TGroupBox;
+    gbxUltCompraQtde: TGroupBox;
+    gbxUltCompraIPI: TGroupBox;
+    gbxCustoMedio: TGroupBox;
+    gbxPrecoVenda: TGroupBox;
+    gbxMarkUp: TGroupBox;
+    ckbReservaPrevia: TCheckBox;
+    gbxCurvaABC: TGroupBox;
+    ckbCurvaABC_A: TCheckBox;
+    ckbCurvaABC_C: TCheckBox;
+    ckbCurvaABC_B: TCheckBox;
+    ckbCurvaABC_NaoDefinido: TCheckBox;
+    sbngerarRequisicao: TSpeedButton;
+    pnlConsultaAbaixo: TPanel;
+    Panel1: TPanel;
+    gbxProximoPedido: TGroupBox;
+    lblNrPedido: TLabel;
+    dtxNrPedido: TtecDBText;
+    lblQuantidade: TLabel;
+    dtxQtdade: TtecDBText;
+    lblPrevisao: TLabel;
+    dtxPrevisao: TtecDBText;
+    dtxEmissaoPedido: TtecDBText;
+    lblEmissaoPedido: TLabel;
+    gbxDiasProporcional: TGroupBox;
+    Label1: TLabel;
+    edtDiasProporcional: TEditNumero;
+    gbxIncluirnoResultadodosPedidos: TGroupBox;
+    ckbPedidosEntreFiliais: TCheckBox;
+    edtNumerodedias: TEditNumero;
+    lblNumerodeDias: TLabel;
+    gbxReducaoTabelaCompras: TGroupBox;
+    dbgReducaoTabelaCompras: TtecDBGrid;
+    pnlReducaoTabelaCompras: TPanel;
+    sbnExcluirReducaoTabelaCompras: TSpeedButton;
+    sbnIncluirReducaoTabelaCompras: TSpeedButton;
+    dbgProdutosSimilares: TtecDBGrid;
+    pnlSomatorioSimilares: TPanel;
+    dbgProdutosSimilaresTotal: TtecDBGrid;
+    shExisteSimilar: TShape;
+    lnlSimiliar: TLabel;
+    GroupBox1: TGroupBox;
+    dtxdatacadastro: TtecDBText;
+    ckbProdutosLembradosparaPedido: TCheckBox;
+    gbxDataCadastroProdutos: TGroupBox;
+    lblDataInicialCadastroProduto: TLabel;
+    lblDataFinalCadastroProduto: TLabel;
+    edtDataInicialCadastroProduto: TEditData;
+    edtDataFinalCadastroProduto: TEditData;
+    gbxDataNFEntrada: TGroupBox;
+    lblDataInicialEntradaNF: TLabel;
+    lblDataFinalEntradaNF: TLabel;
+    edtDataInicialEntradaNF: TEditData;
+    edtDataFinalEntradaNF: TEditData;
+    gbxDataUltimaVenda: TGroupBox;
+    lblDataEntradaUltimaVenda: TLabel;
+    lblDataFinalUltimaVenda: TLabel;
+    edtDataInicialUltimaVenda: TEditData;
+    edtDataFinalUltimaVenda: TEditData;
+    Shape1: TShape;
+    lblPrincipal: TLabel;
+    tstFiliaisEstoque: TTabSheet;
+    clbFiliaisEstoque: TCheckListBox;
+    sbnMarcarFiliaisEstqoue: TSpeedButton;
+    sbnDesmarcarFiliaisEstoque: TSpeedButton;
+    gbxConceitos: TGroupBox;
+    sbnMarcarConceitos: TSpeedButton;
+    sbnDesmarcarConceitos: TSpeedButton;
+    clbConceitos: TCheckListBox;
+    sbnVisualizarFoto: TSpeedButton;
+    fraSelecaoAleatoriagruposfornecedores1: TfraSelecaoAleatoriagruposfornecedores;
+    gbxGrupoFornecedores: TGroupBox;
+    Splitter1: TSplitter;
+    pnlLeftConsultaCompras: TPanel;
+    gbxAlteracaoPreco: TGroupBox;
+    dtxAlteracaoPreco: TtecDBText;
+    gbxPrecoPromocao: TGroupBox;
+    dtxPrecoPromocao: TtecDBText;
+    gbxValidadePreco: TGroupBox;
+    dtxValidadePreco: TtecDBText;
+    pnlLeftPrice: TPanel;
+    dtxDescricaoPreco: TtecDBText;
+    gbxDescricaoPreco: TGroupBox;
+    sbnConsultaEstoque: TSpeedButton;
+    Timer1: TTimer;
+    lblLegendaPromocao: TLabel;
+    shpPromocao: TShape;
+    shpLembrarPedido: TShape;
+    lblLembrarPedidos: TLabel;
+    tstFiliaisSemEstoque: TTabSheet;
+    clbFiliaissemEstoque: TCheckListBox;
+    sbnMarcarFiliaissemEstqoue: TSpeedButton;
+    sbnDesmarcarFiliaissemEstoque: TSpeedButton;
+    GroupBox2: TGroupBox;
+    fraConsultaFornecedor: TfraConsultaCodigo;
+    fraMultiplaSelecaoAleatoria: TfraMultiplaSelecaoAleatoria;
+    PageScroller1: TPanel;
+    sbnProdutos: TSpeedButton;
+    sbnFichaProdutos: TSpeedButton;
+    gbxValorUltimaCompra: TGroupBox;
+    dtxValorUltimaCompra: TtecDBText;
+    ckbComposto: TCheckBox;
+    ckbNaoComposto: TCheckBox;
+    Splitter2: TSplitter;
+    dbgVendas: TDBAdvGrid;
+    gbxUltimaVenda: TGroupBox;
+    ckbNaoConsiderarPedidosCompra: TCheckBox;
+    edtUltimaVenda: TtecDBText;
+    pnlSituacaoTributaria: TPanel;
+    pnlcstprodutonfe: TPanel;
+    lblcst: TLabel;
+    dtxcst: TtecDBText;
+    pnlcsosnProdutonfe: TPanel;
+    lblcsosn: TLabel;
+    dtxcsosn: TtecDBText;
+    gbxObsLembarPedido: TGroupBox;
+    Splitter3: TSplitter;
+    mmoObsLembarPedido: TtecDBMemo;
+    pnlProdutosFiliais: TPanel;
+    sbnRequisicoes: TSpeedButton;
+    Panel2: TPanel;
+    sbnVisualizarVendaDiaria: TSpeedButton;
+    pnlBarraRequisicoes: TPanel;
+    Bevel1: TBevel;
+    Shape4: TShape;
+    Label2: TLabel;
+    Shape2: TShape;
+    Label3: TLabel;
+    gbxRequisicoes: TGroupBox;
+    dbgPedidosFiliais_: TDBAdvGrid;
+    sbnCancelar: TSpeedButton;
+    Splitter4: TSplitter;
+    PageScroller2: TScrollBox;
+    sbnRequisitarItemAtual: TSpeedButton;
+    sbnSalvar: TSpeedButton;
+    sbnAtualizarRegistros: TSpeedButton;
+    StaticText1: TStaticText;
+    fraConsultaFilial: TfraConsultaCodigo;
+    sbnPreencher: TBitBtn;
+    sbnReiniciarPedidosFiliais: TBitBtn;
+    AdvSmoothProgressBar1: TAdvSmoothProgressBar;
+    SpeedButton1: TSpeedButton;
+    sbnManutencaoPreco: TSpeedButton;
+    sbnProdutosPendentes: TSpeedButton;
+    sbnNFePendente: TSpeedButton;
+    tstProdutosGrades: TTabSheet;
+    ckbUsarTabelaRedutora: TCheckBox;
+    procedure sbnGerarClick(Sender: TObject);
+    procedure sbnRelatorioClick(Sender: TObject);
+    procedure edtDiasEstoqueKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure ckbProdutoEmLinhaClick(Sender: TObject);
+    procedure ckbProdutoForadeLinhaClick(Sender: TObject);
+    procedure ckbProdutoComMontagemClick(Sender: TObject);
+    procedure ckbProdutoSemMontagemClick(Sender: TObject);
+    procedure ckbProdutoBrindeClick(Sender: TObject);
+    procedure ckbProdutoNaoBrindeClick(Sender: TObject);
+    procedure sbnMarcarFiliaisClick(Sender: TObject);
+    procedure sbnDesmarcarFiliaisClick(Sender: TObject);
+    procedure sbnmarcarGrupodeFiliaisClick(Sender: TObject);
+    procedure sbnDesmarcarGrupodeFiliaisClick(Sender: TObject);
+    procedure clbFiliaisClickCheck(Sender: TObject);
+    procedure clbGrupodeFiliaisClickCheck(Sender: TObject);
+    procedure rgpTotalizacaoClick(Sender: TObject);
+    procedure ckbProdutoAtivoClick(Sender: TObject);
+    procedure ckbProdutoInativoClick(Sender: TObject);
+    procedure pgcProdutosConsultaChange(Sender: TObject);
+    procedure sbngerarPedidoClick(Sender: TObject);
+    procedure ckbSelecionartodosprodutosClick(Sender: TObject);
+    procedure dbgProdutosDblClick(Sender: TObject);
+    procedure dbgProdutosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure pgcConsultaChange(Sender: TObject);
+    procedure sbngerarRequisicaoClick(Sender: TObject);
+    procedure edtNumerodediasExit(Sender: TObject);
+    procedure edtDataFinalEnter(Sender: TObject);
+    procedure edtDataInicialExit(Sender: TObject);
+    procedure edtDataFinalExit(Sender: TObject);
+    procedure sbnIncluirReducaoTabelaComprasClick(Sender: TObject);
+    procedure sbnExcluirReducaoTabelaComprasClick(Sender: TObject);
+    procedure dbgProdutosSimilaresDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure sbnMarcarFiliaisEstqoueClick(Sender: TObject);
+    procedure sbnDesmarcarFiliaisEstoqueClick(Sender: TObject);
+    procedure clbFiliaisEstoqueClickCheck(Sender: TObject);
+    procedure dbgProdutosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnVisualizarFotoClick(Sender: TObject);
+    procedure sbnConsultaEstoqueClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure sbnMarcarFiliaissemEstqoueClick(Sender: TObject);
+    procedure sbnDesmarcarFiliaissemEstoqueClick(Sender: TObject);
+    procedure clbFiliaissemEstoqueClickCheck(Sender: TObject);
+    procedure sbnProdutosClick(Sender: TObject);
+    procedure sbnFichaProdutosClick(Sender: TObject);
+    procedure sbnRequisicoesClick(Sender: TObject);
+    procedure sbnVisualizarVendaDiariaClick(Sender: TObject);
+    procedure dbgPedidosFiliais_CanClickCell(Sender: TObject; ARow,
+      ACol: Integer; var Allow: Boolean);
+    procedure sbnCancelarClick(Sender: TObject);
+    procedure FormMouseWheelDown(Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean);
+    procedure FormMouseWheelUp(Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean);
+    procedure PageScroller2MouseWheelDown(Sender: TObject;
+      Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+    procedure PageScroller2MouseWheelUp(Sender: TObject;
+      Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+    procedure sbnRequisitarItemAtualClick(Sender: TObject);
+    procedure sbnSalvarClick(Sender: TObject);
+    procedure dbgPedidosFiliais_KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure sbnAtualizarRegistrosClick(Sender: TObject);
+    procedure sbnPreencherClick(Sender: TObject);
+    procedure fraConsultaFilialedfCodigoFound(Found: Boolean);
+    procedure sbnReiniciarPedidosFiliaisClick(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure sbnManutencaoPrecoClick(Sender: TObject);
+    procedure sbnProdutosPendentesClick(Sender: TObject);
+    procedure dbgPedidosFiliais_DrawCell(Sender: TObject; ACol,
+      ARow: Integer; Rect: TRect; State: TGridDrawState);
+    procedure Splitter4Moved(Sender: TObject);
+    procedure Splitter1Moved(Sender: TObject);
+    procedure sbnNFePendenteClick(Sender: TObject);
+    procedure pgcProdutosConsultaChanging(Sender: TObject;
+      var AllowChange: Boolean);
+  private
+    GravandoPedidosFiliais : Boolean;
+    vpgcProdutosConsultaheight : integer;
+    procedure ObterLista(Origem: TStrings; Destino: TCheckListBox);
+    procedure AfterScrollLinhaColunaGradeSimilares(Sender: TObject);
+    procedure ComprasTotalAfterScroll(Sender: TObject);
+
+    procedure DrawGridPedidosFiliais(Sender: TObject);
+    procedure AfterPostPedidosFiliais(Sender: TObject);
+
+
+  protected
+
+//    function JanelaPesquisa: TfrmConsultaBasica; override;
+
+    procedure KeyDown(var Key: Word; Shift: TShiftState);override;
+    function NomeCampoQuantidade(Valor: integer):String;
+    function DefinirValorProduto(CampoProduto: Largeint):Currency;
+    procedure CalcularNDias;
+    procedure AtribuirDataSource;
+    procedure DrawGrid;
+    procedure MontarGradeDadosRequisicoes;
+//    procedure TfrmCadastroPedidosDestroy(Sender: TObject);
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function PesquisaHabilitada: Boolean;
+    function TituloPesquisa: String;
+    function VerificaCamposConsulta: Boolean;
+    procedure LimpaControles;
+    procedure DesativarFontesdeDados;
+    procedure VoltarFontedeDados;
+
+    procedure Liberar_TfrmCadastroPedidos;
+    procedure Liberar_TfrmManutencaoPreco;
+
+    
+  end;
+
+var
+  frmConsultaCompras: TfrmConsultaCompras;
+  TipoPesquisa: TTecPesquisa;
+  ControleValido : TWinControl;
+  AcionarTelaConsultaCompras: function (Owner: TComponent; ListadeProdutos: TStringList): boolean;
+
+implementation
+
+uses fmcadastropedidos,
+     fmcadastroprodutospedidos_,
+     fmselecionarquantidades, dmbasico,
+  fmajuda, frselecaoaleatoria, frselecaoaleatoriaitemdeprodutos,
+  dmcadastropedidos, fmListadePedidos, fmVisualizarVendaDiaria,
+  fmmanutencaopreco, fmListaProdutosPendentesNF;
+
+{$R *.dfm}
+
+
+function AcionarTelaConsultaCompras_(Owner: TComponent; ListadeProdutos: TStringList): boolean;
+var
+  i: integer;
+begin
+
+  result := false;
+  if (ListadeProdutos.Count <> 0) then
+  begin
+
+    if not assigned(frmConsultaCompras) then
+      frmConsultaCompras := TfrmConsultaCompras.create(Owner);
+
+    frmConsultaCompras.AtribuirDataSource;
+
+    with frmConsultaCompras do
+    begin
+      fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.sbnExcluirTodosClick(nil);
+      fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaprodutos.fraSelecaoAleatoriaProduto.sbnExcluirTodosClick(nil);
+      fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriagruposprodutos.fraSelecaoAleatoriaGrupoProduto.sbnExcluirTodosClick(nil);
+      fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriaclassesprodutos.fraSelecaoAleatoriaClasseProduto.sbnExcluirTodosClick(nil);
+      fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriamarcasProdutos.fraSelecaoAleatoriamarcasProduto.sbnExcluirTodosClick(nil);
+
+      for i:= 0 to  ListadeProdutos.Count - 1 do
+        fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.SetarCodigo(ListadeProdutos[i]);
+
+      fraMultiplaSelecaoAleatoria.pgcMultiplaSelecaoAleatoria.ActivePageIndex := 0;
+
+      frmConsultaCompras.sbnGerarClick(frmConsultaCompras);
+      frmConsultaCompras.bringtofront;
+
+    end;
+  end;
+end;
+
+
+constructor TfrmConsultaCompras.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmConsultaCompras := TdtmConsultaCompras.Create(self);
+
+              {
+  if ParSistema.PermitirProdutoAlfanumerico then
+  begin
+     dbgProdutos.ColumnByName('produtovisual').FieldName := 'produtovisual';
+     dbgProdutosSimilares.ColumnByName('produtovisual').FieldName := 'produtovisual';
+  end
+  else
+  begin
+     dbgProdutos.ColumnByName('produtovisual').FieldName := 'produto';
+     dbgProdutosSimilares.ColumnByName('produtovisual').FieldName := 'produto';
+  end;
+  }
+
+
+  {
+  edfItemProdutoInicial.DataSource     := dtmConsultaCompras.dsrItemProdutosInicial;
+  edfItemProdutoFinal.DataSource       := dtmConsultaCompras.dsrItemProdutosFinal;
+  edfProdutoInicial.DataSource         := dtmConsultaCompras.dsrProdutosInicial;
+  edfProdutoFinal.DataSource           := dtmConsultaCompras.dsrProdutosFinal;
+  edfGrupoProdutoInicial.DataSource    := dtmConsultaCompras.dsrGrupoProdutosInicial;
+  edfGrupoProdutoFinal.DataSource      := dtmConsultaCompras.dsrGrupoProdutosFinal;
+  edfClasseInicial.DataSource          := dtmConsultaCompras.dsrClassesInicial;
+  edfClasseFinal.DataSource            := dtmConsultaCompras.dsrClassesFinal;
+  edfClasseInicial.DataSource          := dtmConsultaCompras.dsrClassesInicial;
+  edfClasseFinal.DataSource            := dtmConsultaCompras.dsrClassesFinal;
+  edfMarcaInicial.DataSource 		     := dtmConsultaCompras.dsrMarcaInicial;
+  edfMarcaFinal.DataSource 		     := dtmConsultaCompras.dsrMarcaFinal;
+  }
+
+
+
+
+  SalvarPropriedadesFormulario := true;
+
+  ObterLista(dtmConsultaCompras.ListaFiliais, clbFiliais);
+  ObterLista(dtmConsultaCompras.ListaGruposFiliais, clbGrupodeFiliais);
+  ObterLista(dtmConsultaCompras.ListaFiliais, clbFiliaisEstoque);
+  ObterLista(dtmConsultaCompras.ListaFiliais, clbFiliaissemEstoque);
+
+
+  ckbSelecionartodosprodutos.OnClick := nil;
+  CarregarConfiguracoesFormulario;
+  ckbSelecionartodosprodutos.OnClick := ckbSelecionartodosprodutosClick;
+
+  ckbSelecionartodosprodutos.Checked := false;
+
+  dtmConsultaCompras.LerArquivoCFG;
+
+
+  ckbPedidosEntreFiliais.Checked := dtmConsultaCompras.PedidosEntreFiliais;
+
+  dtmConsultaCompras.Abre(ctTabelas);
+  pgcConsulta.ActivePage := tstParametros;
+
+  if edtNumerodedias.ValorSemFormatacao <> 0 then
+    edtDataInicial.Text := datetostr((Date() - edtNumerodedias.ValorSemFormatacao))
+  else
+    edtDataInicial.Text := datetostr((Date() - 90));
+
+  edtDataFinal.Text := datetostr(Date());
+
+  if edtDiasEstoque.Text = '' then
+    edtDiasEstoque.Text:= '30';
+
+  if edtDiasProporcional.Text = '' then
+    edtDiasProporcional.Text:= '30';
+
+  sbnRelatorio.Enabled := false;
+  sbngerarPedido.Enabled:= False;
+  sbngerarRequisicao.Enabled:= False;
+  sbnRequisitarItemAtual.Enabled:= False;
+
+
+  dbgProdutos.ColumnByName('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutos.ColumnByName('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+
+  edtPercentual.Text := '0';
+
+  dbgProdutosSimilares.ColumnByName('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutosSimilares.ColumnByName('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+
+  {
+  if not ParSistema.UsarGradesProdutos then
+    dbgProdutosSimilares.Columns[1].Width := dbgProdutosSimilares.Columns[1].Width+
+                                             dbgProdutosSimilares.Columns[2].Width+
+                                             dbgProdutosSimilares.Columns[3].Width;
+}
+
+  dtmConsultaCompras.OnScrollLinhaColunaGradeSimilares := AfterScrollLinhaColunaGradeSimilares;
+  dtmConsultaCompras.ComprasTotalAfterScroll := ComprasTotalAfterScroll;
+  ObterLista(dtmconsultacompras.ListaConceitos, clbConceitos);
+
+  fraConsultaFornecedor.qryProcuraCliente.ParamByName('NaoConsiderarTipoCliente').asBoolean := false;
+  fraConsultaFornecedor.TipoPesquisa := pesFORNECEDORES;
+  fraConsultaFornecedor.TipoCliente := 'F';
+  fraConsultaFornecedor.Tipovfornecedor := 'F';
+
+//  AtribuirDataSource;
+
+
+
+  sbnCancelar.enabled := false;
+  sbnSalvar.enabled := false;
+
+  pgcProdutosConsulta.align := alClient;
+
+  fraConsultaFilial.TipoPesquisa   := pesFILIAIS;
+
+  vpgcProdutosConsultaheight := -1;
+
+end;
+
+destructor TfrmConsultaCompras.Destroy;
+begin
+  dtmConsultaCompras.LerArquivoCFG(true, ckbPedidosEntreFiliais.Checked);
+
+  Liberar_TfrmCadastroPedidos;
+  Liberar_TfrmManutencaoPreco;
+
+  FreeAndNil(AdvSmoothProgressBar1);
+
+  inherited;
+
+//  frmConsultaCompras := nil;
+//  dtmConsultaCompras := nil;
+
+end;
+
+function TfrmConsultaCompras.PesquisaHabilitada: Boolean;
+begin
+  Result:= False;
+  if CtrlOn and (ActiveControl is TtecDBEditFind) then
+  begin
+    Result := True;
+  end;
+end;
+
+function TfrmConsultaCompras.TituloPesquisa: String;
+begin
+  case TipoPesquisa of
+    pesITEMPRODUTOSINICIAL,
+    pesITEMPRODUTOSFINAL     : Result := ctITEMPRODUTO;
+    pesPRODUTOSINICIAL,
+    pesPRODUTOSFINAL     : Result := ctPRODUTO;
+    pesGRUPOSINICIAL,
+    pesGRUPOSFINAL       : Result := ctGRUPOS;
+    pesCLASSESINICIAL,
+    pesCLASSESFINAL      : Result := ctCLASSES;
+    pesMARCASINICIAL,
+    pesMARCASFINAL  : Result := ctMARCAS;
+  end;
+end;
+
+{
+function TfrmConsultaCompras.JanelaPesquisa: TfrmConsultaBasica;
+var
+  Jan: TfrmConsultaPorCampo;
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := Not (TipoPesquisa in [
+                                                  pesPRODUTOSINICIAL, pesPRODUTOSFINAL,
+                                                  pesITEMPRODUTOSINICIAL, pesITEMPRODUTOSFINAL]) and CtrlOn;
+  Jan.UsarParametrosDaTabela := False;
+  Result := Jan
+end;
+}
+
+procedure TfrmConsultaCompras.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+       VK_F5 : begin
+                sbnSalvar.Enabled := dtmConsultaCompras.vTotalAtendido <> 0;
+                if sbnSalvar.Enabled then
+                  sbnSalvarClick(Self);
+               end;
+       VK_F6 : if sbnGerar.Enabled then sbnGerarClick(Self);
+   VK_Escape : begin
+                 if gbxRequisicoes.visible then
+                 begin
+                   pgcConsulta.activepage := tstConsulta;
+                   if activeControl <> dbgPedidosFiliais_ then
+                     if MensagemConfirmacao('Sair da grade de geração de requisições?') = smbOk then
+                       sbnCancelarClick(nil);
+                 end
+                 else
+                   LimpaControles;
+               end;
+       VK_F7 : if sbnRelatorio.Enabled then sbnRelatorioClick(Self);
+       VK_F8 : if sbnConsultaEstoque.Enabled then sbnConsultaEstoqueClick(Self);
+       VK_F10: begin key:=0; if sbngerarPedido.Enabled then sbngerarPedidoClick(Self); end;
+       VK_F11: begin
+                if Shift = [ssCtrl] then
+                begin
+                  if sbnRequisitarItemAtual.Enabled then
+                    sbnRequisitarItemAtualClick(self)
+                end
+                else
+                  if sbngerarRequisicao.Enabled then sbngerarRequisicaoClick(Self);
+               end;
+
+  end;
+  inherited;
+end;
+
+procedure TfrmConsultaCompras.sbnGerarClick(Sender: TObject);
+var
+ Param_Estoque : String;
+begin
+  if gbxRequisicoes.visible then
+  begin
+    if MensagemConfirmacao('Sair da grade de geração de requisições?') = smbOk then
+    begin
+       sbnCancelarClick(Sender);
+       sbnGerarClick(Sender);
+    end;
+  end
+  else
+  begin
+    if VerificaCamposConsulta then
+    begin
+      with dtmConsultaCompras do
+      begin
+        CabecalhoSaldoEstoque :='Saldo Estoque: ';
+        ParametroDataInicial := edtDataInicial.Text;
+        ParametroDataFinal := edtDataFinal.Text;
+        MontarFiltroConceitos(clbConceitos);
+
+        ParametroDataInicialCadastroProduto := edtDataInicialCadastroProduto.text;
+        ParametroDataFinalCadastroProduto   := edtDataFinalCadastroProduto.text;
+
+        ParametroDataInicialEntradaNF       := edtDataInicialEntradaNF.text;
+        ParametroDataFinalEntradaNF         := edtDataFinalEntradaNF.text;
+
+        ParametroDataInicialUltimaVenda     := edtDataInicialUltimaVenda.text;
+        ParametroDataFinalUltimaVenda       := edtDataFinalUltimaVenda.text;
+
+        ParametroCabecalho := gbxPeriodo.Caption+formatdatetime('dd/mm/yy',strtodate(edtDataInicial.Text))+
+                              ' e '+ formatdatetime('dd/mm/yy',strtodate(edtDataFinal.Text));
+        ParametroDiasEstoque := edtDiasEstoque.Text  ;
+        ParametroDiasEstoqueProporcional := edtDiasProporcional.Text  ;
+        PedidosEntreFiliais := ckbPedidosEntreFiliais.Checked;
+        NaoConsiderarPedidosCompra:=ckbNaoConsiderarPedidosCompra.Checked;
+
+        ParametroCabecalho := ParametroCabecalho+gbxDiasEstoque.Caption+edtDiasEstoque.text+' dias, proporcional para: '+edtDiasProporcional.text;
+        ParametroFornecedor := fraConsultaFornecedor.edfcodigo.Text;
+        ListaGruposFornecedores := fraSelecaoAleatoriagruposfornecedores1.ListaCondicional;
+
+        Param_Estoque :='0 ';
+        if ckbemEstoque.Checked then
+        begin
+          Param_Estoque :=Param_Estoque + ' + e.emEstoque';
+          CabecalhoSaldoEstoque := CabecalhoSaldoEstoque+'em Estoque + ';
+        end;
+        if ckbReservado.Checked then
+        begin
+          Param_Estoque :=Param_Estoque+' + e.Reservado';
+          CabecalhoSaldoEstoque := CabecalhoSaldoEstoque+'Reservado + ';
+        end;
+        if ckbTransito.Checked then
+        begin
+          Param_Estoque :=Param_Estoque+' + e.Transito';
+          CabecalhoSaldoEstoque := CabecalhoSaldoEstoque+'em Transito + ';
+        end;
+        if ckbDemonstracao.Checked then
+        begin
+          Param_Estoque :=Param_Estoque+' + e.Demonstracao';
+          CabecalhoSaldoEstoque := CabecalhoSaldoEstoque+'Demonstracao + ';
+        end;
+        if ckbConserto.Checked then
+        begin
+          Param_Estoque :=Param_Estoque+' + e.Conserto';
+          CabecalhoSaldoEstoque := CabecalhoSaldoEstoque+'Conserto + ';
+        end;
+        if ckbDanificada.Checked then
+        begin
+          Param_Estoque :=Param_Estoque+' + e.Danificada';
+          CabecalhoSaldoEstoque := CabecalhoSaldoEstoque+'Danificada + ';
+        end;
+        if ckbReservaPrevia.Checked then
+        begin
+          Param_Estoque :=Param_Estoque+' + e.reservaprevia';
+          CabecalhoSaldoEstoque := CabecalhoSaldoEstoque+'em Reserva Prévia + ';
+        end;
+        ParametroEstoque := Param_estoque;
+
+        ParametroSugestaoNula := ckbSemSugestaoCompra.Checked;
+        if ParametroSugestaoNula then
+          ParametroCabecalho := ParametroCabecalho+' Com sugestao zero';
+
+        ProdutosLembradosparaPedido := ckbProdutosLembradosparaPedido.Checked;
+        if ProdutosLembradosparaPedido then
+          ParametroCabecalho := ParametroCabecalho+' Com Produtos marcados para pedido';
+
+
+        ProdutoEmLinha     := ckbProdutoEmLinha.checked;
+        ProdutoForadeLinha := ckbProdutoForadeLinha.checked;
+        ProdutoAtivo       := ckbProdutoAtivo.checked;
+        ProdutoInativo     := ckbProdutoInativo.checked;
+        ProdutoComMontagem := ckbProdutoComMontagem.Checked;
+        ProdutoSemMontagem := ckbProdutoSemMontagem.Checked;
+        ProdutoBrinde      := ckbProdutoBrinde.Checked;
+        ProdutoNaoBrinde   := ckbProdutoNaoBrinde.Checked;
+
+        ProdutoComposto := ckbComposto.Checked;
+        ProdutoNaoComposto := ckbNaoComposto.Checked;
+
+        CurvaABC_A := ckbCurvaABC_A.Checked;
+        CurvaABC_B := ckbCurvaABC_B.Checked;
+        CurvaABC_C := ckbCurvaABC_C.Checked;
+        CurvaABC_NaoDefinido := ckbCurvaABC_NaoDefinido.Checked;
+
+        MontarFiltroFiliais(clbFiliais);
+        MontarFiltroGrupoFiliais(clbGrupodeFiliais);
+        MontarFiltroFiliaisEstoque(clbFiliaisEstoque);
+        MontarFiltroFiliaissemEstoque(clbFiliaissemEstoque);
+
+
+        ListaCondicaoItemProduto := fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional;
+
+        ListaCondicaoProduto := fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaprodutos.ListaCondicional;
+
+        ListaCondicaoGrupoProduto := fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriagruposprodutos.ListaCondicional;
+
+        ListaCondicaoMarcaProduto := fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriamarcasProdutos.ListaCondicional;
+
+        ListaCondicaoClasseProduto := fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriaclassesprodutos.ListaCondicional;
+
+        ListaCondicaoPromocoesProduto := fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriapromocoes.ListaCondicional;
+
+        ParametroPercentual := edtPercentual.ValorSemFormatacao;
+
+        ParametroTotalizacao     := rgpTotalizacaoSelecao.ItemIndex;
+        ParametroOrdenacao       := rgpOrdenacao.ItemIndex;
+        UsarTabelaRedutora       := ckbUsarTabelaRedutora.checked;
+
+
+        dbgprodutos.datasource := nil;
+        AbreConsultaCompras;
+        dbgprodutos.datasource := dtmConsultaCompras.dsrComprasTotal;
+
+//        ListadeProdutosMarcados.Clear;
+
+        if not ConsultaVazia then
+        begin
+          pgcConsulta.ActivePage := tstConsulta;
+
+          pgcProdutosConsulta.ActivePage := tstProdutosTotal;
+          pgcProdutosConsultaChange(nil);
+          dbgProdutos.SetFocus;
+          sbnRelatorio.Enabled := true;
+          sbngerarPedido.Enabled:= True;
+          sbngerarRequisicao.Enabled := (dtmConsultaCompras.FilialRequisitante <> '');
+          sbnRequisitarItemAtual.Enabled := (dtmConsultaCompras.FilialRequisitante <> '');
+
+          pgcConsultaChange(nil);
+
+        end
+        else
+          sbnRelatorio.Enabled := false;
+
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmConsultaCompras.LimpaControles;
+begin
+  pgcConsulta.ActivePage := tstParametros;
+  {
+  with dtmConsultaCompras do
+  begin
+    Fecha(ctTabelasConsultaCompras);
+  end;
+  }
+end;
+
+function TfrmConsultaCompras.VerificaCamposConsulta: Boolean;
+begin
+  result := True;
+
+  if result then
+  begin
+    Result := (edtDataInicial.DataValida and edtDataFinal.DataValida);
+    if Result then
+    begin
+     if (not dataembranco(edtDataInicial.text) and not dataembranco(edtDataFinal.text)) then
+       Result:=StrToDate(edtDataInicial.Text) <= StrToDate(edtDataFinal.Text);
+
+     if result then
+     begin
+      Result:=(not dataembranco(edtDataInicial.text) or not dataembranco(edtDataFinal.text));
+
+      if not Result then
+      begin
+       MensagemAviso(ctPARAMETROSINEXISTENTES);
+       edtDataInicial.SetFocus;
+      end;
+     end
+     else
+     begin
+       MensagemAviso(ctDTINICIALMAIORDTFINAL);
+       edtDataInicial.SetFocus;
+     end;
+    end;
+   end;
+end;
+
+procedure TfrmConsultaCompras.sbnRelatorioClick(Sender: TObject);
+begin
+  dtmConsultaCompras.ImprimirRelatorio;
+end;
+
+procedure TfrmConsultaCompras.edtDiasEstoqueKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if TeclaEnterOuReturn(Key) and (Shift = []) and VerificaCamposConsulta then
+    sbnGerarClick(self);
+end;
+
+procedure TfrmConsultaCompras.ckbProdutoEmLinhaClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoForadeLinha.Checked and
+     not ckbProdutoEmLinha.Checked then
+     ckbProdutoforadelinha.Checked := True;
+end;
+
+procedure TfrmConsultaCompras.ckbProdutoForadeLinhaClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoForadeLinha.Checked and
+     not ckbProdutoEmLinha.Checked then
+     ckbProdutoEmLinha.Checked := True;
+end;
+
+procedure TfrmConsultaCompras.ckbProdutoComMontagemClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoComMontagem.Checked and
+     not ckbProdutoSemMontagem.Checked then
+     ckbProdutoSemMontagem.Checked := True;
+end;
+
+procedure TfrmConsultaCompras.ckbProdutoSemMontagemClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoComMontagem.Checked and
+     not ckbProdutoSemMontagem.Checked then
+     ckbProdutoComMontagem.Checked := True;
+
+end;
+
+procedure TfrmConsultaCompras.ckbProdutoBrindeClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoBrinde.Checked and
+     not ckbProdutoNaoBrinde.Checked then
+     ckbProdutoNaoBrinde.Checked := True;
+
+end;
+
+procedure TfrmConsultaCompras.ckbProdutoNaoBrindeClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoBrinde.Checked and
+     not ckbProdutoNaoBrinde.Checked then
+     ckbProdutoBrinde.Checked := True;
+end;
+
+procedure TfrmConsultaCompras.sbnMarcarFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliais, True);
+  MarcarLista(clbGrupodeFiliais, False);
+end;
+
+procedure TfrmConsultaCompras.sbnDesmarcarFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliais, False);
+end;
+
+procedure TfrmConsultaCompras.sbnmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbGrupodeFiliais, True);
+  MarcarLista(clbFiliais, False);
+end;
+
+procedure TfrmConsultaCompras.sbnDesmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbGrupodeFiliais, False);
+end;
+
+procedure TfrmConsultaCompras.ObterLista(Origem: TStrings;
+  Destino: TCheckListBox);
+var
+ i: integer;
+ v_JaEstanaLista: boolean;
+begin
+  v_JaEstanaLista := false;
+  for i:=0 to destino.Items.Count -1 do
+  begin
+    if Destino.Items.Strings[i] = Origem[0] then
+    begin
+      v_JaEstanaLista := true;
+      break;
+    end;
+  end;
+
+  if not v_JaEstanaLista then
+    Destino.Items.AddStrings(Origem);
+
+end;
+
+procedure TfrmConsultaCompras.clbFiliaisClickCheck(Sender: TObject);
+var
+ i: integer;
+
+begin
+  inherited;
+  MarcarLista(clbGrupodeFiliais, False);
+  tstGrupoFilial.Highlighted := false;
+
+  tstFilial.Highlighted := false;
+  for i:= 0 to clbFiliais.Count-1 do
+  begin
+    if clbFiliais.checked[i] then
+    begin
+      tstFilial.Highlighted := true;
+      break;
+    end;
+  end;
+
+end;
+
+procedure TfrmConsultaCompras.clbGrupodeFiliaisClickCheck(Sender: TObject);
+var
+ i: integer;
+
+begin
+  inherited;
+  MarcarLista(clbFiliais, False);
+  tstFilial.Highlighted := false;
+  tstGrupoFilial.Highlighted := false;
+  for i:= 0 to clbGrupodeFiliais.Count-1 do
+  begin
+    if clbGrupodeFiliais.checked[i] then
+    begin
+      tstGrupoFilial.Highlighted := true;
+      break;
+    end;
+  end;
+
+end;
+
+
+
+procedure TfrmConsultaCompras.rgpTotalizacaoClick(Sender: TObject);
+begin
+  inherited;
+  dtmConsultaCompras.Visualizacao := rgpTotalizacao.ItemIndex;
+end;
+
+
+
+procedure TfrmConsultaCompras.ckbProdutoAtivoClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoInativo.Checked and
+     not ckbProdutoAtivo.Checked then
+     ckbProdutoInAtivo.Checked := True;
+end;
+
+procedure TfrmConsultaCompras.ckbProdutoInativoClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoInativo.Checked and
+     not ckbProdutoAtivo.Checked then
+     ckbProdutoAtivo.Checked := True;
+
+end;
+
+procedure TfrmConsultaCompras.pgcProdutosConsultaChange(Sender: TObject);
+  procedure TrocarDataSource;
+  begin
+
+    if dtmConsultaCompras.PesquisaVisualizada = Similares then
+    begin
+      dtmConsultaCompras.qryTotalProdutosSimilares.mastersource := dtmConsultaCompras.dsrcomprastotal;
+
+      dtxCustoMedio.DataSource := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+
+      dtxPrecoVenda.DataSource     := dtmConsultaCompras.dsrDetalhesPreco_Similares;
+      dtxAlteracaoPreco.DataSource := dtmConsultaCompras.dsrDetalhesPreco_Similares;
+      dtxPrecoPromocao.DataSource  := dtmConsultaCompras.dsrDetalhesPreco_Similares;
+      dtxValidadePreco.DataSource  := dtmConsultaCompras.dsrDetalhesPreco_Similares;
+      dtxDescricaoPreco.DataSource := dtmConsultaCompras.dsrDetalhesPreco_Similares;
+      edtUltimaVenda.DataSource := dtmConsultaCompras.dsrDetalhesPreco_Similares;
+
+      dtxMarkup.DataSource     := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxData.DataSource       := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxFilial.DataSource     := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxdatacadastro.DataSource := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxPrecocomicms.DataSource := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxValorUltimaCompra.DataSource     := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxprecosemicms.DataSource          := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxValorUltimaCompra.DataSource          := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxQuantidade.DataSource            := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxvaloripi.DataSource              := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dbgVendas.DataSource                := dtmConsultaCompras.dsrVVendasSimilares;
+      dbgProdutosGrupos.DataSource        := dtmConsultaCompras.dsrComprasGruposFiliaisSimilares;
+      dbgProdutosFiliais.DataSource       := dtmConsultaCompras.dsrComprasFiliaisGrupoSimilares;
+      dbgProdutosSimilares.Datasource     := dtmConsultaCompras.dsrProdutosSimilares;
+
+      dbgProdutosSimilaresTotal.DataSource := dtmConsultaCompras.dsrTotalProdutosSimilares;
+
+
+
+      mmoObsLembarPedido.DataSource := dtmConsultaCompras.dsrProdutosSimilares;
+
+    end
+    else
+    if dtmConsultaCompras.PesquisaVisualizada = Grades then
+    begin
+//      dtmConsultaCompras.qryTotalProdutosGrades.mastersource := dtmConsultaCompras.dsrcomprastotal;
+
+      dtxCustoMedio.DataSource := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+
+      dtxPrecoVenda.DataSource     := dtmConsultaCompras.dsrDetalhesPreco_Similares;
+      dtxAlteracaoPreco.DataSource := dtmConsultaCompras.dsrDetalhesPreco_Similares;
+      dtxPrecoPromocao.DataSource  := dtmConsultaCompras.dsrDetalhesPreco_Similares;
+      dtxValidadePreco.DataSource  := dtmConsultaCompras.dsrDetalhesPreco_Similares;
+      dtxDescricaoPreco.DataSource := dtmConsultaCompras.dsrDetalhesPreco_Similares;
+      edtUltimaVenda.DataSource := dtmConsultaCompras.dsrDetalhesPreco_Similares;
+
+      dtxMarkup.DataSource     := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxData.DataSource       := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxFilial.DataSource     := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxdatacadastro.DataSource := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxPrecocomicms.DataSource := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxValorUltimaCompra.DataSource     := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxprecosemicms.DataSource          := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxValorUltimaCompra.DataSource          := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxQuantidade.DataSource            := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dtxvaloripi.DataSource              := dtmConsultaCompras.dsrDetalhesCompra_FiliaisSimilares;
+      dbgVendas.DataSource                := dtmConsultaCompras.dsrVVendasSimilares;
+      dbgProdutosGrupos.DataSource        := dtmConsultaCompras.dsrComprasGruposFiliaisSimilares;
+      dbgProdutosFiliais.DataSource       := dtmConsultaCompras.dsrComprasFiliaisGrupoSimilares;
+      dbgProdutosSimilares.Datasource     := dtmConsultaCompras.dsrProdutosGrades;
+      dbgProdutosSimilaresTotal.DataSource := dtmConsultaCompras.dsrTotalProdutosGrades;
+
+      mmoObsLembarPedido.DataSource := dtmConsultaCompras.dsrProdutosGrades;
+
+
+    end
+    else
+    begin
+      dtmConsultaCompras.qryTotalProdutosSimilares.mastersource := nil;
+      dtxCustoMedio.DataSource := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+
+      dtxPrecoVenda.DataSource     := dtmConsultaCompras.dsrDetalhesPreco;
+      dtxAlteracaoPreco.DataSource := dtmConsultaCompras.dsrDetalhesPreco;
+      dtxPrecoPromocao.DataSource  := dtmConsultaCompras.dsrDetalhesPreco;
+      dtxValidadePreco.DataSource  := dtmConsultaCompras.dsrDetalhesPreco;
+      dtxDescricaoPreco.DataSource := dtmConsultaCompras.dsrDetalhesPreco;
+      edtUltimaVenda.DataSource := dtmConsultaCompras.dsrDetalhesPreco;
+
+      dtxMarkup.DataSource                := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxData.DataSource                  := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxFilial.DataSource                := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxdatacadastro.DataSource          := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxPrecocomicms.DataSource          := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxprecosemicms.DataSource          := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxValorUltimaCompra.DataSource     := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxQuantidade.DataSource            := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxvaloripi.DataSource              := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxValorUltimaCompra.DataSource     := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dbgVendas.DataSource                := dtmConsultaCompras.dsrVVendas;
+      dbgProdutosGrupos.DataSource        := dtmConsultaCompras.dsrComprasGruposFiliais;
+      dbgProdutosFiliais.DataSource       := dtmConsultaCompras.dsrComprasFiliaisGrupo;
+      mmoObsLembarPedido.DataSource := dtmConsultaCompras.dsrComprasTotal;
+
+    end;
+
+  end;
+begin
+  inherited;
+  if pgcProdutosConsulta.ActivePage = tstProdutosSimilares then
+  begin
+    dtmConsultaCompras.PesquisaVisualizada := Similares;
+    TrocarDataSource;
+    dtmConsultaCompras.RefazConsultaProdutosSimilares(false);
+    sbngerarRequisicao.Enabled:= false;
+    sbnRequisitarItemAtual.Enabled:= false;
+    dbgProdutosSimilaresTotal.left := gbxProdutosGruposFiliais.left-1;
+
+    dbgProdutosSimilares.parent := tstProdutosSimilares;
+    pnlSomatorioSimilares.Parent := tstProdutosSimilares;
+  end
+  else
+  if pgcProdutosConsulta.ActivePage = tstProdutosGrades then
+  begin
+    dtmConsultaCompras.PesquisaVisualizada := Grades;
+    TrocarDataSource;
+    dtmConsultaCompras.RefazConsultaProdutosGrades(false);
+    sbngerarRequisicao.Enabled:= false;
+    sbnRequisitarItemAtual.Enabled:= false;
+    dbgProdutosSimilaresTotal.left := gbxProdutosGruposFiliais.left-1;
+
+    dbgProdutosSimilares.parent := tstProdutosGrades;
+    pnlSomatorioSimilares.Parent := tstProdutosGrades;
+
+  end
+  else
+  begin
+    dtmConsultaCompras.PesquisaVisualizada := Produtos;
+    TrocarDataSource;
+//    dtmConsultaCompras.Visualizacao := dtmConsultaCompras.Visualizacao;
+    sbngerarRequisicao.Enabled:= (dtmConsultaCompras.FilialRequisitante <> '');
+    sbnRequisitarItemAtual.Enabled:= (dtmConsultaCompras.FilialRequisitante <> '');
+  end;
+
+  rgpTotalizacaoClick(self);
+end;
+
+procedure TfrmConsultaCompras.AfterScrollLinhaColunaGradeSimilares(
+  Sender: TObject);
+begin
+  dbgProdutosSimilares.ColumnByname('valorgrade1').Title.Caption := dtmConsultaCompras.LinhadaGradeSimilares;
+  dbgProdutosSimilares.ColumnByname('valorgrade2').Title.Caption := dtmConsultaCompras.ColunadaGradeSimilares;
+
+end;
+
+procedure TfrmConsultaCompras.sbngerarPedidoClick(Sender: TObject);
+var Campo: String;
+    ComFornecedor  : Boolean;
+begin
+  inherited;
+  if not dtmConsultaCompras.VerificarSelecionados then
+  begin
+    if fraConsultaFornecedor.edfCodigo.text='' then
+      ComFornecedor:= False
+    else
+      ComFornecedor:= True;
+
+    frmselecionarquantidades := TFrmselecionarquantidades.Create(frmselecionarquantidades);
+    with frmselecionarquantidades do
+    begin
+      try
+        if ShowModal = mrOk then
+          Campo:= NomeCampoQuantidade(rgpquantidade.ItemIndex);
+      finally
+        Free;
+      end;
+    end;
+
+//    frmCadastroPedidos :=  AcionarTelaCadastroPedidos(self);
+   if not assigned(frmCadastroPedidos) then
+   begin
+     frmCadastroPedidos := tfrmCadastroPedidos.create(self);
+//     frmCadastroPedidos.TfrmCadastroPedidosDestroy := self.TfrmCadastroPedidosDestroy;
+   end
+   else
+   begin
+     frmCadastroPedidos.visible := true;
+     frmCadastroPedidos.BringToFront;
+     if (frmCadastroPedidos.dtmCadastroPedidos.qrypedidos.state in [dsinsert, dsedit]) then
+        frmCadastroPedidos.dtmCadastroPedidos.qrypedidos.cancel;
+   end;
+
+   SetarActivePage(frmCadastroPedidos);
+
+   {
+   if not assigned(frmCadastroProdutosPedidos_) then
+     frmCadastroProdutosPedidos_ := TfrmCadastroProdutosPedidos_.Create(frmCadastroPedidos);
+
+   with frmCadastroProdutosPedidos_ do
+   begin
+     SetDataModulo(frmCadastroPedidos.dtmCadastroPedidos);
+     DataSet:= frmCadastroPedidos.dtmCadastroPedidos.TabelaProdutoPedido;
+   end;
+   }
+
+
+
+//   frmCadastroPedidos.visible := true;
+//   frmCadastroPedidos.bringtofront;
+
+    with frmCadastroPedidos,
+         frmCadastroPedidos.dtmCadastroPedidos do
+    begin
+      try
+
+
+          PermitirAlterarFornecedor:= False;
+          RefazConsultaPorNome(qrypedidos, ['numero'],[0]);
+          IncluirPedido;
+          if dtmconsultacompras.SomenteUmaFilialMarcada then
+            qryPedidosFilialFatura.asinteger := strtoint(somentenumero(dtmconsultacompras.Filial))
+          else
+            qryPedidosFilialFatura.asinteger := FilialBase;
+
+          qryPedidosfornecedor.AsInteger:= fraConsultaFornecedor.qryProcuraClientecodigo.AsInteger;
+          RefazConsultaPorNome(qryProcuraFornecedores,['codigo'],[fraConsultaFornecedor.qryProcuraClientecodigo.AsVariant]);
+
+          CalculodeImpostosBloqueado := true;
+
+          GuardarRegistroAtual(dtmConsultaCompras.qryComprasTotal, false);
+
+//          dtmConsultaCompras.qryComprasTotal.onCalcFields := nil;
+
+          dtmConsultaCompras.qryComprasTotal.First;
+          while not dtmConsultaCompras.qryComprasTotal.Eof do
+          begin
+            if dtmConsultaCompras.qryComprasTotalselecionado.AsBoolean and
+               (dtmConsultaCompras.qryComprasTotalsugestao.asFloat <> 0) then
+            begin
+//              dtmConsultaCompras.qryComprasTotal.enablecontrols;
+
+
+              IncluirProdutoPedido(False);
+              //comentarios jr 11/01/2022
+              //if not ComFornecedor then
+              //begin
+                qryProcuraProdutos.MacroByName('SQLfornecedorgrupo').AsString:= '';
+                PermitirAlterarFornecedor:= True;
+              //end;
+
+              qryProcuraProdutos.MacroByName('SQLInativos').AsString := '';
+
+              RefazConsultaPorNome(qryProcuraProdutos,['produtovisual'],[dtmConsultaCompras.qryComprasTotalprodutovisual.AsVariant]);
+              qryProdutosPedidosproduto.AsLargeInt:= qryProcuraProdutosproduto.asLargeint;
+              CalculodeImpostosBloqueado := true;
+              qryProdutosPedidospreco.AsFloat:= DefinirValorProduto(dtmConsultaCompras.qryComprasTotalproduto.AsLargeInt);
+//              qryProdutosPedidosprecosugerido.AsFloat:= qryProdutosPedidospreco.AsFloat;
+              qryProdutosPedidosquantidade.AsInteger:= dtmConsultaCompras.qryComprasTotal.fieldbyName(Campo).AsInteger;
+              GravarProdutoPedidoCompra;
+            end;
+//            dtmConsultaCompras.qryComprasTotal.disablecontrols;
+            dtmConsultaCompras.qryComprasTotal.Next;
+          end;
+          VoltarRegistroAtual(dtmConsultaCompras.qryComprasTotal);
+          CalculodeImpostosBloqueado := false;
+          CalcularImpostos(true, true);
+      finally
+//        dtmConsultaCompras.qryComprasTotal.enablecontrols;
+//        dtmConsultaCompras.qryComprasTotal.onCalcFields := dtmConsultaCompras.qryComprasTotalCalcFields;
+        if ComFornecedor then
+          flkFilialFatura.SetFocus
+        else
+          flkFornecedor.SetFocus;
+        visible := true;
+//        sbngerarPedido.Enabled:= False;
+      end;
+    end;
+
+  end
+  else
+    MensagemAviso(ctNENHUMPRODUTOSELECIONADO);
+end;
+
+function TfrmConsultaCompras.NomeCampoQuantidade(Valor: integer): String;
+begin
+  case Valor of
+    0: Result:= 'sugestao';
+    1: Result:= 'sugestaominimo';
+    2: Result:= 'sugestaomaximo';
+  end;
+end;
+
+function TfrmConsultaCompras.DefinirValorProduto(CampoProduto: Largeint): Currency;
+begin
+  with dtmConsultaCompras do
+  begin
+    if qryDetalhesCompraprecocomicms.AsFloat > 0 then
+      Result:= qryDetalhesCompraprecocomicms.AsFloat
+    else
+    if qryDetalhesCompravalorultimacompra.AsFloat > 0 then
+      Result:= qryDetalhesCompravalorultimacompra.AsFloat
+    else
+      Result:= qryDetalhesCompracustomedio.AsFloat;
+  end;
+end;
+
+procedure TfrmConsultaCompras.ckbSelecionartodosprodutosClick(Sender: TObject);
+begin
+  inherited;
+  if dtmConsultaCompras.qryComprasTotal.RecordCount > 0 then
+  begin
+    try
+//      DesativarFontesdeDados;
+      dtmConsultaCompras.SelecionarProdutos(ckbSelecionartodosprodutos.Checked, True)
+    finally
+//      VoltarFontedeDados;
+    end;
+  end
+  else
+    ckbSelecionartodosprodutos.checked := false;
+
+end;
+
+procedure TfrmConsultaCompras.dbgProdutosDblClick(Sender: TObject);
+begin
+  inherited;
+  if dbgProdutos.SelectedField.FieldName <> 'lembrarpedido' then
+    dtmConsultaCompras.SelecionarProdutos(False, False);
+end;
+
+procedure TfrmConsultaCompras.dbgProdutosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+
+  TDBGrid(Sender).Canvas.Font.Style := [];
+
+  if not (gdFocused in State) then
+  begin
+
+    if dbgprodutos.ColumnByName('lembrarpedido') = Column then
+    begin
+
+      if dbgProdutos.DataSource.DataSet.FieldByName('lembrarpedido').AsBoolean then
+        TDBGrid(Sender).Canvas.Brush.Color := $00142EDC;
+
+    end
+    else
+    if dbgprodutos.ColumnByName('promo') = Column then
+    begin
+      if dbgProdutos.DataSource.DataSet.FieldByName('produtoempromocao').AsBoolean then
+      begin
+        TDBGrid(Sender).Canvas.Brush.Color := $00142EDC;
+        TDBGrid(Sender).Canvas.Font.Color := clWhite;
+        TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+
+      end
+    end
+    else
+    begin
+
+      if dbgProdutos.DataSource.DataSet.FieldByName('selecionado').AsBoolean then
+      begin
+        TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+        TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+      end;
+
+      if dbgProdutos.DataSource.DataSet.FieldByName('ExisteSimilar').AsBoolean then
+//      if dtmConsultaCompras.qryTotalProdutosSimilaresquantidadesimilares.asinteger>1 then
+      begin
+        TDBGrid(Sender).Canvas.Font.Color  := clBlue;
+        TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+      end;
+
+    end;
+
+    {
+      else if dtmconsultaestoque.ProdutoEmPromocao then
+      begin
+        TDBGrid(Sender).Canvas.Brush.Color := clWhite;
+        TDBGrid(Sender).Canvas.Font.Color := clRed;
+      end;
+      }
+
+
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmConsultaCompras.pgcConsultaChange(Sender: TObject);
+begin
+  inherited;
+
+  pgcProdutosConsultaChange(nil);
+
+  if pgcConsulta.ActivePage = tstConsulta then
+  begin
+
+    if pgcProdutosConsulta.activepage = tstProdutosTotal then
+      dbgProdutos.SelectedField := dtmConsultaCompras.qryComprasTotalsugestao;
+      
+//    dbgVendas.FloatingFooter.visible := true;
+    dbgVendas.MergeCells(1,0,1,2);
+    dbgVendas.Cells[1,1] := 'MÊS';
+
+    dbgVendas.MergeCells(2,0,2,1);
+    dbgVendas.Cells[2,0] := 'TOTAL GERAL';
+
+    dbgVendas.MergeCells(4,0,2,1);
+    dbgVendas.Cells[4,0] := 'TOTAL INTERNET';
+
+    dbgVendas.MergeCells(6,0,2,1);
+    dbgVendas.Cells[6,0] := 'TOTAL LOJA';
+
+    {
+    dbgVendas.FloatingFooter.ColumnCalc[1] := acCount;
+    dbgVendas.FloatingFooter.ColumnCalc[2] := acSum;
+    dbgVendas.FloatingFooter.ColumnCalc[3] := acSum;
+
+    dbgVendas.FloatingFooter.ColumnCalc[4] := acSum;
+    dbgVendas.FloatingFooter.ColumnCalc[5] := acSum;
+
+    dbgVendas.FloatingFooter.ColumnCalc[6] := acSum;
+    dbgVendas.FloatingFooter.ColumnCalc[7] := acSum;
+
+    }
+
+  end
+  else
+//    dbgVendas.FloatingFooter.visible := false;
+
+
+end;
+
+procedure TfrmConsultaCompras.sbngerarRequisicaoClick(Sender: TObject);
+begin
+  inherited;
+  try
+//    DesativarFontesdeDados;
+
+    if dtmConsultaCompras.GerarDadosRequisicoes(false) then
+      MontarGradeDadosRequisicoes
+    else
+      MensagemAviso('Não existe produto marcado e com quantidade para requisição!');
+  finally
+//    VoltarFontedeDados;
+  end;
+
+
+end;
+
+procedure TfrmConsultaCompras.edtNumerodediasExit(Sender: TObject);
+begin
+  inherited;
+  if edtNumerodedias.ValorSemFormatacao <> 0 then
+  begin
+    if edtDataFinal.Text<>'' then
+      edtDataInicial.Text := strtodate(edtDataFinal.Text) - edtNumerodedias.ValorSemFormatacao
+    else
+    begin
+      edtDataInicial.Text := datetostr((Date() - edtNumerodedias.ValorSemFormatacao));
+      edtDataFinal.Text := datetostr(Date());
+    end;
+  end;
+end;
+
+procedure TfrmConsultaCompras.edtDataFinalEnter(Sender: TObject);
+var
+ vdias: integer;
+begin
+  inherited;
+  if not dataembranco(edtDataInicial.Text) and edtDataInicial.Criticar(false) then
+  begin
+    vdias := DaysBetween(date(),StrToDate(edtDataInicial.Text));
+    edtDataFinal.Minimo := vdias;
+  end;
+end;
+
+procedure TfrmConsultaCompras.edtDataInicialExit(Sender: TObject);
+begin
+  inherited;
+  CalcularNDias;
+end;
+
+procedure TfrmConsultaCompras.CalcularNDias;
+begin
+  if (edtDataInicial.Text <> '') and
+     (edtDataFinal.Text <> '') then
+  edtNumerodedias.Text := inttostr(DaysBetween(strtodatetime(edtDataInicial.Text), strtodatetime(edtDataFinal.Text)));
+  
+end;
+
+procedure TfrmConsultaCompras.edtDataFinalExit(Sender: TObject);
+begin
+  inherited;
+  CalcularNDias;
+end;
+
+procedure TfrmConsultaCompras.sbnIncluirReducaoTabelaComprasClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmConsultaCompras.qryReducaoTabelaCompras.Append;
+end;
+
+procedure TfrmConsultaCompras.sbnExcluirReducaoTabelaComprasClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmConsultaCompras.qryReducaoTabelaCompras.delete;
+end;
+
+procedure TfrmConsultaCompras.dbgProdutosSimilaresDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+
+  TDBGrid(Sender).Canvas.Font.Style := [];
+
+  if not (gdFocused in State) then
+  begin
+    if dbgProdutosSimilares.ColumnByName('promo') = Column then
+    begin
+      if dbgProdutosSimilares.DataSource.DataSet.FieldByName('produtoempromocao').AsBoolean then
+      begin
+        TDBGrid(Sender).Canvas.Brush.Color := $00142EDC;
+        TDBGrid(Sender).Canvas.Font.Color := clWhite;
+        TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+      end;
+    end
+    else
+    if dbgProdutosSimilares.DataSource.DataSet.FieldByName('Principal').AsBoolean then
+    begin
+      TDBGrid(Sender).Canvas.Font.Color  := clBlue;
+      TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+    end;
+
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+end;
+
+procedure TfrmConsultaCompras.ComprasTotalAfterScroll(Sender: TObject);
+begin
+  tstProdutosSimilares.TabVisible := dtmConsultaCompras.qryComprasTotalExisteSimilar.asboolean;
+//  tstProdutosSimilares.TabVisible := dtmConsultaCompras.qryTotalProdutosSimilaresquantidadesimilares.asinteger>1;
+  dbgProdutos.ColumnByName('valorgrade1').Title.Caption := dtmConsultaCompras.LinhadaGrade;
+  dbgProdutos.ColumnByName('valorgrade2').Title.Caption := dtmConsultaCompras.colunadaGrade;
+
+
+end;
+
+procedure TfrmConsultaCompras.sbnMarcarFiliaisEstqoueClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliaisEstoque, True);
+end;
+
+procedure TfrmConsultaCompras.sbnDesmarcarFiliaisEstoqueClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliaisEstoque, False);
+end;
+
+procedure TfrmConsultaCompras.clbFiliaisEstoqueClickCheck(Sender: TObject);
+var
+ i: integer;
+begin
+  inherited;
+  tstFiliaisEstoque.Highlighted := false;
+  for i:= 0 to clbFiliaisEstoque.Count-1 do
+  begin
+    if clbFiliaisEstoque.checked[i] then
+    begin
+      tstFiliaisEstoque.Highlighted := true;
+      break;
+    end;
+  end;
+end;
+
+
+procedure TfrmConsultaCompras.dbgProdutosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+{
+  if key = VK_return then
+  begin
+    if dbgProdutos.SelectedField.fieldname = 'sugestao' then
+    begin
+      if (dtmConsultaCompras.qryComprasTotalsugestao.AsCurrency > 0) and
+         not (dtmConsultaCompras.qryComprasTotalselecionado.asBoolean) then
+        dtmConsultaCompras.SelecionarProdutos(true, False)
+      else
+      if (dtmConsultaCompras.qryComprasTotalsugestao.AsCurrency <= 0) and
+         (dtmConsultaCompras.qryComprasTotalselecionado.asBoolean) then
+        dtmConsultaCompras.SelecionarProdutos(false, False)
+    end;
+  end;
+}
+end;
+
+procedure TfrmConsultaCompras.sbnVisualizarFotoClick(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarImageURL(self, dtmconsultacompras.GetProduto);
+end;
+
+procedure TfrmConsultaCompras.sbnConsultaEstoqueClick(Sender: TObject);
+begin
+  inherited;
+
+  with dtmConsultaCompras do
+  begin
+    if (pgcConsulta.activepage = tstConsulta) and
+       (qryComprasTotal.recordcount <> 0) and
+       (pgcProdutosConsulta.activepage = tstProdutosTotal) then
+
+        TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmconsultacompras.qryComprasFiliaisGrupofilial.asinteger,
+                                                                         dtmconsultacompras.qryComprasTotalproduto.asString], 'TfrmConsultaEstoque', True)
+
+    else
+    if (pgcConsulta.activepage = tstConsulta) and
+       (qryComprasTotal.recordcount <> 0) and
+       (qryProdutosSimilares.recordcount <> 0) and
+       (pgcProdutosConsulta.activepage = tstProdutosSimilares) then
+
+       TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmconsultacompras.qryComprasFiliaisGrupofilial.asinteger,
+                                                                        dtmconsultacompras.qryProdutosSimilaresproduto.asString], 'TfrmConsultaEstoque', True)
+    else
+    if (pgcConsulta.activepage = tstConsulta) and
+       (qryComprasTotal.recordcount <> 0) and
+       (qryProdutosSimilares.recordcount <> 0) and
+       (pgcProdutosConsulta.activepage = tstProdutosGrades) then
+
+       TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmconsultacompras.qryComprasFiliaisGrupofilial.asinteger,
+                                                                        dtmconsultacompras.qryProdutosGradesproduto.asString], 'TfrmConsultaEstoque', True)
+
+
+  end;
+
+
+
+end;
+
+procedure TfrmConsultaCompras.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  with dtmConsultaCompras do
+  begin
+    if (pgcConsulta.activepage = tstConsulta) and
+       (qryComprasTotal.recordcount <> 0) and
+       (pgcProdutosConsulta.activepage = tstProdutosTotal) then
+      sbnConsultaEstoque.enabled := true
+    else
+    if (pgcConsulta.activepage = tstConsulta) and
+       (qryComprasTotal.recordcount <> 0) and
+       (qryProdutosSimilares.recordcount <> 0) and
+       (pgcProdutosConsulta.activepage = tstProdutosSimilares) then
+      sbnConsultaEstoque.enabled := true
+    else
+      sbnConsultaEstoque.enabled := false;
+
+    sbnProdutos.enabled := ((pgcProdutosConsulta.activepage = tstProdutosTotal) and not qryComprasTotal.IsEmpty) or
+                           ((pgcProdutosConsulta.activepage = tstProdutosSimilares) and not qryProdutosSimilares.IsEmpty) or
+                           ((pgcProdutosConsulta.activepage = tstProdutosGrades) and not qryProdutosGrades.IsEmpty);
+
+
+    sbnSalvar.Enabled := (dtmConsultaCompras.vTotalAtendido <> 0);
+
+    sbnReiniciarPedidosFiliais.enabled := sbnSalvar.Enabled;
+
+    sbnGerar.enabled := pgcConsulta.activepage = tstParametros;
+
+    sbnPreencher.enabled := gbxRequisicoes.visible and (fraConsultaFilial.qryprocurafiliais.recordcount=1);
+
+    sbnManutencaoPreco.enabled := dtmConsultaCompras.qryComprasTotal.recordcount <> 0;
+
+    sbngerarRequisicao.enabled := (dtmConsultaCompras.qryProdutosSelecionados.recordcount<>0) and not gbxRequisicoes.visible;
+    sbnRequisitarItemAtual.enabled := (dtmConsultaCompras.qryComprasTotal.recordcount <> 0) AND not gbxRequisicoes.visible;
+    sbnAtualizarRegistros.enabled := (dtmConsultaCompras.qryComprasTotal.recordcount <> 0) AND not gbxRequisicoes.visible;
+
+  end;
+end;
+
+procedure TfrmConsultaCompras.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+//  Action := caFree;
+//  freeandnil(frmConsultaCompras);
+end;
+
+procedure TfrmConsultaCompras.sbnMarcarFiliaissemEstqoueClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliaissemEstoque, True);
+end;
+
+procedure TfrmConsultaCompras.sbnDesmarcarFiliaissemEstoqueClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliaissemEstoque, False);
+end;
+
+procedure TfrmConsultaCompras.clbFiliaissemEstoqueClickCheck(
+  Sender: TObject);
+var
+ i: integer;
+  
+begin
+  inherited;
+  tstFiliaissemEstoque.Highlighted := false;
+  for i:= 0 to clbFiliaissemEstoque.Count-1 do
+  begin
+    if clbFiliaissemEstoque.checked[i] then
+    begin
+      tstFiliaissemEstoque.Highlighted := true;
+      break;
+    end;
+  end;
+
+end;
+
+procedure TfrmConsultaCompras.AtribuirDataSource;
+begin
+  if frmConsultaCompras <> nil then
+
+    with frmConsultaCompras do
+    begin
+
+      dbgReducaoTabelaCompras.DataSource   := dtmConsultaCompras.dsrReducaoTabelaCompras;
+      dbgProdutos.DataSource               := dtmConsultaCompras.dsrComprasTotal;
+      dbgProdutosSimilares.DataSource      := dtmConsultaCompras.dsrProdutosSimilares;
+      dbgProdutosSimilaresTotal.DataSource := dtmConsultaCompras.dsrTotalProdutosSimilares;
+      dbgVendas.DataSource                 := dtmConsultaCompras.dsrVVendas;
+      dbgProdutosGrupos.DataSource         := dtmConsultaCompras.dsrComprasGruposFiliais;
+      dbgProdutosFiliais.DataSource        := dtmConsultaCompras.dsrComprasFiliaisGrupo;
+      dtxProduto.DataSource                := dtmConsultaCompras.dsrComprasTotal;
+      dtxCustoMedio.DataSource             := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxPrecoVenda.DataSource             := dtmConsultaCompras.dsrDetalhesPreco;
+      dtxMarkup.DataSource                 := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxAlteracaoPreco.DataSource         := dtmConsultaCompras.dsrDetalhesPreco;
+      dtxPrecoPromocao.DataSource          := dtmConsultaCompras.dsrDetalhesPreco	;
+      dtxValidadePreco.DataSource          := dtmConsultaCompras.dsrDetalhesPreco	 ;
+      edtUltimaVenda.DataSource            := dtmConsultaCompras.dsrDetalhesPreco	 ;
+      dtxFilial.DataSource                 := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxData.DataSource                   := dtmConsultaCompras.dsrDetalhesCompra_Filiais ;
+      dtxprecosemicms.DataSource           := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxQuantidade.DataSource             := dtmConsultaCompras.dsrDetalhesCompra_Filiais ;
+      dtxvaloripi.DataSource               := dtmConsultaCompras.dsrDetalhesCompra_Filiais	;
+      dtxNrPedido.DataSource               := dtmConsultaCompras.dsrConsultaProdutosPedidos;
+      dtxQtdade.DataSource                 := dtmConsultaCompras.dsrConsultaProdutosPedidos;
+      dtxPrevisao.DataSource               := dtmConsultaCompras.dsrConsultaProdutosPedidos;
+      dtxEmissaoPedido.DataSource          := dtmConsultaCompras.dsrConsultaProdutosPedidos;
+      dtxdatacadastro.DataSource           := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxPrecocomicms.DataSource           := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+      dtxDescricaoPreco.DataSource         := dtmConsultaCompras.dsrDetalhesPreco;
+
+    end;
+
+end;
+
+
+procedure TfrmConsultaCompras.sbnProdutosClick(Sender: TObject);
+begin
+  inherited;
+  if pgcProdutosConsulta.activepage = tstProdutosTotal then
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir',
+      dtmConsultaCompras.qryComprasTotalcaracteristica.asString], 'TfrmCadastroCaracteristicas', True)
+  else
+  if pgcProdutosConsulta.activepage = tstProdutosSimilares then
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir',
+      dtmConsultaCompras.qryProdutosSimilarescaracteristica.asString], 'TfrmCadastroCaracteristicas', True)
+  else
+  if pgcProdutosConsulta.activepage = tstProdutosGrades then
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir',
+      dtmConsultaCompras.qryProdutosGradescaracteristica.asString], 'TfrmCadastroCaracteristicas', True);
+
+end;
+
+procedure TfrmConsultaCompras.sbnFichaProdutosClick(Sender: TObject);
+begin
+  inherited;
+  if pgcProdutosConsulta.activepage = tstProdutosTotal then
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir',
+      dtmConsultaCompras.qryComprasTotalprodutovisual.asString], 'TfrmConsultaFichaProduto', True)
+  else
+  if pgcProdutosConsulta.activepage = tstProdutosSimilares then
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir',
+      dtmConsultaCompras.qryProdutosSimilaresprodutovisual.asString], 'TfrmConsultaFichaProduto', True)
+  else
+  if pgcProdutosConsulta.activepage = tstProdutosGrades then
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir',
+      dtmConsultaCompras.qryProdutosGradesprodutovisual.asString], 'TfrmConsultaFichaProduto', True);
+
+
+end;
+
+procedure TfrmConsultaCompras.sbnRequisicoesClick(Sender: TObject);
+begin
+  inherited;
+  dtmConsultaCompras.abrirListaPedidosFiliais;
+  frmListadePedidos := tfrmListadePedidos.create(self);
+  frmListadePedidos.showmodal;
+  frmListadePedidos.free;
+end;
+
+procedure TfrmConsultaCompras.sbnVisualizarVendaDiariaClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmConsultaCompras.AbrirVendasDiarias;
+  frmVisualizarVendaDiaria := tfrmVisualizarVendaDiaria.create(self);
+  frmVisualizarVendaDiaria.showmodal;
+  frmVisualizarVendaDiaria.free;
+
+end;
+
+procedure TfrmConsultaCompras.dbgPedidosFiliais_CanClickCell(
+  Sender: TObject; ARow, ACol: Integer; var Allow: Boolean);
+begin
+  inherited;
+//  Allow := dbgPedidosFiliais_.datasource.dataset.state <> dsedit;
+end;
+
+procedure TfrmConsultaCompras.AfterPostPedidosFiliais(Sender: TObject);
+begin
+  dbgPedidosFiliais_.row := dtmConsultaCompras.qryPedidosFiliais.recno;
+end;
+
+procedure TfrmConsultaCompras.DrawGridPedidosFiliais(Sender: TObject);
+begin
+  DrawGrid;
+end;
+
+procedure TfrmConsultaCompras.DrawGrid;
+var
+  i: integer;
+  vposition : double;
+begin
+
+  with dtmConsultaCompras do
+  begin
+    try
+      DesligarEventos;
+
+      qryPedidosFiliais.guardarRegistroAtual(true);
+      qryComprasGruposFiliais.GuardarRegistroAtual(true);
+      qryComprasFiliaisGrupo.GuardarRegistroAtual(true);
+
+      qrycomprastotal.mastersource := nil;
+
+      qryPedidosFiliais.first;
+      while not qryPedidosFiliais.eof do
+      begin
+
+        if qryPedidosFiliaisquantidade.AsCurrency > qryPedidosFiliaisqtdeAtendida.AsCurrency THEN
+        begin
+          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['produtovisual'].Index, qryPedidosFiliais.recno].FontColor := clRed;
+          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['descricaoprodutoaux'].Index, qryPedidosFiliais.recno].FontColor := clRed;
+          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['quantidade'].Index, qryPedidosFiliais.recno].FontColor := clRed;
+        end;
+
+        if qryPedidosFiliaisrequisitante.Asinteger = qryPedidosFiliaisfilial.Asinteger THEN
+        begin
+          for i:= dbgPedidosFiliais_.ColumnByFieldName['descricaoprodutoaux'].Index  to dbgPedidosFiliais_.colcount-1 do
+          begin
+            dbgPedidosFiliais_.CellProperties[i, qryPedidosFiliais.recno].BrushColor := $00DADADA;
+            dbgPedidosFiliais_.CellProperties[i, qryPedidosFiliais.recno].FontStyle := [fsBold];
+          end;
+
+          dbgPedidosFiliais_.MergeCells(dbgPedidosFiliais_.ColumnByFieldName['descricaoprodutoaux'].Index,
+                                          qryPedidosFiliais.recno,
+                                          2, 1 );
+                                          
+
+
+        end
+        else
+        begin
+          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['emestoque'].Index, qryPedidosFiliais.recno].BrushColor := $00D9FFD9;
+          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['qtdepedida'].Index, qryPedidosFiliais.recno].BrushColor := $00D9FFD9;
+        end;
+
+        if qryPedidosFiliaisemestoque.AsCurrency <> qryPedidosFiliaisemestoqueanterior.AsCurrency THEN
+        begin
+          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['emestoque'].Index, qryPedidosFiliais.recno].FontColor := $00FF8000;
+//          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['emestoque'].Index, qryPedidosFiliais.recno].BrushColor := clNavy;
+                    {
+          for i:= dbgPedidosFiliais_.ColumnByFieldName['descricaoproduto'].Index +1 to dbgPedidosFiliais_.colcount-1 do
+            dbgPedidosFiliais_.CellProperties[i, qryPedidosFiliais.recno].FontColor := clNavy;
+            }
+        end;
+
+
+        qryPedidosFiliais.next;
+
+        vPosition :=  (qryPedidosFiliais.RecNo * 100) / qryPedidosFiliais.recordcount;
+        AdvSmoothProgressBar1.Position := vPosition;
+        Application.ProcessMessages;
+
+
+      end;
+
+    finally
+      qryPedidosFiliais.VoltarRegistro;
+      qryComprasGruposFiliais.VoltarRegistro;
+      qryComprasFiliaisGrupo.VoltarRegistro;
+      qryComprasTotal.mastersource := dsrPedidosFiliais;
+
+      qryPedidosFiliais.first;
+
+      ligarEventos;
+    end;
+  end;
+
+
+
+  dbgPedidosFiliais_.SelectRows(1,0);
+
+  dbgPedidosFiliais_.SelectCols(dbgPedidosFiliais_.ColumnByFieldName['qtdepedida'].Index+1,0);
+
+end;
+
+procedure TfrmConsultaCompras.sbnCancelarClick(Sender: TObject);
+begin
+  inherited;
+  vpgcProdutosConsultaheight := pgcProdutosConsulta.height;
+
+  gbxRequisicoes.visible := false;
+  Splitter4.visible := false;
+  pgcProdutosConsulta.align := alClient;
+
+  dtmConsultaCompras.qryComprasTotal.GuardarRegistroAtual(false);
+  dtmConsultaCompras.qryComprasTotal.mastersource := nil;
+  dtmConsultaCompras.qryComprasTotal.VoltarRegistro;
+
+
+  sbngerarRequisicao.Enabled := (dtmConsultaCompras.FilialRequisitante <> '');
+  sbnRequisitarItemAtual.Enabled := (dtmConsultaCompras.FilialRequisitante <> '');
+
+  dtmConsultaCompras.vTotalAtendido := 0;
+  pgcProdutosConsulta.activePage := tstProdutosTotal;
+  dbgProdutos.setfocus;
+
+  TtecDBGrid(self.FindComponent('dbgProdutos')).RestaurarPosicaoGrid;
+  TtecDBGrid(self.FindComponent('dbgProdutosGrupos')).RestaurarPosicaoGrid;
+  TtecDBGrid(self.FindComponent('dbgProdutosFiliais')).RestaurarPosicaoGrid;
+
+
+
+
+end;
+
+procedure TfrmConsultaCompras.FormMouseWheelDown(Sender: TObject;
+  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+begin
+  inherited;
+  {
+  with VertScrollBar do
+  begin
+  if (Position <= (Range - Increment)) then
+  Position := Position + Increment
+  else
+  Position := Range - Increment;
+  end;
+  }
+
+end;
+
+procedure TfrmConsultaCompras.FormMouseWheelUp(Sender: TObject;
+  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+begin
+  inherited;
+{
+with VertScrollBar do
+begin
+if (Position >= Increment) then
+Position := Position - Increment
+else
+Position := 0;
+end;
+}
+
+end;
+
+procedure TfrmConsultaCompras.PageScroller2MouseWheelDown(Sender: TObject;
+  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+begin
+  inherited;
+  with VertScrollBar do
+  begin
+  if (Position <= (Range - Increment)) then
+  Position := Position + Increment
+  else
+  Position := Range - Increment;
+  end;
+
+end;
+
+procedure TfrmConsultaCompras.PageScroller2MouseWheelUp(Sender: TObject;
+  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+begin
+  inherited;
+  
+  with VertScrollBar do
+  begin
+  if (Position >= Increment) then
+  Position := Position - Increment
+  else
+  Position := 0;
+  end;
+
+end;
+
+procedure TfrmConsultaCompras.MontarGradeDadosRequisicoes;
+begin
+  sbngerarRequisicao.enabled := false;
+  sbnRequisitarItemAtual.enabled := false;
+
+  sbnCancelar.enabled := true;
+  pgcProdutosConsulta.align := alBottom;
+
+  if vpgcProdutosConsultaheight <> -1 then
+    pgcProdutosConsulta.height := vpgcProdutosConsultaheight
+  else
+    pgcProdutosConsulta.height := 152;
+
+  Splitter4.visible := true;
+  gbxRequisicoes.visible := true;
+
+  dtmConsultaCompras.drawGridPedidosFiliais := self.drawGridPedidosFiliais;
+  DrawGrid;
+
+  dbgPedidosFiliais_.pagemode := false;
+
+  dbgPedidosFiliais_.MergeColumnCells(1, true);
+  dbgPedidosFiliais_.MergeColumnCells(2, false);
+  dbgPedidosFiliais_.MergeColumnCells(3, false);
+  dbgPedidosFiliais_.refresh;
+  dbgPedidosFiliais_.pagemode := true;
+
+  dtmConsultaCompras.vTotalAtendido := 0;
+  dbgPedidosFiliais_.setfocus;
+
+
+  if not dtmConsultaCompras.qrypedidosFiliais.readonly then
+    dbgPedidosFiliais_.datasource.dataset.edit;
+
+end;
+
+procedure TfrmConsultaCompras.sbnRequisitarItemAtualClick(Sender: TObject);
+begin
+  inherited;
+
+
+  try
+//    DesativarFontesdeDados;
+
+    if dtmConsultaCompras.GerarDadosRequisicoes(true) then
+      MontarGradeDadosRequisicoes
+  finally
+//    VoltarFontedeDados;
+  end;
+
+
+end;
+
+procedure TfrmConsultaCompras.sbnSalvarClick(Sender: TObject);
+var
+  vProdutoAux : String;
+begin
+  inherited;
+  if not GravandoPedidosFiliais then
+  begin
+    try
+      GravandoPedidosFiliais := true;
+      if dtmConsultaCompras.IncluirPedidosFiliais then
+        sbnCancelarClick(Sender);
+    finally
+      GravandoPedidosFiliais := false;
+    end;
+  end;
+end;
+
+procedure TfrmConsultaCompras.dbgPedidosFiliais_KeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_escape then
+    if MensagemConfirmacao('Sair da grade de geração de requisições?') = smbOk then
+       sbnCancelarClick(Sender);
+
+  if (key = vk_F) and  (Shift = [ssCtrl]) then
+    dbgPedidosFiliais_.SearchFooter.Visible := not dbgPedidosFiliais_.SearchFooter.Visible;  
+end;
+
+procedure TfrmConsultaCompras.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+  CanClose := MensagemConfirmacao('Tem certeza que deseja fechar a ''Consulta de Compras''?')=smbOK;
+end;
+
+procedure TfrmConsultaCompras.DesativarFontesdeDados;
+begin
+
+  dbgProdutos.datasource := nil;
+  dbgProdutosSimilares.datasource := nil;
+  dbgProdutosSimilaresTotal.Datasource := nil;
+  dbgProdutosGrupos.Datasource := nil;
+  dbgProdutosFiliais.Datasource := nil;
+
+  dbgVendas.datasource := nil;
+
+  dbgProdutosSimilares.datasource := nil;
+  mmoObsLembarPedido.datasource := nil;
+
+  dtxCustoMedio.datasource := nil;
+
+  dtxMarkup.datasource := nil;
+  dtxPrecoVenda.datasource := nil;
+  dtxAlteracaoPreco.datasource := nil;
+  dtxPrecoPromocao.datasource := nil;
+  dtxValidadePreco.datasource := nil;
+  edtUltimaVenda.datasource := nil;
+  dtxDescricaoPreco.datasource := nil;
+  dtxData.datasource := nil;
+  dtxFilial.datasource := nil;
+  dtxdatacadastro.datasource := nil;
+  dtxPrecocomicms.datasource := nil;
+  dtxprecosemicms.datasource := nil;
+  dtxValorUltimaCompra.datasource := nil;
+  dtxQuantidade.datasource := nil;
+  dtxvaloripi.datasource := nil;
+  dtxNrPedido.datasource := nil;
+  dtxQtdade.datasource := nil;
+  dtxPrevisao.datasource := nil;
+  dtxEmissaoPedido.datasource := nil;
+  dtxcst.datasource := nil;
+  dtxcsosn.datasource := nil;
+
+  dtmConsultaCompras.ComprasTotalAfterScroll := nil;
+
+
+//  dtmConsultaCompras.dsrPedidosFiliais_.enabled := false;
+
+end;
+
+procedure TfrmConsultaCompras.VoltarFontedeDados;
+begin
+  dbgProdutos.datasource := dtmConsultaCompras.dsrComprasTotal;
+  dbgProdutosSimilaresTotal.datasource := dtmConsultaCompras.dsrTotalProdutosSimilares;
+  dbgProdutosGrupos.Datasource := dtmConsultaCompras.dsrComprasGruposFiliais;
+  dbgProdutosFiliais.Datasource := dtmConsultaCompras.dsrComprasFiliaisGrupo;
+  dbgVendas.datasource := dtmConsultaCompras.dsrVVendas;
+  dbgProdutosSimilares.datasource := dtmConsultaCompras.dsrProdutosSimilares;
+  mmoObsLembarPedido.datasource := dtmConsultaCompras.dsrComprasTotal;
+//  dtmConsultaCompras.dsrPedidosFiliais_.enabled := true;
+
+  dtxCustoMedio.datasource := dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+  dtxMarkup.datasource :=  dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+  dtxPrecoVenda.datasource :=  dtmConsultaCompras.dsrDetalhesPreco;
+  dtxAlteracaoPreco.datasource :=  dtmConsultaCompras.dsrDetalhesPreco;
+  dtxPrecoPromocao.datasource :=  dtmConsultaCompras.dsrDetalhesPreco  ;
+  dtxValidadePreco.datasource :=  dtmConsultaCompras.dsrDetalhesPreco   ;
+  edtUltimaVenda.datasource :=  dtmConsultaCompras.dsrDetalhesPreco      ;
+  dtxDescricaoPreco.datasource :=   dtmConsultaCompras.dsrDetalhesPreco   ;
+  dtxData.datasource :=  dtmConsultaCompras.dsrDetalhesCompra_Filiais      ;
+  dtxFilial.datasource :=   dtmConsultaCompras.dsrDetalhesCompra_Filiais    ;
+  dtxdatacadastro.datasource :=  dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+  dtxPrecocomicms.datasource :=  dtmConsultaCompras.dsrDetalhesCompra_Filiais ;
+  dtxprecosemicms.datasource :=  dtmConsultaCompras.dsrDetalhesCompra_Filiais  ;
+  dtxValorUltimaCompra.datasource :=  dtmConsultaCompras.dsrDetalhesCompra_Filiais;
+  dtxQuantidade.datasource :=  dtmConsultaCompras.dsrDetalhesCompra_Filiais        ;
+  dtxvaloripi.datasource :=  dtmConsultaCompras.dsrDetalhesCompra_Filiais           ;
+  dtxNrPedido.datasource :=  dtmConsultaCompras.dsrConsultaProdutosPedidos           ;
+  dtxQtdade.datasource :=  dtmConsultaCompras.dsrConsultaProdutosPedidos              ;
+  dtxPrevisao.datasource :=  dtmConsultaCompras.dsrConsultaProdutosPedidos             ;
+  dtxEmissaoPedido.datasource :=  dtmConsultaCompras.dsrConsultaProdutosPedidos         ;
+  dtxcst.datasource :=  dtmConsultaCompras.dsrComprasTotal;
+  dtxcsosn.datasource :=  dtmConsultaCompras.dsrComprasTotal;
+
+  dtmConsultaCompras.ComprasTotalAfterScroll := ComprasTotalAfterScroll;
+
+
+end;
+
+procedure TfrmConsultaCompras.sbnAtualizarRegistrosClick(Sender: TObject);
+var
+  vTMessageButton : TMessageButton;
+
+begin
+  inherited;
+
+  try
+
+    TtecDBGrid(self.FindComponent('dbgProdutos')).SalvarPosicaoGrid;
+    TtecDBGrid(self.FindComponent('dbgProdutosGrupos')).SalvarPosicaoGrid;
+    TtecDBGrid(self.FindComponent('dbgProdutosFiliais')).SalvarPosicaoGrid;
+
+
+    if dtmConsultaCompras.qryProdutosselecionados.recordCount<>0 then
+    begin
+      vTMessageButton := MensagemSelecionaOpcao('Atualizar somente os registros marcados?');
+
+      case vTMessageButton of
+         smbYES    : begin
+                       try
+  //                     DesativarFontesdeDados;
+
+                         dtmconsultacompras.Reatualizar(RetornarLista(dtmConsultaCompras.qryprodutosselecionados, dtmConsultaCompras.qryProdutosSelecionadosproduto, nil, false));
+                       finally
+  //                     VoltarFontedeDados;
+                       end;
+                     end;
+
+         smbNO     : begin
+                       try
+  //                     DesativarFontesdeDados;
+                         dtmconsultacompras.Reatualizar(dtmconsultacompras.qrycomprastotalproduto.asString);
+                       finally
+  //                     VoltarFontedeDados;
+                       end;
+                     end;
+         smbCancel :
+       end;
+    end
+    else
+    begin
+
+      try
+  //      DesativarFontesdeDados;
+
+        dtmconsultacompras.Reatualizar(dtmconsultacompras.qrycomprastotalproduto.asString);
+      finally
+  //      VoltarFontedeDados;
+      end;
+
+    end;
+
+  finally
+
+    TtecDBGrid(self.FindComponent('dbgProdutos')).RestaurarPosicaoGrid;
+    TtecDBGrid(self.FindComponent('dbgProdutosGrupos')).RestaurarPosicaoGrid;
+    TtecDBGrid(self.FindComponent('dbgProdutosFiliais')).RestaurarPosicaoGrid;
+
+  end;
+
+
+end;
+
+procedure TfrmConsultaCompras.sbnPreencherClick(Sender: TObject);
+begin
+  inherited;
+  if fraConsultaFilial.edfcodigo.text <> '' then
+  begin
+    try
+//      desativarfontesdedados;
+      dtmconsultacompras.PreencherRequisicaoFilialSolicitada(fraConsultaFilial.qryProcuraFiliais.fieldbyname('codigo').asinteger)
+    finally
+//      VoltarFontedeDados;
+    end;
+  end
+  else
+  begin
+    fraConsultaFilial.edfcodigo.setfocus;
+    fraConsultaFilial.edfcodigo.selectall;
+    MensagemAviso('Informe a Filial a ser solicitada!');
+  end;
+end;
+
+procedure TfrmConsultaCompras.fraConsultaFilialedfCodigoFound(
+  Found: Boolean);
+begin
+  inherited;
+  if found then
+  begin
+    sbnPreencher.enabled := true;
+    sbnPreencher.setfocus;
+  end;
+end;
+
+procedure TfrmConsultaCompras.sbnReiniciarPedidosFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  if fraConsultaFilial.edfcodigo.text <> '' then
+  begin
+
+    if mensagemConfirmacao(format('Confirme a retirada dos pedidos da filial %s ?',[fraConsultaFilial.qryProcuraFiliais.fieldbyname('codigo').asString])) = smbOk then
+    begin
+      try
+//        desativarfontesdedados;
+        dtmconsultacompras.RetirarRequisicaoFilialSolicitada(fraConsultaFilial.qryProcuraFiliais.fieldbyname('codigo').asinteger);
+      finally
+//        VoltarFontedeDados;
+      end;
+    end;
+
+  end
+  else
+  begin
+    if mensagemConfirmacao('Confirme a retirada dos pedidos de todas as filiais ?') = smbOk then
+    begin
+      try
+//        desativarfontesdedados;
+        dtmconsultacompras.RetirarRequisicaoFilialSolicitada(0);
+      finally
+//        VoltarFontedeDados;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmConsultaCompras.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+  dbgPedidosFiliais_.SearchFooter.Visible := not dbgPedidosFiliais_.SearchFooter.Visible;
+end;
+
+procedure TfrmConsultaCompras.sbnManutencaoPrecoClick(Sender: TObject);
+var
+  i: integer;
+  vTMessageButton : TMessageButton;
+
+begin
+  inherited;
+
+  if dtmConsultaCompras.qryprodutosselecionados.recordCount<>0 then
+     vTMessageButton := MensagemSelecionaOpcao('Fazer a manutenção de preços dos registros marcados?')
+  else
+     vTMessageButton := smbNO;
+
+  case vTMessageButton of
+     smbYES    :  tfrmManutencaoPreco.create(self).
+                   fraMultiplaSelecaoAleatoria1.
+                    fraSelecaoAleatoriaItemdeProdutos.
+                    fraSelecaoAleatoriaItemdeProduto.AdicionarListaItemNaLista
+                    (RetornarListaTString(
+                      dtmConsultaCompras.qryprodutosselecionados,
+                      dtmConsultaCompras.qryprodutosselecionadosproduto,
+                      nil, false));
+
+     smbNO     :  tfrmManutencaoPreco.create(self).
+                  fraMultiplaSelecaoAleatoria1.
+                  fraSelecaoAleatoriaItemdeProdutos.
+                  fraSelecaoAleatoriaItemdeProduto.AdicionarItemNaLista
+                  (dtmConsultaCompras.qrycomprastotalproduto.asstring);
+     smbCancel :
+  end;
+end;
+
+procedure TfrmConsultaCompras.sbnProdutosPendentesClick(Sender: TObject);
+begin
+  inherited;
+  dtmConsultaCompras.AbrirListaProdutosPendentesNF;
+  frmListaProdutosPendentesNF := tfrmListaProdutosPendentesNF.create(self);
+  frmListaProdutosPendentesNF.showmodal;
+  frmListaProdutosPendentesNF.free;
+end;
+
+procedure TfrmConsultaCompras.dbgPedidosFiliais_DrawCell(Sender: TObject;
+  ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
+
+var
+  i : integer;
+  
+begin
+  inherited;
+
+end;
+
+procedure TfrmConsultaCompras.Splitter4Moved(Sender: TObject);
+begin
+  inherited;
+
+  IF pgcProdutosConsulta.height = 0 then
+    pgcProdutosConsulta.height := 1;
+
+
+  Splitter1.top := pnlConsultaAbaixo.top-4;
+
+  if Splitter4.top >= Splitter1.top then
+    Splitter4.top := Splitter1.top;
+
+end;
+
+procedure TfrmConsultaCompras.Splitter1Moved(Sender: TObject);
+begin
+  inherited;
+
+  Splitter1.top := pnlConsultaAbaixo.top-4;
+
+  if Splitter4.top >= Splitter1.top then
+    Splitter4.top := Splitter1.top;
+
+
+
+end;
+
+procedure TfrmConsultaCompras.sbnNFePendenteClick(Sender: TObject);
+begin
+  inherited;
+
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir',
+    dtmConsultaCompras.qryComprasTotalproduto.asString], 'TfrmConsultaProdutosNotasSefaz', True)
+
+
+
+end;
+
+procedure TfrmConsultaCompras.pgcProdutosConsultaChanging(Sender: TObject;
+  var AllowChange: Boolean);
+begin
+  inherited;
+  with dtmConsultaCompras do
+  begin
+    if pgcProdutosConsulta.activepage = tstProdutosTotal then
+    begin
+      vProdutovisualizado := qryComprasTotalproduto.asString;
+      vCaracteristicaVisualizada := qryComprasTotalcaracteristica.asString;
+    end
+    else
+    if pgcProdutosConsulta.activepage = tstProdutosSimilares then
+    begin
+      vProdutovisualizado := qryProdutosSimilaresproduto.asString;
+      vCaracteristicaVisualizada := qryProdutosSimilarescaracteristica.asString;
+    end;
+  end;
+end;
+
+procedure TfrmConsultaCompras.Liberar_TfrmCadastroPedidos;
+var
+ i: integer;
+
+begin
+  for i:=self.componentcount - 1 downto 0 do
+  begin
+
+    if self.Components[i] is TfrmCadastroPedidos then
+     if TfrmCadastroPedidos(self.Components[i]).visible then
+        TfrmCadastroPedidos(self.Components[i]).free;
+  end;
+end;
+
+procedure TfrmConsultaCompras.Liberar_TfrmManutencaoPreco;
+var
+ i: integer;
+begin
+  for i:=self.componentcount - 1 downto 0 do
+  begin
+
+    if self.Components[i] is TfrmManutencaoPreco then
+      if TfrmManutencaoPreco(self.Components[i]).visible then
+        TfrmManutencaoPreco(self.Components[i]).free;
+  end;
+end;
+
+{
+procedure TfrmConsultaCompras.TfrmCadastroPedidosDestroy(Sender: TObject);
+begin
+  frmCadastroPedidos.TfrmCadastroPedidosDestroy := nil;
+  Liberar_TfrmCadastroPedidos;
+end;
+}
+
+initialization
+   AcionarTelaConsultaCompras :=  AcionarTelaConsultaCompras_;
+
+
+end.
+

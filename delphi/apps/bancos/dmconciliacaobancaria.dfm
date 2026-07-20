@@ -1,0 +1,622 @@
+inherited dtmConciliacaoBancaria: TdtmConciliacaoBancaria
+  OldCreateOrder = False
+  Left = 341
+  Top = 215
+  Height = 364
+  Width = 651
+  object qryMovtosBancos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryMovtosBancosBeforeOpen
+    AfterInsert = qryMovtosBancosAfterInsert
+    AfterPost = qryMovtosBancosAfterPost
+    AfterScroll = qryMovtosBancosAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'CampoOrdenacao_1'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CampoOrdenacao_2'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT m.conta,'
+      '       m.Data,'
+      '       m.Sequencia,'
+      '       m.Compensacao,'
+      '       m.Documento,'
+      '       m.Observacoes,'
+      '       e.Descricao AS EveDescricao,'
+      '       m.Valor,'
+      '       m.Tipo,'
+      ''
+      '       CASE WHEN OrigemLancto = '#39'B'#39' THEN CAST('#39' '#39' AS VARCHAR)'
+      '            WHEN OrigemLancto = '#39'P'#39' THEN CAST('#39'P'#39' AS VARCHAR)'
+      '            WHEN OrigemLancto = '#39'R'#39' THEN CAST('#39'R'#39' AS VARCHAR)'
+      '            WHEN OrigemLancto = '#39'A'#39' THEN CAST('#39'A'#39' AS VARCHAR)'
+      '       END AS Origem,'
+      ''
+      '       Case WHEN (((SELECT MAX(%CampoOrdenacao_1)'
+      '                       FROM MovtosBancos'
+      '                       WHERE Conta = m.Conta AND'
+      
+        '                             Compensacao = m.Compensacao) =  %Ca' +
+        'mpoOrdenacao_2 ) AND'
+      ''
+      '                  ((SELECT MAX(SeqCompensacao)'
+      '                       FROM MovtosBancos'
+      '                       WHERE Conta = m.Conta AND'
+      '                             Compensacao = m.Compensacao AND'
+      
+        '                             %CampoOrdenacao_1 = (SELECT MAX( %C' +
+        'ampoOrdenacao_1 )'
+      '                                               FROM MovtosBancos'
+      
+        '                                               WHERE Conta = m.C' +
+        'onta AND'
+      
+        '                                                     Compensacao' +
+        ' = m.Compensacao))'
+      
+        '                                                          = m.Se' +
+        'qCompensacao))'
+      '            THEN (SELECT SaldoBanco(m.Conta, Compensacao, '#39'C'#39'))'
+      '            ELSE CAST(NULL AS NUMERIC)'
+      '       END  AS Saldo,'
+      '       False as Selecionado,'
+      '       m.SeqCompensacao'
+      ''
+      'FROM   movtosbancos m LEFT JOIN eventos e ON m.evento = e.Codigo'
+      ''
+      'WHERE  m.Conta        = :Conta       AND'
+      '       m.Compensacao >= :DataInicial AND'
+      '       m.Compensacao <= :DataFinal'
+      ''
+      ''
+      'ORDER BY m.Compensacao,'
+      '         %CampoOrdenacao_2,'
+      '         m.SeqCompensacao')
+    RequestLive = True
+    Left = 64
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Conta'
+        ParamType = ptUnknown
+        Value = '-1'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+    object qryMovtosBancosconta: TIntegerField
+      FieldName = 'conta'
+    end
+    object qryMovtosBancosCompensacao: TDateField
+      Alignment = taCenter
+      FieldName = 'Compensacao'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryMovtosBancosDocumento: TStringField
+      FieldName = 'Documento'
+    end
+    object qryMovtosBancosObservacoes: TStringField
+      DisplayLabel = 'Observa'#231#245'es'
+      FieldName = 'Observacoes'
+      Size = 512
+    end
+    object qryMovtosBancosEveDescricao: TStringField
+      DisplayLabel = 'Evento'
+      FieldName = 'EveDescricao'
+      Size = 30
+    end
+    object qryMovtosBancosValor: TFloatField
+      FieldName = 'Valor'
+      DisplayFormat = '###,##0.00'
+      EditFormat = '###,##0.00'
+    end
+    object qryMovtosBancosTipo: TStringField
+      FieldName = 'Tipo'
+      Size = 1
+    end
+    object qryMovtosBancosSaldo: TFloatField
+      FieldName = 'Saldo'
+      DisplayFormat = '###,##0.00'
+      EditFormat = '###,##0.00'
+    end
+    object qryMovtosBancosSeqCompensacao: TIntegerField
+      DisplayLabel = 'SeqCompensa'#231#227'o'
+      FieldName = 'SeqCompensacao'
+      DisplayFormat = '0'
+    end
+    object qryMovtosBancosData: TDateField
+      FieldName = 'Data'
+    end
+    object qryMovtosBancosSequencia: TIntegerField
+      FieldName = 'Sequencia'
+    end
+    object qryMovtosBancosOrigem: TStringField
+      FieldName = 'Origem'
+      Size = 50
+    end
+    object qryMovtosBancosSelecionado: TBooleanField
+      FieldName = 'Selecionado'
+    end
+  end
+  object dsrMovtosBancos: TtecDataSource
+    DataSet = qryMovtosBancos
+    Left = 64
+    Top = 88
+  end
+  object qryConsultaMovtosBancos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT m.Conta,'
+      '       m.Data,'
+      '       m.Sequencia,'
+      '       m.Valor,'
+      '       m.Documento,'
+      '       m.Evento'
+      ''
+      'FROM   movtosbancos m'
+      ''
+      'WHERE  m.Conta = :Conta  AND'
+      '       m.Data  BETWEEN :DataInicial'
+      '                   AND :DataFinal'
+      '')
+    RequestLive = False
+    Left = 64
+    Top = 152
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaMovtosBancosConta: TIntegerField
+      FieldName = 'Conta'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryConsultaMovtosBancosData: TDateField
+      Alignment = taCenter
+      FieldName = 'Data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryConsultaMovtosBancosSequencia: TIntegerField
+      DisplayLabel = 'Seq'#252#234'ncia'
+      FieldName = 'Sequencia'
+      DisplayFormat = '0'
+    end
+    object qryConsultaMovtosBancosValor: TFloatField
+      FieldName = 'Valor'
+      DisplayFormat = '0.00'
+    end
+    object qryConsultaMovtosBancosEvento: TIntegerField
+      FieldName = 'Evento'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryConsultaMovtosBancosDocumento: TStringField
+      FieldName = 'Documento'
+    end
+  end
+  object qryConsultaContas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT b.Sigla,'
+      '       a.Nome,'
+      '       c.Conta,'
+      '       c.Digito,'
+      '       c.Titular,'
+      '       c.Banco,'
+      '       c.Agencia,'
+      ''
+      '       SaldoBanco(c.Conta, (SELECT MAX(Data)'
+      '                               FROM  MovtosBancos'
+      
+        '                               WHERE Conta = c.Conta), '#39'L'#39') AS S' +
+        'aldoLancado'
+      ''
+      'FROM   Contas c JOIN Bancos b   ON c.Banco   = b.Codigo'
+      '                JOIN Agencias a ON c.Banco   = a.Banco AND'
+      '                                   c.Agencia = a.Codigo'
+      ''
+      'ORDER BY b.Sigla, UPPER(TO_ASCII(a.Nome,    '#39'LATIN1'#39')),'
+      '                  UPPER(TO_ASCII(c.Titular, '#39'LATIN1'#39'))')
+    RequestLive = True
+    Left = 198
+    Top = 15
+    object qryConsultaContasSigla: TStringField
+      FieldName = 'Sigla'
+      Size = 10
+    end
+    object qryConsultaContasNome: TStringField
+      FieldName = 'Nome'
+      Size = 30
+    end
+    object qryConsultaContasConta: TIntegerField
+      DisplayLabel = 'N'#186' Conta'
+      DisplayWidth = 10
+      FieldName = 'Conta'
+      DisplayFormat = '#,###,##0'
+    end
+    object qryConsultaContasDigito: TStringField
+      DisplayLabel = 'V'
+      DisplayWidth = 1
+      FieldName = 'Digito'
+      Size = 2
+    end
+    object qryConsultaContasTitular: TStringField
+      FieldName = 'Titular'
+      Size = 30
+    end
+    object qryConsultaContasSaldoLancado: TFloatField
+      DisplayLabel = 'Saldo'
+      DisplayWidth = 14
+      FieldName = 'SaldoLancado'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryConsultaContasBanco: TIntegerField
+      FieldName = 'Banco'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryConsultaContasAgencia: TIntegerField
+      FieldName = 'Agencia'
+      Visible = False
+      DisplayFormat = '0'
+    end
+  end
+  object qryProcuraContas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryProcuraContasAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT c.Banco,'
+      '       c.Agencia,'
+      '       c.Conta,'
+      '       c.Digito,'
+      '       c.Titular,'
+      '       b.Sigla,'
+      '       a.Nome,'
+      ''
+      '       SaldoBanco(c.Conta, (SELECT MAX(Data)'
+      '                               FROM  MovtosBancos'
+      
+        '                               WHERE Conta = c.Conta), '#39'L'#39') AS S' +
+        'aldoLancado'
+      ''
+      'FROM  Contas c JOIN Bancos b   ON c.Banco   = b.Codigo'
+      '               JOIN Agencias a ON c.Banco   = a.Banco AND'
+      '                                  c.Agencia = a.Codigo'
+      ''
+      'WHERE Conta = :Conta'
+      ''
+      ''
+      '')
+    RequestLive = True
+    Left = 198
+    Top = 87
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Conta'
+        ParamType = ptUnknown
+        Value = '-1'
+      end>
+    object qryProcuraContasBanco: TIntegerField
+      FieldName = 'Banco'
+      DisplayFormat = '0'
+    end
+    object qryProcuraContasAgencia: TIntegerField
+      FieldName = 'Agencia'
+      DisplayFormat = '0'
+    end
+    object qryProcuraContasConta: TIntegerField
+      FieldName = 'Conta'
+      DisplayFormat = '0'
+    end
+    object qryProcuraContasDigito: TStringField
+      FieldName = 'Digito'
+      Size = 2
+    end
+    object qryProcuraContasTitular: TStringField
+      FieldName = 'Titular'
+      Size = 50
+    end
+    object qryProcuraContasSigla: TStringField
+      FieldName = 'Sigla'
+      Size = 10
+    end
+    object qryProcuraContasNome: TStringField
+      FieldName = 'Nome'
+      Size = 30
+    end
+    object qryProcuraContasSaldoLancado: TFloatField
+      DisplayLabel = 'Saldo'
+      FieldName = 'SaldoLancado'
+      DisplayFormat = '###,###,##0.00'
+    end
+  end
+  object dsrProcuraContas: TtecDataSource
+    DataSet = qryProcuraContas
+    Left = 198
+    Top = 150
+  end
+  object qryLanctoAnterior: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryMovtosBancosAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select *'
+      'from'
+      '('
+      'SELECT MAX(Compensacao) as Data,'
+      '       SaldoBanco(:Conta, :Data, '#39'C'#39') AS Saldo'
+      'FROM   movtosbancos'
+      'WHERE  Compensacao <= :Data'
+      ') as selecao'
+      ''
+      '')
+    RequestLive = True
+    Left = 312
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Data'
+        ParamType = ptUnknown
+      end>
+    object qryLanctoAnteriorData: TDateField
+      Alignment = taCenter
+      FieldName = 'Data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryLanctoAnteriorSaldo: TFloatField
+      FieldName = 'Saldo'
+      DisplayFormat = '###,###,##0.00'
+    end
+  end
+  object dsrLanctoAnterior: TtecDataSource
+    DataSet = qryLanctoAnterior
+    Left = 320
+    Top = 88
+  end
+  object qryUltimoLancto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryMovtosBancosAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';SELECT MAX(Data) as Data'
+      'FROM  movtosbancos'
+      'WHERE Conta = :Conta')
+    RequestLive = True
+    Left = 416
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Conta'
+        ParamType = ptUnknown
+      end>
+    object qryUltimoLanctoData: TDateField
+      Alignment = taCenter
+      FieldName = 'Data'
+      EditMask = '99/99/9999;1; '
+    end
+  end
+  object dsrUltimoLancto: TtecDataSource
+    DataSet = qryUltimoLancto
+    Left = 416
+    Top = 88
+  end
+  object qryMovtosBancosEventos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select mbe.Conta,'
+      '       mbe.Data,'
+      '       mbe.Sequencia,'
+      '       mbe.Evento,'
+      '       mbe.Tipo,'
+      '       mbe.Valor,'
+      '       mbe.contatransf,'
+      '       mbe.observacoes,'
+      '      (select c.digito'
+      '       from contas c'
+      '       where c.conta = mbe.contatransf) as digito,'
+      '        '
+      '      (select b.sigla'
+      '       from bancos b'
+      '       where b.codigo = (select c.banco'
+      '                         from contas c'
+      
+        '                         where c.conta = mbe.contatransf)) as si' +
+        'gla,'
+      ''
+      '      (select a.nome'
+      '       from agencias a'
+      '       where (a.codigo, a.banco) in (select c.agencia, c.banco'
+      '                                    from contas c'
+      
+        '                                    where c.conta = mbe.contatra' +
+        'nsf)) as nomeagencia,'
+      '                                    '
+      '      (select e.descricao'
+      '       from eventos e'
+      '       where e.codigo = mbe.Evento) as descricaoevento'
+      ''
+      'from movtosbancoseventos mbe'
+      'where mbe.conta      = :conta'
+      '  and mbe.Data        = :Data'
+      '  and mbe.Sequencia   = :Sequencia'
+      'order by mbe.Evento'
+      '')
+    RequestLive = True
+    Left = 72
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Sequencia'
+        ParamType = ptUnknown
+      end>
+    object qryMovtosBancosEventosconta: TIntegerField
+      FieldName = 'conta'
+    end
+    object qryMovtosBancosEventosdata: TDateField
+      FieldName = 'data'
+    end
+    object qryMovtosBancosEventossequencia: TIntegerField
+      FieldName = 'sequencia'
+    end
+    object qryMovtosBancosEventosevento: TIntegerField
+      FieldName = 'evento'
+      Required = True
+    end
+    object qryMovtosBancosEventostipo: TStringField
+      FieldName = 'tipo'
+      Required = True
+      Size = 1
+    end
+    object qryMovtosBancosEventosdescricaoevento: TStringField
+      DisplayLabel = 'descri'#231#227'o do evento'
+      FieldName = 'descricaoevento'
+      Required = True
+      Size = 50
+    end
+    object qryMovtosBancosEventoscontatransf: TIntegerField
+      DisplayLabel = 'Conta para transfer'#234'ncia'
+      FieldName = 'contatransf'
+      Required = True
+    end
+    object qryMovtosBancosEventossigla: TStringField
+      DisplayLabel = 'Sigla ag'#234'ncia'
+      FieldName = 'sigla'
+      ReadOnly = True
+      Required = True
+      Size = 10
+    end
+    object qryMovtosBancosEventosnomeagencia: TStringField
+      DisplayLabel = 'Nome da ag'#234'ncia'
+      FieldName = 'nomeagencia'
+      ReadOnly = True
+      Required = True
+      Size = 30
+    end
+    object qryMovtosBancosEventosvalor: TFloatField
+      FieldName = 'valor'
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryMovtosBancosEventosdigito: TStringField
+      FieldName = 'digito'
+      ReadOnly = True
+      Size = 50
+    end
+    object qryMovtosBancosEventosobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 512
+    end
+  end
+  object dsrMovtosBancosEventos: TtecDataSource
+    DataSet = qryMovtosBancosEventos
+    Left = 104
+    Top = 240
+  end
+end

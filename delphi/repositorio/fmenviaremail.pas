@@ -1,0 +1,240 @@
+unit fmenviaremail;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmajudabt, ComCtrls, Buttons, ExtCtrls, fmajuda, fmnavcontroles,
+  StdCtrls, cptexto, clparametrossistema,IdSMTP, IdPOP3, IdMessage,
+  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient,
+  IdMessageClient, biblio, ctconstantes,clusuario, dmbasico, cpmemo,
+  AdvMemo, AdvListV, AdvPanel;
+
+
+  
+type
+  TfrmEnviarEmail = class(TForm)
+    pnlFundoJanela: TPanel;
+    gbxEnvioEmail: TGroupBox;
+    sbnEnviar: TBitBtn;
+    gbxhost: TGroupBox;
+    edtHost: TEditTexto;
+    gbxemail: TGroupBox;
+    gbxtexto: TGroupBox;
+    gbxNomeContato: TGroupBox;
+    edtcontato: TEdit;
+    gbxAssunto: TGroupBox;
+    gbxIntroducao: TGroupBox;
+    gbxConclusao: TGroupBox;
+    edtAssunto: TEditTexto;
+    mmoConclusao: TMemo;
+    mmotexto: TMemo;
+    mmoIntroducao: TMemo;
+    edtEmail: TAdvMemo;
+    pnlBtnEnviar: TPanel;
+    procedure sbnEnviarClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    FReferencia: String;
+    FIntroducao: String;
+    FConclusao: String;
+    FMsgOrcamento: String;
+    fObterAutorizacao: TTecBooleanRetorno;
+    fOrigemEmail: TOrigemEmail;
+  protected
+    FTexto: String;
+    FData: TDateTime;
+    FEmpresa: String;
+    FMsg: TStringList;
+    FNomeContato: String;
+    FEmailContato: String;
+  public
+    Enviou: Boolean;
+    vGerarAtendimento: boolean;
+    vListaEmailValidos: String;
+    constructor Create(AOwner: TComponent; Host, Email, Contato,  Texto, Assunto: String; origem: TOrigemEmail = OutrosEmail ); reintroduce;
+    destructor  Destroy; override;
+
+    property Data: TDateTime read FData write FData;
+    property Empresa: String read FEmpresa write FEmpresa;
+    property Msg: TStringList read FMsg write FMsg;
+    property MsgOrcamento: String Read FMsgOrcamento write FMsgOrcamento;
+    property NomeContato:String read FNomeContato write FNomeContato;
+    property EmailContato: String read FEmailContato write FEmailContato;
+    property Referencia: String read FReferencia write FReferencia;
+    property Introducao: String read FIntroducao write FIntroducao;
+    property Conclusao: String read FConclusao write FConclusao;
+    property ObterAutorizacao: TTecBooleanRetorno read fObterAutorizacao write fObterAutorizacao;
+    property OrigemEmail: TOrigemEmail read fOrigemEmail write fOrigemEmail;
+  end;
+
+var
+  JatestouEMail: Boolean;
+  frmEnviarEmail: TfrmEnviarEmail;
+
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmEviarEmail }
+
+constructor TfrmEnviarEmail.Create(AOwner: TComponent; Host, Email, Contato, Texto, Assunto: String; origem: TOrigemEmail = OutrosEmail);
+var
+  Lista : TStringList;
+  i: integer;
+
+begin
+  inherited Create(AOwner);
+  Caption := Caption + ' - ' + Texto;
+  edtEmail.Lines.Clear;
+
+  try
+    Lista := TStringList.Create;
+    ExtractStrings([';'], [], PChar(Email), Lista);
+    for i:=0 to Lista.count-1 do
+       edtEmail.Lines.Append(trim(lista[i]));
+
+  finally
+    Lista.free;
+  end;
+
+  edtcontato.Text:= Contato;
+  edtHost.Text := Host;
+  if Assunto <> '' then
+    edtAssunto.Text := Assunto
+  else
+    edtAssunto.Text:= UsuarioLogin.Assunto;
+    
+  mmoIntroducao.Text:= UsuarioLogin.Introducao;
+  mmoConclusao.Text:= UsuarioLogin.Conclusao;
+  FTexto:= Texto;
+  Msg := TStringList.Create;
+  OrigemEmail := Origem;
+
+  if OrigemEmail = EnvioNFeEmail then
+  begin
+    gbxhost.visible := false;
+    gbxAssunto.visible := false;
+    gbxIntroducao.visible := false;
+    gbxtexto.visible := false;
+    gbxConclusao.visible := false;
+//    sbnEnviar.top := gbxemail.top + 85;
+    self.height := self.height - gbxhost.height - gbxAssunto.Height - gbxIntroducao.Height - gbxtexto.Height - gbxConclusao.Height;
+  end;
+end;
+
+destructor TfrmEnviarEmail.Destroy;
+begin
+  inherited;
+  frmEnviarEmail := nil;
+end;
+
+procedure TfrmEnviarEmail.sbnEnviarClick(Sender: TObject);
+var
+  SMTP : TIdSMTP;
+  POP3 : TIdPOP3;
+  MsgEmail : TIdMessage;
+  i: integer;
+  msgaux : TStringList;
+  v_msgaux : String;
+  vResult : Boolean;
+
+
+begin
+  inherited;
+
+  msgaux := TStringList.create;
+  msgaux := msg;
+
+  vResult := true;
+  Enviou:=True;
+  if (MensagemConfirmacao(ctCONFIRMAENVIOEMAIL) = smbOk) and (ListaEmailValido(edtEmail, vListaEmailValidos)) then
+  begin
+
+    if OrigemEmail <> EnvioNFeEmail then
+    begin
+
+      if edtEmail.lines.Text <> '' then
+      begin
+
+        if parsistema.UsaitecLUX and
+           (OrigemEmail = OrcamentoEmail) then
+          close
+        else
+        begin
+
+          Caption:= 'Enviando...';
+
+          for i:=0 to mmotexto.Lines.Count -1 do
+            v_msgaux := v_msgaux + mmotexto.Lines[i]+'<BR>';
+          msgaux := Trocar(msgaux,'_REFERENCIA_',v_msgaux);
+
+          v_msgaux := '';
+          for i:=0 to mmoIntroducao.Lines.Count -1 do
+            v_msgaux := v_msgaux + mmoIntroducao.Lines[i]+'<BR>';
+          msgaux := Trocar(msg,'_INTRODUCAO_',v_msgaux);
+
+          v_msgaux := '';
+          for i:=0 to mmoConclusao.Lines.Count -1 do
+            v_msgaux := v_msgaux + mmoConclusao.Lines[i]+'<BR>';
+          msgaux := Trocar(msg,'_CONCLUSAO_',v_msgaux);
+
+          v_msgaux:= '';
+          if edtcontato.Text <> '' then
+            v_msgaux:= edtcontato.Text;
+          msgaux := Trocar(msg,'_CONTATO_',v_msgaux);
+
+
+          vResult := EnviarEmail_(LowerCase(UsuarioLogin.HostSmtp),
+                       UsuarioLogin.UsuarioEmail,
+                       UsuarioLogin.SenhaEmail,
+                       UsuarioLogin.PortaSmtp,
+                       LowerCase(UsuarioLogin.Email),
+                       vListaEmailValidos, edtAssunto.Text, msgaux.Text, fEmpresa,
+                       usuariologin.smtprequerssl,
+                       nil);
+
+          if vResult then
+          begin
+            MensagemAviso(ctEMAILENVIADOCOMSUCESSO);
+            self.ModalResult := mrOk;
+          end
+          else
+            Enviou := false;
+        end;
+
+      end
+      else
+      begin
+        MensagemAviso('E-mail em branco');
+        edtEmail.SetFocus;
+      end;
+    end
+    else
+    begin
+      self.ModalResult := mrOk;
+//    close;
+    end;
+  end;
+end;
+
+procedure TfrmEnviarEmail.FormShow(Sender: TObject);
+begin
+  if (edtEmail.lines.Text <> '') and (OrigemEmail<>EnvioNFeEmail) then
+    mmotexto.SetFocus
+  else
+    edtEmail.SetFocus;
+  JatestouEMail:= False;
+
+  {
+  if not EmailValido(edtEmail.lines.Text) then
+    edtEmail.SetFocus;
+    }
+ if not ListaEmailValido(edtEmail, vListaEmailValidos) then
+   edtEmail.SetFocus;
+
+
+end;
+
+end.

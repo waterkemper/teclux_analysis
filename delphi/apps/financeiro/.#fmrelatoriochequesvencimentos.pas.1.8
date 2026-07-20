@@ -1,0 +1,566 @@
+unit fmrelatoriochequesvencimentos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  ExtCtrls, Buttons, StdCtrls, Mask, DBCtrls, ComCtrls, Windows, DB, 
+  // Terceiros
+  ZQuery,
+  // Componentes
+  cpdbfindcontrols, cpdbtext, cpdata, cppagecontrol,
+  // Constantes
+  ctconstantes, biblio,
+  // Repositorio
+  fmrelatoriopadrao, fmconsultabasica, fmconsultaporcampo, frconsultacodigo,
+  // Projeto
+  dmrelatoriochequesvencimentos, ActnList, frselecaoaleatoria, frordenacao,
+  ToolWin;
+
+type
+  TfrmRelatorioChequesVencimentos = class(TfrmRelatorioPadrao)
+    gbxCheques: TGroupBox;
+    gbxPeriodo: TGroupBox;
+    lblA: TLabel;
+    edttermioPeriodo: TEditData;
+    edtInicioPeriodo: TEditData;
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    sbnConsultaFilial: TSpeedButton;
+    edfFilial: TtecDbEditFind;
+    dtxFilial: TtecDBText;
+    tstGrupoFilial: TTabSheet;
+    sbnConsultaGrupoFilial: TSpeedButton;
+    edfGrupoFilial: TtecDbEditFind;
+    dtxGrupoFilial: TtecDBText;
+    gbxTipoCheque: TGroupBox;
+    rbnAmbos: TRadioButton;
+    rbnVista: TRadioButton;
+    rbnPrazo: TRadioButton;
+    gbxTipoRelatorio: TGroupBox;
+    rbnVencimentos: TRadioButton;
+    rbnRecebimentos: TRadioButton;
+    rbnDevolucoes: TRadioButton;
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    gbxComresgate: TGroupBox;
+    rbnNaoListar: TRadioButton;
+    rbnSoMenor: TRadioButton;
+    rbnListarTudo: TRadioButton;
+    gbxConsiderar: TGroupBox;
+    rbnPrimeiraDevolucao: TRadioButton;
+    rbnSegundaDevolucao: TRadioButton;
+    rbnAmbasSituacoes: TRadioButton;
+    gbxComRemessa: TGroupBox;
+    rbnListarRemessa: TRadioButton;
+    rbnNaoListarRemessa: TRadioButton;
+    rbnListarTodasRemessa: TRadioButton;
+    gbxRelatorio: TGroupBox;
+    rbnAnalitico: TRadioButton;
+    rbnSintetico: TRadioButton;
+    gbxAgrupar: TGroupBox;
+    rbnTotalSinteticoVencto: TRadioButton;
+    rbnTotalSinteticoEmissao: TRadioButton;
+    gbxSituacao: TGroupBox;
+    edtSituacao: TEditData;
+    gbxObservacao: TGroupBox;
+    ckbListarObs: TCheckBox;
+    gbxCobrador: TGroupBox;
+    fraSelecaoAleatoriaCobrador: TfraSelecaoAleatoria;
+    rgpCobrador: TRadioGroup;
+    fraOrdenacao1: TfraOrdenacao;
+    rbnCancelados: TRadioButton;
+    gbxCobrrador: TGroupBox;
+    rbnInutilizados: TRadioButton;
+    gbxPeriodoDevolucao: TGroupBox;
+    Label1: TLabel;
+    edttermioDevolucao: TEditData;
+    edtInicioDevolucao: TEditData;
+    procedure pgcFilialGrupoFilialChange(Sender: TObject);
+    procedure sbnConsultaFilialClick(Sender: TObject);
+    procedure sbnConsultaGrupoFilialClick(Sender: TObject);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure rbnVencimentosClick(Sender: TObject);
+    procedure rbnRecebimentosClick(Sender: TObject);
+    procedure rbnDevolucoesClick(Sender: TObject);
+    procedure fraSelecaoAleatoriaCobradorqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaCobradordbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaCobradordbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure fraSelecaoAleatoriaCobradorsbnProcuraClick(Sender: TObject);
+    procedure rbnCanceladosClick(Sender: TObject);
+    procedure rbnInutilizadosClick(Sender: TObject);
+  private
+    procedure AtribuirDadosCobrador;
+  protected
+    TipoConsulta: TtecChequeConsultaFiliais;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    procedure InternoImpressao; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure MontaPesquisa;
+    function  PodeGerarRelatorio: Boolean;
+    function  TabelaDePesquisa: TZDataSet; override;
+    procedure AcionarPesquisaGrade;
+  public
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmRelatorioChequesVencimentos: TfrmRelatorioChequesVencimentos;
+  TipoRelatorio: TtecTipoRelatorioCheque;
+
+implementation
+
+uses frconsulta;
+
+{$R *.dfm}
+
+{ TfrmChequesDevolvidos }
+
+procedure TfrmRelatorioChequesVencimentos.actHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  if rbnRecebimentos.Checked then
+     gbxPeriodo.Caption:= 'PERÍODO DE EMISSÃO'
+  else
+     gbxPeriodo.Caption:= 'PERÍODO DE VENCIMENTO';
+
+  case rgpCobrador.ItemIndex of
+  0: begin
+         gbxCobrador.Enabled := True;
+         fraSelecaoAleatoriaCobrador.Enabled := True;
+         rbnAnalitico.Checked := true;
+         gbxRelatorio.Enabled := false;
+       end;
+  1: begin
+       gbxCobrador.Enabled := False;
+       fraSelecaoAleatoriaCobrador.Enabled := False;
+       gbxRelatorio.Enabled := True;
+     end;
+  2: begin
+         gbxCobrador.Enabled := True;
+         fraSelecaoAleatoriaCobrador.Enabled := True;
+         gbxRelatorio.Enabled := True;
+       end;
+  end;
+
+//  gbxPeriodo.Enabled    := not rbnDevolucoes.Checked;
+  gbxSituacao.Enabled   := rbnDevolucoes.Checked or rbnCancelados.Checked;
+//  gbxRelatorio.Enabled  := not rbnDevolucoes.Checked;
+  gbxComRemessa.Enabled := rbnVencimentos.Checked;
+  gbxComresgate.Enabled := rbnDevolucoes.Checked;
+  gbxConsiderar.Enabled := rbnDevolucoes.Checked;
+  gbxAgrupar.Enabled    := rbnSintetico.Checked;
+  gbxTipoCheque.Enabled := not rbnDevolucoes.Checked;
+
+//  if not gbxRelatorio.Enabled then
+//    rbnAnalitico.Checked:= True;
+  if not gbxTipoCheque.Enabled then
+    rbnAmbos.Checked:= True;
+  if not gbxComRemessa.Enabled then
+    rbnListarTodasRemessa.Checked:= True;
+
+  if rbnSintetico.Checked = True then begin
+     ckbListarObs.Checked := False;
+     ckbListarObs.Enabled := False;
+  end else
+     ckbListarObs.Enabled := True;
+
+end;
+
+constructor TfrmRelatorioChequesVencimentos.Create(Aowner: Tcomponent);
+var
+  Dia, Mes, Ano: Word;
+  NData: TDateTime;
+begin
+  dtmRelatorioChequesVencimentos := TdtmRelatorioChequesVencimentos.Create(Self);
+  inherited;
+  dtmRelatorioChequesVencimentos.Abre(ctChequesVencimentos);
+  edtInicioPeriodo.Text:= DateToStr(dtmRelatorioChequesVencimentos.DataServidor);
+  edttermioPeriodo.Text:= DateToStr(dtmRelatorioChequesVencimentos.DataServidor+30);
+  DecodeDate(dtmRelatorioChequesVencimentos.DataServidor,Ano,Mes,Dia);
+  NData:= EncodeDate(Ano,Mes,01);
+  edtSituacao.Text:= DateToStr(NData-1);
+  TipoRelatorio:= rcVENCIMENTOS;
+  edtInicioPeriodo.SetFocus;
+
+  fraSelecaoAleatoriaCobrador.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaCobrador.qrySelecaoAleatoria.Open;
+  with fraSelecaoAleatoriaCobrador do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoria';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 6;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraCobrador;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesCOBRADOR;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosCobrador;
+    fraOrdenacao1.qryLista.Open;
+
+  end;
+
+end;
+
+destructor TfrmRelatorioChequesVencimentos.Destroy;
+begin
+  dtmRelatorioChequesVencimentos.Fecha(ctChequesVencimentos);
+  inherited;
+  frmRelatorioChequesVencimentos := nil;
+end;
+
+function TfrmRelatorioChequesVencimentos.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoConsulta of
+    ccfFILIAIS       : Result := dtmRelatorioChequesVencimentos.ExisteFilial(NomeCampo,Value);
+    ccfGRUPOSFILIAIS : Result := dtmRelatorioChequesVencimentos.ExisteGrupoFilial(NomeCampo,Value);
+    else               Result := False;
+  end;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.InternoImpressao;
+begin
+  inherited;
+  MontaPesquisa;
+end;
+
+function TfrmRelatorioChequesVencimentos.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result:= mrNone;
+  if CtrlOn then begin
+    if ActiveControl is TtecFindCustom then begin
+      if edfFilial.Focused then
+        TipoConsulta:= ccfFILIAIS
+      else
+        if edfGrupoFilial.Focused then
+      TipoConsulta:=ccfGRUPOSFILIAIS;
+      case TipoConsulta of
+        ccfFILIAIS      : Titulo:= 'Filial';
+        ccfGRUPOSFILIAIS: Titulo:= 'Grupo Filial';
+      end;
+      dtmRelatorioChequesVencimentos.Abre(ctChequesConsulta);
+      Result := inherited InternoPesquisar(Titulo);
+      if (Result = mrOk) then begin
+        case TipoConsulta of
+          ccfFILIAIS      : dtmRelatorioChequesVencimentos.RefazConsultaTabelas(TipoConsulta);
+          ccfGRUPOSFILIAIS: dtmRelatorioChequesVencimentos.RefazConsultaTabelas(TipoConsulta);
+        end;
+      end;
+      dtmRelatorioChequesVencimentos.Fecha(ctChequesConsulta);
+    end;
+  end;
+end;
+
+function TfrmRelatorioChequesVencimentos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.MontaPesquisa;
+var
+  Aux: Boolean;
+begin
+  with dtmRelatorioChequesVencimentos do
+  begin
+    ParametroCabecalho:='';
+    if ActiveControl is TtecFindCustom then
+      if TtecFindCustom(ActiveControl).Text = '' then
+           Aux := True
+      else Aux := TtecFindCustom(ActiveControl).Exist
+    else
+      Aux := True;
+
+    if Aux then begin
+      if PodeGerarRelatorio then begin
+
+        if rbnAnalitico.Checked then  Relatorio:= 0
+        else                          Relatorio:= 1;
+
+        if rbnAmbos.Checked then      TipoCheque:= 0
+        else if rbnVista.Checked then TipoCheque:= 1
+        else                          TipoCheque:= 2;
+
+        porFilial(edfFilial.Text);
+        porGrupoFilial(edfGrupoFilial.Text);
+        porPeriodo(TipoRelatorio,
+                   edtInicioPeriodo.Text,
+                   edtTermioPeriodo.Text,
+                   edtInicioDevolucao.Text,
+                   edttermioDevolucao.Text);
+
+        if rbnListarRemessa.Checked then         Remessa:= 0
+        else if rbnNaoListarRemessa.Checked then Remessa:= 1
+        else                                     Remessa:= 2;
+
+        SituacaoCheque:= edtSituacao.Text;
+        if not rbnDevolucoes.Checked then
+          ComResgate:= 2
+        else begin
+          if rbnNaoListar.Checked then    ComResgate:= 0
+          else if rbnSoMenor.Checked then ComResgate:= 1
+          else                            ComResgate:= 2;
+        end;
+
+        if not rbnDevolucoes.Checked then
+          Considerar:= 2
+        else begin
+          if rbnPrimeiraDevolucao.Checked then     Considerar:= 0
+          else if rbnSegundaDevolucao.Checked then Considerar:= 1
+          else                                     Considerar:= 2;
+        end;
+
+        Situacao(TipoRelatorio);
+
+        if not gbxAgrupar.Enabled                then Agrupar:= 2
+        else if rbnTotalSinteticoVencto.Checked  then Agrupar:= 0
+        else if rbnTotalSinteticoEmissao.Checked then Agrupar:= 1;
+
+        ListarObs := ckbListarObs.Checked;
+        CopiarMacros;
+        Cobradores := fraSelecaoAleatoriaCobrador.StringSelecionada;
+        Cobrador := rgpCobrador.ItemIndex;
+        Ordenarpor := fraordenacao1.ListaOrdenacao;
+
+        if AbrirConsultas then
+          ImprimirRelatorio(TipoRelatorio)
+        else
+         begin
+          MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+          if pgcFilialGrupoFilial.ActivePageIndex = 0 then
+               edfFilial.SetFocus
+          else edfGrupoFilial.SetFocus;
+         end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.pgcFilialGrupoFilialChange(Sender: TObject);
+begin
+  inherited;
+  if pgcFilialGrupoFilial.ActivePage = tstFilial then begin
+    dtmRelatorioChequesVencimentos.ZerarCampos(ccfGRUPOSFILIAIS);
+    edfGrupoFilial.Clear;
+  end
+  else begin
+    dtmRelatorioChequesVencimentos.ZerarCampos(ccfFILIAIS);
+    edfFilial.Clear;
+  end;
+end;
+
+function TfrmRelatorioChequesVencimentos.PodeGerarRelatorio: Boolean;
+begin
+  Result := (edtInicioPeriodo.DataValida and edttermioPeriodo.DataValida);
+  if Result then
+  begin
+   if (not dataembranco(edtInicioPeriodo.text) and not dataembranco(edttermioPeriodo.text)) then
+     Result:=StrToDate(edtInicioPeriodo.Text) <= StrToDate(edttermioPeriodo.Text);
+   if result then
+   begin
+     Result:=(not dataembranco(edtInicioPeriodo.text) or not dataembranco(edttermioPeriodo.text));
+     if Result then
+       Result:=OperadorTernario(Trim(edfFilial.Text) <> '',(edfFilial.Exist), True)
+               and
+               OperadorTernario(Trim(edfGrupoFilial.Text) <> '',(edfGrupoFilial.Exist), True)
+     else
+     begin
+      MensagemAviso(ctDATAINVALIDA);
+      edtInicioPeriodo.SetFocus;
+     end;
+   end
+   else
+   begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      edtInicioPeriodo.SetFocus;
+   end;
+  end;
+
+
+  if result and gbxPeriodoDevolucao.visible then
+  begin
+
+   if (not dataembranco(edtInicioDevolucao.text) and not dataembranco(edttermioDevolucao.text)) then
+     Result:=StrToDate(edtInicioDevolucao.Text) <= StrToDate(edttermioDevolucao.Text);
+
+   if result then
+   begin
+     Result:=(not dataembranco(edtInicioDevolucao.text) or not dataembranco(edttermioDevolucao.text));
+     if not Result then
+     begin
+      MensagemAviso(ctDATAINVALIDA);
+      edtInicioDevolucao.SetFocus;
+     end;
+   end
+   else
+   begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      edtInicioDevolucao.SetFocus;
+   end;
+
+
+  end;
+
+end;
+
+procedure TfrmRelatorioChequesVencimentos.sbnConsultaFilialClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfFilial, ctGRUPOFILIAIS);
+end;
+
+procedure TfrmRelatorioChequesVencimentos.sbnConsultaGrupoFilialClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfGrupoFilial, ctGRUPOFILIAIS);
+end;
+
+function TfrmRelatorioChequesVencimentos.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoConsulta of
+    ccfFILIAIS       : Result := dtmRelatorioChequesVencimentos.TabelaConsultaFiliais;
+    ccfGRUPOSFILIAIS : Result := dtmRelatorioChequesVencimentos.TabelaConsultaGrupoFilial;
+    else               Result := nil;
+  end;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.rbnVencimentosClick(Sender: TObject);
+begin
+  inherited;
+  TipoRelatorio:= rcVENCIMENTOS;
+  gbxPeriodoDevolucao.visible := false;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.rbnRecebimentosClick(Sender: TObject);
+begin
+  inherited;
+  TipoRelatorio:= rcRECEBIMENTOS;
+  gbxPeriodoDevolucao.visible := false;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.rbnDevolucoesClick(Sender: TObject);
+begin
+  inherited;
+  TipoRelatorio:= rcDEVOLUCOES;
+  gbxPeriodoDevolucao.visible := true;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.AtribuirDadosCobrador;
+begin
+  with fraSelecaoAleatoriaCobrador do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsInteger :=
+        ConsultaSelecaoAleatoria.qryProcuraCobrador.fieldbyname('codigo').AsInteger;
+
+    qrySelecaoAleatoria.FieldByName('nome').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraCobrador.fieldbyname('nome').AsString;
+
+    qrySelecaoAleatoria.Post;
+
+  end;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.fraSelecaoAleatoriaCobradorqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  with fraSelecaoAleatoriaCobrador do
+  begin
+    qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'Código';
+    qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('nome').DisplayLabel := 'Nome';
+    qrySelecaoAleatoria.FieldByName('nome').ReadOnly := true;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+  end;
+
+end;
+
+procedure TfrmRelatorioChequesVencimentos.AcionarPesquisaGrade;
+begin
+  with fraSelecaoAleatoriaCobrador do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar(ctCOBRADORES);
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.fraSelecaoAleatoriaCobradordbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  acionarPesquisaGrade;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.fraSelecaoAleatoriaCobradordbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     fraSelecaoAleatoriaCobrador.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or fraSelecaoAleatoriaCobrador.ConsultaSelecaoAleatoria.CtrlOn then
+                       AcionarPesquisaGrade
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaCobrador.dbgSelecaoAleatoria.SelectedIndex = 0  then
+                begin
+                  fraSelecaoAleatoriaCobrador.ConsultaSelecaoAleatoria.edfCodigo.DoExit;
+                  if not fraSelecaoAleatoriaCobrador.ConsultaSelecaoAleatoria.qryProcuraCobrador.IsEmpty then
+                    AtribuirDadosCobrador
+                  else
+                  begin
+                    key := 0;
+                    fraSelecaoAleatoriaCobrador.dbgSelecaoAleatoria.SelectedIndex := 0;
+                    fraSelecaoAleatoriaCobrador.dbgSelecaoAleatoria.SetFocus;
+                  end;
+                end;
+  end;
+  inherited;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.fraSelecaoAleatoriaCobradorsbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGrade;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.rbnCanceladosClick(
+  Sender: TObject);
+begin
+  inherited;
+  TipoRelatorio := rcCANCELAMENTOS;
+  gbxPeriodoDevolucao.visible := false;
+end;
+
+procedure TfrmRelatorioChequesVencimentos.rbnInutilizadosClick(
+  Sender: TObject);
+begin
+  inherited;
+  TipoRelatorio := rcINUTILIZADOS;
+  gbxPeriodoDevolucao.visible := false;
+end;
+
+end.

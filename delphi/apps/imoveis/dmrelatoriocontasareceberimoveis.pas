@@ -1,0 +1,448 @@
+unit dmrelatoriocontasareceberimoveis;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, ctconstantes, dmtecsoft, FR_DSet,
+  FR_DBSet, FR_Class, biblio, clparametrossistema, fmpreviewpadrao,
+  FR_Desgn, StdCtrls, Variants, Graphics, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, ZTransact, dateutils, frxClass, frxDBSet,
+  frxExportXML, frxExportImage, frxExportCSV, frxExportText, frxExportRTF,
+  frxExportHTML, frxExportPDF, frxExportODF, frxExportTXT, frxExportMail,
+  frxExportXLS;
+
+type TTecTipoRelatorioContasaReceberImoveis = (Completo, Mensal, Diario1, Diario2);
+
+type
+  TdtmrelatorioContasaReceberImoveis = class(TdtmBasico)
+    qryrelatorioContasaReceberImoveis: TtecQuery;
+    dsrrelatorioContasaReceberImoveis: TtecDataSource;
+    frxrelatorioContasaReceberImoveis: TfrxReport;
+    frxDBrelatorioContasaReceberImoveis_: TfrxDBDataset;
+    frxDBrelatorioContasaReceberImoveis: TfrxDBDataset;
+    qryRelatorioContasaReceberImoveiscontrato: TIntegerField;
+    qryRelatorioContasaReceberImoveiscliente: TIntegerField;
+    qryRelatorioContasaReceberImoveisnomecliente: TStringField;
+    qryRelatorioContasaReceberImoveistipo: TStringField;
+    qryRelatorioContasaReceberImoveisorigem: TStringField;
+    qryRelatorioContasaReceberImoveisdatavencto: TDateField;
+    qryRelatorioContasaReceberImoveisvalorcontratado: TFloatField;
+    qryRelatorioContasaReceberImoveisvalordevido: TFloatField;
+    qryRelatorioContasaReceberImoveisobservacoes: TStringField;
+    qryRelatorioContasaReceberImoveisnomesituacao: TStringField;
+    qryRelatorioContasaReceberImoveisnomeempreendimento: TStringField;
+    qryRelatorioContasaReceberImoveissiglaempreendimento: TStringField;
+    qryRelatorioContasaReceberImoveismesvencto_: TMemoField;
+    qryRelatorioContasaReceberImoveismesvencto: TMemoField;
+    qryRelatorioContasaReceberImoveissituacao: TStringField;
+    frxRelatorioContasaReceberImoveisMensal: TfrxReport;
+    qryRelatorioContasaReceberImoveisMensal: TtecQuery;
+    qryRelatorioContasaReceberImoveisMensalmesvencto_: TMemoField;
+    qryRelatorioContasaReceberImoveisMensalmesvencto: TMemoField;
+    qryRelatorioContasaReceberImoveisMensalnomeempreendimento: TStringField;
+    qryRelatorioContasaReceberImoveisMensalsiglaempreendimento: TStringField;
+    qryRelatorioContasaReceberImoveisMensalvalorcontratado: TFloatField;
+    qryRelatorioContasaReceberImoveisMensalvalordevido: TFloatField;
+    frxDBRelatorioContasaReceberImoveisMensal: TfrxDBDataset;
+    qryMensal: TtecQuery;
+    qryMensalanomes: TStringField;
+    qryMensalMesAnoExtenso: TStringField;
+    frxDBDadosMensal: TfrxDBDataset;
+    frxDBMensal: TfrxDBDataset;
+    dsrRelatorioContasaReceberImoveisMensal: TtecDataSource;
+    qryQuebraPagina: TtecQuery;
+    dsrQuebraPagina: TtecDataSource;
+    frxDBQuebraPagina: TfrxDBDataset;
+    qryMensalpagina: TIntegerField;
+    qryQuebraPaginapagina: TIntegerField;
+    qryRelatorioContasaReceberImoveisMensalpagina: TIntegerField;
+    qryDiario: TtecQuery;
+    dsrDiario: TtecDataSource;
+    qryRelatorioContasaReceberImoveisMensaldia: TIntegerField;
+    frxRelatorioContasaReceberImoveisDiario: TfrxReport;
+    qryRelatorioContasaReceberImoveisAgrupamentodia: TtecQuery;
+    qryRelatorioContasaReceberImoveisSemAgrupamentodia: TtecQuery;
+    qryRelatorioContasaReceberImoveisVencto: TtecQuery;
+    qryRelatorioContasaReceberImoveisVenctocontrato: TIntegerField;
+    qryRelatorioContasaReceberImoveisVenctocliente: TIntegerField;
+    qryRelatorioContasaReceberImoveisVenctonomecliente: TStringField;
+    qryRelatorioContasaReceberImoveisVenctodatavencto: TDateField;
+    qryRelatorioContasaReceberImoveisVenctovalordevido: TFloatField;
+    qryRelatorioContasaReceberImoveisVenctosituacao: TStringField;
+    qryRelatorioContasaReceberImoveisVenctonomeempreendimento: TStringField;
+    qryRelatorioContasaReceberImoveisVenctosiglaempreendimento: TStringField;
+    frxDBRelatorioContasaReceberImoveisVencto: TfrxDBDataset;
+    qryDiariodatavencto: TDateField;
+    qryDiarioquebra: TLargeintField;
+    qryQuebraPaginaDiario: TtecQuery;
+    dsrQuebraPaginaDiario: TtecDataSource;
+    qryQuebraPaginaDiarioquebra: TLargeintField;
+    frxDBDiario: TfrxDBDataset;
+    frxDBQuebraPaginaDiario: TfrxDBDataset;
+    qryRelatorioContasaReceberImoveisVenctoquebra: TLargeintField;
+    qryRelatorioContasaReceberImoveisVenctoempreendimento: TIntegerField;
+    dsrRelatorioContasaReceberImoveisVencto: TtecDataSource;
+    frxRelatorioContasaReceberImoveisVencto: TfrxReport;
+    frxDBRelatorioContasaReceberImoveisVencto_: TfrxDBDataset;
+    frxRelatorioContasaReceberImoveisVencto_: TfrxReport;
+    frxXLSExport1: TfrxXLSExport;
+    frxMailExport1: TfrxMailExport;
+    frxTXTExport1: TfrxTXTExport;
+    frxODSExport1: TfrxODSExport;
+    frxODTExport1: TfrxODTExport;
+    frxPDFExport1: TfrxPDFExport;
+    frxHTMLExport1: TfrxHTMLExport;
+    frxRTFExport1: TfrxRTFExport;
+    frxBMPExport1: TfrxBMPExport;
+    frxTIFFExport1: TfrxTIFFExport;
+    frxGIFExport1: TfrxGIFExport;
+    frxSimpleTextExport1: TfrxSimpleTextExport;
+    frxCSVExport1: TfrxCSVExport;
+    frxJPEGExport1: TfrxJPEGExport;
+    frxXMLExport1: TfrxXMLExport;
+    procedure qryrelatorioContasaReceberImoveisBeforeOpen(DataSet: TDataSet);
+    procedure frxrelatorioContasaReceberImoveisGetValue(const VarName: String;
+      var Value: Variant);
+    procedure qryMensalCalcFields(DataSet: TDataSet);
+    procedure qryRelatorioContasaReceberImoveisMensalBeforeOpen(
+      DataSet: TDataSet);
+    procedure qryRelatorioContasaReceberImoveisVenctoBeforeOpen(
+      DataSet: TDataSet);
+  private
+    FCliente: Integer;
+    FEmpreendimento: Integer;
+    FDataInicial: TDateTime;
+    FDataFinal: TDateTime;
+    FContaPagto: integer;
+    fVendidos: Boolean;
+    fTransferidos: Boolean;
+    fRescindidos: Boolean;
+    fRenegociados: Boolean;
+    FDataSituacaoEm: TDateTime;
+    fOrdenacao: String;
+    fOrdenacaoI : Integer;
+    fAgruparEmpreendimento: Boolean;
+    fTipoRelatorio: TTecTipoRelatorioContasaReceberImoveis;
+    procedure setOrdenacao(const Value: Integer);
+    procedure AtribuirParametros;
+    { Private declarations }
+  public
+    { Public declarations }
+    fParametroCabecalho: String;
+    vListaSituacao: String;
+    property DataInicial : TDateTime read FDataInicial write FDataInicial;
+    property DataFinal : TDateTime read FDataFinal write FDataFinal;
+    property DataSituacaoEm : TDateTime read FDataSituacaoEm write FDataSituacaoEm;
+
+    property Empreendimento : Integer read FEmpreendimento write fEmpreendimento;
+    property Cliente : Integer read FCliente write FCliente;
+    property ContaPagto : integer read FContaPagto write FContaPagto;
+
+    property Vendidos     : Boolean read fVendidos     write fVendidos;
+    property Rescindidos  : Boolean read fRescindidos  write fRescindidos;
+    property Transferidos : Boolean read fTransferidos write fTransferidos;
+    property Renegociados : Boolean read fRenegociados write fRenegociados;
+    property Ordenacao    : Integer write setOrdenacao;
+
+    property TipoRelatorio : TTecTipoRelatorioContasaReceberImoveis read fTipoRelatorio write fTipoRelatorio;
+
+    property AgruparEmpreendimento : Boolean read fAgruparEmpreendimento write fAgruparEmpreendimento;
+    procedure ImprimirRelatorio;
+    procedure MontarListaSituacao;
+  end;
+
+var
+  dtmrelatorioContasaReceberImoveis: TdtmrelatorioContasaReceberImoveis;
+
+implementation
+
+{$R *.dfm}
+
+procedure TdtmrelatorioContasaReceberImoveis.ImprimirRelatorio;
+var
+  PV: TfrxComponent;
+begin
+   AtribuirParametros;
+  AtribuirParametrosBaseRelatorio;
+
+//  frxReport3.DesignReport(true,true);
+
+  case tiporelatorio of
+    Completo :
+    begin
+      qryrelatorioContasaReceberImoveis.Close;
+      qryrelatorioContasaReceberImoveis.Open;
+      if FileExists(LogotipoFilialBase) then
+      begin
+        PV := frxrelatorioContasaReceberImoveis.FindObject('fpvLogo');
+        if (PV is TfrxPictureView) then
+          TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+      end;
+//      frxrelatorioContasaReceberImoveis.DesignReport(true,true);
+      frxrelatorioContasaReceberImoveis.ShowReport(true);
+    end;
+    Mensal   :
+    begin
+      qryQuebraPagina.Close;
+      qryQuebraPagina.Open;
+
+      qryMensal.close;
+      qryMensal.open;
+
+      qryRelatorioContasaReceberImoveisMensal.close;
+      qryRelatorioContasaReceberImoveisMensal.open;
+      if FileExists(LogotipoFilialBase) then
+      begin
+        PV := frxRelatorioContasaReceberImoveisMensal.FindObject('fpvLogo');
+        if (PV is TfrxPictureView) then
+          TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+      end;
+
+//      frxRelatorioContasaReceberImoveisMensal.DesignReport(true,true);
+      frxRelatorioContasaReceberImoveisMensal.ShowReport(true);
+
+    end;
+
+    Diario1   :
+    begin
+      qryQuebraPagina.Close;
+      qryQuebraPagina.Open;
+
+      qryMensal.close;
+      qryMensal.open;
+
+      qryRelatorioContasaReceberImoveisMensal.close;
+      qryRelatorioContasaReceberImoveisMensal.open;
+      if FileExists(LogotipoFilialBase) then
+      begin
+        PV := frxRelatorioContasaReceberImoveisDiario.FindObject('fpvLogo');
+        if (PV is TfrxPictureView) then
+          TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+      end;
+
+//      frxRelatorioContasaReceberImoveisDiario.DesignReport(true,true);
+      frxRelatorioContasaReceberImoveisDiario.ShowReport(true);
+
+    end;
+
+    Diario2   :
+    begin
+      qryQuebraPaginaDiario.Close;
+      qryQuebraPaginaDiario.Open;
+
+      qryDiario.close;
+      qryDiario.open;
+
+      qryRelatorioContasaReceberImoveisVencto.close;
+      qryRelatorioContasaReceberImoveisVencto.open;
+      if FileExists(LogotipoFilialBase) then
+      begin
+        PV := frxRelatorioContasaReceberImoveisVencto.FindObject('fpvLogo');
+        if (PV is TfrxPictureView) then
+          TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+      end;
+
+//      frxRelatorioContasaReceberImoveisVencto.DesignReport(true,true);
+      frxRelatorioContasaReceberImoveisVencto.ShowReport(true);
+
+    end;
+
+
+  end;
+
+end;
+
+
+procedure TdtmrelatorioContasaReceberImoveis.qryrelatorioContasaReceberImoveisBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  AtribuirParametros;
+end;
+
+procedure TdtmrelatorioContasaReceberImoveis.setOrdenacao(
+  const Value: Integer);
+begin
+
+  fOrdenacaoI := value;
+
+  if AgruparEmpreendimento then
+  begin
+    case value of
+    0: fordenacao := 'order by nomeempreendimento, contrato ';
+    1: fordenacao := 'order by nomeempreendimento, nomecliente, cliente, contrato';
+    end;
+  end
+  else
+  begin
+    case value of
+    0: fordenacao := 'order by contrato';
+    1: fordenacao := 'order by nomecliente, cliente, contrato';
+    end;
+  end;
+
+  if TipoRelatorio = Diario2 then
+    fordenacao := fordenacao + ', datavencto';
+
+end;
+
+procedure TdtmrelatorioContasaReceberImoveis.frxrelatorioContasaReceberImoveisGetValue(
+  const VarName: String; var Value: Variant);
+begin
+  inherited;
+  if VarName = 'TITULO' then
+  begin
+    Value := 'CONTAS A RECEBER DOS IMÓVEIS ENTRE '+FormatDateTime('DD/MM/YYYY',FDataInicial)+
+             ' E ' + FormatDateTime('DD/MM/YYYY',FDataFinal) + ' SITUAÇÃO EM ' + FormatDateTime('DD/MM/YYYY',DataSituacaoEm);
+
+    case TipoRelatorio of
+      Completo : Value := Value + ' - COMPLETO';
+      Mensal   : Value := Value + ' - MENSAL';
+      Diario1, Diario2   : Value := Value + ' - DIÁRIO';
+    end;
+
+  end
+  else
+  if VarName = 'SUBTITULO' then
+  begin
+    Value := fparametrocabecalho
+  end
+  else if VarName = 'Ordenacao' then
+    Value := fOrdenacaoI
+  else if VarName = 'AgruparEmpreendimento' then
+    Value := AgruparEmpreendimento
+  else if VarName = 'CordoZebrado' then
+    Value := strtoint(parsistema.CorZebradoRelatorio)
+  else if VarName = 'RAZAOFILIALBASE' then
+    Value := RazaoFilialBase
+  else if VarName = 'ENDERECO_BAIRRO' then
+    Value := RuaFilialBase+ ' - '+BairroFilialBase
+  else if VarName = 'CEP_CIDADE_UF' then
+    Value := FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase
+
+end;
+
+
+
+procedure TdtmrelatorioContasaReceberImoveis.qryMensalCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if (qryMensalpagina.asinteger = 1) and
+     (copy(qryMensalanomes.asstring, 6,2)='00') then
+    qryMensalMesAnoExtenso.asString := 'Anterior'
+  else
+  if (qryMensalpagina.asinteger <> 1) and
+     (copy(qryMensalanomes.asstring, 6,2)='00') then
+    qryMensalMesAnoExtenso.asString := ''
+  else
+  if (qryMensalpagina.asinteger = qryQuebraPagina.recordcount) and
+     (copy(qryMensalanomes.asstring, 6,2)='99') then
+    qryMensalMesAnoExtenso.asString := 'A Vencer'
+  else
+  if (qryMensalpagina.asinteger <> qryQuebraPagina.recordcount) and
+     (copy(qryMensalanomes.asstring, 6,2)='99') then
+    qryMensalMesAnoExtenso.asString := ''
+  else
+    qryMensalMesAnoExtenso.asString := uppercase(NomeMesesAbrev[strtoint(copy(qryMensalanomes.asString,6,2))] + '/'+ copy(qryMensalanomes.asString,1,4));
+end;
+
+procedure TdtmrelatorioContasaReceberImoveis.AtribuirParametros;
+begin
+
+
+
+  qryrelatorioContasaReceberImoveis.ParamByName('AgruparEmpreendimento').AsBoolean  := AgruparEmpreendimento;
+  qryrelatorioContasaReceberImoveis.ParamByName('DataInicial').AsDateTime:= FDataInicial;
+  qryrelatorioContasaReceberImoveis.ParamByName('DataFinal').AsDateTime  := FDataFinal;
+
+  qryrelatorioContasaReceberImoveis.ParamByName('DataSituacaoEm').AsDateTime  := FDataSituacaoEm;
+
+  if FEmpreendimento > 0 then
+    qryrelatorioContasaReceberImoveis.MacroByName('WhereEmpreendimentos').AsString:= 'AND vi.empreendimento = '+IntToStr(FEmpreendimento)
+  else
+    qryrelatorioContasaReceberImoveis.MacroByName('WhereEmpreendimentos').AsString:= '';
+
+  if FCliente > 0 then
+    qryrelatorioContasaReceberImoveis.MacroByName('WhereClientes').AsString:= 'and comp.cliente = ' + inttostr(FCliente)
+  else
+    qryrelatorioContasaReceberImoveis.MacroByName('WhereClientes').AsString:= '';
+
+  if vListaSituacao <> '' then
+  begin
+    qryrelatorioContasaReceberImoveis.MacroByName('ListaSituacao').AsString:= 'and vi.situacao in ('+vListaSituacao+')';
+  end
+  else
+    qryrelatorioContasaReceberImoveis.MacroByName('ListaSituacao').AsString:= 'and vi.situacao in ('+'''V'',''S'',''F'',''D'''+')';
+
+  qryrelatorioContasaReceberImoveis.MacroByName('Ordenacao').AsString:= fordenacao;
+
+  qryRelatorioContasaReceberImoveisMensal.Params := qryRelatorioContasaReceberImoveis.Params;
+  qryRelatorioContasaReceberImoveisMensal.Macros := qryRelatorioContasaReceberImoveis.Macros;
+  qryQuebraPagina.Params := qryRelatorioContasaReceberImoveis.Params;
+  qryMensal.Params := qryRelatorioContasaReceberImoveis.Params;
+
+  qryRelatorioContasaReceberImoveisVencto.Params := qryRelatorioContasaReceberImoveis.Params;
+  qryRelatorioContasaReceberImoveisVencto.Macros := qryRelatorioContasaReceberImoveis.Macros;
+
+  qryQuebraPaginaDiario.Params := qryRelatorioContasaReceberImoveis.Params;
+  qryQuebraPaginaDiario.Macros := qryRelatorioContasaReceberImoveis.Macros;
+
+  qryDiario.Params := qryRelatorioContasaReceberImoveis.Params;
+  qryDiario.Macros := qryRelatorioContasaReceberImoveis.Macros;
+
+
+end;
+
+procedure TdtmrelatorioContasaReceberImoveis.MontarListaSituacao;
+begin
+
+  vListaSituacao := '';
+
+  if Vendidos then
+    vListaSituacao := vListaSituacao + quotedstr('V')+',';
+
+  if Rescindidos then
+    vListaSituacao := vListaSituacao + quotedstr('S')+',';
+
+  if Transferidos then
+    vListaSituacao := vListaSituacao + quotedstr('F')+',';
+
+  if Renegociados then
+    vListaSituacao := vListaSituacao + quotedstr('D')+',';
+
+  if vListaSituacao <> '' then
+    delete(vListaSituacao, length(vListaSituacao), 1);
+
+  if vListaSituacao <> '' then begin
+     fParametroCabecalho:= fParametroCabecalho + ' Situações: ';
+     if Vendidos          then fParametroCabecalho:= fParametroCabecalho + ' VENDIDOS,';
+     if Rescindidos       then fParametroCabecalho:= fParametroCabecalho + ' RESCINDIDOS,';
+     if Transferidos {De} then fParametroCabecalho:= fParametroCabecalho + ' TRANSFERIDOS,';
+     if Renegociados {De} then fParametroCabecalho:= fParametroCabecalho + ' RENEGOCIADOS,';
+     Delete(fParametroCabecalho,Length(fParametroCabecalho),1);
+  end;
+end;
+
+procedure TdtmrelatorioContasaReceberImoveis.qryRelatorioContasaReceberImoveisMensalBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if (TipoRelatorio = Diario1) then
+  begin
+   if not  AgruparEmpreendimento then
+     qryRelatorioContasaReceberImoveisMensal.sql.text := qryRelatorioContasaReceberImoveisAgrupamentodia.sql.Text
+   else
+     qryRelatorioContasaReceberImoveisMensal.sql.text := qryRelatorioContasaReceberImoveisSemAgrupamentodia.sql.Text;
+  end;
+  AtribuirParametros;
+end;
+
+procedure TdtmrelatorioContasaReceberImoveis.qryRelatorioContasaReceberImoveisVenctoBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  AtribuirParametros;
+end;
+
+end.

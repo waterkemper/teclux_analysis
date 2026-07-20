@@ -1,0 +1,1541 @@
+inherited dtmImprimeOsp: TdtmImprimeOsp
+  OldCreateOrder = False
+  Left = 566
+  Top = 137
+  Height = 493
+  Width = 640
+  object qryOsp: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryOspCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select osp.numero,'
+      '       osp.entrega,'
+      
+        '       CAST(TRIM(TO_CHAR(OSP.Semana, '#39'00'#39')) AS VARCHAR) AS Seman' +
+        'a,'
+      '       CAST(NULL AS DOUBLE PRECISION) AS SemanaFabr,'
+      '       CAST(NULL AS VARCHAR)          AS AnoFabr,'
+      ''
+      '       cast(substring(osp.ano,3,2)as varchar) as ano,'
+      '       osp.prioridade,'
+      '       osp.observacoes as observacoes,'
+      '       cp.carimbo as dadosmarcacao,'
+      '       osp.produto,'
+      '       osp.data,'
+      '       osp.cliente,'
+      '       osp.tipocliente,'
+      ''
+      '       CAST(UPPER(TO_ASCII(CASE WHEN c.TipoProduto = '#39'05'#39
+      
+        '                                THEN COALESCE(c.SetorProducao ||' +
+        ' '#39'-'#39' ||'
+      
+        '                                              (SELECT Descricao ' +
+        'FROM SetoresProducao'
+      
+        '                                                  WHERE Codigo =' +
+        ' c.SetorProducao), '#39#39')'
+      '                                ELSE cl.Apelido'
+      
+        '                            END, '#39'LATIN1'#39')) AS VARCHAR) AS NomeC' +
+        'liente,'
+      ''
+      '       osp.pedidocliente,'
+      ''
+      ''
+      '       CASE WHEN c.Unidade = '#39'MIL'#39' THEN 1000 * OSP.Quantidade'
+      '            WHEN c.Unidade = '#39'CT'#39'  THEN  100 * OSP.Quantidade'
+      '                                   ELSE        OSP.Quantidade'
+      '       END AS Quantidade,'
+      ''
+      ''
+      '       ospl.numero as numerolote,'
+      '       ospl.quantidade as quantidadelote,'
+      '       cast(null as numeric(9,3)) as quantidade_anterior,'
+      '       osp.preco,'
+      '       p.codigovisual as produtovisual,'
+      '       p.caracteristica,'
+      '       c.codigovisual as caracteristicavisual,'
+      '       cp.pn,'
+      '       cp.origem,'
+      '       cp.revisao,'
+      '       cp.produto_cliente,'
+      '       cp.fluxograma,'
+      '       cp.tamloteproducao as loteproducao,'
+      '       c.unidade,'
+      '       cl.apelido'
+      'from osp'
+      '      join (produtos p'
+      
+        '           join caracteristicas c on p.caracteristica = c.codigo' +
+        ')'
+      '      on osp.produto = p.codigo'
+      '      join clientes cl'
+      '      on osp.cliente = cl.codigo'
+      '      join clientesprodutos cp'
+      '      on osp.cliente = cp.cliente and osp.produto = cp.produto'
+      ''
+      '      join osplotes ospl'
+      '      on osp.numero = ospl.osp'
+      ''
+      'WHERE  osp.numero  = :numero'
+      '  and  ospl.numero = :numerolote'
+      '')
+    RequestLive = False
+    Left = 48
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numerolote'
+        ParamType = ptUnknown
+      end>
+    object qryOspnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '###,##0'
+    end
+    object qryOspentrega: TDateField
+      Alignment = taCenter
+      FieldName = 'entrega'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryOspsemanafabr: TFloatField
+      FieldName = 'semanafabr'
+      DisplayFormat = '0.00'
+    end
+    object qryOspanofabr: TStringField
+      FieldName = 'anofabr'
+      Size = 50
+    end
+    object qryOspano: TStringField
+      FieldName = 'ano'
+      Size = 50
+    end
+    object qryOspprioridade: TIntegerField
+      FieldName = 'prioridade'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOspobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 300
+    end
+    object qryOspdadosmarcacao: TStringField
+      FieldName = 'dadosmarcacao'
+      Size = 100
+    end
+    object qryOspproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryOspdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryOspcliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryOspnomecliente: TStringField
+      FieldName = 'nomecliente'
+      Required = True
+      Size = 40
+    end
+    object qryOsppedidocliente: TStringField
+      FieldName = 'pedidocliente'
+      Size = 15
+    end
+    object qryOspquantidade: TFloatField
+      FieldName = 'quantidade'
+      DisplayFormat = '###,##0'
+    end
+    object qryOspquantidade_anterior: TFloatField
+      FieldName = 'quantidade_anterior'
+      DisplayFormat = '###,##0'
+    end
+    object qryOsppreco: TFloatField
+      FieldName = 'preco'
+      DisplayFormat = '0.00'
+    end
+    object qryOspprodutovisual: TStringField
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryOspcaracteristica: TLargeintField
+      FieldName = 'caracteristica'
+    end
+    object qryOspcaracteristicavisual: TStringField
+      FieldName = 'caracteristicavisual'
+      Size = 30
+    end
+    object qryOspproduto_cliente: TStringField
+      FieldName = 'produto_cliente'
+      Size = 30
+    end
+    object qryOspfluxograma: TIntegerField
+      FieldName = 'fluxograma'
+      DisplayFormat = '0'
+    end
+    object qryOsploteproducao: TIntegerField
+      FieldName = 'loteproducao'
+      DisplayFormat = '###,##0'
+    end
+    object qryOspunidade: TStringField
+      FieldName = 'unidade'
+      Size = 8
+    end
+    object qryOspapelido: TStringField
+      FieldName = 'apelido'
+    end
+    object qryOspsemana: TStringField
+      FieldName = 'semana'
+      Size = 50
+    end
+    object qryOspnumerolote: TIntegerField
+      FieldName = 'numerolote'
+      DisplayFormat = '0'
+    end
+    object qryOspquantidadelote: TFloatField
+      FieldName = 'quantidadelote'
+      DisplayFormat = '###,##0'
+    end
+    object qryOsppn: TStringField
+      FieldName = 'pn'
+      Size = 10
+    end
+    object qryOsporigem: TStringField
+      FieldName = 'origem'
+      Size = 1
+    end
+    object qryOsprevisao: TStringField
+      FieldName = 'revisao'
+      Size = 5
+    end
+    object qryOsppartnumber: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'partnumber'
+      Size = 13
+      Calculated = True
+    end
+    object qryOsptipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+  end
+  object qryProdutosCompostos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select pc.composto,'
+      '       p.descricao,'
+      '       c.unidade,'
+      '       pc.componente,'
+      '       p.codigovisual,'
+      '       pc.quantidade,'
+      '       pc.preco'
+      
+        'from produtoscompostos pc join produtos p ON pc.componente = p.c' +
+        'odigo'
+      
+        '                JOIN caracteristicas c ON c.codigo = p.caracteri' +
+        'stica'
+      'where pc.composto = :composto'
+      '  and pc.imprimirosp'
+      'order by pc.ordem'
+      'limit 13'
+      '')
+    RequestLive = False
+    Left = 168
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'composto'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosCompostoscomposto: TLargeintField
+      FieldName = 'composto'
+    end
+    object qryProdutosCompostosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 40
+    end
+    object qryProdutosCompostosunidade: TStringField
+      FieldName = 'unidade'
+      Size = 8
+    end
+    object qryProdutosCompostoscomponente: TLargeintField
+      FieldName = 'componente'
+    end
+    object qryProdutosCompostosquantidade: TFloatField
+      FieldName = 'quantidade'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosCompostospreco: TFloatField
+      FieldName = 'preco'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosCompostoscodigovisual: TStringField
+      FieldName = 'codigovisual'
+      Size = 30
+    end
+  end
+  object qryClientesProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT cp.cliente,'
+      '       cp.tipocliente,'
+      '       cp.produto,'
+      '       cp.produto_cliente,'
+      '       cp.finalidade,'
+      '       cp.pn,'
+      '       origem'
+      'FROM clientesprodutos cp'
+      'WHERE cp.cliente = :cliente'
+      '       and cp.tipocliente = :tipocliente'
+      '       and cp.produto = :produto')
+    RequestLive = False
+    Left = 48
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end>
+    object qryClientesProdutoscliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryClientesProdutostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryClientesProdutosproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryClientesProdutosproduto_cliente: TStringField
+      FieldName = 'produto_cliente'
+      Size = 30
+    end
+    object qryClientesProdutosfinalidade: TStringField
+      FieldName = 'finalidade'
+      Size = 30
+    end
+    object qryClientesProdutospn: TStringField
+      FieldName = 'pn'
+      Size = 10
+    end
+    object qryClientesProdutosorigem: TStringField
+      FieldName = 'origem'
+      Size = 1
+    end
+  end
+  object qryFluxogramasOperacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fo.*,'
+      '       o.nome,'
+      '       o.descricao,'
+      '       o.c01 as id01,'
+      '       o.c02 as id02,'
+      '       o.c03 as id03,'
+      '      (SELECT otp.TempoPadrao'
+      '          FROM OperacoesTemposPadrao otp'
+      '          WHERE otp.Operacao = o.Codigo'
+      '          ORDER BY otp.Data DESC LIMIT 1) AS TempoPadrao,'
+      
+        '       cast(case when o.setup = '#39't'#39' then '#39'S'#39' else '#39'N'#39' end as Var' +
+        'char)as setup,'
+      
+        '       cast(case when o.planocontrole = '#39't'#39' then '#39'S'#39' else '#39'N'#39' en' +
+        'd as Varchar)as planocontrole'
+      ''
+      
+        'from fluxogramasoperacoes fo join operacoes o on fo.operacao = o' +
+        '.codigo'
+      ''
+      'where fo.fluxograma = :fluxograma'
+      ''
+      'order by cast(sequencia as numeric)')
+    RequestLive = False
+    Left = 168
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'fluxograma'
+        ParamType = ptUnknown
+      end>
+    object qryFluxogramasOperacoesfluxograma: TIntegerField
+      FieldName = 'fluxograma'
+      DisplayFormat = '0'
+    end
+    object qryFluxogramasOperacoesoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryFluxogramasOperacoessequencia: TStringField
+      FieldName = 'sequencia'
+      Size = 6
+    end
+    object qryFluxogramasOperacoesnome: TStringField
+      FieldName = 'nome'
+      Size = 10
+    end
+    object qryFluxogramasOperacoesdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 60
+    end
+    object qryFluxogramasOperacoesid01: TStringField
+      FieldName = 'id01'
+      Size = 2
+    end
+    object qryFluxogramasOperacoesid02: TStringField
+      FieldName = 'id02'
+      Size = 2
+    end
+    object qryFluxogramasOperacoesid03: TStringField
+      FieldName = 'id03'
+      Size = 2
+    end
+    object qryFluxogramasOperacoestempopadrao: TFloatField
+      FieldName = 'tempopadrao'
+      DisplayFormat = '0.00'
+      EditFormat = '0.00'
+    end
+    object qryFluxogramasOperacoessetup: TStringField
+      FieldName = 'setup'
+      Size = 50
+    end
+    object qryFluxogramasOperacoesplanocontrole: TStringField
+      FieldName = 'planocontrole'
+      Size = 50
+    end
+  end
+  object qryListaComponentes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select cast (null as varchar)as qtde1,'
+      '       cast (null as varchar)as descricao1,'
+      '       cast (null as varchar)as qtde2,'
+      '       cast (null as varchar)as descricao2,'
+      '       cast (null as varchar)as qtde3,'
+      '       cast (null as varchar)as descricao3,'
+      '       cast (null as varchar)as qtde4,'
+      '       cast (null as varchar)as descricao4,'
+      '       cast (null as varchar)as qtde5,'
+      '       cast (null as varchar)as descricao5,'
+      '       cast (null as varchar)as qtde6,'
+      '       cast (null as varchar)as descricao6,'
+      '       cast (null as varchar)as qtde7,'
+      '       cast (null as varchar)as descricao7,'
+      '       cast (null as varchar)as qtde8,'
+      '       cast (null as varchar)as descricao8,'
+      '       cast (null as varchar)as qtde9,'
+      '       cast (null as varchar)as descricao9,'
+      '       cast (null as varchar)as qtde10,'
+      '       cast (null as varchar)as descricao10,'
+      '       cast (null as varchar)as qtde11,'
+      '       cast (null as varchar)as descricao11,'
+      '       cast (null as varchar)as qtde12,'
+      '       cast (null as varchar)as descricao12,'
+      '       cast (null as varchar)as qtde13,'
+      '       cast (null as varchar)as descricao13,'
+      '       cast(null as varchar) as Dados1,'
+      '       cast(null as varchar) as Dados2,'
+      '       cast(null as varchar) as Dados3,'
+      '       cast(null as varchar) as Dados4,'
+      '       cast(null as varchar) as Dados5')
+    RequestLive = True
+    Left = 296
+    Top = 16
+    object qryListaComponentesqtde1: TStringField
+      FieldName = 'qtde1'
+      Size = 50
+    end
+    object qryListaComponentesdescricao1: TStringField
+      FieldName = 'descricao1'
+      Size = 50
+    end
+    object qryListaComponentesqtde2: TStringField
+      FieldName = 'qtde2'
+      Size = 50
+    end
+    object qryListaComponentesdescricao2: TStringField
+      FieldName = 'descricao2'
+      Size = 50
+    end
+    object qryListaComponentesqtde3: TStringField
+      FieldName = 'qtde3'
+      Size = 50
+    end
+    object qryListaComponentesdescricao3: TStringField
+      FieldName = 'descricao3'
+      Size = 50
+    end
+    object qryListaComponentesqtde4: TStringField
+      FieldName = 'qtde4'
+      Size = 50
+    end
+    object qryListaComponentesdescricao4: TStringField
+      FieldName = 'descricao4'
+      Size = 50
+    end
+    object qryListaComponentesqtde5: TStringField
+      FieldName = 'qtde5'
+      Size = 50
+    end
+    object qryListaComponentesdescricao5: TStringField
+      FieldName = 'descricao5'
+      Size = 50
+    end
+    object qryListaComponentesqtde6: TStringField
+      FieldName = 'qtde6'
+      Size = 50
+    end
+    object qryListaComponentesdescricao6: TStringField
+      FieldName = 'descricao6'
+      Size = 50
+    end
+    object qryListaComponentesqtde7: TStringField
+      FieldName = 'qtde7'
+      Size = 50
+    end
+    object qryListaComponentesdescricao7: TStringField
+      FieldName = 'descricao7'
+      Size = 50
+    end
+    object qryListaComponentesqtde8: TStringField
+      FieldName = 'qtde8'
+      Size = 50
+    end
+    object qryListaComponentesdescricao8: TStringField
+      FieldName = 'descricao8'
+      Size = 50
+    end
+    object qryListaComponentesqtde9: TStringField
+      FieldName = 'qtde9'
+      Size = 50
+    end
+    object qryListaComponentesdescricao9: TStringField
+      FieldName = 'descricao9'
+      Size = 50
+    end
+    object qryListaComponentesqtde10: TStringField
+      FieldName = 'qtde10'
+      Size = 50
+    end
+    object qryListaComponentesdescricao10: TStringField
+      FieldName = 'descricao10'
+      Size = 50
+    end
+    object qryListaComponentesqtde11: TStringField
+      FieldName = 'qtde11'
+      Size = 50
+    end
+    object qryListaComponentesdescricao11: TStringField
+      FieldName = 'descricao11'
+      Size = 50
+    end
+    object qryListaComponentesqtde12: TStringField
+      FieldName = 'qtde12'
+      Size = 50
+    end
+    object qryListaComponentesdescricao12: TStringField
+      FieldName = 'descricao12'
+      Size = 50
+    end
+    object qryListaComponentesqtde13: TStringField
+      FieldName = 'qtde13'
+      Size = 50
+    end
+    object qryListaComponentesdescricao13: TStringField
+      FieldName = 'descricao13'
+      Size = 50
+    end
+    object qryListaComponentesdados1: TStringField
+      FieldName = 'dados1'
+      Size = 50
+    end
+    object qryListaComponentesdados2: TStringField
+      FieldName = 'dados2'
+      Size = 50
+    end
+    object qryListaComponentesdados3: TStringField
+      FieldName = 'dados3'
+      Size = 50
+    end
+    object qryListaComponentesdados4: TStringField
+      FieldName = 'dados4'
+      Size = 50
+    end
+    object qryListaComponentesdados5: TStringField
+      FieldName = 'dados5'
+      Size = 50
+    end
+  end
+  object qrySetupOperacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select osp.numero,'
+      '       osp.cliente,'
+      '       cast((extract(day   from now()))||'#39'    '#39'||'
+      '            (extract(month from now()))||'#39'   '#39'||'
+      '            (extract(year  from now()))as varchar) as datasetup,'
+      '       o.nome,'
+      '       o.c01 as id01,'
+      '       o.c02 as id02,'
+      '       o.c03 as id03,'
+      ''
+      
+        '       CAST(UPPER(TO_ASCII(SUBSTRING(o.Descricao,1,45), '#39'LATIN1'#39 +
+        ')) AS VARCHAR(45))AS Descricao,'
+      ''
+      '       fo.operacao,'
+      '       os.sequencia,'
+      
+        '       cast(substring(os.pergunta, 1,56) as varchar(56)) as perg' +
+        'unta,'
+      
+        '       cast(substring(os.resposta, 1,14) as varchar(14)) as resp' +
+        'osta,'
+      '       case when cast(:usuariosetup as integer)<>0 then'
+      '         cast(:usuariosetup as integer)'
+      '       else'
+      '         cast(null as integer) end as UsuarioSetup,'
+      ''
+      '       case when cast(:nomeusuariosetup as varchar(15))<>'#39#39' then'
+      '         cast(:nomeusuariosetup as varchar)'
+      '       else'
+      '         cast(null as varchar(15)) end as NomeUsuarioSetup,'
+      ''
+      '       cp.produto_cliente'
+      ''
+      'from osp'
+      '     join clientesprodutos cp'
+      '          join fluxogramasoperacoes fo'
+      '               join operacoes o'
+      '                    left join operacoessetup os'
+      '                    on o.codigo = os.operacao'
+      '               on fo.operacao = o.codigo'
+      ''
+      ''
+      '          on cp.fluxograma = fo.fluxograma'
+      '     on osp.cliente = cp.cliente and'
+      '        cp.tipocliente = osp.tipocliente and'
+      '        osp.produto = cp.produto'
+      ''
+      'where osp.numero = :osp'
+      '  and fo.operacao = :operacao'
+      '  and o.setup'
+      'order by os.sequencia')
+    RequestLive = False
+    Left = 296
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuariosetup'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nomeusuariosetup'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'osp'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qrySetupOperacoesnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qrySetupOperacoesoperacao: TIntegerField
+      FieldName = 'operacao'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qrySetupOperacoessequencia: TIntegerField
+      FieldName = 'sequencia'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qrySetupOperacoescliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qrySetupOperacoesnome: TStringField
+      FieldName = 'nome'
+      Size = 10
+    end
+    object qrySetupOperacoesdatasetup: TStringField
+      FieldName = 'datasetup'
+    end
+    object qrySetupOperacoesid01: TStringField
+      FieldName = 'id01'
+      Size = 2
+    end
+    object qrySetupOperacoesid02: TStringField
+      FieldName = 'id02'
+      Size = 2
+    end
+    object qrySetupOperacoesid03: TStringField
+      FieldName = 'id03'
+      Size = 2
+    end
+    object qrySetupOperacoesdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 45
+    end
+    object qrySetupOperacoespergunta: TStringField
+      FieldName = 'pergunta'
+      Size = 110
+    end
+    object qrySetupOperacoesresposta: TStringField
+      DisplayWidth = 30
+      FieldName = 'resposta'
+      Size = 30
+    end
+    object qrySetupOperacoesusuariosetup: TIntegerField
+      FieldName = 'usuariosetup'
+      DisplayFormat = '0'
+    end
+    object qrySetupOperacoesnomeusuariosetup: TStringField
+      FieldName = 'nomeusuariosetup'
+      Size = 50
+    end
+    object qrySetupOperacoesproduto_cliente: TStringField
+      FieldName = 'produto_cliente'
+      Size = 30
+    end
+  end
+  object qryDescricaoOperacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'Select cast(substring(o.descricaosetup,1,880) as VARCHAR(880)) a' +
+        's descricaosetup'
+      'from operacoes o'
+      'where codigo =:operacao'
+      '  and o.setup')
+    RequestLive = False
+    Left = 408
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryDescricaoOperacoesdescricaosetup: TStringField
+      FieldName = 'descricaosetup'
+      Size = 1716
+    end
+  end
+  object qryOperacoesSetup: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterInsert = qryOperacoesSetupAfterInsert
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fo.operacao,'
+      '       o.nome,'
+      '       o.c01,'
+      '       o.c02,'
+      '       o.c03,'
+      '       true as selecionar'
+      ''
+      'from osp'
+      '     join clientesprodutos cp'
+      '          join fluxogramasoperacoes fo'
+      '               join operacoes o'
+      '               on fo.operacao = o.codigo'
+      '          on cp.fluxograma = fo.fluxograma'
+      '     on osp.cliente = cp.cliente and'
+      '        cp.tipocliente = osp.tipocliente and'
+      '        osp.produto = cp.produto'
+      ''
+      'where osp.numero = :osp'
+      '      and o.setup'
+      '      '
+      'order by cast(fo.sequencia as numeric)')
+    RequestLive = True
+    Left = 296
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'OSP'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesSetupnome: TStringField
+      FieldName = 'nome'
+      ReadOnly = True
+      Size = 10
+    end
+    object qryOperacoesSetupc01: TStringField
+      FieldName = 'c01'
+      ReadOnly = True
+      Size = 2
+    end
+    object qryOperacoesSetupc02: TStringField
+      FieldName = 'c02'
+      ReadOnly = True
+      Size = 2
+    end
+    object qryOperacoesSetupoperacao: TIntegerField
+      FieldName = 'operacao'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOperacoesSetupc03: TStringField
+      FieldName = 'c03'
+      ReadOnly = True
+      Size = 2
+    end
+    object qryOperacoesSetupselecionar: TBooleanField
+      FieldName = 'selecionar'
+    end
+  end
+  object qryFios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT pcfi.*'
+      ''
+      'FROM produtoscompostosfios pcfi'
+      ''
+      'WHERE pcfi.composto = :composto'
+      'order by pcfi.ordem')
+    RequestLive = True
+    Left = 88
+    Top = 256
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'composto'
+        ParamType = ptUnknown
+      end>
+    object qryFioscomposto: TLargeintField
+      FieldName = 'composto'
+      Required = True
+    end
+    object qryFioscomponente: TStringField
+      FieldName = 'componente'
+      Required = True
+    end
+    object qryFiosordem: TIntegerField
+      FieldName = 'ordem'
+      Required = True
+    end
+    object qryFiosbitola: TStringField
+      FieldName = 'bitola'
+      Size = 4
+    end
+    object qryFiosliga: TStringField
+      FieldName = 'liga'
+      Size = 3
+    end
+    object qryFiosnrvoltas: TIntegerField
+      FieldName = 'nrvoltas'
+    end
+    object qryFiosgramasporpeca: TFloatField
+      FieldName = 'gramasporpeca'
+    end
+    object qryFiosresistividade: TFloatField
+      FieldName = 'resistividade'
+    end
+    object qryFiostolerancia: TIntegerField
+      FieldName = 'tolerancia'
+    end
+  end
+  object qryListaFioseFitas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select cast (null as varchar) as ObsLinha1,'
+      ''
+      '       cast (null as varchar) as ObsLinha2,'
+      '       cast (null as varchar)as referencia2,'
+      '       cast (null as varchar)as voltas2,'
+      '       cast (null as varchar)as resistividade2,'
+      '       cast (null as varchar)as tolerancia2,'
+      '       cast (null as varchar)as quantidade2,'
+      ''
+      ''
+      '       cast (null as varchar) as ObsLinha3,'
+      ''
+      '       cast (null as varchar) as ObsLinha4,'
+      '       cast (null as varchar)as referencia4,'
+      '       cast (null as varchar)as voltas4,'
+      '       cast (null as varchar)as resistividade4,'
+      '       cast (null as varchar)as tolerancia4,'
+      '       cast (null as varchar)as quantidade4,'
+      ''
+      '       cast (null as varchar) as ObsLinha5,'
+      ''
+      '       cast (null as varchar) as ObsLinha6,'
+      '       cast (null as varchar)as referencia6,'
+      '       cast (null as varchar)as voltas6,'
+      '       cast (null as varchar)as resistividade6,'
+      '       cast (null as varchar)as tolerancia6,'
+      '       cast (null as varchar)as quantidade6,'
+      ''
+      '       cast (null as varchar) as ObsLinha7,'
+      ''
+      '       cast (null as varchar) as ObsLinha8,'
+      '       cast (null as varchar)as referencia8,'
+      '       cast (null as varchar)as voltas8,'
+      '       cast (null as varchar)as resistividade8,'
+      '       cast (null as varchar)as tolerancia8,'
+      '       cast (null as varchar)as quantidade8'
+      '')
+    RequestLive = True
+    Left = 224
+    Top = 256
+    object qryListaFioseFitasobslinha1: TStringField
+      FieldName = 'obslinha1'
+      Size = 50
+    end
+    object qryListaFioseFitasobslinha2: TStringField
+      FieldName = 'obslinha2'
+      Size = 50
+    end
+    object qryListaFioseFitasreferencia2: TStringField
+      FieldName = 'referencia2'
+      Size = 50
+    end
+    object qryListaFioseFitasvoltas2: TStringField
+      FieldName = 'voltas2'
+      Size = 50
+    end
+    object qryListaFioseFitasresistividade2: TStringField
+      FieldName = 'resistividade2'
+      Size = 50
+    end
+    object qryListaFioseFitastolerancia2: TStringField
+      FieldName = 'tolerancia2'
+      Size = 50
+    end
+    object qryListaFioseFitasquantidade2: TStringField
+      FieldName = 'quantidade2'
+      Size = 50
+    end
+    object qryListaFioseFitasobslinha3: TStringField
+      FieldName = 'obslinha3'
+      Size = 50
+    end
+    object qryListaFioseFitasobslinha4: TStringField
+      FieldName = 'obslinha4'
+      Size = 50
+    end
+    object qryListaFioseFitasreferencia4: TStringField
+      FieldName = 'referencia4'
+      Size = 50
+    end
+    object qryListaFioseFitasvoltas4: TStringField
+      FieldName = 'voltas4'
+      Size = 50
+    end
+    object qryListaFioseFitasresistividade4: TStringField
+      FieldName = 'resistividade4'
+      Size = 50
+    end
+    object qryListaFioseFitastolerancia4: TStringField
+      FieldName = 'tolerancia4'
+      Size = 50
+    end
+    object qryListaFioseFitasquantidade4: TStringField
+      FieldName = 'quantidade4'
+      Size = 50
+    end
+    object qryListaFioseFitasobslinha5: TStringField
+      FieldName = 'obslinha5'
+      Size = 50
+    end
+    object qryListaFioseFitasobslinha6: TStringField
+      FieldName = 'obslinha6'
+      Size = 50
+    end
+    object qryListaFioseFitasreferencia6: TStringField
+      FieldName = 'referencia6'
+      Size = 50
+    end
+    object qryListaFioseFitasvoltas6: TStringField
+      FieldName = 'voltas6'
+      Size = 50
+    end
+    object qryListaFioseFitasresistividade6: TStringField
+      FieldName = 'resistividade6'
+      Size = 50
+    end
+    object qryListaFioseFitastolerancia6: TStringField
+      FieldName = 'tolerancia6'
+      Size = 50
+    end
+    object qryListaFioseFitasquantidade6: TStringField
+      FieldName = 'quantidade6'
+      Size = 50
+    end
+    object qryListaFioseFitasobslinha7: TStringField
+      FieldName = 'obslinha7'
+      Size = 50
+    end
+    object qryListaFioseFitasobslinha8: TStringField
+      FieldName = 'obslinha8'
+      Size = 50
+    end
+    object qryListaFioseFitasreferencia8: TStringField
+      FieldName = 'referencia8'
+      Size = 50
+    end
+    object qryListaFioseFitasvoltas8: TStringField
+      FieldName = 'voltas8'
+      Size = 50
+    end
+    object qryListaFioseFitasresistividade8: TStringField
+      FieldName = 'resistividade8'
+      Size = 50
+    end
+    object qryListaFioseFitasquantidade8: TStringField
+      FieldName = 'quantidade8'
+      Size = 50
+    end
+    object qryListaFioseFitastolerancia8: TStringField
+      FieldName = 'tolerancia8'
+      Size = 50
+    end
+  end
+  object qryControleProcesso: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select osp.Numero,'
+      ''
+      '       o.Nome,'
+      '       o.c01 AS c1,'
+      '       o.c02 AS c2,'
+      '       o.c03 AS c3,'
+      
+        '       CAST(UPPER(TO_ASCII(SUBSTRING(o.Descricao,1,45), '#39'LATIN1'#39 +
+        ')) AS VARCHAR(45))AS Descricao,'
+      ''
+      '       pc.ToleranciaEspecProduto AS Tolerancia,'
+      '       pc.TecnicaAvaliacaoMedicao AS Tecnica,'
+      '       pc.Tamanho,'
+      '       pc.Frequencia,'
+      ''
+      '       cp.Produto_Cliente'
+      ''
+      ''
+      'FROM osp'
+      '     JOIN ClientesProdutos cp'
+      '          JOIN FluxogramasOperacoes fo'
+      '               JOIN Operacoes o'
+      '                    LEFT JOIN ProcessosControle pc'
+      '                    ON o.Codigo = pc.Operacao'
+      '               ON fo.Operacao = o.Codigo'
+      '          ON cp.Fluxograma = fo.Fluxograma'
+      ''
+      '     ON osp.Cliente     = cp.Cliente     AND'
+      '        osp.TipoCliente = cp.TipoCliente AND'
+      '        osp.Produto     = cp.Produto'
+      ''
+      'WHERE osp.Numero  = :OSP'
+      '  AND fo.Operacao = :Operacao'
+      '  AND o.PlanoControle'
+      ''
+      'ORDER BY pc.Sequencia  '
+      '')
+    RequestLive = False
+    Left = 400
+    Top = 296
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'OSP'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Operacao'
+        ParamType = ptUnknown
+      end>
+    object qryControleProcessonumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryControleProcessonome: TStringField
+      FieldName = 'nome'
+      Size = 10
+    end
+    object qryControleProcessoc1: TStringField
+      FieldName = 'c1'
+      Size = 2
+    end
+    object qryControleProcessoc2: TStringField
+      FieldName = 'c2'
+      Size = 2
+    end
+    object qryControleProcessoc3: TStringField
+      FieldName = 'c3'
+      Size = 2
+    end
+    object qryControleProcessodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 45
+    end
+    object qryControleProcessotolerancia: TStringField
+      FieldName = 'tolerancia'
+      Size = 200
+    end
+    object qryControleProcessotecnica: TStringField
+      FieldName = 'tecnica'
+      Size = 200
+    end
+    object qryControleProcessotamanho: TIntegerField
+      FieldName = 'tamanho'
+      DisplayFormat = '0'
+    end
+    object qryControleProcessofrequencia: TStringField
+      FieldName = 'frequencia'
+      Size = 15
+    end
+    object qryControleProcessoproduto_cliente: TStringField
+      FieldName = 'produto_cliente'
+      Size = 30
+    end
+  end
+  object qryOperacoesProcesso: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterInsert = qryOperacoesProcessoAfterInsert
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'select fo.operacao, o.nome, o.c01, o.c02, o.c03, true as selecio' +
+        'nar'
+      'from osp'
+      '     join clientesprodutos cp'
+      '          join fluxogramasoperacoes fo'
+      '               join operacoes o'
+      '               on fo.operacao = o.codigo'
+      '          on cp.fluxograma = fo.fluxograma'
+      '     on osp.cliente = cp.cliente and'
+      '        osp.TipoCliente = cp.TipoCliente and'
+      '        osp.produto = cp.produto'
+      ''
+      'where osp.numero = :OSP'
+      '  and o.planocontrole'
+      '/*  and exists (select pc.operacao'
+      '              from processoscontrole pc'
+      '              where pc.operacao = fo.operacao limit 1)*/'
+      ''
+      ''
+      'order by cast(fo.sequencia AS NUMERIC)')
+    RequestLive = True
+    Left = 400
+    Top = 344
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'OSP'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesProcessooperacao: TIntegerField
+      FieldName = 'operacao'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryOperacoesProcessonome: TStringField
+      FieldName = 'nome'
+      ReadOnly = True
+      Size = 10
+    end
+    object qryOperacoesProcessoc01: TStringField
+      FieldName = 'c01'
+      ReadOnly = True
+      Size = 2
+    end
+    object qryOperacoesProcessoc02: TStringField
+      FieldName = 'c02'
+      ReadOnly = True
+      Size = 2
+    end
+    object qryOperacoesProcessoc03: TStringField
+      FieldName = 'c03'
+      ReadOnly = True
+      Size = 2
+    end
+    object qryOperacoesProcessoselecionar: TBooleanField
+      FieldName = 'selecionar'
+    end
+  end
+  object qryFitas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT pcft.*'
+      ''
+      'FROM produtoscompostosfitas pcft'
+      ''
+      'WHERE pcft.composto = :composto'
+      'order by pcft.ordem')
+    RequestLive = True
+    Left = 88
+    Top = 312
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'composto'
+        ParamType = ptUnknown
+      end>
+    object qryFitascomposto: TLargeintField
+      FieldName = 'composto'
+    end
+    object qryFitascomponente: TStringField
+      FieldName = 'componente'
+    end
+    object qryFitasordem: TIntegerField
+      FieldName = 'ordem'
+    end
+    object qryFitasespessura: TStringField
+      FieldName = 'espessura'
+      Size = 4
+    end
+    object qryFitaslargura: TStringField
+      FieldName = 'largura'
+      Size = 3
+    end
+    object qryFitasliga: TStringField
+      FieldName = 'liga'
+      Size = 3
+    end
+    object qryFitasnrvoltas: TIntegerField
+      FieldName = 'nrvoltas'
+    end
+    object qryFitasgramasporpeca: TFloatField
+      FieldName = 'gramasporpeca'
+    end
+  end
+  object qryListaDescricao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT CAST(NULL AS VARCHAR(80)) AS Descricao1,'
+      '       CAST(NULL AS VARCHAR(80)) AS Descricao2,'
+      '       CAST(NULL AS VARCHAR(80)) AS Descricao3,'
+      '       CAST(NULL AS VARCHAR(80)) AS Descricao4,'
+      '       CAST(NULL AS VARCHAR(80)) AS Descricao5,'
+      '       CAST(NULL AS VARCHAR(80)) AS Descricao6,'
+      '       CAST(NULL AS VARCHAR(80)) AS Descricao7,'
+      '       CAST(NULL AS VARCHAR(80)) AS Descricao8,'
+      '       CAST(NULL AS VARCHAR(80)) AS Descricao9,'
+      '       CAST(NULL AS VARCHAR(80)) AS Descricao10,'
+      '       CAST(NULL AS VARCHAR(80)) AS Descricao11,'
+      '       CAST(NULL AS VARCHAR(80)) AS Descricao12')
+    RequestLive = True
+    Left = 424
+    Top = 32
+    object qryListaDescricaodescricao1: TStringField
+      FieldName = 'descricao1'
+      Size = 80
+    end
+    object qryListaDescricaodescricao2: TStringField
+      FieldName = 'descricao2'
+      Size = 80
+    end
+    object qryListaDescricaodescricao3: TStringField
+      FieldName = 'descricao3'
+      Size = 80
+    end
+    object qryListaDescricaodescricao4: TStringField
+      FieldName = 'descricao4'
+      Size = 80
+    end
+    object qryListaDescricaodescricao5: TStringField
+      FieldName = 'descricao5'
+      Size = 80
+    end
+    object qryListaDescricaodescricao6: TStringField
+      FieldName = 'descricao6'
+      Size = 80
+    end
+    object qryListaDescricaodescricao7: TStringField
+      FieldName = 'descricao7'
+      Size = 80
+    end
+    object qryListaDescricaodescricao8: TStringField
+      FieldName = 'descricao8'
+      Size = 80
+    end
+    object qryListaDescricaodescricao9: TStringField
+      FieldName = 'descricao9'
+      Size = 80
+    end
+    object qryListaDescricaodescricao10: TStringField
+      FieldName = 'descricao10'
+      Size = 80
+    end
+    object qryListaDescricaodescricao11: TStringField
+      FieldName = 'descricao11'
+      Size = 80
+    end
+    object qryListaDescricaodescricao12: TStringField
+      FieldName = 'descricao12'
+      Size = 80
+    end
+  end
+  object qryListaControleProcesso: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT CAST(NULL AS INTEGER) AS Numero,'
+      ''
+      '       CAST(NULL AS VARCHAR(10)) AS Nome,'
+      '       CAST(NULL AS VARCHAR(02)) AS C1,'
+      '       CAST(NULL AS VARCHAR(02)) AS C2,'
+      '       CAST(NULL AS VARCHAR(02)) AS C3,'
+      '       CAST(NULL AS VARCHAR(45)) AS Descricao,'
+      ''
+      '       CAST(NULL AS VARCHAR(100)) AS Tolerancia1,'
+      '       CAST(NULL AS VARCHAR(100)) AS Tolerancia2,'
+      '       CAST(NULL AS VARCHAR(100)) AS Tolerancia3,'
+      '       CAST(NULL AS VARCHAR(100)) AS Tolerancia4,'
+      ''
+      '       CAST(NULL AS VARCHAR(100)) AS Tecnica1,'
+      '       CAST(NULL AS VARCHAR(100)) AS Tecnica2,'
+      '       CAST(NULL AS VARCHAR(100)) AS Tecnica3,'
+      '       CAST(NULL AS VARCHAR(100)) AS Tecnica4,'
+      ''
+      '       CAST(NULL AS INTEGER)     AS Tamanho,'
+      '       CAST(NULL AS VARCHAR(18)) AS Frequencia')
+    RequestLive = True
+    Left = 512
+    Top = 296
+    object qryListaControleProcessonumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryListaControleProcessonome: TStringField
+      FieldName = 'nome'
+      Size = 10
+    end
+    object qryListaControleProcessoc1: TStringField
+      FieldName = 'c1'
+      Size = 2
+    end
+    object qryListaControleProcessoc2: TStringField
+      FieldName = 'c2'
+      Size = 2
+    end
+    object qryListaControleProcessoc3: TStringField
+      FieldName = 'c3'
+      Size = 2
+    end
+    object qryListaControleProcessodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 45
+    end
+    object qryListaControleProcessotolerancia1: TStringField
+      FieldName = 'tolerancia1'
+      Size = 100
+    end
+    object qryListaControleProcessotolerancia2: TStringField
+      FieldName = 'tolerancia2'
+      Size = 100
+    end
+    object qryListaControleProcessotolerancia3: TStringField
+      FieldName = 'tolerancia3'
+      Size = 100
+    end
+    object qryListaControleProcessotolerancia4: TStringField
+      FieldName = 'tolerancia4'
+      Size = 100
+    end
+    object qryListaControleProcessotecnica1: TStringField
+      FieldName = 'tecnica1'
+      Size = 100
+    end
+    object qryListaControleProcessotecnica2: TStringField
+      FieldName = 'tecnica2'
+      Size = 100
+    end
+    object qryListaControleProcessotecnica3: TStringField
+      FieldName = 'tecnica3'
+      Size = 100
+    end
+    object qryListaControleProcessotecnica4: TStringField
+      FieldName = 'tecnica4'
+      Size = 100
+    end
+    object qryListaControleProcessotamanho: TIntegerField
+      FieldName = 'tamanho'
+      EditFormat = '###.###'
+    end
+    object qryListaControleProcessofrequencia: TStringField
+      FieldName = 'frequencia'
+      Size = 18
+    end
+  end
+  object dsrOperacoesSetup: TtecDataSource
+    DataSet = qryOperacoesSetup
+    Left = 336
+    Top = 216
+  end
+  object dsrOperacoesProcesso: TtecDataSource
+    DataSet = qryOperacoesProcesso
+    Left = 432
+    Top = 368
+  end
+end

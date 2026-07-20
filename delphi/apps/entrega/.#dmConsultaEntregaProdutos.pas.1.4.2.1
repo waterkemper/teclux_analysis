@@ -1,0 +1,169 @@
+unit dmConsultaEntregaProdutos;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft, CheckLst;
+
+type
+  TdtmConsultaEntregaProdutos = class(TdtmBasico)
+    qryConsultaEntregaProdutos: TtecQuery;
+    dsrConsultaEntregaProdutos: TtecDataSource;
+    qryConsultaEntregaProdutoscontrato: TStringField;
+    qryConsultaEntregaProdutosprodutovisual: TStringField;
+    qryConsultaEntregaProdutosfilial: TIntegerField;
+    qryConsultaEntregaProdutosdescricaoproduto: TStringField;
+    qryConsultaEntregaProdutossaldo_quantidade: TFloatField;
+    qryConsultaEntregaProdutosdataentrega: TDateField;
+    qryConsultaEntregaProdutoshoraentrega: TTimeField;
+    qryConsultaEntregaProdutosestado: TStringField;
+    qryConsultaEntregaProdutosnomecidade: TStringField;
+    qryConsultaEntregaProdutoscep: TIntegerField;
+    qryConsultaEntregaProdutosnomebairro: TStringField;
+    qryConsultaEntregaProdutosrua: TStringField;
+    qryConsultaEntregaProdutosendnumero: TIntegerField;
+    qryConsultaEntregaProdutosendcomplemento: TStringField;
+    qryPeriodosEntrega: TtecQuery;
+    qryPeriodosEntregacodigo: TIntegerField;
+    qryPeriodosEntregadescricao: TStringField;
+    qryPeriodosEntregahorapadrao: TTimeField;
+    qryPeriodosEntregainativo: TDateField;
+    dsrPeriodosEntrega: TtecDataSource;
+    qryConsultaEntregaProdutosdata: TDateField;
+    qryConsultaEntregaProdutosdescricaoperiodoentrega: TStringField;
+    qryConsultaEntregaProdutosperiodoentrega: TIntegerField;
+    qryConsultaEntregaProdutosdescricaoperiodoentrega_: TStringField;
+    procedure DataModuleCreate(Sender: TObject);
+    procedure dsrConsultaEntregaProdutosDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryConsultaEntregaProdutosdescricaoperiodoentregaGetText(
+      Sender: TField; var Text: String; DisplayText: Boolean);
+  private
+    fRomaneioDadoFiscal: integer;
+    fRomaneio: integer;
+    { Private declarations }
+  public
+    { Public declarations }
+
+   Procedure AbrirConsultaEntregaProdutos(
+                       TodoIntervalodeEntregas: Boolean;
+                       edtDataInicial,
+                       edtDataFinal,
+                       fraListaFiliais_ListaSelecionada: String;
+                       ChkPeriodo: TCheckListBox);
+
+   property Romaneio: integer read fRomaneio write fRomaneio;
+   property RomaneioDadoFiscal: integer read fRomaneioDadoFiscal write fRomaneioDadoFiscal;
+
+   function GravarDados: Boolean ;
+  end;
+
+var
+  dtmConsultaEntregaProdutos: TdtmConsultaEntregaProdutos;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmConsultaEntregaProdutos }
+
+procedure TdtmConsultaEntregaProdutos.AbrirConsultaEntregaProdutos(
+  TodoIntervalodeEntregas: Boolean;
+  edtDataInicial, edtDataFinal, fraListaFiliais_ListaSelecionada: String;
+  ChkPeriodo: TCheckListBox);
+var
+  vListaPeriodoEntrega: String;
+begin
+  qryConsultaEntregaProdutos.parambyname('TodoIntervalodeEntregas').asBoolean := TodoIntervalodeEntregas;
+
+  if edtDataInicial <> '' then
+    qryConsultaEntregaProdutos.parambyname('datainicial').asDateTime := strtodate(edtDataInicial)
+  else
+    qryConsultaEntregaProdutos.parambyname('datainicial').clear;
+
+  if edtDataFinal <> '' then
+    qryConsultaEntregaProdutos.parambyname('datafinal').asDateTime := strtodate(edtDataFinal)
+  else
+    qryConsultaEntregaProdutos.parambyname('datafinal').clear;
+
+  if fraListaFiliais_ListaSelecionada <> '' then
+    qryConsultaEntregaProdutos.MacrobyName('ListaFiliais_ListaSelecionada').asString :=
+      'and ct.filialvenda in ('+ fraListaFiliais_ListaSelecionada + ')'
+  else
+    qryConsultaEntregaProdutos.MacrobyName('ListaFiliais_ListaSelecionada').asString := '';
+
+  vListaPeriodoEntrega := '';
+
+  if ChkPeriodo.Checked[ChkPeriodo.Items.IndexOf('Madrugada')] then
+    vListaPeriodoEntrega := vListaPeriodoEntrega + ' (pc.horaentrega between cast(''00:00:00'' as TIME) and  cast(''05:59:59'' as TIME)) or ';
+
+  if ChkPeriodo.Checked[ChkPeriodo.Items.IndexOf('Manhã')] then
+    vListaPeriodoEntrega := vListaPeriodoEntrega + ' (pc.horaentrega between cast(''06:00:00'' as TIME) and  cast(''11:59:59'' as TIME)) or ';
+
+  if ChkPeriodo.Checked[ChkPeriodo.Items.IndexOf('Tarde')] then
+    vListaPeriodoEntrega := vListaPeriodoEntrega + ' (pc.horaentrega between cast(''12:00:00'' as TIME) and  cast(''17:59:59'' as TIME)) or ';
+
+  if ChkPeriodo.Checked[ChkPeriodo.Items.IndexOf('Noite')] then
+    vListaPeriodoEntrega := vListaPeriodoEntrega + ' (pc.horaentrega between cast(''18:00:00'' as TIME) and  cast(''23:59:59'' as TIME)) or ';
+
+  qryConsultaEntregaProdutos.MacrobyName('PeriodoEntrega').asString := '';
+
+  if vListaPeriodoEntrega <> '' then
+  begin
+    delete(vListaPeriodoEntrega, length(vListaPeriodoEntrega)-3, 3);
+    qryConsultaEntregaProdutos.MacrobyName('PeriodoEntrega').asString :=  ' and ( ' + vListaPeriodoEntrega + ')';
+  end;
+
+
+  if (romaneio <> 0) and (romaneiodadofiscal <> 0) then
+    qryConsultaEntregaProdutos.MacrobyName('CondicaoRomaneio').asString := 'and  (pc.produto, pc.contrato) in '+
+    '(select pdf.produto, df.contrato '+
+    ' from produtosdadosfiscais pdf '+
+    '      join dadosfiscais df '+
+    '           join romaneiosnotas rn '+
+    '           on df.numero = rn.dadofiscal '+
+    '      on pdf.dadofiscal = df.numero '+
+    ' where df.numero = ' + inttostr(romaneiodadofiscal) +
+    '   and rn.romaneio = ' + inttostr(romaneio) + ')'
+  else
+    qryConsultaEntregaProdutos.MacrobyName('CondicaoRomaneio').asString := '';
+
+  qryConsultaEntregaProdutos.close;
+  qryConsultaEntregaProdutos.open;
+
+end;
+
+procedure TdtmConsultaEntregaProdutos.DataModuleCreate(Sender: TObject);
+begin
+  inherited;
+  RemoveDataModule(Self);
+end;
+
+procedure TdtmConsultaEntregaProdutos.dsrConsultaEntregaProdutosDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if field = qryConsultaEntregaProdutosperiodoentrega then
+    qryConsultaEntregaProdutosdescricaoperiodoentrega.asString := qryPeriodosEntregadescricao.asString;
+end;
+
+function TdtmConsultaEntregaProdutos.GravarDados: Boolean;
+begin
+  result := perpetrar([qryConsultaEntregaProdutos]);
+end;
+
+procedure TdtmConsultaEntregaProdutos.qryConsultaEntregaProdutosdescricaoperiodoentregaGetText(
+  Sender: TField; var Text: String; DisplayText: Boolean);
+begin
+  inherited;
+  {
+  if not (not qryConsultaEntregaProdutosdescricaoperiodoentrega.isnull or
+         not qryConsultaEntregaProdutosperiodoentrega.isnull) then
+           Text := '';
+           }
+
+
+end;
+
+end.

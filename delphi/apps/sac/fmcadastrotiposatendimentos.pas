@@ -1,0 +1,116 @@
+unit fmcadastrotiposatendimentos;
+
+interface  
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  Grids, DBGrids, Mask, DBCtrls, ExtCtrls, Buttons, ComCtrls, biblio,
+  //Terceiros
+  ZQuery,
+  //Biblio
+  ctconstantes,
+  //Componentes
+  cptexto, cpdbfindcontrols, cpdbradiogroup,
+  //Repositorio
+  fmcadastropadrao, fmconsultabasica, fmconsultaporcampo,
+  //Projeto
+  dmcadastrotiposatendimentos, ToolWin;
+
+type
+  TfrmCadastroTiposAtendimentos = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    edfCodigo: TtecDbEditFind;
+    edtDescricao: TDBEditTexto;
+    rgbTiposAtendimento: TtecDBRadioGroup;
+    ckbReclamacao: TtecRadioButton;
+    ckbVisita: TtecRadioButton;
+    ckbCobranca: TtecRadioButton;
+    gbxCodigo: TGroupBox;
+    gbxDescricao: TGroupBox;
+    ckbOrcamento: TtecRadioButton;
+    ckbEntrega: TtecRadioButton;
+  protected
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroTiposAtendimentos: TfrmCadastroTiposAtendimentos;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmCadastroTiposAtendimentos }
+
+constructor TfrmCadastroTiposAtendimentos.Create(AOwner: TComponent);
+begin
+  dtmCadastroTiposAtendimentos:= TdtmCadastroTiposAtendimentos.Create(Self);
+  inherited Create(AOwner);
+  dtmCadastroTiposAtendimentos.Abre(ctCadastroTiposAtendimentos);
+  DataSet := dtmCadastroTiposAtendimentos.TabelaCadastroTiposAtendimentos;
+end;
+
+destructor TfrmCadastroTiposAtendimentos.Destroy;
+begin
+  dtmCadastroTiposAtendimentos:=nil;
+  inherited;
+  frmCadastroTiposAtendimentos := nil;
+end;
+
+function TfrmCadastroTiposAtendimentos.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := dtmCadastroTiposAtendimentos.ExisteCadastroTiposAtendimentos(NomeCampo, Value);
+end;
+
+function TfrmCadastroTiposAtendimentos.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result and not CtrlOn then
+    dtmCadastroTiposAtendimentos.ExcluirTiposAtendimentos;
+end;
+
+function TfrmCadastroTiposAtendimentos.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result and not CtrlOn then
+    dtmCadastroTiposAtendimentos.GravarTiposAtendimentos;
+end;
+
+function TfrmCadastroTiposAtendimentos.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result and not CtrlOn then
+    dtmCadastroTiposAtendimentos.IncluirTiposAtendimentos;
+end;
+
+function TfrmCadastroTiposAtendimentos.InternoPesquisar(Titulo: String): Integer;
+begin
+  with dtmCadastroTiposAtendimentos do begin
+    Titulo:='Tipos de Atendimento';
+    Abre(ctConsultaTiposAtendimentos);    Result := inherited InternoPesquisar(Titulo);
+    if Result = mrOK then
+      RefazConsultaTiposAtendimentos;
+    Fecha(ctConsultaTiposAtendimentos);
+  end;
+end;
+
+function TfrmCadastroTiposAtendimentos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := True;
+end;
+
+function TfrmCadastroTiposAtendimentos.TabelaDePesquisa: TZDataSet;
+begin
+  Result := dtmCadastroTiposAtendimentos.ConsultaTiposAtendimentos
+end;
+
+end.

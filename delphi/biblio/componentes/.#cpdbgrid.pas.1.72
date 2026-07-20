@@ -1,0 +1,2777 @@
+unit cpdbgrid;
+
+interface
+
+uses
+  //CLX
+{$ifndef LINUX}
+ windows,
+{$endif}
+  Classes, Types, Forms, {Qete,} Grids, StdCtrls, DBGrids,
+  Graphics, Controls, DB, SysUtils, ImgList, zlist,
+
+  //biblio
+  cpquery, biblio, ctconstantes, clparametrossistema, Messages, Dialogs,
+  excelexport, DBCtrls, Menus, CheckLst, fmVisualizacaoCampos, cpdatabase;
+
+type
+  Lines3dTYPE=(c3dNONE,c3dOUTER,c3dINNER);
+
+Type
+  TOrdenacao=(Asc, Desc);
+
+type
+  T_PesquisaCampo  = record
+    Nome_do_Campo : String;
+    Tipo_da_Pesquisa : TtecPesquisa;
+    AOwner : TComponent
+  end;
+
+
+type
+ TGrid = class(TCustomDBGrid);
+{ THackDBGrid = class(TCustomGrid);}
+
+type
+  TGetCellParamsEvent = procedure (Sender: TObject; Field: TField;
+    AFont: TFont; var Background: TColor; Highlight: Boolean) of object;
+
+
+
+type
+
+  TtecDBGrid = class(TDBGrid)
+  private
+  {
+    vRow_Before_Edit : integer;
+    vLinhasVisiveisdaGrade : integer;
+    vTopRow : integer;
+    }
+    APesquisaCampo : Array of T_PesquisaCampo;
+    LocalClicadoX:integer;
+    vSaveBoolean: Boolean;
+    FInCheckTitle:boolean;
+    FCheckValues: Array [0..2] of String;
+    FCheckImages: Array [0..2] of TPicture;
+    FLargeRows: Boolean;
+    FRowWrap: Integer;
+    FDoubleRowColor: Boolean;
+    FMsgDelete: String;
+    FLarge: Boolean;
+    FCheckTitle: boolean;
+    FTitleMinHeight: integer;
+    FFixedCols: Integer;
+    FCellHeights:integer;
+    FStrippedRows: integer;
+    FStrippedColor: TColor;
+    FOnGetCellParams: TGetCellParamsEvent;
+    FLines3dV: Lines3dType;
+    FLines3dH: Lines3dType;
+    FOnDelete: TTecProcedure;
+    FCanDelete: boolean;
+    FPostOnEnter: boolean;
+    FEditandoCelula: Boolean;
+    FOnPost: TtecFuncaoBoolean;
+    FOrdenacao: String;
+    FCampoSequencial: String;
+    FListaOrdenacao: vString;
+    FDenySort: Boolean;
+    FTipoOrdenacao: TOrdenacao;
+
+    FOriginalOptions : TDBGridOptions;
+    fExibirNumerodaLinha: boolean;
+    fNaoAtribuirDadosaTabelaaoDigitar: boolean;
+    FCanNotInsertFromGrid: boolean;
+    fListaOrdenacaoSQL: String;
+    fGridAssociado: TtecDBGrid;
+    FPostOnSetUpDown: boolean;
+    FOnFinalizeOperation: TTecProcedure;
+    fShowWhenFieldInvisible: boolean;
+    fCanClickWhenEditing: Boolean;
+    FOnColResize: TNotifyEvent;
+    FOcultarColuna: TNotifyEvent;
+//    fColunaClicada: integer;
+
+    function  GetCheckImage(F: TField): TBitmap;
+    procedure SetDoubleRowColor(const Value: Boolean);
+    procedure SetMsgDelete(const Value: String);
+    procedure SetCheckTitle(const Value: boolean);
+    procedure SetTitleMinHeight(const Value: integer);
+    function GetFixedCols: Integer;
+    procedure SetFixedCols(const Value: Integer);
+    function GetCellHeights: integer;
+    procedure SetCellHeights(Value: integer);
+    procedure SetStrippedRows(const Value: integer);
+    procedure SetStrippedColor(const Value: TColor);
+    procedure SETLines3dV(const Value: Lines3dType);
+    procedure SETLines3dH(const Value: Lines3dType);
+    procedure SetOrdenacao(const Value: String);
+    function GetListaOrdenacaoSQL: String;
+    procedure SetListaOrdenacao(const Value: vString);
+    function GetDataSourceAssociado: TDataSource;
+    procedure SetDataSourceAssociado(const Value: TDataSource);
+//    procedure StateChange(Sender: TObject);
+//    procedure AFter_Scroll_Grid(DataSet: TDataSet);
+//    procedure CloseHINT;
+
+    Function RetornaTipoPesquisa(NomeDoCampo: String): TTecPesquisa;
+    Function RetornaAOwner(NomeDoCampo: String): TComponent;
+//    Function RetornaProcedimentoAntesdeAbrir(NomeDoCampo: String): TTecProcedure;
+
+    function GravarTabela: boolean;
+    procedure OcultarColunaClick(Sender: TObject);
+    procedure setOcultarColuna(const Value: TNotifyEvent);
+    procedure CamposAfterPost(Sender: TObject);
+    procedure ReverterCampos(Sender: TObject);
+
+
+
+  protected
+
+    FDataLink: TFieldDataLink;
+
+
+    function CanEditShow: Boolean; override;
+//    procedure Scroll(Distance: Integer); override;
+    procedure EditButtonClick; override;
+    procedure DoEnter; override;
+    procedure Loaded; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure KeyUP(var Key: Word; Shift: TShiftState); override;
+
+//    procedure GridKeyPress(var Key: Char); override; CLX_TO_VCL
+    procedure KeyPress(var Key: Char); override;
+
+//    procedure SetEditText(ACol, ARow: Longint; const Value: WideString); override; CLX_TO_VCL
+    procedure SetEditText(ACol, ARow: Longint; const Value: string); override;
+
+
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
+                        X, Y: Integer); override;
+
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
+
+
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+
+
+    procedure DrawColumnCell(const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState); override;
+
+    function NeededRECT(aText:string;aWidth:integer;
+                        Alignment: TAlignment; ARightToLeft: Boolean):TRECT;
+    procedure RowHeightsChanged; override;
+    procedure ColWidthsChanged; override;
+    procedure TitleClick(Column: TColumn); override;
+
+    procedure CellClick(Column: TColumn); override;
+    procedure DblClick; override;
+
+    procedure ColEnter; override;
+    procedure ColExit; override;
+    function ListadeCampos(Grid: TtecDBGrid)  : tStringList;
+    function ListadeTitulos(Grid: TtecDBGrid) : tStringList;
+
+    function ListadeCamposTabela(Tabela: TDataSet)  : tStringList;
+    function ListadeTitulosTabela(Tabela: TDataSet) : tStringList;
+
+//    procedure DrawCell(ACol, ARow: Longint; ARect: TRect; AState: TGridDrawState); override;
+   procedure DrawCell(ACol, ARow: Longint; ARect: TRect; AState: TGridDrawState); override;
+
+    procedure SaveBoolean;
+    procedure LinkActive(Value: Boolean); override;
+
+    procedure LayoutChanged; virtual;
+
+//    procedure Before_Edit_Grid;
+    procedure After_Post_Grid;
+    property ListaOrdenacaoSQL: String read GetListaOrdenacaoSQL write fListaOrdenacaoSQL;
+
+
+    procedure WMVScroll(var Message: TWMVScroll); message WM_VSCROLL;
+
+    procedure VisualizarCampos;
+
+
+  public
+    vConfiguracaoOriginal : TMemoryStream;
+    property CheckTitle:boolean read FCheckTitle write SetCheckTitle;
+    procedure SetColumnAttributes; override;
+
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    property VisibleRowCount;
+    function CalcLeftColumn: Integer;
+    procedure CheckTitleHeight;
+    function GetSTDdefaultRowHeight:integer;
+    property OnDelete: TTecProcedure read FOnDelete write FOnDelete;
+    property OnFinalizeOperation: TTecProcedure read FOnFinalizeOperation write FOnFinalizeOperation;
+
+    property OnPost: TtecFuncaoBoolean read FOnPost write FOnPost;
+    property Ordenacao: String read fOrdenacao write SetOrdenacao;
+    property ListaOrdenacao: vString read FListaOrdenacao write SetListaOrdenacao;
+    procedure DeslocarRegistroParaCima;
+    procedure DeslocarRegistroParaBaixo;
+    property CampoSequencial: String read FCampoSequencial write FCampoSequencial;
+    procedure RefazerOrdenacaoSequencial(Sender: TObject);
+    procedure RefazerOrdenacao(Sender: TObject);
+    function ColumnByName(const ColumnName: String; ExibirMsg: boolean = True): TColumn;
+    property TipoOrdenacao: TOrdenacao read FTipoOrdenacao write FTipoOrdenacao default Asc;
+    property EditandoCelula: Boolean read FEditandoCelula write FEditandoCelula;
+    Property OnColResize:TNotifyEvent read FOnColResize Write FOnColResize;
+    Property OcultarColuna : TNotifyEvent read FOcultarColuna Write fOcultarColuna;
+
+
+    procedure PesquisaCampo(NomedoCampo: String;
+                            TipoPesquisa: TtecPesquisa;
+                            AOwner: TComponent);
+
+    procedure REfazerOrdenacaoTabela;
+
+
+  published
+    property OnGetCellParams: TGetCellParamsEvent read FOnGetCellParams write FOnGetCellParams;
+
+    property FixedCols: Integer read GetFixedCols write SetFixedCols default 0;
+    property RowWrap: Integer read FRowWrap write FRowWrap;
+    property Large: Boolean read FLarge write FLarge;
+    property DoubleRowColor: Boolean read FDoubleRowColor write SetDoubleRowColor;
+    property MsgDelete: String read FMsgDelete write SetMsgDelete;
+    property TitleMinHeight:integer read FTitleMinHeight write SetTitleMinHeight;
+    property CellHeights:integer read GetCellHeights write SetCellHeights;
+
+    property StrippedRows:integer read FStrippedRows write SetStrippedRows default 0;
+    property StrippedColor:TColor read FStrippedColor write SetStrippedColor;
+    property Lines3dV:Lines3dType read FLines3dV write SETLines3dV default c3dNONE;
+    property Lines3dH:Lines3dType read FLines3dH write SETLines3dH default c3dNONE;
+    property CanDelete:boolean read FCanDelete write FCanDelete;
+    property CanNotInsertFromGrid:boolean read FCanNotInsertFromGrid write FCanNotInsertFromGrid;
+
+    property PostOnEnter:boolean read FPostOnEnter write FPostOnEnter;
+    property PostOnSetUpDown:boolean read FPostOnSetUpDown write FPostOnSetUpDown;
+
+    property DenySort : Boolean read FDenySort write FDenySort;
+    property DefaultRowHeight;
+    property ExibirNumerodaLinha : boolean read fExibirNumerodaLinha write fExibirNumerodaLinha;
+    property NaoAtribuirDadosaTabelaaoDigitar: boolean read fNaoAtribuirDadosaTabelaaoDigitar write fNaoAtribuirDadosaTabelaaoDigitar;
+    property GridAssociado: TtecDBGrid read fGridAssociado write fGridAssociado;
+    property DataSourceAssociado: TDataSource read GetDataSourceAssociado write SetDataSourceAssociado;
+    property ShowWhenFieldInvisible: boolean read fShowWhenFieldInvisible write fShowWhenFieldInvisible;
+    property CanClickWhenEditing: Boolean read fCanClickWhenEditing write fCanClickWhenEditing;
+
+//    property ColunaClicada: integer read fColunaClicada write fColunaClicada;
+
+
+
+  end;
+
+var
+  AcionarPesquisaGrade_: function (Fonte: TDataSource;
+                                   Tabela : TDataset;
+                                   NomedoCampo: String;
+                                   TipoPesquisa: TTecPesquisa;
+                                   AOwner: TComponent;
+                                   visivel: Boolean): Boolean;
+
+implementation
+
+{$R check.res}
+
+uses
+  //CLX
+  math,
+  //Terceiros
+  ZQuery, ZSqlBuffer;
+
+var
+  FIndicators: TImageList=nil;
+
+const
+AlignFlags : array [TAlignment] of Integer =
+( DT_LEFT or DT_WORDBREAK or DT_EXPANDTABS or
+DT_NOPREFIX, DT_RIGHT or DT_WORDBREAK or
+DT_EXPANDTABS or DT_NOPREFIX, DT_CENTER or
+DT_WORDBREAK or DT_EXPANDTABS or
+DT_NOPREFIX );
+
+
+RTL: array [Boolean] of Integer = (0, DT_RTLREADING);
+
+
+
+(*
+procedure bvWriteText(Canvas:TCanvas;ARect: TRect;
+                          const Text: string;
+                          Alignment: TAlignment;
+                          ARightToLeft: Boolean);
+var
+  TW,TH:integer;
+var
+  B: TRect;
+  LayoutFormat:integer;
+begin
+  begin                       { Use ExtTextOut for solid colors }
+
+{$ifndef LINUX}
+{
+    if (Canvas.CanvasOrientation = coRightToLeft) and (not ARightToLeft)
+    then  ChangeBiDiModeAlignment(Alignment);
+}
+{$ENDIF}
+
+    Canvas.FillRect(arect);
+
+    inflaterect(arect,-2,0);
+
+    TW:=Canvas.TextWidth(Text);
+
+    if TW<=ARECT.Right-arect.left  then begin
+       LayoutFormat:=
+           {$ifndef LINUX}
+           DT_VCENTER
+           {$else}
+           integer(AlignmentFlags_AlignVCENTER)
+           {$endif}
+           or
+           {$ifndef LINUX}
+           dt_SingleLine
+           {$else}
+           integer(AlignmentFlags_SingleLine)
+           {$endif}
+           ;
+    end
+    else begin
+      TH:=CAnvas.textheight('Hg');
+
+      //DrawText(Acanvas.Handle, PChar(Text), Length(Text), DREct,
+        // AlignFlags[Alignment] or RTL[ARightToLeft] or dt_WORDBREAK or DT_CALCRECT);
+
+      if th*2>ARECT.bottom-Arect.top
+      then begin
+         LayoutFormat:=
+           {$ifndef LINUX}
+           DT_VCENTER
+           {$else}
+           integer(AlignmentFlags_AlignVCENTER)
+           {$endif}
+           or
+           {$ifndef LINUX}
+           dt_SingleLine
+           {$else}
+           integer(AlignmentFlags_SingleLine)
+           {$endif}
+           ;
+      end
+      else  begin
+         LayoutFormat:=
+           {$ifndef LINUX}
+            DT_WORDBREAK
+           {$else}
+           integer(AlignmentFlags_WORDBREAK)
+           {$endif}
+           {$ifndef LINUX}
+           or
+            DT_NOPREFIX
+           {$else}
+           //integer(AlignmentFlags_SHOWPREFIX)
+           {$endif}
+           ;
+
+
+         B:=ARECT;
+         b.bottom:=b.top;
+         {$ifndef LINUX}
+
+          //Canvas.TextExtent(Text, B,AlignFlags[Alignment] or  RTL[ARightToLeft] or LayoutFormat); CLX_TO_VCL
+          Canvas.TextExtent(Text);
+
+
+         // DrawText(canvas.Handle, PChar(Text), Length(Text), B,AlignFlags[Alignment] or  RTL[ARightToLeft] or LayoutFormat or DT_CALCRECT);
+         {$else}
+         Canvas.TextExtent(Text, B,AlignFlags[Alignment] or  RTL[ARightToLeft] or LayoutFormat);
+         {$endif}
+         if (B.bottom-b.top)<(arect.bottom-arect.top)
+         then begin
+           ARECT.Top:=((arect.bottom+arect.top)-(B.Bottom-b.top)) div 2
+         end;
+      end;
+    end;
+
+
+    {$ifndef LINUX}
+    //DrawText(canvas.Handle, PChar(Text), Length(Text), AREct,
+    //    AlignFlags[Alignment] or RTL[ARightToLeft] or LayoutFormat);
+//     Canvas.TextRect( ARect, ARect.left,ARect.top{0, 0}, Text,AlignFlags[Alignment] or RTL[ARightToLeft] or LayoutFormat); CLX_TO_VCL
+     Canvas.TextRect( ARect, ARect.left,ARect.top{0, 0}, Text);
+
+    {$ELSE}
+      Canvas.TextRect( ARect, ARect.left,ARect.top{0, 0}, Text,AlignFlags[Alignment] or RTL[ARightToLeft] or LayoutFormat);
+    {$endif}
+  end
+end;
+*)
+
+
+
+
+type
+
+{ TtecMemoEditor }
+
+  TtecMemoEditor = class(TCustomForm)
+  private
+    FMemo: TDBMemo;
+    FFieldSource: TDataSource;
+  public
+    constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
+    destructor Destroy; override;
+    property MemoField: TDBMemo read FMemo;
+  end;
+
+
+constructor TtecMemoEditor.CreateNew(AOwner: TComponent; Dummy: Integer);
+begin
+  inherited;
+  BorderStyle := bsSizeToolWin;
+  FFieldSource := TDataSource.Create(Self);
+  FFieldSource.DataSet := TtecDBGrid(AOwner).DataSource.DataSet;
+  FMemo := TDBMemo.Create(Self);
+  FMemo.DataSource := FFieldSource;
+  FMemo.Parent := Self;
+  FMemo.Align := alClient;
+  FMemo.Visible := True;
+end;
+
+destructor TtecMemoEditor.Destroy;
+begin
+  FFieldSource.Free;
+  FMemo.Free;
+  inherited;
+end;
+
+{ TtecDBGrid }
+
+procedure TtecDBGrid.SetDoubleRowColor(const Value: Boolean);
+begin
+  if FDoubleRowColor <> Value then
+  begin
+    FDoubleRowColor := Value;
+    Invalidate;
+  end;
+end;
+
+function TtecDBGrid.GetCheckImage(F: TField): TBitmap;
+begin
+  if F.IsNull then
+    Result := FCheckImages[0].Bitmap
+  else
+  if F.Value then
+    Result := FCheckImages[2].Bitmap
+  else
+    Result := FCheckImages[1].Bitmap;
+end;
+
+constructor TtecDBGrid.Create(AOwner: TComponent);
+{
+var
+ S:TStringStream;
+ }
+
+begin
+  inherited;
+  parent := TWinControl(AOwner);
+  FRowWrap := 60;
+  FInCheckTitle:=false;
+  FCheckTitle:=true;
+  FTitleMinHeight:=100;
+  FFixedCols:=0;
+  FCellHeights:=100;
+  FStrippedRows:=0;
+  FStrippedColor:=$00F4F7F4;
+  FLines3dV:=c3dNONE;
+  Font.Size := 7;
+  TitleFont.Size := 7;
+  TGrid(self).DefaultRowHeight := 50;
+
+  FDataLink              := TFieldDataLink.Create;
+  FDataLink.Control      := Self;
+//  FDataLink.OnDataChange := DataChange;
+//  FDataLink.OnUpdateData := UpdateData;
+
+//  self.popupmenu :=
+  OcultarColuna := OcultarColunaClick;
+
+  {
+  S:=TStringStream.Create();
+  vConfiguracaoOriginal := TFileStream.Create('ConfiguracaoOriginal',fmCreate);
+  self.columns.savetostream(S);
+  vConfiguracaoOriginal.CopyFrom(S,0);
+  }
+
+  vConfiguracaoOriginal := TMemoryStream.Create;
+//  self.columns.savetostream(vConfiguracaoOriginal);
+//  vConfiguracaoOriginal.Position := 0;
+
+
+
+
+
+
+end;
+
+procedure TtecDBGrid.Loaded;
+var
+  cnt: Integer;
+begin
+  inherited;
+  CellHeights:=cellHeights;
+
+  FCheckValues[0] := 'NULL';
+  FCheckValues[1] := 'FALSE';
+  FCheckValues[2] := 'TRUE';
+  for cnt := 0 to High(FCheckImages) do
+  begin
+    FCheckImages[cnt] := TPicture.Create;
+    FCheckImages[cnt].Bitmap.LoadFromResourceName(HInstance, FCheckValues[cnt]);
+  end;
+  for cnt := 0 to Columns.Count - 1 do
+    if Assigned(Columns.Items[cnt].Field) then
+      if (Columns.Items[cnt].Field.DataType in [ftGraphic, ftMemo]) then
+       begin
+         FLargeRows := True;
+         Break;
+       end;
+end;
+
+procedure TtecDBGrid.DrawColumnCell(const Rect: TRect; DataCol: Integer;
+  Column: TColumn; State: TGridDrawState);
+
+Const
+ CtrlState : array[Boolean] of Integer = (DFCS_BUTTONCHECK,DFCS_BUTTONCHECK or DFCS_CHECKED);
+
+var
+  CheckBoxRectangle : TRect;
+  Text: WideString;
+  R: TRect;
+  vcorAnterior : Tcolor;
+
+begin
+  inherited;
+
+    if not (csDesigning in ComponentState) then
+    begin
+
+//    if not (csDesigning in ComponentState) then
+      if ExibirNumerodaLinha {and (Column.Index = 0)} then
+      begin
+//        Canvas.Font.Color := clBlack;
+        vcorAnterior := Canvas.Brush.Color;
+        canvas.Brush.Color := clbtnface;
+//        FixedColor := clbtnface;
+        Canvas.TextOut(self.Left -1 {+ 2}, Rect.Top+1, Inttostr(datasource.dataset.recno)+' '); // linha atual
+//        Canvas.FillRect(Rect);
+
+//        DefaultDrawColumnCell(Rect, DataCol, Column, State);
+        canvas.Brush.Color :=vcorAnterior;
+
+      end;
+    
+     if FDoubleRowColor then
+     begin
+        if (datasource.dataset.recno MOD 2)<>0 then
+        begin
+          if not (gdSelected in State) then
+          begin
+            if (Canvas.Brush.Color = clwindow) or {(Canvas.Brush.Color = clbtnface) or}
+               (TColorRef(Canvas.Brush.Color) = TColorRef(strtoint(parsistema.CorZebradoRelatorio))) then
+            begin
+              Canvas.Brush.Color := TColorRef(strtoint(parsistema.CorZebradoRelatorio));
+              {
+              if FixedCols<>0 then
+                FixedColor := TColorRef(strtoint(parsistema.CorZebradoRelatorio))
+                }
+            end;
+
+            if (Canvas.font.Color = clBlack) or
+               (Canvas.font.color = cldefault) then
+              Canvas.Font.Color  := clBlack;
+
+            if column.FieldName <> '' then
+              DefaultDrawColumnCell(Rect, DataCol, Column, State);
+          end
+          else
+          begin
+
+          end;
+        end;
+     end;
+{
+      if (FDoubleRowColor) then
+        if not Odd(DataSource.DataSet.RecNo) then
+          if not (gdSelected in State) then
+          begin
+            if Enabled then
+              Canvas.Brush.Color := clActiveMidlight
+            else
+              Canvas.Brush.Color := clDisabledLight;
+            Canvas.FillRect(Rect);
+            DefaultDrawDataCell(Rect, Column.Field, State);
+          end;
+}
+      if (FLargeRows) then
+      begin
+         if DefaultRowHeight <> FRowWrap then
+           DefaultRowHeight := FRowWrap;
+      end;
+
+      if Assigned(Column.Field) then
+          case Column.Field.DataType of
+            ftBoolean:
+                      begin
+                      {
+                        Canvas.Pen.Style := psClear;
+                        Canvas.FillRect(Rect);
+                        Canvas.Draw((Rect.Right + Rect.Left - 10) div 2,
+                                    (Rect.Top + Rect.Bottom - 10) div 2,
+                                     GetCheckImage(Column.Field));
+                                     }
+
+
+
+                         Self.Canvas.FillRect(Rect);
+                         CheckBoxRectangle.Left := Rect.Left + 2;
+                         CheckBoxRectangle.Right := Rect.Right - 2;
+                         CheckBoxRectangle.Top := Rect.Top + 2;
+                         CheckBoxRectangle.Bottom := Rect.Bottom - 2;
+                         DrawFrameControl(Self.Canvas.Handle,
+                              CheckBoxRectangle,
+                              DFC_BUTTON,
+                              CtrlState[Column.Field.AsBoolean]);
+
+                      end;
+            ftGraphic:
+                      begin
+                        Canvas.Pen.Style := psClear;
+                        Canvas.FillRect(Rect);
+                        with TPicture.Create do
+                        begin
+                          Assign(Column.Field);
+                          Bitmap.TransparentMode := tmFixed;
+                          Canvas.StretchDraw(Rect, Bitmap);
+                          Free;
+                        end;
+                      end;
+               ftMemo:
+                      begin
+                        Column.ButtonStyle := cbsEllipsis;
+                        Canvas.Pen.Style := psClear;
+                        Canvas.FillRect(Rect);
+                        Text := Column.field.Value;
+                        { CLX_TO_VCL
+                        QPainter_drawText(Canvas.Handle, @Rect,
+                                          Ord(AlignmentFlags_WordBreak) ,
+                                          PWideString(@Text), -1, nil, nil);
+
+                         DrawText(Canvas.Handle, @Rect,
+                                          Ord(AlignmentFlags_WordBreak) ,
+                                          PWideString(@Text), -1, nil, nil);
+                         }
+
+
+                      end;
+               ftString:
+                      begin
+                        if (Column.Field.FieldKind <> fklookup) then
+                          if FLarge then
+                          begin
+                            with self do
+                            begin
+//                              if DataCol = 1 then { Verifica se é a 2ª coluna}
+                              begin
+
+                               CopyRect(R, Rect);
+                                Canvas.FillRect(Rect);
+                               { Ajusta limite para Quebrar o texto, neste caso, verifica a largura da coluna}
+                               R.Right := R.BottomRight.X;
+                               { desenha o texto na "área" determinada em "R" }
+                               DrawText(Canvas.Handle, PChar(Column.Field.AsString), StrLen(PChar(Column.Field.AsString)), R,
+                               AlignFlags[Column.alignment] );
+                              end;
+                            end;
+{
+
+
+                            self.Canvas.FillRect(Rect);
+                            if Column.field.AsString<>'' then
+                              Text := Column.field.Value
+                            else Text := '';
+                            }
+
+//                          Self.Canvas.FillRect(Rect);
+
+                          CheckBoxRectangle := Rect;
+
+//                          Dec(CheckBoxRectangle.Bottom,0);
+
+                          self.Canvas.Font.Color := clBlack;
+
+                          DrawText(Handle,
+                                   PChar(Text), length(Text), CheckBoxRectangle, DT_WORDBREAK or DT_LEFT  or DT_NOPREFIX);
+
+      //DrawText(Acanvas.Handle, PChar(Text), Length(Text), DREct,
+        // AlignFlags[Alignment] or RTL[ARightToLeft] or dt_WORDBREAK or DT_CALCRECT);
+
+
+
+
+                        { CLX_TO_VCL
+                            QPainter_drawText(Canvas.Handle, @Rect,
+                                              Ord(AlignmentFlags_WordBreak) ,
+                                              PWideString(@Text), -1, nil, nil);
+                        }                      
+                          end;
+                      end;
+      end;
+    end
+    else
+      DefaultDrawDataCell(Rect, Column.Field, State);
+
+
+end;
+
+function TtecDBGrid.CanEditShow: Boolean;
+var
+  Rect: TRect;
+  {CheckBoxRectangle : TRect;}
+
+begin
+  if Assigned(SelectedField) then
+  begin
+    Rect := CellRect(Col, Row);
+    case SelectedField.DataType of
+      ftBoolean:
+                begin
+                  Result := False;
+                  Canvas.Draw((Rect.Right + Rect.Left - 10) div 2,
+                              (Rect.Top + Rect.Bottom - 10) div 2,
+                              GetCheckImage(SelectedField)
+                             );
+
+{
+                         Self.Canvas.FillRect(Rect);
+                         CheckBoxRectangle.Left := Rect.Left + 2;
+                         CheckBoxRectangle.Right := Rect.Right - 2;
+                         CheckBoxRectangle.Top := Rect.Top + 2;
+                         CheckBoxRectangle.Bottom := Rect.Bottom - 2;
+                         DrawFrameControl(Self.Canvas.Handle,
+                              CheckBoxRectangle,
+                              DFC_BUTTON,
+                              CtrlState[Column.Field.AsBoolean]);
+}
+
+
+                end;
+      ftGraphic: Result := False;
+    else
+      Result := inherited CanEditShow;
+    end;
+  end
+  else
+     Result := inherited CanEditShow;
+end;
+
+procedure TtecDBGrid.EditButtonClick;
+var
+  Rect: TRect;
+begin
+  inherited;
+  if Assigned(SelectedField) then
+  begin
+    case SelectedField.DataType of
+     ftMemo: with TtecMemoEditor.CreateNew(Self) do
+             begin
+               Rect := CellRect(Col, Row);
+               MemoField.DataField := SelectedField.FieldName;
+               Left := Rect.Left;
+               Top := Rect.Bottom;
+               ShowModal;
+               Free;
+             end;
+    else
+     with TtecMemoEditor.CreateNew(Self) do
+     begin
+       Rect := CellRect(Col, Row);
+       MemoField.DataField := SelectedField.FieldName;
+       Left := Rect.Left;
+       Top := Rect.Bottom;
+       ShowModal;
+       SelectedField.Text :=  MemoField.Text;
+       Free;
+
+     end;
+    end;
+  end;
+  
+end;
+
+procedure TtecDBGrid.DoEnter;
+begin
+  if (dgEditing in Options) then
+  begin
+    if EditorMode then
+      EditorMode := False;
+    SetFocus;
+  end;
+ inherited;
+end;
+
+procedure TtecDBGrid.KeyDown(var Key: Word; Shift: TShiftState);
+var
+  KeyDownEvent: TKeyEvent;
+//  vSalvarArquivoXLS : TSaveDialog;
+  vExcelExport : TExcelExport;
+  vcontrolsDisabled: Boolean;
+  RegistroAtual: TbookMark;
+  i: integer;
+  vGrid, vGridVerificacao :TtecDBGrid;
+begin
+  if (CtrlOn or (Shift = [ssCtrl])) and (key = VK_X) then
+  begin
+//    vSalvarArquivoXLS := TSaveDialog.create(nil);
+//    vSalvarArquivoXLS.filter := '*.xls';
+//    if vSalvarArquivoXLS.execute then
+    begin
+
+      if (GridAssociado = nil) and (DataSourceAssociado = nil) then
+      begin
+        if (MensagemConfirmacao('Os dados desta grade serão exportados para o Excel. Confirma?') = smbOk) then
+        begin
+          try
+            RegistroAtual := TtecQuery(DataSource.DataSet).GetBookmark;
+            vExcelExport := TExcelExport.create(nil);
+            vExcelExport.StyleColumnWidth := cwAutoFit;
+            vcontrolsDisabled := dataSource.dataset.ControlsDisabled;
+            {
+            if not vcontrolsDisabled then
+              datasource.dataset.DisableControls;
+              }
+
+
+            vExcelExport.Dataset := self.dataSource.dataset;
+            vExcelExport.ExportDataset(ListadeCampos(self), ListadeTitulos(self));
+
+            if not vcontrolsDisabled then
+              datasource.dataset.enableControls;
+
+          finally
+            vExcelExport.free;
+            TtecQuery(DataSource.DataSet).GotoBookmark(RegistroAtual);
+            TtecQuery(DataSource.DataSet).FreeBookmark(RegistroAtual);
+            if assigned(OnFinalizeOperation) then
+              OnFinalizeOperation;
+          end;
+        end;
+      end
+      else
+      begin
+        if (MensagemConfirmacao('Os dados desta grade e associadas serão exportados para o Excel. Confirma?') = smbOk) then
+        begin
+          try
+
+            RegistroAtual := TtecQuery(DataSource.DataSet).GetBookmark;
+            vExcelExport := TExcelExport.create(nil);
+            vExcelExport.StyleColumnWidth := cwAutoFit;
+//            vcontrolsDisabled := dataSource.dataset.ControlsDisabled;
+
+            {
+            if not vcontrolsDisabled then
+              datasource.dataset.DisableControls;
+              }
+
+
+            i:= 0;
+            vGrid := self;
+            vGridVerificacao := self;
+
+            while true do
+            begin
+            //  vgrid.dataSource.dataset.DisableControls;
+              vExcelExport.DataSets[i] := vgrid.dataSource.dataset;
+              vExcelExport.lstCampos[i] := vGrid.listadeCampos(vGrid);
+              vExcelExport.lstTitulos[i] := vGrid.listadeTitulos(vGrid);
+
+              if vgrid.DataSourceAssociado <> nil then
+              begin
+                i := i + 1;
+              //  vgrid.dataSourceAssociado.dataset.DisableControls;
+                vExcelExport.DataSets[i] := vgrid.dataSourceAssociado.dataset;
+                vExcelExport.lstCampos[i] := vGrid.listadeCampostabela(vgrid.dataSourceAssociado.dataset);
+                vExcelExport.lstTitulos[i] := vGrid.listadeTitulosTabela(vgrid.dataSourceAssociado.dataset);
+              end;
+
+              if (vgrid.gridassociado = nil) or (vGrid.gridAssociado = vGridVerificacao) then
+                break
+              else
+              begin
+//                vGridVerificacao := vGrid;
+                vGrid := vgrid.gridassociado;
+              end;
+
+              i := i + 1;
+            end;
+
+            vExcelExport.ExportDatasets;
+
+//            if not vcontrolsDisabled then
+//              datasource.dataset.enableControls;
+
+          finally
+
+            vExcelExport.free;
+            TtecQuery(DataSource.DataSet).GotoBookmark(RegistroAtual);
+            TtecQuery(DataSource.DataSet).FreeBookmark(RegistroAtual);
+
+            (*
+            i:= 0;
+            vGrid := self;
+            vGridVerificacao := self;
+
+            while true do
+            begin
+              vgrid.dataSource.dataset.enableControls;
+
+              if vgrid.DataSourceAssociado <> nil then
+                vgrid.dataSourceAssociado.dataset.enableControls;
+
+              if (vgrid.gridassociado = nil)  or (vGrid.gridAssociado = vGridVerificacao) then
+                break
+              else
+              begin
+//                vGridVerificacao := vGrid;
+                vGrid := vgrid.gridassociado;
+              end;
+
+              i := i + 1;
+            end;
+
+//            GridAssociado := nil;
+            *)
+
+            if assigned(OnFinalizeOperation) then
+              OnFinalizeOperation;
+
+          end;
+        end;
+
+      end;
+    end;
+
+  end
+  else
+  if (CtrlOn or (Shift = [ssCtrl])) and (key = VK_F9) then
+  begin
+    AcionarPesquisaGrade_(self.DataSource,
+                          self.dataSource.Dataset,
+                          self.Columns[Selectedindex].Fieldname,
+                          RetornaTipoPesquisa(self.Columns[Selectedindex].Fieldname),
+                          RetornaAOwner(self.Columns[Selectedindex].Fieldname),
+                          true);
+
+    inherited KeyDown(Key, Shift);
+
+  end
+  else
+  case Key of
+  {
+    vk_space  :
+    begin
+      case self.Columns[Selectedindex].Field.DataType of
+        ftBoolean : begin
+                      self.Columns[Selectedindex].Field.AsBoolean := not self.Columns[Selectedindex].Field.AsBoolean;
+                      key := 0;
+                    end;
+      end;
+    end;
+  }
+    VK_Delete : begin
+                 if (DataLink.DataSet.RecordCount > 0) and
+                   (Not TZDataset(DataLink.DataSet).ReadOnly) and
+                   (Not ReadOnly) then
+                 begin
+                   if (Shift = [ssCtrl]) and
+                      (not (TZDataset(DataLink.DataSet).State in [dsedit, dsinsert])) then
+                   begin
+                     if assigned(fOnDelete) then
+                       fOnDelete
+                     else
+                     if CanDelete then
+                     begin
+                       if (dgConfirmDelete in Options) then
+                       begin
+                         if (MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, [MsgDelete])) = smbOk) then
+                         begin
+                           DataLink.DataSet.Delete;
+                           SetFocus;
+                         end;
+                       end
+                       else
+                       begin
+                         DataLink.DataSet.Delete;
+                         SetFocus;
+                       end;
+                     end;
+                   end
+                   else
+                   begin
+                    if not self.Columns[Selectedindex].Field.ReadOnly and
+                       not self.Columns[Selectedindex].readonly then
+                    begin
+                      DataLink.DataSet.Edit;
+                      self.Columns[Selectedindex].Field.Clear;
+                      inherited KeyDown(Key, Shift);
+                    end;
+                   end;
+                 end;
+    end;
+  else
+//    CloseHint;
+
+    KeyDownEvent := OnKeyDown;
+    if Assigned(KeyDownEvent) then
+      KeyDownEvent(Self, Key, Shift);
+
+    if not Datalink.Active or not CanGridAcceptKey(Key, Shift) then
+      Exit;
+
+    with Datalink.DataSet do
+      if ssCtrl in Shift then
+      begin
+        case Key of
+//          {$ifndef LINUX} vk_LEFT {$else}VK_LEFT{$endif}:
+          VK_LEFT:
+              if FixedCols > 0 then
+              begin
+                SelectedIndex := CalcLeftColumn - IndicatorOffset;
+                Exit;
+              end;
+        end;
+      end
+      else
+      begin
+
+        case Key of
+
+          vk_space  :
+          begin
+            case self.Columns[Selectedindex].Field.DataType of
+              ftBoolean : begin
+                            SaveBoolean();
+                            //self.Columns[Selectedindex].Field.AsBoolean := not self.Columns[Selectedindex].Field.AsBoolean;
+                            key := 0;
+                          end;
+            end;
+          end;
+
+          VK_LEFT:
+          begin
+
+            if State in [dsedit,dsinsert] then
+              key :=0;
+
+            if (FixedCols > 0) and not (dgRowSelect in Options) then
+            begin
+              if SelectedIndex <= CalcLeftColumn - IndicatorOffset then
+                Exit;
+            end;
+          end;
+
+          VK_RIGHT:
+          begin
+
+            if State in [dsedit,dsinsert] then
+              key :=0
+
+          end;
+
+          VK_HOME:
+          begin
+            if State in [dsedit,dsinsert] then
+              key :=0;
+
+            if (FixedCols > 0) and (ColCount <> IndicatorOffset + 1) and
+              not (dgRowSelect in Options) then
+            begin
+              SelectedIndex := CalcLeftColumn - IndicatorOffset;
+              Exit;
+            end;
+          end;
+
+          VK_END:
+          begin
+            {
+            if State in [dsedit,dsinsert] then
+              key :=0
+            }  
+          end;
+
+          VK_TAB:
+          begin
+
+            if State in [dsedit,dsinsert] then
+            begin
+              if (self.Columns[SelectedIndex].Field.Required) and
+                 (self.Columns[SelectedIndex].Field.IsNull) then
+                key :=0
+              else
+              begin
+                if EditandoCelula then
+                begin
+
+                  if PostOnEnter then
+                    EditandoCelula := false;
+
+                end
+                else
+                  key := 0;
+              end;
+            end
+            else
+            begin
+              if CanNotInsertFromGrid and
+                 (recno = recordcount) then
+              begin
+                edit;
+                key := 0;
+              end;
+            end;
+
+          end;
+
+          VK_UP,
+          VK_DOWN : begin
+                       if (State in [dsedit,dsinsert]) and postonsetUpDown and not CanNotInsertFromGrid then
+                       begin
+                         if Assigned(onpost) then
+                         begin
+                           if not fonpost then
+                             key := 0;
+                         end
+                         else
+                         begin
+                           if not GravarTabela then
+                             key := 0;
+                         end;
+                       end
+                       else
+                       if (State in [dsedit, dsinsert]) and not postonsetUpDown and CanClickWhenEditing then
+                         key := 0
+                       else
+                       if (State in [dsedit]) and postonsetUpDown then
+                       begin
+                         if Assigned(onpost) then
+                         begin
+
+                           if self.datasource.dataset.recordcount = 1 then
+                              key := 0;
+                              
+                           if not fonpost then
+                             key := 0;
+
+                         end
+                         else
+                         begin
+                           if not GravarTabela then
+                             key := 0;
+                         end;
+                       end
+                       else
+                       if (CanNotInsertFromGrid and
+                           (recno = recordcount) and
+                           (key = VK_DOWN)) then
+                         key := 0
+                       else
+                       begin
+                         if (Shift = [ssAlt]) then
+                         begin
+                           case key of
+                             VK_UP : DeslocarRegistroParaCima;
+                             VK_DOWN : DeslocarRegistroParaBaixo;
+                           end;
+                           key := 0;
+                         end;
+                       end;
+                     end;
+
+          VK_PRIOR,
+          VK_NEXT: begin
+                          if State in [dsedit,dsinsert] then
+                            key :=0
+                        end;
+          VK_Return: begin
+
+                          if State in [dsedit,dsinsert] then
+                            if PostOnEnter then
+                            begin
+                              if Assigned(onpost) then
+                              begin
+                                if not fonpost then
+                                  key := 0;
+                              end
+                              else
+                              begin
+                                if not GravarTabela then
+                                  key := 0;
+                              end
+                            end;
+                      end;
+
+        end;
+
+      end;
+     OnKeyDown := nil;
+
+    try
+      inherited KeyDown(Key, Shift);
+    finally
+      OnKeyDown := KeyDownEvent;
+    end;
+  end;
+
+end;
+
+
+(*
+procedure TtecDBGrid.Scroll(Distance: Integer);
+begin
+  inherited;
+  {
+  if vRow_Before_Edit <> 0 then
+    After_Post_Grid;
+    }
+end;
+*)
+
+
+procedure TtecDBGrid.SetMsgDelete(const Value: String);
+begin
+  if FMsgDelete <> Value then
+    FMsgDelete:= Value;
+end;
+
+function TtecDBGrid.CalcLeftColumn: Integer;
+begin
+  Result := FixedCols + IndicatorOffset;
+  while (Result < ColCount) and (ColWidths[Result] <= 0) do
+    Inc(Result);
+end;
+
+{
+procedure TtecDBGrid.CloseHINT;
+begin
+     FCellHint.releasehandle;
+end;
+}
+
+
+procedure TtecDBGrid.SetCheckTitle(const Value: boolean);
+begin
+  FCheckTitle:=Value;
+  if Value then checktitleheight;
+end;
+
+procedure TtecDBGrid.CheckTitleHeight;
+var i:integer;
+    ROWH:integer;
+    ARECT:TRECT;
+//    UFormat:integer;
+begin
+  if FCheckTitle and  not FIncheckTitle then
+  try
+    FInCheckTitle:=true;
+
+    if dgTitles in OPTIONS then begin
+       with CellRect(0,0) do begin
+          ROWH:=Bottom-Top;
+       end;
+       for i:=0 to Columns.Count-1 do
+       with Columns[i] do if visible then
+       begin
+          //ARECT:=RECT( 0,0,Columns[i].width,ROWH);
+          //inflaterect(arect,-1,-1);
+          if cvTitleFont in assignedvalues
+          then  canvas.Font:=Title.font
+          else  canvas.Font:=self.TitleFont;
+
+          ARECT:=NeededRECT(
+             Title.caption,
+             width-4,
+             title.Alignment,
+             UseRightToLeftAlignmentForField(Field, title.Alignment)
+             );
+
+          if ROWH<ARECT.Bottom+2 then ROWH:=ARECT.BOttom+2;
+          if ROWH<FTitleMinHeight*GetSTDdefaultRowHeight div 100
+          then ROWH:=FTitleMinHeight*GetSTDdefaultRowHeight div 100;
+       end;
+       if rowheights[0]<>ROWH then begin
+          rowheights[0]:=ROWH;
+          {$ifndef LINUX}
+//           perform(wm_size,0,0); GG Erro
+          {$endif}
+       end
+    end
+    else begin
+       if rowheights[0]<>DefaultRowHeight then begin
+         rowheights[0]:=DefaultRowHeight;
+         {$ifndef LINUX}
+//         perform(WM_sIzE,0,0); GG Erro
+         {$endif}
+       end
+    end;
+  finally
+    FInCheckTitle:=false;
+  end;
+end;
+
+function TtecDBGrid.NeededRECT(aText: string; aWidth: integer;
+  Alignment: TAlignment; ARightToLeft: Boolean): TRECT;
+var
+    //OldFont:TFont;
+    uFormat:integer;
+begin
+   Result.Left:=0;
+   Result.Top:=0;
+   Result.right:=aWidth;
+   Result.Bottom:=0;
+
+   //OldFont:=tfont.Create;
+   //OldFont:=canvas.font;
+   try
+     //OldFont.assign(canvas.font);
+     //if aFont<>nil
+     //then Canvas.Font:=aFont;
+
+     //UFormat:=DT_CALCRECT or DT_WORDBREAK or DT_NOPREFIX  or AlignFlags[Alignment] or  RTL[ARightToLeft];
+
+     UFormat:=
+       {$ifndef LINUX}
+       DT_CALCRECT or DT_WORDBREAK or DT_NOPREFIX
+       {$else}
+       integer(AlignmentFlags_WORDBREAK)
+       {$endif}
+       or AlignFlags[Alignment] or  RTL[ARightToLeft]
+       ;
+
+     {$ifndef LINUX}
+     { CLX_TO_VCL Canvas.TextExtent(aText, Result,UFormat);}
+     Canvas.TextExtent(aText);     
+{
+     drawtext( canvas.handle, pchar(aText),
+               length(aText),Result,UFormat);
+}
+{
+     QPainter_drawText(Canvas.Handle, @Rect,
+                                  Ord(AlignmentFlags_WordBreak) ,
+                                          PWideString(@Text), -1, nil, nil);
+}
+     {$else}
+     Canvas.TextExtent(aText, Result,UFormat);
+     {$endif}
+
+   finally
+     //if aFont<>nil then  Canvas.font:=OldFont;
+     //OldFont.Free;
+   end;
+
+end;
+
+procedure TtecDBGrid.SetTitleMinHeight(const Value: integer);
+begin
+  if Value<1 then FTitleMinHeight:=1
+  else FTitleMinHeight:=Value;
+  CheckTitleHeight;
+end;
+
+function TtecDBGrid.GetSTDdefaultRowHeight: integer;
+var CanvFont:TFont;
+begin
+   CanvFont:=Canvas.font;
+   try
+     Canvas.Font := Font;
+     REsult := Canvas.TextHeight('Wg') + 3;
+     if dgRowLines in Options then
+       Inc(REsult, GridLineWidth);
+   finally
+     Canvas.font:=CanvFont;
+   end;
+end;
+
+procedure TtecDBGrid.SetColumnAttributes;
+begin
+  inherited SetColumnAttributes;
+  SetFixedCols(FFixedCols);
+  CheckTitleHeight;
+end;
+
+procedure TtecDBGrid.LayoutChanged;
+var
+  ACol: Longint;
+begin
+  ACol := Col;
+  inherited LayoutChanged;
+  if Datalink.Active and (FixedCols > 0) then
+    Col := Min(Max(CalcLeftColumn, ACol), ColCount - 1);
+end;
+
+function TtecDBGrid.GetFixedCols: Integer;
+begin
+  if DataLink.Active then Result := inherited FixedCols - IndicatorOffset
+  else Result := FFixedCols;
+end;
+
+procedure TtecDBGrid.SetFixedCols(const Value: Integer);
+var
+  FixCount, I: Integer;
+begin
+  FixCount := Max(Value, 0) + IndicatorOffset;
+  if DataLink.Active and not (csLoading in ComponentState) and
+    (ColCount > IndicatorOffset + 1) then
+  begin
+    FixCount := Min(FixCount, ColCount - 1);
+    inherited FixedCols := FixCount;
+    for I := 1 to Min(FixedCols, ColCount - 1) do
+      TabStops[I] := False;
+  end;
+  FFixedCols := FixCount - IndicatorOffset;
+end;
+
+
+function TtecDBGrid.GetCellHeights: integer;
+begin
+  REsult:=FCellHeights;
+end;
+
+procedure TtecDBGrid.SetCellHeights(Value: integer);
+var H:integer;
+begin
+  if Value<1 then Value:=1;
+  FCellHeights:=Value;
+  if not (csLoading in componentstate) then begin
+    H:=FCellHeights*GetSTDdefaultRowHeight div 100;
+    if DefaultROWHeight<>H then DefaultRowHeight:=H;
+  end;
+end;
+
+procedure TtecDBGrid.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
+  Y: Integer);
+var
+  Cell: TGridCoord;
+  TitleOffset:integer;
+  NewPopup: TPopupmenu;
+  MenuItem: TMenuItem;
+
+  c : TGridCoord;
+  p : TPoint;
+
+
+begin
+// inherited;
+   if (Owner is TCustomForm) and
+      not ((Owner as TcustomForm).activeControl=Self) then
+      (Owner as TcustomForm).activeControl:=Self;
+
+//   CloseHINT;
+
+   Cell := MouseCoord(X, Y);
+   if dgTitles in options then
+     TitleOffSet:=1
+   else
+     TitleOffset:=0;
+
+   if (Cell.X < FixedCols + IndicatorOffset) and Datalink.Active then
+   begin
+    if (dgIndicator in Options) then
+      inherited MouseDown(Button, Shift, 1, Y)
+    else
+     if Cell.Y >= TitleOffset then
+      if Cell.Y - Row <> 0 then
+        Datalink.Dataset.MoveBy(Cell.Y - Row);
+   end
+   else
+   if (datasource.dataset.State = dsbrowse) or NOT CanClickWhenEditing then
+      inherited MouseDown(Button, Shift, X, Y);
+
+   if (ssRight in Shift) then
+   begin
+     VisualizarCampos;
+     {
+     NewPopup := TPopupMenu.create(self);
+//     NewPopup.parent := self;
+
+     MenuItem := TMenuItem.Create(self);
+//     MenuItem.parent := self;
+
+     MenuItem.Caption := 'Ocultar Coluna';
+     MenuItem.OnClick := OcultarColuna;
+
+     NewPopup.Items.Add(MenuItem);
+     self.PopupMenu := NewPopup;
+
+          p := self.ClientToScreen (Point (X, Y));
+          self.PopupMenu.Popup (p.X, p.Y)
+     }
+   end;
+
+end;
+
+procedure TtecDBGrid.ColWidthsChanged;
+begin
+  inherited; //ColWidthsChanged;
+  if ExibirNumerodaLinha then
+    ColWidths[0] := 40;
+
+   if (Datalink.Active or (Columns.State = csCustomized)) and
+      {AcquireLayoutLock and} Assigned(FOnColResize) then
+      FOnColResize(Self);
+
+
+end;
+
+procedure TtecDBGrid.RowHeightsChanged;
+begin
+  CellHeights:=cellHeights;
+  CheckTitleHeight;
+  inherited;
+end;
+
+procedure TtecDBGrid.SetStrippedRows(const Value: integer);
+begin
+  if (Value<0) then FStrippedRows:=0
+  else if  (Value=1) then FStrippedRows:=2
+  else FStrippedRows:=Value;
+  Repaint;
+end;
+
+procedure TtecDBGrid.SetStrippedColor(const Value: TColor);
+begin
+  FStrippedColor:=Value;
+  Repaint;
+end;
+
+procedure TtecDBGrid.SETLines3dV(const Value: Lines3dType);
+begin
+   FLines3dV:= Value;
+   //(Self as TCustomGrid).PaintLines:= Value=c3dNONE;
+   if Visible then refresh;
+end;
+
+procedure TtecDBGrid.SETLines3dH(const Value: Lines3dType);
+begin
+   FLines3dH:= Value;
+   //(Self as TCustomGrid).PaintLines:= Value=c3dNONE;
+   if Visible then refresh;
+end;
+
+//procedure TtecDBGrid.SetEditText(ACol, ARow: Integer;  const Value: WideString); CLX_TO-VCL
+procedure TtecDBGrid.SetEditText(ACol, ARow: Integer;  const Value: String);
+var
+selecionada: Integer;
+begin
+  inherited;
+
+  if not NaoAtribuirDadosaTabelaaoDigitar then
+     if value <> '' then
+     begin
+       if dgIndicator in Options then
+         selecionada := Acol - 1
+       else
+         selecionada := Acol;   { Acol +1 }
+
+       if DataLink.DataSet.State in [dsinsert,dsedit] then
+         case self.Columns[Selecionada].Field.DataType of
+         ftString: self.Columns[selecionada].Field.Value := value;
+         ftInteger,
+         ftLargeint: if (Value <> '-') and (Value <> '+') then
+                     begin
+
+
+                       self.Columns[Selecionada].Field.AsString := value;
+                       
+                       Keybd_Event(VK_End, 0, 0, 0);
+//                       Keybd_Event(VK_return, 0, 0, 0);
+                     end;
+         ftDate : begin
+                    if trim(value)='/  /' then
+                       self.Columns[Selecionada].Field.clear;
+                  end;
+         end;
+     end;
+end;
+
+procedure TtecDBGrid.MouseMove(Shift: TShiftState; X, Y: Integer);
+
+//var
+//  R: TRect;
+begin
+  inherited;
+  {
+  if datalink.Dataset.State in [dsinsert, dsedit] then
+  begin
+//    R := GetClientRect;
+    R := CellRect(Col, Row);
+    R.TopLeft := ClientToScreen(R.TopLeft);
+    R.BottomRight := ClientToScreen(R.BottomRight);
+    MouseShowCursor(false);
+  end
+  else
+    MouseShowCursor(true);
+    }
+end;
+
+{
+var
+  IrPara: TPoint;
+begin
+  if datalink.Dataset.State in [dsinsert, dsedit] then
+  begin
+    IrPara.X := self.Left; // + (self.Width div 2);
+    IrPara.Y := self.Top; //+ (self.Height div 2);
+    if self.Parent <> nil then
+      IrPara := self.Parent.ClientToScreen(IrPara);
+    SetCursorPos(IrPara.X, IrPara.Y);
+  end;
+end;
+
+}
+  { Pega o retângulo da área cliente do form }
+//  if datalink.Dataset.State in [dsinsert, dsedit] then
+//  begin
+//    R := GetClientRect;
+    { Converte as coordenadas do form em coordenadas da tela }
+//    R.TopLeft := ClientToScreen(R.TopLeft);
+//   R.BottomRight := ClientToScreen(R.BottomRight);
+    { Limita a região de movimentação do mouse }
+//    ClipCursor(@R);
+//  end
+//  else
+    { Libera a movimentação }
+//    ClipCursor(nil);
+
+//end;
+
+//procedure TtecDBGrid.GridKeyPress(var Key: Char); CLX_TO_VCL
+procedure TtecDBGrid.KeyPress(var Key: Char);
+begin
+  with Datalink.DataSet do
+  begin
+    if key = #13 then
+    begin
+       if PostOnEnter then
+         if State in [dsinsert,dsedit] then
+         begin
+           if assigned(fonpost) then
+           begin
+             if not fonpost then
+               key := #0;
+           end
+           else
+             if not GravarTabela then
+               key := #0;
+         end;
+
+       EditandoCelula := false;
+    end
+    else
+      EditandoCelula := true;
+  end;
+
+  inherited;
+
+end;
+
+procedure TtecDBGrid.TitleClick(Column: TColumn);
+var
+ i: integer;
+ RegistroAtual: TbookMark;
+ vordenacaoAux: String;
+begin
+  inherited;
+
+  if DataSource <> nil then
+    if not DenySort then
+    begin
+
+      if TtecQuery(DataSource.DataSet).Active and not (DataSource.DataSet.state in [dsedit, dsinsert]) then
+      begin
+  //      if not AltOn and not ShiftOn then
+        begin
+          if not CtrlIsOn then
+          begin
+            if Ordenacao <> column.FieldName then
+            begin
+              Ordenacao := column.FieldName
+              {
+              fOrdenacao := column.FieldName;
+              ListaOrdenacao := nil;
+              SetLength(FListaOrdenacao, length(ListaOrdenacao)+1);
+              ListaOrdenacao[0] := Ordenacao;
+
+              RegistroAtual := TtecQuery(DataSource.DataSet).GetBookmark;
+              case TipoOrdenacao of
+                Asc :
+                begin
+                  if asigned(GridAssociado) then
+                    GridAssociado.Ordenacao := Ordenacao
+                  else
+                    TtecQuery(DataSource.DataSet).SortByField(Ordenacao);
+                end;
+                Desc: TtecQuery(DataSource.DataSet).SortDescByField(Ordenacao);
+              end;
+              TtecQuery(DataSource.DataSet).GotoBookmark(RegistroAtual);
+              TtecQuery(DataSource.DataSet).FreeBookmark(RegistroAtual);
+
+              for i:=0 to self.Columns.Count-1 do
+                columns[i].Title.Font.Style := [];
+              Column.Title.Font.Style := [fsBold];
+              }
+            end;
+
+
+          end
+          else
+          begin
+  //        CtrlOn := false;
+            if Ordenacao <> '' then
+            begin
+
+              if pos(column.FieldName, Ordenacao) <> 0 then
+              begin
+                if (length(ListaOrdenacao)>1) and (column.FieldName<>FOrdenacao) then
+                begin
+                  for i:=0 to length(ListaOrdenacao)-1 do
+                    if ListaOrdenacao[i] = column.FieldName then
+                      ListaOrdenacao[i] := '';
+
+                  if assigned(GridAssociado) then
+                    for i:=0 to length(GridAssociado.ListaOrdenacao)-1 do
+                      if GridAssociado.ListaOrdenacao[i] = column.FieldName then
+                        GridAssociado.ListaOrdenacao[i] := '';
+
+                  Column.Title.Font.Style := [];
+                end;
+
+              end
+              else
+              begin
+                SetLength(FListaOrdenacao, length(ListaOrdenacao)+1);
+                ListaOrdenacao[length(ListaOrdenacao)-1] := column.FieldName;
+
+                if assigned(GridAssociado) then
+                begin
+                  SetLength(GridAssociado.FListaOrdenacao, length(GridAssociado.ListaOrdenacao)+1);
+                  GridAssociado.ListaOrdenacao[length(GridAssociado.ListaOrdenacao)-1] := column.FieldName;
+                end;
+
+
+                Column.Title.Font.Style := [fsBold];
+              end;
+
+            end
+            else
+            begin
+              ListaOrdenacao := nil;
+              SetLength(FListaOrdenacao, length(ListaOrdenacao)+1);
+              ListaOrdenacao[0] := column.FieldName;
+
+              if assigned(GridAssociado) then
+              begin
+                SetLength(GridAssociado.FListaOrdenacao, length(GridAssociado.ListaOrdenacao)+1);
+                GridAssociado.ListaOrdenacao[0] := column.FieldName;
+              end;
+
+
+              Column.Title.Font.Style := [fsBold];
+            end;
+
+
+            for i:=0 to length(ListaOrdenacao)-1 do
+              if ListaOrdenacao[i]<>'' then
+                vordenacaoAux := vordenacaoAux + ListaOrdenacao[i]+',';
+
+            if vordenacaoAux<>'' then
+              if Copy(vordenacaoAux,length(vordenacaoAux),1)=',' then
+                delete(vordenacaoAux,length(vordenacaoAux),1);
+
+            if vordenacaoAux <> FOrdenacao then
+            begin
+              Ordenacao := vordenacaoAux;
+              {
+              RegistroAtual := TtecQuery(DataSource.DataSet).GetBookmark;
+              FOrdenacao := vordenacaoAux;
+              if FOrdenacao<>'' then
+              begin
+                case TipoOrdenacao of
+                  Asc : TtecQuery(DataSource.DataSet).SortByField(FOrdenacao);
+                  Desc: TtecQuery(DataSource.DataSet).SortDescByField(FOrdenacao);
+                end;
+              end
+              else
+              begin
+                  TtecQuery(DataSource.DataSet).SortClear;
+              end;
+              TtecQuery(DataSource.DataSet).GotoBookmark(RegistroAtual);
+              TtecQuery(DataSource.DataSet).FreeBookmark(RegistroAtual);
+              }
+            end;
+
+          end;
+        end;
+      end;
+    end;
+end;
+
+procedure TtecDBGrid.SetOrdenacao(const Value: String);
+var
+ i,j,k: integer;
+ campo, ordenacaotemp: String;
+ EstaNaLista: boolean;
+begin
+  FOrdenacao := Value;
+
+  {
+  if pos(',',FOrdenacao)=0 then
+  begin
+    for i:=0 to self.Columns.Count-1 do
+    begin
+      if self.Columns[i].FieldName = FOrdenacao then
+      begin
+        self.TitleClick(self.Columns[i]);
+        break;
+      end
+      else
+      if FOrdenacao='' then
+        columns[i].Title.Font.Style := [];
+    end
+  end
+  else
+  begin
+  }
+    ordenacaotemp := FOrdenacao + ',';
+    Campo := '';
+    ListaOrdenacao := nil;
+
+    for j := 0 to self.Columns.Count-1 do
+      columns[j].Title.Font.Style := [];
+
+    if assigned(GridAssociado) then
+      for j := 0 to GridAssociado.Columns.Count-1 do
+        GridAssociado.columns[j].Title.Font.Style := [];
+
+
+    for i:=0 to length(ordenacaotemp)-1 do
+    begin
+      if ordenacaotemp[i+1] <> ',' then
+        campo := campo + ordenacaotemp[i+1]
+      else
+        if campo<>'' then
+        begin
+
+          for j := 0 to self.Columns.Count-1 do
+          begin
+            if self.Columns[j].FieldName = campo then
+            begin
+              SetLength(FListaOrdenacao, length(ListaOrdenacao)+1);
+              ListaOrdenacao[length(ListaOrdenacao)-1] := campo;
+              columns[j].Title.Font.Style := [fsBold];
+              break;
+            end;
+          end;
+
+          if assigned(GridAssociado) then
+          begin
+            for j := 0 to GridAssociado.Columns.Count-1 do
+            begin
+              if GridAssociado.Columns[j].FieldName = campo then
+              begin
+                SetLength(GridAssociado.FListaOrdenacao , length(GridAssociado.ListaOrdenacao)+1);
+                GridAssociado.ListaOrdenacao[length(GridAssociado.ListaOrdenacao)-1] := campo;
+                GridAssociado.columns[j].Title.Font.Style := [fsBold];
+                break;
+              end;
+            end;
+          end;
+
+          campo := '';
+
+        end;
+    end;
+
+    if FOrdenacao<>'' then
+    begin
+
+      if assigned(self.DataSource)  then
+      begin
+
+        try
+
+          TtecQuery(DataSource.DataSet).GuardarRegistroAtual(false);
+
+          if assigned(GridAssociado) then
+            GridAssociado.FOrdenacao := FOrdenacao;
+
+          if DataSource <> nil then
+          begin
+            {
+            if TZDataset(DataSource.dataset).SqlBuffer.SortFieldCount <> 0 then
+              TtecQuery(DataSource.DataSet).SortClear;
+              }
+
+            case TipoOrdenacao of
+              Asc : begin
+                     if fordenacao = CampoSequencial then
+                       TtecQuery(DataSource.DataSet).SortByField(FOrdenacao)
+                     else
+                       TtecQuery(DataSource.DataSet).SortByField(FOrdenacao);
+                    end;
+              Desc: TtecQuery(DataSource.DataSet).SortDescByField(FOrdenacao);
+            end;
+
+          end;
+
+        finally
+          TtecQuery(DataSource.DataSet).VoltarRegistro;
+        end;
+
+      end;
+
+    end
+    else
+    begin
+
+      {
+       NUNCA VAIR CAIR NESTA OPÇÃO
+      if ListaOrdenacaoSQL <> '' then
+        TtecQuery(DataSource.DataSet).SortByField(FListaOrdenacaoSQL)
+      else
+      }
+      if DataSource <> nil then
+        if TZDataset(DataSource.dataset).SqlBuffer.SortFieldCount <> 0 then
+          TtecQuery(DataSource.DataSet).SortClear;
+    end;
+
+//    self.Refresh;
+
+  //end;
+end;
+
+procedure TtecDBGrid.DeslocarRegistroParaBaixo;
+var
+  RegistroSendoDeslocado: TBookMark;
+begin
+   if (CampoSequencial<>'') and
+      (TtecQuery(DataSource.DataSet).FieldDefList.Find(CampoSequencial) <> nil) and
+      not (TtecQuery(DataSource.DataSet).ReadOnly) then
+   begin
+
+     if Ordenacao <> CampoSequencial then
+        Ordenacao := CampoSequencial;
+
+     RegistroSendoDeslocado := TtecQuery(DataSource.DataSet).GetBookmark;
+     TtecQuery(DataSource.DataSet).next;
+     if not TtecQuery(DataSource.DataSet).eof and not (TtecQuery(DataSource.DataSet).RecordCount=1) then
+     begin
+       TtecQuery(DataSource.DataSet).Edit;
+       TtecQuery(DataSource.DataSet).FieldByName(CampoSequencial).AsInteger :=
+         TtecQuery(DataSource.DataSet).FieldByName(CampoSequencial).AsInteger - 1;
+
+       if TtecQuery(DataSource.DataSet).state = dsedit then
+         TtecQuery(DataSource.DataSet).Post;
+
+       TtecQuery(DataSource.DataSet).GotoBookmark(RegistroSendoDeslocado);
+       TtecQuery(DataSource.DataSet).Edit;
+       TtecQuery(DataSource.DataSet).FieldByName(CampoSequencial).AsInteger :=
+         TtecQuery(DataSource.DataSet).FieldByName(CampoSequencial).AsInteger + 1;
+
+       if TtecQuery(DataSource.DataSet).state = dsedit then
+         TtecQuery(DataSource.DataSet).Post;
+     end;
+     TtecQuery(DataSource.DataSet).FreeBookmark(RegistroSendoDeslocado);
+     
+     RefazerOrdenacaoSequencial(nil);
+   end;
+end;
+
+procedure TtecDBGrid.DeslocarRegistroParaCima;
+var
+  RegistroSendoDeslocado: TBookMark;
+begin
+   if (CampoSequencial<>'') and
+      (TtecQuery(DataSource.DataSet).FieldDefList.Find(CampoSequencial) <> nil) and
+      not (TtecQuery(DataSource.DataSet).ReadOnly) then
+   begin
+
+     if Ordenacao <> CampoSequencial then
+        Ordenacao := CampoSequencial;
+
+     RegistroSendoDeslocado := TtecQuery(DataSource.DataSet).GetBookmark;
+     TtecQuery(DataSource.DataSet).Prior;
+     if not TtecQuery(DataSource.DataSet).Bof and not (TtecQuery(DataSource.DataSet).RecordCount=1) then
+     begin
+       TtecQuery(DataSource.DataSet).Edit;
+       TtecQuery(DataSource.DataSet).FieldByName(CampoSequencial).AsInteger :=
+         TtecQuery(DataSource.DataSet).FieldByName(CampoSequencial).AsInteger + 1;
+         
+       if TtecQuery(DataSource.DataSet).state = dsedit then
+         TtecQuery(DataSource.DataSet).Post;
+
+       TtecQuery(DataSource.DataSet).GotoBookmark(RegistroSendoDeslocado);
+       TtecQuery(DataSource.DataSet).Edit;
+       TtecQuery(DataSource.DataSet).FieldByName(CampoSequencial).AsInteger :=
+         TtecQuery(DataSource.DataSet).FieldByName(CampoSequencial).AsInteger - 1;
+
+       if TtecQuery(DataSource.DataSet).state = dsedit  then
+         TtecQuery(DataSource.DataSet).Post;
+     end;
+     TtecQuery(DataSource.DataSet).FreeBookmark(RegistroSendoDeslocado);
+
+     RefazerOrdenacaoSequencial(nil);
+   end;
+end;
+
+procedure TtecDBGrid.RefazerOrdenacaoSequencial(Sender: TObject);
+begin
+  Ordenacao := CampoSequencial;
+end;
+
+
+procedure TtecDBGrid.KeyUP(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+end;
+
+procedure TtecDBGrid.RefazerOrdenacao(Sender: TObject);
+begin
+  Ordenacao := FOrdenacao;
+end;
+
+
+function TtecDBGrid.ColumnByName(const ColumnName: String;
+                                 ExibirMsg: boolean = True): TColumn;
+var
+ i: integer;
+ CampoExistente, mensagemexibida: Boolean;
+
+ procedure mensagemdeerro;
+ begin
+   MensagemErro('O campo '+quotedstr(ColumnName)+' da tabela '+quotedstr(self.DataSource.DataSet.Name)+' não existe.'+#10#13+
+                'Por favor! entre em contato com o suporte.' );
+ end;
+
+begin
+  result := nil;
+
+  CampoExistente := false;
+  mensagemexibida := false;
+  for i:=0 to self.ColCount-1 do
+  begin
+    try
+      if lowercase(self.Columns[i].FieldName) = lowercase(ColumnName) then
+      begin
+        result := self.Columns[i];
+        CampoExistente := true;
+        break;
+      end;
+    except
+      if ExibirMsg then
+      begin
+        MensagemdeErro;
+        mensagemexibida := false;
+      end;
+    end;
+  end;
+
+  if not CampoExistente and not mensagemexibida then
+  begin
+    if ExibirMsg then
+    begin
+      MensagemdeErro;
+      abort;
+    end;
+  end;
+end;
+
+
+
+procedure TtecDBGrid.CellClick(Column: TColumn);
+//var
+//  SomaXColunas:integer;
+begin
+//  if Self.SelectedField.DataType = ftBoolean then
+//    SaveBoolean()
+
+{
+  ColunaClicada := -1;
+  SomaXColunas := 0;
+
+  while LocalClicadoX > SomaXColunas do
+  begin
+    colunaClicada := ColunaClicada +1;
+    SomaxColunas := SomaxColunas + self.Columns[ColunaClicada].Width;
+  end;
+  }
+
+  inherited;
+
+end;
+
+procedure TtecDBGrid.SaveBoolean;
+var
+// vControlsDisabled : boolean;
+  vStateAnt : TDataSetState;
+begin
+
+  if Assigned(SelectedField) then
+  begin
+    if (not DataLink.DataSet.FieldByName(Self.SelectedField.FieldName).ReadOnly) and
+       (not ColumnByName(Self.SelectedField.FieldName).ReadOnly) and
+       (not Self.SelectedField.ReadOnly) and
+       (Not TZDataset(DataLink.DataSet).ReadOnly) and
+       (Not ReadOnly) then
+    begin
+      // vControlsDisabled := Self.SelectedField.Dataset.ControlsDisabled;
+      vStateAnt :=  Self.SelectedField.Dataset.State;
+
+      //if not vControlsDisabled then
+      //  Self.SelectedField.Dataset.DisableControls;
+
+      if not (vStateAnt in [dsedit, dsinsert]) then
+        Self.SelectedField.Dataset.Edit;
+
+      Self.SelectedField.AsBoolean := not Self.SelectedField.AsBoolean;
+      vSaveBoolean := true;
+      if not (vStateAnt in [dsedit, dsinsert]) then
+        if Self.SelectedField.Dataset.state in [dsedit, dsinsert] then
+        Self.SelectedField.Dataset.Post;
+      vSaveBoolean := false;
+
+      //if not vControlsDisabled then
+      //  Self.SelectedField.Dataset.EnableControls;
+
+    end;
+  end;
+
+end;
+
+procedure TtecDBGrid.ColEnter;
+begin
+  inherited;
+  if Assigned(SelectedField) then
+  begin
+    if Self.SelectedField.DataType = ftBoolean then
+    begin
+     Self.FOriginalOptions := Self.Options;
+     Self.Options := Self.Options - [dgEditing];
+    end;
+  end;
+end;
+
+procedure TtecDBGrid.ColExit;
+begin
+  inherited;
+ if Assigned(SelectedField) then
+   if Self.SelectedField.DataType = ftBoolean then
+     Self.Options := Self.FOriginalOptions;
+
+end;
+
+procedure TtecDBGrid.DblClick;
+var
+  vBoolean : Boolean;
+begin
+  if Assigned(SelectedField) then
+    if Self.SelectedField.DataType = ftBoolean then
+      vBoolean := Self.SelectedField.AsBoolean;
+
+  inherited;
+  if Assigned(SelectedField) then
+    if Self.SelectedField.DataType = ftBoolean then
+      if vBoolean = Self.SelectedField.AsBoolean then
+         SaveBoolean();
+
+end;
+
+procedure TtecDBGrid.DrawCell(ACol, ARow: Integer; ARect: TRect;
+  AState: TGridDrawState);
+begin
+  inherited;
+end;
+
+
+procedure TtecDBGrid.LinkActive(Value: Boolean);
+begin
+  inherited;
+  if not self.DenySort then
+    RefazerOrdenacaoTabela;
+end;
+
+
+procedure TtecDBGrid.After_Post_Grid;
+var
+  GridRows,
+  OldRow,
+  MoveDataSetBy,
+  Shortfall, MovedBy : Integer;
+  Possible : Boolean;
+  ScrollUp : Boolean;
+begin
+  try
+    if (TtecDBGrid(self) <> nil) then
+      if (self.name <> '') then
+      begin
+        if (FOrdenacao <> '') and (FOrdenacao  <> CampoSequencial) and not vSaveBoolean then
+          RefazerOrdenacao(nil);
+      end;
+  except
+  end;    
+
+(*
+  if Row = vRow_Before_Edit then
+    Exit;
+
+  ScrollUp := Row < vRow_Before_Edit;
+
+  GridRows := RowCount;
+  { TODO : Test the case where the DataSet doesn't have enough rows to fill the grid}
+  { TODO : Check why grid reports one more row than it displays.
+   Meanwhile ... }
+  GridRows := GridRows - 1;
+
+  // First check whether the NewRow value is sensible
+  Possible := (Row >= 1) and (Row <= GridRows);
+  if not Possible then
+    exit;
+
+  try
+    if ScrollUp then
+    begin
+
+      //  First scroll the dataset forwards enough to bring
+      //  a number of new records into view
+      MoveDataSetBy := GridRows - Row;
+      MovedBy := DataSource.DataSet.MoveBy(MoveDataSetBy);
+      Shortfall := MoveDataSetBy - MovedBy;
+      if Shortfall = 0 then
+      begin
+        //  Now scroll the dataset backwards to get back
+        //  to the record we were on
+        MoveDataSetBy := - GridRows + Row;
+        MovedBy := DataSource.DataSet.MoveBy(MoveDataSetBy);
+      end
+      else
+        MovedBy := DataSource.DataSet.MoveBy(-MovedBy);
+    end
+    else
+    begin
+      MoveDataSetBy :=  -(Row - 1);
+      MovedBy := DataSource.DataSet.MoveBy(MoveDataSetBy);
+      //  We need to know if the DS cursor was able to move far enough
+      //  back as we've asked or was prevented by reaching BOF
+      Shortfall := MoveDataSetBy - MovedBy;
+      if Shortfall = 0 then
+      begin
+        // The DS cursor succeeded on moving the requested distance
+        MoveDataSetBy := Row - 1;
+        MovedBy := DataSource.DataSet.MoveBy(MoveDataSetBy);
+      end
+      else
+        //  it failed, so we need to return to the record we started on
+        //  but this won't necessarily return us the same grid row number
+        MovedBy := DataSource.DataSet.MoveBy(-MovedBy);
+    end;
+  finally
+    self.Invalidate;
+    vRow_Before_Edit := 0;
+  end;
+  *)
+end;
+
+{
+
+procedure TtecDBGrid.Before_Edit_Grid;
+begin
+  vRow_Before_Edit := Row;
+  vLinhasVisiveisdaGrade := THackDBGrid(self).VisibleRowCount;
+  vTopRow  := THackDBGrid(self).TopRow;
+end;
+}
+
+
+function TtecDBGrid.GetListaOrdenacaoSQL: String;
+var
+  i: integer;
+  vConteudoLinha : String;
+begin
+{
+  for i := TtecQuery(DataSource.DataSet).Sql.Count downto 0 do
+  begin
+    vConteudoLinha := UPPPERCASE(TtecQuery(DataSource.DataSet).Sql[i]);
+    if trim(vConteudoLinha)<>'' then
+      if pos('ORDER BY', vConteudoLinha)<>0 then
+
+
+  end;
+  CANCELADO PELO JOAO. OPTADO POR NÃO DESMARCAR SE JA ESTIVER ALGUM MARCADO
+  }
+  Result := fListaOrdenacaoSQL;
+end;
+
+procedure TtecDBGrid.SetListaOrdenacao(const Value: vString);
+begin
+  FListaOrdenacao := Value;
+  if assigned(GridAssociado) then
+    GridAssociado.FListaOrdenacao := FListaOrdenacao;
+
+end;
+
+function TtecDBGrid.ListadeCampos(Grid: TtecDBGrid): TStringList;
+var i: integer;
+  vLista : TStringList;
+  v_nCol : integer;
+begin
+  vLista := tStringList.create;
+  i:=0;
+
+  v_nCol := 1;
+  if (dgIndicator in Options) then
+    v_nCol := 2;
+
+  for i:=0 to (grid.ColCount - v_nCol) do
+  begin
+    if grid.Columns[i].Visible then
+      if grid.Columns[i].fieldname <> '' then
+        vLista.append(grid.Columns[i].fieldname);
+  end;
+  result := vLista;
+end;
+
+function TtecDBGrid.ListadeTitulos(Grid: TtecDBGrid): tStringList;
+var i: integer;
+  vLista : TStringList;
+  v_nCol : integer;
+
+begin
+  vLista := tStringList.create;
+  i:=0;
+
+  v_nCol := 1;
+  if (dgIndicator in Options) then
+    v_nCol := 2;
+
+  for i:=0 to (grid.ColCount - v_nCol) do
+  begin
+    if grid.Columns[i].Visible then
+      if grid.Columns[i].fieldname <> '' then
+        vLista.append(grid.Columns[i].Title.Caption);
+  end;
+  result := vLista;
+end;
+
+procedure TtecDBGrid.MouseUp(Button: TMouseButton; Shift: TShiftState; X,
+  Y: Integer);
+var
+  c : TGridCoord;
+  p : TPoint;
+begin
+  inherited;
+  LocalClicadoX := x;
+
+   {
+  if Button = mbRight then
+  begin
+      c := self.MouseCoord (X, Y);
+      if (c.X = 0) or (c.Y = 0) then
+        // no popup on a fixed col or row
+        Exit;
+
+//      if YourConditionsAreFulfilled then
+        begin
+          // do some adjustment to the popup menu
+          p := self.ClientToScreen (Point (X, Y));
+          self.PopupMenu.Popup (p.X, p.Y)
+        end
+  end
+  }
+end;
+
+function TtecDBGrid.GetDataSourceAssociado: TDataSource;
+begin
+  if(Assigned(FDataLink)) then
+  begin
+    if(Assigned(FDataLink.DataSource)) then
+      Result := FDataLink.DataSource
+    else
+      Result:=nil;
+  end;
+end;
+
+procedure TtecDBGrid.SetDataSourceAssociado(const Value: TDataSource);
+begin
+  if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
+    FDataLink.DataSource := Value;
+  ReadOnly := Not Assigned(FDataLink.DataSource);
+  if Assigned(Value) then
+    Value.FreeNotification(Self);
+end;
+
+function TtecDBGrid.ListadeCamposTabela(Tabela: TDataSet): tStringList;
+var i: integer;
+  vLista : TStringList;
+begin
+  vLista := tStringList.create;
+  i:=0;
+  for i:=0 to Tabela.fieldcount -1 do
+  begin
+    if tabela.fields[i].Visible then
+      if tabela.fields[i].fieldname <> '' then
+        vLista.append(tabela.fields[i].fieldname);
+  end;
+  result := vLista;
+end;
+
+function TtecDBGrid.ListadeTitulosTabela(Tabela: TDataSet): tStringList;
+var i: integer;
+  vLista : TStringList;
+begin
+  vLista := tStringList.create;
+  i:=0;
+  for i:=0 to Tabela.fieldcount -1 do
+  begin
+    if tabela.fields[i].Visible then
+      if tabela.fields[i].fieldname <> '' then
+        vLista.append(tabela.fields[i].displayname);
+  end;
+  result := vLista;
+end;
+
+ {
+procedure TtecDBGrid.StateChange(Sender: TObject);
+var
+i: integer;
+begin
+
+  if ShowWhenFieldInvisible then
+    if self.DataSource = Sender then
+      if Assigned(self.DataSource.DataSet) then
+        for i:=0 to self.colcount-1 do
+          self.columns[i].visible := self.datasource.dataset.fieldbyname(self.columns[i].fieldname).visible;
+end;
+}
+
+{
+procedure TtecDBGrid.AFter_Scroll_Grid(DataSet: TDataSet);
+var
+i: integer;
+begin
+  if ShowWhenFieldInvisible then
+    if Assigned(self.DataSource.DataSet) then
+      for i:=0 to self.colcount-2 do
+        self.columns[i].visible := self.datasource.dataset.fieldbyname(self.columns[i].fieldname).visible;
+end;
+}
+
+procedure TtecDBGrid.WMVScroll(var Message: TWMVScroll);
+begin
+if Message.ScrollCode = SB_THUMBTRACK then
+    Message.ScrollCode := SB_THUMBPOSITION;
+ 
+  inherited;
+end;
+
+procedure TtecDBGrid.REfazerOrdenacaoTabela;
+var
+i: integer;
+
+begin
+  if assigned(DataSource) then
+    if assigned(DataSource.DataSet) then
+      if DataSource.DataSet.active then
+      begin
+  //      TtecQuery(DataSource.DataSet).Before_Edit := Before_Edit_Grid;
+
+        TtecQuery(DataSource.DataSet).After_Post := After_Post_Grid;
+//        TtecQuery(DataSource.DataSet).AfterScroll := AFter_Scroll_Grid;
+
+//        if (FOrdenacao <> '') and (FOrdenacao  <> CampoSequencial) and not vSaveBoolean then
+//            if TZDataset(DataSource.dataset).SqlBuffer.Sorted then
+            if TZDataset(DataSource.dataset).SqlBuffer.SortFieldCount <> 0 then
+            begin
+//              TZDataset(DataSource).SqlBuffer.SortRestore;
+
+              fordenacao := '';
+              for i:=0 to TZDataset(DataSource.dataset).SqlBuffer.SortFieldCount - 1 do
+                fordenacao := fordenacao + TZDataset(DataSource.dataset).fields[TZDataset(DataSource.dataset).SqlBuffer.SortFields[i]].FieldName + ',';
+
+              if fordenacao <> '' then
+              begin
+                if Copy(fordenacao,length(fordenacao),1)=',' then
+                  delete(fordenacao,length(fordenacao),1);
+
+              end;
+
+            end;
+
+{Retirado a linhas abaixo... acrescentado linha acima problema na consulta de produtos quando troca caracterista x itemproduto no check da consulta}
+//          RefazerOrdenacao(nil);
+
+
+//        TtecQuery(DataSource.DataSet).AfterScroll := AFter_Scroll_Grid;
+
+        ordenacao := fordenacao;
+
+      end;
+
+end;
+
+procedure TtecDBGrid.PesquisaCampo(NomedoCampo: String;
+  TipoPesquisa: TtecPesquisa; AOwner: TComponent);
+begin
+  SetLength(APesquisaCampo, Length(APesquisaCampo) + 1);
+  APesquisaCampo[Length(APesquisaCampo)-1].Nome_do_Campo := NomedoCampo;
+  APesquisaCampo[Length(APesquisaCampo)-1].Tipo_da_Pesquisa := TipoPesquisa;
+  APesquisaCampo[Length(APesquisaCampo)-1].AOwner := AOwner;
+
+
+  AcionarPesquisaGrade_(self.DataSource,
+                        self.dataSource.Dataset,
+                        NomedoCampo,
+                        RetornaTipoPesquisa(NomedoCampo),
+                        RetornaAOwner(NomedoCampo),
+                        false);
+
+end;
+
+function TtecDBGrid.RetornaTipoPesquisa(NomeDoCampo: String): TTecPesquisa;
+var
+ I : integer;
+begin
+  result := pesNENHUMA;
+
+  for I := Low(APesquisaCampo) to High(APesquisaCampo) do
+  begin
+    if APesquisaCampo[I].Nome_do_Campo = NomeDoCampo then
+      result := APesquisaCampo[I].Tipo_da_Pesquisa;
+  end;
+
+end;
+
+function TtecDBGrid.RetornaAOwner(NomeDoCampo: String): TComponent;
+var
+ I : integer;
+begin
+  result := nil;
+
+  for I := Low(APesquisaCampo) to High(APesquisaCampo) do
+  begin
+    if APesquisaCampo[I].Nome_do_Campo = NomeDoCampo then
+      result := APesquisaCampo[I].AOwner;
+  end;
+
+end;
+
+function TtecDBGrid.GravarTabela: Boolean;
+begin
+  result :=  AcionarPesquisaGrade_(self.DataSource,
+                                   self.dataSource.Dataset,
+                                   self.Columns[Selectedindex].Fieldname,
+                                   RetornaTipoPesquisa(self.Columns[Selectedindex].Fieldname),
+                                   RetornaAOwner(self.Columns[Selectedindex].Fieldname),
+                                   false);
+  if result then
+    if self.Datasource.dataset.state in [dsedit, dsinsert] then
+      self.Datasource.dataset.post;
+
+
+end;
+
+{
+function TtecDBGrid.RetornaProcedimentoAntesdeAbrir(
+  NomeDoCampo: String): TTecProcedure;
+var
+ I : integer;
+begin
+  result := nil;
+
+  for I := Low(APesquisaCampo) to High(APesquisaCampo) do
+  begin
+    if APesquisaCampo[I].Nome_do_Campo = NomeDoCampo then
+      result := APesquisaCampo[I].ProcedimentoAntesdeAbrir;
+  end;
+end;
+}
+
+procedure TtecDBGrid.setOcultarColuna(const Value: TNotifyEvent);
+begin
+  FOcultarColuna := Value;
+  self.Columns[1].Visible := not self.Columns[1].Visible;
+end;
+
+procedure TtecDBGrid.OcultarColunaClick(Sender: TObject);
+begin
+  self.Columns[1].Visible := not self.Columns[1].Visible;
+end;
+
+procedure TtecDBGrid.VisualizarCampos;
+var
+
+  vForm : TForm;
+  vCheckListBox : TCheckListBox;
+  i,j: integer;
+  vCaption : String;
+
+begin
+  if not self.owner.InheritsFrom(TFrame) and
+     (self.owner.name <> 'frmConsultaPorCampo') then
+  begin
+
+    try
+
+      frmVisualizacaoCampos := TfrmVisualizacaoCampos.Create(self,  TtecDatabase(ttecquery(self.datasource.dataset).database));
+
+      for i:=0 to self.dataSource.dataset.fieldcount -1 do
+      begin
+        with frmVisualizacaoCampos do
+        begin
+
+          qryCampos.append;
+
+          if self.ColumnByName(self.dataSource.dataset.fields[i].fieldname, false) <> nil then
+          begin
+            vCaption := self.ColumnByName(self.dataSource.dataset.fields[i].fieldname).title.caption;
+            qryCampos.edit;
+
+            if self.ColumnByName(self.dataSource.dataset.fields[i].fieldname, false).visible then
+            begin
+              qryCamposvisivel.asboolean := True;
+              qryCampos.edit;
+              qryCamposvisivelOriginal.asboolean := True;
+
+            end
+            else
+            begin
+              qryCamposvisivel.asboolean := False;
+              qryCampos.edit;
+              qryCamposvisivelOriginal.asboolean := false;
+
+            end;
+          end
+          else
+          begin
+            vCaption := self.dataSource.dataset.fields[i].DisplayName;
+            qryCampos.edit;
+            qryCamposvisivel.asboolean := False;
+            qryCampos.edit;
+            qryCamposvisivelOriginal.asboolean := false;
+
+          end;
+
+          qryCampos.edit;
+          qryCamposnomedocampo.asString := self.dataSource.dataset.fields[i].fieldname;
+
+          qryCampos.edit;
+          qryCamposnomenogrid.asString := vCaption;
+
+          qryCampos.edit;
+          qryCamposnomenogridOriginal.asString := vCaption;
+
+
+          if (qryCampos.state in [dsinsert,dsedit]) then
+            qryCampos.post;
+
+        end;
+      end;
+
+      frmVisualizacaoCampos.CamposAfterPost := self.CamposAfterPost;
+      frmVisualizacaoCampos.ReverterCampos := self.ReverterCampos;
+
+      frmVisualizacaoCampos.showmodal;
+      if frmVisualizacaoCampos.modalresult = mrCancel then
+      begin
+        for i:=0 to self.columns.Count -1 do
+        begin
+          with frmVisualizacaoCampos do
+          begin
+            if qryCampos.locate('nomedocampo', self.columns[i].fieldname,[]) then
+            begin
+              self.columns[i].visible := qryCamposVisivelOriginal.asBoolean;
+              self.columns[i].title.caption := qryCamposnomenogridOriginal.asString
+            end;
+          end;
+        end;
+      end;
+    finally
+      frmVisualizacaoCampos.free;
+    end;
+  end;
+
+end;
+
+procedure TtecDBGrid.CamposAfterPost(Sender: TObject);
+begin
+
+  with frmVisualizacaoCampos do
+  begin
+    if qryCamposvisivel.asBoolean then
+    begin
+      if self.ColumnByName(qryCamposnomedocampo.asString, false) <> nil then
+      begin
+        if not self.ColumnByName(qryCamposnomedocampo.asString, false).visible then
+          self.ColumnByName(qryCamposnomedocampo.asString, false).visible := True;
+        self.ColumnByName(qryCamposnomedocampo.asString, false).title.caption := qryCamposnomenogrid.asString;
+      end
+      else
+      begin
+        self.Columns.add;
+        self.Columns[self.Columns.Count-1].fieldname := qryCamposnomedocampo.asString;
+        self.Columns[self.Columns.Count-1].title.caption := qryCamposnomenogrid.asString;
+        self.Columns[self.Columns.Count-1].title.Font := self.Font;
+        self.Columns[self.Columns.Count-1].title.Font.size := self.Font.size;
+        self.Columns[self.Columns.Count-1].font := self.Font;
+        self.Columns[self.Columns.Count-1].font.size := self.Font.size;
+      end;
+    end
+    else
+    begin
+      if self.ColumnByName(qryCamposnomedocampo.asString, false) <> nil then
+      begin
+        if self.ColumnByName(qryCamposnomedocampo.asString, false).visible then
+          self.ColumnByName(qryCamposnomedocampo.asString, false).visible := False
+      end;
+    end;
+  end;
+
+end;
+
+procedure TtecDBGrid.ReverterCampos(Sender: TObject);
+var
+  vGridCopia : TtecDBGrid;
+begin
+  vConfiguracaoOriginal.Position := 0;
+  
+  if vConfiguracaoOriginal.size<>0 then
+    self.columns.loadfromstream(vConfiguracaoOriginal)
+  else
+    frmVisualizacaoCampos.modalresult := mrCancel;
+
+end;
+
+destructor TtecDBGrid.Destroy;
+begin
+  vConfiguracaoOriginal.FREE;
+  inherited;
+end;
+
+end.
+
+
+

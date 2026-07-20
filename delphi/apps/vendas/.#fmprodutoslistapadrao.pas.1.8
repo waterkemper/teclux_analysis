@@ -1,0 +1,215 @@
+unit fmprodutoslistapadrao;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, windows,
+  StdCtrls,  ComCtrls, Buttons, ExtCtrls, DBCtrls, Mask,
+  ActnList, DB,
+  // Terceiros
+  ZQuery,
+  // Constantes
+   ctconstantes, biblio,
+  // Repositorio
+  fmconsultabasica, fmconsultaporcampo, fmcadastropadrao,  dmlistaspadrao,
+  cpnumero, cpdbfindcontrols, cpdbtext, ToolWin, frconsulta,
+  frconsultacodigo, clparametrossistema, cptexto;
+
+type
+  TfrmProdutosListaPadrao = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    sbnProcurarProduto: TSpeedButton;
+    gbxProdutosListaCasamento: TGroupBox;
+    gbxProdutos: TGroupBox;
+    fraConsultaProduto: TfraConsultaCodigo;
+    gbxReferencai: TGroupBox;
+    dtxReferencia: TtecDBText;
+    GroupBox1: TGroupBox;
+    dtxGrupo: TtecDBText;
+    dtxDescricaoGrupo: TtecDBText;
+    gbxClasse: TGroupBox;
+    dtxClasse: TtecDBText;
+    dtxDescricaoClasse: TtecDBText;
+    procedure flkProdutoMessage(var Msg: String);
+    procedure fraConsultaProdutoedfCodigoKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure fraConsultaProdutoedfCodigoMessage(var Msg: String);
+  protected
+    dtmlistaspadrao: Tdtmlistaspadrao;
+    function InternoIncluir: Boolean; override;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+  private
+    procedure CondicoesItemProduto;
+    procedure AtribuirCamposProdutos;
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure SetDataModulo(Dtm: Tdtmlistaspadrao);
+  end;
+
+var
+  frmProdutosListaPadrao: TfrmProdutosListaPadrao;
+  TipoPesquisa: TtecListaCasamento;
+
+implementation
+
+uses fmnavcontroles;
+
+{$R *.dfm}
+
+destructor TfrmProdutosListaPadrao.Destroy;
+begin
+  inherited;
+  frmProdutosListaPadrao := nil;
+end;
+
+procedure TfrmProdutosListaPadrao.SetDataModulo(Dtm: Tdtmlistaspadrao);
+begin
+  dtmListasPadrao := Dtm;
+end;
+
+
+function TfrmProdutosListaPadrao.InternoExcluir: Boolean;
+begin
+  Result := inherited InternoExcluir;
+  if Result then
+    if not CtrlOn then
+      Result := dtmListasPadrao.ExcluirProdutosListas;
+end;
+
+function TfrmProdutosListaPadrao.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  with dtmListasPadrao do begin
+    if Result then
+      Result := GravarProdutosListas;
+  end;
+end;
+
+function TfrmProdutosListaPadrao.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then
+    if not CtrlOn then
+      Result:= dtmListasPadrao.IncluirProdutosLista(False);
+end;
+
+
+procedure TfrmProdutosListaPadrao.flkProdutoMessage(var Msg: String);
+begin
+  Msg := Format(ctREGISTROINCLUIDO,['Produto','na Lista']);
+end;
+
+constructor TfrmProdutosListaPadrao.Create(AOwner: TComponent);
+begin
+  inherited;
+  fraConsultaProduto.edfCodigo.PosicionarProdutoNaoEncontrado := true;
+
+  fraConsultaProduto.CondicoesdaConsulta := CondicoesItemProduto;
+  fraConsultaProduto.OnFound := AtribuirCamposProdutos;
+  fraConsultaProduto.TipoPesquisa := pesITEMPRODUTOS;
+
+end;
+
+procedure TfrmProdutosListaPadrao.CondicoesItemProduto;
+begin
+end;
+
+procedure TfrmProdutosListaPadrao.AtribuirCamposProdutos;
+begin
+ if fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('descricao').AsString <> '' then
+ begin
+   dtmListasPadrao.qryProdutosListasPadraoproduto.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('produto').AsString;
+
+   dtmListasPadrao.qryProdutosListasPadraoprodutovisual.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('produtovisual').AsString;
+
+   dtmListasPadrao.qryProdutosListasPadraodescricao.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('descricao').AsString;
+
+   dtmListasPadrao.qryProdutosListasPadraovalorgrade1.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('valorgrade1').AsString;
+
+   dtmListasPadrao.qryProdutosListasPadraovalorgrade2.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('valorgrade2').AsString;
+
+   dtmListasPadrao.qryProdutosListasPadraolinha.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('linha').AsString;
+
+   dtmListasPadrao.qryProdutosListasPadraocoluna.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('coluna').AsString;
+
+   dtmListasPadrao.qryProdutosListasPadraoreferencia.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('referencia').AsString;
+
+   dtmListasPadrao.qryProdutosListasPadraogrupo.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('grupo').AsString;
+
+ end
+ else
+ begin
+   with dtmListasPadrao do
+   begin
+     qryProdutosListasPadraoproduto.clear;
+     qryProdutosListasPadraoprodutovisual.clear;
+     qryProdutosListasPadraodescricao.clear;
+     qryProdutosListasPadraovalorgrade1.clear;
+     qryProdutosListasPadraovalorgrade2.clear;
+     qryProdutosListasPadraolinha.clear;
+     qryProdutosListasPadraocoluna.clear;
+     qryProdutosListasPadraoreferencia.clear;
+     qryProdutosListasPadraogrupo.clear;
+   end;
+ end;
+
+end;
+
+procedure TfrmProdutosListaPadrao.fraConsultaProdutoedfCodigoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  fraConsultaProduto.edfCodigoKeyDown(Sender, Key, Shift);
+
+end;
+
+procedure TfrmProdutosListaPadrao.fraConsultaProdutoedfCodigoMessage(
+  var Msg: String);
+begin
+  inherited;
+  fraConsultaProduto.edfCodigoMessage(Msg);
+  windows.Beep(1200, 500);
+	windows.Beep(1200, 300);
+	windows.Beep(1200, 900);
+end;
+
+procedure TfrmProdutosListaPadrao.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  case key of
+    VK_RETURN: if Shift = [] then
+               begin
+                 if ((ActiveControl = fraConsultaProduto.edfCodigo) and
+                     (ParSistema.GravarProdutoContratoAutomaticamente)) then
+                 begin
+                   inherited;
+                   if fraConsultaProduto.edfCodigo.Text <> '' then
+                     if sbnSalvar.Enabled then
+                       if InternoGravar then
+                       begin
+                         fraConsultaProduto.edfCodigo.Clear;
+                         fraConsultaProduto.edfCodigo.setfocus;
+                         fraConsultaProduto.edfCodigo.selectall;
+                       end;
+                 end
+                 else inherited;
+               end;
+    else inherited;
+  end
+End;
+
+end.

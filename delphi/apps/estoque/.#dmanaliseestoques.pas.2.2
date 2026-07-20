@@ -1,0 +1,338 @@
+unit dmanaliseestoques;
+
+interface
+
+uses
+  SysUtils, Classes, dmtecsoft, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  ZTransact, frxClass, frxDBSet, cpdatasource, biblio, ctconstantes, clparametrossistema,
+  frxExportODF, frxExportTXT, frxExportMail, frxExportCSV, frxExportText,
+  frxExportImage, frxExportRTF, frxExportXML, frxExportXLS, frxExportHTML,
+  frxExportPDF;
+
+type
+  TdtmAnaliseestoques = class(TdtmBasico)
+    qryAnaliseEstoques: TtecQuery;
+    dsrAnaliseEstoques: TtecDataSource;
+    qryAnaliseEstoques_aux: TtecQuery;
+    qryAnaliseEstoques_auxanomes: TStringField;
+    qryAnaliseEstoques_auxMesAnoExtenso: TStringField;
+    qrynMeses: TtecQuery;
+    qrynmeses_aux: TtecQuery;
+    qryAnaliseEstoquesgrupo: TStringField;
+    qryAnaliseEstoquesdescricao_grupo: TStringField;
+    qryAnaliseEstoquesresultadocurvaabc: TStringField;
+    qryAnaliseEstoquesproduto: TStringField;
+    qryAnaliseEstoquesdescricao_produto: TStringField;
+    qryAnaliseEstoquesquantidade_total_estoque: TFloatField;
+    qryAnaliseEstoquesquantidade_totao_pedidos: TFloatField;
+    qryAnaliseEstoquespromocao: TIntegerField;
+    qryAnaliseEstoquesdescricao_promocao: TStringField;
+    qryAnaliseEstoquesmes_11_2018: TFloatField;
+    qryAnaliseEstoquesmes_12_2018: TFloatField;
+    qryAnaliseEstoquesmes_01_2019: TFloatField;
+    qryAnaliseEstoquesmes_02_2019: TFloatField;
+    qryAnaliseEstoquesmes_03_2019: TFloatField;
+    qryAnaliseEstoquesmes_04_2019: TFloatField;
+    qryAnaliseEstoquestotal_vendas_periodo: TFloatField;
+    qryAnaliseEstoquesnmesesperiodo: TFloatField;
+    qryAnaliseEstoquesndiasperiodo: TIntegerField;
+    qryAnaliseEstoquesmedia_vendas_periodo: TFloatField;
+    qryAnaliseEstoquestotal_vendas_6_mese_anteriores: TFloatField;
+    qryAnaliseEstoquesdias_estoque: TFloatField;
+    qryAnaliseEstoquesvalor_em_estoque: TFloatField;
+    qryAnaliseEstoquesnomefornecedor: TStringField;
+    qryAnaliseEstoquesprecoultimaentrada: TFloatField;
+    qryAnaliseEstoquesdataultimaentrada: TDateField;
+    qryAnaliseEstoquespreco_prazo_cmv: TFloatField;
+    qryAnaliseEstoquespreco_custo_cmv: TFloatField;
+    qryAnaliseEstoquesmargem_cmv: TFloatField;
+    qryAnaliseEstoquesestoques_preconormal: TFloatField;
+    qryAnaliseEstoquescusto_unitario_cmv: TFloatField;
+    qryAnaliseEstoquesmargem_uc: TFloatField;
+    qryAnaliseEstoquesmargem_cm: TFloatField;
+    qryAnaliseEstoquescaracteristicavisual: TStringField;
+    qryAnaliseEstoquesmarca: TIntegerField;
+    qryAnaliseEstoquesdescricao_marca: TStringField;
+    qryAnaliseEstoquescomposto: TBooleanField;
+    procedure frxAnaliseestoquesGetValue(const VarName: String;
+      var Value: Variant);
+    procedure qryAnaliseEstoques_auxCalcFields(DataSet: TDataSet);
+  private
+    fParametroCabecalho: String;
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure ImprimirRelatorio(DataInicial, DataFinal: TDateTime;
+          ListadeFiliais, ListadeItemProdutos, ListadeProdutos,
+          ListadeGrupos, ListadeClasses, ListadeMarcas,
+          ListadeFornecedores, ListaGruposFornecedores, ListaCondicionalPromocoes: String;
+          Compostos : byte
+          );
+
+    property ParametroCabecalho: String read fParametroCabecalho write fParametroCabecalho;
+  end;
+
+var
+  dtmAnaliseestoques: TdtmAnaliseestoques;
+
+implementation
+
+{$R *.dfm}
+
+procedure TdtmAnaliseestoques.frxAnaliseestoquesGetValue(
+  const VarName: String; var Value: Variant);
+begin
+  inherited;
+  if VarName = 'TITULO' then
+    Value :=  'ANÁLISE ECONÔMICA DE COMPRAS DE PRODUTOS'
+  else if VarName = 'RAZAOFILIALBASE' then
+    Value := RazaoFilialBase
+  else if VarName = 'ENDERECO_BAIRRO' then
+    Value :=  RuaFilialBase+ ' - '+BairroFilialBase
+  else if VarName = 'CEP_CIDADE_UF' then
+    Value :=  FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase
+  else if VarName = 'OUTRAS' then
+    Value :=  FParametroCabecalho
+  else if VarName = 'DATA' then
+    Value :=  FormatDateTime('DD/MM/YYYY',date())
+  else if VarName = 'CordoZebrado' then
+    Value :=  strtoint(parsistema.CorZebradoRelatorio);
+
+end;
+
+procedure TdtmAnaliseestoques.ImprimirRelatorio(DataInicial,
+  DataFinal: TDateTime; ListadeFiliais, ListadeItemProdutos,
+  ListadeProdutos, ListadeGrupos, ListadeClasses, ListadeMarcas,
+  ListadeFornecedores, ListaGruposFornecedores, ListaCondicionalPromocoes: String;
+  Compostos : byte);
+const
+  FiltroIntervaloPeriodo = ' and (m.data BETWEEN (cast(''%s'' as date)) AND (cast(''%s'' as date)))';
+
+  ListadeFiliaisMovimento = 'and ( m.filial in (%s) )';
+  ListadeFiliaisNotasPag = 'and ( np.filial in (%s) )';
+  ListadeFiliaisDadosFiscais = ' AND ( df.filialvenda IN (%s)) ';
+  ListadeFiliaisEstoques = 'and ( e.filial in (%s) )';
+
+var
+    PV: TfrxComponent;
+
+  mes, meses,teste : String;
+  i,posicaomeses :integer;
+
+const
+  FiltroFilial       = 'AND np.filial in (%s)';
+  FiltroFornecedores = ' and (p.caracteristica in (select fp.caracteristica from fornecedoresprodutos fp join vfornecedores vf on fp.fornecedor = vf.codigo and vf.tipo=''F'' where (%s)))';
+  FiltroGruposFornecedores = ' and (p.caracteristica in (select fp.caracteristica from fornecedoresprodutos fp where fp.fornecedor in (select f.codigo from fornecedores f join gruposfornecedores gf on f.grupofornecedor = gf.codigo where %s)))';
+
+begin
+  qryAnaliseEstoques.close;
+  qryAnaliseEstoques.macros.clear;
+  qryAnaliseEstoques.params.clear;
+  qryAnaliseEstoques.sql.text := qryAnaliseEstoques_aux.sql.text;
+
+  qrynMeses.Close;
+  qrynMeses.sql.text := qrynmeses_aux.sql.text;
+
+  ParametroCabecalho := 'Entre '+datetostr(DataInicial)+' e '+datetostr(datafinal);
+
+  qryAnaliseEstoques.ParambyName('DataInicial').asDateTime := DataInicial;
+  qryAnaliseEstoques.ParambyName('DataFinal').asDateTime := DataFinal;
+  qryAnaliseEstoques.ParambyName('FilialBase').asinteger := FilialBase;
+  qryAnaliseEstoques.ParambyName('ListadeFiliais').asString := StringReplace(ListadeFiliais,'''', '', [rfReplaceAll]);
+
+  if ListadeFiliais <> '' then
+    ParametroCabecalho := ParametroCabecalho + 'FILIAL: ' + ListadeFiliais;
+
+
+  qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%IntervaloPeriodoCrossTab')] :=
+    format(FiltroIntervaloPeriodo,[quotedstr(datetostr(DataInicial)),quotedstr(datetostr(DataFinal))]);
+
+  if ListadeFiliais <> '' then
+  begin
+    qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%ListadeFiliaisMovimentoCrossTab')] :=
+      format(ListadeFiliaisMovimento,[StringReplace(ListadeFiliais,'''', '', [rfReplaceAll])]);
+
+    qryAnaliseEstoques.macrobyname('ListadeFiliaisNotasPag').asString :=
+      format(ListadeFiliaisNotasPag,[ListadeFiliais]);
+
+    qryAnaliseEstoques.macrobyname('ListadeFiliaisDadosFiscais').asString :=
+      format(ListadeFiliaisDadosFiscais,[ListadeFiliais]);
+
+    qryAnaliseEstoques.macrobyname('ListadeFiliaisMovimento').asString :=
+      format(ListadeFiliaisMovimento,[ListadeFiliais]);
+
+    qryAnaliseEstoques.macrobyname('ListadeFiliaisEstoques').asString :=
+      format(ListadeFiliaisEstoques,[ListadeFiliais]);
+  end;
+
+
+  qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%DataInicial_1')] :=
+     datetostr(DataInicial);
+
+  qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%DataInicial_2')] :=
+     datetostr(DataInicial);
+
+  qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%DataFinal')] :=
+     datetostr(DataFinal);
+
+  qrynMeses.Sql[NumerodalinhanoTexto(qrynMeses.sql, '%DataInicial_1')] :=
+     datetostr(DataInicial);
+
+  qrynMeses.Sql[NumerodalinhanoTexto(qrynMeses.sql, '%DataInicial_2')] :=
+     datetostr(DataInicial);
+
+  qrynMeses.Sql[NumerodalinhanoTexto(qrynMeses.sql, '%DataFinal')] :=
+     datetostr(DataFinal);
+
+
+  if ListadeFornecedores<>'' then
+  begin
+    qryAnaliseEstoques.macrobyName('ListadeFornecedores').asString := format(FiltroFornecedores, [ListadeFornecedores]);
+
+    qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%ListadeFornecedoresCrossTab')] :=
+      format(FiltroFornecedores, [StringReplace(ListadeFornecedores,'''', '''''', [rfReplaceAll])]);
+
+    ParametroCabecalho := ParametroCabecalho + ' Fornecedcores :'+ListadeFornecedores;
+  end;
+
+  if ListaGruposFornecedores<>'' then
+  begin
+    qryAnaliseEstoques.macrobyName('ListaGruposFornecedores').asString := format(FiltroGruposFornecedores, [ListaGruposFornecedores]);
+
+    qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%ListaGruposFornecedoresCrossTab')] :=
+      format(FiltroGruposFornecedores, [StringReplace(ListaGruposFornecedores,'''', '''''', [rfReplaceAll])]);
+
+    ParametroCabecalho := ParametroCabecalho + ' Grupo Fornecedcores :'+ListaGruposFornecedores;
+  end;
+
+  if ListadeItemProdutos<>'' then
+  begin
+    qryAnaliseEstoques.MacroByName('ListadeItemProdutos').AsString :=  'and ('+ListadeItemProdutos+')';
+    qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%ListadeItemProdutosCrossTab')] := 'and ('+StringReplace(ListadeItemProdutos,'''', '''''', [rfReplaceAll])+')';
+    ParametroCabecalho := ParametroCabecalho + ' Item de Produtos :'+ListadeItemProdutos;
+  end;
+
+  if (ListadeProdutos<>'') then
+  begin
+    qryAnaliseEstoques.MacroByName('ListadeProdutos').AsString :=  'and ('+ListadeProdutos+')';
+    qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%ListadeProdutosCrossTab')] := 'and ('+StringReplace(ListadeProdutos,'''', '''''', [rfReplaceAll])+')';
+    ParametroCabecalho := ParametroCabecalho + ' Produtos :'+ListadeProdutos;
+  end;
+
+  if (Compostos in [1,2]) then
+  begin
+
+    case compostos of
+      1: begin
+           qryAnaliseEstoques.MacroByName('CondicaoCompostos').AsString :=  ' and not (coalesce(c.composto,false))';
+           qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%CondicaoCompostosCrossTab')] := ' and not (coalesce(c.composto,false))';
+           ParametroCabecalho := ParametroCabecalho + ' Sem Composto ';
+         end;
+
+      2: begin
+           qryAnaliseEstoques.MacroByName('CondicaoCompostos').AsString :=  ' and (coalesce(c.composto,false))';
+           qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%CondicaoCompostosCrossTab')] := ' and (coalesce(c.composto,false))';
+           ParametroCabecalho := ParametroCabecalho + ' Somente Composto ';
+         end;
+    end;
+  end;
+
+  if ListadeGrupos<>'' then
+  begin
+    qryAnaliseEstoques.MacroByName('ListadeGrupos').AsString :=  'and ('+ListadeGrupos+')';
+
+    qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%ListadeGruposCrossTab')] := 'and ('+StringReplace(ListadeGrupos,'''', '''''', [rfReplaceAll])+')';
+    ParametroCabecalho := ParametroCabecalho + ' Grupos :'+ListadeGrupos;
+  end;
+
+  if ListadeClasses<>'' then
+  begin
+    qryAnaliseEstoques.MacroByName('ListadeClasses').AsString := 'and ('+ListadeClasses+')';
+    qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%ListadeClassesCrossTab')] := 'and ('+StringReplace(ListadeClasses,'''', '''''', [rfReplaceAll])+')';
+    ParametroCabecalho := ParametroCabecalho + ' Classes :'+ListadeClasses;
+  end;
+
+  if ListadeMarcas<>'' then
+  begin
+    qryAnaliseEstoques.MacroByName('ListadeMarcas').AsString := 'and ('+ListadeMarcas+')';
+    qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%ListadeMarcasCrossTab')] := 'and ('+StringReplace(ListadeMarcas,'''', '''''', [rfReplaceAll])+')';
+    ParametroCabecalho := ParametroCabecalho + ' Marcas :'+ListadeMarcas;
+  end;
+
+  if ListaCondicionalPromocoes<>'' then
+  begin
+    qryAnaliseEstoques.MacroByName('ListaCondicionalPromocoes').AsString := 'and ('+ListaCondicionalPromocoes+')';
+    qryAnaliseEstoques.Sql[NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%ListaCondicionalPromocoesCrossTab')] := 'and ('+StringReplace(ListaCondicionalPromocoes,'''', '''''', [rfReplaceAll])+')';
+    ParametroCabecalho := ParametroCabecalho + ' Promoções :'+ListaCondicionalPromocoes;
+  end;
+
+  qrynMeses.close;
+  qrynMeses.Open;
+
+  for i:=0 to qryAnaliseEstoques.FieldCount-1 do
+  begin
+   while copy(qryAnaliseEstoques.Fields[i].FieldName,1,4) = 'mes_' do
+      qryAnaliseEstoques.Fields[i].Free;
+
+   if i = qryAnaliseEstoques.FieldCount-1 then
+     break;
+  end;
+
+  posicaomeses := NumerodalinhanoTexto(qryAnaliseEstoques.sql, '%meses');
+  qrynMeses.First;
+  for i:=0 to qrynMeses.RecordCount-1 do
+  begin
+     mes := qrynMeses.FieldByName('mes').AsString;
+
+     mes := 'mes_'+copy(qrynMeses.FieldByName('mes').AsString,6,2)+'_'+
+            copy(qrynMeses.FieldByName('mes').AsString,1,4);
+
+     with TCurrencyField.Create(dsrAnaliseEstoques) do
+     begin
+      DisplayLabel := copy(NomeMeses[strtoint(copy(mes,5,2))],1,3)
+                      +'_'+
+                      copy(mes,8,4);
+      FieldName := mes;
+      FieldKind:= fkData;
+      DataSet := qryAnaliseEstoques;
+      DisplayFormat := '#######';
+      DisplayWidth := 9;
+      index := qryAnaliseEstoquesdescricao_promocao.index + i +1;
+      qryAnaliseEstoques.FieldDefs.Add('qryAnaliseEstoques'+mes, ftCurrency);
+
+     end;
+
+     if i = qrynMeses.RecordCount-1 then
+       qryAnaliseEstoques.Sql.Insert(posicaomeses+i,mes+' numeric(12,0)')
+     else
+       qryAnaliseEstoques.Sql.Insert(posicaomeses+i,mes+' numeric(12,0),');
+
+     qrynMeses.Next;
+  end;
+
+
+  qryAnaliseEstoques.close;
+  qryAnaliseEstoques.open;
+
+
+            {
+  if FileExists(LogotipoFilialBase) then
+  begin
+    PV := frxAnaliseestoques.FindObject('fpvLogo');
+    if (PV is TfrxPictureView) then
+      TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+  end;
+
+//  frxAnaliseestoques.DesignReport(true,false);
+  frxAnaliseestoques.ShowReport(true);
+  }
+end;
+
+procedure TdtmAnaliseestoques.qryAnaliseEstoques_auxCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+//  qryAnaliseEstoques_MesAnoExtenso.asString := NomeMeses[strtoint(copy(qryAnaliseEstoques_anomes.asString,6,2))] + ' / '+ copy(qryAnaliseEstoques_anomes.asString,1,4);
+end;
+
+end.

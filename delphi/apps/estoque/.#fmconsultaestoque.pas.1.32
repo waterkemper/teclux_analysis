@@ -1,0 +1,1021 @@
+unit fmconsultaestoque;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, ActnList,
+  DBCtrls, Grids, DBGrids, StdCtrls, Mask, Windows, Buttons, ExtCtrls, ComCtrls,DB,
+  // Repositorio
+  fmconsultabasica, fmnavcontroles, fmajudabt, fmconsultaporcampo,
+  // Constantes
+  biblio, ctconstantes, clusuario,
+  // Terceiros
+  ZQuery,
+  // Componenetes
+  cpdbfindcontrols, cpnumero, cptexto, cpdbtext, cpdata, cpdbdata, cppagecontrol, cpdbgrid,
+  cpeditioncontrolvalidation, clparametrossistema,
+  // Projeto
+  dmconsultaestoque, cpdbmemo, ToolWin, frconsulta, frconsultacodigo,
+  fmConsultaProdutosNotasAnteriores, fmVisualizarImageURL, fmprincipalbasico,
+  frmultiplaselecaoaleatoria, AdvObj, BaseGrid, AdvGrid, DBAdvGrid;
+
+type
+  TfrmConsultaEstoque = class(TfrmAjudaBt)
+    gbxConsultar: TGroupBox;
+    pnlFundoJanela: TPanel;
+    gbxFilial: TGroupBox;
+    sbnProcuraFilial: TSpeedButton;
+    edfFilial: TtecDbEditFind;
+    dtxFilial: TtecDBText;
+    sbnGerar: TSpeedButton;
+    pgcItensProdutos: TtecPageControl;
+    tstItensProdutos: TTabSheet;
+    tstSimilares: TTabSheet;
+    dbgProdutos: TtecDBGrid;
+    pgcEstoques: TtecPageControl;
+    tstEstoque: TTabSheet;
+    GroupBox1: TGroupBox;
+    gbxQuantidade: TGroupBox;
+    lblConcerto: TLabel;
+    lblTransito: TLabel;
+    lblDanificada: TLabel;
+    lblFuturo: TLabel;
+    lblDemonstracao: TLabel;
+    lblReservado: TLabel;
+    lblEmEstoque: TLabel;
+    lblPedidos: TLabel;
+    lblEstoqueVenda: TLabel;
+    lblEstoqueTotal: TLabel;
+    dtxEstoqueTotal: TtecDBText;
+    dtxEmEstoque: TtecDBText;
+    dtxDanificada: TtecDBText;
+    dtxReservado: TtecDBText;
+    dtxFuturo: TtecDBText;
+    dtxDemonstracao: TtecDBText;
+    dtxPedidos: TtecDBText;
+    dtxConserto: TtecDBText;
+    dtxEstoqueVenda: TtecDBText;
+    dtxEmTransito: TtecDBText;
+    gbxPrecos: TGroupBox;
+    lblNormal: TLabel;
+    lblPromocao: TLabel;
+    lblPromocaoValidade: TLabel;
+    dtxValorNormal: TtecDBText;
+    dtxValorPromocao: TtecDBText;
+    dtxValidadePromocao: TtecDBText;
+    GroupBox3: TGroupBox;
+    lblLocalizacao: TLabel;
+    lblQtdeMaxima: TLabel;
+    lblQtdeMinima: TLabel;
+    dtxLocalizacao: TtecDBText;
+    dtxMinimo: TtecDBText;
+    dtxMaximo: TtecDBText;
+    tstMovimento: TTabSheet;
+    GroupBox2: TGroupBox;
+    lblCustoMedio: TGroupBox;
+    lblFinanceiro: TGroupBox;
+    dtxFinanceiro: TtecDBText;
+    dtxPrecoComICMS: TtecDBText;
+    dtxPrecoSemICMS: TtecDBText;
+    lblSemIcms: TLabel;
+    lblComIcms: TLabel;
+    gbxUltimos: TGroupBox;
+    lblCompra: TLabel;
+    lblEntrada: TLabel;
+    lblVenda: TLabel;
+    dtxDataCompra: TtecDBText;
+    dtxUltimaEntrada: TtecDBText;
+    dtxUltimaVenda: TtecDBText;
+    dtxQtdeCompra: TtecDBText;
+    lblData: TLabel;
+    lblQuantidade: TLabel;
+    tstAcumuladores: TTabSheet;
+    gbxCompras: TGroupBox;
+    dbgCompras: TtecDBGrid;
+    gbxVendas: TGroupBox;
+    dbgVendas: TtecDBGrid;
+    dbgSimilares: TtecDBGrid;
+    dtxValor: TtecDBText;
+    lblAliquotaIPI: TGroupBox;
+    dtxAliquotaIPI: TtecDBText;
+    tstGradeProdutos: TTabSheet;
+    lblDescricaoProduto: TLabel;
+    dtxDescricaoProduto: TtecDBText;
+    lblFilialProduto: TLabel;
+    dtxFilialProduto: TtecDBText;
+    dxtDescricaoFilialProduto: TtecDBText;
+    lblReservaPrevia: TLabel;
+    dtxReservaPrevia: TtecDBText;
+    lblAlterado: TLabel;
+    dtxDataAlteracao: TtecDBText;
+    shpPromocao: TShape;
+    lblLegendaPromocao: TLabel;
+    dtxEstoqueFisico: TtecDBText;
+    lblEstoqueFisico: TLabel;
+    Shape2: TShape;
+    lblForaLinhaIntaivo: TLabel;
+    lblDescricaoPreco: TLabel;
+    dtxDescricaoPreco: TtecDBText;
+    tstPrecosCargos: TTabSheet;
+    GroupBox5: TGroupBox;
+    sbnGravarValor: TSpeedButton;
+    edtValorUltimacompra: TDBEditNumero;
+    dbgprecoscargos: TtecDBGrid;
+    tstPrecosporCliente: TTabSheet;
+    dbgPrecosporClientes: TtecDBGrid;
+    lblEmpresaUltimaCompra: TLabel;
+    dtxEmpresaUltimaCompra: TtecDBText;
+    ckboptantesimples: TDBCheckBox;
+    lblMargemFinal: TGroupBox;
+    dtxMargemFinal: TtecDBText;
+    lblcst: TLabel;
+    dtxcst: TtecDBText;
+    tstModelodeProdutos: TTabSheet;
+    dbgModelos: TtecDBGrid;
+    mmoObservacaoModelo: TtecDBMemo;
+    tstPedidos: TTabSheet;
+    dbgProdutosPedidos: TtecDBGrid;
+    tstPrecos: TTabSheet;
+    gbxColunasPrecos: TGroupBox;
+    sbnIncluirColunaPreco: TSpeedButton;
+    sbnExcluirColunaPreco: TSpeedButton;
+    dbgColunasPrecos: TtecDBGrid;
+    pnlGradeProdutos: TPanel;
+    pnlRotulos: TPanel;
+    dtxDescricaoGradePreco: TtecDBText;
+    lblcsosn: TLabel;
+    dtxcsosn: TtecDBText;
+    pnlSituacaoTributaria: TPanel;
+    pnlcstprodutonfe: TPanel;
+    pnlcsosnProdutonfe: TPanel;
+    gbxDadosUltimaCompra: TGroupBox;
+    gbxSitTributariaProduto: TGroupBox;
+    Panel3: TPanel;
+    pnlcstproduto: TPanel;
+    lblcstProduto: TLabel;
+    dtxcstproduto: TtecDBText;
+    pnlcsosnproduto: TPanel;
+    lblcsosnproduto: TLabel;
+    dtxcsosnproduto: TtecDBText;
+    gbxSitTributariaNFnaEmpresa: TGroupBox;
+    GroupBox7: TGroupBox;
+    Panel4: TPanel;
+    Panel5: TPanel;
+    Label4: TLabel;
+    tecDBText1: TtecDBText;
+    Panel6: TPanel;
+    Label5: TLabel;
+    tecDBText2: TtecDBText;
+    lblUCIcms: TLabel;
+    dtxUCICMS: TtecDBText;
+    tstComponentes: TTabSheet;
+    dbgComponentes: TtecDBGrid;
+    ActionList1: TActionList;
+    Action1: TAction;
+    sbnVisualizarDetalhesProdutosNota: TSpeedButton;
+    sbnVisualizarFoto: TSpeedButton;
+    pnlPedidosOpcoes: TPanel;
+    sbnAbrirPedido: TSpeedButton;
+    dbgDepositos: TtecDBGrid;
+    fraMultiplaSelecaoAleatoria: TfraMultiplaSelecaoAleatoria;
+    pnlTopLeft: TPanel;
+    dbgGrades_: TDBAdvGrid;
+    procedure sbnProcuraFilialClick(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure edfGrupoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure pgcEstoquesChange(Sender: TObject);
+    procedure pgcItensProdutosChange(Sender: TObject);
+    procedure dbgProdutosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgSimilaresDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure pgcItensProdutosChanging(Sender: TObject;
+      var AllowChange: Boolean);
+    procedure edtValorUltimacompraChange(Sender: TObject);
+    procedure edtValorUltimacompraKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnGravarValorClick(Sender: TObject);
+    procedure pgcEstoquesSimilaresChange(Sender: TObject);
+    procedure sbnGravarValorSimilaresClick(Sender: TObject);
+    procedure edtUltimaCompaSimilaresChange(Sender: TObject);
+    procedure edtUltimaCompaSimilaresKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure dbgComponentesDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure Action1Update(Sender: TObject);
+    procedure sbnVisualizarDetalhesProdutosNotaClick(Sender: TObject);
+    procedure sbnVisualizarFotoClick(Sender: TObject);
+    procedure sbnAbrirPedidoClick(Sender: TObject);
+    procedure dbgProdutosPedidosDblClick(Sender: TObject);
+//    procedure dbgGradesEnter(Sender: TObject);
+//    procedure dbgGradesColExit(Sender: TObject);
+//    procedure dbgGradesCellClick(Column: TColumn);
+    procedure dbgGrades_ClickCell(Sender: TObject; ARow, ACol: Integer);
+    procedure dbgGrades_ColChanging(Sender: TObject; OldCol,
+      NewCol: Integer; var Allow: Boolean);
+    procedure dbgGrades_GetCellColor(Sender: TObject; ARow, ACol: Integer;
+      AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+    procedure dbgGrades_SelectCell(Sender: TObject; ACol, ARow: Integer;
+      var CanSelect: Boolean);
+  private
+    ACol_, ARow_: Integer;
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+    procedure AfterScrollLinhaColunaGradeSimilar(Sender: TObject);
+    procedure AfterScrollLinhaColunaGradeComponente(Sender: TObject);
+
+    procedure AjustarGradeProdutos;
+    procedure PosicionarLinhaColunaNaGrade;
+
+//    procedure CondicoesConsultaEstoqueItemProduto;
+
+
+  protected
+    FIndex: Byte;
+    procedure CriarDataModulo; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function TituloPesquisa: String;
+    function PesquisaHabilitada: Boolean;
+    function VerificaCamposConsulta: Boolean;
+    function InternoPesquisar(Titulo:String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure GerarDados;
+
+  end;
+
+var
+  frmConsultaEstoque: TfrmConsultaEstoque;
+  TipoPesquisa: TtecPesquisa;
+  ControleValido : TWinControl;
+
+implementation
+
+uses dmbasico, frselecaoaleatoriaprodutos,
+  frselecaoaleatoriagruposprodutos, frselecaoaleatoriaclassesprodutos,
+  frselecaoaleatoriamarcasprodutos, frselecaoaleatoriapromocoes;
+
+{$R *.dfm}
+
+constructor TfrmConsultaEstoque.Create(AOwner: TComponent);
+begin
+//  dtmConsultaEstoque := TdtmConsultaEstoque.Create(Self);
+  inherited;
+
+//  dtmconsultaestoque.Mostrar := 'E';
+  fraMultiplaSelecaoAleatoria.pgcMultiplaSelecaoAleatoria.ActivePageIndex := 0;
+  fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.dbgSelecaoAleatoria.setfocus;
+  pgcEstoques.ActivePage   := tstEstoque;
+  pgcItensProdutos.ActivePage :=tstItensProdutos;
+  tstMovimento.TabVisible    := UsuarioLogin.GerenteEstoque;
+  tstPrecosCargos.TabVisible := ParSistema.PrecosporCargo;
+  tstPrecos.TabVisible := not ParSistema.PrecosporCargo;
+  tstPrecosporCliente.TabVisible := ParSistema.PrecoParaCliente;
+  tstAcumuladores.TabVisible := UsuarioLogin.GerenteEstoque;
+  FIndex:= 1;
+  if ParSistema.FiliaisIndependentes then begin
+//    lblFilial.Visible               := False;
+    pnlTopLeft.Visible := False;
+    dbgProdutos.Columnbyname('filial').Visible  := False;
+    dbgSimilares.Columnbyname('filial').Visible := False;
+    dtxPedidos.DataField:= 'totalfiliais';
+  end;
+  dtxValorPromocao.Font.Color :=$00142EDC;
+  dtxValidadePromocao.Font.Color:=$00142EDC;
+  tstGradeProdutos.TabVisible := ParSistema.UsarGradesProdutos;
+  dbgProdutos.Columnbyname('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutos.Columnbyname('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+  dbgSimilares.Columnbyname('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgSimilares.Columnbyname('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+  dbgComponentes.Columnbyname('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgComponentes.Columnbyname('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+
+  if not ParSistema.UsarGradesProdutos then
+  begin
+    dbgProdutos.Font.Size:=9;
+    dbgSimilares.Font.Size:=9;
+  end;
+  if ParSistema.TamanhoMascaraQuantidade > dbgProdutos.Columnbyname('emestoque').Width then
+    dbgProdutos.Columnbyname('emestoque').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if ParSistema.TamanhoMascaraQuantidade > dbgVendas.Columns[2].Width then
+    dbgVendas.Columns[2].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if ParSistema.TamanhoMascaraQuantidade > dbgCompras.Columns[2].Width then
+    dbgCompras.Columns[2].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if ParSistema.TamanhoMascaraQuantidade > dbgCompras.Columns[1].Width then
+    dbgProdutosPedidos.Columns[1].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  pnlcstproduto.Visible := dtmconsultaestoque.ExisteCRTNormal;
+  pnlcsosnproduto.Visible := dtmconsultaestoque.ExisteCRTSimples;
+
+{
+  fraConsultaEstoqueItemProduto.TipoPesquisa := pesItemProdutosConsulta;
+  fraConsultaEstoqueItemProduto.CondicoesdaConsulta := CondicoesConsultaEstoqueItemProduto;
+}
+
+  fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.TipoPesquisa := pesItemProdutosConsulta;
+  fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.onEnter_ := GerarDados;
+//  fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesConsultaEstoqueItemProduto;
+
+
+  dbgGrades_.Bands.PrimaryColor := TColor(strtoint(parsistema.CorZebradoRelatorio));
+  
+end;
+
+destructor TfrmConsultaEstoque.Destroy;
+begin
+  dtmConsultaEstoque:=nil;
+  inherited;
+  frmConsultaEstoque := nil;
+end;
+
+procedure TfrmConsultaEstoque.sbnProcuraFilialClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  edfFilial.SetFocus;
+  InternoPesquisar('');
+end;
+
+
+
+procedure TfrmConsultaEstoque.sbnGerarClick(Sender: TObject);
+begin
+  if VerificaCamposConsulta then begin
+    with dtmConsultaEstoque do begin  
+      Filial     := edfFilial.Text;
+      ItemProduto:= fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional;
+      Produto    := fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaprodutos.ListaCondicional;
+      Grupo      := fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriagruposprodutos.ListaCondicional;
+      Classe     := fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriaclassesprodutos.ListaCondicional;
+      ListaCondicaoMarcas    := fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriamarcasProdutos.ListaCondicional;
+      ListaCondicaoPromocoes := fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriapromocoes.ListaCondicional;
+
+      if AbrirTabelaConsultaEstoques then
+      begin
+        if edfFilial.CanFocus then
+         edfFilial.SetFocus;
+      end
+      else
+      begin
+        if pgcItensProdutos.ActivePage = tstGradeProdutos then
+          pgcItensProdutosChange(pgcItensProdutos);
+      end;
+    end;
+  end;
+
+  pgcItensProdutos.ActivePageIndex := 0;
+
+end;
+
+procedure TfrmConsultaEstoque.edfGrupoKeyDown(Sender: TObject;var Key: Word; Shift: TShiftState);
+begin
+  if TeclaEnterOuReturn(Key) and (Shift = []) then
+    sbnGerar.Click;
+end;
+
+procedure TfrmConsultaEstoque.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+  VK_Escape: begin
+               dtmconsultaestoque.ReFazConsultaTabelas;
+               edfFilial.SetFocus;
+             end;
+     VK_F6 : sbnGerar.Click;
+  end;
+end;
+
+function TfrmConsultaEstoque.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  if (TipoPesquisa in [pesITEMPRODUTOS, pesCARACTERISTICAS]) then
+       TfrmConsultaPorCampo(Result).ConsultaInterativa := False
+  else TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+end;
+
+function TfrmConsultaEstoque.TituloPesquisa: String;
+begin
+  case TipoPesquisa of
+       pesITEMPRODUTOS: Result := 'Item produto';
+    pesCARACTERISTICAS: Result := 'Produto';
+             pesGRUPOS: Result := 'Grupo';
+            pesCLASSES: Result := 'Classe';
+            pesFILIAIS: Result := 'Filial';
+  end;
+end;
+
+function TfrmConsultaEstoque.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmConsultaEstoque do
+    case TipoPesquisa of
+               pesFILIAIS: Result := ExisteFilial(NomeCampo, Value);
+    else                   Result := False;
+    end;
+end;
+
+function TfrmConsultaEstoque.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmConsultaEstoque do
+    case TipoPesquisa of
+              pesFILIAIS: Result := ConsultaFilial;
+    else                  Result := nil;
+    end;
+end;
+
+function TfrmConsultaEstoque.InternoPesquisar(Titulo:String): Integer;
+begin
+ try
+  Result := mrNone;
+  if PesquisaHabilitada then
+    with dtmConsultaEstoque do begin
+      AbreTabelasPesquisa(TipoPesquisa);
+      Result := inherited InternoPesquisar(TituloPesquisa);
+      if Result = mrOK then
+         Selecionar(TipoPesquisa);
+      FechaTabelasPesquisa(TipoPesquisa);
+    end
+  except
+    on E: Exception do ShowMessage(E.Message);
+  end
+end;
+
+function TfrmConsultaEstoque.PesquisaHabilitada: Boolean;
+begin
+  Result:= False;
+  if CtrlOn then begin
+    if ActiveControl is TtecDBEditFind then begin
+      if edfFilial.Focused then
+        TipoPesquisa := pesFILIAIS;
+      Result := True;
+    end;
+  end;
+end;
+
+function TfrmConsultaEstoque.VerificaCamposConsulta: Boolean;
+begin
+  Result := (fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.recordcount <> 0) or
+            (fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaprodutos.fraSelecaoAleatoriaProduto.qrySelecaoAleatoria.recordcount <> 0) or
+            (fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriagruposprodutos.fraSelecaoAleatoriaGrupoProduto.qrySelecaoAleatoria.recordcount <> 0) or
+            (fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriaclassesprodutos.fraSelecaoAleatoriaClasseProduto.qrySelecaoAleatoria.recordcount <> 0) or
+            (fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriamarcasProdutos.fraSelecaoAleatoriamarcasProduto.qrySelecaoAleatoria.recordcount <> 0) or
+            (fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriapromocoes.fraSelecaoAleatoriapromocoes.qrySelecaoAleatoria.recordcount <> 0);
+
+  if Result then
+    Result := OperadorTernario(Trim(edfFilial.Text) <> '',(edfFilial.Exist), True)
+  else
+  begin
+    MensagemAviso('Informe um parâmetro para a consulta!');
+    fraMultiplaSelecaoAleatoria.pgcMultiplaSelecaoAleatoria.ActivePageIndex := 0;
+    fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.dbgSelecaoAleatoria.setfocus;
+  end;
+
+
+end;
+
+procedure TfrmConsultaEstoque.pgcEstoquesChange(Sender: TObject);
+begin
+  inherited;
+  with dtmconsultaestoque do begin
+    if (pgcEstoques.ActivePage = tstEstoque) then
+    begin
+      if pgcItensProdutos.activepage = tstItensProdutos then
+        AbrirTabelasEstoque(produtos)
+      else
+      if pgcItensProdutos.activepage = tstSimilares then
+        AbrirTabelasEstoque(similares)
+      else
+      if pgcItensProdutos.activepage = tstComponentes then
+        AbrirTabelasEstoque(componentes);
+    end
+    else if (pgcEstoques.ActivePage = tstAcumuladores) and tstAcumuladores.TabVisible then
+    begin
+//      Mostrar:= 'A';
+      if pgcItensProdutos.ActivePage = tstItensProdutos then
+        AbrirTabelasAcumuladores(false)
+      else
+      if pgcItensProdutos.activepage = tstSimilares then
+        AbrirTabelasAcumuladores(true)
+      else
+      if pgcItensProdutos.ActivePage = tstComponentes then
+        AbrirTabelasAcumuladores(false);
+    end;
+  end;
+end;
+
+procedure TfrmConsultaEstoque.pgcItensProdutosChange(Sender: TObject);
+var
+ i: integer;
+begin
+  inherited;
+  case pgcItensProdutos.ActivePageIndex of
+  0: begin
+       dtmconsultaestoque.AbrirTabelasEstoque(produtos);
+       pgcEstoques.Parent := tstItensProdutos;
+       pnlRotulos.Parent := tstItensProdutos;
+       dtmconsultaestoque.dsrConsultaEstoques.DataSet := dtmconsultaestoque.qryConsultaEstoques;
+
+       if assigned(frmConsultaProdutosNotasFiscaisAnteriores) and (frmConsultaProdutosNotasFiscaisAnteriores.owner = self) then
+         frmConsultaProdutosNotasFiscaisAnteriores.fraProdutosNotasFiscaisAnteriores1.AbrirqryProdutosNotaFiscalAnteriores;
+
+       pgcEstoquesChange(nil);
+
+     end;
+
+  1: begin
+       dtmconsultaestoque.AbrirTabelaProdutosSimilares ;
+       dtmconsultaestoque.AbrirTabelasEstoque(similares);
+       pgcEstoques.Parent := tstSimilares;
+       pnlRotulos.Parent := tstSimilares;
+       dtmconsultaestoque.dsrConsultaEstoques.DataSet := dtmconsultaestoque.qryConsultaEstoquesSimilares;
+       if assigned(frmConsultaProdutosNotasFiscaisAnteriores) and (frmConsultaProdutosNotasFiscaisAnteriores.owner = self) then
+         frmConsultaProdutosNotasFiscaisAnteriores.fraProdutosNotasFiscaisAnteriores1.AbrirqryProdutosNotaFiscalAnteriores;
+
+       pgcEstoquesChange(nil);
+       
+     end;
+  2: begin
+//      gbxInformacoesProdutos.Visible := true;
+      with dtmconsultaestoque do
+      begin
+       if UtilizandoGrade then
+       begin
+
+         dbgGrades_.FixedCols := 0;
+         GerarTabelaGrade;
+
+
+         if dtmconsultaestoque.qryGrade.Active then
+         begin
+           if  dbgGrades_.FixedCols <> 1 then
+              dbgGrades_.FixedCols := 1;
+
+           if dbgGrades_.FixedRows <> 1 then
+             dbgGrades_.FixedRows := 1;
+
+
+           for i:=0 to dbgGrades_.Columns.Count-1 do
+             if not dbgGrades_.Columns[i].ShowBands then
+             dbgGrades_.Columns[i].ShowBands := true;
+
+         end;
+
+         PosicionarLinhaColunanaGrade;
+
+         if not dbgGrades_.wordwrap then
+           dbgGrades_.wordwrap := true;
+
+         dbgGrades_.AutoSizeRows(false);
+         dbgGrades_.Refresh;
+
+       end;
+      end;
+     end;
+  3: dtmconsultaestoque.AbrirTabelaProdutosModelos;
+  4: begin
+       dtmconsultaestoque.AbrirTabelaComponentes ;
+       dtmconsultaestoque.AbrirTabelasEstoque(componentes);
+       pgcEstoques.Parent := tstComponentes;
+       pnlRotulos.Parent := tstComponentes;
+       dtmconsultaestoque.dsrConsultaEstoques.DataSet := dtmconsultaestoque.qryConsultaEstoquesComponentes;
+
+     end;
+ end;
+end;
+
+procedure TfrmConsultaEstoque.dbgProdutosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if  (dtmConsultaEstoque.ProdutoInativo or dtmConsultaEstoque.ProdutoForaLinha) then
+  begin
+    TDBGrid(Sender).Canvas.Brush.Color := $007DBEFF;
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+  end
+  else if dtmconsultaestoque.ProdutoEmPromocao then
+  begin
+    TDBGrid(Sender).Canvas.Brush.Color := clWhite;
+    TDBGrid(Sender).Canvas.Font.Color := clRed;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmConsultaEstoque.dbgSimilaresDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if  (dtmConsultaEstoque.ProdutoSimilarInativo or dtmConsultaEstoque.ProdutoSimilarForaLinha) then
+  begin
+    TDBGrid(Sender).Canvas.Brush.Color := $007DBEFF;
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+  end
+  else if dtmconsultaestoque.ProdutoSimilarEmPromocao then
+  begin
+    TDBGrid(Sender).Canvas.Font.Color := clRed;
+    TDBGrid(Sender).Canvas.Brush.Color:= clWhite;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmConsultaEstoque.AfterScrollLinhaColunaGrade(Sender: TObject);
+begin
+ dbgProdutos.Columnbyname('valorgrade1').Title.Caption := dtmconsultaestoque.LinhadaGrade;
+ dbgProdutos.Columnbyname('valorgrade2').Title.Caption := dtmconsultaestoque.colunadaGrade;
+ tstGradeProdutos.TabVisible := (dtmconsultaestoque.LinhadaGrade<>'') or
+                                (dtmconsultaestoque.ColunadaGrade<>'');
+
+ if assigned(frmConsultaProdutosNotasFiscaisAnteriores) and (frmConsultaProdutosNotasFiscaisAnteriores.owner = self) then
+   frmConsultaProdutosNotasFiscaisAnteriores.fraProdutosNotasFiscaisAnteriores1.AbrirqryProdutosNotaFiscalAnteriores;
+
+
+end;
+
+procedure TfrmConsultaEstoque.CriarDataModulo;
+begin
+  inherited;
+  dtmConsultaEstoque := TdtmConsultaEstoque.Create(Self);
+  dtmConsultaEstoque.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  dtmConsultaEstoque.OnScrollLinhaColunaGradeSimilar := AfterScrollLinhaColunaGradeSimilar;
+  dtmConsultaEstoque.OnScrollLinhaColunaGradeComponente := AfterScrollLinhaColunaGradeComponente;
+end;
+
+procedure TfrmConsultaEstoque.AjustarGradeProdutos;
+Var
+ I: Integer;
+begin
+  inherited;
+  {
+  with dtmconsultaestoque do
+  begin
+    dbgGrades.Columns[0].Width :=100;
+    dbgGrades.Columns[0].Title.Caption := LinhadaGrade+'/'+ColunadaGrade;
+    dbgGrades.Columns[0].Title.Alignment := taCenter;
+    for I:=1 to dbgGrades.Columns.Count-1 do
+    begin
+      dbggrades.Columns[I].Width :=130;
+      dbggrades.Columns[I].Alignment := taRightJustify;
+      dbgGrades.Columns[I].Title.Alignment := taCenter;
+      if dbgGrades.Columns.Count > 2 then
+        dbggrades.Columns[I].Title.Caption := Colunas.Strings[I-1]
+      else dbggrades.Columns[I].Title.Caption := ' ';
+    end;
+    dbgGrades.FixedCols := 1;
+  end;
+  }
+end;
+
+procedure TfrmConsultaEstoque.PosicionarLinhaColunaNaGrade;
+var
+{
+ vCol, vRow : integer;
+ }
+
+ Loc: TPoint;
+ Fp: TFindParams;
+
+
+
+begin
+
+ {
+ dbggrades.SetFocus;
+ with  dtmconsultaestoque do
+ begin
+  dbggrades.SelectedIndex := Colunas.IndexOf(ProdutoColunaGrade)+1;
+  qrygrade.First;
+  while not qrygrade.Eof do
+  begin
+   if qrygrade.Fields[0].AsString = ProdutoLinhaGrade then
+   begin
+    vRow := qrygrade.recno;
+    break;
+   end;
+   qrygrade.Next;
+  end;
+ end;
+
+ vCol := dtmconsultaestoque.Colunas.IndexOf(dtmconsultaestoque.ProdutoColunaGrade)+1;
+ }
+
+// Loc := Point(-1,-1);
+// fp := [fnAutoGoto, fnDirectionLeftRight, fnMatchRegular];
+
+ dbgGrades_.FindFirst(dtmConsultaEstoque.qryConsultaEstoquesprodutovisual.AsString+'*',[fnAutoGoto, fnDirectionLeftRight, fnMatchRegular]);
+
+// Loc := dbgGrades_.Find(loc, dtmConsultaEstoque.qryConsultaEstoquesprodutovisual.AsString+'*',fp);
+
+
+// dbggrades_.SelectCols(0,vCol);
+// dbggrades_.SelectRows(0,vRow);
+ dbggrades_.Refresh;
+
+end;
+
+procedure TfrmConsultaEstoque.pgcItensProdutosChanging(Sender: TObject;
+  var AllowChange: Boolean);
+begin
+  inherited;
+  case pgcItensProdutos.ActivePageIndex of
+  1: begin
+     end;
+
+  2: begin
+//      gbxInformacoesProdutos.Visible := false;
+      with dtmconsultaestoque do
+       if qryGrade.Active then
+         PosicionarLinhaColunanoProduto(dbgGrades_.Cells[0, Arow_], dbgGrades_.Cells[Acol_, 0], qryconsultaestoques)
+     end;
+  end;
+end;
+
+procedure TfrmConsultaEstoque.AfterScrollLinhaColunaGradeSimilar(
+  Sender: TObject);
+begin
+  dbgSimilares.Columnbyname('valorgrade1').Title.Caption := dtmconsultaestoque.LinhadaGradeSimilar;
+  dbgSimilares.Columnbyname('valorgrade2').Title.Caption := dtmconsultaestoque.ColunadaGradeSimilar;
+
+  if assigned(frmConsultaProdutosNotasFiscaisAnteriores) and (frmConsultaProdutosNotasFiscaisAnteriores.owner = self) then
+    frmConsultaProdutosNotasFiscaisAnteriores.fraProdutosNotasFiscaisAnteriores1.AbrirqryProdutosNotaFiscalAnteriores;
+end;
+
+
+procedure TfrmConsultaEstoque.edtValorUltimacompraChange(Sender: TObject);
+begin
+  inherited;
+  sbnGravarValor.Enabled:= True;
+end;
+
+procedure TfrmConsultaEstoque.edtValorUltimacompraKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if dtmconsultaestoque.qryAjustarValorUltimaCompra.State in [dsinsert, dsedit] then
+  begin
+    if ((Key = VK_RETURN) or (Key = VK_Return)) then
+      sbnGravarValorClick(Self);
+  end;
+end;
+
+procedure TfrmConsultaEstoque.sbnGravarValorClick(Sender: TObject);
+begin
+  inherited;
+  dtmconsultaestoque.qryAjustarValorUltimaCompra.Edit;
+  dtmconsultaestoque.GravarValorUltimaCompra(edtValorUltimaCompra.ValorSemFormatacao, False);
+  sbnGravarValor.Enabled:= False;
+end;
+
+procedure TfrmConsultaEstoque.pgcEstoquesSimilaresChange(Sender: TObject);
+begin
+  inherited;
+  {
+  with dtmconsultaestoque do
+  begin
+    if (pgcEstoquesSimilares.ActivePage = tstEstoquesSimilares) then
+    begin
+      Mostrar:= 'E';
+      AbrirTabelasEstoque(similares);
+    end
+    else if (pgcEstoquesSimilares.ActivePage = tstAcumuladoresSimilares) and tstAcumuladoresSimilares.TabVisible then
+    begin
+      Mostrar:= 'A';
+      AbrirTabelasAcumuladores(True);
+    end;
+  end;
+  }
+end;
+
+procedure TfrmConsultaEstoque.sbnGravarValorSimilaresClick(Sender: TObject);
+begin
+  inherited;
+  dtmconsultaestoque.qryAjustarValorUltimaCompra.Edit;
+  dtmconsultaestoque.GravarValorUltimaCompra(edtValorUltimaCompra.ValorSemFormatacao, True);
+//  sbnGravarValorSimilares.Enabled:= False; ver
+end;
+
+procedure TfrmConsultaEstoque.edtUltimaCompaSimilaresChange(Sender: TObject);
+begin
+  inherited;
+//  sbnGravarValorSimilares.Enabled:= true; ver
+end;
+
+procedure TfrmConsultaEstoque.edtUltimaCompaSimilaresKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+    if dtmconsultaestoque.qryAjustarValorUltimaCompra.State in [dsinsert, dsedit] then
+  begin
+    if ((Key = VK_RETURN) or (Key = VK_Return)) then
+      sbnGravarValorSimilaresClick(Self);
+  end;
+end;
+
+
+procedure TfrmConsultaEstoque.dbgComponentesDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if  (dtmConsultaEstoque.ComponenteInativo or dtmConsultaEstoque.ComponenteForaLinha) then
+  begin
+    TDBGrid(Sender).Canvas.Brush.Color := $007DBEFF;
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+  end
+  else if dtmconsultaestoque.ComponenteEmPromocao then
+  begin
+    TDBGrid(Sender).Canvas.Font.Color := clRed;
+    TDBGrid(Sender).Canvas.Brush.Color:= clWhite;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmConsultaEstoque.Action1Update(Sender: TObject);
+begin
+  inherited;
+  tstComponentes.tabvisible := dtmconsultaestoque.qryConsultaEstoquescomposto.asBoolean or
+                               dtmconsultaestoque.qryConsultaEstoquescomposto2.asBoolean;
+  if pgcItensProdutos.activepage = tstGradeProdutos then
+  begin
+   
+  end;
+
+end;
+
+procedure TfrmConsultaEstoque.AfterScrollLinhaColunaGradeComponente(
+  Sender: TObject);
+begin
+ dbgComponentes.Columns[2].Title.Caption := dtmconsultaestoque.LinhadaGradeComponente;
+ dbgComponentes.Columns[3].Title.Caption := dtmconsultaestoque.ColunadaGradeComponente;
+end;
+
+procedure TfrmConsultaEstoque.sbnVisualizarDetalhesProdutosNotaClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarTelaonsultaProdutosNotasAnteriores(self, dtmconsultaestoque.GetCodigoNotaProduto, dtmconsultaestoque.GetProduto);
+end;
+
+procedure TfrmConsultaEstoque.sbnVisualizarFotoClick(Sender: TObject);
+begin
+  inherited;
+
+  if pgcItensProdutos.activepage = tstGradeProdutos then
+  begin
+//    dtmconsultaestoque.NomeCampoSelecionadoGrade := dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption;
+    AcionarTelaVisualizarImageURL(self, dtmconsultaestoque.GetProdutoGrade)
+  end
+  else
+    AcionarTelaVisualizarImageURL(self, dtmconsultaestoque.GetProduto);
+end;
+
+procedure TfrmConsultaEstoque.sbnAbrirPedidoClick(Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir',
+    dtmConsultaEstoque.qryConsultaProdutosPedidosPedido.asInteger], 'TfrmCadastroPedidos', True);
+end;
+
+procedure TfrmConsultaEstoque.dbgProdutosPedidosDblClick(Sender: TObject);
+begin
+  inherited;
+  sbnAbrirPedidoClick(nil)
+end;
+
+procedure TfrmConsultaEstoque.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+  edfFilial.clear;
+  pgcItensProdutos.activepageindex := 0;
+  fraMultiplaSelecaoAleatoria.pgcMultiplaSelecaoAleatoria.ActivePageIndex := 0;
+  edffilial.text := value[0];
+  edffilial.exist;
+  fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.SetarCodigo(Value[1]);
+  sbnGerarClick(sbngerar);
+
+end;
+
+{
+procedure TfrmConsultaEstoque.dbgGradesEnter(Sender: TObject);
+begin
+  inherited;
+  dtmconsultaestoque.NomeCampoSelecionadoGrade := dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption;
+  dtmconsultaestoque.AbrirConsulteEstoque;
+
+end;
+}
+
+{
+procedure TfrmConsultaEstoque.dbgGradesColExit(Sender: TObject);
+begin
+  inherited;
+  dtmconsultaestoque.NomeCampoSelecionadoGrade := dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption;
+  dtmconsultaestoque.AbrirConsulteEstoque;
+end;
+}
+
+
+{
+procedure TfrmConsultaEstoque.dbgGradesCellClick(Column: TColumn);
+begin
+  inherited;
+  dtmconsultaestoque.NomeCampoSelecionadoGrade := dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption;
+  dtmconsultaestoque.AbrirConsulteEstoque;
+end;
+}
+
+{
+procedure TfrmConsultaEstoque.CondicoesConsultaEstoqueItemProduto;
+begin
+  if edfFilial.text <> '' then
+  begin
+    fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.qryProcuraEstoqueItemProdutos.parambyname('filialbase').AsString := edffilial.Text;
+    fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.qryProcuraEstoqueItemProdutos.parambyname('filial').AsString := edffilial.Text;
+  end
+  else
+  begin
+    fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.qryProcuraEstoqueItemProdutos.parambyname('filialbase').Asinteger := filialbase;
+    fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.ConsultaSelecaoAleatoria.qryProcuraEstoqueItemProdutos.parambyname('filial').Asinteger := filialbase;
+  end;
+end;
+}
+
+
+procedure TfrmConsultaEstoque.GerarDados;
+begin
+  sbngerarclick(nil);
+end;
+
+procedure TfrmConsultaEstoque.dbgGrades_ClickCell(Sender: TObject; ARow,
+  ACol: Integer);
+begin
+  inherited;
+  {
+  dtmconsultaestoque.NomeCampoColunaSelecionadoGrade := dtmconsultaestoque.qryGrade.Fields[ACol].DisplayName;
+  dtmconsultaestoque.NomeCampoColunaSelecionadoGrade := dtmconsultaestoque.qryGrade.Fields[ACol].DisplayName;
+  dtmconsultaestoque.AbrirConsulteEstoque;
+  }
+
+end;
+
+procedure TfrmConsultaEstoque.dbgGrades_ColChanging(Sender: TObject;
+  OldCol, NewCol: Integer; var Allow: Boolean);
+begin
+  inherited;
+//  dtmconsultaestoque.NomeCampoColunaSelecionadoGrade := dtmconsultaestoque.qryGrade.Fields[NewCol].DisplayName;
+//  dtmconsultaestoque.AbrirConsulteEstoque;
+end;
+
+procedure TfrmConsultaEstoque.dbgGrades_GetCellColor(Sender: TObject; ARow,
+  ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+begin
+  inherited;
+//  if (gdFocused in AState) or (gdFixed in AState) then
+    if (Acol <> 0) and (ARow <> 0) and dtmconsultaestoque.qryGrade.active then
+    begin
+
+      With dtmconsultaestoque do
+      begin
+
+  //      if PosicionarLinhaColunanoProduto( trim(dtmconsultaestoque.qryGrade.Fields[ACol].DisplayName), qryConsultaLinhaColuna) then
+        if PosicionarLinhaColunanoProduto(dbgGrades_.Cells[0, Arow], dbgGrades_.Cells[Acol, 0], qryConsultaLinhaColuna) then
+
+        begin
+          if ProdutoLinhacolunaEmPromocao then
+          begin
+             AFont.Color := clRed;
+             AFont.Style := [fsBold];
+
+             if (gdselected in AState) then
+               dbgGrades_.SelectionTextColor := clRed;
+          end
+          else
+            if (gdselected in AState) then
+              dbgGrades_.SelectionTextColor := clBlack;
+        end;
+
+      end;
+    
+    end;
+
+end;
+
+procedure TfrmConsultaEstoque.dbgGrades_SelectCell(Sender: TObject; ACol,
+  ARow: Integer; var CanSelect: Boolean);
+begin
+  inherited;
+  ACol_ := ACol;
+  ARow_ := Arow;
+  dtmconsultaestoque.PosicionarLinhaColunanoProduto(dbgGrades_.Cells[0, Arow], dbgGrades_.Cells[Acol, 0], nil );
+  dtmconsultaestoque.AbrirConsulteEstoque;
+end;
+
+end.
+

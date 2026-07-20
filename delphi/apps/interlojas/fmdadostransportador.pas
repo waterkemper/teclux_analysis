@@ -1,0 +1,201 @@
+unit fmdadostransportador;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, Buttons, DBCtrls, Mask,
+  //Terceiros
+  ZQuery,
+  //Biblio
+  ctconstantes,
+  //Repositorio
+  fmnavcontroles, fmconsultabasica,
+  //Componentes
+  cpdbmemo, cpnumero, cpdbfindcontrols, cptexto, cpdbtext, cpdbradiogroup,
+  // Projeto
+  dmtransferenciarequisicaoexposicao;
+
+type
+  TfrmDadosTransportador = class(TfrmNavControles)
+    flkFornecedorTransporte: TtecDBFindLookup;
+    edtPesoBruto: TDBEditNumero;
+    edtPesoLiquido: TDBEditNumero;
+    edtVolume: TDBEditNumero;
+    lblFornecedorTransporte: TLabel;
+    lblPesoBruto: TLabel;
+    lblPesoLiguido: TLabel;
+    lblVolumes: TLabel;
+    lblNumeracao: TLabel;
+    lblEspecieTransporte: TLabel;
+    lblPlaca: TLabel;
+    edtNumeracao: TDBEditTexto;
+    lblMarca: TLabel;
+    edtMarca: TDBEditTexto;
+    edtEspecie: TDBEditTexto;
+    edtPlaca: TDBEditTexto;
+    pnlFundoJanela: TPanel;
+    gbxFundoJanela: TGroupBox;
+    sbnProcurarFornecedorTransporte: TSpeedButton;
+    dtxNomeFornecedorTransporte: TtecDBText;
+    bbnOK: TBitBtn;
+    bbnCancelar: TBitBtn;
+    rgpPagamentoFrete: TtecDBRadioGroup;
+    rbnEmitente: TtecRadioButton;
+    rbnDestinatario: TtecRadioButton;
+    rgpViaTransporte: TtecDBRadioGroup;
+    rbnRodoviario: TtecRadioButton;
+    rbnAereo: TtecRadioButton;
+    rbnMaritimo: TtecRadioButton;
+    lblEstadoPlaca: TLabel;
+    flkEstadoPlaca: TtecDBFindLookup;
+    sbnConsultaEstado: TSpeedButton;
+    dtxEstadoPlaca: TtecDBText;
+    mmoObservacoes: TtecDBMemo;
+    lblObs: TLabel;
+    procedure bbnOKClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure sbnConsultaEstadoClick(Sender: TObject);
+    procedure sbnProcurarFornecedorTransporteClick(Sender: TObject);
+  protected
+//    dtmTransferencia: TdtmTransferenciaRequisicaoExposicao;
+    TipoConsulta: TtecTransferenciaRequisicao;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+//    procedure SetDataModulo(const Value: TdtmTransferenciaRequisicaoExposicao);
+    function  TabelaDePesquisa: TZDataSet; override;
+  public
+    destructor destroy; override;
+//    property DataModulo: TdtmTransferenciaRequisicaoExposicao write setDataModulo;
+  end;
+
+var
+  frmDadosTransportador : tfrmDadosTransportador;  
+
+implementation
+
+uses
+  //Biblio
+  biblio,
+  //Repositorio
+  fmconsultaporcampo;
+
+{$R *.dfm}
+
+{ TfrmComplementarNotaFiscalSaida }
+
+procedure TfrmDadosTransportador.bbnOKClick(Sender: TObject);
+begin
+  inherited;
+  dtmTransferenciaRequisicaoExposicao.GravarInformacoesFornecedorTransporte;
+end;
+
+destructor TfrmDadosTransportador.destroy;
+begin
+  inherited;
+  frmDadosTransportador := nil;
+end;
+
+function TfrmDadosTransportador.ExisteInformacao(Parametro: Integer;
+         NomeCampo: String; Value: Variant): Boolean;
+begin
+  if TipoConsulta = ttrFORNECEDORES then
+    Result := dtmTransferenciaRequisicaoExposicao.ExisteFornecedorTransporte(NomeCampo, Value)
+  else if TipoConsulta = ttrESTADOS then
+    Result := dtmTransferenciaRequisicaoExposicao.ExisteEstado(NomeCampo, Value)
+  else
+    Result := False;
+end;
+
+procedure TfrmDadosTransportador.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+var
+  PesoLiquido, PesoBruto: Real;
+begin
+  inherited;
+  try
+    PesoLiquido := StrToFloat(edtPesoLiquido.ValorSemFormatacao);
+  except
+    PesoLiquido := 0
+  end;
+  try
+    PesoBruto := StrToFloat(edtPesoBruto.ValorSemFormatacao);
+  except
+    PesoBruto := 0
+  end;
+  if (PesoLiquido > PesoBruto) and (PesoLiquido > 0) and (PesoBruto > 0) then begin
+    MensagemAviso(ctPESOBRUTOMAIORPESOLIQUIDO);
+    CanClose := False
+  end
+end;
+
+function TfrmDadosTransportador.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result:= mrNone;
+  if CtrlOn then begin
+    if flkFornecedorTransporte.Focused then begin
+      TipoConsulta := ttrFORNECEDORES;
+      Titulo := 'Fornecedores Transporte';
+    end else if flkEstadoPlaca.Focused then begin
+      TipoConsulta := ttrESTADOS;
+      Titulo := 'Estados';
+    end
+    else TipoConsulta := ttrNENHUM;
+
+    with dtmTransferenciaRequisicaoExposicao do begin
+      if TipoConsulta <> ttrNENHUM then begin
+        AbrirTabelas(TipoConsulta);
+        Result := inherited InternoPesquisar(Titulo);
+        if Result = mrOK then
+          Selecionar(TipoConsulta);
+        FecharTabelas(TipoConsulta);
+      end
+    end;
+  end;
+end;
+
+function TfrmDadosTransportador.JanelaPesquisa: TfrmConsultaBasica;
+var
+  Jan: TfrmConsultaPorCampo;
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := True;
+  Result := Jan
+end;
+
+procedure TfrmDadosTransportador.sbnConsultaEstadoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkEstadoPlaca.SetFocus;
+  InternoPesquisar('')
+end;
+
+procedure TfrmDadosTransportador.sbnProcurarFornecedorTransporteClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkFornecedorTransporte.SetFocus;
+  InternoPesquisar('')
+end;
+
+{
+procedure TfrmDadosTransportador.SetDataModulo(const Value: TdtmTransferenciaRequisicaoExposicao);
+begin
+  dtmTransferencia:=Value;
+end;
+}
+
+function TfrmDadosTransportador.TabelaDePesquisa: TZDataSet;
+begin
+  if TipoConsulta = ttrFORNECEDORES then
+    Result := dtmTransferenciaRequisicaoExposicao.TabelaConsultaFornecedorTransporte
+  else if TipoConsulta = ttrESTADOS then
+    Result := dtmTransferenciaRequisicaoExposicao.TabelaConsultaEstados
+  else
+    Result := nil;
+end;
+
+end.
+

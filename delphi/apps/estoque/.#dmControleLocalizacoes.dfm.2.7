@@ -1,0 +1,755 @@
+inherited dtmControleLocalizacoes: TdtmControleLocalizacoes
+  OldCreateOrder = False
+  Left = 421
+  Top = 265
+  Height = 431
+  Width = 694
+  object dsrProdutosLocalizacao: TtecDataSource
+    DataSet = qryProdutosLocalizacao
+    Left = 64
+    Top = 40
+  end
+  object qryProdutosLocalizacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterInsert = qryProdutosLocalizacaoAfterInsert
+    AfterPost = qryProdutosLocalizacaoAfterPost
+    AfterDelete = qryProdutosLocalizacaoAfterDelete
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select p.codigo,'
+      '       p.codigovisual,'
+      '       p.descricao,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      '       c.grade1,'
+      '       c.grade2,'
+      
+        '       (select gr.descricao from grades gr where gr.codigo = c.g' +
+        'rade1) as linha,'
+      
+        '       (select gr.descricao from grades gr where gr.codigo = c.g' +
+        'rade2) as coluna,'
+      '       e.emestoque,'
+      '       e.localizacao,'
+      '       false as retirar_localizacao,'
+      '       e.sublocalizacao,'
+      '       false as retirar_sublocalizacao'
+      ''
+      'from produtos p'
+      '     join estoques e'
+      '     on p.codigo = e.produto'
+      '     and e.filial = 0'
+      '     join caracteristicas c'
+      '     on p.caracteristica = c.codigo'
+      ''
+      'where false'
+      ''
+      'order by p.codigovisual')
+    RequestLive = True
+    Left = 112
+    Top = 56
+    object qryProdutosLocalizacaocodigo: TLargeintField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryProdutosLocalizacaocodigovisual: TStringField
+      FieldName = 'codigovisual'
+      Required = True
+      Size = 30
+    end
+    object qryProdutosLocalizacaodescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 100
+    end
+    object qryProdutosLocalizacaovalorgrade1: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryProdutosLocalizacaovalorgrade2: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryProdutosLocalizacaograde1: TIntegerField
+      FieldName = 'grade1'
+    end
+    object qryProdutosLocalizacaograde2: TIntegerField
+      FieldName = 'grade2'
+    end
+    object qryProdutosLocalizacaolinha: TStringField
+      FieldName = 'linha'
+      Size = 40
+    end
+    object qryProdutosLocalizacaocoluna: TStringField
+      FieldName = 'coluna'
+      Size = 40
+    end
+    object qryProdutosLocalizacaolocalizacao: TStringField
+      FieldName = 'localizacao'
+    end
+    object qryProdutosLocalizacaosublocalizacao: TStringField
+      FieldName = 'sublocalizacao'
+    end
+    object qryProdutosLocalizacaoretirar_localizacao: TBooleanField
+      FieldName = 'retirar_localizacao'
+    end
+    object qryProdutosLocalizacaoretirar_sublocalizacao: TBooleanField
+      FieldName = 'retirar_sublocalizacao'
+    end
+    object qryProdutosLocalizacaoemestoque: TFloatField
+      FieldName = 'emestoque'
+    end
+  end
+  object qryLocalizacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select e.localizacao, e.sublocalizacao'
+      'from estoques e'
+      ''
+      'where false'
+      ''
+      'limit 1')
+    RequestLive = True
+    Left = 376
+    Top = 24
+  end
+  object qryProcuraProdutosCodigoBarras: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select p.codigo,'
+      '       p.codigovisual,'
+      '       pcb.codigobarras,'
+      '       p.descricao,'
+      '       p.valorgrade1,'
+      '       gr_lin.descricao as linha,'
+      '       p.valorgrade2,'
+      '       gr_col.descricao as coluna,'
+      
+        '       (select e.localizacao from estoques e where e.filial = :f' +
+        'ilial and e.produto = p.codigo) as localizacao,'
+      
+        '       (select e.sublocalizacao from estoques e where e.filial =' +
+        ' :filial and e.produto = p.codigo) as sublocalizacao,'
+      
+        '       (select e.emestoque from estoques e where e.filial = :fil' +
+        'ial and e.produto = p.codigo) as emestoque'
+      ''
+      'From   produtos p'
+      '       join caracteristicas c'
+      '            left join grades gr_lin on c.grade1 = gr_lin.codigo'
+      '            left join grades gr_col on c.grade2 = gr_col.codigo'
+      '       on p.caracteristica = c.codigo'
+      ''
+      '       join produtoscodigobarras pcb'
+      '       on p.codigo = pcb.produto'
+      ''
+      'where pcb.codigobarras = :codigobarras')
+    RequestLive = True
+    Left = 98
+    Top = 169
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigobarras'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraProdutosCodigoBarrascodigo: TLargeintField
+      FieldName = 'codigo'
+    end
+    object qryProcuraProdutosCodigoBarrascodigovisual: TStringField
+      FieldName = 'codigovisual'
+      Size = 30
+    end
+    object qryProcuraProdutosCodigoBarrascodigobarras: TStringField
+      FieldName = 'codigobarras'
+      Size = 100
+    end
+    object qryProcuraProdutosCodigoBarrasdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryProcuraProdutosCodigoBarrasvalorgrade1: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryProcuraProdutosCodigoBarraslinha: TStringField
+      FieldName = 'linha'
+      Size = 40
+    end
+    object qryProcuraProdutosCodigoBarrasvalorgrade2: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryProcuraProdutosCodigoBarrascoluna: TStringField
+      FieldName = 'coluna'
+      Size = 40
+    end
+    object qryProcuraProdutosCodigoBarraslocalizacao: TStringField
+      FieldName = 'localizacao'
+    end
+    object qryProcuraProdutosCodigoBarrassublocalizacao: TStringField
+      FieldName = 'sublocalizacao'
+    end
+    object qryProcuraProdutosCodigoBarrasemestoque: TFloatField
+      FieldName = 'emestoque'
+    end
+  end
+  object qryProcuraProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select p.codigo,'
+      '       p.codigovisual,'
+      '       p.descricao,'
+      '       fp.nomefoto,'
+      '       fp.nomethumb,'
+      '       p.valorgrade1,'
+      '       gr_lin.descricao as linha,'
+      '       p.valorgrade2,'
+      '       gr_col.descricao as coluna,'
+      ''
+      
+        '       (select e.localizacao from estoques e where e.filial = :f' +
+        'ilial and e.produto = p.codigo) as localizacao,'
+      
+        '       (select e.sublocalizacao from estoques e where e.filial =' +
+        ' :filial and e.produto = p.codigo) as sublocalizacao,'
+      
+        '       (select e.emestoque from estoques e where e.filial = :fil' +
+        'ial and e.produto = p.codigo) as emestoque'
+      '       '
+      ''
+      'From   produtos p'
+      '       join caracteristicas c'
+      '            left join grades gr_lin on c.grade1 = gr_lin.codigo'
+      '            left join grades gr_col on c.grade2 = gr_col.codigo'
+      '       on p.caracteristica = c.codigo'
+      ''
+      '       left join fotosprodutos fp'
+      '       on fp.produto = p.codigo'
+      ''
+      'where (p.codigo = :codigo or p.codigovisual = :codigovisual)')
+    RequestLive = True
+    Left = 138
+    Top = 185
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigovisual'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraProdutoscodigo: TLargeintField
+      FieldName = 'codigo'
+    end
+    object qryProcuraProdutoscodigovisual: TStringField
+      FieldName = 'codigovisual'
+      Size = 30
+    end
+    object qryProcuraProdutosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryProcuraProdutosnomefoto: TStringField
+      FieldName = 'nomefoto'
+      Size = 250
+    end
+    object qryProcuraProdutosnomethumb: TStringField
+      FieldName = 'nomethumb'
+      Size = 250
+    end
+    object qryProcuraProdutosvalorgrade1: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryProcuraProdutoslinha: TStringField
+      FieldName = 'linha'
+      Size = 40
+    end
+    object qryProcuraProdutosvalorgrade2: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryProcuraProdutoscoluna: TStringField
+      FieldName = 'coluna'
+      Size = 40
+    end
+    object qryProcuraProdutoslocalizacao: TStringField
+      FieldName = 'localizacao'
+    end
+    object qryProcuraProdutossublocalizacao: TStringField
+      FieldName = 'sublocalizacao'
+    end
+    object qryProcuraProdutosemestoque: TFloatField
+      FieldName = 'emestoque'
+    end
+  end
+  object qryProdutosLocalizacao_Gerar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'CondicaoLocalizacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CondicaoSubLocalizacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select p.codigo,'
+      '       p.codigovisual,'
+      '       p.descricao,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      '       c.grade1,'
+      '       c.grade2,'
+      
+        '       (select gr.descricao from grades gr where gr.codigo = c.g' +
+        'rade1) as linha,'
+      
+        '       (select gr.descricao from grades gr where gr.codigo = c.g' +
+        'rade2) as coluna,'
+      '       e.emestoque,'
+      '       e.localizacao,'
+      '       e.sublocalizacao'
+      ''
+      'from produtos p'
+      '     join estoques e'
+      '     on p.codigo = e.produto'
+      '     and e.filial = :filial'
+      '     join caracteristicas c'
+      '     on p.caracteristica = c.codigo'
+      ''
+      'where e.filial = :filial'
+      '  %CondicaoLocalizacao'
+      '  %CondicaoSubLocalizacao'
+      ''
+      'order by p.codigovisual'
+      ''
+      ''
+      '/*'
+      ''
+      ':localizacao'
+      ':sublocalizacao'
+      ''
+      '*/')
+    RequestLive = True
+    Left = 248
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'localizacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sublocalizacao'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosLocalizacao_Gerarcodigo: TLargeintField
+      FieldName = 'codigo'
+    end
+    object qryProdutosLocalizacao_Gerarcodigovisual: TStringField
+      FieldName = 'codigovisual'
+      Size = 30
+    end
+    object qryProdutosLocalizacao_Gerardescricao: TStringField
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryProdutosLocalizacao_Gerarvalorgrade1: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryProdutosLocalizacao_Gerarvalorgrade2: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryProdutosLocalizacao_Gerargrade1: TIntegerField
+      FieldName = 'grade1'
+    end
+    object qryProdutosLocalizacao_Gerargrade2: TIntegerField
+      FieldName = 'grade2'
+    end
+    object qryProdutosLocalizacao_Gerarlinha: TStringField
+      FieldName = 'linha'
+      Size = 40
+    end
+    object qryProdutosLocalizacao_Gerarcoluna: TStringField
+      FieldName = 'coluna'
+      Size = 40
+    end
+    object qryProdutosLocalizacao_Gerarlocalizacao: TStringField
+      FieldName = 'localizacao'
+    end
+    object qryProdutosLocalizacao_Gerarsublocalizacao: TStringField
+      FieldName = 'sublocalizacao'
+    end
+    object qryProdutosLocalizacao_Geraremestoque: TFloatField
+      FieldName = 'emestoque'
+    end
+  end
+  object qryAtualizarLocalizacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 280
+    Top = 144
+  end
+  object qryLocalizacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryLocalizacoesCalcFields
+    OnFilterRecord = qryLocalizacoesFilterRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select *,'
+      '       false as selecionar from'
+      '('
+      '  ('
+      '  select distinct e.localizacao,'
+      '         true as ImpLoc,'
+      '         e.sublocalizacao,'
+      '         true as ImpSubLoc,'
+      
+        '         cast(coalesce(e.localizacao,'#39#39')||'#39'*'#39'||coalesce(e.subloc' +
+        'alizacao,'#39#39') as varchar(85)) as locsubloc'
+      ''
+      '  from estoques e'
+      '  where btrim(coalesce(e.localizacao,'#39#39'))<>'#39#39
+      '    and btrim(coalesce(e.sublocalizacao,'#39#39'))<>'#39#39
+      '  group by e.localizacao, e.sublocalizacao'
+      '  order by e.localizacao, e.sublocalizacao'
+      '  )'
+      '  union all'
+      '  ('
+      
+        '  select distinct e.localizacao, true as ImpLoc, e.sublocalizaca' +
+        'o, true as ImpSubLoc, cast(coalesce(e.localizacao,'#39#39')||'#39'*'#39'||coal' +
+        'esce(e.sublocalizacao,'#39#39') as varchar(85)) as locsubloc'
+      '  from estoques e'
+      '  where btrim(coalesce(e.localizacao,'#39#39'))<>'#39#39
+      '    and btrim(coalesce(e.sublocalizacao,'#39#39'))='#39#39
+      '  group by e.localizacao, e.sublocalizacao'
+      '  order by e.localizacao, e.sublocalizacao'
+      '  )'
+      '  union all'
+      '  ('
+      
+        '  select distinct e.localizacao, true as ImpLoc, e.sublocalizaca' +
+        'o, true as ImpSubLoc, cast(coalesce(e.localizacao,'#39#39')||'#39'*'#39'||coal' +
+        'esce(e.sublocalizacao,'#39#39') as varchar(85)) as locsubloc'
+      '  from estoques e'
+      '  where btrim(coalesce(e.localizacao,'#39#39'))='#39#39
+      '    and btrim(coalesce(e.sublocalizacao,'#39#39'))<>'#39#39
+      '  group by e.localizacao, e.sublocalizacao'
+      '  order by e.localizacao, e.sublocalizacao'
+      '  )'
+      ') as e'
+      ''
+      'order by e.localizacao, e.sublocalizacao')
+    RequestLive = True
+    Left = 432
+    Top = 120
+    object qryLocalizacoeslocalizacao: TStringField
+      DisplayWidth = 20
+      FieldName = 'localizacao'
+    end
+    object qryLocalizacoessublocalizacao: TStringField
+      DisplayWidth = 20
+      FieldName = 'sublocalizacao'
+    end
+    object qryLocalizacoesselecionar: TBooleanField
+      FieldName = 'selecionar'
+    end
+    object qryLocalizacoesimploc: TBooleanField
+      FieldName = 'imploc'
+    end
+    object qryLocalizacoesimpsubloc: TBooleanField
+      FieldName = 'impsubloc'
+    end
+    object qryLocalizacoeslocsubloc: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'locsubloc'
+      Size = 85
+      Calculated = True
+    end
+  end
+  object dsrLocalizacoes: TtecDataSource
+    DataSet = qryLocalizacoes
+    OnDataChange = dsrLocalizacoesDataChange
+    Left = 496
+    Top = 128
+  end
+  object qryPesquisarLocalizacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qryPesquisarLocalizacoesNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select true as imploc,'
+      '       e.localizacao,'
+      '       true as impsubloc,'
+      '       e.sublocalizacao,'
+      '       false as selecionar,'
+      '       cast(0 as integer) as qtMarcados'
+      ''
+      'from estoques e'
+      'Where false'
+      '')
+    RequestLive = True
+    Left = 408
+    Top = 176
+    object qryPesquisarLocalizacoeslocalizacao: TStringField
+      FieldName = 'localizacao'
+    end
+    object qryPesquisarLocalizacoessublocalizacao: TStringField
+      FieldName = 'sublocalizacao'
+    end
+    object qryPesquisarLocalizacoesselecionar: TBooleanField
+      FieldName = 'selecionar'
+    end
+    object qryPesquisarLocalizacoesqtmarcados: TIntegerField
+      FieldName = 'qtmarcados'
+    end
+    object qryPesquisarLocalizacoesimploc: TBooleanField
+      FieldName = 'imploc'
+    end
+    object qryPesquisarLocalizacoesimpsubloc: TBooleanField
+      FieldName = 'impsubloc'
+    end
+  end
+  object dsrPesquisarLocalizacoes: TtecDataSource
+    DataSet = qryPesquisarLocalizacoes
+    OnDataChange = dsrPesquisarLocalizacoesDataChange
+    Left = 496
+    Top = 192
+  end
+  object frxEtiquetas: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 42810.429552199100000000
+    ReportOptions.LastChange = 44931.498924606480000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'procedure MasterData1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      
+        '//  Variables['#39'quantidade'#39'] := <frxDBDataset1."quantidadeproduto' +
+        '">;'
+      'end;'
+      ''
+      'procedure imgProdutoOnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      
+        '//  imgProduto.Picture.LoadFromFile('#39'c:\313187_249214321787770_1' +
+        '803987360_n.jpg'#39');'
+      
+        '// imgProduto.Picture.LoadFromFile('#39'http://www.santaapolonia.com' +
+        '.br/fotos/80670027122011105343.jpg'#39')'
+      ''
+      ''
+      'end;'
+      ''
+      'begin'
+      ''
+      'end.')
+    Left = 248
+    Top = 240
+    Datasets = <
+      item
+        DataSet = frxDBDatasetEtiquetas
+        DataSetName = 'frxDBDatasetEtiquetas'
+      end>
+    Variables = <
+      item
+        Name = ' Variaveis'
+        Value = Null
+      end
+      item
+        Name = 'nregistro'
+        Value = Null
+      end
+      item
+        Name = 'totalregistros'
+        Value = Null
+      end>
+    Style = <>
+    object Data: TfrxDataPage
+      Height = 1000.000000000000000000
+      Width = 1000.000000000000000000
+    end
+    object Page1: TfrxReportPage
+      PaperWidth = 210.000000000000000000
+      PaperHeight = 297.000000000000000000
+      PaperSize = 9
+      LeftMargin = 5.000000000000000000
+      TopMargin = 1.000000000000000000
+      Columns = 1
+      ColumnWidth = 203.000000000000000000
+      ColumnPositions.Strings = (
+        '0')
+      Frame.Width = 1.500000000000000000
+      object MasterData1: TfrxMasterData
+        Height = 113.385826770000000000
+        Top = 18.897650000000000000
+        Width = 774.803650000000000000
+        OnBeforePrint = 'MasterData1OnBeforePrint'
+        Columns = 2
+        ColumnWidth = 188.976377952756000000
+        ColumnGap = 15.118110236220500000
+        DataSet = frxDBDatasetEtiquetas
+        DataSetName = 'frxDBDatasetEtiquetas'
+        RowCount = 0
+        object Memo1: TfrxMemoView
+          Left = 3.779530000000000000
+          Top = 3.779530000000000000
+          Width = 181.417440000000000000
+          Height = 41.574830000000000000
+          DataField = 'locsubloc'
+          DataSet = frxDBDatasetEtiquetas
+          DataSetName = 'frxDBDatasetEtiquetas'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -15
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBDatasetEtiquetas."locsubloc"]')
+          ParentFont = False
+        end
+        object BarCode1: TfrxBarCodeView
+          ShiftMode = smWhenOverlapped
+          Left = 7.559060000000000000
+          Top = 49.133890000000000000
+          Width = 123.000000000000000000
+          Height = 49.133890000000000000
+          BarType = bcCode128B
+          DataField = 'locsubloc'
+          DataSet = frxDBDatasetEtiquetas
+          DataSetName = 'frxDBDatasetEtiquetas'
+          Rotation = 0
+          Text = '12345678'
+          WideBarRatio = 2.000000000000000000
+          Zoom = 1.000000000000000000
+        end
+      end
+    end
+  end
+  object frxDBDatasetEtiquetas: TfrxDBDataset
+    UserName = 'frxDBDatasetEtiquetas'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'localizacao=localizacao'
+      'sublocalizacao=sublocalizacao'
+      'selecionar=selecionar'
+      'locsubloc=locsubloc')
+    DataSource = dsrLocalizacoes
+    Left = 288
+    Top = 264
+  end
+end

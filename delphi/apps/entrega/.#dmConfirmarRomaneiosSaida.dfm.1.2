@@ -1,0 +1,648 @@
+inherited dtmConfirmarRomaneiosSaida: TdtmConfirmarRomaneiosSaida
+  OldCreateOrder = False
+  Left = 651
+  Top = 214
+  Height = 419
+  Width = 718
+  object qryRomaneiosNotasSaidas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryRomaneiosNotasSaidasAfterScroll
+    OnCalcFields = qryRomaneiosNotasSaidasCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select r.*,'
+      ''
+      
+        '       coalesce(vodfc.usuario, co.usuario) as usuarioconferrenci' +
+        'a,'
+      '          '
+      '       (select u.nome'
+      '        from usuarios u'
+      
+        '        where u.codigo = coalesce(vodfc.usuario, co.usuario)) as' +
+        ' NomeUsuarioConferencia,'
+      '        '
+      '       vodfc.datahora_alteracao as DataHoraUsuarioConferencia,'
+      '       vodfc.conferido,'
+      '       '
+      
+        '       coalesce(vodfc.filialregistro, co.filial) as filialregist' +
+        'ro,'
+      
+        '       (select f.nome from filiais f where f.codigo = coalesce(v' +
+        'odfc.filialregistro, co.filial)) as nomefilialregistro,'
+      ''
+      
+        '       cast(cast(r.nrvolume_ as varchar)||'#39'/'#39'||cast(r.volumes as' +
+        ' varchar) as varchar(10)) as volumes_,'
+      ''
+      
+        '       cast(r.chv_nfe||lpad(cast(r.nrvolume_ as VARCHAR), 3, '#39'0'#39 +
+        ')||'
+      
+        '                  lpad(cast(r.volumes as VARCHAR), 3, '#39'0'#39') as va' +
+        'rchar(51)) as chv_nfe_volume,'
+      ''
+      '       false as marcar'
+      ''
+      ''
+      'from'
+      '('
+      'select rn.romaneio,'
+      '       r.emissao, '
+      '       r.tipo,'
+      '       r.fornecedor,'
+      '       f.nome as nomefornecedor,'
+      '       r.situacao_romaneio,'
+      '      '
+      '       vodf.codigo as numerovolume,'
+      '       coalesce(nullif(vodf.volumes,0),1) as volumes,'
+      
+        '       generate_series(1, coalesce(nullif(vodf.volumes,0),1) ) a' +
+        's nrvolume_,'
+      ''
+      '       rn.dadofiscal,'
+      '       n.filial as filialnota,'
+      '       n.serie,'
+      '       n.numero as numeronf,'
+      '       df.chv_nfe,'
+      '       df.situacao'
+      ''
+      ''
+      'from romaneios r'
+      '     join romaneiosnotas rn'
+      '          join dadosfiscais df'
+      '               left join volumesdadosfiscais vodf'
+      '               on df.numero = vodf.dadofiscal'
+      ''
+      '               join notas n'
+      '               on df.numero = n.dadofiscal'
+      ''
+      '          on rn.dadofiscal = df.numero'
+      '     on r.numero = rn.romaneio'
+      ''
+      '     join fornecedores f'
+      '     on r.fornecedor = f.codigo'
+      ''
+      'where df.chv_nfe = :chv_nfe'
+      ''
+      ') as r left join'
+      '         conferencia co'
+      '             left join volumesdadosfiscaisconferencia vodfc'
+      '              on co.tipo = vodfc.tipo'
+      '              and co.codigo = vodfc.codigo'
+      ''
+      '        on cast(r.romaneio as varchar(20)) = co.codigo'
+      '         and co.tipo = '#39'ROS'#39
+      '         and vodfc.dadofiscal = r.dadofiscal'
+      '         and vodfc.numerovolume = r.numerovolume'
+      '         and vodfc.nrvolume = r.nrvolume_'
+      ''
+      ' where lpad(cast(r.nrvolume_ as VARCHAR),3,'#39'0'#39') = :nrvolume'
+      '   and lpad(cast(r.volumes as VARCHAR), 3, '#39'0'#39') = :volume'
+      ''
+      '')
+    RequestLive = True
+    Left = 88
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'chv_nfe'
+        ParamType = ptUnknown
+        Value = #39#39
+      end
+      item
+        DataType = ftString
+        Name = 'nrvolume'
+        ParamType = ptUnknown
+        Value = #39#39
+      end
+      item
+        DataType = ftString
+        Name = 'volume'
+        ParamType = ptUnknown
+        Value = #39#39
+      end>
+    object qryRomaneiosNotasSaidasromaneio: TIntegerField
+      DisplayLabel = 'Romaneio'
+      FieldName = 'romaneio'
+    end
+    object qryRomaneiosNotasSaidasemissao: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Emiss'#227'o'
+      FieldName = 'emissao'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRomaneiosNotasSaidastipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryRomaneiosNotasSaidassituacao_romaneio: TStringField
+      DisplayLabel = 'Situa'#231#227'o'
+      FieldName = 'situacao_romaneio'
+    end
+    object qryRomaneiosNotasSaidasfornecedor: TIntegerField
+      DisplayLabel = 'Transportador'
+      FieldName = 'fornecedor'
+    end
+    object qryRomaneiosNotasSaidasnomefornecedor: TStringField
+      DisplayLabel = 'Nome do Transportador'
+      FieldName = 'nomefornecedor'
+      Size = 60
+    end
+    object qryRomaneiosNotasSaidasnumerovolume: TIntegerField
+      FieldName = 'numerovolume'
+      Visible = False
+    end
+    object qryRomaneiosNotasSaidasvolumes: TIntegerField
+      FieldName = 'volumes'
+      Visible = False
+    end
+    object qryRomaneiosNotasSaidasnrvolume_: TIntegerField
+      FieldName = 'nrvolume_'
+      Visible = False
+    end
+    object qryRomaneiosNotasSaidasvolumes_: TStringField
+      DisplayLabel = 'Volumes'
+      FieldName = 'volumes_'
+      Size = 10
+    end
+    object qryRomaneiosNotasSaidasdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+      Visible = False
+    end
+    object qryRomaneiosNotasSaidasfilialnota: TIntegerField
+      DisplayLabel = 'Filial Nf'
+      FieldName = 'filialnota'
+    end
+    object qryRomaneiosNotasSaidasserie: TStringField
+      DisplayLabel = 'S'#233'rie'
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryRomaneiosNotasSaidasnumeronf: TIntegerField
+      DisplayLabel = 'N'#186' NF'
+      FieldName = 'numeronf'
+    end
+    object qryRomaneiosNotasSaidaschv_nfe: TStringField
+      DisplayLabel = 'Chave NFe'
+      FieldName = 'chv_nfe'
+      EditMask = '99\-9999\-99999999999999\-99\-999\-999999999\-9\-99999999\-9;0;_'
+      Size = 44
+    end
+    object qryRomaneiosNotasSaidaschv_nfe_volume: TStringField
+      FieldName = 'chv_nfe_volume'
+      Size = 51
+    end
+    object qryRomaneiosNotasSaidasusuarioconferrencia: TIntegerField
+      DisplayLabel = 'Usu'#225'rio'
+      FieldName = 'usuarioconferrencia'
+    end
+    object qryRomaneiosNotasSaidasnomeusuarioconferencia: TStringField
+      DisplayLabel = 'Unu'#225'rio Confer'#234'ncia'
+      FieldName = 'nomeusuarioconferencia'
+      Size = 100
+    end
+    object qryRomaneiosNotasSaidasdatahorausuarioconferencia: TDateTimeField
+      Alignment = taCenter
+      DisplayLabel = 'Data/Hora Confer'#234'ncia'
+      FieldName = 'datahorausuarioconferencia'
+      DisplayFormat = 'dd/MM/yy hh:mm'
+      EditMask = '99/99/99 99:99;1; '
+    end
+    object qryRomaneiosNotasSaidasconferido: TBooleanField
+      DisplayLabel = 'Conferido'
+      FieldName = 'conferido'
+      OnChange = qryRomaneiosNotasSaidasconferidoChange
+    end
+    object qryRomaneiosNotasSaidasfilialregistro: TIntegerField
+      DisplayLabel = 'Filial Registro'
+      FieldName = 'filialregistro'
+    end
+    object qryRomaneiosNotasSaidasnomefilialregistro: TStringField
+      DisplayLabel = 'Nome da Filial de Registro'
+      FieldName = 'nomefilialregistro'
+      Size = 60
+    end
+    object qryRomaneiosNotasSaidasconferidosomenteleitura: TBooleanField
+      FieldKind = fkCalculated
+      FieldName = 'conferidosomenteleitura'
+      Calculated = True
+    end
+    object qryRomaneiosNotasSaidassituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+  end
+  object dsrRomaneiosNotasSaidas: TtecDataSource
+    DataSet = qryRomaneiosNotasSaidas
+    Left = 120
+    Top = 56
+  end
+  object qryProcuraRomaneiosNotasSaidas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select r.*,'
+      ''
+      
+        '       coalesce(vodfc.usuario, co.usuario) as usuarioconferrenci' +
+        'a,'
+      '          '
+      '       (select u.nome'
+      '        from usuarios u'
+      
+        '        where u.codigo = coalesce(vodfc.usuario, co.usuario)) as' +
+        ' NomeUsuarioConferencia,'
+      '        '
+      '       vodfc.datahora_alteracao as DataHoraUsuarioConferencia,'
+      '       vodfc.conferido,'
+      '       '
+      
+        '       coalesce(vodfc.filialregistro, co.filial) as filialregist' +
+        'ro,'
+      
+        '       (select f.nome from filiais f where f.codigo = coalesce(v' +
+        'odfc.filialregistro, co.filial)) as nomefilialregistro,'
+      ''
+      
+        '       cast(cast(r.nrvolume_ as varchar)||'#39'/'#39'||cast(r.volumes as' +
+        ' varchar) as varchar(10)) as volumes_,'
+      ''
+      
+        '       cast(r.chv_nfe||lpad(cast(r.nrvolume_ as VARCHAR), 3, '#39'0'#39 +
+        ')||'
+      
+        '                  lpad(cast(r.volumes as VARCHAR), 3, '#39'0'#39') as va' +
+        'rchar(51)) as chv_nfe_volume,'
+      ''
+      '       false as marcar'
+      ''
+      ''
+      'from'
+      '('
+      'select rn.romaneio,'
+      '       r.emissao, '
+      '       r.tipo,'
+      '       r.fornecedor,'
+      '       f.nome as nomefornecedor,'
+      '       r.situacao_romaneio,'
+      '      '
+      '       vodf.codigo as numerovolume,'
+      '       coalesce(nullif(vodf.volumes,0),1) as volumes,'
+      
+        '       generate_series(1, coalesce(nullif(vodf.volumes,0),1) ) a' +
+        's nrvolume_,'
+      ''
+      '       rn.dadofiscal,'
+      '       n.filial as filialnota,'
+      '       n.serie,'
+      '       n.numero as numeronf,'
+      '       df.chv_nfe,'
+      '       df.situacao'
+      ''
+      ''
+      'from romaneios r'
+      '     join romaneiosnotas rn'
+      '          join dadosfiscais df'
+      '               left join volumesdadosfiscais vodf'
+      '               on df.numero = vodf.dadofiscal'
+      ''
+      '               join notas n'
+      '               on df.numero = n.dadofiscal'
+      ''
+      '          on rn.dadofiscal = df.numero'
+      '     on r.numero = rn.romaneio'
+      ''
+      '     join fornecedores f'
+      '     on r.fornecedor = f.codigo'
+      ''
+      'where df.chv_nfe = :chv_nfe'
+      ''
+      ') as r left join'
+      '         conferencia co'
+      '             left join volumesdadosfiscaisconferencia vodfc'
+      '              on co.tipo = vodfc.tipo'
+      '              and co.codigo = vodfc.codigo'
+      ''
+      '        on cast(r.romaneio as varchar(20)) = co.codigo'
+      '         and co.tipo = '#39'ROS'#39
+      '         and vodfc.dadofiscal = r.dadofiscal'
+      '         and vodfc.numerovolume = r.numerovolume'
+      '         and vodfc.nrvolume = r.nrvolume_'
+      ''
+      ' where lpad(cast(r.nrvolume_ as VARCHAR),3,'#39'0'#39') = :nrvolume'
+      '   and lpad(cast(r.volumes as VARCHAR), 3, '#39'0'#39') = :volume'
+      ''
+      '')
+    RequestLive = True
+    Left = 88
+    Top = 160
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'chv_nfe'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nrvolume'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'volume'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraRomaneiosNotasSaidasromaneio: TIntegerField
+      FieldName = 'romaneio'
+    end
+    object qryProcuraRomaneiosNotasSaidasemissao: TDateField
+      FieldName = 'emissao'
+    end
+    object qryProcuraRomaneiosNotasSaidastipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryProcuraRomaneiosNotasSaidassituacao_romaneio: TStringField
+      FieldName = 'situacao_romaneio'
+    end
+    object qryProcuraRomaneiosNotasSaidasfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+    end
+    object qryProcuraRomaneiosNotasSaidasnomefornecedor: TStringField
+      FieldName = 'nomefornecedor'
+      Size = 60
+    end
+    object qryProcuraRomaneiosNotasSaidasnumerovolume: TIntegerField
+      FieldName = 'numerovolume'
+    end
+    object qryProcuraRomaneiosNotasSaidasvolumes: TIntegerField
+      FieldName = 'volumes'
+    end
+    object qryProcuraRomaneiosNotasSaidasnrvolume_: TIntegerField
+      FieldName = 'nrvolume_'
+    end
+    object qryProcuraRomaneiosNotasSaidasvolumes_: TStringField
+      FieldName = 'volumes_'
+      Size = 10
+    end
+    object qryProcuraRomaneiosNotasSaidasdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+    object qryProcuraRomaneiosNotasSaidasfilialnota: TIntegerField
+      FieldName = 'filialnota'
+    end
+    object qryProcuraRomaneiosNotasSaidasserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryProcuraRomaneiosNotasSaidasnumeronf: TIntegerField
+      FieldName = 'numeronf'
+    end
+    object qryProcuraRomaneiosNotasSaidaschv_nfe: TStringField
+      FieldName = 'chv_nfe'
+      Size = 44
+    end
+    object qryProcuraRomaneiosNotasSaidaschv_nfe_volume: TStringField
+      FieldName = 'chv_nfe_volume'
+      Size = 51
+    end
+    object qryProcuraRomaneiosNotasSaidasusuarioconferrencia: TIntegerField
+      FieldName = 'usuarioconferrencia'
+    end
+    object qryProcuraRomaneiosNotasSaidasnomeusuarioconferencia: TStringField
+      FieldName = 'nomeusuarioconferencia'
+      Size = 100
+    end
+    object qryProcuraRomaneiosNotasSaidasdatahorausuarioconferencia: TDateTimeField
+      FieldName = 'datahorausuarioconferencia'
+    end
+    object qryProcuraRomaneiosNotasSaidasconferido: TBooleanField
+      FieldName = 'conferido'
+    end
+    object qryProcuraRomaneiosNotasSaidasfilialregistro: TIntegerField
+      FieldName = 'filialregistro'
+    end
+    object qryProcuraRomaneiosNotasSaidasnomefilialregistro: TStringField
+      FieldName = 'nomefilialregistro'
+      Size = 60
+    end
+    object qryProcuraRomaneiosNotasSaidasconferidosomenteleitura: TBooleanField
+      FieldKind = fkCalculated
+      FieldName = 'conferidosomenteleitura'
+      Calculated = True
+    end
+    object qryProcuraRomaneiosNotasSaidassituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+  end
+  object qryfiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * '
+      'from filiais'
+      'where codigo = :codigo')
+    RequestLive = False
+    Left = 296
+    Top = 176
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryRomaneios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT r.numero,'
+      '       r.fornecedor,'
+      '       r.emissao,'
+      '       r.tipo,'
+      '       r.documentopag,'
+      ''
+      '       (select max(d.datapagto)'
+      '        from duplicatas d'
+      '        where d.documentopag = r.documentopag) as datapagto,'
+      ''
+      '       (select sum(d.valorpagto)'
+      '        from duplicatas d'
+      '        where d.documentopag = r.documentopag) as valorpagto,'
+      ''
+      ''
+      '       (select u.nome'
+      '        from usuarios u'
+      '        where u.codigo = (select conf.usuario'
+      '                          from conferencia conf'
+      '                          where conf.tipo = '#39'ROS'#39
+      
+        '                            and conf.codigo = cast(r.numero as v' +
+        'archar(20)))) as NomeUsuarioConferencia,'
+      ''
+      '       (select conf.data'
+      '        from conferencia conf'
+      '        where conf.tipo = '#39'ROS'#39
+      
+        '          and conf.codigo = cast(r.numero as varchar(20))) as Da' +
+        'taHoraUsuarioConferencia,'
+      ''
+      '       r.situacao_romaneio,'
+      '       r.usuariotransito,'
+      '       r.datahoratransito,'
+      ''
+      ''
+      '       (select u.nome'
+      '        from usuarios u'
+      
+        '        where u.codigo = r.usuariotransito) as NomeUsuarioLibera' +
+        'cao'
+      ''
+      ''
+      '/*       situacao_romaneio(r.numero) as descricaosituacao, */'
+      
+        '/*       situacao_romaneio_entrada(r.numero) as descrsitromentra' +
+        'da */'
+      ''
+      'FROM romaneios r'
+      'WHERE r.numero = :numero')
+    RequestLive = True
+    Left = 296
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryRomaneiosnumero: TIntegerField
+      Alignment = taCenter
+      AutoGenerateValue = arAutoInc
+      FieldName = 'numero'
+    end
+    object qryRomaneiostipo: TStringField
+      DefaultExpression = 'N'
+      FieldName = 'tipo'
+      Required = True
+      Size = 1
+    end
+    object qryRomaneiosfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryRomaneiosemissao: TDateField
+      Alignment = taCenter
+      FieldName = 'emissao'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRomaneiosdatapagto: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Data de Pagamento'
+      FieldName = 'datapagto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRomaneiosvalorpagto: TFloatField
+      DisplayLabel = 'Valor de Pagamento'
+      FieldName = 'valorpagto'
+      DisplayFormat = '###,###,###,##'
+      EditFormat = '###,###,###,##'
+    end
+    object qryRomaneiosdocumentopag: TIntegerField
+      FieldName = 'documentopag'
+    end
+    object qryRomaneiosnomeusuarioconferencia: TStringField
+      FieldName = 'nomeusuarioconferencia'
+      Size = 100
+    end
+    object qryRomaneiosdatahorausuarioconferencia: TDateTimeField
+      Alignment = taCenter
+      FieldName = 'datahorausuarioconferencia'
+      DisplayFormat = 'dd/MM/yy hh:mm'
+      EditMask = '99/99/99 99:99;1; '
+    end
+    object qryRomaneiossituacao_romaneio: TStringField
+      FieldName = 'situacao_romaneio'
+    end
+    object qryRomaneiosusuariotransito: TIntegerField
+      FieldName = 'usuariotransito'
+    end
+    object qryRomaneiosdatahoratransito: TDateTimeField
+      Alignment = taCenter
+      FieldName = 'datahoratransito'
+      DisplayFormat = 'dd/MM/yy hh:mm'
+      EditMask = '99/99/99 99:99;1; '
+    end
+    object qryRomaneiosnomeusuarioliberacao: TStringField
+      FieldName = 'nomeusuarioliberacao'
+      Size = 100
+    end
+  end
+  object qryAtualizarSituacaoRomaneio: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select Atualizar_situacao_romaneio(:romaneio)')
+    RequestLive = False
+    Left = 392
+    Top = 120
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'romaneio'
+        ParamType = ptUnknown
+      end>
+    object qryAtualizarSituacaoRomaneioatualizar_situacao_romaneio: TStringField
+      FieldName = 'atualizar_situacao_romaneio'
+      Size = 50
+    end
+  end
+end

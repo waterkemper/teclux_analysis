@@ -1,0 +1,1333 @@
+unit fmcadastropedidos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, DBCtrls, ComCtrls, Grids, DBGrids, Mask, ExtCtrls, Buttons,
+  Windows, DB, dmbasico,
+  //Terceiros
+  ZQuery,
+  //Componentes
+  cpdbgrid, cpdbmemo, cptexto, cpdata, cpdbdata, cpnumero, cpdbfindcontrols,
+  cpdbtext, cppagecontrol,
+  //Projeto
+  dmcadastropedidos, fmcadastroprevisoespedidos, fmcadastroprodutospedidos_,
+  fmcadastropedidosgrade, fmcopiarprodutospedidos,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema, clusuario,
+  //Repositorio
+  fmconsultabasica, fmconsultaporcampo, fmcadastropadrao, fmenviaremail, ZPgSqlQuery,
+  cpquery, ActnList, frendereco, frtelefone, frconsultacodigo, ToolWin, fmPrincipalBasico,
+  fmFormacaoPrecoVenda, AdvObj, BaseGrid, AdvGrid, DBAdvGrid;
+//   Windows, Messages;
+
+
+type
+  TfrmCadastroPedidos = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    edfPedido: TtecDbEditFind;
+    edtEmissao: TDBEditData;
+    pgcPedidos: TtecPageControl;
+    tstPedidos: TTabSheet;
+    sbnProcurarFornecedor: TSpeedButton;
+    flkFornecedor: TtecDBFindLookup;
+    dtxNomeFonecedor: TtecDBText;
+    gbxFiliais: TGroupBox;
+    sbnProcurarFilialFatura: TSpeedButton;
+    sbnProcurarFilialEntrega: TSpeedButton;
+    sbnProcurarFilialCobranca: TSpeedButton;
+    flkFilialFatura: TtecDBFindLookup;
+    flkFilialEntrega: TtecDBFindLookup;
+    flkFilialCobranca: TtecDBFindLookup;
+    gbxTotal: TGroupBox;
+    dtxTotalPedidos: TDBEditNumero;
+    tstPrevisoesPagto: TTabSheet;
+    gbxDesconto: TGroupBox;
+    edtDesconto1: TDBEditNumero;
+    edtDesconto2: TDBEditNumero;
+    edtDesconto3: TDBEditNumero;
+    edtDesconto4: TDBEditNumero;
+    gbxPrevisoes: TGroupBox;
+    sbnIncluirPrevisao: TSpeedButton;
+    sbnExcluirPrevisao: TSpeedButton;
+    dbgPrevisoesPedidos: TtecDBGrid;
+    edtReferencia: TDBEditTexto;
+    edtDatabase: TDBEditData;
+    edtEntrega: TDBEditData;
+    sbnProcurarFornecedorTransporte: TSpeedButton;
+    edtFreteCtr: TDBEditNumero;
+    edtFreteNota: TDBEditNumero;
+    flkFornecedorTransporte: TtecDBFindLookup;
+    dtxFornecedorTranporteRazao: TtecDBText;
+    lblPercentual1: TLabel;
+    lblPercentual10: TLabel;
+    dtxEstado: TtecDBText;
+    gbxAcrescimo: TGroupBox;
+    dtxDesconto1: TtecDBText;
+    dtxDesconto2: TtecDBText;
+    dtxDesconto3: TtecDBText;
+    dtxDesconto4: TtecDBText;
+    dtxTotalDesconto: TtecDBText;
+    dtxAcrescimo1: TtecDBText;
+    dtxAcrescimo2: TtecDBText;
+    dtxAcrescimo3: TtecDBText;
+    dtxAcrescimo4: TtecDBText;
+    dtxTotalacrescimo: TtecDBText;
+    edtAcrescimo1: TDBEditNumero;
+    edtAcrescimo2: TDBEditNumero;
+    edtAcrescimo3: TDBEditNumero;
+    edtAcrescimo4: TDBEditNumero;
+    lblValorAcrescimo: TLabel;
+    dtxCancelado: TtecDBText;
+    aclHabilitar: TActionList;
+    actHabilitarGrid: TAction;
+    sbnEnviarPedido: TSpeedButton;
+    tstFornecedor: TTabSheet;
+    gbxForContato: TGroupBox;
+    fraEndereco1: TfraEndereco;
+    fraTelefone1: TfraTelefone;
+    fraTelefone2: TfraTelefone;
+    dtxInscrEstadual: TtecDBText;
+    dtxCGC: TtecDBText;
+    dtxContato: TtecDBText;
+    dtxSituacao: TtecDBText;
+    dtxConcluido: TtecDBText;
+    mmoObservacoesdaCompra: TMemo;
+    tstNotasEntrada: TTabSheet;
+    dbgNotasPag: TtecDBGrid;
+    gbxSituacaoProdutos: TGroupBox;
+    Label8: TLabel;
+    Shape2: TShape;
+    Shape5: TShape;
+    Label9: TLabel;
+    Shape3: TShape;
+    Label10: TLabel;
+    Shape4: TShape;
+    Label2: TLabel;
+    sbnImprimir: TSpeedButton;
+    pgcProdutos: TtecPageControl;
+    tstProdutos: TTabSheet;
+    sbnIncluirProduto: TSpeedButton;
+    sbnExcluirProduto: TSpeedButton;
+    sbnRecalcularPrecoSugerido: TSpeedButton;
+    sbnVisualizarGrade: TSpeedButton;
+    dbgProdutosPedidos: TtecDBGrid;
+    dtxValorProdutos: TDBEditNumero;
+    dtxTotalIPI: TDBEditNumero;
+    tstSimilares: TTabSheet;
+    dbgProdutosSimilares: TtecDBGrid;
+    Shape1: TShape;
+    Label7: TLabel;
+    Shape6: TShape;
+    edtContato: TDBEditTexto;
+    tstContatos: TTabSheet;
+    dbgContatos: TtecDBGrid;
+    sbnCopiarProdutos: TSpeedButton;
+    svdExportarExcel: TSaveDialog;
+    sbnDeslocarParaCima: TSpeedButton;
+    sbnDeslocarRegistroParaBaixo: TSpeedButton;
+    sbnImportarPedidoDaico: TSpeedButton;
+    odlImportarArquivo: TOpenDialog;
+    gbxNrPedido: TGroupBox;
+    gbxEmissao: TGroupBox;
+    gbxConclusao: TGroupBox;
+    gbxSituacao_: TGroupBox;
+    gbxCancelado: TGroupBox;
+    gbxFilialFatura: TGroupBox;
+    gbxFilialEntrega: TGroupBox;
+    gbxCobranca: TGroupBox;
+    gbxFornecedor: TGroupBox;
+    gbxUF: TGroupBox;
+    gbxDataBase: TGroupBox;
+    gbxEntrega: TGroupBox;
+    gbxReferencia: TGroupBox;
+    gbxContato: TGroupBox;
+    gbxTransportadora: TGroupBox;
+    gbxCTR: TGroupBox;
+    gbxNF: TGroupBox;
+    gbxObservacoedaCompra: TGroupBox;
+    gbxPercDesctos: TGroupBox;
+    gbxValoresDesctos: TGroupBox;
+    gbxTotalDesctos: TGroupBox;
+    gbxPercAcrescimos: TGroupBox;
+    gbxValoresAcrescimos: TGroupBox;
+    gbxTotalAcrescimos: TGroupBox;
+    gbxCPFouCNPJ: TGroupBox;
+    gbxInscEstadual: TGroupBox;
+    gbxObservacoesContatos: TGroupBox;
+    dtxobservacoes: TtecDBMemo;
+    gbxCargo: TGroupBox;
+    dtxcargo: TtecDBText;
+    gbxValorProdutos: TGroupBox;
+    gbxValorIPI: TGroupBox;
+    lblMais: TLabel;
+    lblIgual: TLabel;
+    pnlCabecalho: TPanel;
+    pnlProdutosPedidos: TPanel;
+    gbxObservacoedoEstoque: TGroupBox;
+    mmoObservacoes_Estoque: TtecDBMemo;
+    sbnAcionarTelaFormacaoPrecoVenda: TSpeedButton;
+    Label1: TLabel;
+    gbxValorSubst: TGroupBox;
+    edtValorICMSSubstituicao: TDBEditNumero;
+    GroupBox1: TGroupBox;
+    edtDesconto: TDBEditNumero;
+    GroupBox16: TGroupBox;
+    DBEditNumero1: TDBEditNumero;
+    GroupBox2: TGroupBox;
+    edtAcrescimo: TDBEditNumero;
+    StaticText1: TStaticText;
+    StaticText2: TStaticText;
+    StaticText3: TStaticText;
+    StaticText4: TStaticText;
+    StaticText5: TStaticText;
+    gbxFrete_6: TGroupBox;
+    edtFreteInterno: TDBEditNumero;
+    gbxSeguro: TGroupBox;
+    edtSeguro: TDBEditNumero;
+    gbxDespAcessorias: TGroupBox;
+    edtDespesasAcessorias: TDBEditNumero;
+    StaticText6: TStaticText;
+    StaticText7: TStaticText;
+    StaticText8: TStaticText;
+    StaticText9: TStaticText;
+    StaticText10: TStaticText;
+    sbnCustoePrecoVenda: TSpeedButton;
+    shAlterados: TShape;
+    lblAlterados: TLabel;
+    ckbMarcarTodos: TCheckBox;
+    tstNotasPendentesdeEntrada: TTabSheet;
+    dbgConsultaProdutosEntradaSefaz: TtecDBGrid;
+    Shape7: TShape;
+    Label3: TLabel;
+    procedure dbgPrevisoesPedidosDblClick(Sender: TObject);
+    procedure dbgPrevisoesPedidosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgProdutosPedidosDblClick(Sender: TObject);
+    procedure dbgProdutosPedidosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure sbnExcluirPrevisaoClick(Sender: TObject);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure sbnIncluirPrevisaoClick(Sender: TObject);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure sbnProcurarFilialCobrancaClick(Sender: TObject);
+    procedure sbnProcurarFilialEntregaClick(Sender: TObject);
+    procedure sbnProcurarFilialFaturaClick(Sender: TObject);
+    procedure sbnProcurarFornecedorClick(Sender: TObject);
+    procedure sbnProcurarFornecedorTransporteClick(Sender: TObject);
+    procedure actHabilitarGridUpdate(Sender: TObject);
+    procedure sbnEnviarPedidoClick(Sender: TObject);
+    procedure dbgProdutosPedidosEnter(Sender: TObject);
+    procedure dbgPrevisoesPedidosEnter(Sender: TObject);
+    procedure mmoObservacoesdaCompraChange(Sender: TObject);
+    procedure mmoObservacoesdaCompraExit(Sender: TObject);
+    procedure sbnRecalcularPrecoSugeridoClick(Sender: TObject);
+    procedure sbnVisualizarGradeClick(Sender: TObject);
+    procedure dbgProdutosPedidosDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure pgcProdutosChange(Sender: TObject);
+    procedure sbnCopiarProdutosClick(Sender: TObject);
+    procedure sbnDeslocarParaCimaClick(Sender: TObject);
+    procedure sbnDeslocarRegistroParaBaixoClick(Sender: TObject);
+    procedure sbnImportarPedidoDaicoClick(Sender: TObject);
+    procedure edtEntregaEnter(Sender: TObject);
+    procedure edtEntregaExit(Sender: TObject);
+    procedure flkFornecedorExit(Sender: TObject);
+    procedure flkFornecedorEnter(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure sbnAcionarTelaFormacaoPrecoVendaClick(Sender: TObject);
+    procedure sbnCustoePrecoVendaClick(Sender: TObject);
+    procedure ckbMarcarTodosClick(Sender: TObject);
+    procedure pgcPedidosChange(Sender: TObject);
+  private
+    visulizandoCustoePrecoVenda: Boolean;
+    vReadonlyPedido : boolean;
+    fdtmCadastroPedidos: TdtmCadastroPedidos;
+    ffrmcadastroprodutospedidos_: Tfrmcadastroprodutospedidos_;
+//    frmcadastroprodutospedidos_: Tfrmcadastroprodutospedidos_;
+//    dtmCadastroPedidos: TdtmCadastroPedidos;
+   procedure VisualizarPaineisCusto;
+  protected
+    EmailContato, Contato: String;
+    function AcionaCadastroPrevisoesPedidos(Editar: Boolean): Boolean;
+    function AcionaCadastroProdutosPedidos(Editar: Boolean): Boolean;
+    function AcionaCadastroProdutosPedidosGrade: Boolean;
+    procedure CopiarProdutosPedidos;
+
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    function InternoPesquisar(Titulo: String): Integer; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    procedure AfterScrollPedidos(Sender: TObject);
+    procedure AfterScrollProdutosPedidos(Sender: TObject);
+    procedure AfterScrollLinhaColunaGradeSimilares(Sender: TObject);
+    procedure ExcluirProdutos;
+    procedure FinalizandoExportacao;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    property dtmCadastroPedidos: TdtmCadastroPedidos read fdtmCadastroPedidos write fdtmCadastroPedidos;
+    property frmcadastroprodutospedidos_: Tfrmcadastroprodutospedidos_ read ffrmcadastroprodutospedidos_ write ffrmcadastroprodutospedidos_;
+
+
+    procedure Criar_frmCadastroProdutosPedidos_;
+
+
+  end;
+
+var
+  frmCadastroPedidos: TfrmCadastroPedidos;
+  TipoPesquisa : TtecPedidosCompra;
+  OldStatus: Boolean;
+  AfterScroll: Boolean;
+
+//  AcionarTelaCadastroPedidos: function (AOwner: TComponent) : TfrmCadastroPedidos;
+
+
+implementation
+{$R *.dfm}
+
+function TfrmCadastroPedidos.AcionaCadastroPrevisoesPedidos(Editar: Boolean): Boolean;
+begin
+  frmCadastroPrevisoesPedidos := TfrmCadastroPrevisoesPedidos.Create(self);
+  with frmCadastroPrevisoesPedidos do begin
+    SetDataModulo(dtmCadastroPedidos);
+    DataSet := dtmCadastroPedidos.TabelaPrevisaoPedido;
+    Result := dtmCadastroPedidos.IncluirPrevisaoPedido(Editar);
+    if Result then
+      ShowModal;
+    free;
+  end;
+end;
+
+function TfrmCadastroPedidos.AcionaCadastroProdutosPedidos(Editar: Boolean):Boolean;
+begin
+  Result := False;
+  if dtmCadastroPedidos.FornecedorEspecificado then
+  begin
+    if dtmCadastroPedidos.qryPedidosfilialfatura.asinteger > 0  then
+    begin
+
+      if visulizandoCustoePrecoVenda then
+      begin
+        VisualizarPaineisCusto;
+        visulizandoCustoePrecoVenda := false;
+      end;
+
+
+      Criar_frmCadastroProdutosPedidos_;
+
+
+      with frmCadastroProdutosPedidos_ do
+      begin
+        dtmCadastroPedidos.ProcurarPorFornecedor := True;
+
+        Result := dtmCadastroPedidos.IncluirProdutoPedido(Editar);
+        ShowModal;
+//        freeandnil(frmCadastroProdutosPedidos_);
+//        frmCadastroProdutosPedidos_.Free;
+        dbgProdutosPedidos.RefazerOrdenacaoSequencial(nil);
+      end;
+
+
+    end
+    else
+    begin
+      MensagemAviso('Filial da fatura não informada.');
+      pgcPedidos.activepage := tstPedidos;
+      if flkFilialFatura.CanFocus then
+        flkFilialFatura.SetFocus;
+    end;
+  end
+  else
+  begin
+    MensagemAviso(ctINFORMARFORNECEDORPEDIDO);
+    if flkFornecedor.CanFocus then
+      flkFornecedor.SetFocus;
+  end;
+
+
+  
+end;
+
+procedure TfrmCadastroPedidos.actHabilitarGridUpdate(Sender: TObject);
+begin
+  inherited;
+  dbgProdutosPedidos.ReadOnly  := dtmCadastroPedidos.ProdutosPedidoReadOnly;
+  dbgPrevisoesPedidos.ReadOnly := (dtmCadastroPedidos.qryPedidossituacao.asstring = 'C') or
+                                  (dtmCadastroPedidos.qryPedidossituacao.asstring = 'L');
+
+//  edtFreteCtr.Enabled  := (flkFornecedorTransporte.Text <> '');
+//  edtFreteNota.Enabled := (flkFornecedorTransporte.Text <> '');
+  sbnVisualizarGrade.Visible :=  false; {dtmCadastroPedidos.UtilizandoGrade;} 
+  sbnImprimir.Enabled := not dtmCadastroPedidos.qryPedidos.isEmpty;
+  sbnImportarPedidoDaico.Visible := TtecImportacaoProdContratosePedidos(ParSistema.ImportacaoProdContratosePedidos) <> ipcpNENHUMA;
+
+  {
+  if dtmCadastroPedidos.qryPedidosatualizarprecovenda.asBoolean then
+    dbckbAtualizarPrecoVenda.color := clBtnHighlight
+  else
+    dbckbAtualizarPrecoVenda.color := clBtnFace;
+  }
+
+  sbnIncluirProduto.Enabled := not dtmCadastroPedidos.qryPedidosentrega.readonly;  
+
+end;
+
+constructor TfrmCadastroPedidos.Create(AOwner: TComponent);
+begin
+//  dtmCadastroPedidos := TdtmCadastroPedidos.Create(self);
+//  dtmCadastroPedidos.free;
+
+  self.dtmCadastroPedidos := TdtmCadastroPedidos.Create(self);
+  dtmCadastroPedidos := self.dtmCadastroPedidos;
+
+  inherited create(AOwner);
+  DataSet := dtmCadastroPedidos.TabelaPedido;
+  pgcPedidos.ActivePage := tstPedidos;
+  dtmCadastroPedidos.PedidosAfterScroll:= AfterScrollPedidos;
+  dtmCadastroPedidos.ProdutosPedidosAfterScroll := AfterScrollProdutosPedidos;
+
+//dbgProdutosPedidos.ColumnbyName('precosugerido').Visible := ParSistema.LocalCalculoPreco in [lcpPEDIDO, lcpAMBOS];
+//  sbnRecalcularPrecoSugerido.Visible    := ParSistema.LocalCalculoPreco in [lcpPEDIDO, lcpAMBOS];
+  sbnCustoePrecoVenda.Visible    := ParSistema.LocalCalculoPreco in [lcpPEDIDO, lcpAMBOS];
+
+  dbgProdutosPedidos.ColumnByName('ValorGrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutosPedidos.ColumnByName('ValorGrade2').Visible := ParSistema.UsarGradesProdutos;
+
+  if dbgProdutosPedidos.ColumnByName('quantidade').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosPedidos.ColumnByName('quantidade').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutosPedidos.ColumnByName('TotalRecebido').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosPedidos.ColumnByName('TotalRecebido').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  dbgProdutosSimilares.ColumnByName('ValorGrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutosSimilares.ColumnByName('ValorGrade2').Visible := ParSistema.UsarGradesProdutos;
+
+  if not ParSistema.UsarGradesProdutos then
+    dbgProdutosSimilares.ColumnByName('descricao').Width := dbgProdutosSimilares.ColumnByName('descricao').Width +
+                                             dbgProdutosSimilares.ColumnByName('ValorGrade1').Width+
+                                             dbgProdutosSimilares.ColumnByName('ValorGrade2').Width;
+
+  with dtmCadastroPedidos do
+  begin
+    AcertarLarguraGradeCasasDecimais(dbgProdutosPedidos, 10);
+    AcertarCasasDecimais(qryProdutosPedidospreco)
+  end;
+
+  dtmCadastroPedidos.OnScrollLinhaColunaGradeSimilares := AfterScrollLinhaColunaGradeSimilares;
+  dbgProdutosPedidos.CampoSequencial := 'numero';
+  dtmCadastroPedidos.qryProdutosPedidos.After_Open := dbgProdutosPedidos.RefazerOrdenacaoSequencial;
+
+  dbgProdutosPedidos.OnDelete := ExcluirProdutos;
+
+  dbgProdutosPedidos.onFinalizeOperation := FinalizandoExportacao;
+
+//  dbgProdutosPedidos.OnPost := dtmCadastroPedidos.GravarProdutoPedidoGrid;
+
+  VisualizarPaineisCusto;
+
+  SetarActivePage(self);
+
+  Criar_frmCadastroProdutosPedidos_;
+  
+end;
+
+procedure TfrmCadastroPedidos.dbgPrevisoesPedidosDblClick(Sender: TObject);
+begin
+  if sbnIncluirPrevisao.Enabled and not dbgPrevisoesPedidos.ReadOnly then
+    AcionaCadastroPrevisoesPedidos(True);
+end;
+
+procedure TfrmCadastroPedidos.dbgPrevisoesPedidosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro : if sbnIncluirPrevisao.Enabled and not dbgPrevisoesPedidos.ReadOnly then
+                               AcionaCadastroPrevisoesPedidos(True);
+      TeclaInserirRegistro: if sbnIncluirPrevisao.Enabled and not dbgPrevisoesPedidos.ReadOnly then
+                               AcionaCadastroPrevisoesPedidos(False);
+    end;
+end;
+
+procedure TfrmCadastroPedidos.dbgProdutosPedidosDblClick(Sender: TObject);
+begin
+
+  if dbgProdutosPedidos.SelectedField = dtmCadastroPedidos.qryProdutosPedidospermitiratualizardigitado then
+    dtmCadastroPedidos.PermitirAtualizarDigitado := not dtmCadastroPedidos.PermitirAtualizarDigitado
+  else
+  begin
+
+//    if not dtmCadastroPedidos.ProdutosPedidoReadOnly then
+    begin
+      if dtmCadastroPedidos.qryProdutosPedidos.IsEmpty then
+      begin
+        if sbnIncluirProduto.Enabled then
+          AcionaCadastroProdutosPedidos(False);
+      end
+      else
+         AcionaCadastroProdutosPedidos(True);
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroPedidos.dbgProdutosPedidosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro : if sbnIncluirProduto.Enabled {and not dtmCadastroPedidos.ProdutosPedidoReadOnly} then
+                               AcionaCadastroProdutosPedidos(True);
+      TeclaInserirRegistro: if sbnIncluirProduto.Enabled {and not dtmCadastroPedidos.ProdutosPedidoReadOnly }then
+                               AcionaCadastroProdutosPedidos(False);
+    end;
+end;
+
+destructor TfrmCadastroPedidos.Destroy;
+
+var
+ i: integer;
+begin
+
+    frmcadastroprodutospedidos_.free;
+//    frmcadastroprodutospedidos_ := nil;
+
+    inherited;
+
+    frmCadastroPedidos := nil;
+
+//    freeandnil(frmCadastroPedidos);
+end;
+
+
+function TfrmCadastroPedidos.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmCadastroPedidos do
+    case TipoPesquisa of
+              pcoPEDIDO : Result:= ExistePedido(NomeCampo, Value);
+       pcoFORNECEDORTRANSPORTE : Result:= ExisteFornecedorTransporte(NomeCampo, Value);
+          pcoFORNECEDOR : Result:= ExisteFornecedor(NomeCampo, Value);
+       pcoFILIALFATURA,
+      pcoFILIALENTREGA,
+      pcoFILIALCOBRANCA : Result:= ExisteFilial(NomeCampo, Value);
+      else                Result:= False;
+    end;
+end;
+
+function TfrmCadastroPedidos.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result and not CtrlOn then
+    dtmCadastroPedidos.ExcluirPedido;
+end;
+
+function TfrmCadastroPedidos.InternoGravar: Boolean;
+begin
+  Result := inherited InternoGravar;
+  if Result then begin
+    dtmCadastroPedidos.ObsPedidosCompras:= mmoObservacoesdaCompra.Text;
+    dtmCadastroPedidos.GravarPedido;
+    if edfPedido.CanFocus then
+      edfPedido.SetFocus;
+  end;
+end;
+
+function TfrmCadastroPedidos.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result and not CtrlOn then
+  begin
+    pgcPedidos.ActivePage := tstPedidos;
+    dtmCadastroPedidos.IncluirPedido;
+    if edtEmissao.CanFocus then
+       edtEmissao.SetFocus;
+  end;
+end;
+
+function TfrmCadastroPedidos.InternoPesquisar(Titulo:String): Integer;
+begin
+  Result:= mrNone;
+  if CtrlOn then begin
+    if flkFilialFatura.Focused and not dtmCadastroPedidos.qryPedidosfilialfatura.ReadOnly then begin
+      TipoPesquisa:= pcoFILIALFATURA;
+      Titulo      := 'Filiais';
+    end
+    else if flkFilialEntrega.Focused and not dtmCadastroPedidos.qryPedidosfilialentrega.ReadOnly then begin
+      TipoPesquisa:= pcoFILIALENTREGA;
+      Titulo      := 'Filiais';
+    end
+    else if flkFilialCobranca.Focused and not dtmCadastroPedidos.qryPedidosfilialcobranca.ReadOnly then begin
+      TipoPesquisa:= pcoFILIALCOBRANCA;
+      Titulo      := 'Filiais';
+    end
+    else if flkFornecedor.Focused and not dtmCadastroPedidos.PedidoReadOnly then begin
+      TipoPesquisa:= pcoFORNECEDOR;
+      Titulo      := 'Fornecedores';
+    end
+    else if flkFornecedorTransporte.Focused and not dtmCadastroPedidos.PedidoReadOnly then begin
+      TipoPesquisa:= pcoFORNECEDORTRANSPORTE;
+      Titulo      := 'Transportadoras';
+    end
+    else TipoPesquisa:= pcoNENHUM;
+  end
+  else begin
+    TipoPesquisa:= pcoPEDIDO;
+    Titulo      := 'Pedidos';
+  end;
+
+  if TipoPesquisa <> pcoNENHUM then begin
+    with dtmCadastroPedidos do begin
+      AbreTabelaPesquisa(TipoPesquisa);
+      Result := inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FechaTabelaPesquisa(TipoPesquisa);
+    end
+  end;
+end;
+
+function TfrmCadastroPedidos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := (TipoPesquisa <> pcoPEDIDO);
+end;
+
+procedure TfrmCadastroPedidos.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    VK_F12: sbnEnviarPedido.Click;
+    VK_G: begin
+             if Shift = [ssCtrl] then
+              if sbnVisualizarGrade.Visible then
+               sbnVisualizarGradeClick(sbnVisualizarGrade);
+           end;
+    VK_F7: dtmCadastroPedidos.ImprimirRelatorio;
+
+    VK_X :  begin
+              if activecontrol = dbgProdutosPedidos then
+              begin
+                if CtrlOn or (Shift = [ssCtrl])  then
+                   dtmCadastroPedidos.vVisualizarProdutosFornecedores := true;
+              end;
+            end;
+  end;
+end;
+
+procedure TfrmCadastroPedidos.sbnEnviarPedidoClick(Sender: TObject);
+begin
+  inherited;
+
+  {if (ParSistema.UsaitecLUX) then
+    EmailContato:= dtmCadastroPedidos.qryContatosFornecedoresemail.asString;
+  else
+  por enquanto fica como estava
+  }
+  EmailContato:= UsuarioLogin.Email;
+
+  Contato:= dtmCadastroPedidos.qryContatosFornecedoresContato.ASString;
+  frmEnviarEmail :=
+      TfrmEnviarEmail.Create(frmEnviarEmail,
+                             UsuarioLogin.HostSmtp,
+                             EmailContato,
+                             Contato,
+                             'Pedido de Compra',
+                             'Pedido ' +dtmCadastroPedidos.qryPedidosnumero.asString,
+                             PedidosEmail
+                             );
+  try
+    with frmEnviarEmail do begin
+      Data   := dtmCadastroPedidos.DataServidor;
+      Empresa:= PrimeiraLetraEmMaiuscula(dtmCadastroPedidos.NomeFilialBase);
+      Msg    := dtmCadastroPedidos.MontarOrcamento;
+      ShowModal;
+    end;
+  finally
+    frmEnviarEmail.Free;
+  end;
+  if edfPedido.CanFocus then
+    edfPedido.SetFocus;
+end;
+
+procedure TfrmCadastroPedidos.sbnExcluirPrevisaoClick(Sender: TObject);
+begin
+  with dtmCadastroPedidos do begin
+    if not dbgPrevisoesPedidos.ReadOnly then
+      ExcluirPrevisaoPedido;
+  end;
+end;
+
+procedure TfrmCadastroPedidos.sbnExcluirProdutoClick(Sender: TObject);
+begin
+
+  with dtmCadastroPedidos do
+  begin
+//    if not dtmCadastroPedidos.PedidoReadOnly then
+    if not dtmCadastroPedidos.qryPedidosentrega.readonly then
+    begin
+      if ExcluirProdutoPedido(False) then
+      begin
+        dbgProdutosPedidos.RefazerOrdenacaoSequencial(nil);
+        RefazerNumeroProdutos;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroPedidos.sbnIncluirPrevisaoClick(Sender: TObject);
+begin
+  if not dbgPrevisoesPedidos.ReadOnly then
+    AcionaCadastroPrevisoesPedidos(False);
+end;
+
+procedure TfrmCadastroPedidos.sbnIncluirProdutoClick(Sender: TObject);
+begin
+//  if not dtmCadastroPedidos.PedidoReadOnly then
+  if not dtmCadastroPedidos.qryPedidosentrega.readonly then
+    AcionaCadastroProdutosPedidos(False);
+end;
+
+procedure TfrmCadastroPedidos.sbnProcurarFilialCobrancaClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  flkFilialCobranca.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroPedidos.sbnProcurarFilialEntregaClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  flkFilialEntrega.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroPedidos.sbnProcurarFilialFaturaClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  flkFilialFatura.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroPedidos.sbnProcurarFornecedorClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  flkFornecedor.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroPedidos.sbnProcurarFornecedorTransporteClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  flkFornecedorTransporte.SetFocus;
+  InternoPesquisar('');
+end;
+
+function TfrmCadastroPedidos.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmCadastroPedidos do
+    case TipoPesquisa of
+                     pcoPEDIDO : Result:= ConsultarPedido;
+       pcoFORNECEDORTRANSPORTE : Result:= ConsultarFornecedorTransporte;
+                 pcoFORNECEDOR : Result:= ConsultarFornecedor;
+              pcoFILIALFATURA,
+             pcoFILIALENTREGA,
+             pcoFILIALCOBRANCA : Result:= ConsultarFilial;
+      else                       Result:= nil;
+    end;
+end;
+
+procedure TfrmCadastroPedidos.dbgProdutosPedidosEnter(Sender: TObject);
+begin
+  inherited;
+  dbgProdutosPedidos.ReadOnly:= dtmCadastroPedidos.ProdutosPedidoReadOnly;
+end;
+
+procedure TfrmCadastroPedidos.dbgPrevisoesPedidosEnter(Sender: TObject);
+begin
+  inherited;
+  dbgPrevisoesPedidos.ReadOnly := (dtmCadastroPedidos.qryPedidossituacao.asstring = 'C') or
+                                  (dtmCadastroPedidos.qryPedidossituacao.asstring = 'L');
+
+end;
+
+procedure TfrmCadastroPedidos.AfterScrollPedidos(Sender: TObject);
+begin
+  AfterScroll:= True;
+  mmoObservacoesdaCompra.Text:= dtmCadastroPedidos.ObsPedidosCompras;
+  if visulizandoCustoePrecoVenda then
+  begin
+    VisualizarPaineisCusto;
+    visulizandoCustoePrecoVenda := false;
+  end;
+
+  ckbMarcarTodos.checked := false;
+   
+end;
+
+procedure TfrmCadastroPedidos.AfterScrollProdutosPedidos(Sender: TObject);
+begin
+{
+  if ParSistema.LocalCalculoPreco in [lcpPEDIDO, lcpAMBOS] then
+    dbgProdutosPedidos.Columns[8].ReadOnly := Not dtmCadastroPedidos.CalcularPreco or dtmCadastroPedidos.SomenteLeitura;
+}
+  dbgProdutosPedidos.ColumnByName('ValorGrade1').Title.Caption := dtmCadastroPedidos.LinhadaGrade;
+  dbgProdutosPedidos.ColumnByName('ValorGrade2').Title.Caption := dtmCadastroPedidos.colunadaGrade;
+end;
+
+procedure TfrmCadastroPedidos.mmoObservacoesdaCompraChange(Sender: TObject);
+begin
+  inherited;
+  if not AfterScroll then
+    dtmCadastroPedidos.EditandoPedidos;
+  AfterScroll:= False;
+end;
+
+procedure TfrmCadastroPedidos.mmoObservacoesdaCompraExit(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroPedidos.SomenteLeitura:= True;
+end;
+
+procedure TfrmCadastroPedidos.sbnRecalcularPrecoSugeridoClick(Sender: TObject);
+begin
+  inherited;
+  if Not dtmCadastroPedidos.SomenteLeitura then
+  begin
+    dtmCadastroPedidos.CalcularCusto;
+    dtmCadastroPedidos.CalcularPrecoVenda;
+//    dtmCadastroPedidos.IncluirPrecosNaoCadastrados;
+
+  end;
+end;
+
+procedure TfrmCadastroPedidos.sbnVisualizarGradeClick(Sender: TObject);
+begin
+  inherited;
+ with dtmCadastroPedidos do
+   GerarTabelaGrade;
+ AcionaCadastroProdutosPedidosGrade;
+end;
+
+function TfrmCadastroPedidos.AcionaCadastroProdutosPedidosGrade: Boolean;
+begin
+  Result := False;
+    frmCadastroPedidosGrade:= TfrmCadastroPedidosGrade.Create(self);
+    with frmCadastroPedidosGrade do begin
+      SetDataModulo(dtmCadastroPedidos);
+      DataSet:= dtmCadastroPedidos.TabelaGrade;
+      PosicionarLinhaColunanaGrade;
+      ShowModal;
+      free;
+    end;
+    dbgProdutosPedidos.SetFocus;
+end;
+
+procedure TfrmCadastroPedidos.dbgProdutosPedidosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+
+  with dtmCadastroPedidos do
+  begin
+
+    if qryProdutosPedidosSituacao.AsString = 'A' then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clWhite;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else
+    if qryProdutosPedidosSituacao.AsString = 'P' then
+    begin
+       TDBGrid(Sender).Canvas.Brush.Color := clAqua;
+       TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else
+    if qryProdutosPedidosSituacao.AsString = 'L' then
+    begin
+      if qryProdutosPedidosquantidade.asCurrency <
+         qryProdutosPedidostotalrecebido.asCurrency then
+      begin
+//        TDBGrid(Sender).Canvas.Brush.Color := $00CACAFF;
+//        TDBGrid(Sender).Canvas.Font.Color  := clGreen;
+       TDBGrid(Sender).Canvas.Brush.Color := $007FAA55;
+       TDBGrid(Sender).Canvas.Font.Color  := clRed;
+      end
+      else
+      begin
+       TDBGrid(Sender).Canvas.Brush.Color := $007FAA55;
+       TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+      end;
+    end
+    else
+    if qryProdutosPedidosSituacao.AsString = 'C' then
+    begin
+       TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+       TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else
+    if qryProdutosPedidosSituacao.AsString = 'Q' then
+    begin
+       TDBGrid(Sender).Canvas.Brush.Color := clGray;
+       TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end;
+
+    if (column.FieldName =
+       dtmCadastroPedidos.qryProdutosPedidosprecodigitado.FieldName) then
+     if qryProdutosPedidosprecodigitadoalterado.AsBoolean then
+       TDBGrid(Sender).Canvas.Font.Color:= clRed;
+
+    if visulizandoCustoePrecoVenda then
+    begin
+
+     if (Column.FieldName =
+         dtmCadastroPedidos.qryProdutosPedidospercAtual_x_Venda.FieldName) then
+       if truncar(dtmCadastroPedidos.qryProdutosPedidospercAtual_x_Venda.AsFloat,2) <> 0 then
+         TDBGrid(Sender).Canvas.Font.Color:= clRed;
+
+     if (Column.FieldName =
+         dtmCadastroPedidos.qryProdutosPedidospercVenda_x_Digitado.FieldName) then
+       if truncar(dtmCadastroPedidos.qryProdutosPedidospercVenda_x_Digitado.AsFloat,2) <> 0 then
+         TDBGrid(Sender).Canvas.Font.Color:= clRed;
+    end;
+
+     if (Column.FieldName = dtmCadastroPedidos.qryProdutosPedidosnumero.FieldName) then
+     begin
+       if TDBGrid(Sender).Canvas.brush.Color = TColor(strtoint(parsistema.CorZebradoRelatorio)) then
+         TDBGrid(Sender).Canvas.brush.Color := clWindow;
+       if TDBGrid(Sender).Canvas.Font.style = [fsBold] then
+         TDBGrid(Sender).Canvas.Font.style := [];
+
+       if pgcPedidos.activepage = tstNotasPendentesdeEntrada then
+         if pgcProdutos.activepage = tstProdutos then
+           if dtmCadastroPedidos.qryProdutosPedidosproduto.asstring =
+              dtmCadastroPedidos.qryConsultaProdutosEntradaSefazproduto.asString then
+           begin
+             TDBGrid(Sender).Canvas.brush.Color := TColor(strtoint(parsistema.CorZebradoRelatorio));
+             TDBGrid(Sender).Canvas.Font.style := [fsBold];
+           end;
+     end;
+
+
+
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+  end;
+end;
+
+procedure TfrmCadastroPedidos.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  {*$IFDEF MSQt}
+  if MensagemSimNaoOpcaoCancelar('Deseja Exportar para o Excel','',False)= mryes then
+  begin
+    svdExportarExcel.FileName:= 'Ordem de Compra nº '+dtmCadastroPedidos.qryPedidosnumero.AsString;
+    if svdExportarExcel.Execute then
+    begin
+      dtmCadastroPedidos.LocalGravacao:= svdExportarExcel.FileName;
+      dtmCadastroPedidos.GravarExcel;
+    end;
+  end
+  else
+    dtmCadastroPedidos.ImprimirRelatorio;
+  {8$ELSE }
+    //dtmCadastroPedidos.ImprimirRelatorio;
+  {8$ENDIF}
+
+
+end;
+
+procedure TfrmCadastroPedidos.pgcProdutosChange(Sender: TObject);
+begin
+  inherited;
+  if pgcProdutos.ActivePage = tstSimilares then
+    dtmCadastroPedidos.RefazConsultaProdutosSimilares;
+end;
+
+procedure TfrmCadastroPedidos.AfterScrollLinhaColunaGradeSimilares(
+  Sender: TObject);
+begin
+  dbgProdutosSimilares.Columns[2].Title.Caption := dtmCadastroPedidos.LinhadaGradeSimilares;
+  dbgProdutosSimilares.Columns[3].Title.Caption := dtmCadastroPedidos.ColunadaGradeSimilares;
+end;
+
+procedure TfrmCadastroPedidos.CopiarProdutosPedidos;
+begin
+  if not assigned(frmCopiarProdutosPedidos)  then
+    frmCopiarProdutosPedidos := TfrmCopiarProdutosPedidos.Create(frmCopiarProdutosPedidos);
+
+  with frmCopiarProdutosPedidos do
+  begin
+    frmCopiarProdutosPedidos.SetDataModulo(dtmCadastroPedidos);
+    frmCopiarProdutosPedidos.DataSet := dtmCadastroPedidos.qryPedidosCopia;
+    frmCopiarProdutosPedidos.sbnSalvar.Enabled := false;
+//    edfPesquisaPedido.SetFocus;
+    frmCopiarProdutosPedidos.ConsultaPedido := TfraConsultaCodigo.Create(self);
+    frmCopiarProdutosPedidos.ConsultaPedido.edfCodigo.DataSource := dtmCadastroPedidos.dsrPedidosCopia;
+    frmCopiarProdutosPedidos.ConsultaPedido.edfCodigo.DataField := 'numero';
+    frmCopiarProdutosPedidos.ConsultaPedido.edfCodigo.Operacao := opATRIBUICAO;
+    frmCopiarProdutosPedidos.ConsultaPedido.AbrirTabelaProcura := false;
+    frmCopiarProdutosPedidos.ConsultaPedido.TipoPesquisa := pesPEDIDOS;
+    frmCopiarProdutosPedidos.ConsultaPedido.OnFound := frmCopiarProdutosPedidos.AbrirPedidos;
+  end;
+
+  try
+
+    if frmCopiarProdutosPedidos.ShowModal = mrOK then
+      dtmCadastroPedidos.IncluirProdutosPedidoCopia;
+
+  finally
+  begin
+    with dtmCadastroPedidos do
+    begin
+      CalcularImpostos(true, true);
+      qrypedidosCopia.Close;
+      qryProdutospedidosCopia.Close;
+    end;
+    frmCopiarProdutosPedidos.ConsultaPedido.Free;
+    frmCopiarProdutosPedidos.Free;
+  end;
+  end;
+  SetFocus;
+
+
+end;
+
+procedure TfrmCadastroPedidos.sbnCopiarProdutosClick(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroPedidos.FornecedorEspecificado then
+    CopiarProdutosPedidos
+  else
+  begin
+    MensagemAviso(ctINFORMARFORNECEDORPEDIDO);
+    if flkFornecedor.CanFocus then
+      flkFornecedor.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroPedidos.sbnDeslocarParaCimaClick(Sender: TObject);
+begin
+  inherited;
+  dbgProdutosPedidos.DeslocarRegistroParaCima;
+end;
+
+procedure TfrmCadastroPedidos.sbnDeslocarRegistroParaBaixoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgProdutosPedidos.DeslocarRegistroParaBaixo;
+end;
+
+procedure TfrmCadastroPedidos.ExcluirProdutos;
+begin
+  if sbnExcluirProduto.Enabled then
+    sbnExcluirProdutoClick(nil);
+end;
+
+procedure TfrmCadastroPedidos.sbnImportarPedidoDaicoClick(Sender: TObject);
+begin
+  inherited;
+  if odlImportarArquivo.Execute then
+    if dtmCadastroPedidos.ImportarArquivoTXT(odlImportarArquivo.FileName, daico) then
+      dtmCadastroPedidos.ImportarArquivoDaico;
+
+end;
+
+procedure TfrmCadastroPedidos.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+  if Value[0] = 'Abrir' then
+  begin
+    if ((dtmCadastroPedidos.qryPedidos.recordcount = 0) and
+        (Value[1]<>0)) or
+       ((dtmCadastroPedidos.qryPedidos.recordcount > 0) and
+        (Value[1]<>0) and
+        (Value[1]<> dtmCadastroPedidos.qryPedidosnumero.asinteger) and
+        (MensagemConfirmacao('Abrir o pedido '+inttostr(Value[1])) = smbOK)) then
+    begin
+      if (dtmCadastroPedidos.qryPedidos.state in [dsedit, dsinsert]) then
+        dtmCadastroPedidos.qryPedidos.cancel;
+
+      edfPedido.text := inttostr(Value[1]);
+      edfPedido.exist;
+    end;
+  end
+  else
+  if Value[0] = 'Incluir' then
+  begin
+    if (dtmCadastroPedidos.qryPedidos.recordcount > 0) then
+    begin
+      if (dtmCadastroPedidos.qryPedidos.state in [dsedit, dsinsert]) then
+        if MensagemConfirmacao('O pedido está sendo editaddo, incluir o pedido ') = smbOK then
+           dtmCadastroPedidos.qryPedidos.cancel;
+    end;
+    frmCadastroPedidos := self;
+    internoincluir;
+  end
+
+
+end;
+
+procedure TfrmCadastroPedidos.edtEntregaEnter(Sender: TObject);
+
+begin
+  inherited;
+  vReadonlyPedido := dtmCadastroPedidos.qryPedidos.readonly;
+
+  if dtmCadastroPedidos.qryPedidossituacao.asString = 'P' then
+    dtmCadastroPedidos.qryPedidos.readonly  := false;
+end;
+
+procedure TfrmCadastroPedidos.edtEntregaExit(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroPedidos.qryPedidossituacao.asString = 'P' then
+    dtmCadastroPedidos.qryPedidos.readonly  := vReadonlyPedido;
+end;
+
+procedure TfrmCadastroPedidos.FinalizandoExportacao;
+begin
+  dtmCadastroPedidos.vVisualizarProdutosFornecedores := false;
+end;
+
+procedure TfrmCadastroPedidos.flkFornecedorExit(Sender: TObject);
+begin
+  inherited;
+
+  if ((CodClienteAnt <> dtmCadastroPedidos.qryPedidosfornecedor.AsInteger) or
+      (TipoClienteAnt <> 'F')) or
+
+      ((CodClienteAnt=0) and (TipoclienteAnt='') and
+       (dtmCadastroPedidos.qryPedidosfornecedor.AsInteger<>0) and
+       ('F'<>'')) then
+  begin
+    dtmCadastroPedidos.ExibirFicha(ClassName);
+    flkFornecedor.setfocus;
+    flkFornecedor.selectall;
+  end;
+
+end;
+
+procedure TfrmCadastroPedidos.flkFornecedorEnter(Sender: TObject);
+begin
+  inherited;
+  CodClienteAnt := dtmCadastroPedidos.qryPedidosfornecedor.AsInteger;
+  TipoClienteAnt := 'F';
+
+end;
+
+
+(*
+function AcionarTelaCadastroPedidos_(AOwner: TComponent): TfrmCadastroPedidos;
+var
+ i: integer;
+begin
+
+
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Incluir'], 'TfrmCadastroPedidos', True);
+  result := frmCadastroPedidos;
+  frmCadastroPedidos.BringToFront;
+
+  (*
+//  Application.CreateForm(TfrmCadastroPedidos, frmCadastroPedidos);
+
+  frmCadastroPedidos := TfrmCadastroPedidos.create(AOwner);
+
+  with frmCadastroPedidos do
+  begin
+    edfPedido.datasource := frmCadastroPedidos.dtmCadastroPedidos.dsrPedidos;
+    edtEmissao.datasource := frmCadastroPedidos.dtmCadastroPedidos.dsrPedidos;
+    dtxConcluido.datasource := frmCadastroPedidos.dtmCadastroPedidos.dsrPedidos;
+    dtxSituacao.datasource := frmCadastroPedidos.dtmCadastroPedidos.dsrPedidos;
+    dtxCancelado.datasource := frmCadastroPedidos.dtmCadastroPedidos.dsrPedidos;
+
+
+    {
+    dbgVendasCliente_Dados.datasource := frmconsultaVendas.dtmConsultaVendas.dsrVendasCliente;
+    dbgVendasCliente_Meses.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasCliente;
+    dbgVendasCliente_Totais.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasCliente;
+    dbgVendasTotais_Meses.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasTotais;
+    edtNumero.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasTotais;
+
+    dbgVendas_Cliente.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendas;
+
+    dbgVendas_Meses.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendas;
+    dbgVendas_Quantidades.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendas;
+    edtQuantidade.DAtaSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasQuantidades;
+    dbgVendasQuantidades.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasQuantidades;
+    dtxCodigoCliente.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasCliente;
+    dtxNomeCliente.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasCliente;
+    fraConsultaCliente.edfcodigo.DataSource := frmConsultaVendas.fraConsultaCliente.dsrProcuraCliente;
+    fraConsultaCliente.dtxDescricao.DataSource := frmConsultaVendas.fraConsultaCliente.dsrProcuraCliente;
+    dtxCodigoVendedor.DataSource := frmConsultaVendas.fraConsultaVendedor.dsrProcuraVendedores;
+    dtxNomeVendedor.DataSource := frmConsultaVendas.fraConsultaVendedor.dsrProcuraVendedores;
+    fraConsultaVendedor.edfcodigo.DataSource := frmConsultaVendas.fraConsultaVendedor.dsrProcuraVendedores;
+    fraConsultaVendedor.dtxDescricao.DataSource := frmConsultaVendas.fraConsultaVendedor.dsrProcuraVendedores;
+    }
+
+    BringToFront;
+  end;
+
+  result := frmCadastroPedidos;
+  *)
+
+//end;
+
+
+procedure TfrmCadastroPedidos.FormCreate(Sender: TObject);
+begin
+  inherited;
+//  RemoveDataModule(dtmCadastroPedidos);
+end;
+
+{
+initialization
+   AcionarTelaCadastroPedidos :=  AcionarTelaCadastroPedidos_;
+   }
+
+procedure TfrmCadastroPedidos.sbnAcionarTelaFormacaoPrecoVendaClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not (dtmCadastroPedidos.qryPedidos.state in [dsedit, dsinsert]) then
+     AcionarTelaFormacaoPrecoVenda(dtmCadastroPedidos.qryProdutosPedidospedido.asInteger,
+                                 dtmCadastroPedidos.qryProdutosPedidosnumero.asInteger,
+                                 dtmCadastroPedidos.qryProdutosPedidosproduto.asString,
+                                 'Pedidos')
+  else
+    MensagemAviso('Para visualizar a formação do preço de venda grave o pedido');
+end;
+
+procedure TfrmCadastroPedidos.sbnCustoePrecoVendaClick(Sender: TObject);
+var
+  vAux_VisualizarDetalhesProdutosNota : Boolean;
+begin
+  inherited;
+{  if Not dtmCadastroPedidos.SomenteLeitura then}
+//  if (dtmCadastroPedidos.qryProdutosPedidossituacao.asString = 'P') or
+//     (dtmCadastroPedidos.qryProdutosPedidossituacao.asString = 'A') then
+  begin
+    vAux_VisualizarDetalhesProdutosNota := dtmCadastroPedidos.VisualizarDetalhesProdutosNota;
+    visulizandoCustoePrecoVenda := not visulizandoCustoePrecoVenda;
+    if visulizandoCustoePrecoVenda then
+    begin
+      if vAux_VisualizarDetalhesProdutosNota then
+        dtmCadastroPedidos.VisualizarDetalhesProdutosNota := false;
+
+      if dtmCadastroPedidos.CalcularCusto then
+        dtmCadastroPedidos.CalcularPrecoVenda;
+
+      if vAux_VisualizarDetalhesProdutosNota then
+        dtmCadastroPedidos.VisualizarDetalhesProdutosNota := true;
+    end;
+    VisualizarPaineisCusto;
+  end;
+end;
+
+procedure TfrmCadastroPedidos.VisualizarPaineisCusto;
+begin
+  lblAlterados.Visible := not lblAlterados.Visible;
+  shAlterados.Visible := lblAlterados.Visible;
+  
+//  dbgProdutosPedidos.Columnbyname('precounitariopedido').Visible :=
+//    not dbgProdutosPedidos.Columnbyname('precounitariopedido').Visible;
+
+//  dbgProdutosPedidos.Columnbyname('quantidade').Visible :=
+//    not dbgProdutosPedidos.Columnbyname('quantidade').Visible;
+
+// ? se retirar a especificação do tamanho abaixo o tamanho da coluna fica estranhamente expandido
+//  dbgProdutosPedidos.Columnbyname('unidadenf').width := 30;
+
+//  dbgProdutosPedidos.Columnbyname('produtototal').Visible :=
+//    not dbgProdutosPedidos.Columnbyname('produtototal').Visible;
+
+//  dbgProdutosPedidos.Columnbyname('aliquotaicms').Visible :=
+//    not dbgProdutosPedidos.Columnbyname('aliquotaicms').Visible;
+
+//  dbgProdutosPedidos.Columnbyname('aliquotaipi').Visible :=
+//    not dbgProdutosPedidos.Columnbyname('aliquotaipi').Visible;
+
+//  dbgProdutosPedidos.Columnbyname('valoripi').Visible :=
+//    not dbgProdutosPedidos.Columnbyname('valoripi').Visible;
+
+  dbgProdutosPedidos.Columnbyname('custoparavenda').Visible :=
+    not dbgProdutosPedidos.Columnbyname('custoparavenda').Visible;
+
+  dbgProdutosPedidos.Columnbyname('precoatual').Visible :=
+    not dbgProdutosPedidos.Columnbyname('precoatual').Visible;
+
+  dbgProdutosPedidos.Columnbyname('percAtual_x_Venda').Visible :=
+    not dbgProdutosPedidos.Columnbyname('percAtual_x_Venda').Visible;
+
+  dbgProdutosPedidos.Columnbyname('percAtual_x_Venda').width := 50;
+
+  dbgProdutosPedidos.Columnbyname('precovenda').Visible :=
+    not dbgProdutosPedidos.Columnbyname('precovenda').Visible;
+
+  dbgProdutosPedidos.Columnbyname('percVenda_x_Digitado').Visible :=
+    not dbgProdutosPedidos.Columnbyname('percVenda_x_Digitado').Visible;
+
+  dbgProdutosPedidos.Columnbyname('percVenda_x_Digitado').width := 50;
+
+  dbgProdutosPedidos.Columnbyname('precodigitado').Visible :=
+    not dbgProdutosPedidos.Columnbyname('precodigitado').Visible;
+
+  dbgProdutosPedidos.Columnbyname('permitiratualizardigitado').Visible :=
+    not dbgProdutosPedidos.Columnbyname('permitiratualizardigitado').Visible;
+
+  dbgProdutosPedidos.Columnbyname('codigofiscal').Visible :=
+    not dbgProdutosPedidos.Columnbyname('codigofiscal').Visible;
+
+//  dbgProdutosPedidos.Columnbyname('valoricms').Visible :=
+//    not dbgProdutosPedidos.Columnbyname('valoricms').Visible;
+
+  dbgProdutosPedidos.Columnbyname('icmsoutras').Visible :=
+    not dbgProdutosPedidos.Columnbyname('icmsoutras').Visible;
+
+  dbgProdutosPedidos.Columnbyname('icmsisentas').Visible :=
+    not dbgProdutosPedidos.Columnbyname('icmsisentas').Visible;
+
+//  dbgProdutosPedidos.Columnbyname('codigopreco').Visible :=
+//    not dbgProdutosPedidos.Columnbyname('codigopreco').Visible;
+
+//  dbgProdutosPedidos.Columnbyname('descricaoprecoproduto').Visible :=
+//    not dbgProdutosPedidos.Columnbyname('descricaoprecoproduto').Visible;
+
+end;
+
+procedure TfrmCadastroPedidos.ckbMarcarTodosClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroPedidos.MarcarDesmarcarAtualizarPrecodeVenda(ckbMarcarTodos.Checked);
+end;
+
+procedure TfrmCadastroPedidos.pgcPedidosChange(Sender: TObject);
+begin
+  inherited;
+  if pgcPedidos.ActivePage = tstNotasPendentesdeEntrada then
+    dtmCadastroPedidos.ConsultaProdutosEntradaSefaz;
+end;
+
+procedure TfrmCadastroPedidos.Criar_frmCadastroProdutosPedidos_;
+begin
+  if not assigned(frmCadastroProdutosPedidos_)  then
+    frmCadastroProdutosPedidos_ := TfrmCadastroProdutosPedidos_.Create(self);
+
+  with frmCadastroProdutosPedidos_ do
+  begin
+    SetDataModulo(dtmCadastroPedidos);
+    DataSet:= dtmCadastroPedidos.TabelaProdutoPedido;
+  end;
+
+end;
+
+end.

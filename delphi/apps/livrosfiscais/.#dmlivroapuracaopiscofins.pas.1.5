@@ -1,0 +1,320 @@
+unit dmlivroapuracaoPisCofins;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery, DateUtils,
+  cpquery, FR_Class, ctconstantes, FR_DSet, FR_DBSet, cptable, clparametrossistema,
+  fmpreviewpadrao, biblio, ZTransact, ExcelExport;
+  
+type
+  TdtmLivroApuracaoPisCofins = class(TdtmBasico)
+    qryProcuraFiliais: TtecQuery;
+    qryProcuraFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisnome: TStringField;
+    qryProcuraFiliaisrazao: TStringField;
+    qryProcuraFiliaiscnpj: TStringField;
+    qryProcuraFiliaisinscricaoestadual: TStringField;
+    qryProcuraFiliaisrua: TStringField;
+    qryProcuraFiliaisestado: TStringField;
+    qryProcuraFiliaisnomecidade: TStringField;
+    qryProcuraFiliaisnomebairro: TStringField;
+    qryProcuraFiliaiscep: TIntegerField;
+    dsrProcuraFiliais: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryLivroApuracaoPISCofins_Debitos: TtecQuery;
+    fdsLivroApuracaoPISCofins_Debitos: TfrDBDataSet;
+    frpLivroApuracaoPISCofins_Debitos: TfrReport;
+    qryProcuraFiliaisjunta: TStringField;
+    qryProcuraFiliaisjuntadata: TDateField;
+    qryLivroApuracaoPISCofins_Debitosfilial: TIntegerField;
+    qryLivroApuracaoPISCofins_Debitosdata: TDateField;
+    qryLivroApuracaoPISCofins_Debitosespecie: TStringField;
+    qryLivroApuracaoPISCofins_Debitosserie: TStringField;
+    qryLivroApuracaoPISCofins_Debitosnumero: TIntegerField;
+    qryLivroApuracaoPISCofins_Debitosvalortotal: TFloatField;
+    qryLivroApuracaoPISCofins_Debitoscodigofiscal: TIntegerField;
+    qryLivroApuracaoPISCofins_Debitospiscst: TStringField;
+    qryLivroApuracaoPISCofins_Debitospisbasecalculo: TFloatField;
+    qryLivroApuracaoPISCofins_Debitospisvalor: TFloatField;
+    qryLivroApuracaoPISCofins_Debitospisaliquota: TFloatField;
+    qryLivroApuracaoPISCofins_Debitoscofinscst: TStringField;
+    qryLivroApuracaoPISCofins_Debitoscofinsbasecalculo: TFloatField;
+    qryLivroApuracaoPISCofins_Debitoscofinsvalor: TFloatField;
+    qryLivroApuracaoPISCofins_Debitosaliquotacofins: TFloatField;
+    qryLivroApuracaoPISCofins_Debitoscod_inc_trib: TIntegerField;
+    qryLivroApuracaoPISCofins_Debitosccs435: TStringField;
+    qryLivroApuracaoPISCofins_Debitostipocontribuicao: TStringField;
+    qryLivroApuracaoPISCofins_Debitosdescricaot435: TStringField;
+    frpLivroApuracaoPISCofinsResumo_Debitos: TfrReport;
+    qryLivroApuracaoPISCofins_Creditos: TtecQuery;
+    fdsLivroApuracaoPISCofins_Creditos: TfrDBDataSet;
+    qryLivroApuracaoPISCofins_Creditosfilialemissao: TIntegerField;
+    qryLivroApuracaoPISCofins_Creditosdata: TDateField;
+    qryLivroApuracaoPISCofins_Creditosespecie: TStringField;
+    qryLivroApuracaoPISCofins_Creditosserie: TStringField;
+    qryLivroApuracaoPISCofins_Creditosnumero: TIntegerField;
+    qryLivroApuracaoPISCofins_Creditosmodelodocto: TStringField;
+    qryLivroApuracaoPISCofins_Creditosvalortotal: TFloatField;
+    qryLivroApuracaoPISCofins_Creditoscodigofiscal: TIntegerField;
+    qryLivroApuracaoPISCofins_Creditospiscst: TStringField;
+    qryLivroApuracaoPISCofins_Creditospisbasecalculo: TFloatField;
+    qryLivroApuracaoPISCofins_Creditospisvalor: TFloatField;
+    qryLivroApuracaoPISCofins_Creditospisaliquota: TFloatField;
+    qryLivroApuracaoPISCofins_Creditoscofinscst: TStringField;
+    qryLivroApuracaoPISCofins_Creditoscofinsbasecalculo: TFloatField;
+    qryLivroApuracaoPISCofins_Creditoscofinsvalor: TFloatField;
+    qryLivroApuracaoPISCofins_Creditoscofinsaliquota: TFloatField;
+    qryLivroApuracaoPISCofins_Creditosctc436: TIntegerField;
+    qryLivroApuracaoPISCofins_Creditosdescricaot437: TStringField;
+    qryLivroApuracaoPISCofins_Creditoscbcc437: TStringField;
+    qryLivroApuracaoPISCofins_Creditosdescricaot436: TStringField;
+    frpLivroApuracaoPISCofinsResumo_Creditos: TfrReport;
+    frpLivroApuracaoPISCofins_Creditos: TfrReport;
+    qryLivroApuracaoPISCofins_Debitosdadofiscal: TIntegerField;
+    qryLivroApuracaoPISCofins_Debitoscofinsretido: TFloatField;
+    qryLivroApuracaoPISCofins_Debitospisretido: TFloatField;
+    qryLivroApuracaoPISCofins_Creditosfornecedor: TIntegerField;
+    qryLivroApuracaoPISCofins_Creditostipofornecedor: TStringField;
+    LivroApuracaoPISCofins_Debitos: TExcelExport;
+    LivroApuracaoPISCofins_Creditos: TExcelExport;
+    procedure frpLivroApuracaoPisCofinsTermosGetValue(const ParName: String;
+      var ParValue: Variant);
+    procedure frpLivroApuracaoPISCofins_DebitosBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpLivroApuracaoPISCofinsResumo_CreditosBeforePrint(
+      Memo: TStringList; View: TfrView);
+  Protected
+  private
+    FResumo: boolean;
+    FLivrodeApuracaoPisCofins: boolean;
+    FParametroMaximo: Integer;
+    FParametroPagina: Integer;
+    FParametroLivro: Integer;
+    FParametrosRelatorio: Integer;
+    FParametroCabecalho: String;
+    FParametroFilial: String;
+    FMesAno: String;
+    function GetCodigoFilial: Integer;
+    function GetCodigoGrupoFilial: Integer;
+    function GetConsultarFilial: TtecQuery;
+    function GetConsultarGrupoFilial: TtecQuery;
+    procedure SetParametroFilial(const Value: String);
+    procedure SetMesAno(const Value: String);
+    { Private declarations }
+  public
+    { Public declarations }
+     constructor Create(AOwner: TComponent); override;
+     destructor Destroy; override;
+     function ExisteFilial(Campo, Codigo: string): Boolean;
+     procedure AbreTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+     procedure FechaTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+     procedure Selecionar(Pesquisa: TtecPesquisa);
+     procedure ImprimirRelatorio;
+     property ConsultarFilial: TtecQuery read GetConsultarFilial;
+     property ConsultarGrupoFilial: TtecQuery read GetConsultarGrupoFilial;
+     property CodigoFilial: Integer read GetCodigoFilial;
+     property CodigoGrupoFilial: Integer read GetCodigoGrupoFilial;
+     property ParametroFilial: String read FParametroFilial write SetParametroFilial;
+     property MesAno: String read FMesAno write SetMesAno;
+     property ParametroLivro: Integer read FParametroLivro write FParametroLivro;
+     property ParametroPagina: Integer read FParametroPagina write FParametroPagina;
+     property ParametroMaximo: Integer read FParametroMaximo write FParametroMaximo;
+     property ParametrosRelatorio: Integer read FParametrosRelatorio write FParametrosRelatorio;
+     property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+     property LivrodeApuracaoPisCofins: boolean read FLivrodeApuracaoPisCofins write FLivrodeApuracaoPisCofins;
+     property Resumo: boolean read FResumo write FResumo ;
+     function AbrirConsultaRelatorios: Boolean;
+     procedure ExportarDadosPISCOFINS;
+  end;
+
+var
+  dtmLivroApuracaoPisCofins: TdtmLivroApuracaoPisCofins;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmLivroApuracaoPisCofins }
+
+procedure TdtmLivroApuracaoPisCofins.AbreTabelaPesquisa(
+  TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesFILIAIS      : Abre(ctPesquisaFilial);
+    pesGRUPOSFILIAIS: Abre(ctPesquisaGrupoFilial);
+  end;
+end;
+
+constructor TdtmLivroApuracaoPisCofins.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryConsultaFiliais.Tag:= ctPesquisaFilial;
+  qryProcuraFiliais.Params[0].AsInteger := FilialBase;
+  qryProcuraFiliais.Tag:= ctTabelas;
+end;
+
+function TdtmLivroApuracaoPisCofins.ExisteFilial(Campo,
+ Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, Campo, Codigo);
+end;
+
+procedure TdtmLivroApuracaoPisCofins.FechaTabelaPesquisa(
+  TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesFILIAIS      : Fecha(ctPesquisaFilial);
+    pesGRUPOSFILIAIS: Fecha(ctPesquisaGrupoFilial);
+  end;
+end;
+
+function TdtmLivroApuracaoPisCofins.GetCodigoFilial: Integer;
+begin
+  Result := qryConsultaFiliaiscodigo.AsInteger;
+end;
+
+function TdtmLivroApuracaoPisCofins.GetCodigoGrupoFilial: Integer;
+begin
+end;
+
+function TdtmLivroApuracaoPisCofins.GetConsultarFilial: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmLivroApuracaoPisCofins.GetConsultarGrupoFilial: TtecQuery;
+begin
+end;
+
+procedure TdtmLivroApuracaoPisCofins.ImprimirRelatorio;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  AtribuirParametrosBaseRelatorio(qryprocurafiliaiscodigo.asstring);
+  frVariables['Razao']  := qryProcuraFiliaisrazao.AsString;
+  frVariables['CNPJ']   := FormatarCPFouCGC(qryProcuraFiliaiscnpj.AsString);
+  frVariables['InscricaoEstadual']:= qryProcuraFiliaisinscricaoestadual.AsString;
+  frVariables['Junta']:= qryProcuraFiliaisjunta.AsString;
+  frVariables['JuntaData']:= qryProcuraFiliaisjuntadata.AsString;
+  frVariables['Titulo']  := 'LIVRO DE APURAÇÃO DO PIS/COFINS';
+
+  frVariables['SubTitulo']:=ANSIUpperCase(NomeMeses[strtoint(copy(FMesAno,1,2))]+' de '+copy(FMesAno,4,4));
+
+  frVariables['Livro'] := FParametroLivro;
+  frVariables['Pagina']:=FParametroPagina;
+  frVariables['Maximo']:=FParametroMaximo;
+  frVariables['Outras']:=FParametroCabecalho;
+
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmpreview.frPreviewPadrao.OnExportLinear := ExportarDadosPISCOFINS;
+  frmPreview.cmbZoom.ItemIndex := 3; //125
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   frmPreview.frCompositeReport.DoublePass:= True;
+
+   with frmPreview do
+   begin
+      if LivrodeApuracaoPisCofins and resumo then
+      begin
+        frCompositeReport.Reports.Add(frpLivroApuracaoPISCofins_Debitos);
+        frCompositeReport.Reports.Add(frpLivroApuracaoPISCofinsResumo_Debitos);
+        frCompositeReport.Reports.Add(frpLivroApuracaoPISCofins_Creditos);
+        frCompositeReport.Reports.Add(frpLivroApuracaoPISCofinsResumo_Creditos);
+      end
+      else
+      if LivrodeApuracaoPisCofins then
+      begin
+        frCompositeReport.Reports.Add(frpLivroApuracaoPISCofins_Debitos);
+        frCompositeReport.Reports.Add(frpLivroApuracaoPISCofins_Creditos);
+      end
+      else
+      if resumo then
+      begin
+        frCompositeReport.Reports.Add(frpLivroApuracaoPISCofinsResumo_Debitos);
+        frCompositeReport.Reports.Add(frpLivroApuracaoPISCofinsResumo_Creditos);
+      end;
+   end;
+
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.PrepareReport;
+   Relatorio.ShowReport;
+
+   frmPreview.ShowModal;
+
+  finally
+   frmPreview.Free;
+   AtribuirParametrosBaseRelatorio;
+  end;
+
+end;
+
+procedure TdtmLivroApuracaoPisCofins.Selecionar(Pesquisa: TtecPesquisa);
+begin
+  case Pesquisa of
+    pesFILIAIS      : RefazConsulta(qryProcuraFiliais,[0],[CodigoFilial]);
+  end;
+end;
+
+procedure TdtmLivroApuracaoPisCofins.SetMesAno(const Value: String);
+begin
+  FMesAno := Value;
+  qryLivroApuracaoPISCofins_Debitos.ParamByName('MesAno').AsString := Value;
+  qryLivroApuracaoPISCofins_Creditos.ParamByName('MesAno').AsString := Value;
+
+end;
+
+procedure TdtmLivroApuracaoPisCofins.SetParametroFilial(const Value: String);
+begin
+  FParametroFilial := value;
+  qryLivroApuracaoPISCofins_Debitos.paramByName('FilialConsolidadora').AsString := Value;
+  qryLivroApuracaoPISCofins_Creditos.paramByName('FilialConsolidadora').AsString := Value;
+
+end;
+
+procedure TdtmLivroApuracaoPisCofins.frpLivroApuracaoPisCofinsTermosGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+  Parvalue := ParametroRelatorio(ParName);
+end;
+
+function TdtmLivroApuracaoPisCofins.AbrirConsultaRelatorios: Boolean;
+begin
+  result := true;
+  RefazConsulta(qryLivroApuracaoPISCofins_Debitos, [], []);
+  RefazConsulta(qryLivroApuracaoPISCofins_Creditos, [], []);
+  result := not qryLivroApuracaoPISCofins_Debitos.isempty or
+            not qryLivroApuracaoPISCofins_Creditos.isempty;
+end;
+
+destructor TdtmLivroApuracaoPisCofins.Destroy;
+begin
+  inherited;
+end;
+
+procedure TdtmLivroApuracaoPisCofins.frpLivroApuracaoPISCofins_DebitosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpLivroApuracaoPISCofins_Debitos, view);
+end;
+
+procedure TdtmLivroApuracaoPisCofins.frpLivroApuracaoPISCofinsResumo_CreditosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpLivroApuracaoPISCofins_Creditos, view);
+end;
+
+procedure TdtmLivroApuracaoPisCofins.ExportarDadosPISCOFINS;
+begin
+  LivroApuracaoPISCofins_Debitos.ExportDataset;
+  LivroApuracaoPISCofins_Creditos.ExportDataset;
+end;
+
+end.

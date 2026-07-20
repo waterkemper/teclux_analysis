@@ -1,0 +1,1766 @@
+unit dmgerarmapasecf;
+
+interface
+
+uses
+  SysUtils, Classes, DB, ZQuery, ZPgSqlQuery, cpquery, dmbasico, clecf,
+  ZTransact,ACBrEAD,biblio,Dialogs, ACBrBase, ACBrDFe, ACBrBlocoX, clparametrossistema,
+  ACBrBlocoX_Comum, Forms, ctconstantes, ACBrDFeSSL, cpdatasource, dateutils,
+  KAZip, synacode, pcnConversao, variants;
+
+type
+  TdtmGerarMapasECF = class(TdtmBasico)
+    qryCuponsExistentes_MesmaData: TtecQuery;
+    qryApagarMapasECF: TtecQuery;
+    qryCuponsExistentes_MesmaDatadata: TDateField;
+    qryCuponsExistentes_MesmaDatacupom: TIntegerField;
+    qryIncluirMapasECF: TtecQuery;
+    qryIncluirMapasECFTributados: TtecQuery;
+    qryCuponsExistentes_InferiorData: TtecQuery;
+    qryCuponsExistentes_InferiorDatacupom: TIntegerField;
+    qryCuponsExistentes_SuperiorData: TtecQuery;
+    qryCuponsExistentes_SuperiorDatacupom: TIntegerField;
+    qryReducoesZ: TtecQuery;
+    qryReducoesZDetalhes: TtecQuery;
+    qryReducoesZ_: TtecQuery;
+    qryReducoesZDetalhes_: TtecQuery;
+    qryDadosItemCupom: TtecQuery;
+    ACBrEAD1: TACBrEAD;
+    qryWebService: TtecQuery;
+    qryWebServicecodigo: TIntegerField;
+    qryWebServicetipo: TStringField;
+    qryWebServicedescricao: TStringField;
+    qryWebServicenumeroserie: TStringField;
+    qryWebServicearquivopfx: TStringField;
+    qryWebServiceproxyhost: TStringField;
+    qryWebServiceproxyport: TStringField;
+    qryWebServiceproxyuser: TStringField;
+    qryWebServiceproxypass: TStringField;
+    qryWebServicesenha: TStringField;
+    SaveDialog1: TSaveDialog;
+    qryReducoesZnumerofabricacao: TStringField;
+    qryReducoesZfilial: TIntegerField;
+    qryReducoesZmfadicional: TStringField;
+    qryReducoesZmodelodoecf: TStringField;
+    qryReducoesZnumerousuario: TIntegerField;
+    qryReducoesZcrz: TIntegerField;
+    qryReducoesZcoo: TIntegerField;
+    qryReducoesZcro: TIntegerField;
+    qryReducoesZdatamovimento: TDateField;
+    qryReducoesZdataemissao: TDateTimeField;
+    qryReducoesZhoraemissao: TDateTimeField;
+    qryReducoesZvendabrutadiaria: TFloatField;
+    qryReducoesZparametroincidenciaissqn: TStringField;
+    qryReducoesZcoo_inicial: TIntegerField;
+    qryReducoesZcoo_final: TIntegerField;
+    qryReducoesZtotalizadorgeral: TFloatField;
+    qryReducoesZhash_paf_registro_r02: TStringField;
+    qryReducoesZcodigo_ecf: TIntegerField;
+    qryReducoesZdatahoraenviofiscoreducaoz: TDateTimeField;
+    qryReducoesZreciboenviofiscoreducaoz: TStringField;
+    qryReducoesZDetalhesfilial: TIntegerField;
+    qryReducoesZDetalhesnumerousuario: TIntegerField;
+    qryReducoesZDetalhescro: TIntegerField;
+    qryReducoesZDetalhesdatamovimento: TDateField;
+    qryReducoesZDetalhestipototalizadorparcial: TStringField;
+    qryReducoesZDetalhesaliquota: TFloatField;
+    qryReducoesZDetalhesvaloracumulado: TFloatField;
+    qryReducoesZDetalheshash_paf_registro_r03: TStringField;
+    qryReducoesZDetalhesnumerofabricacao: TStringField;
+    dsrReducoesZ: TtecDataSource;
+    qryECFs: TtecQuery;
+    qryECFscodigo: TIntegerField;
+    qryECFsfilial: TIntegerField;
+    qryECFsmaquina: TStringField;
+    qryECFsintervencao: TStringField;
+    qryECFsserie: TStringField;
+    qryECFscniee: TStringField;
+    qryECFsmodelo: TIntegerField;
+    qryECFsmodelodescricao: TStringField;
+    qryECFsgrandetotal: TFloatField;
+    qryECFsvendabruta: TFloatField;
+    qryECFsmfadicional: TStringField;
+    qryECFstipo: TStringField;
+    qryECFsmarca: TStringField;
+    qryECFsdata_sb: TDateTimeField;
+    qryECFscnpj: TStringField;
+    qryECFsie: TStringField;
+    qryECFsversao_sb: TStringField;
+    qryECFshash_paf_registro_r01: TStringField;
+    qryECFsminas_legal: TBooleanField;
+    qryECFscupom_mania: TBooleanField;
+    qryECFsparaiba_legal: TBooleanField;
+    qryECFsnota_legal_df: TBooleanField;
+    qryReducaoNMovimentos: TtecQuery;
+    qryReducaoNMovimentosgerar: TBooleanField;
+    KAZip1: TKAZip;
+    ACBrBlocoX1: TACBrBlocoX;
+    qryReducoesZversao_sb: TStringField;
+    qryReducoesZsituacaoprocessamentocodigo: TIntegerField;
+    qryReducaoZResumoEnvioFisco: TtecQuery;
+    qryReducaoZResumoEnvioFiscodatamovimento: TDateField;
+    qryReducaoZResumoEnvioFiscodescricaodatamovimento: TStringField;
+    qryQtReducoaZPendentes: TtecQuery;
+    qryQtReducoaZPendentesqt: TLargeintField;
+    qryWebServiceambiente: TStringField;
+    qryIncluirfiscoestoquefiliais: TtecQuery;
+    qryIncluirfiscoestoqueprodutos: TtecQuery;
+    qryfiscoestoquefiliais: TtecQuery;
+    qryfiscoestoquefiliaisfilial: TIntegerField;
+    qryfiscoestoquefiliaisdataestoque: TDateField;
+    qryfiscoestoquefiliaisreciboenviofiscoestoque: TStringField;
+    qryfiscoestoquefiliaissituacaoprocessamentocodigo: TIntegerField;
+    qryfiscoestoquefiliaisdatahoraenviofiscoestoque: TDateTimeField;
+    qryfiscoestoqueprodutos: TtecQuery;
+    qryfiscoestoqueprodutosfilial: TIntegerField;
+    qryfiscoestoqueprodutosdataestoque: TDateField;
+    qryfiscoestoqueprodutoscodigoitem: TStringField;
+    qryfiscoestoqueprodutositem: TStringField;
+    qryfiscoestoqueprodutosunidade: TStringField;
+    qryfiscoestoqueprodutosqtdestoque: TFloatField;
+    qryfiscoestoqueprodutosvl_item: TFloatField;
+    qryfiscoestoqueprodutossituacaotributaria: TStringField;
+    qryfiscoestoqueprodutosaliquota: TFloatField;
+    qryQtEstoqueFiscoPendente: TtecQuery;
+    qryQtEstoqueFiscoPendenteqt: TLargeintField;
+    qryfiscoestoqueprodutosclassificacaofiscal: TStringField;
+    qryApagarfiscoestoquefiliais: TtecQuery;
+    qryfiscoestoquefiliaisResumoEnvioFisco: TtecQuery;
+    qryfiscoestoquefiliaisResumoEnvioFiscodataestoque: TDateField;
+    qryfiscoestoquefiliaisResumoEnvioFiscoDescricaoDataEstoque: TStringField;
+    qryfiscoestoquefiliaissituacaoprocessamentodescricao: TStringField;
+    qryfiscoestoquefiliaismensagemprocessamentodescricao: TStringField;
+    qryReducoesZsituacaoprocessamentodescricao: TStringField;
+    qryReducoesZmensagemprocessamentodescricao: TStringField;
+    qryDadosItemCupomfilial: TIntegerField;
+    qryDadosItemCupomnum_usu: TIntegerField;
+    qryDadosItemCupomcro: TIntegerField;
+    qryDadosItemCupomcrz: TIntegerField;
+    qryDadosItemCupomnum_fab: TStringField;
+    qryDadosItemCupomcod_item: TStringField;
+    qryDadosItemCupomclassificacaofiscal: TStringField;
+    qryDadosItemCupomdesc_item: TStringField;
+    qryDadosItemCupomqtde_item: TFloatField;
+    qryDadosItemCupomun_med: TStringField;
+    qryDadosItemCupomvl_unit: TFloatField;
+    qryDadosItemCupomdescto_item: TFloatField;
+    qryDadosItemCupomacres_item: TFloatField;
+    qryDadosItemCupomvl_canc: TFloatField;
+    qryDadosItemCupomcod_tot_parc: TStringField;
+    qryDadosItemCupomaliquota: TFloatField;
+    qryDadosItemCupomvl_tot_item: TFloatField;
+    dsrReducoesZDetalhes: TtecDataSource;
+    qryDadosItemCupomdatamovimento: TDateField;
+    qryRegistro_R02: TtecQuery;
+    qryRegistro_R02numerofabricacao: TStringField;
+    qryRegistro_R02filial: TIntegerField;
+    qryRegistro_R02mfadicional: TStringField;
+    qryRegistro_R02modelodoecf: TStringField;
+    qryRegistro_R02numerousuario: TIntegerField;
+    qryRegistro_R02crz: TIntegerField;
+    qryRegistro_R02coo: TIntegerField;
+    qryRegistro_R02cro: TIntegerField;
+    qryRegistro_R02datamovimento: TDateField;
+    qryRegistro_R02dataemissao: TDateTimeField;
+    qryRegistro_R02horaemissao: TDateTimeField;
+    qryRegistro_R02vendabrutadiaria: TFloatField;
+    qryRegistro_R02parametroincidenciaissqn: TStringField;
+    qryRegistro_R02coo_inicial: TIntegerField;
+    qryRegistro_R02coo_final: TIntegerField;
+    qryRegistro_R02totalizadorgeral: TFloatField;
+    qryRegistro_R02hash_paf_registro_r02: TStringField;
+    qryRegistro_R02codigo_ecf: TIntegerField;
+    qryRegistro_R02datahoraenviofiscoreducaoz: TDateTimeField;
+    qryRegistro_R02reciboenviofiscoreducaoz: TStringField;
+    qryRegistro_R02versao_sb: TStringField;
+    qryRegistro_R03: TtecQuery;
+    qryRegistro_R03filial: TIntegerField;
+    qryRegistro_R03numerousuario: TIntegerField;
+    qryRegistro_R03cro: TIntegerField;
+    qryRegistro_R03datamovimento: TDateField;
+    qryRegistro_R03tipototalizadorparcial: TStringField;
+    qryRegistro_R03aliquota: TFloatField;
+    qryRegistro_R03valoracumulado: TFloatField;
+    qryRegistro_R03hash_paf_registro_r03: TStringField;
+    qryRegistro_R03numerofabricacao: TStringField;
+    qryIncluir_Registro_R04: TtecQuery;
+    qryIncluir_Registro_R05: TtecQuery;
+    qryIncluir_Registro_R06: TtecQuery;
+    qryIncluir_Registro_R07: TtecQuery;
+    qryReducoesZorigeminformacao: TStringField;
+    qryReducoesZdatahorareenviofiscoreducaoz: TDateTimeField;
+    qryReducoesZsituacaoprocessamentooper: TIntegerField;
+    qryReducoesZsituacaoprocessamentooperdescricao: TStringField;
+    qryReducoesZmensagemprocessamentooperdescricao: TStringField;
+    qryfiscoestoquefiliaissituacaoprocessamentooper: TIntegerField;
+    qryfiscoestoquefiliaissituacaoprocessamentooperdescricao: TStringField;
+    qryfiscoestoquefiliaismensagemprocessamentooperdescricao: TStringField;
+    qryfiscoestoquefiliaisdatahorareenviofiscoestoque: TDateTimeField;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure ACBrEAD1GetChavePrivada(var Chave: String);
+    procedure qryReducaoZResumoEnvioFiscoCalcFields(DataSet: TDataSet);
+    procedure qryfiscoestoquefiliaisResumoEnvioFiscoCalcFields(
+      DataSet: TDataSet);
+    procedure qryWebServiceBeforeOpen(DataSet: TDataSet);
+  private
+    { Private declarations }
+    vdatahoraenviofiscoreducaoz : TDateTime;
+    procedure PreencherCabecalhoBlocoX(const AACBrBlocoX: TACBrBlocoX);
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    function GravarMapa(MapaECF: TtecMapaECF): Boolean;
+    function GravarReducaoZ(ReducoesZ: TTecReducoesZ): Boolean; overload;
+    function GravarReducaoZ(Gravar: boolean): Boolean; overload;
+
+    function BlocoXReducaoZ(NotificarSplash: TtecProcParametroString) {(OpcaoFonteDados: Byte; DataInicial, DataFinal: TDateTime; CrzInicial, crzFinal: Integer; AposREducaoZ: boolean = false)}: boolean;
+    function TransmitirReducoesZ(vNomeArquivo: String; NotificarSplash: TtecProcParametroString): Boolean;
+
+    function BlocoXEstoqueMesAnterior(NotificarSplash: TtecProcParametroString){(DataInicial, DataFinal: TDateTime; AposREducaoZ: boolean = false)}: boolean;
+    function TransmitirBlocoXEstoqueMesAnterior(vNomeArquivo: String; NotificarSplash: TtecProcParametroString): Boolean;
+
+
+  end;
+
+var
+  dtmGerarMapasECF: TdtmGerarMapasECF;
+
+implementation
+
+uses ACBrECF, ACBrBlocoX_ReducaoZ, ACBrBlocoX_WebServices, fmmensagemgrid,
+  pcnRetEnvBlocoX;
+
+{$R *.dfm}
+
+{ TdtmGerarMapasECF }
+
+procedure TdtmGerarMapasECF.PreencherCabecalhoBlocoX(const AACBrBlocoX: TACBrBlocoX);
+begin
+  qryWebService.close;
+  qryWebService.open;
+
+  with AACBrBlocoX do
+  begin
+
+    if qryWebServiceambiente.asString = 'taHomologacao' then
+      Configuracoes.WebServices.Ambiente := taHomologacao
+    else
+    if qryWebServiceambiente.asString = 'taProducao' then
+      Configuracoes.WebServices.Ambiente := taProducao;
+
+    if qryWebServicetipo.assTring = 'CAPICOM' then
+    begin
+      Configuracoes.Geral.SSLLib := libCapicom;
+      Configuracoes.Certificados.NumeroSerie := qryWebServiceNumeroSerie.asString;
+    end
+    else
+    if qryWebServicetipo.assTring = 'OPENSSL' then
+    begin
+      Configuracoes.Geral.SSLLib := libOpenSSL;
+      Configuracoes.Certificados.NumeroSerie := qryWebServiceNumeroSerie.asString;
+      Configuracoes.Certificados.ArquivoPFX := qryWebServicearquivopfx.asString;
+    end
+    else
+    if qryWebServicetipo.assTring = 'WINCRYPT' then
+    begin
+      Configuracoes.Geral.SSLLib := libWinCrypt;
+      Configuracoes.Certificados.NumeroSerie := qryWebServiceNumeroSerie.asString;
+    end;
+
+    Configuracoes.Certificados.Senha       := qryWebServiceSenha.asString;
+
+            {
+    Configuracoes.WebServices.ProxyHost := qryWebServiceProxyHost.asString;
+    Configuracoes.WebServices.ProxyPort := qryWebServiceProxyPort.asString;
+    Configuracoes.WebServices.ProxyUser := qryWebServiceProxyUser.asString;
+    Configuracoes.WebServices.ProxyPass := qryWebServiceProxyPass.asString;
+    }
+
+    Estabelecimento.Ie              := somentenumero(InscricaoEstadualFilialBase);
+    Estabelecimento.Cnpj            := CNPJFilialBase;
+    Estabelecimento.NomeEmpresarial := RazaoFilialBase;
+
+    PafECF.Versao                       := Parsistema.VersaoPAFECF;
+    PafECF.NumeroCredenciamento         := Parsistema.NumeroCredenciamento; {homologação '9160690001342' ou produção 1606900015251}
+
+    PafECF.NomeComercial                := Parsistema.NomeComercialSistema;
+    PafECF.NomeEmpresarialDesenvolvedor := ParSistema.NomeEmpresaDesenvolvedora;
+    PafECF.CnpjDesenvolvedor            := ParSistema.CNPJDesenvolvedora;
+{
+    PafECF.Versao                       := '01.01.01';
+    PafECF.NumeroCredenciamento         := '123456789012345';
+    PafECF.NomeComercial                := 'NOME COMERCIAL';
+    PafECF.NomeEmpresarialDesenvolvedor := 'NOME EMPRESARIAL DO DESENVOLVEDOR';
+    PafECF.CnpjDesenvolvedor            := '88888888888888';
+ }
+  end;
+end;
+
+
+function TdtmGerarMapasECF.GravarMapa(MapaECF: TtecMapaECF): Boolean;
+const
+  SQLDelete = 'delete from mapasecf where (filial,maquina,intervensao,data) in (%s)';
+var
+ i,j: integer;
+ NumeroCupom, maquina, intervensao: integer;
+ ListadeDatas, ListadeChaves, DataAnterior: String;
+begin
+  maquina := 0;
+  intervensao := 0;
+  NumeroCupom := 0;
+  ListadeDatas  := '';
+  ListadeChaves := '';
+  for i:=0 to high(MapaECF) do
+  begin
+    if maquina = 0 then
+      maquina := MapaECF[i].maquina;
+    if intervensao = 0 then
+      intervensao := MapaECF[i].intervensao;
+
+    ListadeDatas := ListadeDatas +
+      quotedstr(
+      FormatDateTime('yyyy-mm-dd',strtodate(MapaECF[i].data)))+',';
+    ListadeChaves := ListadeChaves +
+                     '(' + inttostr(FilialBase) + ',' +
+                           inttostr(MapaECF[i].maquina) + ',' +
+                           inttostr(MapaECF[i].intervensao) + ',' +
+                           quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(MapaECF[i].data))) +'),';
+  end;
+
+  if ListadeChaves<>'' then
+  begin
+    Delete(ListadeChaves,length(ListadeChaves),1);
+    qryApagarMapasECF.Sql[0] := format(SQLDelete,[ListadeChaves]);
+    qryApagarMapasECF.ExecSql;
+  end;
+
+  if ListadeDatas<>'' then
+  begin
+    Delete(ListadeDatas,length(ListadeDatas),1);
+    qryCuponsExistentes_MesmaData.MacroByName('ListadeDatas').AsString :=
+        'and df.data in ('+ListadeDatas+')';
+    ReFazConsulta(qryCuponsExistentes_MesmaData,[0,1,2],
+       [filialbase,
+        maquina,
+        intervensao]);
+  end;
+
+  DataAnterior:='';
+  for i:=0 to high(MapaECF) do
+  begin
+    if (DataAnterior='') or
+       (DataAnterior<>MapaECF[i].data) then
+    begin
+      DataAnterior := MapaECF[i].data;
+      if qryCuponsExistentes_MesmaData.Locate('data',strtodate(MapaECF[i].data),[]) then
+        NumeroCupom := qryCuponsExistentes_MesmaDatacupom.AsInteger
+      else
+      begin
+        ReFazConsulta(qryCuponsExistentes_InferiorData,[0,1,2,3],
+           [filialbase,
+            maquina,
+            intervensao,
+            MapaECF[i].Data]);
+        if not qryCuponsExistentes_InferiorData.IsEmpty then
+          NumeroCupom := qryCuponsExistentes_InferiorDatacupom.AsInteger + 1
+        else
+        begin
+          ReFazConsulta(qryCuponsExistentes_SuperiorData,[0,1,2,3],
+             [filialbase,
+              maquina,
+              intervensao,
+              MapaECF[i].Data]);
+          if not qryCuponsExistentes_SuperiorData.IsEmpty then
+            NumeroCupom := qryCuponsExistentes_InferiorDatacupom.AsInteger - 1
+        end;
+      end;
+
+      qryIncluirMapasECF.ParamByName('filial').AsInteger := filialbase;
+      qryIncluirMapasECF.ParamByName('maquina').AsInteger := MapaECF[i].maquina;
+      qryIncluirMapasECF.ParamByName('intervensao').AsInteger := MapaECF[i].intervensao;
+      qryIncluirMapasECF.ParamByName('data').AsDateTime := StrToDateTime(MapaECF[i].data);
+      qryIncluirMapasECF.ParamByName('cupomfinal').AsInteger := MapaECF[i].cpfinal;
+      qryIncluirMapasECF.ParamByName('reducoes').AsInteger := MapaECF[i].reducoes;
+      qryIncluirMapasECF.ParamByName('grandetotal').AsCurrency := MapaECF[i].gt;
+      qryIncluirMapasECF.ParamByName('cancelamentos').AsCurrency := MapaECF[i].tcanc;
+      qryIncluirMapasECF.ParamByName('descontos').AsCurrency := MapaECF[i].tdesc;
+      qryIncluirMapasECF.ParamByName('substituicao').AsCurrency := MapaECF[i].tsubs;
+      qryIncluirMapasECF.ParamByName('isento').AsCurrency := MapaECF[i].tisen;
+      qryIncluirMapasECF.ParamByName('naotributado').AsCurrency := MapaECF[i].tntrb;
+      qryIncluirMapasECF.ExecSql;
+
+      for j:=0 to high(MapaECF[i].ttrib) do
+      begin
+        qryIncluirMapasECFTributados.ParamByName('filial').AsInteger := filialbase;
+        qryIncluirMapasECFTributados.ParamByName('maquina').AsInteger := MapaECF[i].maquina;
+        qryIncluirMapasECFTributados.ParamByName('intervensao').AsInteger := MapaECF[i].intervensao;
+        qryIncluirMapasECFTributados.ParamByName('data').AsDateTime := StrToDateTime(MapaECF[i].data);
+        qryIncluirMapasECFTributados.ParamByName('aliquota').AsCurrency :=  MapaECF[i].ttrib[j].aliquota;
+        qryIncluirMapasECFTributados.ParamByName('base').AsCurrency := MapaECF[i].ttrib[j].base;
+        qryIncluirMapasECFTributados.ParamByName('valor').AsCurrency := MapaECF[i].ttrib[j].valor;
+        qryIncluirMapasECFTributados.ExecSql;
+      end;
+    end;
+  end;
+  result := Perpetrar([qryApagarMapasECF,qryIncluirMapasECF,qryIncluirMapasECFTributados]);
+end;
+
+function TdtmGerarMapasECF.GravarReducaoZ(
+  ReducoesZ: TTecReducoesZ): Boolean;
+var
+  I: integer;
+  DataString: string;
+  vCondicaoJaExistente: String;
+
+begin
+  result := true;
+
+  try
+    with ReducoesZ do
+    begin
+      if Datamovimento<>0 then
+      begin
+        vCondicaoJaExistente :=  format(' filial = %s and numerousuario = %s and cro = %s and numerofabricacao = %s and datamovimento = %s',
+               [inttostr(FilialBase), inttostr(Numerousuario), inttostr(CRO), quotedstr(Numerofabricacao), quotedstr(formatDateTime('yyyy-mm-dd', Datamovimento))]);
+
+        qryReducoesz.MacroByName('Condicao').asString := vCondicaoJaExistente;
+        qryReducoesz.open;
+
+        if qryReducoesz.recordcount <> 0 then
+        begin
+          MensagemAviso('Redução Z já cadastrada: ' + vCondicaoJaExistente);
+          qryReducoesz.MacroByName('Condicao').asString := '';
+          qryReducoesz.close;
+        end
+        else
+        begin
+          qryReducoesz.MacroByName('Condicao').asString := '';
+  {        qryReducoesz.open;}
+          qryReducoesZDetalhes.open;
+
+          qryReducoesz.Append;
+          qryReducoesZ.FieldByName('NumeroFabricacao').AsString  := Numerofabricacao;
+          qryReducoesZ.FieldByName('Filial'          ).AsInteger := FilialBase;
+          qryReducoesZ.FieldByName('MFadicional'     ).AsString  := MFadicional;
+          qryReducoesZ.FieldByName('ModelodoECF'     ).AsString  := ModeloECF;
+          qryReducoesZ.FieldByName('Numerousuario'   ).AsInteger := Numerousuario;
+          qryReducoesZ.FieldByName('CRZ'             ).AsInteger := CRZ;
+          qryReducoesZ.FieldByName('COO'             ).AsInteger := COO;
+          qryReducoesZ.FieldByName('COO_Inicial'     ).AsInteger := COO_Inicial;
+          qryReducoesZ.FieldByName('COO_Final'       ).AsInteger := COO_Final;
+          qryReducoesZ.FieldByName('CRO'             ).AsInteger := CRO;
+          qryReducoesZ.FieldByName('DataMovimento'   ).AsDateTime := Datamovimento;
+          qryReducoesZ.FieldByName('DataEmissao'     ).AsDateTime := Dataemissao;
+          qryReducoesZ.FieldByName('HoraEmissao'     ).AsDateTime := Dataemissao;
+          qryReducoesZ.FieldByName('VendaBrutaDiaria').AsCurrency := VendaBrutaDiaria;
+          qryReducoesZ.FieldByName('totalizadorgeral').AsCurrency := TotalizadorGeral;
+          qryReducoesZ.FieldByName('ParametroIncidenciaISSQN').AsString := ParametroincidenciaISSQN;
+          qryReducoesZorigeminformacao.asString := origeminformacao;
+
+
+          qryReducoesZreciboenviofiscoreducaoz.asvariant := null;
+
+          qryReducoesZdatahoraenviofiscoreducaoz.asvariant := null;
+          qryReducoesZsituacaoprocessamentocodigo.asvariant := null;
+          qryReducoesZsituacaoprocessamentodescricao.asvariant := null;
+          qryReducoesZmensagemprocessamentodescricao.asvariant := null;
+
+          qryReducoesZdatahorareenviofiscoreducaoz.asvariant := null;
+          qryReducoesZsituacaoprocessamentooper.asvariant := null;
+          qryReducoesZsituacaoprocessamentooperdescricao.asvariant := null;
+          qryReducoesZmensagemprocessamentooperdescricao.asvariant := null;
+
+
+          qryReducoesZ.FieldByName('hash_paf_registro_r02').AsString :=  ACBrEAD1.MD5FromString(Numerofabricacao +
+                                                                                               inttostr(CRZ) +
+                                                                                               inttostr(COO)+
+                                                                                               inttostr(CRO)+
+                                                                                               DateToStr(Datamovimento)+
+                                                                                               DateTimeToStr(Dataemissao)+
+                                                                                               DateTimeToStr(Horaemissao)+
+                                                                                               Trim(Trocar(Trocar(formatarvalor(VendaBrutaDiaria,2),'.',''),',','.')));
+          qryReducoesz.Post;
+  {  md5(numerofabricacao ||cast(crz as varchar)||cast(coo as varchar)||cast(cro as varchar)||cast(datamovimento as varchar)||cast(dataemissao as varchar)
+        ||cast(horaemissao as varchar)||cast(vendabrutadiaria as varchar))}
+
+
+          for I:=0 to high(DetalhesReducaoZ) do
+          begin
+            qryReducoesZDetalhes.Append;
+            qryReducoesZDetalhes.FieldByName('Filial').AsInteger := FilialBase;
+            qryReducoesZDetalhes.FieldByName('Numerousuario').AsInteger := Numerousuario;
+            qryReducoesZDetalhes.FieldByName('CRO').AsInteger := CRO;
+            qryReducoesZDetalhes.FieldByName('NumeroFabricacao').AsString  := Numerofabricacao;
+            qryReducoesZDetalhes.FieldByName('DataMovimento').AsDateTime := Datamovimento;
+
+            qryReducoesZDetalhes.FieldByName('TipoTotalizadorParcial').AsString := DetalhesReducaoZ[i].TipoTotalizadorParcial;
+            qryReducoesZDetalhes.FieldByName('aliquota').AsCurrency := DetalhesReducaoZ[i].aliquota;
+            qryReducoesZDetalhes.FieldByName('ValorAcumulado').AsCurrency := DetalhesReducaoZ[i].ValorAcumulado;
+            qryReducoesZDetalhes.FieldByName('hash_paf_registro_R03').AsString :=  ACBrEAD1.MD5FromString(Numerofabricacao +
+                                                                                               inttostr(Numerousuario) +
+                                                                                               datetostr(Datamovimento)+
+                                                                                               DetalhesReducaoZ[i].TipoTotalizadorParcial+
+                                                                                               Trim(Trocar(Trocar(formatarvalor(DetalhesReducaoZ[i].aliquota,2),'.',''),',','.'))+
+                                                                                               Trim(Trocar(Trocar(formatarvalor(DetalhesReducaoZ[i].ValorAcumulado,2),'.',''),',','.'))+
+                                                                                               IntToStr(CRZ));
+            qryReducoesZDetalhes.post;
+          end;
+        end;
+
+      end;
+    end;
+  except
+   on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      Result := false;
+    end;
+  end;
+end;
+
+function TdtmGerarMapasECF.GravarReducaoZ(Gravar: boolean): Boolean;
+begin
+  result := false;
+  if gravar then
+  begin
+    if Perpetrar([qryreducoesz, qryreducoeszdetalhes]) then
+    begin
+
+      qryRegistro_R02.Close;
+      qryRegistro_R02.Open;
+      CopiarRegistros(qryreducoesZ, qryRegistro_R02 );
+
+      qryRegistro_R03.Close;
+      qryRegistro_R03.Open;
+
+      CopiarRegistros(qryReducoesZDetalhes, qryRegistro_R03 );
+
+      qryIncluir_Registro_R04.ParamByName('filial').asinteger := qryReducoesZfilial.asinteger;
+      qryIncluir_Registro_R04.ParamByName('num_usu').asinteger := qryReducoesZnumerousuario.AsInteger;
+      qryIncluir_Registro_R04.ParamByName('cro').asinteger := qryReducoesZcro.AsInteger;
+      qryIncluir_Registro_R04.ParamByName('crz').asinteger := qryReducoesZcrz.AsInteger;
+      qryIncluir_Registro_R04.ParamByName('num_fab').AsString := qryReducoesZnumerofabricacao.AsString;
+      qryIncluir_Registro_R04.ExecSql;
+
+
+      qryIncluir_Registro_R05.ParamByName('filial').asinteger := qryReducoesZfilial.asinteger;
+      qryIncluir_Registro_R05.ParamByName('num_usu').asinteger := qryReducoesZnumerousuario.AsInteger;
+      qryIncluir_Registro_R05.ParamByName('cro').asinteger := qryReducoesZcro.AsInteger;
+      qryIncluir_Registro_R05.ParamByName('crz').asinteger := qryReducoesZcrz.AsInteger;
+      qryIncluir_Registro_R05.ParamByName('num_fab').AsString := qryReducoesZnumerofabricacao.AsString;
+      qryIncluir_Registro_R05.ExecSql;
+
+
+      qryIncluir_Registro_R06.ParamByName('filial').asinteger := qryReducoesZfilial.asinteger;
+      qryIncluir_Registro_R06.ParamByName('num_usu').asinteger := qryReducoesZnumerousuario.AsInteger;
+      qryIncluir_Registro_R06.ParamByName('cro').asinteger := qryReducoesZcro.AsInteger;
+      qryIncluir_Registro_R06.ParamByName('coo_inicial').asinteger := qryReducoesZcoo_inicial.AsInteger;
+      qryIncluir_Registro_R06.ParamByName('coo_final').asinteger := qryReducoesZcoo_final.AsInteger;
+      qryIncluir_Registro_R06.ParamByName('num_fab').AsString := qryReducoesZnumerofabricacao.AsString;
+      qryIncluir_Registro_R06.ExecSql;
+
+      qryIncluir_Registro_R07.ParamByName('filial').asinteger := qryReducoesZfilial.asinteger;
+      qryIncluir_Registro_R07.ParamByName('num_usu').asinteger := qryReducoesZnumerousuario.AsInteger;
+      qryIncluir_Registro_R07.ParamByName('cro').asinteger := qryReducoesZcro.AsInteger;
+      qryIncluir_Registro_R07.ParamByName('coo_inicial').asinteger := qryReducoesZcoo_inicial.AsInteger;
+      qryIncluir_Registro_R07.ParamByName('coo_final').asinteger := qryReducoesZcoo_final.AsInteger;
+      qryIncluir_Registro_R07.ParamByName('num_fab').AsString := qryReducoesZnumerofabricacao.AsString;
+      qryIncluir_Registro_R07.ExecSql;
+
+
+       //u1,a2,e2,e3,p2,j1,j2,r01..r07,
+
+
+      result := perpetrar([qryRegistro_R02, qryRegistro_R03, qryIncluir_Registro_R04, qryIncluir_Registro_R05,
+         qryIncluir_Registro_R06, qryIncluir_Registro_R07]);
+
+      
+      {
+      registro_r04 - Detalhe Cupom
+      registro_r05 - Dados Item Cupom
+      regsitro_r06 - Detalhe Demais Doctos
+      registro_r07 - FormasPagamentoECF
+      }
+
+      if result then
+      begin
+        result := AtualizaHashInclusaoExclusao;
+
+        if result then
+        begin
+          BlocoXReducaoZ(nil);
+          BlocoXEstoqueMesAnterior(nil);
+        end;
+      end;
+
+
+    end;
+  end;
+
+
+end;
+
+procedure TdtmGerarMapasECF.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\projetos.vcl\Log\logecf.sql') then
+    Listar.loadfromfile('c:\projetos.vcl\Log\logecf.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\projetos.vcl\Log\logecf.sql');
+  listar.free;
+end;
+
+function TdtmGerarMapasECF.BlocoXReducaoZ(NotificarSplash: TtecProcParametroString){(OpcaoFonteDados: Byte; DataInicial, DataFinal: TDateTime; CrzInicial, crzFinal: Integer; AposREducaoZ: boolean)}: boolean;
+var
+  vNomeArquivo, vNomeArquivoAssinado : String;
+  vMensagemReducaoZ: String;
+
+const
+  msgReducaoZPendente = 'HÁ %s ARQUIVOS COM INFORMAÇÕES DA REDUÇÃO Z DO PAF-ECF ' + chr(13) +
+                        'PENDENTES DE TRANSMISSÃO AO FISCO. O CONTRIBUINTE PODE TRANSMITIR ' + chr(13) +
+                        'OS ARQUIVOS PELO MENU FISCAL POR MEIO DO COMANDO "TRANSMITIR ARQUIVO REDUÇÃO Z DDMMAAAA."';
+
+  msgReducaoZPendenteAdicional = 'VERIFIQUE COM O FORNECEDOR DO PROGRAMA A SOLUÇÃO DA PENDÊNCIA';
+
+  msgReducaoZPendenteBloquear = 'A PARTIR DA 20ª TRANSMISSÃO PENDENTE, O SEU PROGRAMA SERÁ ' + chr(13) +
+                                'BLOQUEADO E SOMENTE SERÁ LIBERADO APÓS TODAS AS TRANSMISSÕES ' + chr(13) +
+                                'SEREM REALIZADAS. VERIFIQUE URGENTEMENTE COM O FORNECEDOR DO ' + chr(13) +
+                                'PROGRAMA A SOLUÇÃO DA PENDÊNCIA';
+begin
+  if Parsistema.TransmitirBlocoX then
+  begin
+
+    if parsistema.Data_Inicial_Envio_ao_Fisco <> 0 then
+    begin
+
+      try
+
+        Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Abrindo Tabelas: Reduções Z');
+
+        result := true;
+        vdatahoraenviofiscoreducaoz := DataHoraServidor;
+
+        qryReducoesZ.parambyname('DataInicial').asDateTime := parsistema.Data_Inicial_Envio_ao_Fisco;
+        qryReducoesZ.parambyname('filialbase').asInteger := FilialBase;
+        qryReducoesZ.macrobyname('Condicao').asString := ' rz.datamovimento >= :DataInicial '+
+                                                         ' and (rz.reciboenviofiscoreducaoz is null or '+
+                                                         ' (rz.reciboenviofiscoreducaoz is not null and '+
+                                                         '  rz.SituacaoProcessamentoCodigo in (0,2))) '+
+                                                         ' and rz.filial = :filialbase ';
+
+        qryReducoesZDetalhes.parambyname('DataInicial').asDateTime := parsistema.Data_Inicial_Envio_ao_Fisco;
+        qryReducoesZDetalhes.parambyname('filialbase').asInteger := FilialBase;
+        qryReducoesZDetalhes.macrobyname('Condicao').asString := qryReducoesZ.macrobyname('Condicao').asString;
+
+        qryDadosItemCupom.parambyname('DataInicial').asDateTime := parsistema.Data_Inicial_Envio_ao_Fisco;
+        qryDadosItemCupom.parambyname('filialbase').asInteger := FilialBase;
+        qryDadosItemCupom.macrobyname('Condicao').asString := qryReducoesZ.macrobyname('Condicao').asString;
+
+
+        qryReducoesZ.close;
+        qryReducoesZ.open;
+
+        qryReducoesZDetalhes.close;
+        qryReducoesZDetalhes.Open;
+
+        qryDadosItemCupom.close;
+        qryDadosItemCupom.open;
+
+
+
+        qryReducoesZ.first;
+    //    qryReducoesZ.last;
+
+         PreencherCabecalhoBlocoX(ACBrBlocoX1);
+
+        Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Gerando arquivo: Reduções Z');
+
+        while not qryReducoesZ.eof do
+        begin
+
+          if (qryECFsfilial.asinteger <> qryReducoesZfilial.asinteger) or
+             (qryECFsmaquina.Asinteger <> qryReducoesZnumerousuario.asinteger) or
+             (qryECFsserie.AsString <> qryReducoesZnumerofabricacao.asString) then
+          begin
+
+            refazConsultapornome(qryEcfs, ['filial','maquina','intervencao','serie'],
+             [qryReducoesZfilial.asinteger, qryReducoesZnumerousuario.asinteger, qryReducoesZcro.asinteger, qryReducoesZnumerofabricacao.asString]);
+
+            if qryEcfs.recordcount = 0 then
+            begin
+              MensagemErro('ECfs não encontrada '+
+               qryReducoesZfilial.asString +' '+
+               qryReducoesZnumerousuario.asString+' '+
+               qryReducoesZcro.asString+' '+
+               qryReducoesZnumerofabricacao.asString);
+              exit;
+            end;
+
+          end;
+
+
+          if qryReducoesZreciboenviofiscoreducaoz.IsNull then
+          begin
+
+            with ACBrBlocoX1 do
+            begin
+
+  //            ECF.NumeroCredenciamento
+              ECF.NumeroFabricacao := qryReducoesZnumerofabricacao.asString;
+              ECF.Tipo             := qryECFstipo.asString;
+              ECF.Marca            := qryECFsmarca.asString;
+              ECF.Modelo           := qryECFsmodelo.asString;
+              ECF.Versao           := qryECFsversao_sb.asString;
+              ECF.Caixa            := qryECFsmaquina.asString;
+
+              with ReducoesZ do
+              begin
+
+                ReducoesZ.DataReferencia   := qryReducoesZ.FieldByName('datamovimento'   ).AsDateTime;
+                ReducoesZ.DataHoraEmissaoReducaoZ  := qryReducoesZ.FieldByName('dataemissao').AsDateTime;
+
+                ReducoesZ.CRZ              := qryReducoesZ.FieldByName('crz'             ).AsInteger;
+                ReducoesZ.COO              := qryReducoesZ.FieldByName('coo'             ).AsInteger;
+                ReducoesZ.CRO              := qryReducoesZ.FieldByName('cro'             ).AsInteger;
+                ReducoesZ.VendaBrutaDiaria := qryReducoesZ.FieldByName('vendabrutadiaria').AsCurrency;
+                ReducoesZ.GT               := qryReducoesZ.FieldByName('totalizadorgeral').AsCurrency;
+
+                TotalizadoresParciais.Clear;
+
+                qryReducoesZDetalhes.first;
+                while not qryReducoesZDetalhes.eof do
+                begin
+
+                  if (qryReducoesZDetalhes.FieldByName('TipoTotalizadorParcial').AsString <> 'AT') and
+                     (qryReducoesZDetalhes.FieldByName('TipoTotalizadorParcial').AsString <> 'DT') and
+                     (qryReducoesZDetalhes.FieldByName('TipoTotalizadorParcial').AsString <> 'Can-T') and
+                     (qryReducoesZDetalhes.FieldByName('TipoTotalizadorParcial').AsString <> 'AS') and
+                     (qryReducoesZDetalhes.FieldByName('TipoTotalizadorParcial').AsString <> 'DS') and
+                     (qryReducoesZDetalhes.FieldByName('TipoTotalizadorParcial').AsString <> 'Can-S') and
+                     (qryReducoesZDetalhes.FieldByName('TipoTotalizadorParcial').AsString <> 'OPNF') then
+
+                  begin
+
+                    with TotalizadoresParciais.Add do
+                    begin
+
+                      Identificacao := qryReducoesZDetalhes.FieldByName('TipoTotalizadorParcial').AsString;
+                      Valor       := qryReducoesZDetalhes.FieldByName('ValorAcumulado').AsCurrency;
+
+                      qryDadosItemCupom.first;
+
+                      while not qryDadosItemCupom.eof do
+                      begin
+                        with Produtos.Add do
+                        begin
+
+                          Codigo.Tipo   := tpcProprio;
+                          Codigo.CodigoProprio := qryDadosItemCupom.fieldbyname('cod_item').asString;
+                          {Codigo.CodigoGTIN, CodigoCEST e CodigoNCMSH}
+                          if somentenumero(qryDadosItemCupom.FieldByName('classificacaofiscal').asString) <> '' then
+                            Codigo.CodigoNCMSH := somentenumero(qryDadosItemCupom.FieldByName('classificacaofiscal').asString)
+                           else
+                            Codigo.CodigoNCMSH := '00000000';
+
+                          Descricao      := qryDadosItemCupom.fieldbyname('desc_item').asString;
+                          Quantidade     := qryDadosItemCupom.fieldbyname('qtde_item').asInteger;
+                          Unidade        := qryDadosItemCupom.fieldbyname('un_med').asString;
+                          ValorUnitario  := qryDadosItemCupom.fieldbyname('vl_unit').ascurrency;
+                          ValorDesconto  := qryDadosItemCupom.fieldbyname('descto_item').ascurrency;
+                          ValorAcrescimo := qryDadosItemCupom.fieldbyname('acres_item').ascurrency;
+                          ValorCancelamento := qryDadosItemCupom.fieldbyname('vl_canc').ascurrency;
+                          ValorTotalLiquido := qryDadosItemCupom.fieldbyname('vl_tot_item').ascurrency;
+
+                        end;
+                        qryDadosItemCupom.next;
+                      end;
+
+                    end;
+                  end;
+                  qryReducoesZDetalhes.next;
+
+                end;
+              end;
+            end;
+          end;
+
+          vNomeArquivo := ExtractFilePath(Application.ExeName) + 'PAF-ECF';
+
+          if not DirectoryExists(vNomeArquivo) then
+            if not CreateDir(vNomeArquivo) then
+            raise Exception.Create('Impossível criar o diretório '+vNomeArquivo);
+
+          vNomeArquivo := vNomeArquivo + '\REDUCOES_Z';
+
+          if not DirectoryExists(vNomeArquivo) then
+            if not CreateDir(vNomeArquivo) then
+            raise Exception.Create('Impossível criar o diretório '+vNomeArquivo);
+
+                   {
+          vNomeArquivo := vNomeArquivo+'\'+preencheString(somentenumero(qryReducoesZversao_sb.asString),'0',6,false)+
+                                           preencheString(qryReducoesZ.FieldByName('NumeroFabricacao').AsString,'0',14,false)+'_'+
+                                           FormatDateTime('ddmmyyyy', qryReducoesZdatamovimento.asdatetime)+'_'+
+                                           qryReducoesZ.FieldByName('CRO'             ).AsString+'_'+
+                                           qryReducoesZ.FieldByName('CRZ'             ).AsString+'.xml';
+
+
+          Redução Z DDMMAAAA
+                   }
+                                               {
+          vNomeArquivo := vNomeArquivo+'\Redução Z'+
+                                           FormatDateTime('ddmmyyyy', qryReducoesZdatamovimento.asdatetime)+'_'+
+                                           qryReducoesZ.FieldByName('codigo_ecf').AsString+'_.xml';
+                                           }
+
+          vNomeArquivo := vNomeArquivo+'\Redução Z'+
+                                           FormatDateTime('ddmmyyyy', qryReducoesZdatamovimento.asdatetime)+'_'+
+                                           qryECFscodigo.AsString+'_.xml';
+
+          if qryReducoesZreciboenviofiscoreducaoz.IsNull then
+            ACBrBlocoX1.ReducoesZ.SaveToFile(vNomeArquivo, true);
+
+
+          if not TransmitirReducoesZ(vNomeArquivo, NotificarSplash ) then
+          begin
+            result := false;
+            break;
+          end;
+
+
+          qryReducoesZ.next;
+        end;
+
+        if result then
+          result := perpetrar([qryReducoesZ]);
+
+        refazConsultaporNome(qryReducaoZResumoEnvioFisco, ['datahoraenviofiscoreducaoz'],
+                      [vdatahoraenviofiscoreducaoz]);
+
+        if qryReducaoZResumoEnvioFisco.recordcount <> 0 then
+        begin
+          vMensagemReducaoZ := RetornarLista(qryReducaoZResumoEnvioFisco, qryReducaoZResumoEnvioFiscodescricaodatamovimento);
+          vMensagemReducaoZ := trocar(vMensagemReducaoZ, ',', chr(13));
+          MensagemAviso(vMensagemReducaoZ)
+
+                       {
+          frmMensagemGrid := TfrmMensagemGrid.Create(frmMensagemGrid);
+          frmMensagemGrid.Caption := 'Reduções Z enviadas ao fisco';
+          frmMensagemGrid.lblTitulo.Caption := 'Reduções Z enviadas ao fisco';
+          frmMensagemGrid.lblTExto.Caption := 'Na lista abaixo estão as Reduções Z Enviados ao fisco';
+          frmMensagemGrid.dbgMensagem.DataSource := dsrReducaoZResumoEnvioFisco;
+          frmMensagemGrid.ShowModal;
+          frmMensagemGrid.Free;
+          }
+        end;
+
+      finally
+
+    //    result := true;
+        vBloquearSistemaReducaoZPendente := false;
+
+        refazConsultaporNome(qryQtReducoaZPendentes, ['DataInicialEnvioAoFisco'],
+                      [ParSistema.Data_Inicial_Envio_ao_Fisco]);
+
+        if qryQtReducoaZPendentesqt.AsInteger <> 0 then
+        begin
+
+          vMensagemReducaoZ :=  format(msgReducaoZPendente, [qryQtReducoaZPendentesqt.AsString]);
+
+  {        if (qryQtReducoaZPendentesqt.AsInteger in [5..8]) then}
+
+          if (qryQtReducoaZPendentesqt.AsInteger >= 5)  then
+          begin
+            vMensagemReducaoZ := vMensagemReducaoZ + chr(13) + msgReducaoZPendenteAdicional;
+            MensagemAviso(vMensagemReducaoZ);
+          end
+
+              (*
+          else
+          if (qryQtReducoaZPendentesqt.AsInteger >= 9) then
+          begin
+          {  vBloquearSistemaReducaoZPendente := qryQtReducoaZPendentesqt.AsInteger > 19; }
+
+            vBloquearSistemaReducaoZPendente := False;
+
+            vMensagemReducaoZ := vMensagemReducaoZ + chr(13) + msgReducaoZPendenteBloquear;
+            if vBloquearSistemaReducaoZPendente then
+              MensagemAviso(vMensagemReducaoZ)
+            else
+              MensagemErro(vMensagemReducaoZ);
+          end
+          *)
+          else
+            MensagemAviso(vMensagemReducaoZ);
+        end;
+
+      end;
+
+    end;
+
+  end;
+
+end;
+
+function TdtmGerarMapasECF.BlocoXEstoqueMesAnterior(NotificarSplash: TtecProcParametroString) {(DataInicial, DataFinal: TDateTime; AposREducaoZ: boolean)}: boolean;
+var
+  vNomeArquivo : String;
+  vMensagem: String;
+
+const
+  msgReducaoZPendente = 'HÁ %s ARQUIVOS COM INFORMAÇÕES DO ESTOQUE MENSAL DO ' + chr(13) +
+                        'ESTABELECIMENTO PENDENTES DE TRANSMISSÃO AO FISCO. O CONTRIBUINTE ' + chr(13) +
+                        'PODE TRANSMITIR OS ARQUIVOS PELO MENU FISCAL POR MEIO DO COMANDO ' + chr(13) +
+                        '"TRANSMITIR ARQUIVO ESTOQUE MENSAL MMAAAA"';
+
+  msgReducaoZPendenteAdicional = 'VERIFIQUE COM O FORNECEDOR DO PROGRAMA A SOLUÇÃO DA PENDÊNCIA';
+
+  msgReducaoZPendenteBloquear = 'A PARTIR DA 5ª TRANSMISSÃO PENDENTE, O SEU PROGRAMA SERÁ ' + chr(13) +
+                                'BLOQUEADO E SOMENTE SERÁ LIBERADO APÓS TODAS AS TRANSMISSÕES ' + chr(13) +
+                                'SEREM REALIZADAS. VERIFIQUE URGENTEMENTE COM O FORNECEDOR DO ' + chr(13) +
+                                'PROGRAMA A SOLUÇÃO DA PENDÊNCIA.';
+
+begin
+  if Parsistema.TransmitirBlocoX then
+  begin
+
+    if parsistema.Data_Inicial_Envio_ao_Fisco <> 0 then
+    begin
+      try
+
+        result := true;
+        Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Abrindo Tabelas: Estoque fisco');
+
+        vdatahoraenviofiscoreducaoz := DataHoraServidor;
+
+
+        qryIncluirfiscoestoquefiliais.parambyname('filial').AsInteger := filialbase;
+        if formatdatetime('dd/mm/yyyy',parsistema.Data_Inicial_Envio_ao_Fisco) = '30/12/1899' then
+          qryIncluirfiscoestoquefiliais.parambyname('Data_Inicial_Envio_ao_Fisco').asDateTime := dataservidor
+        else
+          qryIncluirfiscoestoquefiliais.parambyname('Data_Inicial_Envio_ao_Fisco').asDateTime := parsistema.Data_Inicial_Envio_ao_Fisco;
+
+        qryApagarfiscoestoquefiliais.close;
+        qryApagarfiscoestoquefiliais.open;
+        perpetrar([qryApagarfiscoestoquefiliais]);
+
+        qryIncluirfiscoestoquefiliais.close;
+        qryIncluirfiscoestoquefiliais.open;
+        perpetrar([qryIncluirfiscoestoquefiliais]);
+
+        qryfiscoestoquefiliais.parambyname('filial').asinteger := filialbase;
+        qryfiscoestoquefiliais.parambyname('Data_Inicial_Envio_ao_Fisco').asDateTime := qryIncluirfiscoestoquefiliais.parambyname('Data_Inicial_Envio_ao_Fisco').asDateTime;
+
+
+        qryfiscoestoquefiliais.close;
+        qryfiscoestoquefiliais.Open;
+
+        PreencherCabecalhoBlocoX(ACBrBlocoX1);
+
+
+        with ACBrBlocoX1 do
+        begin
+
+          qryfiscoestoquefiliais.first;
+          while not qryfiscoestoquefiliais.eof do
+          begin
+            result := true;
+
+
+
+            if qryfiscoestoquefiliaisreciboenviofiscoestoque.IsNull then
+            begin
+
+              RefazConsultaPorNome(qryfiscoestoqueprodutos,
+                                  ['filial','dataestoque'],
+                                  [qryfiscoestoquefiliaisfilial.asinteger,
+                                   qryfiscoestoquefiliaisdataestoque.asDatetime]);
+
+              if qryfiscoestoqueprodutos.RecordCount = 0 then
+              begin
+                qryIncluirfiscoestoqueprodutos.ParamByName('filial').asinteger := qryfiscoestoquefiliaisfilial.asinteger;
+                qryIncluirfiscoestoqueprodutos.ParamByName('datafinal').asDateTime := qryfiscoestoquefiliaisdataestoque.asDateTime;
+                qryIncluirfiscoestoqueprodutos.close;
+                qryIncluirfiscoestoqueprodutos.open;
+                perpetrar([qryIncluirfiscoestoqueprodutos]);
+
+                RefazConsultaPorNome(qryfiscoestoqueprodutos,
+                                    ['filial','dataestoque'],
+                                    [qryfiscoestoquefiliaisfilial.asinteger,
+                                     qryfiscoestoquefiliaisdataestoque.asDatetime]);
+
+              end;
+
+
+              with Estoque do
+              begin
+
+                ACBrBlocoX1.Estoque.Produtos.clear;
+
+
+                qryfiscoestoqueprodutos.first;
+                while not qryfiscoestoqueprodutos.eof do
+                begin
+                  ACBrBlocoX1.Estoque.DataReferencia := qryfiscoestoquefiliaisdataestoque.asDateTime;
+                  with Produtos.Add do
+                  begin
+                    Codigo.Tipo             := tpcProprio;
+                    Codigo.CodigoProprio    := qryfiscoestoqueprodutoscodigoitem.ASsTRING;
+
+                    {Codigo.CodigoGTIN, CodigoCEST e CodigoNCMSH}
+                    if somentenumero(qryfiscoestoqueprodutosclassificacaofiscal.asString) <> '' then
+                      Codigo.CodigoNCMSH := somentenumero(qryfiscoestoqueprodutosclassificacaofiscal.asString)
+                     else
+                      Codigo.CodigoNCMSH := '00000000';
+
+                    Descricao               := qryfiscoestoqueprodutositem.asString;
+                    ValorUnitario           := qryfiscoestoqueprodutosvl_item.asCurrency;
+                    Ippt                    := ipptTerceiros;
+
+                    if qryfiscoestoqueprodutossituacaotributaria.asString = 'I' then
+                      SituacaoTributaria      := stIsento
+                    else
+                    if qryfiscoestoqueprodutossituacaotributaria.asString = 'N' then
+                      SituacaoTributaria      := stNaoTributado
+                    else
+                    if qryfiscoestoqueprodutossituacaotributaria.asString = 'F' then
+                      SituacaoTributaria      := stSubstTributaria
+                    else
+                    if qryfiscoestoqueprodutossituacaotributaria.asString = 'T' then
+                      SituacaoTributaria      := stTributado;
+
+                    Aliquota                := qryfiscoestoqueprodutosaliquota.asCurrency;
+                    Unidade                 := qryfiscoestoqueprodutosunidade.asString;
+                    Quantidade              := qryfiscoestoqueprodutosqtdestoque.asInteger;
+                    IndicadorArredondamento := False;
+                  end;
+
+                  qryfiscoestoqueprodutos.next;
+                end;
+              end;
+            end;
+
+
+
+            vNomeArquivo := ExtractFilePath(Application.ExeName) + 'PAF-ECF';
+
+            if not DirectoryExists(vNomeArquivo) then
+              if not CreateDir(vNomeArquivo) then
+               raise Exception.Create('Impossível criar o diretório '+vNomeArquivo);
+
+            vNomeArquivo := vNomeArquivo + '\FISCO-ESTOQUE';
+
+            if not DirectoryExists(vNomeArquivo) then
+              if not CreateDir(vNomeArquivo) then
+              raise Exception.Create('Impossível criar o diretório '+vNomeArquivo);
+
+              {
+              Estoque Mensal MMAAAA
+              }
+            vNomeArquivo := vNomeArquivo+'\'+'Estoque Mensal '+
+                                             formatdatetime('MMYYYY',qryfiscoestoquefiliaisdataestoque.asDateTime)+'.xml';
+
+            Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Gerando arquivo: Estoque Fisco'+ExtractFileName(vNomeArquivo) );
+
+            if qryfiscoestoquefiliaisreciboenviofiscoestoque.IsNull then
+              ACBrBlocoX1.Estoque.SaveToFile(vNomeArquivo, true);
+
+            if not TransmitirBlocoXEstoqueMesAnterior(vNomeArquivo, NotificarSplash) then
+            begin
+              result := false;
+              break;
+            end;
+
+            qryfiscoestoquefiliais.next;
+
+          end;
+        end;
+
+
+        if result then
+          result := perpetrar([qryfiscoestoquefiliais]);
+
+        refazConsultaporNome(qryfiscoestoquefiliaisResumoEnvioFisco, ['datahoraenviofiscoestoque'],
+                      [vdatahoraenviofiscoreducaoz]);
+
+        if qryfiscoestoquefiliaisResumoEnvioFisco.recordcount <> 0 then
+        begin
+
+          vMensagem := RetornarLista(qryfiscoestoquefiliaisResumoEnvioFisco, qryfiscoestoquefiliaisResumoEnvioFiscoDescricaoDataEstoque);
+          vMensagem := trocar(vMensagem, ',', chr(13));
+
+          MensagemAviso(vMensagem)
+        end;
+
+      finally
+
+        vBloquearSistemaEstoqueFisco := false;
+
+        refazConsultaporNome(qryQtEstoqueFiscoPendente, ['DataInicialEnvioAoFisco'],
+                      [ParSistema.Data_Inicial_Envio_ao_Fisco]);
+
+        if qryQtEstoqueFiscoPendenteqt.AsInteger <> 0 then
+        begin
+
+          vMensagem :=  format(msgReducaoZPendente, [qryQtEstoqueFiscoPendenteqt.AsString]);
+
+  {        if (qryQtEstoqueFiscoPendenteqt.AsInteger in [2..3]) then}
+          if (qryQtEstoqueFiscoPendenteqt.AsInteger >= 2) then
+          begin
+            vMensagem := vMensagem + chr(13) + msgReducaoZPendenteAdicional;
+            MensagemAviso(vMensagem);
+          end
+          else
+
+          (*
+          if (qryQtEstoqueFiscoPendenteqt.AsInteger >= 4) then
+          begin
+
+            {
+            vBloquearSistemaEstoqueFisco := qryQtEstoqueFiscoPendenteqt.AsInteger > 5; }
+
+
+            vBloquearSistemaEstoqueFisco := false;
+
+            vMensagem := vMensagem + chr(13) + msgReducaoZPendenteBloquear;
+            if vBloquearSistemaEstoqueFisco then
+              MensagemAviso(vMensagem)
+            else
+              MensagemErro(vMensagem);
+          end
+          else
+          *)
+            MensagemAviso(vMensagem);
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TdtmGerarMapasECF.ACBrEAD1GetChavePrivada(var Chave: String);
+begin
+  inherited;
+  chave := Private_VK_TecSOFTKey;
+end;
+
+
+constructor TdtmGerarMapasECF.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+function TdtmGerarMapasECF.TransmitirReducoesZ(
+  vNomeArquivo: String; NotificarSplash: TtecProcParametroString): Boolean;
+
+var
+  RespostaValidacao, NovoArquivo: String;
+  Arquivo: TStringList;
+  vNumeroRecibo: String;
+  vArqResp: String;
+
+  (*
+
+  REVER O ENVIO DO BLOCO X - ATUALIZAÇÃO DO ACBR EN 2020-02-07
+
+  *)
+
+  function Consultar(nrRecibo: String): boolean;
+  begin
+    result := true;
+
+    ACBrBlocoX1.ConsultarProcessamentoArquivo.Recibo := Trim(nrRecibo);
+    ACBrBlocoX1.ConsultarProcessamentoArquivo.RemoverEncodingXMLAssinado := True;
+    ACBrBlocoX1.ConsultarProcessamentoArquivo.GerarXML(True);
+
+                         {
+    ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.ArqResp :=
+                extractfilepath(vNomeArquivo)+ '\Recibos – Bloco X\'+
+                       trocar(extractfilename(vNomeArquivo), '.xml', '_ConsultarBlocoX');
+                       }
+
+     Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - consultando situação Reduções Z '+extractfilename(vNomeArquivo));
+
+     {
+    ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Clear;
+    ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Recibo := nrRecibo;
+    }
+
+    vArqResp := extractfilepath(vNomeArquivo)+ 'Recibos – Bloco X\'+
+                trocar(extractfilename(vNomeArquivo), '.xml', '_ConsultarBlocoX');
+
+
+    ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.ArqResp := vArqResp;
+    ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.XML := ACBrBlocoX1.ConsultarProcessamentoArquivo.XMLAssinado;
+    ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.UsarCData := True;
+
+
+    if ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Executar then
+    begin
+                  {
+      if (qryReducoesZsituacaoprocessamentocodigo.AsInteger <> ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoProcCod) or
+         (qryReducoesZSituacaoProcessamentoDescricao.AsString <> ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoProcStr) or
+         (qryReducoesZmensagemprocessamentodescricao.AsString <> ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Mensagem) or
+
+         (qryReducoesZsituacaoprocessamentooper.AsInteger <> ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoOperCod) or
+         (qryReducoesZsituacaoprocessamentooperdescricao.AsString <> ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoOperStr) or
+         (qryReducoesZmensagemprocessamentooperdescricao.AsString <> ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Mensagem) or
+
+         qryReducoesZreciboenviofiscoreducaoz.isnull or
+         qryReducoesZsituacaoprocessamentocodigo.isnull or
+         qryReducoesZsituacaoprocessamentooper.isnull then
+
+
+      begin
+      }
+        qryReducoesZ.edit;
+
+        if qryReducoesZreciboenviofiscoreducaoz.isnull then
+          qryReducoesZreciboenviofiscoreducaoz.AsString := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.recibo;
+
+        qryReducoesZsituacaoprocessamentocodigo.AsInteger := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoProcCod;
+
+        if ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoProcStr <> '' then
+          qryReducoesZSituacaoProcessamentoDescricao.AsString := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoProcStr;
+
+        if ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Mensagem <> '' then
+          qryReducoesZmensagemprocessamentodescricao.AsString := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Mensagem;
+
+
+        qryReducoesZsituacaoprocessamentooper.AsInteger := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoOperCod;
+        qryReducoesZsituacaoprocessamentooperdescricao.AsString := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoOperStr;
+        qryReducoesZmensagemprocessamentooperdescricao.AsString := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Mensagem;
+
+        if vdatahoraenviofiscoreducaoz <> 0 then
+          qryReducoesZdatahorareenviofiscoreducaoz.asDatetime := vdatahoraenviofiscoreducaoz;
+
+        qryReducoesZ.post;
+
+
+//        TACBrDFe(ACBrBlocoX1.WebServices).Gravar()
+
+        {
+      end;
+      }
+      
+    end
+    else
+    begin
+      result := false;
+
+      raise Exception.Create(
+        'Não foi possível transmitir o arquivo!' + sLineBreak +
+        ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.RetWS);
+    end;
+
+  end;
+
+
+
+  function Enviar: boolean;
+  begin
+    result := true;
+
+    if not DirectoryExists(extractfilepath(vNomeArquivo) + 'Recibos – Bloco X') then
+      if not CreateDir(extractfilepath(vNomeArquivo) + 'Recibos – Bloco X') then
+        raise Exception.Create('Impossível criar o diretório '+extractfilepath(vNomeArquivo) + 'Recibos – Bloco X');
+
+    Arquivo := TStringList.Create;
+    try
+      Arquivo.LoadFromFile(vNomeArquivo);
+
+      Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Validando xml: Reduções Z '+extractfilename(vNomeArquivo));
+
+  //    ACBrBlocoX1.WebServices.ValidarBlocoX.ArqResp := trocar(vNomeArquivo, '.xml', '_ValidarBlocoX');
+
+  {DEMORA MUITO TEMPO }
+
+      ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.Clear;
+
+      NovoArquivo := ChangeFileExt(vNomeArquivo, '.zip');
+
+      KAZip1.CreateZip(NovoArquivo);
+      KAZip1.FileName := NovoArquivo;
+      KAZip1.Open(NovoArquivo);
+      KAZip1.AddFile(vNomeArquivo);
+      KAZip1.Close;
+
+//      ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.XML := Arquivo.Text;
+      ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.XMLCompactado := EncodeBase64(LoadFileToAnsiStr(NovoArquivo));
+
+      vArqResp := extractfilepath(vNomeArquivo)+ 'Recibos – Bloco X\'+
+                  trocar(extractfilename(vNomeArquivo), '.xml', '_ConsultarBlocoX');
+
+
+      ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.ArqResp := vArqResp;
+
+
+{
+      ACBrBlocoX1.WebServices.ValidarBlocoX.Clear;
+      ACBrBlocoX1.WebServices.ValidarBlocoX.XML := Arquivo.Text;
+}
+
+      if ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.Executar then
+      begin
+        qryReducoesZ.edit;
+        qryReducoesZreciboenviofiscoreducaoz.AsString := ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.Recibo;
+        qryReducoesZsituacaoprocessamentocodigo.AsInteger := ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.SituacaoProcCod;
+
+        qryReducoesZSituacaoProcessamentoDescricao.AsString := ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.SituacaoProcStr;
+        qryReducoesZmensagemprocessamentodescricao.AsString := ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.Mensagem;
+
+        if vdatahoraenviofiscoreducaoz <> 0 then
+          qryReducoesZdatahoraenviofiscoreducaoz.asDatetime := vdatahoraenviofiscoreducaoz;
+
+        qryReducoesZ.post;
+
+      end
+      else
+      begin
+
+        result := false;
+
+        raise Exception.Create(
+          'Não foi possível transmitir o arquivo!' + sLineBreak +
+          ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.RetWS);
+
+      end;
+
+
+
+//      ACBrBlocoX1.WebServices.ValidarBlocoX.Executar;
+//      RespostaValidacao := ACBrBlocoX1.WebServices.ValidarBlocoX.RetWS;
+
+(*
+      RespostaValidacao := ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.RetWS;
+
+
+
+      if Pos('VALIDADO COM SUCESSO', UpperCase(RespostaValidacao)) > 0 then
+      begin
+
+  //      ShowMessage(RespostaValidacao);
+
+        Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Transmitindo xml: Reduções Z '+extractfilename(vNomeArquivo));
+
+        ACBrBlocoX1.WebServices.EnviarBlocoX.ArqResp := extractfilepath(vNomeArquivo)+ 'Recibos – Bloco X\'+
+                   trocar(extractfilename(vNomeArquivo), '.xml', '_EnviarBlocoX');
+
+    //      ACBrBlocoX1.WebServices.EnviarBlocoX.RetWS
+
+        ACBrBlocoX1.WebServices.EnviarBlocoX.Clear;
+        ACBrBlocoX1.WebServices.EnviarBlocoX.XML := Arquivo.Text;
+
+        Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Gerando zip do xml: Reduções Z '+extractfilename(vNomeArquivo));
+
+        NovoArquivo := ChangeFileExt(vNomeArquivo, '.zip');
+
+        KAZip1.CreateZip(NovoArquivo);
+        KAZip1.FileName := NovoArquivo;
+        KAZip1.Open(NovoArquivo);
+        KAZip1.AddFile(vNomeArquivo);
+        KAZip1.Close;
+
+        ACBrBlocoX1.WebServices.EnviarBlocoX.XMLZipado := EncodeBase64(LoadFileToAnsiStr(NovoArquivo));
+
+        Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Transmitindo zip do xml: Reduções Z '+extractfilename(vNomeArquivo));
+
+        if ACBrBlocoX1.WebServices.EnviarBlocoX.Executar then
+        begin
+
+          if (pos('Não gerado', ACBrBlocoX1.WebServices.EnviarBlocoX.Recibo)<>0) and
+             (pos('O número do recibo é', ACBrBlocoX1.WebServices.EnviarBlocoX.Mensagem)<>0) then
+          begin
+            vNumeroRecibo := copy(ACBrBlocoX1.WebServices.EnviarBlocoX.Mensagem,
+                pos('O número do recibo é',ACBrBlocoX1.WebServices.EnviarBlocoX.Mensagem)+21, 36);
+
+            result := Consultar(vNumeroRecibo);
+
+
+          end
+          else
+          begin
+            qryReducoesZ.edit;
+            qryReducoesZreciboenviofiscoreducaoz.AsString := ACBrBlocoX1.WebServices.EnviarBlocoX.Recibo;
+            qryReducoesZsituacaoprocessamentocodigo.AsInteger := ACBrBlocoX1.WebServices.EnviarBlocoX.SituacaoProcCod;
+
+            qryReducoesZSituacaoProcessamentoDescricao.AsString := ACBrBlocoX1.WebServices.EnviarBlocoX.SituacaoProcStr;
+            qryReducoesZmensagemprocessamentodescricao.AsString := ACBrBlocoX1.WebServices.EnviarBlocoX.Mensagem;
+
+            qryReducoesZ.post;
+          end;
+        end
+        else
+        begin
+          result := false;
+
+          raise Exception.Create(
+            'Não foi possível transmitir o arquivo!' + sLineBreak +
+            ACBrBlocoX1.WebServices.EnviarBlocoX.RetWS);
+        end;
+
+      end
+      else
+      begin
+        result := false;
+        raise Exception.Create(RespostaValidacao);
+      end;
+      *)
+
+    finally
+      Arquivo.Free;
+    end;
+  end;
+
+
+begin
+  result := true;
+
+  if qryReducoesZreciboenviofiscoreducaoz.AsString <> '' then
+    result := Consultar(qryReducoesZreciboenviofiscoreducaoz.AsString)
+  else
+    result := Enviar;
+end;
+
+procedure TdtmGerarMapasECF.qryReducaoZResumoEnvioFiscoCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryReducaoZResumoEnvioFiscodescricaodatamovimento.AsString :=
+     'Arquivo "Redução Z '+formatdatetime('ddmmyyyy', qryReducaoZResumoEnvioFiscodatamovimento.asDateTime)+
+     '" transmitido com sucesso ';
+
+end;
+
+function TdtmGerarMapasECF.TransmitirBlocoXEstoqueMesAnterior(
+  vNomeArquivo: String; NotificarSplash: TtecProcParametroString): Boolean;
+var
+  RespostaValidacao, NovoArquivo: String;
+  Arquivo: TStringList;
+  vNumeroRecibo: String;
+  vArqResp : String;
+
+
+//  REVER BLOCO X ACBR mudou...2020-02-07
+
+(*
+  function Consultar(NrRecibo: String): boolean;
+  begin
+    result := true;
+
+    Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - consultando situação Estoque Fisco '+extractfilename(vNomeArquivo));
+
+    ACBrBlocoX1.WebServices.ConsultarBlocoX.ArqResp :=
+                extractfilepath(vNomeArquivo)+ 'Recibos – Bloco X\'+
+                       trocar(extractfilename(vNomeArquivo), '.xml', '_ConsultarBlocoX');
+
+    ACBrBlocoX1.WebServices.ConsultarBlocoX.Recibo := NrRecibo;
+
+    if ACBrBlocoX1.WebServices.ConsultarBlocoX.Executar then
+    begin
+      if (qryfiscoestoquefiliaissituacaoprocessamentocodigo.AsInteger <> ACBrBlocoX1.WebServices.ConsultarBlocoX.SituacaoProcCod) or
+          qryfiscoestoquefiliaisreciboenviofiscoestoque.isnull or
+          qryfiscoestoquefiliaissituacaoprocessamentocodigo.isnull or
+         (qryfiscoestoquefiliaisSituacaoProcessamentoDescricao.AsString <> ACBrBlocoX1.WebServices.ConsultarBlocoX.BlocoXRetorno.SituacaoProcStr) or
+         (qryfiscoestoquefiliaismensagemprocessamentodescricao.AsString <> ACBrBlocoX1.WebServices.ConsultarBlocoX.BlocoXRetorno.Mensagem) then
+      begin
+        qryfiscoestoquefiliais.edit;
+        if qryfiscoestoquefiliaisreciboenviofiscoestoque.isnull then
+          qryfiscoestoquefiliaisreciboenviofiscoestoque.asString :=  ACBrBlocoX1.WebServices.ConsultarBlocoX.Recibo;
+
+        qryfiscoestoquefiliaissituacaoprocessamentocodigo.AsInteger := ACBrBlocoX1.WebServices.ConsultarBlocoX.SituacaoProcCod;
+        qryfiscoestoquefiliaisSituacaoProcessamentoDescricao.AsString := ACBrBlocoX1.WebServices.ConsultarBlocoX.BlocoXRetorno.SituacaoProcStr;
+        qryfiscoestoquefiliaismensagemprocessamentodescricao.AsString := ACBrBlocoX1.WebServices.ConsultarBlocoX.BlocoXRetorno.Mensagem;
+
+        qryfiscoestoquefiliais.post;
+      end;
+    end
+    else
+    begin
+      result := false;
+
+      raise Exception.Create(
+        'Não foi possível transmitir o arquivo!' + sLineBreak +
+        ACBrBlocoX1.WebServices.ConsultarBlocoX.RetWS);
+    end;
+  end;
+  *)
+
+  function Consultar(nrRecibo: String): boolean;
+  begin
+    result := true;
+
+    ACBrBlocoX1.ConsultarProcessamentoArquivo.Recibo := Trim(nrRecibo);
+    ACBrBlocoX1.ConsultarProcessamentoArquivo.RemoverEncodingXMLAssinado := True;
+    ACBrBlocoX1.ConsultarProcessamentoArquivo.GerarXML(True);
+
+    Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - consultando situação Estoque Fisco '+extractfilename(vNomeArquivo));
+
+    ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.XML := ACBrBlocoX1.ConsultarProcessamentoArquivo.XMLAssinado;
+    ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.UsarCData := True;
+
+    vArqResp := extractfilepath(vNomeArquivo)+ 'Recibos – Bloco X\'+
+                trocar(extractfilename(vNomeArquivo), '.xml', '_ConsultarBlocoX');
+
+
+    ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.ArqResp := vArqResp;
+
+
+
+    if ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Executar then
+    begin
+                {
+      if (qryfiscoestoquefiliaissituacaoprocessamentocodigo.AsInteger <> ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoProcCod) or
+         (qryfiscoestoquefiliaisSituacaoProcessamentoDescricao.AsString <> ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoProcStr) or
+         (qryfiscoestoquefiliaismensagemprocessamentodescricao.AsString <> ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Mensagem) or
+
+         (qryfiscoestoquefiliaissituacaoprocessamentooper.AsInteger <> ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoOperCod) or
+         (qryfiscoestoquefiliaissituacaoprocessamentooperdescricao.AsString <> ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoOperStr) or
+         (qryfiscoestoquefiliaismensagemprocessamentooperdescricao.AsString <> ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Mensagem) or
+
+          qryfiscoestoquefiliaisreciboenviofiscoestoque.isnull or
+          qryfiscoestoquefiliaissituacaoprocessamentocodigo.isnull or
+          qryfiscoestoquefiliaissituacaoprocessamentooper.isnull then
+
+      begin
+      }
+
+        qryfiscoestoquefiliais.edit;
+        if qryfiscoestoquefiliaisreciboenviofiscoestoque.isnull then
+          qryfiscoestoquefiliaisreciboenviofiscoestoque.asString :=  ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.recibo;
+
+        qryfiscoestoquefiliaissituacaoprocessamentocodigo.AsInteger := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoProcCod;
+
+        if ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoProcStr <> '' then
+          qryfiscoestoquefiliaisSituacaoProcessamentoDescricao.AsString := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoProcStr;
+
+        if ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Mensagem <> '' then
+          qryfiscoestoquefiliaismensagemprocessamentodescricao.AsString := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Mensagem;
+
+        qryfiscoestoquefiliaissituacaoprocessamentooper.AsInteger := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoOperCod;
+        qryfiscoestoquefiliaissituacaoprocessamentooperdescricao.AsString := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.BlocoXRetorno.SituacaoOperStr;
+        qryfiscoestoquefiliaismensagemprocessamentooperdescricao.AsString := ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.Mensagem;
+
+        qryfiscoestoquefiliaisdatahorareenviofiscoestoque.asDatetime := vdatahoraenviofiscoreducaoz;
+
+        qryfiscoestoquefiliais.post;
+
+        {
+      end;
+      }
+    end
+    else
+    begin
+      result := false;
+
+      raise Exception.Create(
+        'Não foi possível transmitir o arquivo!' + sLineBreak +
+        ACBrBlocoX1.WebServices.ConsultarProcessamentoArquivoBlocoX.RetWS);
+    end;
+
+  end;
+
+
+
+
+  (*
+
+  Function Enviar: boolean;
+  begin
+    result := true;
+    if not DirectoryExists(extractfilepath(vNomeArquivo) + 'Recibos – Bloco X') then
+      if not CreateDir(extractfilepath(vNomeArquivo) + 'Recibos – Bloco X') then
+        raise Exception.Create('Impossível criar o diretório '+extractfilepath(vNomeArquivo) + 'Recibos – Bloco X');
+
+    Arquivo := TStringList.Create;
+    try
+      Arquivo.LoadFromFile(vNomeArquivo);
+
+  //    ACBrBlocoX1.WebServices.ValidarBlocoX.ArqResp := trocar(vNomeArquivo, '.xml', '_ValidarBlocoX');
+      Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Validando xml: Estoque Fisco '+extractfilename(vNomeArquivo));
+
+        {DEMORA MUITO TEMPO
+
+      ACBrBlocoX1.WebServices.ValidarBlocoX.Clear;
+      ACBrBlocoX1.WebServices.ValidarBlocoX.XML := Arquivo.Text;
+
+      ACBrBlocoX1.WebServices.ValidarBlocoX.Executar;
+      RespostaValidacao := ACBrBlocoX1.WebServices.ValidarBlocoX.RetWS;
+      }
+
+      if  TRUE {Pos('VALIDADO COM SUCESSO', UpperCase(RespostaValidacao)) > 0} then
+      begin
+  //      ShowMessage(RespostaValidacao);
+
+        Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Esoque Fisco: Reduções Z '+extractfilename(vNomeArquivo));
+
+        ACBrBlocoX1.WebServices.EnviarBlocoX.ArqResp := extractfilepath(vNomeArquivo)+ 'Recibos – Bloco X\'+
+                   trocar(extractfilename(vNomeArquivo), '.xml', '_EnviarBlocoX');
+
+  //      ACBrBlocoX1.WebServices.EnviarBlocoX.RetWS
+
+        ACBrBlocoX1.WebServices.EnviarBlocoX.Clear;
+        ACBrBlocoX1.WebServices.EnviarBlocoX.XML := Arquivo.Text;
+
+        Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Gerando zip do xml: Estoque Fisco '+extractfilename(vNomeArquivo));
+
+        NovoArquivo := ChangeFileExt(vNomeArquivo, '.zip');
+
+        KAZip1.CreateZip(NovoArquivo);
+        KAZip1.FileName := NovoArquivo;
+        KAZip1.Open(NovoArquivo);
+        KAZip1.AddFile(vNomeArquivo);
+        KAZip1.Close;
+
+        ACBrBlocoX1.WebServices.EnviarBlocoX.XMLZipado := EncodeBase64(LoadFileToAnsiStr(NovoArquivo));
+
+        Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Transmitindo zip do xml: Estoque Fisco '+extractfilename(vNomeArquivo));
+
+        if ACBrBlocoX1.WebServices.EnviarBlocoX.Executar then
+        begin
+
+          if (pos('Não gerado', ACBrBlocoX1.WebServices.EnviarBlocoX.Recibo)<>0) and
+             (pos('O número do recibo é', ACBrBlocoX1.WebServices.EnviarBlocoX.Mensagem)<>0) then
+          begin
+            vNumeroRecibo := copy(ACBrBlocoX1.WebServices.EnviarBlocoX.Mensagem,
+                pos('O número do recibo é',ACBrBlocoX1.WebServices.EnviarBlocoX.Mensagem)+21, 36);
+
+            result := Consultar(vNumeroRecibo);
+
+          end
+          else
+          begin
+            qryfiscoestoquefiliais.edit;
+            qryfiscoestoquefiliaisreciboenviofiscoestoque.AsString := ACBrBlocoX1.WebServices.EnviarBlocoX.Recibo;
+            qryfiscoestoquefiliaissituacaoprocessamentocodigo.AsInteger := ACBrBlocoX1.WebServices.EnviarBlocoX.SituacaoProcCod;
+
+            qryfiscoestoquefiliaisSituacaoProcessamentoDescricao.AsString := ACBrBlocoX1.WebServices.EnviarBlocoX.SituacaoProcStr;
+            qryfiscoestoquefiliaismensagemprocessamentodescricao.AsString := ACBrBlocoX1.WebServices.EnviarBlocoX.Mensagem;
+
+            qryfiscoestoquefiliais.post;
+          end;
+        end
+        else
+        begin
+          result := false;
+
+          raise Exception.Create(
+            'Não foi possível transmitir o arquivo!' + sLineBreak +
+            ACBrBlocoX1.WebServices.EnviarBlocoX.RetWS);
+        end;
+
+      end
+      else
+      begin
+        result := false;
+        raise Exception.Create(RespostaValidacao);
+      end;
+    finally
+      Arquivo.Free;
+    end;
+
+  end;
+  *)
+
+
+  function Enviar: boolean;
+  begin
+    result := true;
+
+    if not DirectoryExists(extractfilepath(vNomeArquivo) + 'Recibos – Bloco X') then
+      if not CreateDir(extractfilepath(vNomeArquivo) + 'Recibos – Bloco X') then
+        raise Exception.Create('Impossível criar o diretório '+extractfilepath(vNomeArquivo) + 'Recibos – Bloco X');
+
+    Arquivo := TStringList.Create;
+    try
+      Arquivo.LoadFromFile(vNomeArquivo);
+
+      Notificar(NotificarSplash, 'Verificando Pendencias de Envio ao Fisco - Validando xml: Reduções Z '+extractfilename(vNomeArquivo));
+
+      ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.Clear;
+
+      NovoArquivo := ChangeFileExt(vNomeArquivo, '.zip');
+
+      KAZip1.CreateZip(NovoArquivo);
+      KAZip1.FileName := NovoArquivo;
+      KAZip1.Open(NovoArquivo);
+      KAZip1.AddFile(vNomeArquivo);
+      KAZip1.Close;
+
+//      ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.XML := Arquivo.Text;
+      ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.XMLCompactado := EncodeBase64(LoadFileToAnsiStr(NovoArquivo));
+
+      vArqResp := extractfilepath(vNomeArquivo)+ 'Recibos – Bloco X\'+
+                  trocar(extractfilename(vNomeArquivo), '.xml', '_ConsultarBlocoX');
+
+
+      ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.ArqResp := vArqResp;
+
+
+      if ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.Executar then
+      begin
+
+        qryfiscoestoquefiliais.edit;
+        qryfiscoestoquefiliaisreciboenviofiscoestoque.AsString := ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.Recibo;
+        qryfiscoestoquefiliaissituacaoprocessamentocodigo.AsInteger := ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.SituacaoProcCod;
+
+        qryfiscoestoquefiliaisSituacaoProcessamentoDescricao.AsString := ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.SituacaoProcStr;
+        qryfiscoestoquefiliaismensagemprocessamentodescricao.AsString := ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.Mensagem;
+
+        qryfiscoestoquefiliaisdatahoraenviofiscoestoque.asDatetime := vdatahoraenviofiscoreducaoz;
+
+        qryfiscoestoquefiliais.post;
+
+
+      end
+      else
+      begin
+
+        result := false;
+
+        raise Exception.Create(
+          'Não foi possível transmitir o arquivo!' + sLineBreak +
+          ACBrBlocoX1.WebServices.TransmitirArquivoBlocoX.RetWS);
+
+      end;
+
+
+    finally
+      Arquivo.Free;
+    end;
+  end;
+
+
+  
+
+begin
+
+
+  result := true;
+
+  if qryfiscoestoquefiliaisreciboenviofiscoestoque.AsString <> '' then
+    result := Consultar(qryfiscoestoquefiliaisreciboenviofiscoestoque.AsString)
+  else
+    result := Enviar;
+end;
+
+procedure TdtmGerarMapasECF.qryfiscoestoquefiliaisResumoEnvioFiscoCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryfiscoestoquefiliaisResumoEnvioFiscoDescricaoDataEstoque.asString := 'ESTOQUE MENSAL '+
+    formatdatetime('DDMMYYY', qryfiscoestoquefiliaisResumoEnvioFiscodataestoque.ASdATEtIME);
+end;
+
+procedure TdtmGerarMapasECF.qryWebServiceBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryWebService.ParamByName('filialbase').asInteger := FilialBase;
+end;
+
+end.

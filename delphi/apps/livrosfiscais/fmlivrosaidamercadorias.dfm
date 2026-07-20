@@ -1,0 +1,770 @@
+inherited frmLivroSaidaMercadorias: TfrmLivroSaidaMercadorias
+  Left = 819
+  Top = 183
+  ActiveControl = edfFilial
+  Caption = 'Livro de Saida de Mercadorias'
+  ClientHeight = 544
+  ClientWidth = 373
+  FormStyle = fsMDIChild
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TToolBar
+    Width = 373
+  end
+  inherited pnlFundoJanela: TPanel
+    Top = 40
+    Width = 373
+    Height = 504
+    object gbxLivroSaidaMercadorias: TGroupBox
+      Left = 3
+      Top = 3
+      Width = 367
+      Height = 498
+      Align = alClient
+      TabOrder = 0
+      object rgpRelatorio: TRadioGroup
+        Left = 10
+        Top = 55
+        Width = 160
+        Height = 63
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ItemIndex = 0
+        Items.Strings = (
+          'Emiss'#227'o do Livro'
+          'Termo de Abertura')
+        ParentFont = False
+        TabOrder = 1
+        OnClick = rgpRelatorioClick
+      end
+      object gbxPeriodo: TGroupBox
+        Left = 10
+        Top = 159
+        Width = 160
+        Height = 36
+        Caption = ' PER'#205'ODO '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 4
+        object lblA: TLabel
+          Left = 76
+          Top = 16
+          Width = 7
+          Height = 15
+          Caption = 'a'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+        end
+        object edtDataInicial: TEditData
+          Left = 2
+          Top = 10
+          Width = 70
+          Height = 23
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = 10
+          ParentFont = False
+          TabOrder = 0
+          Minimo = 37353
+          Maximo = 0
+        end
+        object edtDataFinal: TEditData
+          Left = 87
+          Top = 10
+          Width = 70
+          Height = 23
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = 10
+          ParentFont = False
+          TabOrder = 1
+          Minimo = 37353
+          Maximo = 0
+        end
+      end
+      object gbxCodigoFiscal: TGroupBox
+        Left = 10
+        Top = 201
+        Width = 160
+        Height = 39
+        Caption = ' C'#211'DIGOS FISCAIS '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 6
+        object Label1: TLabel
+          Left = 4
+          Top = 15
+          Width = 16
+          Height = 15
+          Caption = 'De'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+        end
+        object Label2: TLabel
+          Left = 88
+          Top = 15
+          Width = 7
+          Height = 15
+          Caption = 'a'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+        end
+        object edtCodigode: TSpinEdit
+          Left = 24
+          Top = 12
+          Width = 59
+          Height = 24
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxValue = 0
+          MinValue = 0
+          ParentFont = False
+          TabOrder = 0
+          Value = 0
+        end
+        object edtCodigoate: TSpinEdit
+          Left = 102
+          Top = 12
+          Width = 56
+          Height = 24
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxValue = 0
+          MinValue = 0
+          ParentFont = False
+          TabOrder = 1
+          Value = 0
+        end
+      end
+      object gbxNumeracao: TGroupBox
+        Left = 186
+        Top = 68
+        Width = 165
+        Height = 50
+        Caption = ' NUMERA'#199#195'O '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+        object gbxLivro: TGroupBox
+          Left = 2
+          Top = 12
+          Width = 55
+          Height = 36
+          Caption = ' LIVRO '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          object edtLivro: TEditNumero
+            Left = 2
+            Top = 10
+            Width = 50
+            Height = 24
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = -1
+            ParentFont = False
+            TabOrder = 0
+            Text = '1'
+            Mascara = False
+            Alignment = taCenter
+            TipoMascara = tmGERAL
+            NrDecimal = 0
+            Decimais = False
+            Negativo = False
+            Tamanho = 4
+          end
+        end
+        object gbxPagina: TGroupBox
+          Left = 55
+          Top = 12
+          Width = 55
+          Height = 36
+          Caption = 'P'#193'GINA '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          object edtPagina: TEditNumero
+            Left = 2
+            Top = 10
+            Width = 50
+            Height = 24
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = -1
+            ParentFont = False
+            TabOrder = 0
+            Text = '2'
+            Mascara = False
+            Alignment = taCenter
+            TipoMascara = tmGERAL
+            NrDecimal = 0
+            Decimais = False
+            Negativo = False
+            Tamanho = 9
+          end
+        end
+        object gbxMaximo: TGroupBox
+          Left = 108
+          Top = 12
+          Width = 55
+          Height = 36
+          Caption = 'M'#193'XIMO '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          object edtMaximo: TEditNumero
+            Left = 2
+            Top = 10
+            Width = 50
+            Height = 23
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = -1
+            ParentFont = False
+            TabOrder = 0
+            Text = '499'
+            Mascara = False
+            Alignment = taCenter
+            TipoMascara = tmGERAL
+            NrDecimal = 0
+            Decimais = False
+            Negativo = False
+            Tamanho = 9
+          end
+        end
+      end
+      object gbxImprimir: TGroupBox
+        Left = 187
+        Top = 249
+        Width = 165
+        Height = 73
+        Caption = ' IMPRIMIR '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 8
+        object ckbLivroSaidas: TCheckBox
+          Left = 6
+          Top = 16
+          Width = 123
+          Height = 17
+          Caption = '&Livro de sa'#237'das'
+          Checked = True
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          State = cbChecked
+          TabOrder = 0
+          OnClick = ckbLivroSaidasClick
+        end
+        object ckbResumoSintetico: TCheckBox
+          Left = 6
+          Top = 34
+          Width = 123
+          Height = 17
+          Caption = 'Resumo &sint'#233'tico'
+          Checked = True
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          State = cbChecked
+          TabOrder = 1
+          OnClick = ckbLivroSaidasClick
+        end
+        object ckbResumoDiario: TCheckBox
+          Left = 6
+          Top = 52
+          Width = 123
+          Height = 17
+          Caption = 'Resumo &di'#225'rio'
+          Checked = True
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          State = cbChecked
+          TabOrder = 2
+          OnClick = ckbLivroSaidasClick
+        end
+      end
+      object gbxSeries: TGroupBox
+        Left = 9
+        Top = 327
+        Width = 344
+        Height = 126
+        Caption = ' S'#201'RIES '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 9
+        object sbnMarcarSeries: TSpeedButton
+          Left = 315
+          Top = 12
+          Width = 22
+          Height = 22
+          Hint = 'Marcar todas as s'#233'ries'
+          Flat = True
+          Glyph.Data = {
+            36060000424D3606000000000000360000002800000020000000100000000100
+            18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFF
+            FFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCFF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFF
+            FFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCFF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+            7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCFF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+            7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCFF0000FF0000FF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F
+            7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            FF0000FF0000FF0000FF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F
+            7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F
+            FF0000FF0000000000DCDCDCFF0000FF0000FF0000000000DCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FDCDCDC7F7F7F7F
+            7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFF0000
+            000000DCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000000000DCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000FF0000000000DCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000000000DCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000000000DCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFF00000000
+            00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFF00
+            00000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCFF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+          NumGlyphs = 2
+          OnClick = sbnMarcarSeriesClick
+        end
+        object sbnDesmarcarSeries: TSpeedButton
+          Left = 315
+          Top = 36
+          Width = 22
+          Height = 22
+          Hint = 'Desmarcar todas as s'#233'ries'
+          Flat = True
+          Glyph.Data = {
+            36060000424D3606000000000000360000002800000020000000100000000100
+            18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDC
+            DCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDCDCDC
+            0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+            FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDC
+            DCDC7F7F7FFFFFFFFFFFFFDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+            DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+            FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFF7F
+            7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDC0000FF0000FF0000FF7F7F7F0000007F7F7F0000FF0000FF0000
+            FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFF
+            FFFF7F7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDC0000FF0000FF0000FFDCDCDC0000FF0000FF0000FFDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+            7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000000000FF0000FFDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDC
+            DCDC7F7F7FFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000080000000000080DCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000800000000000800000FFDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7FDCDCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDC0000FF0000FF0000000000000000000000FF0000FFDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDC7F
+            7F7F7F7F7F7F7F7FDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDC0000FF0000FF0000FF0000000000000000000000FF0000FF0000
+            FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDC7F
+            7F7F7F7F7F7F7F7FDCDCDC7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC
+            DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+            FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDC7F
+            7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDC
+            0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+            FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDC
+            DCDC7F7F7FDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+          NumGlyphs = 2
+          OnClick = sbnDesmarcarSeriesClick
+        end
+        object clbSeries: TCheckListBox
+          Left = 2
+          Top = 14
+          Width = 311
+          Height = 110
+          Align = alLeft
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ItemHeight = 15
+          ParentFont = False
+          Style = lbOwnerDrawVariable
+          TabOrder = 0
+        end
+      end
+      object gbxFiliais: TGroupBox
+        Left = 10
+        Top = 13
+        Width = 341
+        Height = 36
+        Caption = ' FILIAL '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        object sbnProcurarFilial: TSpeedButton
+          Left = 48
+          Top = 10
+          Width = 23
+          Height = 23
+          Hint = 'Procurar Filial'
+          Flat = True
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Glyph.Data = {
+            36060000424D3606000000000000360000002800000020000000100000000100
+            18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDC800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DC800000800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000
+            00800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000
+            00800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000008000
+            00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+            FFFFDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCFFA858800000800000800000FFA858DCDCDC0000FF800000800000DCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDC
+            DCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+            FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+            FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+            FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+            FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+            FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+            FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+            FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFFFFFFFDCDCDCDCDCDCDC
+            DCDCFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            800000FFA858FFA858FFA858FFA858FFA858800000DCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FC3C3C3FFFFFFFFFFFF7F
+            7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCFFA858800000800000800000FFA858DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+          NumGlyphs = 2
+          ParentFont = False
+          OnClick = sbnProcurarFilialClick
+        end
+        object edfFilial: TtecDbEditFind
+          Left = 2
+          Top = 10
+          Width = 45
+          Height = 23
+          Alignment = taLeftJustify
+          DataField = 'codigo'
+          DataSource = dtmLivroSaidaMercadorias.dsrProcuraFiliais
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Group = 'Filial'
+          MaxLength = 3
+          Maximo = 0
+          Minimo = 37353
+          Adicional = 0
+          Opcional = True
+          ParentFont = False
+          TabOrder = 0
+          PermitirZero = False
+          PermitirNulo = False
+          Operacao = opATRIBUICAO
+          Parameter = 'codigo'
+          ActiveSetControls = False
+          DenyInsert = True
+          NoSetControls = <>
+          SetControls = <>
+        end
+        object dtxFilial: TtecDBText
+          Left = 72
+          Top = 10
+          Width = 265
+          Height = 23
+          TabStop = False
+          Color = clBtnFace
+          DataField = 'nome'
+          DataSource = dtmLivroSaidaMercadorias.dsrProcuraFiliais
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 1
+          Alignment = taLeftJustify
+        end
+      end
+      object ckbIncluirNFCopiaECF: TCheckBox
+        Left = 11
+        Top = 283
+        Width = 168
+        Height = 25
+        Caption = 'Incluir NFs c'#243'pia de ECFs'
+        Checked = True
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        State = cbChecked
+        TabOrder = 7
+      end
+      object stxRelatorio: TStaticText
+        Left = 16
+        Top = 56
+        Width = 63
+        Height = 16
+        Caption = ' RELAT'#211'RIO '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 10
+      end
+      object rgpOpcoes: TRadioGroup
+        Left = 186
+        Top = 155
+        Width = 165
+        Height = 86
+        ItemIndex = 0
+        Items.Strings = (
+          'Cupons por mapa'
+          'Cupons agrupados'
+          'Cupons por n'#250'mero')
+        TabOrder = 5
+      end
+      object stxOpcoes: TStaticText
+        Left = 194
+        Top = 157
+        Width = 48
+        Height = 16
+        Caption = ' OP'#199#213'ES '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 12
+      end
+      object stxFechamento: TStaticText
+        Left = 99
+        Top = 159
+        Width = 68
+        Height = 12
+        Caption = 'FECHAMENTO'
+        Constraints.MaxHeight = 12
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 11
+      end
+      object ckbSelecaoPelaDatadeEmissao: TCheckBox
+        Left = 10
+        Top = 130
+        Width = 325
+        Height = 17
+        Caption = 'Selecionar por data de emiss'#227'o do documento'
+        TabOrder = 3
+      end
+    end
+  end
+  object ecvValida: TtecEditionControlValidation
+    EditionControl = <
+      item
+        Control = edtMaximo
+      end
+      item
+        Control = edtPagina
+      end
+      item
+        Control = edfFilial
+      end>
+    Left = 168
+    Top = 8
+  end
+end

@@ -1,0 +1,1142 @@
+unit dmprestacoesabertas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics,
+  Controls, Forms, Dialogs, DB, CheckLst,
+  // Terceiros
+  FR_DSet, FR_DBSet, FR_Class, ZQuery, ZPgSqlQuery,
+  // Componentes
+  cpquery, cpdatasource,
+  // Constantes
+  Biblio, ctConstantes,
+  // Repositorio
+  dmtecsoft, dmbasico, clfinanceira,
+  clparametrossistema, fmpreviewpadrao, FR_ChBox, FR_Desgn, ZTransact;
+
+
+type
+  TdtmPrestacoesAbertas = class(TdtmBasico)
+    qryGrupoFiliais: TtecQuery;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisdescricao: TStringField;
+    qryRegiao: TtecQuery;
+    qryRegiaocodigo: TStringField;
+    qryRegiaonome: TStringField;
+    dsrRegiao: TtecDataSource;
+    qryConsultaRegiao: TtecQuery;
+    qryConsultaRegiaonome: TStringField;
+    qryConsultaRegiaocodigo: TStringField;
+    qryVendedor: TtecQuery;
+    qryVendedorcodigo: TIntegerField;
+    qryVendedornome: TStringField;
+    dsrVendedor: TtecDataSource;
+    qryConsultaVendedor: TtecQuery;
+    qryConsultaVendedornome: TStringField;
+    qryConsultaVendedorcodigo: TIntegerField;
+    qryAgentes: TtecQuery;
+    qryAgentescodigo: TIntegerField;
+    qryAgentesdescricao: TStringField;
+    qryConceitos: TtecQuery;
+    qryConceitoscodigo: TIntegerField;
+    qryConceitosdescricao: TStringField;
+    frpPrestacoesAbertas: TfrReport;
+    fdsParcelas: TfrDBDataSet;
+    fdsParcelasPrestacoesAbertasResumo: TfrDBDataSet;
+    frpPrestacoesAbertasResumo: TfrReport;
+    qryCriarTabelaOpcoesPrestacoesAbertas: TtecQuery;
+    qryOpcoesPrestacoesAbertas: TtecQuery;
+    qryInserirTabelaOpcoesPrestacoesAbertas: TtecQuery;
+    qryDropTabelaOpcoesPrestacoesAbertas: TtecQuery;
+    fdsOpcoesPrestacoesAbertas: TfrDBDataSet;
+    qryOpcoesPrestacoesAbertasopcao: TStringField;
+    qryParcelas: TtecQuery;
+    qryParcelascliente: TIntegerField;
+    qryParcelastipocliente: TStringField;
+    qryParcelasfilialvenda: TIntegerField;
+    qryParcelascontrato: TStringField;
+    qryParcelasdatavencto: TDateField;
+    qryParcelasvalorvencto: TFloatField;
+    qryParcelasatraso: TFloatField;
+    qryParcelasValorPagar: TCurrencyField;
+    qryParcelasJuros: TCurrencyField;
+    qryParcelasClientes: TtecQuery;
+    qryFiliais: TtecQuery;
+    qryFiliaiscodigo: TIntegerField;
+    qryFiliaisnome: TStringField;
+    dsrParcelasClientes: TtecDataSource;
+    fdsParcelasClientes: TfrDBDataSet;
+    qryParcelasClientescliente: TIntegerField;
+    qryParcelasClientestipocliente: TStringField;
+    qryParcelasClientesnome: TStringField;
+    qryParcelasClientesfilialvenda: TIntegerField;
+    qryParcelasClientesnomefilialvenda: TStringField;
+    qryParcelasClientesgrupofilialvenda: TIntegerField;
+    qryParcelasClientesnomegrupofilialvenda: TStringField;
+    qryParcelasClientesfoneddd: TIntegerField;
+    qryParcelasClientesfonenumero: TIntegerField;
+    qryParcelasClientesfoneramal: TStringField;
+    qryParcelasClientestipofone: TStringField;
+    qryParcelasClientesconfoneddd: TIntegerField;
+    qryParcelasClientesconfonenumero: TIntegerField;
+    qryParcelasClientesconfoneramal: TStringField;
+    qryParcelasClientesempresa: TStringField;
+    qryParcelasClientesempfoneddd: TIntegerField;
+    qryParcelasClientesempfonenumero: TIntegerField;
+    qryParcelasClientesempfoneramal: TStringField;
+    qryParcelasClientesreffoneddd: TIntegerField;
+    qryParcelasClientesreffonenumero: TIntegerField;
+    qryParcelasClientesreffoneramal: TStringField;
+    qryParcelasClientesresidencia_rua_1: TMemoField;
+    qryParcelasClientesresidencia_rua_2: TMemoField;
+    qryParcelasClientesestado: TStringField;
+    qryParcelasClientescep: TIntegerField;
+    qryParcelasClientesnomecidade: TStringField;
+    qryParcelasClientesnomebairrocliente: TStringField;
+    qryParcelasnumero: TIntegerField;
+    qryContratos: TtecQuery;
+    dsrContratos: TtecDataSource;
+    qryContratoscliente: TIntegerField;
+    qryContratostipocliente: TStringField;
+    qryContratosfilialvenda: TIntegerField;
+    qryContratoscontrato: TStringField;
+    fdsContratos: TfrDBDataSet;
+    qryParcelasPrestacoesAbertasResumo: TtecQuery;
+    qryParcelasPrestacoesAbertasResumonomefilialvenda: TStringField;
+    qryParcelasPrestacoesAbertasResumogrupofilialvenda: TIntegerField;
+    qryParcelasPrestacoesAbertasResumonomegrupofilialvenda: TStringField;
+    qryParcelasPrestacoesAbertasResumocliente: TIntegerField;
+    qryParcelasPrestacoesAbertasResumotipocliente: TStringField;
+    qryParcelasPrestacoesAbertasResumofilialvenda: TIntegerField;
+    qryParcelasPrestacoesAbertasResumocontrato: TStringField;
+    qryParcelasPrestacoesAbertasResumodatavencto: TDateField;
+    qryParcelasPrestacoesAbertasResumovalorvencto: TFloatField;
+    qryParcelasPrestacoesAbertasResumoValorPagar: TCurrencyField;
+    qryParcelasPrestacoesAbertasResumoJuros: TCurrencyField;
+    dsrProcuraCliente: TtecDataSource;
+    qryProcuraCliente: TtecQuery;
+    qryProcuraClientenome: TStringField;
+    qryProcuraClientecodigo: TIntegerField;
+    qryProcuraClientetipo: TStringField;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientestipoorig: TStringField;
+    qryConsultaClientescivil: TStringField;
+    qryParcelasnotas: TStringField;
+    qryParcelasClientescpfcgc: TStringField;
+    qryParcelasClientesrgie: TStringField;
+    qryParcelasClientestipopessoa: TStringField;
+    qryParcelasvendedor: TIntegerField;
+    qryParcelasnomevendedor: TStringField;
+    qryParcelasPrestacoesAbertasResumovendedor: TIntegerField;
+    qryParcelasPrestacoesAbertasResumonomevendedor: TStringField;
+    qryContratosvendedor: TIntegerField;
+    qryContratosnomevendedor: TStringField;
+    qryParcelasClientesvendedor: TIntegerField;
+    qryParcelasClientesnomevendedor: TStringField;
+    qryParcelasExportar: TtecQuery;
+    fdsParcelasExportar: TfrDBDataSet;
+    qryParcelasExportarcliente: TIntegerField;
+    qryParcelasExportartipocliente: TStringField;
+    qryParcelasExportarfilialvenda: TIntegerField;
+    qryParcelasExportarvendedor: TIntegerField;
+    qryParcelasExportarnomevendedor: TStringField;
+    qryParcelasExportaratraso: TFloatField;
+    qryParcelasExportarcontrato: TStringField;
+    qryParcelasExportardatavencto: TDateField;
+    qryParcelasExportarvalorvencto: TFloatField;
+    qryParcelasExportarnotas: TStringField;
+    qryParcelasExportarnomecliente: TStringField;
+    qryParcelasExportarnomefilialvenda: TStringField;
+    qryParcelasExportartipopessoa: TStringField;
+    qryParcelasExportarcpfcgc: TStringField;
+    qryParcelasExportarrgie: TStringField;
+    qryParcelasExportarfoneddd: TIntegerField;
+    qryParcelasExportarfonenumero: TIntegerField;
+    qryParcelasExportarfoneramal: TStringField;
+    qryParcelasExportarempresa: TStringField;
+    qryParcelasExportarempfoneddd: TIntegerField;
+    qryParcelasExportarempfonenumero: TIntegerField;
+    qryParcelasExportarempfoneramal: TStringField;
+    qryParcelasExportarestado: TStringField;
+    qryParcelasExportarcep: TIntegerField;
+    qryParcelasExportarnomecidade: TStringField;
+    qryParcelasExportarnomebairrocliente: TStringField;
+    qryParcelasExportarnumeroparcela: TIntegerField;
+    qryParcelasExportarnumeroresidencia: TIntegerField;
+    qryParcelasExportarcomplementeoresidencia: TStringField;
+    qryParcelasExportarresidencia_rua_1: TMemoField;
+    qryParcelasExportarresidencia_rua_2: TMemoField;
+    procedure qryFiliaisAfterScroll(DataSet: TDataSet);
+    procedure qryParcelasPrestacoesAbertasResumo_CalcFields(
+      DataSet: TDataSet);
+    procedure frpPrestacoesAbertasBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryParcelasCalcFields(DataSet: TDataSet);
+    procedure qryParcelasPrestacoesAbertasResumoCalcFields(DataSet: TDataSet);
+  private
+    FListaFiliais: TStringList;
+    FListaGruposFiliais: TStringList;
+    FListaAgentes: TStringList;
+    FListaConceitos: TStringList;
+    FDataVendaInicial: String;
+    FDataVendaFinal: String;
+    FOrdenacao: Integer;
+    FParametrosCabecalho: String;
+    FAgruparFilial: boolean;
+    FAgruparGrupoFilial: boolean;
+{    FAgruparVendedor: boolean;}
+    function GetListaFiliais: TStrings;
+    function GetListaGruposFiliais: TStrings;
+    function GetListaAgentes: Tstrings;
+    function GetListaConceitos: Tstrings;
+    procedure SetAgentes(const Value: String);
+    procedure SetConceitos(const Value: String);
+    function GetTabelaConsultaClientes: TZDataset;
+    procedure SetCliente(const Value: String);
+  protected
+    FDataVenctoInicial: String;
+    FDataVenctoFinal: String;
+    FAnalitico: Boolean;
+    FResumo: Integer;
+    function  GetConsultarRegiao: TTecQuery;
+    function  GetConsultarVendedor: TTecQuery;
+    function  GetDescricaoAgente: String;
+    function  GetDescricaoConceito: String;
+    function  GetTabelaAgente: TtecQuery;
+    function  GetTabelaConceito: TtecQuery;
+    procedure SetAtraso(const Value: Boolean);
+    procedure SetDataVendaFinal(const Value: String);
+    procedure SetDataVenctoFinal(const Value: string);
+    procedure SetFiliais(const Value: string);
+    procedure SetGrupoFiliais(const Value: string);
+    procedure SetRegiao(const Value: string);
+    procedure SetListaCondicionalVendedor(const Value: string);
+    procedure SetAnalitico(const Value: Boolean);
+  public
+    constructor Create(AOwner: TComponent); Override;
+    procedure GerarRelatorio;
+    procedure Selecionar(TipoPesquisa: TTecPesquisa);
+    procedure AbreTabelaConsulta(TipoPesquisa: TTecPesquisa);
+    procedure FechaTabelaConsulta(TipoPesquisa: TTecPesquisa);
+    function  ExisteRegiao(Campo, Codigo: string): Boolean;
+    function  ExisteVendedor(Campo, Codigo: string): Boolean;
+    function  ExisteCliente(NomeCampo: String; Value: Variant): Boolean;
+
+    property DescricaoAgente: String read GetDescricaoAgente;
+    property DescricaoConceito: String read GetDescricaoConceito;
+    property TabelaAgente: TtecQuery read GetTabelaAgente;
+    property TabelaConceito: TtecQuery read GetTabelaConceito;
+    property ConsultarRegiao: TTecQuery read GetConsultarRegiao;
+    property ConsultarVendedor: TTecQuery read GetConsultarVendedor;
+    property  TabelaConsultaClientes: TZDataset read GetTabelaConsultaClientes;
+    property Filiais: string write SetFiliais;
+    property GrupoFiliais: string write SetGrupoFiliais;
+    property Agentes: String write SetAgentes;
+    property Conceitos: String write SetConceitos;
+    property ListaCondicionalVendedor: string write SetListaCondicionalVendedor;
+    property Cliente: String write SetCliente;
+    property Regiao: string write SetRegiao;
+    property Atraso: Boolean write SetAtraso;
+    procedure OcorrenciasCobranca(ComOcorrencia, SemOcorrencia: Boolean;
+                  DescricaoComOcorrencia, DescricaoSemOcorrencia: String);
+    procedure CartaDevolvida(ComCartaDevolvida, SemCartaDevolvida: Boolean;
+                  DescricaoComCartaDevolvida, DescricaoSemCartaDevolvida: String);
+    procedure EnderecoCompleto(ComEnderecoCompleto, SemEnderecoCompleto: Boolean;
+                  DescricaoComEnderecoCompleto, DescricaoSemEnderecoCompleto: String);
+    procedure PrimeiraCompra(EPrimeiraCompra, NaoEPrimeiraCompra: Boolean;
+                  DescricaoEprimeiraCompra, DescricaoNaoEPrimeiraCompra: String);
+    procedure ContratosSemPagamento(ComPagamento, SemPagamento: Boolean;
+                  DescricaoComPagamento, DescricaoSemPagamento: String);
+    property DataVenctoInicial: String read FDataVenctoInicial write FDataVenctoInicial;
+    property DataVenctoFinal  : String read FDataVenctoFinal   write SetDataVenctoFinal;
+    property DataVendaInicial: String read FDataVendaInicial write FDataVendaInicial;
+    property DataVendaFinal  : String read FDataVendaFinal   write SetDataVendaFinal;
+    property Analitico: Boolean read FAnalitico write SetAnalitico;
+    property Resumo: Integer read FResumo write FResumo;
+    property Ordenacao: Integer read FOrdenacao write FOrdenacao;
+    property ParametrosCabecalho: String read FParametrosCabecalho write FParametrosCabecalho;
+    property ListaFiliais: TStrings read GetListaFiliais;
+    property ListaGruposFiliais: TStrings read GetListaGruposFiliais;
+    property ListaAgentes: Tstrings read GetListaAgentes;
+    property ListaConceitos: Tstrings read GetListaConceitos;
+    procedure MontarFiltroFiliais(Usar: TCheckListBox);
+    procedure MontarFiltroGrupoFiliais(Usar: TCheckListBox);
+    procedure MontarFiltroAgentes(Usar: TCheckListBox);
+    procedure MontarFiltroConceitos(Usar: TCheckListBox);
+    procedure MontarOrdenacao;
+    property AgruparGrupoFilial: boolean read FAgruparGrupoFilial write FAgruparGrupoFilial;
+    property AgruparFilial: boolean read FAgruparFilial write FAgruparFilial;
+{    property AgruparVendedor: boolean read FAgruparVendedor write FAgruparVendedor;}
+
+    procedure MontarSQLParcelasClientes;
+    procedure MontarSQLContratos;
+    procedure MontarSQLParcelasPrestacoesAbertasResumo;
+  end;
+
+var
+  dtmPrestacoesAbertas: TdtmPrestacoesAbertas;
+  ListaContrato       : String;
+
+Const
+  // Parcelas
+  P_WhereDataVencto         = 17;
+
+  // Contratos
+  {
+  C_WhereFiliais            = 20;
+  C_WhereAgentes            = 21;
+  C_WhereConceitos          = 22;
+  C_WhereVendedor           = 23;
+  C_WhereCartaDevolvida     = 24;
+  C_WhereOcorrenciaCobranca = 25;
+  C_WherePrimeiraCompra     = 26;
+  C_WhereSemPagamento       = 27;
+  C_WhereRegiao             = 29;
+  C_WhereEndereco           = 30;
+  }
+  // ParcelasClientes
+  {
+  PC_WhereFiliais           = 50;
+  PC_WhereAgentes           = 51;
+  PC_WhereConceitos         = 52;
+  PC_WhereVendedor          = 53;
+  PC_WhereCartaDevolvida    = 54;
+  PC_WhereOcorrenciaCobranca= 55;
+  PC_WherePrimeiraCompra    = 56;
+  PC_WhereSemPagamento      = 57;
+  PC_WhereRegiao            = 63;
+  PC_WhereEndereco          = 64;
+  PC_WhereOrdenacao         = 65;
+  }
+  
+  PC_Distinct               = 1;
+  
+  //ParcelasPrestacoesAbertasREsumo
+
+  PR_WhereDataVencto         = 19;
+  {
+  PR_WhereAgrupamento        = 22;
+  PR_WherePeriodoVendas      = 26;
+  PR_WhereFiliais            = 27;
+  PR_WhereAgentes            = 28;
+  PR_WhereConceitos          = 29;
+  PR_WhereVendedor           = 30;
+  PR_WhereCartaDevolvida     = 31;
+  PR_WhereOcorrenciaCobranca = 32;
+  PR_WherePrimeiraCompra     = 33;
+  PR_WhereSemPagamento       = 34;
+  PR_WhereRegiao             = 39;
+  PR_WhereEndereco           = 40;
+  PR_WhereOrdenacao          = 41;
+   }
+ // Ordenadores
+  FiltroFilial      = 'AND ( ct.filialvenda IN (%s)) ';
+  FiltroGrupoFilial = 'AND ( ct.filialvenda IN (SELECT filial '+
+                                         'FROM filiaisgruposfiliais fgf '+
+                                         'WHERE fgf.grupo IN (%s)))';
+  FiltroConceito    = 'AND ( ct.conceito IN (%s))';
+  FiltroAgente      = 'AND ( ct.agente IN (%s))';
+  FiltroCliente     = 'and ( ct.cliente = %s and ct.tipocliente = %s)';
+  FiltroRegiao      = 'and ((vf.bairro in (Select codigo '+
+                                         'From bairros '+
+                                         'Where regiao = ''%s'')) or '+
+                           '(vf.cidade in (Select codigo '+
+                                         'From cidades '+
+                                         'Where regiao = ''%s'')))';
+
+  FiltroCartaDevolvida = 'AND clientes_cartadevolvida(cliente,tipocliente)';
+  FiltroCartaNaoDevolvida = 'AND not clientes_cartadevolvida(cliente,tipocliente)';
+
+  FiltroComOcorrenciaCobranca = 'AND atendimentos_cobrancasemaviso(cliente,tipocliente)';
+  FiltroSemOcorrenciaCobranca = 'AND not atendimentos_cobrancasemaviso(cliente,tipocliente)';
+
+  FiltroComEnderecoCompleto = 'and (clientes_enderecocompleto(vf.rua))';
+  FiltroSemEnderecoCompleto = 'and not (clientes_enderecocompleto(vf.rua))';
+  FiltroEPrimeiraCompra = 'and ((Select Count(*) From contratos t1 '+
+                              'Where t1.cliente     = cliente and '+
+                                    't1.tipocliente = tipocliente and '+
+                                    't1.origem is null) = 1)';
+  FiltroNaoEPrimeiraCompra = 'and ((Select Count(*) From contratos t1 '+
+                              'Where t1.cliente     = cliente and '+
+                                    't1.tipocliente = tipocliente and '+
+                                    't1.origem is null) > 1)';
+  FiltroComAlgumPagamento = 'and not (contratos_nenhumpagamento(contrato))';
+  FiltroSemPagamento = 'and (contratos_nenhumpagamento(contrato))';
+
+implementation
+
+{$R *.dfm}
+
+constructor TdtmPrestacoesAbertas.Create(AOwner: TComponent);
+begin
+  inherited;
+//  qryFiliais.Tag             := ctTabelas;
+//  qryGrupoFiliais.Tag        := ctTabelas;
+  qryRegiao.Tag              := ctTabelas;
+  qryVendedor.Tag            := ctTabelas;
+  qryProcuraCliente.Tag      := ctTabelas;
+//  qryAgentes.Tag             := ctTabelas;
+//  qryConceitos.Tag           := ctTabelas;
+  qryConsultaRegiao.Tag      := ctConsultaRegioes;
+  qryConsultaVendedor.Tag    := ctConsultaVendedores;
+  qryConsultaClientes.Tag    := ctConsultaClientes;
+
+  qryProcuraCliente.Params[1].AsString    := 'C';
+  tecfinanceira.LerParametros;
+end;
+
+procedure TdtmPrestacoesAbertas.Selecionar(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesREGIOES    : RefazConsulta(qryRegiao,      [0],[qryConsultaRegiaocodigo.AsString]);
+    pesVENDEDORES : RefazConsulta(qryVendedor,    [0],[qryConsultaVendedorcodigo.AsInteger]);
+    pesCLIENTES   : begin
+                     if qryConsultaClientes.RecordCount > 0 then
+                       RefazConsulta(qryProcuraCliente,[0,1],[qryConsultaClientescodigo.AsVariant,
+                                                       qryConsultaClientestipoorig.AsVariant]);
+
+                       qryProcuraCliente.Params[1].AsString:=qryConsultaClientestipoorig.AsString;
+
+                    end;
+  end;
+end;
+
+
+function TdtmPrestacoesAbertas.ExisteRegiao(Campo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaRegiao,Campo,Codigo);
+end;
+
+function TdtmPrestacoesAbertas.GetConsultarRegiao: TTecQuery;
+begin
+  Result:= qryConsultaRegiao;
+end;
+
+function TdtmPrestacoesAbertas.ExisteVendedor(Campo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaVendedor,Campo,Codigo);
+end;
+
+function TdtmPrestacoesAbertas.GetConsultarVendedor: TTecQuery;
+begin
+  Result:= qryConsultaVendedor;
+end;
+
+procedure TdtmPrestacoesAbertas.AbreTabelaConsulta(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesREGIOES      : Abre(ctConsultaRegioes);
+    pesVENDEDORES   : Abre(ctConsultaVendedores);
+    pesCLIENTES     : Abre(ctConsultaClientes);
+  end;
+end;
+
+procedure TdtmPrestacoesAbertas.FechaTabelaConsulta(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesFILIAIS      : Fecha(ctConsultaFiliais);
+    pesGRUPOSFILIAIS: Fecha(ctConsultaGruposFiliais);
+    pesREGIOES      : Fecha(ctConsultaRegioes);
+    pesVENDEDORES   : Fecha(ctConsultaVendedores);
+    pesCLIENTES     : Fecha(ctConsultaClientes);
+  end;
+end;
+
+procedure TdtmPrestacoesAbertas.SetAtraso(const Value: Boolean);
+begin
+ if not value then
+ begin
+  qryParcelas.Sql[P_WhereDataVencto] := 'min(p.datavencto) as datavencto,';
+  qryParcelas.MacroByName('GroupBy').AsString := 'group by p.contrato, p.numero, p.valorvencto';
+  FParametrosCabecalho:=FParametrosCabecalho+' Atraso: Maior do Período';
+ end
+ else
+ begin
+  qryParcelas.Sql[P_WhereDataVencto] := 'p.datavencto,';
+  qryParcelas.MacroByName('GroupBy').AsString := '';
+  FParametrosCabecalho:=FParametrosCabecalho+' Atraso: Qualquer';
+ end;
+end;
+
+procedure TdtmPrestacoesAbertas.SetDataVenctoFinal(const Value: string);
+begin
+  FDataVenctoFinal := Value;
+  if FDataVenctoInicial='' then
+  begin
+    if FDataVenctoFinal <> '' then
+    begin
+      qryContratos.MacroByName('WherePeriodoVencto').AsString := ' and (p.datavencto <= ''' + FDataVenctoFinal + ''') ';
+      qryParcelas.MacroByName('WherePeriodoVencto').AsString := ' and (p.datavencto <= ''' + FDataVenctoFinal + ''') ';
+      qryParcelasClientes.MacroByName('WherePeriodoVencto').AsString := ' and (p.datavencto <= ''' + FDataVenctoFinal + ''') ';
+      qryParcelasPrestacoesAbertasResumo.MacroByName('WherePeriodoVencto').AsString := ' and (p.datavencto <= ''' + FDataVenctoFinal + ''') ';
+    end
+    else
+    begin
+      qryContratos.MacroByName('WherePeriodoVencto').AsString := '';
+      qryParcelas.MacroByName('WherePeriodoVencto').AsString := '';
+      qryParcelasClientes.MacroByName('WherePeriodoVencto').AsString := '';
+      qryParcelasPrestacoesAbertasResumo.MacroByName('WherePeriodoVencto').AsString := '';
+    end
+  end
+  else
+  begin
+    if FDataVenctoFinal = '' then
+    begin
+      qryContratos.MacroByName('WherePeriodoVencto').AsString := ' and (p.datavencto >= ''' + FDataVenctoInicial + ''') ';
+      qryParcelas.MacroByName('WherePeriodoVencto').AsString := ' and (p.datavencto >= ''' + FDataVenctoInicial + ''') ';
+      qryParcelasClientes.MacroByName('WherePeriodoVencto').AsString := ' and (p.datavencto >= ''' + FDataVenctoInicial + ''') ';
+      qryParcelasPrestacoesAbertasResumo.MacroByName('WherePeriodoVencto').AsString := ' and (p.datavencto >= ''' + FDataVenctoInicial + ''') ';
+    end
+    else
+    begin
+      qryContratos.MacroByName('WherePeriodoVencto').AsString := ' and (p.datavencto between ''' + FDataVenctoInicial +
+                                                           ''' and ''' + FDataVenctoFinal + ''')';
+      qryParcelas.MacroByName('WherePeriodoVencto').AsString := ' and (p.datavencto between ''' + FDataVenctoInicial +
+                                                          ''' and ''' + FDataVenctoFinal + ''')';
+      qryParcelasClientes.MacroByName('WherePeriodoVencto').AsString := ' and (p.datavencto between ''' + FDataVenctoInicial +
+                                                          ''' and ''' + FDataVenctoFinal + ''')';
+      qryParcelasPrestacoesAbertasResumo.MacroByName('WherePeriodoVencto').AsString := ' and (p.datavencto between ''' + FDataVenctoInicial +
+                                                          ''' and ''' + FDataVenctoFinal + ''')';
+    end;
+  end;
+{  if FDataVenctoInicial='' then
+    FDataVenctoInicial:=FDataVenctoFinal
+  else
+    if FDataVenctoFinal='' then
+      FDataVenctoFinal:=FDataVenctoInicial;
+
+ qryContratos.ParamByName('VenctoInicial').AsString := FDataVenctoInicial;
+ qryContratos.ParamByName('VenctoFinal').AsString := FDataVenctoFinal;
+ qryParcelas.ParamByName('VenctoInicial').AsString := FDataVenctoInicial;
+ qryParcelas.ParamByName('VenctoFinal').AsString := FDataVenctoFinal;
+ qryParcelasClientes.ParamByName('VenctoInicial').AsString := FDataVenctoInicial;
+ qryParcelasClientes.ParamByName('VenctoFinal').AsString := FDataVenctoFinal;
+ qryParcelasPrestacoesAbertasResumo.ParamByName('VenctoInicial').AsString := FDataVenctoInicial;
+ qryParcelasPrestacoesAbertasResumo.ParamByName('VenctoFinal').AsString := FDataVenctoFinal;}
+end;
+
+procedure TdtmPrestacoesAbertas.SetFiliais(const Value: string);
+begin
+  if (Value <> '') then
+    qryParcelas.MacroByName('WhereFiliais').AsString := format(FiltroFilial, [Value])
+  else
+    qryParcelas.MacroByName('WhereFiliais').AsString := '';
+end;
+
+procedure TdtmPrestacoesAbertas.SetGrupoFiliais(const Value: string);
+begin
+  if (Value <> '') then
+    qryParcelas.MacroByName('WhereFiliais').AsString := format(FiltroGrupoFilial, [Value]);
+end;
+
+procedure TdtmPrestacoesAbertas.SetRegiao(const Value: string);
+begin
+  if (Value <> '') then
+  begin
+    qryparcelas.MacroByName('WhereRegiao').AsString := format(FiltroRegiao, [Value, Value]);
+    FParametrosCabecalho := FParametrosCabecalho+' Regiao: '+Value;
+  end
+  else
+    qryparcelas.MacroByName('WhereRegiao').AsString  := '';
+end;
+
+procedure TdtmPrestacoesAbertas.SetListaCondicionalVendedor(const Value: string);
+begin
+  if (Value <> '') then begin
+    qryparcelas.MacroByName('WhereVendedor').AsString := ' AND (' + Value + ')';
+    FParametrosCabecalho := FParametrosCabecalho+' Vendedor: '+Value;
+  end
+  else
+    qryparcelas.MacroByName('WhereVendedor').AsString  := '';
+end;
+
+procedure TdtmPrestacoesAbertas.ContratosSemPagamento(ComPagamento, SemPagamento: Boolean;
+                  DescricaoComPagamento, DescricaoSemPagamento: String);
+begin
+  if ComPagamento then begin
+    qryParcelas.MacroByName('WhereSemPagamento').AsString := FiltroComAlgumPagamento;
+    refazConsulta(qryInserirTabelaOpcoesPrestacoesAbertas,[0],[DescricaoComPagamento]);
+  end
+  else
+  if SemPagamento then
+  begin
+    qryParcelas.MacroByName('WhereSemPagamento').AsString := FiltroSemPagamento;
+    refazConsulta(qryInserirTabelaOpcoesPrestacoesAbertas,[0],[DescricaoSemPagamento]);
+  end
+  else
+    qryParcelas.MacroByName('WhereSemPagamento').AsString := '';
+end;
+
+procedure TdtmPrestacoesAbertas.EnderecoCompleto(ComEnderecoCompleto, SemEnderecoCompleto: Boolean;
+                  DescricaoComEnderecoCompleto, DescricaoSemEnderecoCompleto: String);
+begin
+  if ComEnderecoCompleto then
+  begin
+   qryParcelas.MacroByName('WhereEndereco').AsString := FiltroComEnderecoCompleto;
+   refazConsulta(qryInserirTabelaOpcoesPrestacoesAbertas,[0],[DescricaoComEnderecoCompleto]);
+  end
+  else
+  if SemEnderecoCompleto then
+  begin
+   qryParcelas.MacroByName('WhereEndereco').AsString := FiltroSemEnderecoCompleto;
+   refazConsulta(qryInserirTabelaOpcoesPrestacoesAbertas,[0],[DescricaosemEnderecoCompleto]);
+  end
+  else qryParcelas.MacroByName('WhereEndereco').AsString := '';
+end;
+
+procedure TdtmPrestacoesAbertas.OcorrenciasCobranca(ComOcorrencia, SemOcorrencia: Boolean;
+                  DescricaoComOcorrencia, DescricaoSemOcorrencia: String);
+begin
+  if ComOcorrencia then
+  begin
+   qryParcelas.MacroByName('WhereOcorrenciaCobranca').AsString := FiltrocomOcorrenciaCobranca;
+   refazConsulta(qryInserirTabelaOpcoesPrestacoesAbertas,[0],[DescricaoComOcorrencia]);
+  end
+  else
+  if SemOcorrencia then
+  begin
+   qryParcelas.MacroByName('WhereOcorrenciaCobranca').AsString := FiltroSemOcorrenciaCobranca;
+   refazConsulta(qryInserirTabelaOpcoesPrestacoesAbertas,[0],[DescricaoSemOcorrencia]);
+  end
+  else
+   qryParcelas.MacroByName('WhereOcorrenciaCobranca').AsString := '';
+end;
+
+procedure TdtmPrestacoesAbertas.PrimeiraCompra(EPrimeiraCompra, NaoEPrimeiraCompra: Boolean;
+                  DescricaoEprimeiraCompra, DescricaoNaoEPrimeiraCompra: String);
+begin
+  if EPrimeiraCompra then
+  begin
+   qryParcelas.MacroByName('WherePrimeiraCompra').AsString := FiltroEPrimeiraCompra;
+   refazConsulta(qryInserirTabelaOpcoesPrestacoesAbertas,[0],[Descricaoeprimeiracompra]);
+  end
+  else
+  if NaoEPrimeiraCompra then
+  begin
+   qryParcelas.MacroByName('WherePrimeiraCompra').AsString := FiltroNaoEPrimeiraCompra;
+   refazConsulta(qryInserirTabelaOpcoesPrestacoesAbertas,[0],[DescricaoNaoeprimeiracompra]);
+  end
+  else qryParcelas.MacroByName('WherePrimeiraCompra').AsString := '';
+end;
+
+procedure TdtmPrestacoesAbertas.CartaDevolvida(ComCartaDevolvida, SemCartaDevolvida: Boolean;
+             DescricaoComCartaDevolvida, DescricaoSemCartaDevolvida: String);
+begin
+  if ComCartaDevolvida then
+  begin
+   qryParcelas.MacroByName('WhereCartaDevolvida').AsString:= FiltroCartaDevolvida;
+   refazConsulta(qryInserirTabelaOpcoesPrestacoesAbertas,[0],[DescricaoComCartaDevolvida]);
+  end  else
+  if SemCartaDevolvida then
+  begin
+   qryParcelas.MacroByName('WhereCartaDevolvida').AsString := FiltroCartaNaoDevolvida;
+   refazConsulta(qryInserirTabelaOpcoesPrestacoesAbertas,[0],[DescricaosemCartaDevolvida]);
+  end
+  else
+   qryParcelas.MacroByName('WhereCartaDevolvida').AsString :='';
+end;
+
+procedure TdtmPrestacoesAbertas.qryFiliaisAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsulta(qryGrupoFiliais, [0], [0]);
+end;
+
+function TdtmPrestacoesAbertas.GetDescricaoAgente: String;
+begin
+  Result:= qryAgentesdescricao.AsString;
+end;
+
+function TdtmPrestacoesAbertas.GetDescricaoConceito: String;
+begin
+  Result:= qryConceitosdescricao.AsString;
+end;
+
+function TdtmPrestacoesAbertas.GetTabelaAgente: TtecQuery;
+begin
+  Result:= qryAgentes;
+end;
+
+function TdtmPrestacoesAbertas.GetTabelaConceito: TtecQuery;
+begin
+  Result:= qryConceitos;
+end;
+
+procedure TdtmPrestacoesAbertas.GerarRelatorio;
+var
+  CabecalhoDatas: String;
+begin
+
+ CabecalhoDatas := '';
+ if qryOpcoesPrestacoesAbertasopcao.AsString='' then
+ begin
+  frpPrestacoesAbertas.FindObject('mmoCheckOpcao').FrameTyp:=0;
+  frpPrestacoesAbertasResumo.FindObject('mmoCheckOpcao').FrameTyp := 0;
+ end
+ else
+ begin
+  frpPrestacoesAbertas.FindObject('mmoCheckOpcao').FrameTyp:=15;
+  frpPrestacoesAbertasResumo.FindObject('mmoCheckOpcao').FrameTyp:=15;
+ end;
+ frVariables['Rua']   := RuaFilialBase;
+ frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + CEPFilialBase;
+ frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
+ frVariables['Fone']  := FoneFilialBase;
+ frVariables['Outras']:= FParametrosCabecalho;
+ frVariables['AgruparGrupoFilial']:= FAgruparGrupoFilial;
+ frVariables['AgruparFilial']:= FAgruparFilial;
+{ frVariables['AgruparVendedor']:= FAgruparVendedor;}
+
+
+ if (FdataVendaInicial<>'') and (FDataVendaFinal <> '') then
+   CabecalhoDatas := 'Vendas entre ' + FDataVendaInicial + ' e ' + FDataVendaFinal
+ else
+ if (FdataVendaInicial<>'') and (FDataVendaFinal = '') then
+   CabecalhoDatas := 'Vendas a partir de ' + FDataVendaInicial
+ else if (FDataVendaFinal <> '') then
+   CabecalhoDatas := 'Vendas até ' + FDataVendaFinal;
+
+ if CabecalhoDatas <> '' then
+ begin
+   if (FDataVenctoInicial <> '') and (FDataVenctoFinal <> '') then
+     CabecalhoDatas := CabecalhoDatas + '  - Vencimentos entre ' + FDataVenctoInicial + ' e ' + FDataVenctoFinal
+   else if (FDataVenctoInicial <> '') then
+     CabecalhoDatas := CabecalhoDatas + '  - Vencimentos a partir de ' + FDataVenctoInicial
+   else if (FDataVenctoFinal <> '') then
+     CabecalhoDatas := CabecalhoDatas + '  - Vencimentos até ' + FDataVenctoFinal;
+ end
+ else
+ begin
+   if (FDataVenctoInicial <> '') and (FDataVenctoFinal <> '') then
+     CabecalhoDatas := 'Vencimentos entre ' + FDataVenctoInicial + ' e ' + FDataVenctoFinal
+   else if (FDataVenctoInicial <> '') then
+     CabecalhoDatas := 'Vencimentos a partir de ' + FDataVenctoInicial
+   else if (FDataVenctoFinal <> '') then
+     CabecalhoDatas := 'Vencimentos até ' + FDataVenctoFinal;
+ end;
+
+ frVariables['CabecalhoDatas'] := CabecalhoDatas;
+ frVariables['Ordenacao']:=FOrdenacao;
+
+// frpPrestacoesAbertas.DesignReport;
+ 
+ ImprimirRelatoriofast(null, null, MPadrao, Resumo, [frpPrestacoesAbertas, frpPrestacoesAbertasResumo], true, self)
+
+end;
+
+
+procedure TdtmPrestacoesAbertas.qryParcelasPrestacoesAbertasResumo_CalcFields(DataSet: TDataSet);
+begin
+  inherited;
+{  qryParcelasPrestacoesAbertasResumoValorPagar.asCurrency := (CalcularValorParcela(qryParcelasPrestacoesAbertasResumoDataVencto.AsDateTime,
+                                                                             Date,
+                                                                             qryParcelasPrestacoesAbertasResumovalorvencto.AsCurrency,
+                                                                             7));}
+  qryParcelasPrestacoesAbertasResumoValorPagar.asCurrency:=
+             qryParcelasPrestacoesAbertasResumovalorvencto.AsCurrency +
+             tecFinanceira.CalcularJuros(qryParcelasPrestacoesAbertasResumovalorvencto.AsCurrency,
+                                         qryParcelasPrestacoesAbertasResumodatavencto.AsDateTime,
+                                         date,
+                                         qryParcelasPrestacoesAbertasResumofilialvenda.asinteger
+                                         );
+                                                                             //ParSistema.JurosPagAtrasado));
+  qryParcelasPrestacoesAbertasResumoJuros.AsCurrency := qryParcelasPrestacoesAbertasResumoValorPagar.asCurrency -
+                                                        qryParcelasPrestacoesAbertasResumoValorVencto.asCurrency
+end;
+
+procedure TdtmPrestacoesAbertas.SetAnalitico(const Value: Boolean);
+begin
+  if FAnalitico <> Value then
+    FAnalitico:= Value;
+end;
+
+procedure TdtmPrestacoesAbertas.SetDataVendaFinal(const Value: String);
+begin
+  FDataVendaFinal := Value;
+  if FDataVendaInicial='' then
+  begin
+    if FDataVendaFinal <> '' then
+    begin
+      qryContratos.MacroByName('WherePeriodoVenda').AsString := ' and (ct.faturamento <= ''' + FDataVendaFinal + ''') ';
+      qryParcelas.MacroByName('WherePeriodoVenda').AsString := ' and (ct.faturamento <= ''' + FDataVendaFinal + ''') ';
+      qryParcelasClientes.MacroByName('WherePeriodoVenda').AsString := ' and (ct.faturamento <= ''' + FDataVendaFinal + ''') ';
+      qryParcelasPrestacoesAbertasResumo.MacroByName('WherePeriodoVenda').AsString := ' and (ct.faturamento <= ''' + FDataVendaFinal + ''') ';
+    end
+    else
+    begin
+      qryContratos.MacroByName('WherePeriodoVenda').AsString := '';
+      qryParcelas.MacroByName('WherePeriodoVenda').AsString := '';
+      qryParcelasClientes.MacroByName('WherePeriodoVenda').AsString := '';
+      qryParcelasPrestacoesAbertasResumo.MacroByName('WherePeriodoVenda').AsString := '';
+    end
+  end
+  else
+  begin
+    if FDataVendaFinal = '' then
+    begin
+      qryContratos.MacroByName('WherePeriodoVenda').AsString := ' and (ct.faturamento >= ''' + FDataVendaInicial + ''') ';
+      qryParcelas.MacroByName('WherePeriodoVenda').AsString := ' and (ct.faturamento >= ''' + FDataVendaInicial + ''') ';
+      qryParcelasClientes.MacroByName('WherePeriodoVenda').AsString := ' and (ct.faturamento >= ''' + FDataVendaInicial + ''') ';
+      qryParcelasPrestacoesAbertasResumo.MacroByName('WherePeriodoVenda').AsString := ' and (ct.faturamento >= ''' + FDataVendaInicial + ''') ';
+    end
+    else
+    begin
+      qryContratos.MacroByName('WherePeriodoVenda').AsString := ' and (ct.faturamento between ''' + FDataVendaInicial +
+                                                           ''' and ''' + FDataVendaFinal + ''')';
+      qryParcelas.MacroByName('WherePeriodoVenda').AsString := ' and (ct.faturamento between ''' + FDataVendaInicial +
+                                                          ''' and ''' + FDataVendaFinal + ''')';
+      qryParcelasClientes.MacroByName('WherePeriodoVenda').AsString := ' and (ct.faturamento between ''' + FDataVendaInicial +
+                                                          ''' and ''' + FDataVendaFinal + ''')';
+      qryParcelasPrestacoesAbertasResumo.MacroByName('WherePeriodoVenda').AsString := ' and (ct.faturamento between ''' + FDataVendaInicial +
+                                                          ''' and ''' + FDataVendaFinal + ''')';
+    end;
+  end;
+{
+  qryContratos.ParamByName('Vendainicial').AsString := FDataVendaInicial;
+  qryContratos.ParamByName('VendaFinal').AsString := FDataVendaFinal;
+  qryParcelas.ParamByName('Vendainicial').AsString := FDataVendaInicial;
+  qryParcelas.ParamByName('VendaFinal').AsString := FDataVendaFinal;
+  qryParcelasclientes.ParamByName('Vendainicial').AsString := FDataVendaInicial;
+  qryParcelasclientes.ParamByName('VendaFinal').AsString := FDataVendaFinal;
+  qryParcelasPrestacoesAbertasResumo.ParamByName('Vendainicial').AsString := FDataVendaInicial;
+  qryParcelasPrestacoesAbertasResumo.ParamByName('VendaFinal').AsString := FDataVendaFinal;}
+end;
+
+procedure TdtmPrestacoesAbertas.frpPrestacoesAbertasBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') then
+   if FileExists(LogotipoFilialBase) then
+    try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+end;
+
+function TdtmPrestacoesAbertas.GetListaFiliais: TStrings;
+begin
+  FListaFiliais:= TStringList.Create;
+  qryFiliais.Open;
+  qryFiliais.First;
+  while not qryFiliais.Eof do
+  begin
+    FListaFiliais.AddObject(format('%3s',[qryFiliaiscodigo.AsString])+'.'+
+      qryFiliaisnome.AsString, Pointer(qryFiliaiscodigo.AsInteger));
+    qryFiliais.Next;
+  end;
+  qryFiliais.close;
+  Result := FListaFiliais;
+end;
+
+function TdtmPrestacoesAbertas.GetListaGruposFiliais: TStrings;
+begin
+  FListaGruposFiliais:= TStringList.Create;
+  qryGrupoFiliais.open;
+  qryGrupoFiliais.First;
+  while not qryGrupoFiliais.Eof do
+  begin
+    FListaGruposFiliais.AddObject(format('%3s',[qryGrupoFiliaiscodigo.AsString])+'.'+
+      qryGrupoFiliaisdescricao.AsString, Pointer(qryGrupoFiliaiscodigo.AsInteger));
+    qryGrupoFiliais.Next;
+  end;
+  qryGrupoFiliais.close;
+  Result := FListaGruposFiliais;
+end;
+
+function TdtmPrestacoesAbertas.GetListaAgentes: Tstrings;
+begin
+  FListaAgentes:= TStringList.Create;
+  qryAgentes.open;
+  qryAgentes.First;
+  while not qryAgentes.Eof do
+  begin
+    FListaAgentes.AddObject(format('%3s',[qryAgentescodigo.AsString])+'.'+
+    qryAgentesdescricao.AsString, Pointer(qryAgentescodigo.AsInteger));
+    qryAgentes.Next;
+  end;
+  qryAgentes.close;
+  Result := FListaAgentes;
+end;
+
+function TdtmPrestacoesAbertas.GetListaConceitos: Tstrings;
+begin
+  FListaConceitos:= TStringList.Create;
+  qryConceitos.open;
+  qryConceitos.First;
+  while not qryConceitos.Eof do
+  begin
+    FListaConceitos.AddObject(format('%3s',[qryConceitosCodigo.AsString])+'.'+
+    qryConceitosDescricao.AsString, Pointer(qryConceitoscodigo.AsInteger));
+    qryConceitos.Next;
+  end;
+  qryConceitos.close;
+  Result := FListaConceitos;
+end;
+
+procedure TdtmPrestacoesAbertas.MontarFiltroAgentes(Usar: TCheckListBox);
+var
+  STRAgentes: String;
+  TodosAgentes: Boolean;
+  cnt: Integer;
+begin
+  TodosAgentes := True;
+  STRAgentes := '';
+  for cnt := 0 to FListaAgentes.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRAgentes := STRAgentes + '''' + IntToStr(Integer(FListaAgentes.Objects[cnt])) + ''','
+    else
+      TodosAgentes := False;
+
+  STRAgentes := Copy(STRAgentes, 0, Length(STrAgentes) - 1);
+  Agentes:=STRAgentes;
+  if Trim(STRAgentes) <> '' then
+   if not TodosAgentes then
+    FParametrosCabecalho:=FParametrosCabecalho+' Agentes: '+STRAgentes
+   else
+    Agentes:='';
+end;
+
+procedure TdtmPrestacoesAbertas.MontarFiltroConceitos(Usar: TCheckListBox);
+var
+  STRConceitos: String;
+  TodosConceitos : Boolean;
+  cnt: Integer;
+begin
+  TodosConceitos := True;
+  STRConceitos := '';
+  for cnt := 0 to FListaConceitos.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRConceitos := STRConceitos + '''' + IntToStr(Integer(FListaConceitos.Objects[cnt])) + ''','
+    else
+      TodosConceitos:=false;
+  STRConceitos := Copy(STRConceitos, 0, Length(STRConceitos) - 1);
+  Conceitos := STRConceitos ;
+  if Trim(STRConceitos) <> '' then
+   if not TodosConceitos then
+    FParametrosCabecalho:=FParametrosCabecalho+' Conceitos: '+STRConceitos
+   else
+    Conceitos := '';
+end;
+
+procedure TdtmPrestacoesAbertas.MontarFiltroFiliais(Usar: TCheckListBox);
+var
+  STRFiliais: String;
+  TodasFiliais: Boolean;
+  cnt: Integer;
+begin
+  TodasFiliais := True;
+  STRFiliais := '';
+  for cnt := 0 to FListaFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRFiliais := STRFiliais + '''' + IntToStr(Integer(FListaFiliais.Objects[cnt])) + ''','
+    else
+      TodasFiliais := False;
+
+  STRFiliais := Copy(STRFiliais, 0, Length(STrFiliais) - 1);
+  Filiais := STRFiliais;
+  if Trim(STRFiliais) <> '' then
+    if not TodasFiliais then
+      FParametrosCabecalho:=FParametrosCabecalho+' Filiais: '+STRFiliais
+    else
+      Filiais := '';
+end;
+
+procedure TdtmPrestacoesAbertas.MontarFiltroGrupoFiliais(
+  Usar: TCheckListBox);
+var
+  STRGruposFiliais: String;
+  TodosGrupos: Boolean;
+  cnt: Integer;
+begin
+  STRGruposFiliais := '';
+  TodosGrupos := True;
+  for cnt := 0 to FListaGruposFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRGruposFiliais := STRGruposFiliais + '''' + IntToStr(Integer(FListaGruposFiliais.Objects[cnt])) + ''','
+    else
+      TodosGrupos := False;
+
+  STRGruposFiliais := Copy(STRGruposFiliais, 0, Length(STrGruposFiliais) - 1);
+  GrupoFiliais:=STRGruposFiliais;
+  if Trim(STRGruposFiliais) <> '' then
+   if not TodosGrupos then
+    FParametrosCabecalho:=FParametrosCabecalho+' Grupo de Filiais: '+STRGruposFiliais
+   else
+    GrupoFiliais:='';
+end;
+
+procedure TdtmPrestacoesAbertas.SetAgentes(const Value: String);
+begin
+  if (Value <> '') then
+    qryParcelas.MacroByName('WhereAgentes').AsString := format(FiltroAgente, [Value])
+  else
+    qryParcelas.MacroByName('WhereAgentes').AsString := '';
+end;
+
+procedure TdtmPrestacoesAbertas.SetConceitos(const Value: String);
+begin
+  if (Value <> '') then
+    qryParcelas.MacroByName('WhereConceitos').AsString := format(FiltroConceito, [Value])
+  else
+    qryParcelas.MacroByName('WhereConceitos').AsString := '';
+end;
+
+procedure TdtmPrestacoesAbertas.MontarOrdenacao;
+var
+Ordem: String;
+begin
+  Ordem:='';
+  if FAgruparGrupoFilial then
+    Ordem:=Ordem+', nomegrupofilialvenda, grupofilialvenda ';
+
+  if FAgruparFilial then
+  begin
+    Ordem:=Ordem+', nomefilialvenda, filialvenda ';
+    qryContratos.linkfields := 'cliente=cliente;tipocliente=tipocliente;filialvenda=filialvenda'
+  end
+  else
+   qryContratos.linkfields := 'cliente=cliente;tipocliente=tipocliente';
+
+
+{
+  if FAgruparVendedor then
+    Ordem:=Ordem+', nomevendedor, vendedor ';
+}
+
+
+  if Ordem<>'' then
+    qryParcelasPrestacoesAbertasResumo.MacroByName('OrderBy').AsString:= ('Order by '+copy(Ordem,2,length(Ordem)-1));
+
+  // 0-Cidade/Bairro 1- Nome Cliente 2- Código Cliente
+  if FOrdenacao=0 then
+    Ordem:=Ordem+', nomecidade, nomebairrocliente,nome, cliente, tipocliente'
+  else if FOrdenacao=1 then
+    Ordem:=Ordem+', nome, cliente, tipocliente'
+  else if FOrdenacao=2 then
+    Ordem:=Ordem+', cliente, nome, tipocliente';
+
+  qryParcelasClientes.sql[PC_Distinct]:= ('distinct on ('+copy(Ordem,2,length(Ordem)-1)+')');
+
+  qryParcelasClientes.MacroByName('OrderBy').AsString:= ('Order by '+copy(Ordem,2,length(Ordem)-1));
+end;
+
+procedure TdtmPrestacoesAbertas.qryParcelasCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryParcelasValorPagar.AsCurrency:=
+             qryParcelasvalorvencto.AsCurrency +
+             tecFinanceira.CalcularJuros(qryParcelasvalorvencto.AsCurrency,
+                                         qryParcelasdatavencto.AsDateTime,
+                                         date,
+                                         qryParcelasfilialvenda.asinteger);
+  if qryParcelasValorPagar.asCurrency <> 0 then
+   qryParcelasJuros.AsCurrency := qryParcelasValorPagar.asCurrency -
+                                 qryParcelasValorVencto.asCurrency;
+end;
+
+procedure TdtmPrestacoesAbertas.MontarSQLParcelasClientes;
+begin
+  qryParcelasClientes.MacroByName('WhereFiliais').AsString := qryParcelas.MacroByName('WhereFiliais').AsString;
+  qryParcelasClientes.MacroByName('WhereAgentes').AsString := qryParcelas.MacroByName('WhereAgentes').AsString;
+  qryParcelasClientes.MacroByName('WhereConceitos').AsString := qryParcelas.MacroByName('WhereConceitos').AsString;
+  qryParcelasClientes.MacroByName('WhereVendedor').AsString := qryParcelas.MacroByName('WhereVendedor').AsString;
+  qryParcelasClientes.MacroByName('WhereCartaDevolvida').AsString := qryParcelas.MacroByName('WhereCartaDevolvida').AsString;
+  qryParcelasClientes.MacroByName('WhereOcorrenciaCobranca').AsString := qryParcelas.MacroByName('WhereOcorrenciaCobranca').AsString;
+  qryParcelasClientes.MacroByName('WherePrimeiraCompra').AsString := qryParcelas.MacroByName('WherePrimeiraCompra').AsString;
+  qryParcelasClientes.MacroByName('WhereSemPagamento').AsString := qryParcelas.MacroByName('WhereSemPagamento').AsString;
+  qryParcelasClientes.MacroByName('WhereRegiao').AsString := qryParcelas.MacroByName('WhereRegiao').AsString;
+  qryParcelasClientes.MacroByName('WhereEndereco').AsString := qryParcelas.MacroByName('WhereEndereco').AsString;
+  qryParcelasclientes.MacroByName('WhereCliente').AsString := qryParcelas.MacroByName('WhereCliente').AsString;
+end;
+
+procedure TdtmPrestacoesAbertas.MontarSQLContratos;
+begin
+  qryContratos.MacroByName('WhereFiliais').AsString:= qryParcelas.MacroByName('WhereFiliais').AsString;
+  qryContratos.MacroByName('WhereAgentes').AsString := qryParcelas.MacroByName('WhereAgentes').AsString;
+  qryContratos.MacroByName('WhereConceitos').AsString := qryParcelas.MacroByName('WhereConceitos').AsString;
+  qryContratos.MacroByName('WhereVendedor').AsString := qryParcelas.MacroByName('WhereVendedor').AsString;
+  qryContratos.MacroByName('WhereCartaDevolvida').AsString := qryParcelas.MacroByName('WhereCartaDevolvida').AsString;
+  qryContratos.MacroByName('WhereOcorrenciaCobranca').AsString := qryParcelas.MacroByName('WhereOcorrenciaCobranca').AsString;
+  qryContratos.MacroByName('WherePrimeiraCompra').AsString := qryParcelas.MacroByName('WherePrimeiraCompra').AsString;
+  qryContratos.MacroByName('WhereSemPagamento').AsString := qryParcelas.MacroByName('WhereSemPagamento').AsString;
+  qryContratos.MacroByName('WhereRegiao').AsString := qryParcelas.MacroByName('WhereRegiao').AsString;
+  qryContratos.MacroByName('WhereEndereco').AsString := qryParcelas.MacroByName('WhereEndereco').AsString;
+  qryContratos.MacroByName('WhereCliente').AsString := qryParcelas.MacroByName('WhereCliente').AsString;
+end;
+
+procedure TdtmPrestacoesAbertas.qryParcelasPrestacoesAbertasResumoCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+{  qryParcelasPrestacoesAbertasResumoValorPagar.asCurrency :=
+   (CalcularValorParcela(qryParcelasPrestacoesAbertasResumoDataVencto.AsDateTime,
+                                                     Date,
+                        qryParcelasPrestacoesAbertasResumoValorVencto.AsCurrency,
+                                                      7));}
+    qryParcelasPrestacoesAbertasResumoValorPagar.asCurrency:=
+             qryParcelasPrestacoesAbertasResumovalorvencto.AsCurrency +
+             tecFinanceira.CalcularJuros(qryParcelasPrestacoesAbertasResumovalorvencto.AsCurrency,
+                                         qryParcelasPrestacoesAbertasResumodatavencto.AsDateTime,
+                                         date,
+                                         qryParcelasPrestacoesAbertasResumofilialvenda.asinteger
+                                         );
+  if qryParcelasPrestacoesAbertasResumoValorPagar.asCurrency <> 0 then
+   qryParcelasPrestacoesAbertasResumoJuros.AsCurrency := qryParcelasPrestacoesAbertasResumoValorPagar.asCurrency -
+                                        qryParcelasPrestacoesAbertasResumoValorVencto.asCurrency;
+end;
+
+procedure TdtmPrestacoesAbertas.MontarSQLParcelasPrestacoesAbertasResumo;
+begin
+  qryParcelasPrestacoesAbertasResumo.sql[PR_WhereDataVencto]                        := qryParcelas.sql[P_WhereDataVencto];
+  qryParcelasPrestacoesAbertasResumo.MacroByName('GroupBy').AsString                := qryParcelas.MacroByName('GroupBy').AsString;
+  qryParcelasPrestacoesAbertasResumo.MacroByName('WhereFiliais').AsString           := qryParcelas.MacroByName('WhereFiliais').AsString;
+  qryParcelasPrestacoesAbertasResumo.MacroByName('WhereAgentes').AsString           := qryParcelas.MacroByName('WhereAgentes').AsString;
+  qryParcelasPrestacoesAbertasResumo.MacroByName('WhereConceitos').AsString         := qryParcelas.MacroByName('WhereConceitos').AsString;
+  qryParcelasPrestacoesAbertasResumo.MacroByName('WhereVendedor').AsString          := qryParcelas.MacroByName('WhereVendedor').AsString;
+  qryParcelasPrestacoesAbertasResumo.MacroByName('WhereCartaDevolvida').AsString    := qryParcelas.MacroByName('WhereCartaDevolvida').AsString;
+  qryParcelasPrestacoesAbertasResumo.MacroByName('WhereOcorrenciaCobranca').AsString:= qryParcelas.MacroByName('WhereOcorrenciaCobranca').AsString;
+  qryParcelasPrestacoesAbertasResumo.MacroByName('WherePrimeiraCompra').AsString    := qryParcelas.MacroByName('WherePrimeiraCompra').AsString;
+  qryParcelasPrestacoesAbertasResumo.MacroByName('WhereSemPagamento').AsString      := qryParcelas.MacroByName('WhereSemPagamento').AsString;
+  qryParcelasPrestacoesAbertasResumo.MacroByName('WhereRegiao').AsString            := qryParcelas.MacroByName('WhereRegiao').AsString;
+  qryParcelasPrestacoesAbertasResumo.MacroByName('WhereEndereco').AsString          := qryParcelas.MacroByName('WhereEndereco').AsString;
+  qryParcelasPrestacoesAbertasResumo.MacroByName('WhereCliente').AsString           := qryParcelas.MacroByName('WhereCliente').AsString;
+end;
+
+function TdtmPrestacoesAbertas.ExisteCliente(NomeCampo: String;
+  Value: Variant): Boolean;
+const
+  SQL = 'and (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  if NomeCampo = 'nomecidade' then
+       NomeCampo:= 'c.nome'
+  else NomeCampo:= 'v.' + NomeCampo;
+  qryConsultaClientes.Sql[12]:= Format(SQL, [NomeCampo, ANSIUpperCase(Value), '%']);
+  qryConsultaClientes.Open;
+  Result := qryConsultaClientes.RecordCount > 0
+end;
+
+function TdtmPrestacoesAbertas.GetTabelaConsultaClientes: TZDataset;
+begin
+  Result := qryConsultaClientes
+end;
+
+procedure TdtmPrestacoesAbertas.SetCliente(const Value: String);
+begin
+  if (Value <> '') then begin
+    qryparcelas.MacroByName('WhereCliente').AsString := format(FiltroCliente, [Value, quotedstr(qryProcuraClientetipo.asstring)]);
+    FParametrosCabecalho := FParametrosCabecalho+' Cliente: '+Value;
+  end
+  else
+    qryparcelas.MacroByName('WhereCliente').AsString := '';
+end;
+
+end.
+
+
+
+

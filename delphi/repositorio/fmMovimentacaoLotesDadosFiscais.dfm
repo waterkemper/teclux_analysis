@@ -1,0 +1,682 @@
+object frmMovimentacaoLotesDadosFiscais: TfrmMovimentacaoLotesDadosFiscais
+  Left = 397
+  Top = 168
+  Width = 788
+  Height = 266
+  Caption = 'Movimenta'#231#227'o dos Lotes'
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object DBAdvGridMovimentosRomaneioDadoFiscal: TDBAdvGrid
+    Left = 0
+    Top = 38
+    Width = 772
+    Height = 149
+    Cursor = crDefault
+    Align = alClient
+    ColCount = 9
+    RowCount = 2
+    FixedRows = 1
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    ScrollBars = ssBoth
+    TabOrder = 0
+    ActiveCellFont.Charset = DEFAULT_CHARSET
+    ActiveCellFont.Color = clWindowText
+    ActiveCellFont.Height = -11
+    ActiveCellFont.Name = 'Tahoma'
+    ActiveCellFont.Style = [fsBold]
+    ControlLook.FixedGradientHoverFrom = clGray
+    ControlLook.FixedGradientHoverTo = clWhite
+    ControlLook.FixedGradientDownFrom = clGray
+    ControlLook.FixedGradientDownTo = clSilver
+    ControlLook.DropDownHeader.Font.Charset = DEFAULT_CHARSET
+    ControlLook.DropDownHeader.Font.Color = clWindowText
+    ControlLook.DropDownHeader.Font.Height = -11
+    ControlLook.DropDownHeader.Font.Name = 'Tahoma'
+    ControlLook.DropDownHeader.Font.Style = []
+    ControlLook.DropDownHeader.Visible = True
+    ControlLook.DropDownHeader.Buttons = <>
+    ControlLook.DropDownFooter.Font.Charset = DEFAULT_CHARSET
+    ControlLook.DropDownFooter.Font.Color = clWindowText
+    ControlLook.DropDownFooter.Font.Height = -11
+    ControlLook.DropDownFooter.Font.Name = 'MS Sans Serif'
+    ControlLook.DropDownFooter.Font.Style = []
+    ControlLook.DropDownFooter.Visible = True
+    ControlLook.DropDownFooter.Buttons = <>
+    Filter = <>
+    FilterDropDown.Font.Charset = DEFAULT_CHARSET
+    FilterDropDown.Font.Color = clWindowText
+    FilterDropDown.Font.Height = -11
+    FilterDropDown.Font.Name = 'MS Sans Serif'
+    FilterDropDown.Font.Style = []
+    FilterDropDownClear = '(All)'
+    FixedColWidth = 20
+    FixedRowHeight = 22
+    FixedFont.Charset = DEFAULT_CHARSET
+    FixedFont.Color = clWindowText
+    FixedFont.Height = -11
+    FixedFont.Name = 'Tahoma'
+    FixedFont.Style = [fsBold]
+    FloatFormat = '%.2f'
+    PrintSettings.DateFormat = 'dd/mm/yyyy'
+    PrintSettings.Font.Charset = DEFAULT_CHARSET
+    PrintSettings.Font.Color = clWindowText
+    PrintSettings.Font.Height = -11
+    PrintSettings.Font.Name = 'MS Sans Serif'
+    PrintSettings.Font.Style = []
+    PrintSettings.FixedFont.Charset = DEFAULT_CHARSET
+    PrintSettings.FixedFont.Color = clWindowText
+    PrintSettings.FixedFont.Height = -11
+    PrintSettings.FixedFont.Name = 'MS Sans Serif'
+    PrintSettings.FixedFont.Style = []
+    PrintSettings.HeaderFont.Charset = DEFAULT_CHARSET
+    PrintSettings.HeaderFont.Color = clWindowText
+    PrintSettings.HeaderFont.Height = -11
+    PrintSettings.HeaderFont.Name = 'MS Sans Serif'
+    PrintSettings.HeaderFont.Style = []
+    PrintSettings.FooterFont.Charset = DEFAULT_CHARSET
+    PrintSettings.FooterFont.Color = clWindowText
+    PrintSettings.FooterFont.Height = -11
+    PrintSettings.FooterFont.Name = 'MS Sans Serif'
+    PrintSettings.FooterFont.Style = []
+    PrintSettings.PageNumSep = '/'
+    SearchFooter.FindNextCaption = 'Find &next'
+    SearchFooter.FindPrevCaption = 'Find &previous'
+    SearchFooter.Font.Charset = DEFAULT_CHARSET
+    SearchFooter.Font.Color = clWindowText
+    SearchFooter.Font.Height = -11
+    SearchFooter.Font.Name = 'MS Sans Serif'
+    SearchFooter.Font.Style = []
+    SearchFooter.HighLightCaption = 'Highlight'
+    SearchFooter.HintClose = 'Close'
+    SearchFooter.HintFindNext = 'Find next occurrence'
+    SearchFooter.HintFindPrev = 'Find previous occurrence'
+    SearchFooter.HintHighlight = 'Highlight occurrences'
+    SearchFooter.MatchCaseCaption = 'Match case'
+    Version = '2.3.2.2'
+    AutoCreateColumns = False
+    AutoRemoveColumns = False
+    Columns = <
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'MS Sans Serif'
+        HeaderFont.Style = []
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'MS Sans Serif'
+        PrintFont.Style = []
+        Width = 20
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'descricaotipo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Tipo'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'MS Sans Serif'
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'MS Sans Serif'
+        PrintFont.Style = []
+        Width = 87
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'usuario'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Usu'#225'rio'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'MS Sans Serif'
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'MS Sans Serif'
+        PrintFont.Style = []
+        Width = 48
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'nomeusuario'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Nome do Usu'#225'rio'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'MS Sans Serif'
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'MS Sans Serif'
+        PrintFont.Style = []
+        Width = 120
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'filialregistro'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Filial do Registro'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'MS Sans Serif'
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'MS Sans Serif'
+        PrintFont.Style = []
+        Width = 92
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'nomefilial'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Nome da Filial do Registro'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'MS Sans Serif'
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'MS Sans Serif'
+        PrintFont.Style = []
+        Width = 145
+      end
+      item
+        Alignment = taCenter
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'datahora_alteracao'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Data/Hora'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'MS Sans Serif'
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'MS Sans Serif'
+        PrintFont.Style = []
+        Width = 108
+      end
+      item
+        Alignment = taCenter
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'volumes'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Volume'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'MS Sans Serif'
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'MS Sans Serif'
+        PrintFont.Style = []
+        Width = 64
+      end
+      item
+        Alignment = taCenter
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'#227'o'
+        CheckTrue = 'Sim'
+        Color = clWindow
+        FieldName = 'conferido'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Conferido'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'MS Sans Serif'
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'MS Sans Serif'
+        PrintFont.Style = []
+        Width = 64
+      end>
+    DataSource = dsrMovimentosRomaneioDadoFiscal
+    PageMode = False
+    InvalidPicture.Data = {
+      055449636F6E0000010001002020040000000000E80200001600000028000000
+      2000000040000000010004000000000000020000000000000000000000000000
+      0000000000000000000080000080000000808000800000008000800080800000
+      80808000C0C0C0000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000
+      FFFFFF000000000000777777777777000000000000000000777788FFFF887777
+      000000000000007778F8887117788F877700000000000778F87111111111178F
+      877000000000778871111111111999178877000000077F811111111111199999
+      18F7700000778811111111111119999991887700007881111111111111119199
+      99188700077F711111811111111198719997F7700788111118FF111111118FF7
+      1991887077F71111888FF1111118FFFF19997F77778111118888FF1111888FF8
+      911918777881111118888FF1188888811111188778811111118888FF88888811
+      111117877F7111111118888888888111111117F77F7999111111888888881111
+      111111F77F7999991111788888F71111111111F77F7999999917888888FF7111
+      111117F778879999917FFF88888FF111111117877887999997FFFFF88888FF11
+      11111887778799997FFFFFF798888FF11111187777F87997FFFFFF71178F88FF
+      71117F7707887997FFFFF7999978F88871118870077F87997FFF799999978F87
+      1117F77000788879978799999999787111188700007788879999999999999999
+      1188770000077F88799999999999999778F77000000077888879999999999778
+      8877000000000778F88877799777788F877000000000007778F8888878888F87
+      7700000000000000777788FFFF88777700000000000000000077777777777700
+      00000000FFC003FFFF0000FFFC00003FF800001FF000000FE0000007C0000003
+      C000000380000001800000010000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000080000001
+      80000001C0000003C0000003E0000007F000000FF800001FFC00003FFF0000FF
+      FFC003FF}
+    ShowBooleanFields = True
+    ShowUnicode = False
+    PostOnEnter = False
+    ColWidths = (
+      20
+      87
+      48
+      120
+      92
+      145
+      108
+      64
+      64)
+  end
+  object pnlBottom: TPanel
+    Left = 0
+    Top = 187
+    Width = 772
+    Height = 41
+    Align = alBottom
+    TabOrder = 1
+    object bbnOK: TBitBtn
+      Left = 354
+      Top = 8
+      Width = 75
+      Height = 25
+      Caption = '&OK'
+      TabOrder = 0
+      TabStop = False
+      Kind = bkOK
+    end
+  end
+  object pnlTop: TPanel
+    Left = 0
+    Top = 0
+    Width = 772
+    Height = 38
+    Align = alTop
+    TabOrder = 2
+    object lblfilial: TStaticText
+      Left = 16
+      Top = 16
+      Width = 24
+      Height = 17
+      Caption = 'Filial'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+    end
+    object lblSerie: TStaticText
+      Left = 104
+      Top = 16
+      Width = 28
+      Height = 17
+      Caption = 'S'#233'rie'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+    end
+    object lblNumero: TStaticText
+      Left = 208
+      Top = 16
+      Width = 41
+      Height = 17
+      Caption = 'N'#250'mero'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 2
+    end
+    object lblnfe: TStaticText
+      Left = 328
+      Top = 16
+      Width = 58
+      Height = 17
+      Caption = 'Chave NFe'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 3
+    end
+    object tecDBTextFilial: TtecDBText
+      Left = 44
+      Top = 12
+      Width = 42
+      Height = 21
+      TabStop = False
+      Color = clBtnFace
+      DataField = 'filial'
+      DataSource = dsrMovimentosRomaneioDadoFiscal
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 4
+      Alignment = taLeftJustify
+    end
+    object tecDBTextSerie: TtecDBText
+      Left = 136
+      Top = 12
+      Width = 41
+      Height = 21
+      TabStop = False
+      Color = clBtnFace
+      DataField = 'serie'
+      DataSource = dsrMovimentosRomaneioDadoFiscal
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 5
+      Alignment = taLeftJustify
+    end
+    object tecDBTextnumero: TtecDBText
+      Left = 256
+      Top = 12
+      Width = 57
+      Height = 21
+      TabStop = False
+      Color = clBtnFace
+      DataField = 'numero'
+      DataSource = dsrMovimentosRomaneioDadoFiscal
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 6
+      Alignment = taLeftJustify
+    end
+    object tecDBTextchv_nfe: TtecDBText
+      Left = 392
+      Top = 12
+      Width = 369
+      Height = 21
+      TabStop = False
+      Color = clBtnFace
+      DataField = 'chv_nfe'
+      DataSource = dsrMovimentosRomaneioDadoFiscal
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 7
+      Alignment = taLeftJustify
+    end
+  end
+  object qryMovimentosRomaneioDadoFiscal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryMovimentosRomaneioDadoFiscalCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select  '
+      '        n.filial, n.serie, n.numero,'
+      '        df.chv_nfe,'
+      '        '
+      '        vdfc.volume, vdfc.nrvolume, vdfc.conferido, '
+      ''
+      '       cast(case when vdfc.tipo in ('#39'ROS'#39', '#39'RPS'#39') then '#39'SA'#205'DA'#39
+      '             when vdfc.tipo = '#39'ROP'#39' then '#39'PASSAGEM'#39
+      '             when vdfc.tipo = '#39'ROE'#39' then '#39'ENTRADA'#39
+      '        end as varchar(10)) as descricaotipo,'
+      ''
+      
+        '        coalesce(vdfc.usuario, c.usuario) as usuario, u.nome as ' +
+        'nomeusuario,'
+      '        vdfc.filialregistro, f.nome as nomefilial,'
+      '        vdfc.datahora_alteracao '
+      '        '
+      '        '
+      'from volumesdadosfiscaisconferencia vdfc'
+      '     join dadosfiscais df'
+      '          join notas n'
+      '          on df.numero = n.dadofiscal'
+      '     on vdfc.dadofiscal = df.numero '
+      '     '
+      '     join conferencia c         '
+      '     on vdfc.tipo = c.tipo'
+      '     and vdfc.codigo = c.codigo'
+      '     '
+      '     '
+      '     left join usuarios u'
+      '     on coalesce(vdfc.usuario, c.usuario) = u.codigo'
+      '          '
+      '     left join filiais f'
+      '     on vdfc.filialregistro = f.codigo'
+      '       '
+      'where vdfc.tipo in ('#39'ROS'#39','#39'ROP'#39', '#39'ROE'#39', '#39'RPS'#39')'
+      'AND vdfc.codigo = :romaneio'
+      'and vdfc.dadofiscal = :dadofiscal'
+      
+        'order by vdfc.numerovolume, vdfc.nrvolume, vdfc.datahora_alterac' +
+        'ao')
+    RequestLive = False
+    Left = 32
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'romaneio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'dadofiscal'
+        ParamType = ptUnknown
+      end>
+    object qryMovimentosRomaneioDadoFiscalfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryMovimentosRomaneioDadoFiscalserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryMovimentosRomaneioDadoFiscalnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryMovimentosRomaneioDadoFiscalchv_nfe: TStringField
+      FieldName = 'chv_nfe'
+      EditMask = '99\-9999\-99999999999999\-99\-999\-999999999\-9\-99999999\-9;0;_'
+      Size = 44
+    end
+    object qryMovimentosRomaneioDadoFiscalvolume: TIntegerField
+      FieldName = 'volume'
+    end
+    object qryMovimentosRomaneioDadoFiscalconferido: TBooleanField
+      FieldName = 'conferido'
+    end
+    object qryMovimentosRomaneioDadoFiscaldescricaotipo: TStringField
+      FieldName = 'descricaotipo'
+      Size = 10
+    end
+    object qryMovimentosRomaneioDadoFiscalusuario: TIntegerField
+      FieldName = 'usuario'
+    end
+    object qryMovimentosRomaneioDadoFiscalnomeusuario: TStringField
+      FieldName = 'nomeusuario'
+      Size = 100
+    end
+    object qryMovimentosRomaneioDadoFiscalfilialregistro: TIntegerField
+      FieldName = 'filialregistro'
+    end
+    object qryMovimentosRomaneioDadoFiscalnomefilial: TStringField
+      FieldName = 'nomefilial'
+      Size = 60
+    end
+    object qryMovimentosRomaneioDadoFiscaldatahora_alteracao: TDateTimeField
+      Alignment = taCenter
+      FieldName = 'datahora_alteracao'
+      DisplayFormat = 'dd/MM/yy hh:mm'
+      EditMask = '99/99/99 99:99;1; '
+    end
+    object qryMovimentosRomaneioDadoFiscalvolumes: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'volumes'
+      Size = 7
+      Calculated = True
+    end
+    object qryMovimentosRomaneioDadoFiscalnrvolume: TIntegerField
+      FieldName = 'nrvolume'
+    end
+  end
+  object dsrMovimentosRomaneioDadoFiscal: TtecDataSource
+    DataSet = qryMovimentosRomaneioDadoFiscal
+    Left = 48
+    Top = 152
+  end
+end

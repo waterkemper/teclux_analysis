@@ -1,0 +1,1728 @@
+inherited dtmDIPJ_IPI: TdtmDIPJ_IPI
+  OldCreateOrder = False
+  Left = 349
+  Top = 123
+  Height = 750
+  Width = 736
+  object qrydipj_ipi: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qrydipj_ipiAfterScroll
+    OnNewRecord = qrydipj_ipiNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dipj_ipi.*'
+      'from dipj_ipi'
+      'where dipj_ipi.exercicio = :exercicio'
+      '    and dipj_ipi.filial = :filial')
+    RequestLive = True
+    Left = 28
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qrydipj_ipiexercicio: TStringField
+      FieldName = 'exercicio'
+      Size = 4
+    end
+    object qrydipj_ipinomearquivo: TStringField
+      FieldName = 'nomearquivo'
+      Size = 100
+    end
+    object qrydipj_ipidata: TDateTimeField
+      FieldName = 'data'
+    end
+    object qrydipj_ipifilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qrydipj_ipitipodeclaracao: TIntegerField
+      DisplayLabel = 'Tipo de declaracao'
+      FieldName = 'tipodeclaracao'
+      Required = True
+    end
+  end
+  object dsrdipj_ipi: TtecDataSource
+    DataSet = qrydipj_ipi
+    OnDataChange = dsrdipj_ipiDataChange
+    Left = 64
+    Top = 16
+  end
+  object qrydipj_ipi_f20: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qrydipj_ipi_f20AfterOpen
+    AfterInsert = qrydipj_ipi_f20AfterInsert
+    AfterPost = qrydipj_ipi_f20AfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dipj_ipi_f20.*'
+      'from dipj_ipi_f20'
+      'where dipj_ipi_f20.exercicio = :exercicio'
+      '    and dipj_ipi_f20.filial = :filial')
+    RequestLive = True
+    Left = 188
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qrydipj_ipi_f20exercicio: TStringField
+      FieldName = 'exercicio'
+      ReadOnly = True
+      Size = 4
+    end
+    object qrydipj_ipi_f20filial: TIntegerField
+      FieldName = 'filial'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qrydipj_ipi_f20mes: TStringField
+      DisplayLabel = 'Per'#237'odo'
+      FieldName = 'mes'
+      ReadOnly = True
+      Size = 7
+    end
+    object qrydipj_ipi_f20saldocredoranterior: TFloatField
+      DisplayLabel = 'Saldo credor anterior'
+      FieldName = 'saldocredoranterior'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qrydipj_ipi_f20debito: TFloatField
+      DisplayLabel = 'D'#233'bito'
+      FieldName = 'debito'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qrydipj_ipi_f20credito: TFloatField
+      DisplayLabel = 'Cr'#233'dito'
+      FieldName = 'credito'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qrydipj_ipi_f20SaldoApurado: TCurrencyField
+      DisplayLabel = 'Saldo apurado'
+      FieldKind = fkCalculated
+      FieldName = 'SaldoApurado'
+      ReadOnly = True
+      DisplayFormat = '###,###,##0.00'
+      Calculated = True
+    end
+    object qrydipj_ipi_f20TipoSaldo: TStringField
+      DisplayLabel = 'Credor/Devedor'
+      FieldKind = fkCalculated
+      FieldName = 'TipoSaldo'
+      ReadOnly = True
+      Size = 1
+      Calculated = True
+    end
+    object qrydipj_ipi_f20existemovto: TBooleanField
+      FieldName = 'existemovto'
+      ReadOnly = True
+    end
+  end
+  object dsrdipj_ipi_f20: TtecDataSource
+    DataSet = qrydipj_ipi_f20
+    Left = 224
+    Top = 16
+  end
+  object qrydipj_ipi_f21: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterInsert = qrydipj_ipi_f21AfterInsert
+    AfterPost = qrydipj_ipi_f21AfterPost
+    AfterScroll = qrydipj_ipi_f21AfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dipj_ipi_f21.*,'
+      '       (select dipj_ipi_f21_discriminacao.tipo'
+      '        from dipj_ipi_f21_discriminacao'
+      
+        '        where coalesce(dipj_ipi_f21_discriminacao.codigo,'#39#39') = c' +
+        'oalesce(dipj_ipi_f21.codigo,'#39#39')'
+      
+        '          and dipj_ipi_f21_discriminacao.discriminacao = dipj_ip' +
+        'i_f21.discriminacao'
+      '       ) as Tipo'
+      ''
+      'from dipj_ipi_f21'
+      'where dipj_ipi_f21.exercicio = :exercicio'
+      '    and dipj_ipi_f21.filial = :filial'
+      'order by sequencia')
+    RequestLive = True
+    Left = 324
+    Top = 32
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qrydipj_ipi_f21exercicio: TStringField
+      FieldName = 'exercicio'
+      Required = True
+      Size = 4
+    end
+    object qrydipj_ipi_f21filial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qrydipj_ipi_f21sequencia: TIntegerField
+      FieldName = 'sequencia'
+      DisplayFormat = '0'
+    end
+    object qrydipj_ipi_f21codigo: TStringField
+      FieldName = 'codigo'
+      Size = 2
+    end
+    object qrydipj_ipi_f21discriminacao: TStringField
+      DisplayLabel = 'Discrimina'#231#227'o'
+      FieldName = 'discriminacao'
+      Size = 80
+    end
+    object qrydipj_ipi_f21comcredito: TFloatField
+      DisplayLabel = 'Com cr'#233'dito'
+      FieldName = 'comcredito'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qrydipj_ipi_f21semcredito: TFloatField
+      DisplayLabel = 'Sem cr'#233'dito'
+      FieldName = 'semcredito'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qrydipj_ipi_f21ipicreditado: TFloatField
+      DisplayLabel = 'IPI creditado'
+      FieldName = 'ipicreditado'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qrydipj_ipi_f21tipo: TStringField
+      FieldName = 'tipo'
+      Size = 50
+    end
+  end
+  object dsrdipj_ipi_f21: TtecDataSource
+    DataSet = qrydipj_ipi_f21
+    Left = 384
+    Top = 40
+  end
+  object qrydipj_ipi_f21_Discriminacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qrydipj_ipiNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dipj_ipi_f21_discriminacao.*'
+      'from dipj_ipi_f21_discriminacao'
+      'order by dipj_ipi_f21_discriminacao.sequencia')
+    RequestLive = True
+    Left = 500
+    Top = 32
+    object qrydipj_ipi_f21_Discriminacaosequencia: TIntegerField
+      FieldName = 'sequencia'
+      Required = True
+    end
+    object qrydipj_ipi_f21_Discriminacaocodigo: TStringField
+      FieldName = 'codigo'
+      Size = 2
+    end
+    object qrydipj_ipi_f21_Discriminacaodiscriminacao: TStringField
+      FieldName = 'discriminacao'
+      Size = 80
+    end
+    object qrydipj_ipi_f21_Discriminacaolcomcredito: TBooleanField
+      FieldName = 'lcomcredito'
+    end
+    object qrydipj_ipi_f21_Discriminacaolsemcredito: TBooleanField
+      FieldName = 'lsemcredito'
+    end
+    object qrydipj_ipi_f21_Discriminacaolipicreditado: TBooleanField
+      FieldName = 'lipicreditado'
+    end
+    object qrydipj_ipi_f21_Discriminacaotipo: TStringField
+      FieldName = 'tipo'
+      Size = 100
+    end
+  end
+  object qrydipj_ipi_f22: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterInsert = qrydipj_ipi_f22AfterInsert
+    AfterPost = qrydipj_ipi_f22AfterPost
+    AfterScroll = qrydipj_ipi_f22AfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dipj_ipi_f22.*,'
+      '       (select dipj_ipi_f22_discriminacao.tipo'
+      '        from dipj_ipi_f22_discriminacao'
+      
+        '        where coalesce(dipj_ipi_f22_discriminacao.codigo,'#39#39') = c' +
+        'oalesce(dipj_ipi_f22.codigo,'#39#39')'
+      
+        '          and dipj_ipi_f22_discriminacao.discriminacao = dipj_ip' +
+        'i_f22.discriminacao'
+      '       ) as Tipo'
+      'from dipj_ipi_f22'
+      'where dipj_ipi_f22.exercicio = :exercicio'
+      '    and dipj_ipi_f22.filial = :filial')
+    RequestLive = True
+    Left = 324
+    Top = 176
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qrydipj_ipi_f22exercicio: TStringField
+      FieldName = 'exercicio'
+      Required = True
+      Size = 4
+    end
+    object qrydipj_ipi_f22filial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qrydipj_ipi_f22sequencia: TIntegerField
+      FieldName = 'sequencia'
+      DisplayFormat = '0'
+    end
+    object qrydipj_ipi_f22codigo: TStringField
+      FieldName = 'codigo'
+      Size = 2
+    end
+    object qrydipj_ipi_f22discriminacao: TStringField
+      DisplayLabel = 'Discrimina'#231#227'o'
+      FieldName = 'discriminacao'
+      Required = True
+      Size = 80
+    end
+    object qrydipj_ipi_f22comdebito: TFloatField
+      DisplayLabel = 'Com d'#233'bito'
+      FieldName = 'comdebito'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qrydipj_ipi_f22semdebito: TFloatField
+      DisplayLabel = 'Sem d'#233'bito'
+      FieldName = 'semdebito'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qrydipj_ipi_f22ipidebitado: TFloatField
+      DisplayLabel = 'IPI debitado'
+      FieldName = 'ipidebitado'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qrydipj_ipi_f22tipo: TStringField
+      FieldName = 'tipo'
+      Size = 50
+    end
+  end
+  object dsrdipj_ipi_f22: TtecDataSource
+    DataSet = qrydipj_ipi_f22
+    Left = 384
+    Top = 184
+  end
+  object qrydipj_ipi_f22_Discriminacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qrydipj_ipiNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dipj_ipi_f22_discriminacao.*'
+      'from dipj_ipi_f22_discriminacao'
+      'order by dipj_ipi_f22_discriminacao.sequencia')
+    RequestLive = True
+    Left = 500
+    Top = 176
+    object qrydipj_ipi_f22_Discriminacaosequencia: TIntegerField
+      FieldName = 'sequencia'
+    end
+    object qrydipj_ipi_f22_Discriminacaocodigo: TStringField
+      FieldName = 'codigo'
+      Size = 2
+    end
+    object qrydipj_ipi_f22_Discriminacaodiscriminacao: TStringField
+      FieldName = 'discriminacao'
+      Size = 80
+    end
+    object qrydipj_ipi_f22_Discriminacaolcomdebito: TBooleanField
+      FieldName = 'lcomdebito'
+    end
+    object qrydipj_ipi_f22_Discriminacaolsemdebito: TBooleanField
+      FieldName = 'lsemdebito'
+    end
+    object qrydipj_ipi_f22_Discriminacaolipidebitado: TBooleanField
+      FieldName = 'lipidebitado'
+    end
+    object qrydipj_ipi_f22_Discriminacaotipo: TStringField
+      FieldName = 'tipo'
+      Size = 100
+    end
+  end
+  object qryDadosIPI20: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select meses.mes,'
+      '       entradas.credito,'
+      '       saidas.debito,'
+      
+        '       coalesce(coalesce(entradas.possuimovto,saidas.possuimovto' +
+        '), false) as possuimovto'
+      'from'
+      '('
+      'select'
+      '  trim(to_char(generate_series(1,12),'#39'00'#39')) as mes'
+      ') as meses'
+      'left join  ('
+      
+        '             select mes, sum(valor) as debito, true as possuimov' +
+        'to'
+      '             from'
+      '             ('
+      '              select to_char(data,'#39'MM'#39') as mes, cdf.valor'
+      
+        '              from calculosdadosfiscais cdf join dadosfiscais df' +
+        ' on cdf.dadofiscal = df.numero'
+      '              where cdf.dadofiscal = df.numero'
+      '                and df.data between :DataInicial and :DataFinal'
+      '                and df.filialvenda = :filial'
+      '                and cdf.tipo = '#39'P'#39
+      '                and df.situacao='#39'N'#39
+      '              ) as saidas'
+      '              group by mes'
+      '              order by mes'
+      '             ) as saidas  on saidas.mes = meses.mes'
+      ''
+      'left join  ('
+      
+        '             select mes, sum(valor) as credito,  true as possuim' +
+        'ovto'
+      '             from'
+      '             ('
+      '              select to_char(data,'#39'MM'#39') as mes, cnp.valor'
+      
+        '              from calculosnotaspag cnp join notaspag np on cnp.' +
+        'codigonota = np.codigo'
+      '              where cnp.codigonota = np.codigo'
+      '                and np.data between :DataInicial and :DataFinal'
+      '                and np.filial = :filial'
+      '                and cnp.tipo = '#39'P'#39
+      '                and np.situacao='#39'N'#39
+      '              ) as entradas'
+      '              group by mes'
+      '              order by mes'
+      '             ) as entradas  on entradas.mes = meses.mes')
+    RequestLive = False
+    Left = 192
+    Top = 80
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryDadosIPI20mes: TMemoField
+      FieldName = 'mes'
+      BlobType = ftMemo
+    end
+    object qryDadosIPI20credito: TFloatField
+      FieldName = 'credito'
+    end
+    object qryDadosIPI20debito: TFloatField
+      FieldName = 'debito'
+    end
+    object qryDadosIPI20possuimovto: TBooleanField
+      FieldName = 'possuimovto'
+    end
+  end
+  object qryDadosIPI21: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast('#39'01'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Insumos para Industrializa'#231#227'o'#39' as varchar) as discr' +
+        'iminacao,'
+      '       sum(cnp.base) as comIPI,'
+      '       sum(cnp.isentas+cnp.outras) as semIPi,'
+      '       sum(cnp.valor) as ipicreditado'
+      
+        'from notaspag np join calculosnotaspag cnp on np.codigo = cnp.co' +
+        'digonota'
+      'where np.codigo = cnp.codigonota'
+      '  and np.data between :DataInicial and :DataFinal'
+      '  and np.filial = :filial'
+      
+        '  and cnp.codigofiscal in (1101, 1111, 1116, 1120, 1122, 1151, 1' +
+        '401, 1408, 2101, 2111, 2116, 2120, 2122, 2151, 2401, 2408)'
+      '  and cnp.tipo = '#39'P'#39
+      ''
+      'union all'
+      ''
+      'select cast('#39'02'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Mercadorias para Comercializa'#231#227'o'#39' as varchar) as di' +
+        'scriminacao,'
+      '       sum(cnp.base) as comIPI,'
+      '       sum(cnp.isentas+cnp.outras) as semIPi,'
+      '       sum(cnp.valor) as ipicreditado'
+      
+        'from notaspag np join calculosnotaspag cnp on np.codigo = cnp.co' +
+        'digonota'
+      'where np.codigo = cnp.codigonota'
+      '  and np.data between :DataInicial and :DataFinal'
+      '  and np.filial = :filial'
+      
+        '  and cnp.codigofiscal in (1102, 1113, 1117, 1118, 1121, 1152, 1' +
+        '403, 1409, 2102, 2113, 2117, 2118, 2121, 2152, 2403, 2409)'
+      '  and cnp.tipo = '#39'P'#39
+      ''
+      'union all'
+      ''
+      'select cast('#39'03'#39' as varchar(2)) as  codigo,'
+      '       cast('#39'Devolu'#231#245'es de Vendas'#39' as varchar) as discriminacao,'
+      '       sum(cnp.base) as comIPI,'
+      '       sum(cnp.isentas+cnp.outras) as semIPi,'
+      '       sum(cnp.valor) as ipicreditado'
+      
+        'from notaspag np join calculosnotaspag cnp on np.codigo = cnp.co' +
+        'digonota'
+      'where np.codigo = cnp.codigonota'
+      '  and np.data between :DataInicial and :DataFinal'
+      '  and np.filial = :filial'
+      
+        '  and cnp.codigofiscal in (1201, 1202, 1203, 1204, 1208, 1209, 1' +
+        '410, 1411, 1918, 1919, 2201, 2202, 2203, 2204, 2208, 2209, 2410,' +
+        ' 2411, 2918, 2919)'
+      '  and cnp.tipo = '#39'P'#39
+      ''
+      'union all'
+      ''
+      'select cast('#39'04'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Industrializa'#231#227'o Efetuada por Outras Empresas'#39' as v' +
+        'archar) as discriminacao,'
+      '       sum(cnp.base) as comIPI,'
+      '       sum(cnp.isentas+cnp.outras) as semIPi,'
+      '       sum(cnp.valor) as ipicreditado'
+      
+        'from notaspag np join calculosnotaspag cnp on np.codigo = cnp.co' +
+        'digonota'
+      'where np.codigo = cnp.codigonota'
+      '  and np.data between :DataInicial and :DataFinal'
+      '  and np.filial = :filial'
+      '  and cnp.codigofiscal in (1124, 1125, 2124, 2125)'
+      '  and cnp.tipo = '#39'P'#39
+      ''
+      'union all'
+      ''
+      ''
+      'select cast('#39'05'#39' as varchar(2)) as  codigo,'
+      '       cast('#39'Outras Entradas'#39' as varchar) as discriminacao,'
+      '       sum(cnp.base) as comIPI,'
+      '       sum(cnp.isentas+cnp.outras) as semIPi,'
+      '       sum(cnp.valor) as ipicreditado'
+      
+        'from notaspag np join calculosnotaspag cnp on np.codigo = cnp.co' +
+        'digonota'
+      'where np.codigo = cnp.codigonota'
+      '  and np.data between :DataInicial and :DataFinal'
+      '  and np.filial = :filial'
+      '  and cnp.codigofiscal in ('
+      
+        '1126, 1154, 1207, 1252, 1256, 1302, 1352, 1356, 1406, 1407, 1414' +
+        ', 1415, 1452, 1501, 1503, 1504, 1505, 1506, 1551, 1552, 1553, 15' +
+        '54, 1555, 1556,'
+      
+        '1557, 1601, 1602, 1603, 1653, 1658, 1660, 1662, 1901, 1902, 1903' +
+        ', 1904, 1905, 1906, 1907, 1908, 1909, 1910, 1911, 1912, 1913, 19' +
+        '14, 1915, 1916,'
+      
+        '1917, 1920, 1921, 1922, 1923, 1924, 1925, 1926, 1934, 1949, 2126' +
+        ', 2154, 2252, 2256, 2302, 2352, 2356, 2406, 2407, 2414, 2415, 25' +
+        '01, 2503, 2504,'
+      
+        '2505, 2506, 2551, 2552, 2553, 2554, 2555, 2556, 2557, 2651, 2653' +
+        ', 2658, 2660, 2662, 2901, 2902, 2903, 2904, 2905, 2906, 2907, 29' +
+        '08, 2909, 2910,'
+      
+        '2911, 2912, 2913, 2914, 2915, 2916, 2917, 2920, 2921, 2922, 2923' +
+        ', 2924, 2925, 2934, 2949'
+      '  )'
+      '  and cnp.tipo = '#39'P'#39
+      ''
+      ''
+      'union all'
+      ''
+      ''
+      'select cast('#39'07'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Insumos para Industrializa'#231#227'o'#39' as varchar) as discr' +
+        'iminacao,'
+      '       sum(cnp.base) as comIPI,'
+      '       sum(cnp.isentas+cnp.outras) as semIPi,'
+      '       sum(cnp.valor) as ipicreditado'
+      
+        'from notaspag np join calculosnotaspag cnp on np.codigo = cnp.co' +
+        'digonota'
+      'where np.codigo = cnp.codigonota'
+      '  and np.data between :DataInicial and :DataFinal'
+      '  and np.filial = :filial'
+      '  and cnp.codigofiscal in (3101, 3127)'
+      '  and cnp.tipo = '#39'P'#39
+      ''
+      'union all'
+      ''
+      'select cast('#39'08'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Mercadorias para Comercializa'#231#227'o'#39' as varchar) as di' +
+        'scriminacao,'
+      '       sum(cnp.base) as comIPI,'
+      '       sum(cnp.isentas+cnp.outras) as semIPi,'
+      '       sum(cnp.valor) as ipicreditado'
+      
+        'from notaspag np join calculosnotaspag cnp on np.codigo = cnp.co' +
+        'digonota'
+      'where np.codigo = cnp.codigonota'
+      '  and np.data between :DataInicial and :DataFinal'
+      '  and np.filial = :filial'
+      '  and cnp.codigofiscal in (3102)'
+      '  and cnp.tipo = '#39'P'#39
+      ''
+      'union all'
+      ''
+      'select cast('#39'09'#39' as varchar(2)) as  codigo,'
+      '       cast('#39'Devolu'#231#245'es de Vendas'#39' as varchar) as discriminacao,'
+      '       cast(null as numeric(15,2)) as comIPI,'
+      '       sum(cnp.base+cnp.valor+cnp.isentas+cnp.outras) as semIPi,'
+      '       cast(null as numeric(15,2)) as ipicreditado'
+      
+        'from notaspag np join calculosnotaspag cnp on np.codigo = cnp.co' +
+        'digonota'
+      'where np.codigo = cnp.codigonota'
+      '  and np.data between :DataInicial and :DataFinal'
+      '  and np.filial = :filial'
+      '  and cnp.codigofiscal in (3201, 3202, 3211, 3503, 3553)'
+      '  and cnp.tipo = '#39'P'#39
+      ''
+      'union all'
+      ''
+      'select cast('#39'10'#39' as varchar(2)) as  codigo,'
+      '       cast('#39'Outras Entradas'#39' as varchar) as discriminacao,'
+      '       sum(cnp.base) as comIPI,'
+      '       sum(cnp.isentas+cnp.outras) as semIPi,'
+      '       sum(cnp.valor) as ipicreditado'
+      
+        'from notaspag np join calculosnotaspag cnp on np.codigo = cnp.co' +
+        'digonota'
+      'where np.codigo = cnp.codigonota'
+      '  and np.data between :DataInicial and :DataFinal'
+      '  and np.filial = :filial'
+      
+        '  and cnp.codigofiscal in (3126, 3352, 3356, 3551, 3556, 3651, 3' +
+        '653, 3930, 3949)'
+      '  and cnp.tipo = '#39'P'#39)
+    RequestLive = False
+    Left = 320
+    Top = 96
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryDadosIPI21codigo: TStringField
+      FieldName = 'codigo'
+      ReadOnly = True
+      Size = 2
+    end
+    object qryDadosIPI21discriminacao: TStringField
+      FieldName = 'discriminacao'
+      ReadOnly = True
+      Size = 29
+    end
+    object qryDadosIPI21comipi: TFloatField
+      FieldName = 'comipi'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryDadosIPI21semipi: TFloatField
+      FieldName = 'semipi'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryDadosIPI21ipicreditado: TFloatField
+      FieldName = 'ipicreditado'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+  end
+  object qryDadosIPI22: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast('#39'01'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Produ'#231#227'o do Estabelecimento'#39' as varchar) as discrim' +
+        'inacao,'
+      '       sum(cdf.base) as comIPI,'
+      '       sum(cdf.isentas+cdf.outras) as semIPi,'
+      '       sum(cdf.valor) as ipidebitado'
+      ''
+      
+        'from dadosfiscais df join calculosdadosfiscais cdf on df.numero ' +
+        '= cdf.dadofiscal'
+      'where df.numero = cdf.dadofiscal'
+      '  and df.data between :DataInicial and :DataFinal'
+      '  and df.filialvenda = :filial'
+      
+        '  and cdf.codigofiscal in (5101, 5103, 5105, 5109, 5111, 5113, 5' +
+        '116, 5118,'
+      
+        '  5122, 5151, 5155, 5401, 5402, 5408, 5501, 5904, 6101, 6103, 61' +
+        '05, 6107,'
+      
+        '  6109, 6111, 6113, 6116, 6118, 6122, 6151, 6155, 6401, 6402, 64' +
+        '08, 6501, 6904)'
+      '  and cdf.tipo = '#39'P'#39
+      ''
+      'union ALL'
+      ''
+      'select cast('#39'02'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Mercadorias de Comercializa'#231#227'o'#39' as varchar) as disc' +
+        'riminacao,'
+      '       sum(cdf.base) as comIPI,'
+      '       sum(cdf.isentas+cdf.outras) as semIPi,'
+      '       sum(cdf.valor) as ipidebitado'
+      ''
+      
+        'from dadosfiscais df join calculosdadosfiscais cdf on df.numero ' +
+        '= cdf.dadofiscal'
+      'where df.numero = cdf.dadofiscal'
+      '  and df.data between :DataInicial and :DataFinal'
+      '  and df.filialvenda = :filial'
+      
+        '  and cdf.codigofiscal in (5102, 5104, 5106, 5110, 5112, 5114, 5' +
+        '115, 5117, 5119,'
+      
+        '  5120, 5123, 5152, 5156, 5403, 5405, 5409, 5502, 5667, 6102, 61' +
+        '04, 6106, 6108,'
+      
+        '  6110, 6114, 6115, 6117, 6119, 6120, 6123, 6152, 6156, 6403, 64' +
+        '04, 6409, 6502,'
+      '  6667)'
+      '  and cdf.tipo = '#39'P'#39
+      ''
+      'union ALL'
+      ''
+      'select cast('#39'03'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Industrializa'#231#227'o Efetuada para Outras Empresas'#39' as ' +
+        'varchar) as discriminacao,'
+      '       sum(cdf.base) as comIPI,'
+      '       sum(cdf.isentas+cdf.outras) as semIPi,'
+      '       sum(cdf.valor) as ipidebitado'
+      ''
+      
+        'from dadosfiscais df join calculosdadosfiscais cdf on df.numero ' +
+        '= cdf.dadofiscal'
+      'where df.numero = cdf.dadofiscal'
+      '  and df.data between :DataInicial and :DataFinal'
+      '  and df.filialvenda = :filial'
+      '  and cdf.codigofiscal in (5124, 5125, 6124, 6125)'
+      '  and cdf.tipo = '#39'P'#39
+      ''
+      'union ALL'
+      ''
+      'select cast('#39'04'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Devolu'#231#245'es de Compras'#39' as varchar) as discriminacao' +
+        ','
+      '       sum(cdf.base) as comIPI,'
+      '       sum(cdf.isentas+cdf.outras) as semIPi,'
+      '       sum(cdf.valor) as ipidebitado'
+      
+        'from dadosfiscais df join calculosdadosfiscais cdf on df.numero ' +
+        '= cdf.dadofiscal'
+      'where df.numero = cdf.dadofiscal'
+      '  and df.data between :DataInicial and :DataFinal'
+      '  and df.filialvenda = :filial'
+      
+        '  and cdf.codigofiscal in (5201, 5202, 5206, 5207, 5208, 5209, 5' +
+        '210, 5410, 5411,'
+      
+        '  5412, 5413, 5503, 5553, 5555, 5556, 5918, 5919, 6201, 6202, 62' +
+        '06, 6208, 6209,'
+      
+        '  6210, 6410, 6411, 6412, 6413, 6503, 6553, 6555, 5923, 5934, 65' +
+        '56, 6918,  6919, 6923,'
+      '  6934)'
+      '  and cdf.tipo = '#39'P'#39
+      ''
+      'union ALL'
+      ''
+      'select cast('#39'05'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Outras Sa'#237'das para Mercado Nacional'#39' as varchar) as' +
+        ' discriminacao,'
+      '       sum(cdf.base) as comIPI,'
+      '       sum(cdf.isentas+cdf.outras) as semIPi,'
+      '       sum(cdf.valor) as ipidebitado'
+      ''
+      
+        'from dadosfiscais df join calculosdadosfiscais cdf on df.numero ' +
+        '= cdf.dadofiscal'
+      'where df.numero = cdf.dadofiscal'
+      '  and df.data between :DataInicial and :DataFinal'
+      '  and df.filialvenda = :filial'
+      
+        '  and cdf.codigofiscal in (5205, 5252, 5256, 5352, 5356, 5414, 5' +
+        '415, 5451,'
+      
+        '  5504, 5505, 5551, 5552, 5554, 5557, 5651, 5652, 5653, 5654, 56' +
+        '56, 5658, 5659, 5660,'
+      
+        '  5662, 5901, 5902, 5903, 5905, 5906, 5907, 5908, 5909, 5910, 59' +
+        '11, 5912, 5913, 5914,'
+      
+        '  5915, 5916, 5917, 5920, 5921, 5922, 5923, 5924, 5925, 5926, 59' +
+        '27, 5928, 5929, 5949,'
+      
+        '  6112, 6153, 6205, 6207, 6252, 6256, 6352, 6356, 6359, 6414, 64' +
+        '15, 6504, 6505, 6551,'
+      
+        '  6552, 6554, 6557, 6651, 6652, 6653, 6654, 6656, 6658, 6659, 66' +
+        '60, 6661, 6662, 6901,'
+      
+        '  6902, 6903, 6905, 6906, 6907, 6908, 6909, 6910, 6911, 6912, 69' +
+        '13, 6914, 6915, 6916,'
+      '  6917, 6920, 6921, 6922, 6923, 6924, 6925, 6949)'
+      '  and cdf.tipo = '#39'P'#39
+      ''
+      'union ALL'
+      ''
+      'select cast('#39'07'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Produ'#231#227'o do Estabelecimento'#39' as varchar) as discrim' +
+        'inacao,'
+      '       cast(NULL as numeric(15,2)) as comIPI,'
+      '       sum(cdf.base+cdf.valor+cdf.isentas+cdf.outras) as semIPi,'
+      '       cast(NULL as numeric(15,2)) as ipidebitado'
+      
+        'from dadosfiscais df join calculosdadosfiscais cdf on df.numero ' +
+        '= cdf.dadofiscal'
+      'where df.numero = cdf.dadofiscal'
+      '  and df.data between :DataInicial and :DataFinal'
+      '  and df.filialvenda = :filial'
+      '  and cdf.codigofiscal in (7101, 7105, 7127, 7501)'
+      '  and cdf.tipo = '#39'P'#39
+      ''
+      'union ALL'
+      ''
+      'select cast('#39'08'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Mercadorias de Comercializa'#231#227'o'#39' as varchar) as disc' +
+        'riminacao,'
+      '       cast(NULL as numeric(15,2)) as comIPI,'
+      '       sum(cdf.base+cdf.valor+cdf.isentas+cdf.outras) as semIPi,'
+      '       cast(NULL as numeric(15,2)) as ipidebitado'
+      
+        'from dadosfiscais df join calculosdadosfiscais cdf on df.numero ' +
+        '= cdf.dadofiscal'
+      'where df.numero = cdf.dadofiscal'
+      '  and df.data between :DataInicial and :DataFinal'
+      '  and df.filialvenda = :filial'
+      '  and cdf.codigofiscal in (7102, 7106)'
+      '  and cdf.tipo = '#39'P'#39
+      ''
+      ''
+      'union ALL'
+      ''
+      'select cast('#39'09'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Devolu'#231#245'es de Compras'#39' as varchar) as discriminacao' +
+        ','
+      '       cast(NULL as numeric(15,2)) as comIPI,'
+      '       sum(cdf.base+cdf.valor+cdf.isentas+cdf.outras) as semIPi,'
+      '       cast(NULL as numeric(15,2)) as ipidebitado'
+      ''
+      
+        'from dadosfiscais df join calculosdadosfiscais cdf on df.numero ' +
+        '= cdf.dadofiscal'
+      'where df.numero = cdf.dadofiscal'
+      '  and df.data between :DataInicial and :DataFinal'
+      '  and df.filialvenda = :filial'
+      
+        '  and cdf.codigofiscal in (7201, 7202, 7210, 7211, 7553, 7556, 7' +
+        '930)'
+      '  and cdf.tipo = '#39'P'#39
+      ''
+      'union ALL'
+      ''
+      'select cast('#39'10'#39' as varchar(2)) as  codigo,'
+      
+        '       cast('#39'Outras Sa'#237'das para o Mercado Externo'#39' as varchar) a' +
+        's discriminacao,'
+      '       cast(NULL as numeric(15,2)) as comIPI,'
+      '       sum(cdf.base+cdf.valor+cdf.isentas+cdf.outras) as semIPi,'
+      '       cast(NULL as numeric(15,2)) as ipidebitado'
+      ''
+      
+        'from dadosfiscais df join calculosdadosfiscais cdf on df.numero ' +
+        '= cdf.dadofiscal'
+      'where df.numero = cdf.dadofiscal'
+      '  and df.data between :DataInicial and :DataFinal'
+      '  and df.filialvenda = :filial'
+      '  and cdf.codigofiscal in (7206, 7207, 7551, 7651, 7667, 7949)'
+      '  and cdf.tipo = '#39'P'#39)
+    RequestLive = False
+    Left = 328
+    Top = 240
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryDadosIPI22codigo: TStringField
+      FieldName = 'codigo'
+      Size = 2
+    end
+    object qryDadosIPI22discriminacao: TStringField
+      FieldName = 'discriminacao'
+      Size = 46
+    end
+    object qryDadosIPI22comipi: TFloatField
+      FieldName = 'comipi'
+    end
+    object qryDadosIPI22semipi: TFloatField
+      FieldName = 'semipi'
+    end
+    object qryDadosIPI22ipidebitado: TFloatField
+      FieldName = 'ipidebitado'
+    end
+  end
+  object qrydipj_ipi_f23: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qrydipj_ipiNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select cnpj,'
+      '       sum(BaseCalculo) as BaseCalculo,'
+      '       ST,'
+      '       cast('#39'N'#39' as char(1)) As RI'
+      ''
+      ''
+      'from'
+      '('
+      ' select np.fornecedor,'
+      '        np.tipofornecedor,'
+      '        case when coalesce(np.cnpj,vf.pessoanumero) is null or'
+      
+        '                  trim(coalesce(np.cnpj,vf.pessoanumero)) = '#39#39' t' +
+        'hen '#39'00000000000000'#39' else'
+      '                  coalesce(np.cnpj,vf.pessoanumero)'
+      '        end as cnpj,'
+      ''
+      '        (cnp.base+cnp.isentas+cnp.outras) as BaseCalculo,'
+      ''
+      '        (case when exists (select pnp.incidencia'
+      '                           from produtosnotaspag pnp'
+      '                           where pnp.codigonota = np.codigo'
+      
+        '                             and pnp.incidencia in ('#39'10'#39','#39'30'#39','#39'6' +
+        '0'#39','#39'70'#39')'
+      '                           ) then cast('#39'S'#39' as char(1)) else'
+      
+        '                                  cast('#39'N'#39' as char(1)) end) AS S' +
+        'T'
+      ''
+      
+        ' from notaspag np join calculosnotaspag cnp on np.codigo = cnp.c' +
+        'odigonota'
+      
+        '       join vfornecedores vf on np.fornecedor = vf.codigo and np' +
+        '.tipofornecedor = vf.tipo'
+      ''
+      ' where np.codigo = cnp.codigonota'
+      '   and np.fornecedor = vf.codigo'
+      '   and np.tipofornecedor = vf.tipo'
+      '   and np.data between :DataInicial and :DataFinal'
+      '   and np.filial = :filial'
+      '   and coalesce(cnp.codigofiscal,np.codigofiscal) in ('
+      
+        '    1101, 1102, 1111, 1113, 1116, 1117, 1118, 1120, 1121, 1122, ' +
+        '1124, 1125, 1126,'
+      
+        '    1151, 1152, 1154, 1401, 1403, 1408, 1409, 1410, 1411, 1414, ' +
+        '1415, 1501, 1503,'
+      
+        '    1504, 1901, 1902, 1903, 1904, 1905, 1906, 1907, 1908, 1909, ' +
+        '1910, 1911, 1912,'
+      
+        '    1913, 1914, 1915, 1916, 1917, 1918, 1919, 1920, 1921, 1922, ' +
+        '1923, 1924, 1925,'
+      
+        '    1926, 1934, 1949, 2101, 2102, 2111, 2113, 2116, 2117, 2118, ' +
+        '2120, 2121, 2122,'
+      
+        '    2124, 2125, 2126, 2151, 2152, 2154, 2401, 2403, 2408, 2409, ' +
+        '2410, 2411, 2414,'
+      
+        '    2415, 2501, 2503, 2504, 2901, 2902, 2903, 2904, 2905, 2906, ' +
+        '2907, 2908, 2909,'
+      
+        '    2910, 2911, 2912, 2913, 2914, 2915, 2916, 2917, 2918, 2919, ' +
+        '2920, 2921, 2922,'
+      
+        '    2923, 2924, 2925, 2934, 2949, 3101, 3102, 3126, 3127, 3503, ' +
+        '3949)'
+      '  and cnp.tipo = '#39'P'#39
+      ''
+      ') as selecao'
+      'group by fornecedor, tipofornecedor, cnpj, ST'
+      'order by sum(BaseCalculo) desc limit 100')
+    RequestLive = True
+    Left = 332
+    Top = 336
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qrydipj_ipi_f23cnpj: TStringField
+      DisplayLabel = 'CNPJ/CPF'
+      FieldName = 'cnpj'
+      Size = 50
+    end
+    object qrydipj_ipi_f23basecalculo: TFloatField
+      DisplayLabel = 'VALOR'
+      FieldName = 'basecalculo'
+      DisplayFormat = '###,##0.00'
+    end
+    object qrydipj_ipi_f23st: TStringField
+      DisplayLabel = 'SUBST. TRIB.'
+      FieldName = 'st'
+      Size = 1
+    end
+    object qrydipj_ipi_f23ri: TStringField
+      DisplayLabel = 'INTERDEPEND'#202'NCIA'
+      FieldName = 'ri'
+      Size = 1
+    end
+  end
+  object dsrdipj_ipi_f23: TtecDataSource
+    DataSet = qrydipj_ipi_f23
+    Left = 376
+    Top = 320
+  end
+  object qrydipj_ipi_f24: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select classificacaofiscal,'
+      '       extipi,'
+      '       sum(BaseCalculo) as BaseCalculo,'
+      '       descricaoproduto,'
+      '       ST'
+      'from'
+      '('
+      ' select case when coalesce(pnp.classificacaofiscal,'#39#39') <> '#39#39
+      '        then pnp.classificacaofiscal'
+      '        else ipi.classificacaofiscal end as classificacaofiscal,'
+      ''
+      '        case when coalesce(pnp.extipi,'#39#39') <> '#39#39
+      '        then pnp.extipi'
+      '        else ipi.extipi end as extipi,'
+      '        '
+      '        case when'
+      
+        '         (coalesce(case when not coalesce(pnp.naogerarcreditoipi' +
+        ',false) then'
+      '          pnp.ipibasecalculo else'
+      '          0 end,0) +'
+      '          coalesce(pnp.ipioutras,0) +'
+      '          coalesce(pnp.ipiisentas,0))=0 then'
+      '          pnp.quantidade * pnp.precounitario'
+      '        else'
+      
+        '         (coalesce(case when not coalesce(pnp.naogerarcreditoipi' +
+        ',false) then'
+      '          pnp.ipibasecalculo else'
+      '          0 end,0) +'
+      '          coalesce(pnp.ipioutras,0) +'
+      '          coalesce(pnp.ipiisentas,0))'
+      '        end as basecalculo,'
+      ''
+      
+        '        coalesce(pnp.descricaoproduto,p.descricao) as descricaop' +
+        'roduto,'
+      '        '
+      
+        '        case when coalesce(pnp.incidencia, ti.valor) in ('#39'10'#39','#39'3' +
+        '0'#39','#39'60'#39','#39'70'#39') then'
+      '            cast('#39'S'#39' as char(1)) else'
+      '            cast('#39'N'#39' as char(1)) END as ST'
+      '        '
+      '       '
+      ' from notaspag np'
+      '      join produtosnotaspag pnp'
+      '           join produtos p'
+      '           '
+      '                join caracteristicas c'
+      '                     join ipi'
+      '                     on ipi.codigo = c.ipi'
+      '                on p.caracteristica = c.codigo'
+      '                '
+      '                join tributosicms ti'
+      '                on c.incidencia = ti.codigo'
+      '                '
+      '                '
+      '           on pnp.produto = p.codigo'
+      '      on np.codigo = pnp.codigonota'
+      ''
+      ' where np.codigo = pnp.codigonota'
+      '   and pnp.produto = p.codigo'
+      '   and np.data between :DataInicial and :DataFinal'
+      '   and np.filial = :filial'
+      '   and coalesce(pnp.codigofiscal,np.codigofiscal) in ('
+      
+        '   1101, 1102, 1111, 1113, 1116, 1117, 1118, 1120, 1121, 1122, 1' +
+        '124, 1125, 1126,'
+      
+        '   1151, 1152, 1154, 1401, 1403, 1408, 1409, 1410, 1411, 1414, 1' +
+        '415, 1501, 1503,'
+      
+        '   1504, 1901, 1902, 1903, 1904, 1905, 1906, 1907, 1908, 1909, 1' +
+        '910, 1911, 1912,'
+      
+        '   1913, 1914, 1915, 1916, 1917, 1918, 1919, 1920, 1921, 1922, 1' +
+        '923, 1924, 1925,'
+      
+        '   1926, 1934, 1949, 2101, 2102, 2111, 2113, 2116, 2117, 2118, 2' +
+        '120, 2121, 2122,'
+      
+        '   2124, 2125, 2126, 2151, 2152, 2154, 2401, 2403, 2408, 2409, 2' +
+        '410, 2411, 2414,'
+      
+        '   2415, 2501, 2503, 2504, 2901, 2902, 2903, 2904, 2905, 2906, 2' +
+        '907, 2908, 2909,'
+      
+        '   2910, 2911, 2912, 2913, 2914, 2915, 2916, 2917, 2918, 2919, 2' +
+        '920, 2921, 2922,'
+      
+        '   2923, 2924, 2925, 2934, 2949, 3101, 3102, 3126, 3127, 3503, 3' +
+        '949)'
+      ''
+      ') as selecao'
+      'group by classificacaofiscal, extipi, ST, descricaoproduto'
+      'order by sum(BaseCalculo) desc'
+      'limit 50')
+    RequestLive = False
+    Left = 328
+    Top = 424
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qrydipj_ipi_f24classificacaofiscal: TStringField
+      DisplayLabel = 'CLASSIFICA'#199#195'O'
+      FieldName = 'classificacaofiscal'
+      Size = 8
+    end
+    object qrydipj_ipi_f24extipi: TStringField
+      DisplayLabel = 'EXTIPI'
+      FieldName = 'extipi'
+      Size = 3
+    end
+    object qrydipj_ipi_f24basecalculo: TFloatField
+      DisplayLabel = 'VALOR'
+      FieldName = 'basecalculo'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qrydipj_ipi_f24descricaoproduto: TStringField
+      DisplayLabel = 'INSUMOS/MERCADORIAS'
+      FieldName = 'descricaoproduto'
+      Size = 50
+    end
+    object qrydipj_ipi_f24st: TStringField
+      DisplayLabel = 'SUBST. TRIB.'
+      FieldName = 'st'
+      Size = 1
+    end
+  end
+  object dsrdipj_ipi_f24: TtecDataSource
+    DataSet = qrydipj_ipi_f24
+    Left = 368
+    Top = 400
+  end
+  object qrydipj_ipi_f25: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qrydipj_ipiNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select cnpj,'
+      '       sum(BaseCalculo) as BaseCalculo,'
+      '       ST,'
+      '       cast('#39'N'#39' as char(1)) As RI'
+      ''
+      ''
+      'from'
+      '('
+      ' select df.cliente,'
+      '        df.tipocliente,'
+      
+        '        case when coalesce(df.pessoanumero,vf.pessoanumero) is n' +
+        'ull or'
+      
+        '                  trim(coalesce(df.pessoanumero,vf.pessoanumero)' +
+        ') = '#39#39' then '#39'00000000000000'#39' else'
+      '                  coalesce(df.pessoanumero,vf.pessoanumero)'
+      '        end as cnpj,'
+      ''
+      '        (cdf.base+cdf.isentas+cdf.outras) as BaseCalculo,'
+      ''
+      '        (case when exists (select pdf.incidencia'
+      '                           from produtosdadosfiscais pdf'
+      '                           where pdf.dadofiscal = df.numero'
+      
+        '                             and pdf.incidencia in ('#39'10'#39','#39'30'#39','#39'6' +
+        '0'#39','#39'70'#39')'
+      '                           ) then cast('#39'S'#39' as char(1)) else'
+      
+        '                                  cast('#39'N'#39' as char(1)) end) AS S' +
+        'T'
+      ''
+      
+        ' from dadosfiscais df join calculosdadosfiscais cdf on df.numero' +
+        ' = cdf.dadofiscal'
+      
+        '       join vfornecedores vf on df.cliente = vf.codigo and df.ti' +
+        'pocliente = vf.tipo'
+      ''
+      ' where df.numero = cdf.dadofiscal'
+      '   and df.cliente = vf.codigo'
+      '   and df.tipocliente = vf.tipo'
+      '   and df.data between :DataInicial and :DataFinal'
+      '   and df.filialvenda = :filial'
+      '   and coalesce(cdf.codigofiscal,df.codigofiscal) in ('
+      
+        '   5101, 5102, 5103, 5104, 5105, 5106, 5109, 5110, 5111, 5112, 5' +
+        '113, 5114, 5115,'
+      
+        '   5116, 5117, 5118, 5119, 5120, 5122, 5123, 5124, 5125, 5151, 5' +
+        '152, 5155, 5156,'
+      
+        '   5401, 5402, 5403, 5405, 5408, 5409, 5414, 5415, 5501, 5502, 5' +
+        '503, 5667, 5901,'
+      
+        '   5902, 5903, 5904, 5905, 5906, 5907, 5908, 5909, 5910, 5911, 5' +
+        '912, 5913, 5914,'
+      
+        '   5915, 5916, 5917, 5918, 5919, 5920, 5921, 5922, 5923, 5924, 5' +
+        '925, 5934, 5949,'
+      
+        '   6101, 6102, 6103, 6104, 6105, 6106, 6107, 6108, 6109, 6110, 6' +
+        '111, 6112, 6113,'
+      
+        '   6114, 6115, 6116, 6117, 6118, 6119, 6120, 6122, 6123, 6124, 6' +
+        '125, 6151, 6152,'
+      
+        '   6155, 6156, 6401, 6402, 6403, 6404, 6408, 6409, 6502, 6503, 6' +
+        '505, 6667, 6901,'
+      
+        '   6902, 6903, 6904, 6905, 6906, 6907, 6908, 6909, 6910, 6911, 6' +
+        '912, 6913, 6914,'
+      
+        '   6915, 6916, 6917, 6918, 6919, 6920, 6921, 6922, 6923, 6924, 6' +
+        '925, 6934, 6949,'
+      '   7101, 7102, 7105, 7106, 7127, 7501, 7667, 7949)'
+      '  and cdf.tipo = '#39'P'#39
+      ''
+      ') as selecao'
+      'group by cliente, tipocliente, cnpj, ST'
+      'order by sum(BaseCalculo) desc limit 100')
+    RequestLive = True
+    Left = 332
+    Top = 504
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qrydipj_ipi_f25cnpj: TStringField
+      FieldName = 'cnpj'
+      Size = 50
+    end
+    object qrydipj_ipi_f25basecalculo: TFloatField
+      FieldName = 'basecalculo'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qrydipj_ipi_f25st: TStringField
+      FieldName = 'st'
+      Size = 1
+    end
+    object qrydipj_ipi_f25ri: TStringField
+      FieldName = 'ri'
+      Size = 1
+    end
+  end
+  object dsrdipj_ipi_f25: TtecDataSource
+    DataSet = qrydipj_ipi_f25
+    Left = 376
+    Top = 488
+  end
+  object qrydipj_ipi_f26: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select classificacaofiscal,'
+      '       extipi,'
+      '       sum(BaseCalculo) as BaseCalculo,'
+      '       descricaoproduto,'
+      '       ST'
+      'from'
+      '('
+      ' select case when coalesce(pnp.classificacaofiscal,'#39#39') <> '#39#39
+      '        then pnp.classificacaofiscal'
+      '        else ipi.classificacaofiscal end as classificacaofiscal,'
+      ''
+      '        case when coalesce(pnp.extipi,'#39#39') <> '#39#39
+      '        then pnp.extipi'
+      '        else ipi.extipi end as extipi,'
+      '        '
+      '        case when'
+      
+        '         (coalesce(case when not coalesce(pnp.naogerarcreditoipi' +
+        ',false) then'
+      '          pnp.ipibasecalculo else'
+      '          0 end,0) +'
+      '          coalesce(pnp.ipioutras,0) +'
+      '          coalesce(pnp.ipiisentas,0))=0 then'
+      '          pnp.quantidade * pnp.precounitario'
+      '        else'
+      
+        '         (coalesce(case when not coalesce(pnp.naogerarcreditoipi' +
+        ',false) then'
+      '          pnp.ipibasecalculo else'
+      '          0 end,0) +'
+      '          coalesce(pnp.ipioutras,0) +'
+      '          coalesce(pnp.ipiisentas,0))'
+      '        end as basecalculo,'
+      ''
+      
+        '        coalesce(pnp.descricaoproduto,p.descricao) as descricaop' +
+        'roduto,'
+      '        '
+      
+        '        case when coalesce(pnp.incidencia, ti.valor) in ('#39'10'#39','#39'3' +
+        '0'#39','#39'60'#39','#39'70'#39') then'
+      '            cast('#39'S'#39' as char(1)) else'
+      '            cast('#39'N'#39' as char(1)) END as ST'
+      '        '
+      '       '
+      ' from notaspag np'
+      '      join produtosnotaspag pnp'
+      '           join produtos p'
+      '           '
+      '                join caracteristicas c'
+      '                     join ipi'
+      '                     on ipi.codigo = c.ipi'
+      '                on p.caracteristica = c.codigo'
+      '                '
+      '                join tributosicms ti'
+      '                on c.incidencia = ti.codigo'
+      '                '
+      '                '
+      '           on pnp.produto = p.codigo'
+      '      on np.codigo = pnp.codigonota'
+      ''
+      ' where np.codigo = pnp.codigonota'
+      '   and pnp.produto = p.codigo'
+      '   and np.data between :DataInicial and :DataFinal'
+      '   and np.filial = :filial'
+      '   and coalesce(pnp.codigofiscal,np.codigofiscal) in ('
+      
+        '   1101, 1102, 1111, 1113, 1116, 1117, 1118, 1120, 1121, 1122, 1' +
+        '124, 1125, 1126,'
+      
+        '   1151, 1152, 1154, 1401, 1403, 1408, 1409, 1410, 1411, 1414, 1' +
+        '415, 1501, 1503,'
+      
+        '   1504, 1901, 1902, 1903, 1904, 1905, 1906, 1907, 1908, 1909, 1' +
+        '910, 1911, 1912,'
+      
+        '   1913, 1914, 1915, 1916, 1917, 1918, 1919, 1920, 1921, 1922, 1' +
+        '923, 1924, 1925,'
+      
+        '   1926, 1934, 1949, 2101, 2102, 2111, 2113, 2116, 2117, 2118, 2' +
+        '120, 2121, 2122,'
+      
+        '   2124, 2125, 2126, 2151, 2152, 2154, 2401, 2403, 2408, 2409, 2' +
+        '410, 2411, 2414,'
+      
+        '   2415, 2501, 2503, 2504, 2901, 2902, 2903, 2904, 2905, 2906, 2' +
+        '907, 2908, 2909,'
+      
+        '   2910, 2911, 2912, 2913, 2914, 2915, 2916, 2917, 2918, 2919, 2' +
+        '920, 2921, 2922,'
+      
+        '   2923, 2924, 2925, 2934, 2949, 3101, 3102, 3126, 3127, 3503, 3' +
+        '949)'
+      ''
+      ') as selecao'
+      'group by classificacaofiscal, extipi, ST, descricaoproduto'
+      'order by sum(BaseCalculo) desc'
+      'limit 50')
+    RequestLive = False
+    Left = 336
+    Top = 584
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qrydipj_ipi_f26classificacaofiscal: TStringField
+      FieldName = 'classificacaofiscal'
+      Size = 8
+    end
+    object qrydipj_ipi_f26extipi: TStringField
+      FieldName = 'extipi'
+      Size = 3
+    end
+    object qrydipj_ipi_f26basecalculo: TFloatField
+      FieldName = 'basecalculo'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qrydipj_ipi_f26descricaoproduto: TStringField
+      FieldName = 'descricaoproduto'
+      Size = 50
+    end
+    object qrydipj_ipi_f26st: TStringField
+      FieldName = 'st'
+      Size = 1
+    end
+  end
+  object dsrdipj_ipi_f26: TtecDataSource
+    DataSet = qrydipj_ipi_f26
+    Left = 376
+    Top = 560
+  end
+  object qryFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select f.codigo,'
+      '       f.suframa,'
+      '       f.ind_perfil,'
+      '       f.ind_ativ,'
+      '       f.razao,'
+      '       f.cnpj,'
+      '       f.inscricaoestadual,'
+      '       f.inscricaomunicipal,'
+      '       f.estado,'
+      '      (select c.codigoibge'
+      '       from cidades c'
+      '       where c.estado = f.estado'
+      '         and c.codigo = f.cidade) as cidadeIBGE,'
+      '       f.filialconsolidadoradime,'
+      '       f.junta,'
+      '       f.juntadata,'
+      '      (select c.nome'
+      '       from cidades c'
+      '       where c.estado = f.estado'
+      '         and c.codigo = f.cidade) as nomecidade,'
+      '      f.classificacaoipi,'
+      '      f.regimesubstituicao   '
+      'from filiais f'
+      'where f.codigo = :codigo')
+    RequestLive = False
+    Left = 64
+    Top = 320
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryFiliaissuframa: TStringField
+      FieldName = 'suframa'
+      Size = 9
+    end
+    object qryFiliaisind_perfil: TStringField
+      FieldName = 'ind_perfil'
+      Required = True
+      Size = 1
+    end
+    object qryFiliaisind_ativ: TStringField
+      FieldName = 'ind_ativ'
+      Required = True
+      Size = 1
+    end
+    object qryFiliaisrazao: TStringField
+      FieldName = 'razao'
+      Required = True
+      Size = 60
+    end
+    object qryFiliaiscnpj: TStringField
+      FieldName = 'cnpj'
+      Size = 14
+    end
+    object qryFiliaisinscricaoestadual: TStringField
+      FieldName = 'inscricaoestadual'
+    end
+    object qryFiliaisinscricaomunicipal: TStringField
+      FieldName = 'inscricaomunicipal'
+    end
+    object qryFiliaisestado: TStringField
+      FieldName = 'estado'
+      Required = True
+      Size = 2
+    end
+    object qryFiliaiscidadeibge: TIntegerField
+      FieldName = 'cidadeibge'
+    end
+    object qryFiliaisfilialconsolidadoradime: TIntegerField
+      FieldName = 'filialconsolidadoradime'
+    end
+    object qryFiliaisjunta: TStringField
+      FieldName = 'junta'
+    end
+    object qryFiliaisjuntadata: TDateField
+      FieldName = 'juntadata'
+    end
+    object qryFiliaisnomecidade: TStringField
+      FieldName = 'nomecidade'
+      Size = 50
+    end
+    object qryFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryFiliaisclassificacaoipi: TStringField
+      FieldName = 'classificacaoipi'
+      Size = 2
+    end
+    object qryFiliaisregimesubstituicao: TIntegerField
+      FieldName = 'regimesubstituicao'
+    end
+  end
+end

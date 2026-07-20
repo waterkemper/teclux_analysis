@@ -1,0 +1,1101 @@
+inherited frmImportacaoClientesProdutos: TfrmImportacaoClientesProdutos
+  Left = 534
+  Top = 266
+  Caption = 'Importa'#231#227'o de Clientes e Produtos'
+  ClientHeight = 187
+  ClientWidth = 515
+  FormStyle = fsMDIChild
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 16
+  object proImportacao: TProgressBar [0]
+    Left = 0
+    Top = 159
+    Width = 515
+    Height = 34
+    Align = alTop
+    Smooth = True
+    TabOrder = 5
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 515
+    inherited tblBarra: TToolBar
+      Left = 75
+      Width = 440
+      inherited sbnProcurar: TSpeedButton
+        Visible = False
+      end
+    end
+    inherited tblBarraCadastro: TToolBar
+      Width = 75
+      object sbnImportarDados: TSpeedButton
+        Left = 0
+        Top = 2
+        Width = 75
+        Height = 35
+        Hint = 'Importar dados'
+        Caption = 'Importar F5'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC3C3C3C3C3C3000000
+          0000000000000000007F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F0000
+          00000000C3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FC3C3C3FFFFFF000000000000
+          0000000000000000007F7F7FBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF0000
+          00000000000000C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3
+          C3C3FFFFFFFFFFFFC3C3C37F7F7FFFFFFFC3C3C37F7F7FFFFFFF000000000000
+          0000000000000000007F7F7FBFBFBF000000000000BFBFBFBFBFBFBFBFBF0000
+          00000000000000C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F
+          7F7F7F7F7FFFFFFFC3C3C37F7F7FFFFFFFC3C3C37F7F7FFFFFFF000000000000
+          0000000000000000007F7F7FBFBFBF000000000000BFBFBFBFBFBFBFBFBF0000
+          00000000000000C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F
+          7F7F7F7F7FFFFFFFFFFFFF7F7F7FFFFFFFC3C3C37F7F7FFFFFFF000000000000
+          0000000000000000007F7F7FBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF0000
+          00000000000000C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7FC3C3C3C3C3C37F7F7FFFFFFF000000000000
+          0000000000000000000000000000000000000000000000000000000000000000
+          00000000000000C3C3C37F7F7FFFFFFFC3C3C3FFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7FFFFFFF000000000000
+          0000000000000000000000000000000000000000000000000000000000000000
+          00000000000000C3C3C37F7F7FFFFFFF7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FFFFFFF7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00000000000000C3C3C37F7F7FFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00000000000000C3C3C37F7F7FFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00000000000000C3C3C37F7F7FFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00000000000000C3C3C37F7F7FFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00000000000000C3C3C37F7F7FFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7F000000C3C3C37F7F7FFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00000000000000C3C3C37F7F7FC3C3C37F7F7FFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7FFFFFFF7F7F7FC3C3C3C3C3C3000000
+          0000000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          00000000C3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3}
+        Layout = blGlyphTop
+        NumGlyphs = 2
+        Spacing = 0
+        OnClick = sbnImportarDadosClick
+      end
+    end
+  end
+  object gbxArquivoClientes: TGroupBox
+    Left = 0
+    Top = 45
+    Width = 515
+    Height = 38
+    Align = alTop
+    Caption = 'CLIENTES'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 2
+    object sbnArquivoClientes: TSpeedButton
+      Left = 424
+      Top = 10
+      Width = 23
+      Height = 23
+      Hint = 'Selecionar o arquivo com os clientes'
+      Flat = True
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        04000000000000010000120B0000120B00001000000010000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0033333333B333
+        333B33FF33337F3333F73BB3777BB7777BB3377FFFF77FFFF77333B000000000
+        0B3333777777777777333330FFFFFFFF07333337F33333337F333330FFFFFFFF
+        07333337F3FF3FFF7F333330F00F000F07333337F77377737F333330FFFFFFFF
+        07333FF7F3FFFF3F7FFFBBB0F0000F0F0BB37777F7777373777F3BB0FFFFFFFF
+        0BBB3777F3FF3FFF77773330F00F000003333337F773777773333330FFFF0FF0
+        33333337F3FF7F37F3333330F08F0F0B33333337F7737F77FF333330FFFF003B
+        B3333337FFFF77377FF333B000000333BB33337777777F3377FF3BB3333BB333
+        3BB33773333773333773B333333B3333333B7333333733333337}
+      NumGlyphs = 2
+      OnClick = sbnArquivoClientesClick
+    end
+    object lblArquivoClientes: TLabel
+      Left = 2
+      Top = 10
+      Width = 419
+      Height = 23
+      AutoSize = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+    object sbnDesmarcarArquivoClientes: TSpeedButton
+      Left = 449
+      Top = 10
+      Width = 22
+      Height = 22
+      Hint = 'apagar o arquivo de clientes selecionado'
+      Flat = True
+      Glyph.Data = {
+        36060000424D3606000000000000360000002800000020000000100000000100
+        18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDC
+        DCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDCDCDC
+        0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+        FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDC
+        DCDC7F7F7FFFFFFFFFFFFFDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+        DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+        FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFF7F
+        7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDC0000FF0000FF0000FF7F7F7F0000007F7F7F0000FF0000FF0000
+        FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFF
+        FFFF7F7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDC0000FF0000FF0000FFDCDCDC0000FF0000FF0000FFDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+        7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000000000FF0000FFDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDC
+        DCDC7F7F7FFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000080000000000080DCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+        7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000800000000000800000FFDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+        7F7F7F7F7F7F7F7FDCDCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDC0000FF0000FF0000000000000000000000FF0000FFDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDC7F
+        7F7F7F7F7F7F7F7FDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDC0000FF0000FF0000FF0000000000000000000000FF0000FF0000
+        FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDC7F
+        7F7F7F7F7F7F7F7FDCDCDC7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC
+        DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+        FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDC7F
+        7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDC
+        0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+        FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDC
+        DCDC7F7F7FDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+      NumGlyphs = 2
+      OnClick = sbnDesmarcarArquivoClientesClick
+    end
+  end
+  object gbxArquivoEstoque: TGroupBox
+    Left = 0
+    Top = 121
+    Width = 515
+    Height = 38
+    Align = alTop
+    Caption = 'ESTOQUE'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 3
+    object sbnArquivoEstoques: TSpeedButton
+      Left = 424
+      Top = 10
+      Width = 23
+      Height = 23
+      Hint = 'Selecionar o arquivo com o estoque'
+      Flat = True
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        04000000000000010000120B0000120B00001000000010000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0033333333B333
+        333B33FF33337F3333F73BB3777BB7777BB3377FFFF77FFFF77333B000000000
+        0B3333777777777777333330FFFFFFFF07333337F33333337F333330FFFFFFFF
+        07333337F3FF3FFF7F333330F00F000F07333337F77377737F333330FFFFFFFF
+        07333FF7F3FFFF3F7FFFBBB0F0000F0F0BB37777F7777373777F3BB0FFFFFFFF
+        0BBB3777F3FF3FFF77773330F00F000003333337F773777773333330FFFF0FF0
+        33333337F3FF7F37F3333330F08F0F0B33333337F7737F77FF333330FFFF003B
+        B3333337FFFF77377FF333B000000333BB33337777777F3377FF3BB3333BB333
+        3BB33773333773333773B333333B3333333B7333333733333337}
+      NumGlyphs = 2
+      OnClick = sbnArquivoEstoquesClick
+    end
+    object lblArquivoEstoques: TLabel
+      Left = 2
+      Top = 10
+      Width = 419
+      Height = 23
+      AutoSize = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+    object sbnDesmarcarArquivoEstqoues: TSpeedButton
+      Left = 449
+      Top = 10
+      Width = 22
+      Height = 22
+      Hint = 'apagar o arquivo de estoque selecionado'
+      Flat = True
+      Glyph.Data = {
+        36060000424D3606000000000000360000002800000020000000100000000100
+        18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDC
+        DCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDCDCDC
+        0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+        FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDC
+        DCDC7F7F7FFFFFFFFFFFFFDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+        DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+        FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFF7F
+        7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDC0000FF0000FF0000FF7F7F7F0000007F7F7F0000FF0000FF0000
+        FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFF
+        FFFF7F7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDC0000FF0000FF0000FFDCDCDC0000FF0000FF0000FFDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+        7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000000000FF0000FFDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDC
+        DCDC7F7F7FFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000080000000000080DCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+        7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000800000000000800000FFDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+        7F7F7F7F7F7F7F7FDCDCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDC0000FF0000FF0000000000000000000000FF0000FFDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDC7F
+        7F7F7F7F7F7F7F7FDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDC0000FF0000FF0000FF0000000000000000000000FF0000FF0000
+        FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDC7F
+        7F7F7F7F7F7F7F7FDCDCDC7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC
+        DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+        FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDC7F
+        7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDC
+        0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+        FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDC
+        DCDC7F7F7FDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+      NumGlyphs = 2
+      OnClick = sbnDesmarcarArquivoEstqouesClick
+    end
+  end
+  object gbxArquivoProdutos: TGroupBox
+    Left = 0
+    Top = 83
+    Width = 515
+    Height = 38
+    Align = alTop
+    Caption = 'PRODUTOS'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+    object sbnArquivoProdutos: TSpeedButton
+      Left = 424
+      Top = 10
+      Width = 23
+      Height = 23
+      Hint = 'Selecionar o arquivo com os produtos'
+      Flat = True
+      Glyph.Data = {
+        76010000424D7601000000000000760000002800000020000000100000000100
+        04000000000000010000120B0000120B00001000000010000000000000000000
+        800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF0033333333B333
+        333B33FF33337F3333F73BB3777BB7777BB3377FFFF77FFFF77333B000000000
+        0B3333777777777777333330FFFFFFFF07333337F33333337F333330FFFFFFFF
+        07333337F3FF3FFF7F333330F00F000F07333337F77377737F333330FFFFFFFF
+        07333FF7F3FFFF3F7FFFBBB0F0000F0F0BB37777F7777373777F3BB0FFFFFFFF
+        0BBB3777F3FF3FFF77773330F00F000003333337F773777773333330FFFF0FF0
+        33333337F3FF7F37F3333330F08F0F0B33333337F7737F77FF333330FFFF003B
+        B3333337FFFF77377FF333B000000333BB33337777777F3377FF3BB3333BB333
+        3BB33773333773333773B333333B3333333B7333333733333337}
+      NumGlyphs = 2
+      OnClick = sbnArquivoProdutosClick
+    end
+    object lblArquivoProdutos: TLabel
+      Left = 2
+      Top = 10
+      Width = 419
+      Height = 23
+      AutoSize = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+    object sbnDesmarcarArquivoProdutos: TSpeedButton
+      Left = 449
+      Top = 10
+      Width = 22
+      Height = 22
+      Hint = 'apagar o arquivo de produtos selecionado'
+      Flat = True
+      Glyph.Data = {
+        36060000424D3606000000000000360000002800000020000000100000000100
+        18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDC
+        DCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDCDCDC
+        0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+        FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDC
+        DCDC7F7F7FFFFFFFFFFFFFDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+        DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+        FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFF7F
+        7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDC0000FF0000FF0000FF7F7F7F0000007F7F7F0000FF0000FF0000
+        FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFF
+        FFFF7F7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDC0000FF0000FF0000FFDCDCDC0000FF0000FF0000FFDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+        7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000000000FF0000FFDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDC
+        DCDC7F7F7FFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000080000000000080DCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+        7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000800000000000800000FFDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+        7F7F7F7F7F7F7F7FDCDCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDC0000FF0000FF0000000000000000000000FF0000FFDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDC7F
+        7F7F7F7F7F7F7F7FDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDC0000FF0000FF0000FF0000000000000000000000FF0000FF0000
+        FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDC7F
+        7F7F7F7F7F7F7F7FDCDCDC7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC
+        DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+        FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDC7F
+        7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDC
+        0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+        FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDC
+        DCDC7F7F7FDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+      NumGlyphs = 2
+      OnClick = sbnDesmarcarArquivoProdutosClick
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    FilterIndex = 0
+    Title = 'Open'
+    Left = 392
+    Top = 160
+  end
+  object qryCaracteristicas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'INSERT INTO caracteristicas (codigo,descricao,grupo,classe,unida' +
+        'de,ipi,icms,aliquotapis,aliquotacofins,incidencia,markup,codigov' +
+        'isual,marca,comissao,origem,csosn,tipoproduto)'
+      'VALUES (cast(:codigo  as bigint),'
+      '        cast(:descricao  as varchar),'
+      '        '#39'UNIC'#39','
+      '        '#39'UN'#39','
+      
+        '        insert_or_update_unidades(cast(:unidade  as varchar),cas' +
+        't(:unidade  as varchar)),'
+      '        insert_or_update_ncm(cast(:ncm  as varchar)),'
+      '        4,'
+      '        1.65,'
+      '        7.6,'
+      '        1,'
+      '        0,'
+      '        :codigo ,'
+      '        1,'
+      '        0,'
+      '        0,'
+      
+        '        CASE WHEN (:csosn  NOT IN (select codigo from csosn)) TH' +
+        'EN 102 ELSE :csosn  END,'
+      '        '#39'00'#39')'
+      'ON CONFLICT (codigo) DO NOTHING;'
+      '')
+    RequestLive = False
+    Left = 240
+    Top = 5
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'descricao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'unidade'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ncm'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'csosn'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryPrecos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'INSERT INTO precos (caracteristica,codigo,descricao,avariado)'
+      
+        'VALUES (cast(:codigo  as bigint),1,'#39'NORMAL'#39',false) ON CONFLICT (' +
+        'caracteristica,codigo) DO NOTHING;')
+    RequestLive = False
+    Left = 268
+    Top = 5
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryColunasPrecos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'INSERT INTO colunasprecos (caracteristica,preco,coluna,valor,dat' +
+        'a)'
+      
+        ' VALUES (cast(:caracteristica  as bigint),1,1,cast(:valor  as nu' +
+        'meric),CAST(current_timestamp as date))'
+      
+        ' ON CONFLICT (caracteristica,preco,coluna) DO UPDATE SET valor=c' +
+        'ast(:valor  as numeric),data=CAST(current_timestamp as date);')
+    RequestLive = False
+    Left = 296
+    Top = 5
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'caracteristica'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valor'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'INSERT INTO produtos(codigo,descricao,caracteristica,preco,codig' +
+        'ovisual)'
+      
+        ' VALUES(cast(:codigo  as bigint),cast(:descricao  as varchar),ca' +
+        'st(:caracteristica  as bigint),1,cast(:codigovisual  as varchar)' +
+        ')'
+      
+        ' ON CONFLICT (codigo) DO UPDATE SET descricao=cast(:descricao  a' +
+        's varchar);')
+    RequestLive = False
+    Left = 324
+    Top = 5
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'descricao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'caracteristica'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigovisual'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryCodigoBarras: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT insert_or_update_produtoscodigobarras('
+      '         cast(:produto   as bigint),'
+      '         cast(:codbarras  as bigint));')
+    RequestLive = False
+    Left = 351
+    Top = 5
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codbarras'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryEstoques: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'INSERT INTO estoques (produto,filial,emestoque,reservado,transit' +
+        'o,demonstracao,conserto,futuro,danificada,estoquefisico,reservap' +
+        'revia)'
+      
+        ' VALUES (cast(:produto  as bigint),cast(:filial  as smallint),0,' +
+        '0,0,0,0,0,0,0,0)'
+      ' ON CONFLICT (produto,filial) DO NOTHING;')
+    RequestLive = False
+    Left = 379
+    Top = 5
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT insert_or_update_clientes('
+      '         CAST(:filial  AS SMALLINT),'
+      '         CAST(:codigo  AS INTEGER),'
+      '         CAST(:nome   AS VARCHAR),'
+      '         CAST(:pessoa  AS CHAR(1)),'
+      '         CAST(:cpf    AS VARCHAR),'
+      '         CAST(:documento  AS VARCHAR),'
+      '         CAST(:orgao  AS CHAR(5)),'
+      '         CAST(:exped  AS DATE),'
+      '         CAST(:estado  AS CHAR(2)),'
+      '         CAST(:cidade  AS VARCHAR),'
+      '         CAST(:bairro  AS VARCHAR),'
+      '         CAST(:cep    AS INTEGER),'
+      '         CAST(:rua    AS VARCHAR));')
+    RequestLive = False
+    Left = 406
+    Top = 5
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nome'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'pessoa'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cpf'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'documento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'orgao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exped'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'estado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cidade'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'bairro'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cep'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'rua'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryEstoquesImplantacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'INSERT INTO movimentos(filial,produto,quantidade,tipomovimento,v' +
+        'alor,referencia)'
+      '  VALUES(CAST(:filial      AS INTEGER),'
+      '         CAST(:produto     AS BIGINT),'
+      '         CAST(:quantidade  AS NUMERIC),'
+      '         '#39'IMP'#39','
+      '         0.00,'
+      '         '#39'IMPORTA'#199#195'O DO ESTOQUE'#39
+      '        );')
+    RequestLive = False
+    Left = 406
+    Top = 33
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'quantidade'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryImportacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ''
+      'delete from importdados_1 ;'
+      ''
+      
+        'COPY importdados_1 from :arquivo DELIMITER '#39';'#39' CSV QUOTE AS '#39'"'#39' ' +
+        ';'
+      ''
+      'INSERT INTO unidades (codigo, descricao)'
+      ''
+      '('
+      'select'
+      '     cast(id.unidade  as varchar(8)) as codigo,'
+      '     cast(id.unidade  as varchar(30)) as descricao'
+      ''
+      'from'
+      '('
+      ''
+      '  select distinct id.unidade'
+      '  from importdados_1 id'
+      
+        '  where not exists (select u.codigo from unidades u where u.codi' +
+        'go = id.unidade)'
+      ''
+      ') as id'
+      ');'
+      ''
+      ''
+      'select insert_or_update_ncm(id.ncm, false)'
+      'from'
+      '('
+      '  select distinct id.ncm'
+      '  from importdados_1 id'
+      
+        '  where not exists (select ipi.codigo from ipi where ipi.classif' +
+        'icacaofiscal = id.ncm)'
+      ') as id;'
+      ''
+      'select inserirtodosestadosipi();'
+      ''
+      ''
+      'INSERT INTO caracteristicas ('
+      '    codigo,'
+      '    descricao,'
+      '    grupo,'
+      '    classe,'
+      '    unidade,'
+      '    ipi,'
+      '    icms,'
+      '    aliquotapis,'
+      '    aliquotacofins,'
+      '    incidencia,'
+      '    markup,'
+      '    codigovisual,'
+      '    marca,'
+      '    comissao,'
+      '    origem,'
+      '    csosn,'
+      '    tipoproduto'
+      ')'
+      'SELECT '
+      '    id.codigo,'
+      '    id.descricao,'
+      '    CAST('#39'UNIC'#39' AS varchar(4)) AS grupo,'
+      '    CAST('#39'UN'#39' AS varchar(2)) AS classe,'
+      '    id.unidade,'
+      
+        '    (SELECT ipi.codigo FROM ipi WHERE ipi.classificacaofiscal = ' +
+        'id.ncm LIMIT 1) AS ipi,'
+      '    CAST(4 AS smallint) AS icms,'
+      '    CAST(1.65 AS numeric(5,2)) AS aliquotapis,'
+      '    CAST(7.6 AS numeric(5,2)) AS aliquotacofins,'
+      '    CAST(1 AS smallint) AS incidencia,'
+      '    CAST(0 AS numeric(5,2)) AS markup,'
+      '    CAST(id.codigo AS varchar(30)) AS codigovisual,'
+      '    CAST(1 AS smallint) AS marca,'
+      '    CAST(0 AS numeric(8,2)) AS comissao,'
+      '    CAST(0 AS integer) AS origem,'
+      '    CASE '
+      '        WHEN (id.csosn NOT IN (SELECT csosn.codigo FROM csosn)) '
+      '        THEN CAST('#39'102'#39' AS char(3)) '
+      '        ELSE id.csosn  '
+      '    END AS csosn,'
+      '    CAST('#39'00'#39' AS char(2)) AS tipoproduto'
+      'FROM importdados_1 id'
+      'ON CONFLICT (codigo) DO UPDATE'
+      'SET ipi = EXCLUDED.ipi;'
+      ''
+      ''
+      'INSERT INTO precos (caracteristica,codigo,descricao,avariado)'
+      ''
+      ' ('
+      ''
+      '       select id.codigo as caracteristica, '
+      '       cast(1 as SMALLINT) as codigo,'
+      '       cast('#39'NORMAL'#39' as varchar(30)) as descricao,'
+      '       false as avariado       '
+      '       from importdados_1 id'
+      
+        '       where not exists (select p.caracteristica from precos p w' +
+        'here p.caracteristica = id.codigo)'
+      ''
+      ') ON CONFLICT (caracteristica,codigo) DO NOTHING;'
+      ''
+      ''
+      ''
+      
+        'INSERT INTO colunasprecos (caracteristica,preco,coluna,valor,dat' +
+        'a)'
+      ''
+      ' ('
+      ''
+      '       select id.codigo as caracteristica, '
+      '       cast(1 as SMALLINT) as preco,'
+      '       cast(1 as SMALLINT) as coluna,'
+      '       id.valor,'
+      '       CAST(current_timestamp as date) as data'
+      '       from importdados_1 id'
+      
+        '       where not exists (select cp.caracteristica from colunaspr' +
+        'ecos cp '
+      '                         where cp.caracteristica = id.codigo'
+      '                           and cp.preco=1'
+      '                           and cp.coluna=1)'
+      '          '
+      '          )'
+      ' ON CONFLICT (caracteristica,preco,coluna) DO NOTHING;'
+      ''
+      ' UPDATE colunasprecos SET valor = id.valor,'
+      '            data = CAST(current_timestamp as date)'
+      'from'
+      '('
+      ''
+      '      select id.codigo as caracteristica,'
+      '             cast(1 as SMALLINT) as preco,'
+      '             cast(1 as SMALLINT) as coluna,'
+      '             id.valor,'
+      '             CAST(current_timestamp as date) as data'
+      ''
+      '      from importdados_1 id'
+      ''
+      '      where exists (select cp.caracteristica'
+      '                    from colunasprecos cp'
+      '                    where cp.caracteristica = id.codigo'
+      '                      and cp.preco=1'
+      '                      and cp.coluna=1)'
+      ''
+      ') as id'
+      'where colunasprecos.caracteristica =  id.caracteristica'
+      '  and colunasprecos.preco = id.preco'
+      '  and colunasprecos.coluna = id.coluna'
+      ';'
+      ''
+      
+        'INSERT INTO produtos(codigo,descricao,caracteristica,preco,codig' +
+        'ovisual)'
+      '('
+      '         '
+      '      select id.codigo, '
+      '             id.descricao,'
+      '             id.codigo as caracteristica,             '
+      '             cast(1 as SMALLINT) as preco,'
+      '             cast(id.codigo as varchar(30)) as codigovisual'
+      '       '
+      '      from importdados_1 id'
+      '      '
+      '      where not exists (select p.codigo'
+      '                    from produtos p'
+      '                    where p.codigo = id.codigo'
+      '                    )'
+      ''
+      ''
+      '        )'
+      ' ON CONFLICT (codigo) DO NOTHING;'
+      ''
+      ''
+      ' UPDATE produtos set descricao = id.descricao'
+      ' from'
+      ' ('
+      '      select id.codigo,'
+      '             id.descricao,'
+      '             id.codigo as caracteristica,'
+      '             cast(1 as SMALLINT) as preco,'
+      '             cast(id.codigo as varchar(30)) as codigovisual'
+      ''
+      '      from importdados_1 id'
+      ''
+      '      where exists (select p.codigo'
+      '                    from produtos p'
+      '                    where p.codigo = id.codigo'
+      '                      and p.descricao <> id.descricao'
+      '                    )'
+      ''
+      ' ) as id'
+      ' where produtos.codigo = id.codigo;'
+      ''
+      ''
+      
+        'INSERT INTO estoques (produto,filial,emestoque,reservado,transit' +
+        'o,demonstracao,conserto,futuro,danificada,estoquefisico,reservap' +
+        'revia)'
+      ' ('
+      ''
+      
+        '      select distinct id.codigo, cast(:filialbase  as smallint),' +
+        '0,0,0,0,0,0,0,0,0'
+      ''
+      '      from importdados_1 id'
+      ''
+      '      where not exists (select e.produto'
+      '                    from estoques e'
+      '                    where e.produto = id.codigo'
+      '                      and e.filial = :filialbase'
+      '                    )'
+      '         )'
+      ' ON CONFLICT (produto,filial) DO NOTHING;'
+      ''
+      
+        'INSERT INTO movimentos(filial,produto,quantidade,tipomovimento,v' +
+        'alor,referencia)'
+      ' ('
+      ''
+      ''
+      '      select distinct cast(:filialbase as smallint) as filial,'
+      '                      id.codigo as produto,'
+      '                      id.estoque as quantidade,'
+      '                      cast('#39'IMP'#39' as char(3)) as tipomovimento,'
+      '                      cast(0.00 as numeric(11,2)) as valor,'
+      
+        '                      cast('#39'IMPORTA'#199#195'O DO ESTOQUE'#39' as varchar(60' +
+        ')) as referencia'
+      ''
+      '      from importdados_1 id'
+      ''
+      '      where not exists (select e.produto'
+      '                    from estoques e'
+      '                    where e.produto = id.codigo'
+      '                      and e.filial = :filialbase'
+      '                    )'
+      '        );')
+    RequestLive = False
+    Left = 232
+    Top = 53
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'arquivo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end>
+  end
+end

@@ -1,0 +1,155 @@
+unit frPesquisaCupomFiscal;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls,
+  frconsulta, frconsultacodigo, ctconstantes, dmbasico, cpnumero, DB,
+  cpdatasource;
+
+type
+  TfraPesquisaCupomFiscal = class(TFrame)
+    gbxFilial: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigo;
+    gbxECF: TGroupBox;
+    fraConsultaMaquinaECF: TfraConsultaCodigo;
+    gbxIntervensaoECF: TGroupBox;
+    fraConsultaIntervensaoECF: TfraConsultaCodigo;
+    fraConsultaCupomFiscal: TfraConsultaCodigo;
+    gbxNumeroCupom: TGroupBox;
+    dsrProcuraMaquinasECF: TtecDataSource;
+  private
+    { Private declarations }
+    Procedure CondicaoConsultaFilial;
+    procedure CondicaoConsultaMaquinaECF;
+    procedure CondicaoConsultaIntervencao;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure CondicaoConsultaCupomFiscal;
+    procedure AtribuirDadosCupomfiscal;
+
+
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmPesquisaCupomFiscal }
+
+procedure TfraPesquisaCupomFiscal.AtribuirDadosCupomfiscal;
+begin
+  fraConsultaFilial.qryProcuraFiliais.parambyname('codigo').asinteger := fraConsultaCupomFiscal.qryProcuraCupomFiscalfilial.asinteger;
+  fraConsultaFilial.qryProcuraFiliais.close;
+  fraConsultaFilial.qryProcuraFiliais.open;
+
+  fraConsultaMaquinaECF.qryProcuraMaquinasECF.parambyname('filial').asinteger := fraConsultaCupomFiscal.qryProcuraCupomFiscalfilial.asinteger;
+  fraConsultaMaquinaECF.qryProcuraMaquinasECF.parambyname('maquina').asinteger := fraConsultaCupomFiscal.qryProcuraCupomFiscalmaquina.asinteger;
+  fraConsultaMaquinaECF.qryProcuraMaquinasECF.close;
+  fraConsultaMaquinaECF.qryProcuraMaquinasECF.open;
+
+  fraConsultaIntervensaoECF.qryProcuraIntervencaoECF.parambyname('filial').asinteger := fraConsultaCupomFiscal.qryProcuraCupomFiscalfilial.asinteger;
+  fraConsultaIntervensaoECF.qryProcuraIntervencaoECF.parambyname('maquina').asinteger := fraConsultaCupomFiscal.qryProcuraCupomFiscalmaquina.asinteger;
+  fraConsultaIntervensaoECF.qryProcuraIntervencaoECF.parambyname('intervencao').asinteger := fraConsultaCupomFiscal.qryProcuraCupomFiscalintervensao.asinteger;
+  fraConsultaIntervensaoECF.qryProcuraIntervencaoECF.close;
+  fraConsultaIntervensaoECF.qryProcuraIntervencaoECF.open;
+
+
+end;
+
+procedure TfraPesquisaCupomFiscal.CondicaoConsultaCupomFiscal;
+begin
+  with fraConsultaCupomfiscal do
+  begin
+
+    qryProcuraCupomFiscal.parambyname('filial').asinteger := fraconsultafilial.qryProcuraFiliais.FieldByName('codigo').asinteger;
+
+    if fraConsultaMaquinaECF.qryProcuraMaquinasECFmaquina.asString<>'' then
+      qryProcuraCupomFiscal.parambyname('maquina').asinteger := fraConsultaMaquinaECF.qryProcuraMaquinasECFmaquina.asinteger
+    else
+      qryProcuraCupomFiscal.parambyname('maquina').asinteger := 0;
+
+    if fraConsultaIntervensaoECF.qryProcuraIntervencaoECFintervencao.asString <> '' then
+      qryProcuraCupomFiscal.parambyname('intervencao').asinteger := fraConsultaIntervensaoECF.qryProcuraIntervencaoECFintervencao.asinteger
+    else
+      qryProcuraCupomFiscal.parambyname('intervencao').asinteger := 0;
+
+    qryConsultaCupomFiscal.parambyname('filial').asinteger := qryProcuraCupomFiscal.parambyname('filial').asinteger;
+    qryConsultaCupomFiscal.parambyname('maquina').asinteger := qryProcuraCupomFiscal.parambyname('maquina').asinteger;
+    qryConsultaCupomFiscal.parambyname('intervencao').asinteger := qryProcuraCupomFiscal.parambyname('intervencao').asinteger;
+  end;
+
+end;
+
+procedure TfraPesquisaCupomFiscal.CondicaoConsultaFilial;
+begin
+//  fraConsultaFilial.qryProcuraFiliais.MacroByName('SQL').AsString := 'and codigo in (' + ListaEstoquesFiliais + ')';
+//  fraConsultaFilial.qryConsultaFiliais.MacroByName('SQL').AsString :='and codigo in (' + ListaEstoquesFiliais + ')';
+end;
+
+procedure TfraPesquisaCupomFiscal.CondicaoConsultaIntervencao;
+begin
+  with fraConsultaIntervensaoECF do
+  begin
+    qryProcuraIntervencaoECF.parambyname('filial').asinteger := fraconsultafilial.qryProcuraFiliais.FieldByName('codigo').asinteger;
+
+    if fraConsultaMaquinaECF.qryProcuraMaquinasECFmaquina.asString<>'' then
+      qryProcuraIntervencaoECF.parambyname('maquina').asinteger := fraConsultaMaquinaECF.qryProcuraMaquinasECFmaquina.asinteger
+    else
+      qryProcuraIntervencaoECF.parambyname('maquina').asinteger := 0;
+
+    qryConsultaIntervencaoECF.parambyname('filial').asinteger := fraconsultafilial.qryProcuraFiliais.FieldByName('codigo').asinteger;
+
+    qryConsultaIntervencaoECF.parambyname('maquina').asinteger := qryProcuraIntervencaoECF.parambyname('maquina').asinteger;
+  end;
+
+end;
+
+procedure TfraPesquisaCupomFiscal.CondicaoConsultaMaquinaECF;
+begin
+  with fraConsultaMaquinaECF do
+  begin
+    qryProcuraMaquinasECF.parambyname('filial').asinteger := fraconsultafilial.qryProcuraFiliais.FieldByName('codigo').asinteger;
+    qryConsultaMaquinasECF.parambyname('filial').asinteger := fraconsultafilial.qryProcuraFiliais.FieldByName('codigo').asinteger;
+  end;
+end;
+
+constructor TfraPesquisaCupomFiscal.Create(AOwner: TComponent);
+begin
+  inherited;
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+  fraconsultafilial.qryProcuraFiliais.BeforeOpen := fraconsultafilial.qryProcuraFiliaisBeforeOpen;
+  fraconsultafilial.qryConsultaFiliais.BeforeOpen := fraconsultafilial.qryConsultaFiliaisBeforeOpen;
+  fraconsultafilial.CondicoesdaConsulta := CondicaoConsultaFilial;
+
+  fraConsultaFilial.qryProcuraFiliais.parambyname('codigo').asinteger := filialbase;
+  fraConsultaFilial.qryProcuraFiliais.close;
+  fraConsultaFilial.qryProcuraFiliais.open;
+
+  {
+  fraConsultaFilial.edfCodigo.text := inttostr(filialbase);
+  fraConsultaFilial.edfCodigo.exist;
+  }
+
+  fraConsultaMaquinaECF.TipoPesquisa := pesMaquinasECF;
+  fraConsultaMaquinaECF.CondicoesdaConsulta := CondicaoConsultaMaquinaECF;
+
+  fraConsultaIntervensaoECF.TipoPesquisa := pesIntervencaoECF;
+
+  fraConsultaCupomfiscal.TipoPesquisa := pesCUPOMFISCAL;
+  fraConsultaCupomfiscal.CondicoesdaConsulta := CondicaoConsultaCupomFiscal;
+  fraConsultaCupomfiscal.OnFound := AtribuirDadosCupomfiscal;
+
+end;
+
+destructor TfraPesquisaCupomFiscal.Destroy;
+begin
+  inherited;
+end;
+
+end.

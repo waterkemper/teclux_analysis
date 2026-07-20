@@ -1,0 +1,116 @@
+unit fmcadastroSaldoCashBack;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, StdCtrls, Mask,
+  cpdbfindcontrols, cpdbradiogroup, DBCtrls, cpdbtext, Grids, DBGrids,
+  cpdbgrid, cptexto, cpnumero, ctconstantes,fmConsultaBasica,
+  fmConsultaporCampo, zquery,
+  dmconsultadadoscliente, biblio, ToolWin, frconsulta, frconsultacodigo,
+  AdvDateTimePicker, AdvDBDateTimePicker;
+
+type
+  TfrmCadastroSaldoCashBack = class(TFrmCadastroPadrao)
+    lblNumero: TLabel;
+    dtxNumero: TtecDBText;
+    rgpTipo: TtecDBRadioGroup;
+    rbnEntrada: TtecRadioButton;
+    rbnSaida: TtecRadioButton;
+    lblDataHora: TLabel;
+    lblEvento: TLabel;
+    gbxValores: TGroupBox;
+    edtSaldo: TDBEditNumero;
+    lblSaldo: TLabel;
+    lblValor: TLabel;
+    edtValor: TDBEditNumero;
+    fraConsultaCodigoCashBack: TfraConsultaCodigo;
+    Label1: TLabel;
+    fraConsultaCodigoProduto: TfraConsultaCodigo;
+    lblReferencia: TLabel;
+    edtReferencia: TDBEditTexto;
+    AdvDBDateTimePicker1: TAdvDBDateTimePicker;
+    AdvDBDateTimePicker2: TAdvDBDateTimePicker;
+    Label2: TLabel;
+  private
+    { Private declarations }
+  protected
+    dtmconsultadadoscliente: Tdtmconsultadadoscliente;
+    function  InternoIncluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    procedure AtribuirDadosCashBack(Found: Boolean);
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent; dtm: Tdtmconsultadadoscliente); reintroduce;
+    destructor Destroy; override;
+  end;
+
+var
+  frmCadastroSaldoCashBack: TfrmCadastroSaldoCashBack;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmCadastroSaldoCashBack }
+
+procedure TfrmCadastroSaldoCashBack.AtribuirDadosCashBack(Found: Boolean);
+begin
+  with dtmconsultadadoscliente do
+  begin
+    if qrycashback_saldosvalidade.isnull then
+      qrycashback_saldosvalidade.value := datahoralocal + 30
+    else
+      qrycashback_saldosvalidade.value := fraConsultaCodigoCashBack.qryProcuraCashBackvalidadefinal.value;
+  end;
+end;
+
+constructor TfrmCadastroSaldoCashBack.Create(AOwner: TComponent; dtm: Tdtmconsultadadoscliente);
+begin
+  dtmconsultadadoscliente := dtm;
+  Inherited Create(AOwner);
+  DataSet:= dtmconsultadadoscliente.qrycashback_saldos;
+
+  fraConsultaCodigoCashBack.TipoPesquisa := pesCashBack;
+  fraConsultaCodigoCashBack.onFound := AtribuirDadosCashBack;
+
+  fraConsultaCodigoProduto.TipoPesquisa := pesITEMPRODUTOS;
+  
+  InternoIncluir;
+end;
+
+destructor TfrmCadastroSaldoCashBack.Destroy;
+begin
+  inherited;
+  frmCadastroSaldoCashBack := nil;
+end;
+
+function TfrmCadastroSaldoCashBack.InternoGravar: Boolean;
+begin
+ Result:= inherited InternoGravar;
+ {
+ if result then
+   result := validarSaldo;
+   }
+
+ if Result then
+ begin
+   with dtmConsultaDadosCliente do
+     result := GravarCashBack(self);
+ end;
+ 
+ if result then
+   close;
+end;
+
+function TfrmCadastroSaldoCashBack.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if not CtrlOn then
+    if Result then
+      dtmConsultaDadosCliente.IncluirSaldoCashBack;
+end;
+
+
+end.

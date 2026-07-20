@@ -1,0 +1,497 @@
+unit fmrelatorioprodutosconferidos;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmrelatoriopadrao, ExtCtrls, Buttons, ToolWin, ComCtrls,
+  frlistagruposfiliais, frlistafiliais, cppagecontrol, frintervalodatas,
+  StdCtrls, frselecaoaleatoria, ctconstantes, dmrelatorioprodutosconferidos,
+  frconsulta, frconsultacodigo, cpdbfindcontrols, DB,
+  cpeditioncontrolvalidation, biblio, frmultiplaselecaoaleatoria;
+
+type
+  TfrmRelatorioProdutosConferidos = class(TFrmRelatorioPadrao)
+    fraIntervaloDatas1: TfraIntervaloDatas;
+    GroupBox1: TGroupBox;
+    fraSelecaoAleatoriaFuncionarios: TfraSelecaoAleatoria;
+    gbxSituacao: TGroupBox;
+    ckbNaoConferidos: TCheckBox;
+    ckbTotalmenteConferidos: TCheckBox;
+    ckbParcialmenteConferidos: TCheckBox;
+    gbxTipo: TGroupBox;
+    ckbContrato: TCheckBox;
+    ckbNotadeEntrada: TCheckBox;
+    ckbNotadeSaida: TCheckBox;
+    ckbTransferencia: TCheckBox;
+    ecvValida: TtecEditionControlValidation;
+    fraListaFiliais1: TfraListaFiliais;
+    fraMultiplaSelecaoAleatoria1: TfraMultiplaSelecaoAleatoria;
+    fraIntervaloDatasDigitacao: TfraIntervaloDatas;
+    ckbLISTASPADRAO: TCheckBox;
+    ckbNotadeSaidaTransferencia: TCheckBox;
+    ckbRomaneiosEntrada: TCheckBox;
+    ckbRomaneiosSaida: TCheckBox;
+    ckbOrcamentos: TCheckBox;
+    procedure fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure fraSelecaoAleatoriaFuncionariosqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaFuncionariossbnProcuraClick(
+      Sender: TObject);
+    procedure ckbNaoConferidosClick(Sender: TObject);
+    procedure ckbParcialmenteConferidosClick(Sender: TObject);
+    procedure ckbTotalmenteConferidosClick(Sender: TObject);
+    procedure ckbContratoClick(Sender: TObject);
+    procedure ckbNotadeEntradaClick(Sender: TObject);
+    procedure ckbNotadeSaidaClick(Sender: TObject);
+    procedure ckbTransferenciaClick(Sender: TObject);
+    procedure ckbLISTASPADRAOClick(Sender: TObject);
+    procedure ckbNotadeSaidaTransferenciaClick(Sender: TObject);
+    procedure ckbRomaneiosEntradaClick(Sender: TObject);
+    procedure ckbRomaneiosSaidaClick(Sender: TObject);
+    procedure ckbOrcamentosClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure AtribuirDadosFuncionarios(Found: Boolean);
+    procedure AcionarPesquisaFuncionarios;
+  protected
+    function ControlesValidos: boolean;
+    procedure InternoImpressao; override;
+  public
+    { Public declarations }
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+    
+  end;
+
+var
+  frmRelatorioProdutosConferidos: TfrmRelatorioProdutosConferidos;
+  ControleValido       : TWinControl;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmRelatorioProdutosConferidos }
+
+procedure TfrmRelatorioProdutosConferidos.AcionarPesquisaFuncionarios;
+begin
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar(ctUSUARIOS);
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+procedure TfrmRelatorioProdutosConferidos.AtribuirDadosFuncionarios(Found: Boolean);
+begin
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraUsuarioscodigo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('nome').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraUsuariosnome.AsString;
+
+    qrySelecaoAleatoria.Post;
+  end;
+end;
+
+function TfrmRelatorioProdutosConferidos.ControlesValidos: boolean;
+begin
+  result :=  ecvValida.Verify(fraIntervaloDatas1.gbxPeriodo, ControleValido);
+end;
+
+constructor TfrmRelatorioProdutosConferidos.Create(Aowner: Tcomponent);
+var
+  Dia, Mes, Ano: Word;
+  NData: TDateTime;
+begin
+  dtmRelatorioProdutosConferidos := TdtmRelatorioProdutosConferidos.Create(Self);
+  inherited;
+
+  fraSelecaoAleatoriaFuncionarios.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaFuncionarios.qrySelecaoAleatoria.Open;
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoriaFuncionarios';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 6;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraUsuarios;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesUSUARIOS;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosFuncionarios;
+  end;
+
+  fraIntervaloDatas1.edtDataInicial.Text := datetostr(date());
+  fraIntervaloDatas1.edtDataFinal.Text := datetostr(date());
+
+  TtecEditionControlItem(ecvValida.EditionControl.Add).Control:= fraIntervaloDatas1.edtDataInicial;
+  TtecEditionControlItem(ecvValida.EditionControl.Add).Control:= fraIntervaloDatas1.edtDataFinal;
+  
+
+end;
+
+destructor TfrmRelatorioProdutosConferidos.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TfrmRelatorioProdutosConferidos.fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaFuncionarios;
+
+end;
+
+procedure TfrmRelatorioProdutosConferidos.fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                    fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                    if (Shift = []) or fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.CtrlOn then
+                      AcionarPesquisaFuncionarios
+                  end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaFuncionarios.dbgSelecaoAleatoria.SelectedIndex = 0  then
+               begin
+                 fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.edfCodigo.DoExit;
+                 if not fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.qryProcuraUsuarios.IsEmpty then
+                    AtribuirDadosFuncionarios(true)
+                 else
+                 begin
+                   key := 0;
+                   fraSelecaoAleatoriaFuncionarios.dbgSelecaoAleatoria.SelectedIndex := 0;
+                   fraSelecaoAleatoriaFuncionarios.dbgSelecaoAleatoria.SetFocus;
+                 end;
+               end;
+  end;
+  inherited;
+
+end;
+
+procedure TfrmRelatorioProdutosConferidos.fraSelecaoAleatoriaFuncionariosqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+var nc: byte;
+  
+begin
+  inherited;
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'CÓDIGO';
+    qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('nome').DisplayLabel := 'NOME DO FUNCIONÁRIO';
+    qrySelecaoAleatoria.FieldByName('nome').ReadOnly := true;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+
+    with dbgSelecaoAleatoria do
+         for nc:= 0 to 1 do with Columns[nc].Title do begin
+             Alignment:= taCenter;
+             Font.Name:= 'helvetica';
+             Font.Height:= -9;
+         end;
+  end;
+
+end;
+
+procedure TfrmRelatorioProdutosConferidos.fraSelecaoAleatoriaFuncionariossbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaFuncionarios;
+
+end;
+
+procedure TfrmRelatorioProdutosConferidos.InternoImpressao;
+begin
+  inherited;
+  if ControlesValidos then
+    dtmRelatorioProdutosConferidos.Imprimir(fraIntervaloDatas1.edtDataInicial.Text, fraIntervaloDatas1.edtDataFinal.Text,
+               fraIntervaloDatasDigitacao.edtDataInicial.Text, fraIntervaloDatasDigitacao.edtDataFinal.Text,
+               fraListaFiliais1.ListaSelecionada, fraSelecaoAleatoriaFuncionarios.StringSelecionada,
+               ckbNaoConferidos.Checked, ckbParcialmenteConferidos.Checked, ckbTotalmenteConferidos.Checked,
+               ckbContrato.Checked, ckbOrcamentos.Checked, ckbNotadeSaida.Checked, ckbNotadeEntrada.Checked, ckbTransferencia.Checked,
+               ckbLISTASPADRAO.checked, ckbNotadeSaidaTransferencia.Checked,
+               ckbRomaneiosEntrada.Checked, ckbRomaneiosSaida.Checked,
+               fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional,
+               fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaprodutos.ListaCondicional,
+               fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriagruposprodutos.ListaCondicional,
+               fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriaclassesprodutos.ListaCondicional,
+               fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriamarcasProdutos.ListaCondicional,
+               fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriapromocoes.ListaCondicional);
+end;
+
+procedure TfrmRelatorioProdutosConferidos.ckbNaoConferidosClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbNaoConferidos.Checked and
+     not ckbParcialmenteConferidos.Checked and
+     not ckbTotalmenteConferidos.Checked then
+  begin
+   ckbNaoConferidos.OnClick := nil;
+   ckbNaoConferidos.Checked := true;
+   ckbNaoConferidos.OnClick := ckbNaoConferidosClick;
+  end;
+
+end;
+
+procedure TfrmRelatorioProdutosConferidos.ckbParcialmenteConferidosClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbNaoConferidos.Checked and
+     not ckbParcialmenteConferidos.Checked and
+     not ckbTotalmenteConferidos.Checked then
+  begin
+   ckbParcialmenteConferidos.OnClick := nil;
+   ckbParcialmenteConferidos.Checked := true;
+   ckbParcialmenteConferidos.OnClick := ckbParcialmenteConferidosClick;
+  end;
+
+end;
+
+procedure TfrmRelatorioProdutosConferidos.ckbTotalmenteConferidosClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbNaoConferidos.Checked and
+     not ckbParcialmenteConferidos.Checked and
+     not ckbTotalmenteConferidos.Checked then
+  begin
+   ckbTotalmenteConferidos.OnClick := nil;
+   ckbTotalmenteConferidos.Checked := true;
+   ckbTotalmenteConferidos.OnClick := ckbTotalmenteConferidosClick;
+  end;
+end;
+
+procedure TfrmRelatorioProdutosConferidos.ckbContratoClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbContrato.Checked and
+     not ckbOrcamentos.Checked and
+     not ckbNotadeEntrada.Checked and
+     not ckbNotadeSaida.Checked and
+     not ckbTransferencia.checked and
+     not ckbLISTASPADRAO.checked and
+     not ckbNotadeSaidaTransferencia.Checked and
+     not ckbRomaneiosEntrada.checked and
+     not ckbRomaneiosSaida.checked
+
+     then
+
+  begin
+   ckbContrato.OnClick := nil;
+   ckbContrato.Checked := true;
+   ckbContrato.OnClick := ckbContratoClick;
+  end;
+end;
+
+procedure TfrmRelatorioProdutosConferidos.ckbNotadeEntradaClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbContrato.Checked and
+     not ckbOrcamentos.Checked and
+     not ckbNotadeEntrada.Checked and
+     not ckbNotadeSaida.Checked and
+     not ckbTransferencia.checked and
+     not ckbLISTASPADRAO.checked and
+     not ckbNotadeSaidaTransferencia.Checked and
+     not ckbRomaneiosEntrada.checked and
+     not ckbRomaneiosSaida.checked
+
+     then
+  begin
+   ckbNotadeEntrada.OnClick := nil;
+   ckbNotadeEntrada.Checked := true;
+   ckbNotadeEntrada.OnClick := ckbNotadeEntradaClick;
+  end;
+
+end;
+
+procedure TfrmRelatorioProdutosConferidos.ckbNotadeSaidaClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbContrato.Checked and
+     not ckbOrcamentos.Checked and
+     not ckbNotadeEntrada.Checked and
+     not ckbNotadeSaida.Checked and
+     not ckbTransferencia.checked and
+     not ckbLISTASPADRAO.checked AND
+     not ckbNotadeSaidaTransferencia.Checked and
+     not ckbRomaneiosEntrada.checked and
+     not ckbRomaneiosSaida.checked
+
+     then
+
+  begin
+   ckbNotadeSaida.OnClick := nil;
+   ckbNotadeSaida.Checked := true;
+   ckbNotadeSaida.OnClick := ckbNotadeSaidaClick;
+  end;
+
+end;
+
+procedure TfrmRelatorioProdutosConferidos.ckbTransferenciaClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbContrato.Checked and
+     not ckbOrcamentos.Checked and
+     not ckbNotadeEntrada.Checked and
+     not ckbNotadeSaida.Checked and
+     not ckbTransferencia.checked and
+     not ckbLISTASPADRAO.checked and
+     not ckbNotadeSaidaTransferencia.Checked and
+     not ckbRomaneiosEntrada.checked and
+     not ckbRomaneiosSaida.checked
+
+     then
+  begin
+   ckbTransferencia.OnClick := nil;
+   ckbTransferencia.Checked := true;
+   ckbTransferencia.OnClick := ckbTransferenciaClick;
+  end;
+end;
+
+procedure TfrmRelatorioProdutosConferidos.ckbLISTASPADRAOClick(
+  Sender: TObject);
+begin
+  if not ckbContrato.Checked and
+     not ckbOrcamentos.Checked and
+     not ckbNotadeEntrada.Checked and
+     not ckbNotadeSaida.Checked and
+     not ckbTransferencia.checked and
+     not ckbNotadeSaidaTransferencia.checked and
+     not ckbTransferencia.Checked and
+     not ckbRomaneiosEntrada.checked and
+     not ckbRomaneiosSaida.checked
+
+     then
+  begin
+   ckbLISTASPADRAO.OnClick := nil;
+   ckbLISTASPADRAO.Checked := true;
+   ckbLISTASPADRAO.OnClick := ckbLISTASPADRAOClick;
+  end;
+
+end;
+
+procedure TfrmRelatorioProdutosConferidos.ckbNotadeSaidaTransferenciaClick(
+  Sender: TObject);
+begin
+  if not ckbContrato.Checked and
+     not ckbOrcamentos.Checked and
+     not ckbNotadeEntrada.Checked and
+     not ckbNotadeSaida.Checked and
+     not ckbTransferencia.checked and
+     not ckbLISTASPADRAO.checked and
+     not ckbTransferencia.Checked and
+     not ckbRomaneiosEntrada.checked and
+     not ckbRomaneiosSaida.checked
+
+     then
+  begin
+   ckbNotadeSaidaTransferencia.OnClick := nil;
+   ckbNotadeSaidaTransferencia.Checked := true;
+   ckbNotadeSaidaTransferencia.OnClick := ckbNotadeSaidaTransferenciaClick;
+  end;
+end;
+
+procedure TfrmRelatorioProdutosConferidos.ckbRomaneiosEntradaClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbContrato.Checked and
+     not ckbOrcamentos.Checked and
+     not ckbNotadeEntrada.Checked and
+     not ckbNotadeSaida.Checked and
+     not ckbTransferencia.checked and
+     not ckbLISTASPADRAO.checked and
+     not ckbTransferencia.Checked and
+     not ckbNotadeSaidaTransferencia.checked and
+     not ckbRomaneiosSaida.checked
+
+     then
+  begin
+   ckbRomaneiosEntrada.OnClick := nil;
+   ckbRomaneiosEntrada.Checked := true;
+   ckbRomaneiosEntrada.OnClick := ckbRomaneiosEntradaClick;
+  end;
+
+end;
+
+procedure TfrmRelatorioProdutosConferidos.ckbRomaneiosSaidaClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbContrato.Checked and
+     not ckbOrcamentos.Checked and
+     not ckbNotadeEntrada.Checked and
+     not ckbNotadeSaida.Checked and
+     not ckbTransferencia.checked and
+     not ckbLISTASPADRAO.checked and
+     not ckbTransferencia.Checked and
+     not ckbNotadeSaidaTransferencia.checked and
+     not ckbRomaneiosEntrada.checked
+
+     then
+  begin
+   ckbRomaneiosSaida.OnClick := nil;
+   ckbRomaneiosSaida.Checked := true;
+   ckbRomaneiosSaida.OnClick := ckbRomaneiosSaidaClick;
+  end;
+
+end;
+
+procedure TfrmRelatorioProdutosConferidos.ckbOrcamentosClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbContrato.Checked and
+     not ckbOrcamentos.Checked and
+     not ckbNotadeEntrada.Checked and
+     not ckbNotadeSaida.Checked and
+     not ckbTransferencia.checked and
+     not ckbLISTASPADRAO.checked and
+     not ckbNotadeSaidaTransferencia.Checked and
+     not ckbRomaneiosEntrada.checked and
+     not ckbRomaneiosSaida.checked
+
+     then
+
+  begin
+   ckbOrcamentos.OnClick := nil;
+   ckbOrcamentos.Checked := true;
+   ckbOrcamentos.OnClick := ckbOrcamentosClick;
+  end;
+
+end;
+
+end.

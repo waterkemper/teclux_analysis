@@ -1,0 +1,971 @@
+unit fmfichafinanceira;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ComCtrls, DBCtrls, Mask, ExtCtrls, Grids, DBGrids,
+  ImgList, Buttons, {Qete,} DB, ActnList, Math, Windows,
+  // Componentes
+  cptexto, cpdata, cpdocumento, cpdbdata, cpdbtext, cpdbmemo, cpnumero,
+  cpdbfindcontrols, cpdbgrid, cppagecontrol,
+  // Terceiros
+  ZQuery,
+  // Constantes
+  ctconstantes, biblio, clparametrossistema,dmconsultadadoscliente,
+  // Repositorio
+  frendereco, fmnavcontroles, fmconsultabasica, fmconsultaporcampo,
+  frconsultadadoscliente, fmajudabt, ZPgSqlQuery, cpquery, fmajuda, ToolWin,
+  fmvisualizarlogparcelas, frconsulta, frconsultacodigo, dmBasico,
+  fmPrincipalBasico, fmArquivosAnexados;
+
+type
+  TfrmFichaFinanceira = class(TfrmAjudaBt)
+    edfCodigoCliente: TtecDbEditFind;
+    lblCliente: TLabel;
+    sbnCliente: TSpeedButton;
+    dtxNome: TtecDBText;
+    pgcFichaFinanceira: TPageControl;
+    tstInformacoes: TTabSheet;
+    tstDebitos: TTabSheet;
+    dbgContratosPorCliente: TtecDBGrid;
+    pgcContratos: TtecPageControl;
+    tstContratos: TTabSheet;
+    tstParcelas: TTabSheet;
+    tstProdutos: TTabSheet;
+    dbgProdutos: TtecDBGrid;
+    tstNotasCupons: TTabSheet;
+    tstEntrega: TTabSheet;
+    pgcEntrega: TtecPageControl;
+    tstNotaEntrega: TTabSheet;
+    dbgNotaEntrega: TtecDBGrid;
+    tstProdutoEntrega: TTabSheet;
+    dbgProdutoEntrega: TtecDBGrid;
+    tstMontagem: TTabSheet;
+    gbxCalculoDebito: TGroupBox;
+    gbxDataBase: TGroupBox;
+    lblDataPagto: TLabel;
+    gbxValoresEmAtrasos: TGroupBox;
+    lblAtrasoParcelas: TLabel;
+    lblAtrasoJuros: TLabel;
+    lblAtrasoTotal: TLabel;
+    gbxEmAberto: TGroupBox;
+    lblEmAbertoParcelas: TLabel;
+    lblEmAbertoDescontos: TLabel;
+    lblEmAbertoTotal: TLabel;
+    GroupBox3: TGroupBox;
+    lblParcela: TLabel;
+    lblJuros: TLabel;
+    lblDescontos: TLabel;
+    lblCarnes: TLabel;
+    pnlDivisor: TPanel;
+    GroupBox4: TGroupBox;
+    lblTotalGeral: TLabel;
+    dbgParcelasCalcularDebito: TtecDBGrid;
+    gxgDadosCliente: TGroupBox;
+    aclFichaFinanceira: TActionList;
+    actHabilitarBotaoCalcular: TAction;
+    shpAberto: TShape;
+    lblAberto: TLabel;
+    shpRenegociado: TShape;
+    lblRenegociado: TLabel;
+    sbnDebitos: TSpeedButton;
+    sbnImprimir: TSpeedButton;
+    lblValorParcelas: TLabel;
+    lblValorJuros: TLabel;
+    lblValorDescontos: TLabel;
+    lblValorCarnes: TLabel;
+    lblContratos: TLabel;
+    shpReservado: TShape;
+    lblReservado: TLabel;
+    shpCancelado: TShape;
+    lblCancelado: TLabel;
+    Shape1: TShape;
+    lblQuitado: TLabel;
+    gbxContratos: TGroupBox;
+    dtxEmissao: TtecDBText;
+    lblDataEmissao: TLabel;
+    dtxPlanoResumido: TtecDBText;
+    dtxOrigem: TtecDBText;
+    lblOrigem: TLabel;
+    dtxRenegociado: TtecDBText;
+    lblReneg: TLabel;
+    lblPrimogenito: TLabel;
+    lblVendedor: TLabel;
+    dtxDescricaoVendedor: TtecDBText;
+    dtxPrimogenito: TtecDBText;
+    dtxNomeClienteOrigem: TtecDBText;
+    dtxNomeClienteRenegociado: TtecDBText;
+    dtxNomeClientePrimogenito: TtecDBText;
+    edtDataPagto: TEditData;
+    tstServicos: TTabSheet;
+    dbgServicos: TtecDBGrid;
+    lblEquipamento: TLabel;
+    dtxEquipamento: TtecDBText;
+    dtxDescricaoEquipamento: TtecDBText;
+    lblComplemento: TLabel;
+    mmoComplementoEquipamento: TDBMemo;
+    dtxReferencia: TtecDBText;
+    lblAvalista: TLabel;
+    dtxNomeAvalista: TtecDBText;
+    lblAtrasoParcelasValor: TLabel;
+    lblAtrasoJurosValor: TLabel;
+    lblAtrasoTotalValor: TLabel;
+    lblEmAbertoParcelasValor: TLabel;
+    lblEmAbertoDescontosValor: TLabel;
+    lblEmAbertoTotalValor: TLabel;
+    lblTotalAtrasos: TLabel;
+    dtxFilial: TtecDBText;
+    lblFilial: TLabel;
+    sbnExibirJurosDescontos: TSpeedButton;
+    dtxAvalista: TtecDBText;
+    gbxValores: TGroupBox;
+    lblValorPrazo: TStaticText;
+    dtxValorPrazo: TtecDBText;
+    dtxFrete: TtecDBText;
+    dtxDesconto: TtecDBText;
+    lblFrete: TStaticText;
+    lblDesconto: TStaticText;
+    dtxAcrescimo: TtecDBText;
+    lblAcrescimo: TStaticText;
+    lblValorVista: TStaticText;
+    dtxValorVista: TtecDBText;
+    pnlProdutos: TPanel;
+    shpTotal: TShape;
+    lblDevolvidos: TLabel;
+    lblTrocados: TLabel;
+    shpParcial: TShape;
+    lblDevolvidoseTrocados: TLabel;
+    shpAtraso: TShape;
+    Label3: TLabel;
+    lblDependente: TLabel;
+    dtxNomeDependente: TtecDBText;
+    dbgMontagem: TtecDBGrid;
+    lblCobrador: TLabel;
+    dtxNomeCobrador: TtecDBText;
+    dtxDescricaoConceito: TtecDBText;
+    lblConceito: TLabel;
+    ckbSomenteEmAberto: TCheckBox;
+    dtxFaturamento: TtecDBText;
+    lblFaturamento: TLabel;
+    fraConsultaDadosClienteFicha: TfraConsultaDadosCliente;
+    pgcParcelasRecebimentos: TtecPageControl;
+    tstParcelasRecebimentos: TTabSheet;
+    tstRecebimentosParcelas: TTabSheet;
+    dbgParcelas: TtecDBGrid;
+    gbxRecebimentos: TGroupBox;
+    Bevel1: TBevel;
+    gbxParcelas: TGroupBox;
+    Bevel2: TBevel;
+    dbgParcelasRecebimentos: TtecDBGrid;
+    dbgRecebimento: TtecDBGrid;
+    Panel1: TPanel;
+    dtxDescricaoPlano: TtecDBText;
+    dtxPlano: TtecDBText;
+    Label1: TLabel;
+    gbxLegendaProdutos: TGroupBox;
+    Shape2: TShape;
+    gbxLegendaContratos: TGroupBox;
+    pnlTop: TPanel;
+    gbxNotaseCuponsFiscais: TGroupBox;
+    dbgNotaseCuponsFiscais: TtecDBGrid;
+    gbxNotasdeDevolucao: TGroupBox;
+    GroupBox7: TGroupBox;
+    StaticText1: TStaticText;
+    dbgNotasdeDevolucao: TtecDBGrid;
+    sbnLogParcelas: TSpeedButton;
+    dbgCheques: TtecDBGrid;
+    pnltopCalculoDebito: TPanel;
+    gbxChequesSituacao: TGroupBox;
+    lblTotaldeChequesDevolvidos: TStaticText;
+    lblTotaldeChequesaVencer: TStaticText;
+    edtTotaldeChequesDevolvidos: TDBText;
+    edtTotalChequesaVencer: TDBText;
+    pnlCupomDesconto: TPanel;
+    edtValorCupomDesconto: TDBEditNumero;
+    lblCupomDesconto: TStaticText;
+    fraConsultaCupom_Desconto: TfraConsultaCodigo;
+    sbnLiberarClienteInadimplente: TSpeedButton;
+    sbnContrato: TSpeedButton;
+    sbnArquivosAnexados: TSpeedButton;
+    sbnAtendimento: TSpeedButton;
+    blblCashBack: TStaticText;
+    dtxdesconto_cashback: TtecDBText;
+    procedure actHabilitarBotaoCalcularUpdate(Sender: TObject);
+    procedure dbgContratosPorClienteDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgParcelasCalcularDebitoDblClick(Sender: TObject);
+    procedure dbgParcelasCalcularDebitoDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgParcelasCalcularDebitoKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure dbgParcelasDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure edfCodigoClienteFound(Found: Boolean);
+//    procedure edtTaxaJurosKeyPress(Sender: TObject; var Key: Char);
+    procedure FormActivate(Sender: TObject);
+    procedure pgcContratosChange(Sender: TObject);
+    procedure sbnClienteClick(Sender: TObject);
+    procedure sbnDebitosClick(Sender: TObject);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure dbgNotaEntregaTitleClick(Column: TColumn);
+    procedure edtDataPagtoEnter(Sender: TObject);
+    procedure edtDataPagtoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnExibirJurosDescontosClick(Sender: TObject);
+    procedure dbgProdutosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure fraConsultaDadosClienteFichadbgChequesDrawColumnCell(
+      Sender: TObject; const Rect: TRect; DataCol: Integer;
+      Column: TColumn; State: TGridDrawState);
+    procedure fraConsultaDadosClienteFichadbgResgatesDrawColumnCell(
+      Sender: TObject; const Rect: TRect; DataCol: Integer;
+      Column: TColumn; State: TGridDrawState);
+    procedure ckbSomenteEmAbertoClick(Sender: TObject);
+    procedure edfCodigoClienteEnter(Sender: TObject);
+    procedure edfCodigoClienteExit(Sender: TObject);
+    procedure pgcParcelasRecebimentosChange(Sender: TObject);
+    procedure fraConsultaDadosClienteFichasbnIncluirSaldoClick(
+      Sender: TObject);
+    procedure sbnLogParcelasClick(Sender: TObject);
+    procedure pgcFichaFinanceiraChange(Sender: TObject);
+    procedure sbnLiberarClienteInadimplenteClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure sbnContratoClick(Sender: TObject);
+    procedure sbnArquivosAnexadosClick(Sender: TObject);
+    procedure sbnAtendimentoClick(Sender: TObject);
+  private
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+  protected
+    Testar : Boolean;
+    CodClienteAnt: Integer;
+    TipoClienteAnt: String;
+    FCodigoClienteAtual: Integer;
+    procedure AfterCloseClientes(Sender: TObject);
+    procedure AfterScrollContratosPorCliente(Sender: TObject);
+    procedure ExibeValoresCalculadosCarne;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  InternoPesquisar(Titulo: String):Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  TabelaDePesquisa: TZDataSet; override;
+  public
+    constructor Create(AOwner: TComponent);override;
+    destructor  Destroy; override;
+    procedure   OperacaoPadrao(Value: Array of Variant); override;
+    property    CodigoClienteAtual: Integer read FCodigoClienteAtual write FCodigoClienteAtual;
+  end;
+
+var
+  frmFichaFinanceira: TfrmFichaFinanceira;
+  Debito : Boolean = False;
+  DataAnterior: TDateTime;
+  IndNot,
+  IndCon: Integer;
+  FormOrigem : String;
+  VerificandoCredito: Boolean;
+  //dtmOperacoesContratos: TdtmOperacoesContratos;
+implementation
+
+{$R *.dfm}
+
+uses dmfichafinanceira, fmexibirjurosdescontos, fmconfirmarimpressaonocontrato{,
+ dmcadastrocontratos, dmvendasavista};
+
+{ TfrmFichaFinanceira }
+
+procedure TfrmFichaFinanceira.actHabilitarBotaoCalcularUpdate(Sender: TObject);
+begin
+  inherited;
+  sbnDebitos.Enabled  := not dtmFichaFinanceira.TabelaContratosClienteVazia;
+  sbnContrato.Enabled := sbnDebitos.Enabled;
+//  sbnImprimir.Enabled      := pgcFichaFinanceira.ActivePage = tstDebitos;
+  sbnExibirJurosDescontos.Enabled := pgcFichaFinanceira.ActivePage = tstDebitos;
+  pnlProdutos.Visible      := (pgcContratos.ActivePage = tstProdutos);
+  ExibeValoresCalculadosCarne;
+
+ sbnArquivosAnexados.enabled := (dtmFichaFinanceira.qryClientes.recordcount <> 0);
+ sbnAtendimento.enabled := (dtmFichaFinanceira.qryClientes.recordcount <> 0);
+
+end;
+
+procedure TfrmFichaFinanceira.AfterCloseClientes(Sender: TObject);
+begin
+  fraConsultaDadosClienteFicha.BuscarDadosCliente(
+                dtmFichaFinanceira.CodigoCliente,
+                dtmFichaFinanceira.TipoCliente);
+end;
+
+procedure TfrmFichaFinanceira.AfterScrollContratosPorCliente(Sender: TObject);
+begin
+{ //TEMPORARIO JR 04/11
+ if pgcContratos.ActivePage = tstContratos        then
+     dtmFichaFinanceira.SelecionarContratos
+  else}
+  if pgcContratos.ActivePage = tstParcelas then
+  begin
+    if pgcParcelasRecebimentos.ActivePage = tstParcelasRecebimentos then
+      dtmFichaFinanceira.SelecionarParcelas
+    else if pgcParcelasRecebimentos.ActivePage = tstRecebimentosParcelas then
+      dtmFichaFinanceira.SelecionarRecebimentos
+  end
+  else if pgcContratos.ActivePage = tstProdutos    then
+     dtmFichaFinanceira.SelecionarProdutos
+  else if pgcContratos.ActivePage = tstServicos    then
+     dtmFichaFinanceira.SelecionarServicos
+  else if pgcContratos.ActivePage = tstNotasCupons then
+     dtmFichaFinanceira.SelecionarNotasCupons
+  else if pgcContratos.ActivePage = tstEntrega     then
+     dtmFichaFinanceira.SelecionarRomaneios
+  else if pgcContratos.ActivePage = tstMontagem then
+    dtmFichaFinanceira.SelecionarMontagens;
+end;
+
+constructor TfrmFichaFinanceira.Create(AOwner: TComponent);
+begin
+  try
+    dtmFichaFinanceira := TdtmFichaFinanceira.Create(Self);
+    inherited Create(AOwner);
+  //  dtmFichaFinanceira.Abre(ctTabelas);
+    pgcFichaFinanceira.ActivePage:= tstInformacoes;
+    pgcContratos.ActivePage      := tstContratos;
+    dtmFichaFinanceira.AfterScrollContratosPorCliente:= AfterScrollContratosPorCliente;
+    dtmFichaFinanceira.AfterCloseClientes:= AfterCloseClientes;
+    edtDataPagto.Text:= DateToStr(dtmFichaFinanceira.DataServidor);
+    DataAnterior     := dtmFichaFinanceira.DataServidor;
+    dtmFichaFinanceira.DataCalculo:= dtmFichaFinanceira.DataServidor;
+    dbgParcelas.Columns[03].Visible:= ParSistema.ExibirDescontoSugerido;
+    dbgParcelas.Columns[04].Visible:= ParSistema.ExibirDescontoSugerido;
+    IndNot:= 1;
+    IndCon:= 1;
+    dbgprodutos.Columns[2].Visible := ParSistema.UsarGradesProdutos;
+    dbgprodutos.Columns[3].Visible := ParSistema.UsarGradesProdutos;
+    lblDependente.Visible:=ParSistema.ClienteComDependentes;
+    dtxNomeDependente.Visible:=ParSistema.ClienteComDependentes;
+    dtmFichaFinanceira.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+    ckbSomenteEmAberto.Checked:=ParSistema.MostrarSomenteContratosEmabertoFicha;
+    dbgMontagem.Columns[2].Visible := ParSistema.UsarGradesProdutos;
+    dbgMontagem.Columns[3].Visible := ParSistema.UsarGradesProdutos;
+    if dbgProdutos.Columns[5].Width < ParSistema.TamanhoMascaraQuantidade then
+      dbgProdutos.Columns[5].Width := ParSistema.TamanhoMascaraQuantidade;
+    if dbgProdutos.Columns[7].Width < ParSistema.TamanhoMascaraQuantidade then
+      dbgProdutos.Columns[7].Width := ParSistema.TamanhoMascaraQuantidade;
+    if dbgProdutoEntrega.Columns[3].Width < ParSistema.TamanhoMascaraQuantidade then
+      dbgProdutoEntrega.Columns[3].Width := ParSistema.TamanhoMascaraQuantidade;
+    fraConsultaDadosClienteFicha.tstLimitesCredito.TabVisible := ParSistema.VerificarLimiteCreditoPontuacao;
+
+    sbnLiberarClienteInadimplente.Visible := False;
+
+  except
+    on E: Exception do ShowMessage(E.Message);
+  end;
+
+end;
+
+procedure TfrmFichaFinanceira.dbgContratosPorClienteDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+
+   TDBGrid(Sender).Canvas.Brush.Color := $007FAA55;
+   TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+
+  if (dtmFichaFinanceira.ContratoEmAtraso) and
+     (dtmFichaFinanceira.SituacaoContrato<>'C') and
+     (dtmFichaFinanceira.SituacaoContrato<>'R') and not
+     (dtmFichaFinanceira.ContratoRenegociado) then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clWhite;
+    TDBGrid(Sender).Canvas.Font.Color  := clRed;
+  end
+  else if (dtmFichaFinanceira.ContratoEmAberto) and
+          (dtmFichaFinanceira.SituacaoContrato<>'C') and
+          (dtmFichaFinanceira.SituacaoContrato<>'R') and not
+          (dtmFichaFinanceira.ContratoRenegociado) then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clWhite;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end
+  else if (dtmFichaFinanceira.ContratoRenegociado) and
+          (dtmFichaFinanceira.SituacaoContrato<>'C') then begin
+    TDBGrid(Sender).Canvas.Brush.Color := $7DBEFF;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end
+  else if dtmFichaFinanceira.SituacaoContrato = 'R' then begin
+    TDBGrid(Sender).Canvas.Brush.Color := $00FFD9A4;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end
+  else if (dtmFichaFinanceira.SituacaoContrato = 'C') or
+          (dtmFichaFinanceira.ContratoEstornado) then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end;
+
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmFichaFinanceira.dbgNotaEntregaTitleClick(Column: TColumn);
+begin
+  inherited;
+  if AltOn then
+  begin
+    if Column.Index = 2 then begin
+      Inc(IndNot);
+      if IndNot > 2 then
+        IndNot:= 1;
+      case IndNot of
+        1: begin
+             dbgNotaEntrega.Columns[2].Title.Caption  := 'Filial/ECF/Inter./Número ...';
+             dbgNotaEntrega.Columns[2].FieldName      := 'cupom';
+           end;
+        2: begin
+             dbgNotaEntrega.Columns[2].Title.Caption:= 'Filial/Série/Número ...';
+             dbgNotaEntrega.Columns[2].FieldName    := 'nota';
+           end;
+      end;
+    end;
+  end;  
+end;
+
+procedure TfrmFichaFinanceira.dbgParcelasCalcularDebitoDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmFichaFinanceira.CalcularDebitoParcelaEmAberto(False);
+end;
+
+procedure TfrmFichaFinanceira.dbgParcelasCalcularDebitoDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if (dbgParcelasCalcularDebito.DataSource.DataSet.FieldByName('Aux').AsString <> '') then begin
+    //TDBGrid(Sender).Canvas.Brush.Color := $007FAA55;
+    TDBGrid(Sender).Canvas.Brush.Color := clBtnFace;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end;
+
+  if dbgParcelasCalcularDebito.DataSource.DataSet.FieldByName('quitar').AsBoolean then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clWhite;
+    TDBGrid(Sender).Canvas.Font.Color := clRed;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmFichaFinanceira.dbgParcelasCalcularDebitoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case KEY of
+    VK_SPACE: if (Shift = [ssCtrl]) then
+                 dbgParcelasCalcularDebitoDblClick(dbgParcelas);
+  end;
+end;
+
+procedure TfrmFichaFinanceira.dbgParcelasDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if (dtmFichaFinanceira.SituacaoContrato = 'C') or
+     ((dtmFichaFinanceira.qryParcelastipopagto.AsString<> '') and
+      (dtmFichaFinanceira.qryParcelastipopagto.AsString <> 'M')) then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end
+  else if (dtmFichaFinanceira.Situacao <> 'R') and not
+          (dtmFichaFinanceira.ContratoRenegociado) and
+          (dtmFichaFinanceira.ParcelaAtrasada) then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clWhite;
+    TDBGrid(Sender).Canvas.Font.Color := clRed;
+  end
+  else if dtmFichaFinanceira.qryParcelasdatapagto.AsDateTime<>0 then begin
+    TDBGrid(Sender).Canvas.Brush.Color := $007FAA55;
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+destructor TfrmFichaFinanceira.Destroy;
+begin
+  try
+//    dtmFichaFinanceira.Fecha(ctTabelas);
+    inherited;
+    if dtmFichaFinanceira <> nil then
+      dtmFichaFinanceira := nil;
+    frmFichaFinanceira:= nil;
+  except
+     on E: Exception do ShowMessage(E.Message);
+  end;
+end;
+
+procedure TfrmFichaFinanceira.edfCodigoClienteFound(Found: Boolean);
+begin
+  if Found then begin
+    if pgcFichaFinanceira.ActivePage = tstDebitos then
+      pgcFichaFinanceira.ActivePage := tstInformacoes;
+    Debito:= False;
+    dtmFichaFinanceira.ReFazConsultaContratosPorCliente;
+    dtmFichaFinanceira.ZerarVariaveis;
+    edtDataPagto.Text             := DateToStr(dtmFichaFinanceira.DataServidor);
+    dtmFichaFinanceira.DataCalculo:= dtmFichaFinanceira.DataServidor;
+    fraConsultaDadosClienteFicha.BuscarDadosCliente(
+                   dtmFichaFinanceira.CodigoCliente,
+                   dtmFichaFinanceira.TipoCliente);
+//    dbgContratosPorCliente.SetFocus;
+    lblCliente.Caption:= DescricaoLabelCliente(dtmFichaFinanceira.TipoCliente[1]);
+  end;
+end;
+
+procedure TfrmFichaFinanceira.ExibeValoresCalculadosCarne;
+var
+  Atraso, Desconto: Currency;
+begin
+  lblAtrasoParcelasValor.Caption   := FormatarValor(dtmFichaFinanceira.AtrasoParcela,2);
+  lblAtrasoJurosValor.Caption      := FormatarValor(dtmFichaFinanceira.AtrasoJuro,2);
+  lblAtrasoTotalValor.Caption      := FormatarValor(dtmFichaFinanceira.AtrasoParcela +
+                                                    dtmFichaFinanceira.AtrasoJuro,2);
+  lblEmAbertoParcelasValor.Caption := FormatarValor(dtmFichaFinanceira.EmAbertoParcela,2);
+  lblEmAbertoDescontosValor.Caption:= FormatarValor(Abs(dtmFichaFinanceira.EmAbertoDesconto),2);
+  lblEmAbertoTotalValor.Caption    := FormatarValor(dtmFichaFinanceira.EmAbertoParcela -
+                                                    Abs(dtmFichaFinanceira.EmAbertoDesconto),2);
+  Atraso  := RoundTo(dtmFichaFinanceira.AtrasoParcela   + dtmFichaFinanceira.AtrasoJuro,-2);
+  Desconto:= RoundTo(dtmFichaFinanceira.EmAbertoParcela - Abs(dtmFichaFinanceira.EmAbertoDesconto),-2);
+  lblTotalAtrasos.Caption          := FormatarValor(Atraso + Desconto,2);
+
+  lblValorParcelas.Caption         := FormatarValor(dtmFichaFinanceira.ValorParcela,2);
+  lblValorJuros.Caption            := FormatarValor(dtmFichaFinanceira.JuroParcela,2);
+  lblValorDescontos.Caption        := FormatarValor(dtmFichaFinanceira.DescontoParcela,2);
+  lblValorCarnes.Caption           := FormatarValor(dtmFichaFinanceira.ValorParcela +
+                                                    dtmFichaFinanceira.JuroParcela  -
+                                                    dtmFichaFinanceira.DescontoParcela,2);
+end;
+
+function TfrmFichaFinanceira.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := dtmFichaFinanceira.ExisteClientes(Parametro, NomeCampo, Value)
+end;
+
+procedure TfrmFichaFinanceira.FormActivate(Sender: TObject);
+begin
+  inherited;
+(*  edfCodigoCliente.SetFocus;
+  // Rotina utilizada para o cadastro de atendimentos.
+  if (CodigoClienteAtual > 0) then begin
+    edfCodigoCliente.Text := IntToStr(CodigoClienteAtual);
+    dtmFichaFinanceira.ReFazConsultaCliente(CodigoClienteAtual);
+    edfCodigoClienteFound(True);
+  end; *)
+
+  edfCodigoCliente.setfocus;
+end;
+
+function TfrmFichaFinanceira.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result:= mrNone;
+  if CtrlOn then begin
+    if ActiveControl = edfCodigoCliente then begin
+      dtmFichaFinanceira.Abre(ctCrediarioConsultaClientes);
+      Result := inherited InternoPesquisar('Clientes');
+      if Result  = mrok then begin
+        dtmFichaFinanceira.Selecionar;
+        dtmFichaFinanceira.ReFazConsultaContratosPorCliente;
+      end;
+      dtmFichaFinanceira.Fecha(ctCrediarioConsultaClientes);
+    end;
+  end;
+end;
+
+function TfrmFichaFinanceira.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa    := False;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= False;
+end;
+
+procedure TfrmFichaFinanceira.KeyDown(var Key: Word; Shift: TShiftState);
+var
+  frmAjuda: TfrmAjuda;
+begin
+  inherited;
+  Case Key of
+    VK_F7     : sbnDebitos.Click;
+    VK_F10    : if sbnAtendimento.Enabled then sbnAtendimento.Click;
+    VK_F11    : if sbnExibirJurosDescontos.Enabled then sbnExibirJurosDescontos.Click;
+    VK_F12    : if sbnImprimir.Enabled then sbnImprimir.Click;
+    VK_ESCAPE : begin
+                   if pgcFichaFinanceira.ActivePage = tstDebitos then
+                   begin
+                     pgcFichaFinanceira.ActivePage:= tstInformacoes;
+                     sbnDebitos.Caption:= 'Débitos F7';
+                     Debito:= not Debito;
+                     pgcContratos.ActivePage      := tstContratos;
+                   end
+                   else if (FormOrigem<>'') then
+                   begin
+                     frmAjuda := TfrmAjuda(FormExists(FormOrigem));
+                     if Assigned(frmAjuda) then
+                       frmajuda.BringToFront;
+                   end;
+                   if ParSistema.VerificarLimiteCreditoPontuacao and (FormOrigem <> '') and VerificandoCredito then
+                  //   if FormOrigem = 'TfrmCadastroContratos' then
+                    //   dtmFichaFinanceira.SenhaCredito
+                    // else if FormOrigem = 'TfrmVendasAVista' then
+//                     if dtmFichaFinanceira.SenhaCredito <> nil then
+//                       dtmFichaFinanceira.SenhaCredito;
+//                     dtmFichaFinanceira.SenhaCredito:= nil;
+                 end;
+     VK_RIGHT : if (Shift = [ssCtrl]) then begin
+                   if dbgNotaEntrega.Focused then
+                     dbgNotaEntregaTitleClick(dbgNotaEntrega.Columns.Items[02]);
+                 end;
+  end;
+end;
+
+procedure TfrmFichaFinanceira.OperacaoPadrao(Value: Array of Variant);
+var
+  vGotoDebitPanel : boolean;
+
+begin
+  inherited;
+
+  edfCodigoCliente.SetFocus;
+  edfCodigoCliente.Text := Value[0];
+  dtmFichaFinanceira.ReFazConsultaCliente(Value[0],Value[1]);
+  edfCodigoClienteFound(True);
+
+  if (high(Value)=2) then
+    FormOrigem := Value[2];
+
+  if (high(Value)=4) then
+  begin
+    FormOrigem := Value[2];
+    VerificandoCredito := Value[3];
+    vGotoDebitPanel := Value[4];
+
+    if VerificandoCredito then
+      fraConsultaDadosClienteFicha.pgcDetalhesCliente.ActivePage := fraConsultaDadosClienteFicha.tstLimitesCredito;
+
+    if vGotoDebitPanel then
+    begin
+      Debito := false;
+      sbnDebitosClick(sbnDebitos);
+      sbnLiberarClienteInadimplente.Visible := True;
+
+      FormOrigemBloqueio := FormOrigem;
+      BloquearFormularios(self.name);
+
+    end;
+  end;
+
+  pgcContratos.ActivePage:= tstParcelas;
+
+  {
+  if high(Value)=4 then
+  begin
+    Application.ProcessMessages;
+    close;
+  end;
+  }
+end;
+
+procedure TfrmFichaFinanceira.pgcContratosChange(Sender: TObject);
+begin
+  inherited;
+  AfterScrollContratosPorCliente(Sender);
+end;
+
+procedure TfrmFichaFinanceira.sbnClienteClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfCodigoCliente.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmFichaFinanceira.sbnDebitosClick(Sender: TObject);
+begin
+  Debito:= not Debito;
+  if Debito then begin
+    pgcFichaFinanceira.ActivePage:= tstDebitos;
+    dtmFichaFinanceira.CalcularDebitos(False);
+
+    dbgParcelasCalcularDebito.SetFocus;
+    sbnDebitos.Caption:= 'Ficha F7';
+    sbnDebitos.Hint:='Visualizar Ficha';
+    fraConsultaDadosClienteFicha.FiltrarChequesDevolvidoseaVencer(true);
+  end
+  else begin
+    pgcFichaFinanceira.ActivePage:= tstInformacoes;
+    sbnDebitos.Caption:= 'Débitos F7';
+    sbnDebitos.Hint:='Visualizar débitos';
+    fraConsultaDadosClienteFicha.FiltrarChequesDevolvidoseaVencer(false);
+  end;
+end;
+
+procedure TfrmFichaFinanceira.sbnImprimirClick(Sender: TObject);
+var
+  frmImpressao: TfrmConfirmarImpressaoNoContrato;
+begin
+  inherited;
+  dtmFichaFinanceira.SelecionarParcelas;
+  if pgcFichaFinanceira.ActivePage = tstDebitos then
+    dtmFichaFinanceira.ImprimirCalculosDebitos
+  else begin
+    frmImpressao := TfrmConfirmarImpressaoNoContrato.Create(Self, True, True, True,
+    dtmFichaFinanceira.qryContratosexisteparcelaemaberto.asboolean, True, 1);
+
+    frmImpressao.IntervaloCarnes:= dtmFichaFinanceira.IntervaloCarnes;
+    frmImpressao.IntervaloCarnesAbertas:= dtmFichaFinanceira.IntervaloCarnesAbertas;
+    frmImpressao.ckbImprimirCarneAbertas.Enabled := frmImpressao.IntervaloCarnesAbertas<>nil;
+    try
+      frmImpressao.ShowModal;
+      if frmImpressao.ModalResult = mrOk then
+      begin
+        if frmImpressao.Contrato then
+           dtmFichaFinanceira.ImprimirContrato;
+
+        if frmImpressao.Carne then
+           dtmFichaFinanceira.ImprimirCarne(frmImpressao.Sequencia)
+        else if frmImpressao.CarneAbertas then
+           dtmFichaFinanceira.ImprimirCarne(frmImpressao.Sequencia);
+
+        if frmImpressao.Boleto then
+           dtmFichaFinanceira.ImprimirBoleto(frmImpressao.Sequencia);
+
+        if frmImpressao.ckbEnviarPDFBoletoViaEmail.Checked then
+          dtmFichaFinanceira.EnviarPDFBoletoViaEmail(frmImpressao.Sequencia);
+
+
+        if frmImpressao.Saldo then
+           dtmFichaFinanceira.ImprimirSaldo;
+      end
+    finally
+//      frmImpressao.Free;
+    end;
+  end;
+end;
+
+function TfrmFichaFinanceira.TabelaDePesquisa: TZDataSet;
+begin
+  Result := dtmFichaFinanceira.TabelaConsultaClientes;
+end;
+
+
+procedure TfrmFichaFinanceira.edtDataPagtoEnter(Sender: TObject);
+begin
+  inherited;
+  if (Trim(edtDataPagto.Text) <> '') and edtDataPagto.Criticar(false) then
+    DataAnterior:= StrToDate(edtDataPagto.Text)
+end;
+
+procedure TfrmFichaFinanceira.edtDataPagtoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if TeclaEnterOuReturn(Key) then
+    if (Trim(edtDataPagto.Text) <> '') and edtDataPagto.Criticar(false) then
+      if StrToDate(edtDataPagto.Text) <> DataAnterior then begin
+        dtmFichaFinanceira.DataCalculo:= StrToDate(edtDataPagto.Text);
+        dtmFichaFinanceira.CalcularDebitos(True);
+        dbgParcelasCalcularDebito.SetFocus;
+      end;
+end;
+
+procedure TfrmFichaFinanceira.sbnExibirJurosDescontosClick(Sender: TObject);
+begin
+  inherited;
+  frmexibirjurosdescontos:= Tfrmexibirjurosdescontos.Create(frmexibirjurosdescontos);
+  frmexibirjurosdescontos.ShowModal;
+  frmexibirjurosdescontos.Free;
+end;
+
+procedure TfrmFichaFinanceira.AfterScrollLinhaColunaGrade(Sender: TObject);
+begin
+  dbgProdutos.Columns[2].Title.Caption := dtmFichaFinanceira.LinhadaGrade;
+  dbgProdutos.Columns[3].Title.Caption := dtmFichaFinanceira.colunadaGrade;
+end;
+
+procedure TfrmFichaFinanceira.dbgProdutosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+begin
+  inherited;
+  with dtmFichaFinanceira do
+  begin
+    if (qryProdutosdevolvidos.ascurrency<>0) and
+       (qryProdutostrocados.ascurrency<>0) then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := $00A8D3FF;  //laranjão = mistura de amararelao + vermelhão
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else
+    if (qryProdutosdevolvidos.ascurrency<>0) and
+       (qryProdutostrocados.ascurrency=0) then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else
+    if (qryProdutosdevolvidos.ascurrency=0) and
+       (qryProdutostrocados.ascurrency<>0) then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := $009D9DFF;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end;
+
+    {
+    if (QtdeCancelada > 0) and (QtdeVendida = QtdeCancelada) then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := $00FFAA00;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else if (QtdeCancelada > 0) and (QtdeVendida > QtdeCancelada) then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := $00FFF18B;
+      TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    end;
+    }
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+
+procedure TfrmFichaFinanceira.fraConsultaDadosClienteFichadbgChequesDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if fraConsultaDadosClienteFicha.dsrCheques.DataSet.FieldByName('situacao').AsString = 'D' then
+  begin
+    fraConsultaDadosClienteFicha.dbgCheques.Canvas.Brush.Color := $5555FF;
+    fraConsultaDadosClienteFicha.dbgCheques.Canvas.font.color := clBlack;
+  end;
+  fraConsultaDadosClienteFicha.dbgCheques.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmFichaFinanceira.fraConsultaDadosClienteFichadbgResgatesDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if fraConsultaDadosClienteFicha.dsrParcelasCheques.DataSet.FieldByName('datapagto').IsNull then
+  begin
+    fraConsultaDadosClienteFicha.dbgResgates.Canvas.Brush.Color := $5555FF;
+    fraConsultaDadosClienteFicha.dbgResgates.Canvas.font.color := clBlack;
+  end;
+  fraConsultaDadosClienteFicha.dbgResgates.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmFichaFinanceira.ckbSomenteEmAbertoClick(Sender: TObject);
+begin
+  inherited;
+  dtmFichaFinanceira.SomenteEmAberto:=ckbSomenteEmAberto.Checked;
+  dtmFichaFinanceira.ReFazConsultaContratosPorCliente;
+end;
+
+procedure TfrmFichaFinanceira.edfCodigoClienteEnter(Sender: TObject);
+begin
+  inherited;
+  CodClienteAnt := dtmFichaFinanceira.CodigoCliente;
+  TipoClienteAnt := dtmFichaFinanceira.TipoCliente;
+end;
+
+procedure TfrmFichaFinanceira.edfCodigoClienteExit(Sender: TObject);
+begin
+  inherited;
+  if ((CodClienteAnt <> dtmFichaFinanceira.CodigoCliente) or
+      (TipoClienteAnt <> dtmFichaFinanceira.TipoCliente)) or
+      ((CodClienteAnt=0) and (TipoclienteAnt='') and
+       (dtmFichaFinanceira.CodigoCliente<>0) and
+       (dtmFichaFinanceira.TipoCliente<>'')) then
+    dtmFichaFinanceira.CartaDevolvida(ClassName);
+
+end;
+
+
+procedure TfrmFichaFinanceira.pgcParcelasRecebimentosChange(
+  Sender: TObject);
+begin
+  inherited;
+  AfterScrollContratosPorCliente(Sender);
+end;
+
+procedure TfrmFichaFinanceira.fraConsultaDadosClienteFichasbnIncluirSaldoClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaDadosClienteFicha.sbnIncluirSaldoClick(Sender);
+
+end;
+
+procedure TfrmFichaFinanceira.sbnLogParcelasClick(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarLogParcelas(self, dtmFichaFinanceira.qryContratosPorClientenumero.asstring);
+end;
+
+procedure TfrmFichaFinanceira.pgcFichaFinanceiraChange(Sender: TObject);
+begin
+  inherited;
+  if pgcFichaFinanceira.ActivePage = tstDebitos then
+  begin
+    fraConsultaDadosClienteFicha.FiltrarChequesDevolvidoseaVencer(true);
+  end
+  else
+    fraConsultaDadosClienteFicha.FiltrarChequesDevolvidoseaVencer(false);
+end;
+
+procedure TfrmFichaFinanceira.sbnLiberarClienteInadimplenteClick(
+  Sender: TObject);
+begin
+  inherited;
+  if dtmFichaFinanceira.ObterAutorizacaoAnalistaCredito_LiberarFicha then
+  begin
+    SituacaoLiberacaoInadimplentes := LIBERADO;
+    close;
+  end;
+end;
+
+procedure TfrmFichaFinanceira.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  DesbloquearFormularios;
+end;
+
+procedure TfrmFichaFinanceira.sbnContratoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmFichaFinanceira.qryContratosPorCliente.recordcount <> 0 then
+  begin
+    if dtmFichaFinanceira.qryContratosos.asBoolean then
+      TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmFichaFinanceira.qryContratosnumero.asstring], 'TfrmOrdemServico', True)
+    else
+      TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmFichaFinanceira.qryContratosnumero.asstring], 'TfrmCadastroContratos', True)
+  end;
+
+end;
+
+procedure TfrmFichaFinanceira.sbnArquivosAnexadosClick(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaArquivosAnexados(self,
+     'CLIENTES',
+     dtmFichaFinanceira.qryClientescodigo.asstring);
+
+end;
+
+procedure TfrmFichaFinanceira.sbnAtendimentoClick(Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['AbrirUltimoAtendimento',
+                                                                   dtmFichaFinanceira.qryClientescodigo.asInteger,
+                                         dtmFichaFinanceira.qryClientestipo.asString], 'TfrmCadastroAtendimento', True);
+
+
+end;
+
+end.
+
+
+
+
+
+

@@ -1,0 +1,356 @@
+unit fmConsultaProgramacaoEntregaNfe;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmcadastropadrao, ComCtrls, Buttons, ToolWin, ExtCtrls,
+  StdCtrls, cpdata, DBCtrls, Grids, DBGrids, cpdbgrid, AdvObj, BaseGrid,
+  AdvGrid, DBAdvGrid, dmConsultaProgramacaoEntregaNfe, biblio, ctconstantes,
+  clparametrossistema, Menus, AdvMenus, tmsAdvGridExcel, AsgFindDialog,
+  fmPrincipalBasico, frmctrllink;
+
+type
+  TfrmConsultaProgramacaoEntregaNfe = class(TfrmCadastroPadrao)
+    pgcConsultaPedidos: TPageControl;
+    tstDados: TTabSheet;
+    tstParametros: TTabSheet;
+    pnlParametrosProgramacaoEntregaNfe: TPanel;
+    gbxPeriodo: TGroupBox;
+    lblDataInicial: TLabel;
+    lblDataFinal: TLabel;
+    edtDataInicial: TEditData;
+    edtDataFinal: TEditData;
+    sbnGerar: TSpeedButton;
+    dbaProgramacaoEntregaNfe: TDBAdvGrid;
+    Timer1: TTimer;
+    AdvGridFindDialog1: TAdvGridFindDialog;
+    AdvGridExcelIO1: TAdvGridExcelIO;
+    AdvPopupMenu1: TAdvPopupMenu;
+    Pesquizar1: TMenuItem;
+    ExportarExcel1: TMenuItem;
+    Copia1: TMenuItem;
+    sbnAbrirPedido: TSpeedButton;
+    procedure sbnGerarClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure Pesquizar1Click(Sender: TObject);
+    procedure ExportarExcel1Click(Sender: TObject);
+    procedure Copia1Click(Sender: TObject);
+    procedure sbnAbrirPedidoClick(Sender: TObject);
+    procedure dbaProgramacaoEntregaNfeClick(Sender: TObject);
+    procedure dbaProgramacaoEntregaNfeDblClick(Sender: TObject);
+    procedure dbaProgramacaoEntregaNfeDblClickCell(Sender: TObject; ARow,
+      ACol: Integer);
+    procedure dbaProgramacaoEntregaNfeKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure dbaProgramacaoEntregaNfeCheckBoxChange(Sender: TObject; ACol,
+      ARow: Integer; State: Boolean);
+    procedure dbaProgramacaoEntregaNfeCheckBoxClick(Sender: TObject; ACol,
+      ARow: Integer; State: Boolean);
+    procedure dbaProgramacaoEntregaNfeCheckBoxMouseUp(Sender: TObject;
+      ACol, ARow: Integer; State: Boolean);
+    procedure dbaProgramacaoEntregaNfeGetCheckFalse(Sender: TObject; ACol,
+      ARow: Integer; var Value: String);
+    procedure dbaProgramacaoEntregaNfeGetCheckTrue(Sender: TObject; ACol,
+      ARow: Integer; var Value: String);
+    procedure dbaProgramacaoEntregaNfeGetFloatFormat(Sender: TObject; ACol,
+      ARow: Integer; var IsFloat: Boolean; var FloatFormat: String);
+  private
+    fdtmConsultaProgramacaoEntregaNfe: TdtmConsultaProgramacaoEntregaNfe;
+    procedure AGrupamento;
+    { Private declarations }
+  protected
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;  
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    property dtmConsultaProgramacaoEntregaNfe: TdtmConsultaProgramacaoEntregaNfe read fdtmConsultaProgramacaoEntregaNfe write fdtmConsultaProgramacaoEntregaNfe;
+    
+  end;
+
+var
+  frmConsultaProgramacaoEntregaNfe: TfrmConsultaProgramacaoEntregaNfe;
+
+implementation
+
+{$R *.dfm}
+
+{ TForm2 }
+
+constructor TfrmConsultaProgramacaoEntregaNfe.Create(AOwner: TComponent);
+begin
+  dtmConsultaProgramacaoEntregaNfe := TdtmConsultaProgramacaoEntregaNfe.Create(Self);
+  inherited;
+  DataSet := dtmConsultaProgramacaoEntregaNfe.qryProgramacaoEntregaNfe;
+
+  edtDataInicial.text := DateToStr(Date);
+  edtDataFinal.text := '';
+  dbaProgramacaoEntregaNfe.Bands.active := true;
+  dbaProgramacaoEntregaNfe.Bands.PrimaryColor :=  TColor(strtoint(parsistema.CorZebradoRelatorio));
+  pgcConsultaPedidos.activepage := tstParametros;
+
+
+end;
+
+destructor TfrmConsultaProgramacaoEntregaNfe.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if (key = vk_f6) and not ctrlon then
+  begin
+    if sbnGerar.enabled then
+      sbnGerarClick(nil);
+  end
+  else
+  if (key = vk_f8) and not ctrlon then
+    if sbnAbrirPedido.enabled then
+      sbnAbrirPedido.Click;
+
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  with dtmConsultaProgramacaoEntregaNfe do
+  begin
+     DataInicial   := edtDataInicial.Text;
+     DataFinal     := edtDataFinal.Text;
+
+     if not GerarConsulta then
+     begin
+       MensagemAviso(format(ctNENHUMREGISTROSELECIONADO,['registro']));
+       edtDataInicial.SetFocus;
+     end
+     else
+     begin
+       AGrupamento;
+       pgcConsultaPedidos.ActivePage:= tstDados;
+     end;  
+
+  end;
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  sbnGerar.enabled := pgcConsultaPedidos.activepage = tstParametros;
+  sbnAbrirPedido.enabled := (pgcConsultaPedidos.ActivePage = tstDados) and (dtmConsultaProgramacaoEntregaNfe.qryProgramacaoEntregaNfe.RecordCount <> 0);
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.Pesquizar1Click(
+  Sender: TObject);
+begin
+  inherited;
+  AdvGridFindDialog1.Grid := dbaProgramacaoEntregaNfe;
+  AdvGridFindDialog1.Execute;
+
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.ExportarExcel1Click(
+  Sender: TObject);
+var
+  vNomeArquivo: String;  
+begin
+  inherited;
+  AdvGridExcelIO1.AdvStringGrid := dbaProgramacaoEntregaNfe;
+  vNomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas\ProgramaçãoEntregaNfe.xls';
+  AdvGridExcelIO1.XLSExport(vNomeArquivo, 'ProgramaçãoEntregaNfe');
+
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.Copia1Click(Sender: TObject);
+begin
+  inherited;
+  dbaProgramacaoEntregaNfe.CopySelectionToClipboard;
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.AGrupamento;
+var i: integer;
+begin
+
+  dbaProgramacaoEntregaNfe.ungroup;
+
+  dbaProgramacaoEntregaNfe.reload;
+
+  dbaProgramacaoEntregaNfe.refresh;
+
+
+  dbaProgramacaoEntregaNfe.Group(dbaProgramacaoEntregaNfe.ColumnByFieldName['raiz_nomefornecedortransporte'].Index);
+//  dbaProgramacaoEntregaNfe.MergeColumnCells(dbaProgramacaoEntregaNfe.ColumnByFieldName['raiz_nomefornecedortransporte'].Index, true);
+  dbaProgramacaoEntregaNfe.GroupSum(dbaProgramacaoEntregaNfe.ColumnByFieldName['qvol'].Index-1);
+
+  
+(*
+//  dbaProgramacaoEntregaNfe.SubUnGroup(dbaProgramacaoEntregaNfe.ColumnByFieldName['contratonota'].Index-1);
+//  dbaProgramacaoEntregaNfe.SubUnGroup(dbaProgramacaoEntregaNfe.ColumnByFieldName['nomeregiao'].Index-1);
+//  dbaProgramacaoEntregaNfe.SubUnGroup(dbaProgramacaoEntregaNfe.ColumnByFieldName['descricaoperiodoentrega'].Index-1);
+  dbaProgramacaoEntregaNfe.UnGroup;
+  dbaProgramacaoEntregaNfe.reload;
+  dbaProgramacaoEntregaNfe.refresh;
+  application.ProcessMessages;
+
+  dbaProgramacaoEntregaNfe.autosize := true;
+  dbaProgramacaoEntregaNfe.refresh;
+  dbaProgramacaoEntregaNfe.autosize := false;
+
+
+//  dbaProgramacaoEntregaNfe.MergeCols(6, 12);
+
+
+  dbaProgramacaoEntregaNfe.SaveFixedCells := false;
+  dbaProgramacaoEntregaNfe.Group(dbaProgramacaoEntregaNfe.ColumnByFieldName['raiz_nomefornecedortransporte'].Index);
+  dbaProgramacaoEntregaNfe.MergeColumnCells(dbaProgramacaoEntregaNfe.ColumnByFieldName['raiz_nomefornecedortransporte'].Index, true);
+//  dbaProgramacaoEntregaNfe.SubGroup(dbaProgramacaoEntregaNfe.ColumnByFieldName['descricaoperiodoentrega'].Index-1);
+//  dbaProgramacaoEntregaNfe.SubGroup(dbaProgramacaoEntregaNfe.ColumnByFieldName['nomeregiao'].Index-1);
+  dbaProgramacaoEntregaNfe.GroupSum(dbaProgramacaoEntregaNfe.ColumnByFieldName['qvol'].Index);
+
+
+//  dbaProgramacaoEntregaNfe.GroupStdDev(dbaProgramacaoEntregaNfe.ColumnByFieldName['nomebairro'].Index-1);
+
+
+//  dbaProgramacaoEntregaNfe.SubGroup(dbaProgramacaoEntregaNfe.ColumnByFieldName['contratonota'].Index-1);
+//  dbaProgramacaoEntregaNfe.GroupSum(dbaProgramacaoEntregaNfe.ColumnByFieldName['saldo_quantidade'].Index-1);
+
+  dbaProgramacaoEntregaNfe.ExpandAll;
+
+{
+  for i:= dbaProgramacaoEntregaNfe.RowCount-1 downto 1 do
+  begin
+    if dbaProgramacaoEntregaNfe.Cells[dbaProgramacaoEntregaNfe.ColumnByFieldName['contratonota'].Index, i]<>'' then
+    begin
+      dbaProgramacaoEntregaNfe.ContractNode(i);
+    end
+  end;
+}
+
+  {
+  dbaProgramacaoEntregaNfe.autosize := true;
+  dbaProgramacaoEntregaNfe.refresh;
+  dbaProgramacaoEntregaNfe.autosize := false;
+  }
+
+//  dbaProgramacaoEntregaNfe.Columns[dbaProgramacaoEntregaNfe.ColumnByFieldName['contratonota'].Index-1].Width := 0;
+//  dbaProgramacaoEntregaNfe.Columns[dbaProgramacaoEntregaNfe.ColumnByFieldName['contratonota'].Index].Width := 400;
+
+//  dbaProgramacaoEntregaNfe.ColumnByFieldName['contratonota'].Width := 5;
+  dbaProgramacaoEntregaNfe.refresh;
+*)
+
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.sbnAbrirPedidoClick(
+  Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir',
+    dtmConsultaProgramacaoEntregaNfe.qryProgramacaoEntregaNfepedido.asInteger], 'TfrmCadastroPedidos', True);
+
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.dbaProgramacaoEntregaNfeClick(
+  Sender: TObject);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.dbaProgramacaoEntregaNfeDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  {
+  if (dbaProgramacaoEntregaNfe.ColumnByFieldName['recebido'].Index - 1) =
+     dbaProgramacaoEntregaNfe.Col then
+  begin
+
+    dtmConsultaProgramacaoEntregaNfe.qryProgramacaoEntregaNfe.edit;
+    dtmConsultaProgramacaoEntregaNfe.qryProgramacaoEntregaNferecebido.asBoolean :=
+      not dtmConsultaProgramacaoEntregaNfe.qryProgramacaoEntregaNferecebido.asBoolean;
+    dtmConsultaProgramacaoEntregaNfe.qryProgramacaoEntregaNfe.post;
+
+    AGrupamento;
+
+  end;
+  }
+
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.dbaProgramacaoEntregaNfeDblClickCell(
+  Sender: TObject; ARow, ACol: Integer);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.dbaProgramacaoEntregaNfeKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.dbaProgramacaoEntregaNfeCheckBoxChange(
+  Sender: TObject; ACol, ARow: Integer; State: Boolean);
+begin
+  inherited;
+
+  if Acol = (dbaProgramacaoEntregaNfe.ColumnByFieldName['recebido'].Index - 1) then
+  begin
+    if dtmConsultaProgramacaoEntregaNfe.qryProgramacaoEntregaNfe.Locate(
+      'pedido;serie;nrnfe',
+      VarArrayOf([
+        dbaProgramacaoEntregaNfe.Cells[dbaProgramacaoEntregaNfe.ColumnByFieldName['pedido'].Index-1, Arow],
+        dbaProgramacaoEntregaNfe.Cells[dbaProgramacaoEntregaNfe.ColumnByFieldName['serie'].Index-1, Arow],
+        dbaProgramacaoEntregaNfe.Cells[dbaProgramacaoEntregaNfe.ColumnByFieldName['nrnfe'].Index-1, Arow]]),[]) then
+      dtmConsultaProgramacaoEntregaNfe.MarcarRecebido(State);
+  end;
+
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.dbaProgramacaoEntregaNfeCheckBoxClick(
+  Sender: TObject; ACol, ARow: Integer; State: Boolean);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.dbaProgramacaoEntregaNfeCheckBoxMouseUp(
+  Sender: TObject; ACol, ARow: Integer; State: Boolean);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.dbaProgramacaoEntregaNfeGetCheckFalse(
+  Sender: TObject; ACol, ARow: Integer; var Value: String);
+begin
+  inherited;
+//  value := 'True';
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.dbaProgramacaoEntregaNfeGetCheckTrue(
+  Sender: TObject; ACol, ARow: Integer; var Value: String);
+begin
+  inherited;
+//  Value := 'True';
+end;
+
+procedure TfrmConsultaProgramacaoEntregaNfe.dbaProgramacaoEntregaNfeGetFloatFormat(
+  Sender: TObject; ACol, ARow: Integer; var IsFloat: Boolean;
+  var FloatFormat: String);
+begin
+  inherited;
+  if (Acol = (dbaProgramacaoEntregaNfe.ColumnByFieldName['qvol'].Index)-1) then
+      FloatFormat := '%.0n';
+
+end;
+
+end.

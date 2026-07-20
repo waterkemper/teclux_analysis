@@ -1,0 +1,5317 @@
+inherited frmVisualizarLogClientes: TfrmVisualizarLogClientes
+  Left = 49
+  Top = 102
+  Caption = 'Log das Clientes'
+  ClientHeight = 651
+  ClientWidth = 1338
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object dbgVisualizarLogClientes: TDBAdvGrid
+    Left = 0
+    Top = 0
+    Width = 1338
+    Height = 651
+    Cursor = crDefault
+    Align = alClient
+    ColCount = 143
+    DefaultColWidth = 80
+    FixedCols = 0
+    RowCount = 2
+    FixedRows = 1
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSizing, goColSizing, goColMoving]
+    ParentFont = False
+    PopupMenu = AdvPopupMenu1
+    ScrollBars = ssBoth
+    TabOrder = 0
+    ActiveRowShow = True
+    ActiveCellFont.Charset = DEFAULT_CHARSET
+    ActiveCellFont.Color = clWindowText
+    ActiveCellFont.Height = -11
+    ActiveCellFont.Name = 'Tahoma'
+    ActiveCellFont.Style = [fsBold]
+    Bands.Active = True
+    ControlLook.FixedGradientHoverFrom = clGray
+    ControlLook.FixedGradientHoverTo = clWhite
+    ControlLook.FixedGradientDownFrom = clGray
+    ControlLook.FixedGradientDownTo = clSilver
+    ControlLook.DropDownHeader.Font.Charset = DEFAULT_CHARSET
+    ControlLook.DropDownHeader.Font.Color = clWindowText
+    ControlLook.DropDownHeader.Font.Height = -11
+    ControlLook.DropDownHeader.Font.Name = 'Tahoma'
+    ControlLook.DropDownHeader.Font.Style = []
+    ControlLook.DropDownHeader.Visible = True
+    ControlLook.DropDownHeader.Buttons = <>
+    ControlLook.DropDownFooter.Font.Charset = DEFAULT_CHARSET
+    ControlLook.DropDownFooter.Font.Color = clWindowText
+    ControlLook.DropDownFooter.Font.Height = -11
+    ControlLook.DropDownFooter.Font.Name = 'MS Sans Serif'
+    ControlLook.DropDownFooter.Font.Style = []
+    ControlLook.DropDownFooter.Visible = True
+    ControlLook.DropDownFooter.Buttons = <>
+    EnhTextSize = True
+    ExcelStyleDecimalSeparator = True
+    Filter = <>
+    FilterDropDown.Font.Charset = DEFAULT_CHARSET
+    FilterDropDown.Font.Color = clWindowText
+    FilterDropDown.Font.Height = -11
+    FilterDropDown.Font.Name = 'MS Sans Serif'
+    FilterDropDown.Font.Style = []
+    FilterDropDownClear = '(All)'
+    FixedColWidth = 80
+    FixedRowHeight = 22
+    FixedFont.Charset = DEFAULT_CHARSET
+    FixedFont.Color = clWindowText
+    FixedFont.Height = -11
+    FixedFont.Name = 'Tahoma'
+    FixedFont.Style = [fsBold]
+    FloatFormat = '%.2f'
+    Navigation.AlwaysEdit = True
+    PrintSettings.DateFormat = 'dd/mm/yyyy'
+    PrintSettings.Font.Charset = DEFAULT_CHARSET
+    PrintSettings.Font.Color = clWindowText
+    PrintSettings.Font.Height = -11
+    PrintSettings.Font.Name = 'MS Sans Serif'
+    PrintSettings.Font.Style = []
+    PrintSettings.FixedFont.Charset = DEFAULT_CHARSET
+    PrintSettings.FixedFont.Color = clWindowText
+    PrintSettings.FixedFont.Height = -11
+    PrintSettings.FixedFont.Name = 'MS Sans Serif'
+    PrintSettings.FixedFont.Style = []
+    PrintSettings.HeaderFont.Charset = DEFAULT_CHARSET
+    PrintSettings.HeaderFont.Color = clWindowText
+    PrintSettings.HeaderFont.Height = -11
+    PrintSettings.HeaderFont.Name = 'MS Sans Serif'
+    PrintSettings.HeaderFont.Style = []
+    PrintSettings.FooterFont.Charset = DEFAULT_CHARSET
+    PrintSettings.FooterFont.Color = clWindowText
+    PrintSettings.FooterFont.Height = -11
+    PrintSettings.FooterFont.Name = 'MS Sans Serif'
+    PrintSettings.FooterFont.Style = []
+    PrintSettings.PageNumSep = '/'
+    SearchFooter.FindNextCaption = 'Find &next'
+    SearchFooter.FindPrevCaption = 'Find &previous'
+    SearchFooter.Font.Charset = DEFAULT_CHARSET
+    SearchFooter.Font.Color = clWindowText
+    SearchFooter.Font.Height = -11
+    SearchFooter.Font.Name = 'MS Sans Serif'
+    SearchFooter.Font.Style = []
+    SearchFooter.HighLightCaption = 'Highlight'
+    SearchFooter.HintClose = 'Close'
+    SearchFooter.HintFindNext = 'Find next occurrence'
+    SearchFooter.HintFindPrev = 'Find previous occurrence'
+    SearchFooter.HintHighlight = 'Highlight occurrences'
+    SearchFooter.MatchCaseCaption = 'Match case'
+    SelectionResizer = True
+    SortSettings.Show = True
+    Version = '2.3.2.2'
+    WordWrap = False
+    AutoCreateColumns = False
+    AutoRemoveColumns = False
+    Columns = <
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 5
+        FieldName = 'trigger_tuple'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 10
+        FieldName = 'trigger_mode'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'trigger_changed'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 32
+        FieldName = 'trigger_user'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'trigger_id'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'codigo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 52
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 60
+        FieldName = 'nome'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 154
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'nascto'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 100
+        FieldName = 'apelido'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 144
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 1
+        FieldName = 'sexo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 32
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 1
+        FieldName = 'civil'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'civildata'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 20
+        FieldName = 'iddocumento'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 140
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 15
+        FieldName = 'idorgao'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 158
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'iddata'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 128
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 2
+        FieldName = 'idestado'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 1
+        FieldName = 'pessoatipo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 14
+        FieldName = 'pessoanumero'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 40
+        FieldName = 'mae'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 310
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 40
+        FieldName = 'pai'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 49
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'conceito'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'naturalcidade'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 66
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 2
+        FieldName = 'naturalestado'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 100
+        FieldName = 'rua'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 2
+        FieldName = 'estado'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'cidade'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'bairro'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'cep'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 1
+        FieldName = 'fonetipo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'foneddd'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'fonenumero'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 10
+        FieldName = 'foneramal'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'fone2ddd'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'fone2numero'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 125
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 10
+        FieldName = 'fone2ramal'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 1
+        FieldName = 'restipo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'resonus'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'restempo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 26
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 40
+        FieldName = 'empresa'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'empadmissao'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'empcep'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'empcomprovado'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'empfoneddd'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'empfonenumero'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 10
+        FieldName = 'empfoneramal'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 40
+        FieldName = 'empoutrasdescricao'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'empoutrasfaixa'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'empoutrasvalor'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'emprendafaixa'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'emprendavalor'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 100
+        FieldName = 'emprua'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 67
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 2
+        FieldName = 'empestado'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 145
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'empcidade'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'empbairro'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'empcargo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'conjuge'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 40
+        FieldName = 'connome'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'conadmissao'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'concep'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 40
+        FieldName = 'conempresa'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'confoneddd'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'confonenumero'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 10
+        FieldName = 'confoneramal'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'connascto'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'conrendafaixa'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'conrendavalor'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 100
+        FieldName = 'conrua'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 2
+        FieldName = 'conestado'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'concidade'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'conbairro'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'concargo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 40
+        FieldName = 'referencia'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 1
+        FieldName = 'reftipo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 100
+        FieldName = 'refrua'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 2
+        FieldName = 'refestado'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'refcidade'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'refbairro'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'refcep'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'reffoneddd'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'reffonenumero'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 10
+        FieldName = 'reffoneramal'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'reffone2ddd'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'reffone2numero'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 10
+        FieldName = 'reffone2ramal'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 512
+        FieldName = 'observacoes'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 128
+        FieldName = 'email'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'automovel'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'cartaocredito'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'cartaoloja'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'cheque'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'chequeespecial'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'dependentes'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'onus'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'enderecoalterado'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'filialcadastro'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'datacadastro'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'ultimaalteracao'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'debito'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'credito'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'planopadrao'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'naoexibirfichafinanceira'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'contribicms'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'markup'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'aniversario'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 14
+        FieldName = 'inscricaomunicipal'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 320
+        FieldName = 'obsnotafiscal'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 320
+        FieldName = 'obsipisuspenso'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'ipisuspenso'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'vendedor'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'pracapagtocidade'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 2
+        FieldName = 'pracapagtoestado'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'clientetransito'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'cobrancaemcarteira'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 9
+        FieldName = 'suframa'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'numero'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'empnumero'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'connumero'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'refnumero'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 100
+        FieldName = 'complemento'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 100
+        FieldName = 'empcomplemento'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 100
+        FieldName = 'concomplemento'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 100
+        FieldName = 'refcomplemento'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 50
+        FieldName = 'site'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'debitoqdofornecedor'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'creditoqdofornecedor'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'historicocontabil'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'nosimples'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'tagadpednfe'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'recolhericmsst'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'naoligar'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 512
+        FieldName = 'razaonaoligar'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'usuariosetounaoligar'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'datahoranaoligar'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'historicocontabilpagtoduplicata'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'consumidorfinal'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'codigo_sistema'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 50
+        FieldName = 'busca'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        EditLength = 200
+        FieldName = 'fichaalerta'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'atendimentogeroufichaalerta'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'atendimentoforcouexibicaodafichafinanceira'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'usuario_atualizacao_vendedor'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'data_atualizacao_vendedor'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        ShowBands = True
+        Width = 80
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'naogerarcashback'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Pitch = fpVariable
+        HeaderFont.Style = []
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Pitch = fpVariable
+        PrintFont.Style = []
+        Width = 80
+      end>
+    DataSource = dsrVisualizarLogClientes
+    PageMode = False
+    InvalidPicture.Data = {
+      055449636F6E0000010001002020040000000000E80200001600000028000000
+      2000000040000000010004000000000000020000000000000000000000000000
+      0000000000000000000080000080000000808000800000008000800080800000
+      80808000C0C0C0000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000
+      FFFFFF000000000000777777777777000000000000000000777788FFFF887777
+      000000000000007778F8887117788F877700000000000778F87111111111178F
+      877000000000778871111111111999178877000000077F811111111111199999
+      18F7700000778811111111111119999991887700007881111111111111119199
+      99188700077F711111811111111198719997F7700788111118FF111111118FF7
+      1991887077F71111888FF1111118FFFF19997F77778111118888FF1111888FF8
+      911918777881111118888FF1188888811111188778811111118888FF88888811
+      111117877F7111111118888888888111111117F77F7999111111888888881111
+      111111F77F7999991111788888F71111111111F77F7999999917888888FF7111
+      111117F778879999917FFF88888FF111111117877887999997FFFFF88888FF11
+      11111887778799997FFFFFF798888FF11111187777F87997FFFFFF71178F88FF
+      71117F7707887997FFFFF7999978F88871118870077F87997FFF799999978F87
+      1117F77000788879978799999999787111188700007788879999999999999999
+      1188770000077F88799999999999999778F77000000077888879999999999778
+      8877000000000778F88877799777788F877000000000007778F8888878888F87
+      7700000000000000777788FFFF88777700000000000000000077777777777700
+      00000000FFC003FFFF0000FFFC00003FF800001FF000000FE0000007C0000003
+      C000000380000001800000010000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000080000001
+      80000001C0000003C0000003E0000007F000000FF800001FFC00003FFF0000FF
+      FFC003FF}
+    ShowMemoFields = True
+    ShowBooleanFields = True
+    ShowUnicode = False
+    PostOnEnter = False
+    ColWidths = (
+      80
+      80
+      80
+      80
+      80
+      52
+      154
+      80
+      144
+      32
+      50
+      80
+      140
+      158
+      128
+      80
+      80
+      80
+      310
+      49
+      80
+      66
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      125
+      80
+      80
+      80
+      26
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      67
+      145
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80
+      80)
+  end
+  object dsrVisualizarLogClientes: TtecDataSource
+    DataSet = qryVisualizarLogClientes
+    Left = 456
+    Top = 176
+  end
+  object qryVisualizarLogClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from Clientes_log'
+      'where codigo = :cliente'
+      'order by trigger_changed, numero, trigger_id')
+    RequestLive = False
+    Left = 480
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end>
+    object qryVisualizarLogClientescodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+    object qryVisualizarLogClientesnome: TStringField
+      DisplayLabel = 'Nome'
+      DisplayWidth = 30
+      FieldName = 'nome'
+      Size = 60
+    end
+    object qryVisualizarLogClientesnascto: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Nascto'
+      FieldName = 'nascto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryVisualizarLogClientesapelido: TStringField
+      DisplayLabel = 'Apelido'
+      DisplayWidth = 20
+      FieldName = 'apelido'
+      Size = 100
+    end
+    object qryVisualizarLogClientessexo: TStringField
+      FieldName = 'sexo'
+      Size = 1
+    end
+    object qryVisualizarLogClientescivil: TStringField
+      FieldName = 'civil'
+      Size = 1
+    end
+    object qryVisualizarLogClientescivildata: TDateField
+      Alignment = taCenter
+      FieldName = 'civildata'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryVisualizarLogClientesiddocumento: TStringField
+      DisplayLabel = 'ID'
+      FieldName = 'iddocumento'
+    end
+    object qryVisualizarLogClientesidorgao: TStringField
+      DisplayLabel = 'ID '#243'rgao'
+      FieldName = 'idorgao'
+      Size = 15
+    end
+    object qryVisualizarLogClientesiddata: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'ID Data'
+      FieldName = 'iddata'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryVisualizarLogClientesidestado: TStringField
+      DisplayLabel = 'ID UF'
+      FieldName = 'idestado'
+      Size = 2
+    end
+    object qryVisualizarLogClientespessoatipo: TStringField
+      DisplayLabel = 'Tipo Pessoa'
+      FieldName = 'pessoatipo'
+      Size = 1
+    end
+    object qryVisualizarLogClientespessoanumero: TStringField
+      DisplayLabel = 'CPF/CNPJ'
+      FieldName = 'pessoanumero'
+      Size = 14
+    end
+    object qryVisualizarLogClientesmae: TStringField
+      DisplayLabel = 'M'#227'e'
+      FieldName = 'mae'
+      Size = 40
+    end
+    object qryVisualizarLogClientespai: TStringField
+      DisplayLabel = 'Pai'
+      FieldName = 'pai'
+      Size = 40
+    end
+    object qryVisualizarLogClientesconceito: TIntegerField
+      DisplayLabel = 'Conceito'
+      FieldName = 'conceito'
+    end
+    object qryVisualizarLogClientesnaturalcidade: TIntegerField
+      FieldName = 'naturalcidade'
+    end
+    object qryVisualizarLogClientesnaturalestado: TStringField
+      FieldName = 'naturalestado'
+      Size = 2
+    end
+    object qryVisualizarLogClientesrua: TStringField
+      FieldName = 'rua'
+      Size = 100
+    end
+    object qryVisualizarLogClientesestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryVisualizarLogClientescidade: TIntegerField
+      FieldName = 'cidade'
+    end
+    object qryVisualizarLogClientesbairro: TIntegerField
+      FieldName = 'bairro'
+    end
+    object qryVisualizarLogClientescep: TIntegerField
+      FieldName = 'cep'
+    end
+    object qryVisualizarLogClientesfonetipo: TStringField
+      FieldName = 'fonetipo'
+      Size = 1
+    end
+    object qryVisualizarLogClientesfoneddd: TIntegerField
+      FieldName = 'foneddd'
+    end
+    object qryVisualizarLogClientesfonenumero: TIntegerField
+      FieldName = 'fonenumero'
+    end
+    object qryVisualizarLogClientesfoneramal: TStringField
+      FieldName = 'foneramal'
+      Size = 10
+    end
+    object qryVisualizarLogClientesfone2ddd: TIntegerField
+      FieldName = 'fone2ddd'
+    end
+    object qryVisualizarLogClientesfone2numero: TIntegerField
+      FieldName = 'fone2numero'
+    end
+    object qryVisualizarLogClientesfone2ramal: TStringField
+      FieldName = 'fone2ramal'
+      Size = 10
+    end
+    object qryVisualizarLogClientesrestipo: TStringField
+      FieldName = 'restipo'
+      Size = 1
+    end
+    object qryVisualizarLogClientesresonus: TFloatField
+      FieldName = 'resonus'
+      DisplayFormat = '0.00'
+    end
+    object qryVisualizarLogClientesrestempo: TDateField
+      Alignment = taCenter
+      FieldName = 'restempo'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryVisualizarLogClientesempresa: TStringField
+      FieldName = 'empresa'
+      Size = 40
+    end
+    object qryVisualizarLogClientesempadmissao: TDateField
+      Alignment = taCenter
+      FieldName = 'empadmissao'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryVisualizarLogClientesempcep: TIntegerField
+      FieldName = 'empcep'
+    end
+    object qryVisualizarLogClientesempcomprovado: TBooleanField
+      FieldName = 'empcomprovado'
+    end
+    object qryVisualizarLogClientesempfoneddd: TIntegerField
+      FieldName = 'empfoneddd'
+    end
+    object qryVisualizarLogClientesempfonenumero: TIntegerField
+      FieldName = 'empfonenumero'
+    end
+    object qryVisualizarLogClientesempfoneramal: TStringField
+      FieldName = 'empfoneramal'
+      Size = 10
+    end
+    object qryVisualizarLogClientesempoutrasdescricao: TStringField
+      FieldName = 'empoutrasdescricao'
+      Size = 40
+    end
+    object qryVisualizarLogClientesempoutrasfaixa: TIntegerField
+      FieldName = 'empoutrasfaixa'
+    end
+    object qryVisualizarLogClientesempoutrasvalor: TFloatField
+      FieldName = 'empoutrasvalor'
+      DisplayFormat = '0.00'
+    end
+    object qryVisualizarLogClientesemprendafaixa: TIntegerField
+      FieldName = 'emprendafaixa'
+    end
+    object qryVisualizarLogClientesemprendavalor: TFloatField
+      FieldName = 'emprendavalor'
+      DisplayFormat = '0.00'
+    end
+    object qryVisualizarLogClientesemprua: TStringField
+      FieldName = 'emprua'
+      Size = 100
+    end
+    object qryVisualizarLogClientesempestado: TStringField
+      FieldName = 'empestado'
+      Size = 2
+    end
+    object qryVisualizarLogClientesempcidade: TIntegerField
+      FieldName = 'empcidade'
+    end
+    object qryVisualizarLogClientesempbairro: TIntegerField
+      FieldName = 'empbairro'
+    end
+    object qryVisualizarLogClientesempcargo: TIntegerField
+      FieldName = 'empcargo'
+    end
+    object qryVisualizarLogClientesconjuge: TIntegerField
+      FieldName = 'conjuge'
+    end
+    object qryVisualizarLogClientesconnome: TStringField
+      FieldName = 'connome'
+      Size = 40
+    end
+    object qryVisualizarLogClientesconadmissao: TDateField
+      Alignment = taCenter
+      FieldName = 'conadmissao'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryVisualizarLogClientesconcep: TIntegerField
+      FieldName = 'concep'
+    end
+    object qryVisualizarLogClientesconempresa: TStringField
+      FieldName = 'conempresa'
+      Size = 40
+    end
+    object qryVisualizarLogClientesconfoneddd: TIntegerField
+      FieldName = 'confoneddd'
+    end
+    object qryVisualizarLogClientesconfonenumero: TIntegerField
+      FieldName = 'confonenumero'
+    end
+    object qryVisualizarLogClientesconfoneramal: TStringField
+      FieldName = 'confoneramal'
+      Size = 10
+    end
+    object qryVisualizarLogClientesconnascto: TDateField
+      Alignment = taCenter
+      FieldName = 'connascto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryVisualizarLogClientesconrendafaixa: TIntegerField
+      FieldName = 'conrendafaixa'
+    end
+    object qryVisualizarLogClientesconrendavalor: TFloatField
+      FieldName = 'conrendavalor'
+      DisplayFormat = '0.00'
+    end
+    object qryVisualizarLogClientesconrua: TStringField
+      FieldName = 'conrua'
+      Size = 100
+    end
+    object qryVisualizarLogClientesconestado: TStringField
+      FieldName = 'conestado'
+      Size = 2
+    end
+    object qryVisualizarLogClientesconcidade: TIntegerField
+      FieldName = 'concidade'
+    end
+    object qryVisualizarLogClientesconbairro: TIntegerField
+      FieldName = 'conbairro'
+    end
+    object qryVisualizarLogClientesconcargo: TIntegerField
+      FieldName = 'concargo'
+    end
+    object qryVisualizarLogClientesreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 40
+    end
+    object qryVisualizarLogClientesreftipo: TStringField
+      FieldName = 'reftipo'
+      Size = 1
+    end
+    object qryVisualizarLogClientesrefrua: TStringField
+      FieldName = 'refrua'
+      Size = 100
+    end
+    object qryVisualizarLogClientesrefestado: TStringField
+      FieldName = 'refestado'
+      Size = 2
+    end
+    object qryVisualizarLogClientesrefcidade: TIntegerField
+      FieldName = 'refcidade'
+    end
+    object qryVisualizarLogClientesrefbairro: TIntegerField
+      FieldName = 'refbairro'
+    end
+    object qryVisualizarLogClientesrefcep: TIntegerField
+      FieldName = 'refcep'
+    end
+    object qryVisualizarLogClientesreffoneddd: TIntegerField
+      FieldName = 'reffoneddd'
+    end
+    object qryVisualizarLogClientesreffonenumero: TIntegerField
+      FieldName = 'reffonenumero'
+    end
+    object qryVisualizarLogClientesreffoneramal: TStringField
+      FieldName = 'reffoneramal'
+      Size = 10
+    end
+    object qryVisualizarLogClientesreffone2ddd: TIntegerField
+      FieldName = 'reffone2ddd'
+    end
+    object qryVisualizarLogClientesreffone2numero: TIntegerField
+      FieldName = 'reffone2numero'
+    end
+    object qryVisualizarLogClientesreffone2ramal: TStringField
+      FieldName = 'reffone2ramal'
+      Size = 10
+    end
+    object qryVisualizarLogClientesobservacoes: TStringField
+      DisplayWidth = 512
+      FieldName = 'observacoes'
+      Size = 1000
+    end
+    object qryVisualizarLogClientesemail: TStringField
+      FieldName = 'email'
+      Size = 128
+    end
+    object qryVisualizarLogClientesautomovel: TBooleanField
+      FieldName = 'automovel'
+    end
+    object qryVisualizarLogClientescartaocredito: TBooleanField
+      FieldName = 'cartaocredito'
+    end
+    object qryVisualizarLogClientescartaoloja: TBooleanField
+      FieldName = 'cartaoloja'
+    end
+    object qryVisualizarLogClientescheque: TBooleanField
+      FieldName = 'cheque'
+    end
+    object qryVisualizarLogClienteschequeespecial: TBooleanField
+      FieldName = 'chequeespecial'
+    end
+    object qryVisualizarLogClientesdependentes: TIntegerField
+      FieldName = 'dependentes'
+    end
+    object qryVisualizarLogClientesonus: TFloatField
+      FieldName = 'onus'
+      DisplayFormat = '0.00'
+    end
+    object qryVisualizarLogClientesenderecoalterado: TDateField
+      Alignment = taCenter
+      FieldName = 'enderecoalterado'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryVisualizarLogClientesfilialcadastro: TIntegerField
+      FieldName = 'filialcadastro'
+    end
+    object qryVisualizarLogClientesdatacadastro: TDateField
+      Alignment = taCenter
+      FieldName = 'datacadastro'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryVisualizarLogClientesultimaalteracao: TDateField
+      Alignment = taCenter
+      FieldName = 'ultimaalteracao'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryVisualizarLogClientesdebito: TIntegerField
+      FieldName = 'debito'
+    end
+    object qryVisualizarLogClientescredito: TIntegerField
+      FieldName = 'credito'
+    end
+    object qryVisualizarLogClientesplanopadrao: TIntegerField
+      FieldName = 'planopadrao'
+    end
+    object qryVisualizarLogClientesnaoexibirfichafinanceira: TBooleanField
+      FieldName = 'naoexibirfichafinanceira'
+    end
+    object qryVisualizarLogClientescontribicms: TBooleanField
+      FieldName = 'contribicms'
+    end
+    object qryVisualizarLogClientesmarkup: TFloatField
+      FieldName = 'markup'
+      DisplayFormat = '0.00'
+    end
+    object qryVisualizarLogClientesaniversario: TDateField
+      Alignment = taCenter
+      FieldName = 'aniversario'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryVisualizarLogClientesinscricaomunicipal: TStringField
+      FieldName = 'inscricaomunicipal'
+      Size = 14
+    end
+    object qryVisualizarLogClientesobsnotafiscal: TStringField
+      FieldName = 'obsnotafiscal'
+      Size = 320
+    end
+    object qryVisualizarLogClientesobsipisuspenso: TStringField
+      FieldName = 'obsipisuspenso'
+      Size = 320
+    end
+    object qryVisualizarLogClientesipisuspenso: TBooleanField
+      FieldName = 'ipisuspenso'
+    end
+    object qryVisualizarLogClientesvendedor: TIntegerField
+      FieldName = 'vendedor'
+    end
+    object qryVisualizarLogClientespracapagtocidade: TIntegerField
+      FieldName = 'pracapagtocidade'
+    end
+    object qryVisualizarLogClientespracapagtoestado: TStringField
+      FieldName = 'pracapagtoestado'
+      Size = 2
+    end
+    object qryVisualizarLogClientesclientetransito: TIntegerField
+      FieldName = 'clientetransito'
+    end
+    object qryVisualizarLogClientescobrancaemcarteira: TBooleanField
+      FieldName = 'cobrancaemcarteira'
+    end
+    object qryVisualizarLogClientessuframa: TStringField
+      FieldName = 'suframa'
+      Size = 9
+    end
+    object qryVisualizarLogClientesnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryVisualizarLogClientesempnumero: TIntegerField
+      FieldName = 'empnumero'
+    end
+    object qryVisualizarLogClientesconnumero: TIntegerField
+      FieldName = 'connumero'
+    end
+    object qryVisualizarLogClientesrefnumero: TIntegerField
+      FieldName = 'refnumero'
+    end
+    object qryVisualizarLogClientescomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 100
+    end
+    object qryVisualizarLogClientesempcomplemento: TStringField
+      FieldName = 'empcomplemento'
+      Size = 100
+    end
+    object qryVisualizarLogClientesconcomplemento: TStringField
+      FieldName = 'concomplemento'
+      Size = 100
+    end
+    object qryVisualizarLogClientesrefcomplemento: TStringField
+      FieldName = 'refcomplemento'
+      Size = 100
+    end
+    object qryVisualizarLogClientessite: TStringField
+      FieldName = 'site'
+      Size = 50
+    end
+    object qryVisualizarLogClientesdebitoqdofornecedor: TIntegerField
+      FieldName = 'debitoqdofornecedor'
+    end
+    object qryVisualizarLogClientescreditoqdofornecedor: TIntegerField
+      FieldName = 'creditoqdofornecedor'
+    end
+    object qryVisualizarLogClienteshistoricocontabil: TIntegerField
+      FieldName = 'historicocontabil'
+    end
+    object qryVisualizarLogClientesnosimples: TBooleanField
+      FieldName = 'nosimples'
+    end
+    object qryVisualizarLogClientestagadpednfe: TBooleanField
+      FieldName = 'tagadpednfe'
+    end
+    object qryVisualizarLogClientesrecolhericmsst: TBooleanField
+      FieldName = 'recolhericmsst'
+    end
+    object qryVisualizarLogClientesnaoligar: TBooleanField
+      FieldName = 'naoligar'
+    end
+    object qryVisualizarLogClientesrazaonaoligar: TStringField
+      DisplayWidth = 512
+      FieldName = 'razaonaoligar'
+      Size = 760
+    end
+    object qryVisualizarLogClientesusuariosetounaoligar: TIntegerField
+      FieldName = 'usuariosetounaoligar'
+    end
+    object qryVisualizarLogClientesdatahoranaoligar: TDateTimeField
+      Alignment = taCenter
+      FieldName = 'datahoranaoligar'
+      DisplayFormat = 'dd/MM/yy hh:mm'
+      EditMask = '99/99/99 99:99;1; '
+    end
+    object qryVisualizarLogClienteshistoricocontabilpagtoduplicata: TIntegerField
+      FieldName = 'historicocontabilpagtoduplicata'
+    end
+    object qryVisualizarLogClientesconsumidorfinal: TBooleanField
+      FieldName = 'consumidorfinal'
+    end
+    object qryVisualizarLogClientescodigo_sistema: TIntegerField
+      FieldName = 'codigo_sistema'
+    end
+    object qryVisualizarLogClientesbusca: TStringField
+      FieldName = 'busca'
+      Size = 50
+    end
+    object qryVisualizarLogClientesfichaalerta: TStringField
+      FieldName = 'fichaalerta'
+      Size = 200
+    end
+    object qryVisualizarLogClientesatendimentogeroufichaalerta: TIntegerField
+      FieldName = 'atendimentogeroufichaalerta'
+    end
+    object qryVisualizarLogClientesatendimentoforcouexibicaodafichafinanceira: TIntegerField
+      FieldName = 'atendimentoforcouexibicaodafichafinanceira'
+    end
+    object qryVisualizarLogClientesdata_atualizacao_vendedor: TDateTimeField
+      Alignment = taCenter
+      FieldName = 'data_atualizacao_vendedor'
+      DisplayFormat = 'dd/MM/yy hh:mm'
+      EditMask = '99/99/99 99:99;1; '
+    end
+    object qryVisualizarLogClientesusuario_atualizacao_vendedor: TIntegerField
+      FieldName = 'usuario_atualizacao_vendedor'
+    end
+    object qryVisualizarLogClientesnaogerarcashback: TBooleanField
+      FieldName = 'naogerarcashback'
+      Required = True
+    end
+    object qryVisualizarLogClientestrigger_mode: TStringField
+      FieldName = 'trigger_mode'
+      Size = 10
+    end
+    object qryVisualizarLogClientestrigger_tuple: TStringField
+      FieldName = 'trigger_tuple'
+      Size = 5
+    end
+    object qryVisualizarLogClientestrigger_changed: TDateTimeField
+      Alignment = taCenter
+      FieldName = 'trigger_changed'
+      DisplayFormat = 'dd/MM/yy hh:mm'
+      EditMask = '99/99/99 99:99;1; '
+    end
+    object qryVisualizarLogClientestrigger_user: TStringField
+      FieldName = 'trigger_user'
+      Size = 32
+    end
+    object qryVisualizarLogClientestrigger_id: TLargeintField
+      FieldName = 'trigger_id'
+    end
+  end
+  object AdvGridFindDialog1: TAdvGridFindDialog
+    AutoPosition = False
+    Grid = dbgVisualizarLogClientes
+    MsgNotFound = 'O texto n'#227'o pode ser encontrado'
+    MsgNoMoreFound = 'N'#227'o h'#225' mais ocorr'#234'ncias do texto'
+    TxtCaption = 'Pesquisa'
+    TxtTextToFind = 'Texto a procurar'
+    TxtDirection = 'Dire'#231#227'o'
+    TTxtDirForward1 = 'Avan'#231'ar (cima para baixo)'
+    TTxtDirForward2 = 'Avan'#231'ar (esquerda para direita)'
+    TTxtDirBackward1 = 'Voltar (baixo para cima)'
+    TTxtDirBackward2 = 'Voltar (direita para esquerda)'
+    TxtScope = 'Escopo'
+    TxtScopeAllCells = 'Todas c'#233'lulas'
+    TxtScopeCurrRow = 'Somente linha atual'
+    TxtScopeCurrCol = 'Somente coluna atual'
+    TxtScopeSelectedCells = 'Celulas selecionadas'
+    TxtOptions = 'Op'#231#245'es'
+    TxtOptionsCase = '&Diferenciar Mai'#250'sculas/Min'#250'sculas'
+    TxtOptionsWholeWords = '&Apenas palavras inteiras'
+    TxtOptionsMatchFirst = '&Correspondente no primeiro caracter'
+    TxtOptionsIgnoreHTML = '&Ignorar tags HTML'
+    TxtOptionsFixedCells = '&Pesquisa em c'#233'lulas fixas'
+    TxtOptionsWildcards = 'Correspondencia com m'#225'scaras'
+    TxtBtnOk = 'Ok'
+    TxtBtnCancel = 'Cancela'
+    Left = 478
+    Top = 214
+  end
+  object AdvGridExcelIO1: TAdvGridExcelIO
+    AdvStringGrid = dbgVisualizarLogClientes
+    Options.ExportOverwriteMessage = 'File %s already exists'#13'Ok to overwrite ?'
+    Options.ExportRawRTF = False
+    Options.ExportShowInExcel = True
+    UseUnicode = False
+    Version = '3.4.1'
+    Left = 542
+    Top = 190
+  end
+  object AdvPopupMenu1: TAdvPopupMenu
+    Version = '2.5.4.0'
+    Left = 640
+    Top = 206
+    object Pesquizar1: TMenuItem
+      Caption = 'Pesquisar'
+      ShortCut = 16504
+      OnClick = Pesquizar1Click
+    end
+    object ExportarExcel1: TMenuItem
+      Caption = 'Exportar Excel'
+      ShortCut = 16472
+      OnClick = ExportarExcel1Click
+    end
+  end
+end

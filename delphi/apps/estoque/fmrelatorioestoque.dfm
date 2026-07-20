@@ -1,0 +1,1792 @@
+inherited frmRelatorioEstoque: TfrmRelatorioEstoque
+  Left = 248
+  Top = 60
+  ActiveControl = pgcFilialGrupoFilial
+  BorderWidth = 0
+  Caption = 'Relat'#243'rio de Estoques'
+  ClientHeight = 632
+  ClientWidth = 1048
+  FormStyle = fsMDIChild
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TToolBar
+    Width = 1048
+  end
+  inherited pnlFundoJanela: TPanel
+    Top = 40
+    Width = 1048
+    Height = 592
+    Align = alClient
+    object pgcFilialGrupoFilial: TtecPageControl
+      Left = 3
+      Top = 3
+      Width = 198
+      Height = 542
+      ActivePage = tstFilial
+      TabOrder = 0
+      TabWidth = 90
+      object tstFilial: TTabSheet
+        Caption = '  Filia&l'
+        object sbnMarcarFiliais: TSpeedButton
+          Left = 168
+          Top = 2
+          Width = 22
+          Height = 22
+          Hint = 'Marcar Filiais'
+          Flat = True
+          Glyph.Data = {
+            36060000424D3606000000000000360000002800000020000000100000000100
+            18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFF
+            FFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCFF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFF
+            FFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCFF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+            7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCFF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+            7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCFF0000FF0000FF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F
+            7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            FF0000FF0000FF0000FF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F
+            7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F
+            FF0000FF0000000000DCDCDCFF0000FF0000FF0000000000DCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FDCDCDC7F7F7F7F
+            7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFF0000
+            000000DCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000000000DCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000FF0000000000DCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000000000DCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000000000DCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFF00000000
+            00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFF00
+            00000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCFF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+          NumGlyphs = 2
+          OnClick = sbnMarcarFiliaisClick
+        end
+        object sbnDesmarcarFiliais: TSpeedButton
+          Left = 168
+          Top = 26
+          Width = 22
+          Height = 22
+          Hint = 'Desmarcar Filiais'
+          Flat = True
+          Glyph.Data = {
+            36060000424D3606000000000000360000002800000020000000100000000100
+            18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDC
+            DCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDCDCDC
+            0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+            FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDC
+            DCDC7F7F7FFFFFFFFFFFFFDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+            DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+            FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFF7F
+            7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDC0000FF0000FF0000FF7F7F7F0000007F7F7F0000FF0000FF0000
+            FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFF
+            FFFF7F7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDC0000FF0000FF0000FFDCDCDC0000FF0000FF0000FFDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+            7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000000000FF0000FFDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDC
+            DCDC7F7F7FFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000080000000000080DCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000800000000000800000FFDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7FDCDCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDC0000FF0000FF0000000000000000000000FF0000FFDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDC7F
+            7F7F7F7F7F7F7F7FDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDC0000FF0000FF0000FF0000000000000000000000FF0000FF0000
+            FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDC7F
+            7F7F7F7F7F7F7F7FDCDCDC7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC
+            DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+            FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDC7F
+            7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDC
+            0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+            FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDC
+            DCDC7F7F7FDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+          NumGlyphs = 2
+          OnClick = sbnDesmarcarFiliaisClick
+        end
+        object clbFiliais: TCheckListBox
+          Left = 0
+          Top = 0
+          Width = 165
+          Height = 511
+          OnClickCheck = clbFiliaisClickCheck
+          Align = alLeft
+          ItemHeight = 15
+          Style = lbOwnerDrawVariable
+          TabOrder = 0
+        end
+      end
+      object tstGrupoFilial: TTabSheet
+        Caption = '  &Grupo Filial'
+        ImageIndex = 1
+        object sbnmarcarGrupodeFiliais: TSpeedButton
+          Left = 168
+          Top = 2
+          Width = 22
+          Height = 22
+          Hint = 'Marcar Grupo de Filiais'
+          Flat = True
+          Glyph.Data = {
+            36060000424D3606000000000000360000002800000020000000100000000100
+            18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFF
+            FFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCFF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFF
+            FFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCFF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+            7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCFF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+            7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCFF0000FF0000FF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F
+            7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            FF0000FF0000FF0000FF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F
+            7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F
+            FF0000FF0000000000DCDCDCFF0000FF0000FF0000000000DCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FDCDCDC7F7F7F7F
+            7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFF0000
+            000000DCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000000000DCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000FF0000000000DCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000000000DCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000000000DCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFF00000000
+            00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFF00
+            00000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCFF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+          NumGlyphs = 2
+          OnClick = sbnmarcarGrupodeFiliaisClick
+        end
+        object sbnDesmarcarGrupodeFiliais: TSpeedButton
+          Left = 168
+          Top = 26
+          Width = 22
+          Height = 22
+          Hint = 'Desmarcar Grupo de Filiais'
+          Flat = True
+          Glyph.Data = {
+            36060000424D3606000000000000360000002800000020000000100000000100
+            18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDC
+            DCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDCDCDC
+            0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+            FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDC
+            DCDC7F7F7FFFFFFFFFFFFFDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+            DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+            FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFF7F
+            7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDC0000FF0000FF0000FF7F7F7F0000007F7F7F0000FF0000FF0000
+            FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFF
+            FFFF7F7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDC0000FF0000FF0000FFDCDCDC0000FF0000FF0000FFDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+            7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000000000FF0000FFDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDC
+            DCDC7F7F7FFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000080000000000080DCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000800000000000800000FFDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+            7F7F7F7F7F7F7F7FDCDCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDC0000FF0000FF0000000000000000000000FF0000FFDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDC7F
+            7F7F7F7F7F7F7F7FDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDC0000FF0000FF0000FF0000000000000000000000FF0000FF0000
+            FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDC7F
+            7F7F7F7F7F7F7F7FDCDCDC7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC
+            DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+            FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDC7F
+            7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDC
+            0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+            FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDC
+            DCDC7F7F7FDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+          NumGlyphs = 2
+          OnClick = sbnDesmarcarGrupodeFiliaisClick
+        end
+        object clbGrupodeFiliais: TCheckListBox
+          Left = 0
+          Top = 0
+          Width = 165
+          Height = 511
+          OnClickCheck = clbGrupodeFiliaisClickCheck
+          Align = alLeft
+          ItemHeight = 15
+          Style = lbOwnerDrawVariable
+          TabOrder = 0
+        end
+      end
+    end
+    object gbxData: TGroupBox
+      Left = 208
+      Top = 202
+      Width = 145
+      Height = 44
+      Caption = 'Data'
+      TabOrder = 2
+      object edtData: TEditData
+        Left = 40
+        Top = 16
+        Width = 81
+        Height = 24
+        MaxLength = 10
+        TabOrder = 0
+        Minimo = 37353
+        Maximo = 0
+      end
+    end
+    object gbxAgrupamento: TGroupBox
+      Left = 736
+      Top = 437
+      Width = 137
+      Height = 143
+      Caption = 'Agrupamento'
+      TabOrder = 9
+      object ckbAgruparGrupoFilial: TCheckBox
+        Left = 6
+        Top = 16
+        Width = 113
+        Height = 16
+        Caption = 'Grupo de Filiais'
+        TabOrder = 0
+      end
+      object ckbAgruparFilial: TCheckBox
+        Left = 6
+        Top = 33
+        Width = 83
+        Height = 16
+        Caption = 'Filiais'
+        Checked = True
+        State = cbChecked
+        TabOrder = 1
+      end
+      object ckbAgruparClasseProduto: TCheckBox
+        Left = 6
+        Top = 87
+        Width = 83
+        Height = 16
+        Caption = 'Classes'
+        TabOrder = 4
+      end
+      object ckbAgruparGrupoProduto: TCheckBox
+        Left = 6
+        Top = 105
+        Width = 83
+        Height = 16
+        Caption = 'Grupos'
+        TabOrder = 5
+      end
+      object ckbAgruparProduto: TCheckBox
+        Left = 6
+        Top = 123
+        Width = 83
+        Height = 16
+        Caption = 'Produto'
+        TabOrder = 6
+      end
+      object ckbAgruparFornecedor: TCheckBox
+        Left = 6
+        Top = 51
+        Width = 126
+        Height = 16
+        Caption = 'Nome Fornecedor'
+        TabOrder = 2
+      end
+      object ckbAgruparLocalizacao: TCheckBox
+        Left = 6
+        Top = 69
+        Width = 107
+        Height = 16
+        Caption = 'Localiza'#231#227'o'
+        TabOrder = 3
+      end
+    end
+    object rgpResumo: TRadioGroup
+      Left = 208
+      Top = 247
+      Width = 145
+      Height = 75
+      Caption = 'Resumo'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ItemIndex = 1
+      Items.Strings = (
+        'Com R&esumo'
+        '&Sem Resumo'
+        'S'#243' Res&umo')
+      ParentFont = False
+      TabOrder = 3
+    end
+    object gbxOpcoes: TGroupBox
+      Left = 207
+      Top = 344
+      Width = 666
+      Height = 89
+      Caption = 'Op'#231#245'es'
+      TabOrder = 5
+      object lblNaoVendidoHa: TLabel
+        Left = 453
+        Top = 65
+        Width = 175
+        Height = 16
+        Caption = 'N'#227'o vendidos h'#225'              dias'
+      end
+      object ckbProdSimples: TCheckBox
+        Left = 455
+        Top = 26
+        Width = 140
+        Height = 14
+        Caption = '&Produto Simples'
+        Checked = True
+        Enabled = False
+        State = cbChecked
+        TabOrder = 9
+        Visible = False
+        OnClick = ckbProdSimplesClick
+      end
+      object ckbProdComposto: TCheckBox
+        Left = 455
+        Top = 46
+        Width = 137
+        Height = 14
+        Caption = 'P&roduto Composto'
+        Enabled = False
+        TabOrder = 10
+        Visible = False
+        OnClick = ckbProdCompostoClick
+      end
+      object ckbPrecoComIcms: TCheckBox
+        Left = 7
+        Top = 63
+        Width = 129
+        Height = 14
+        Caption = 'Pre'#231'o Com Icms'
+        TabOrder = 2
+        OnClick = ckbPrecoComIcmsClick
+      end
+      object ckbSemEstoqueZero: TCheckBox
+        Left = 271
+        Top = 26
+        Width = 137
+        Height = 14
+        Caption = 'Sem Estoque &Zero'
+        TabOrder = 6
+      end
+      object ckbComQuantidades: TCheckBox
+        Left = 135
+        Top = 64
+        Width = 129
+        Height = 14
+        Caption = 'Com &Quantidades'
+        Checked = True
+        State = cbChecked
+        TabOrder = 5
+      end
+      object ckbValorFinanceiro: TCheckBox
+        Left = 7
+        Top = 24
+        Width = 129
+        Height = 14
+        Caption = 'Valor &Financeiro'
+        Checked = True
+        State = cbChecked
+        TabOrder = 0
+        OnClick = ckbValorFinanceiroClick
+      end
+      object ckbPrecodeVenda: TCheckBox
+        Left = 7
+        Top = 43
+        Width = 129
+        Height = 14
+        Caption = 'Pre'#231'o de Venda'
+        TabOrder = 1
+        OnClick = ckbPrecodeVendaClick
+      end
+      object ckbPrecoSemIcms: TCheckBox
+        Left = 135
+        Top = 24
+        Width = 129
+        Height = 14
+        Caption = 'Pre'#231'o Sem Icms'
+        TabOrder = 3
+        OnClick = ckbPrecoSemIcmsClick
+      end
+      object ckbCodigodeBarras: TCheckBox
+        Left = 135
+        Top = 44
+        Width = 129
+        Height = 14
+        Caption = 'C'#243'digo de Barras'
+        TabOrder = 4
+        OnClick = ckbPrecoSemIcmsClick
+      end
+      object ckbAcabadosouSemiAcabados: TCheckBox
+        Left = 271
+        Top = 65
+        Width = 177
+        Height = 14
+        Caption = 'Acabados/Semi-acabados'
+        TabOrder = 8
+        OnClick = ckbAcabadosouSemiAcabadosClick
+      end
+      object ckbGradecomElementos: TCheckBox
+        Left = 272
+        Top = 45
+        Width = 168
+        Height = 14
+        Caption = 'Grade com elementos'
+        Checked = True
+        Enabled = False
+        State = cbChecked
+        TabOrder = 7
+        OnClick = ckbAcabadosouSemiAcabadosClick
+      end
+      object edtNDiasNaoVendidos: TEditNumero
+        Left = 552
+        Top = 63
+        Width = 47
+        Height = 24
+        MaxLength = -1
+        TabOrder = 11
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 0
+        Decimais = False
+        Negativo = False
+        Tamanho = 9
+      end
+    end
+    object gbxQuantidades: TGroupBox
+      Left = 372
+      Top = 202
+      Width = 501
+      Height = 144
+      Caption = 'Quantidades'
+      TabOrder = 4
+      object Bevel1: TBevel
+        Left = 271
+        Top = 8
+        Width = 1
+        Height = 137
+        Shape = bsLeftLine
+      end
+      object lblEmEstoque: TLabel
+        Left = 8
+        Top = 20
+        Width = 72
+        Height = 16
+        Caption = 'Em Estoque'
+      end
+      object lblReservado: TLabel
+        Left = 8
+        Top = 45
+        Width = 60
+        Height = 16
+        Caption = 'Reservado'
+      end
+      object lblEmTransito: TLabel
+        Left = 8
+        Top = 70
+        Width = 70
+        Height = 16
+        Caption = 'Em Transito'
+      end
+      object lblDemonstracao: TLabel
+        Left = 8
+        Top = 95
+        Width = 84
+        Height = 16
+        Caption = 'Demonstra'#231#227'o'
+      end
+      object lblConserto: TLabel
+        Left = 277
+        Top = 20
+        Width = 52
+        Height = 16
+        Caption = 'Conserto'
+      end
+      object lblFuturo: TLabel
+        Left = 277
+        Top = 45
+        Width = 37
+        Height = 16
+        Caption = 'Futuro'
+      end
+      object lblAvariado: TLabel
+        Left = 277
+        Top = 70
+        Width = 49
+        Height = 16
+        Caption = 'Avariado'
+      end
+      object lblPedido: TLabel
+        Left = 277
+        Top = 95
+        Width = 40
+        Height = 16
+        Caption = 'Pedido'
+      end
+      object lblEmEstoque_a: TLabel
+        Left = 179
+        Top = 20
+        Width = 7
+        Height = 16
+        Caption = 'a'
+      end
+      object lblReservado_a: TLabel
+        Left = 179
+        Top = 45
+        Width = 7
+        Height = 16
+        Caption = 'a'
+      end
+      object lblEmTransito_a: TLabel
+        Left = 179
+        Top = 70
+        Width = 7
+        Height = 16
+        Caption = 'a'
+      end
+      object lblDemonstracao_a: TLabel
+        Left = 179
+        Top = 95
+        Width = 7
+        Height = 16
+        Caption = 'a'
+      end
+      object lblConserto_a: TLabel
+        Left = 409
+        Top = 20
+        Width = 7
+        Height = 16
+        Caption = 'a'
+      end
+      object lblFuturo_a: TLabel
+        Left = 409
+        Top = 45
+        Width = 7
+        Height = 16
+        Caption = 'a'
+      end
+      object lblAvariado_a: TLabel
+        Left = 409
+        Top = 70
+        Width = 7
+        Height = 16
+        Caption = 'a'
+      end
+      object lblLocacao_a: TLabel
+        Left = 409
+        Top = 95
+        Width = 7
+        Height = 16
+        Caption = 'a'
+      end
+      object lblREservaPrevia: TLabel
+        Left = 8
+        Top = 121
+        Width = 85
+        Height = 16
+        Caption = 'Reserva Pr'#233'via'
+      end
+      object lblReservaPrevia_a: TLabel
+        Left = 179
+        Top = 121
+        Width = 7
+        Height = 16
+        Caption = 'a'
+      end
+      object edtEmEstoque_Inicial: TEditNumero
+        Left = 101
+        Top = 16
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 4
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtReservado_Inicial: TEditNumero
+        Left = 101
+        Top = 41
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 6
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtEmTransito_Inicial: TEditNumero
+        Left = 101
+        Top = 66
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 9
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtEmDemonstracao_Inicial: TEditNumero
+        Left = 101
+        Top = 91
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 13
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtConserto_Inicial: TEditNumero
+        Left = 331
+        Top = 16
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 0
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtFuturo_Inicial: TEditNumero
+        Left = 331
+        Top = 41
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 1
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtAvariado_Inicial: TEditNumero
+        Left = 331
+        Top = 66
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 2
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtPedido_Inicial: TEditNumero
+        Left = 331
+        Top = 91
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 3
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtEmEstoque_Final: TEditNumero
+        Left = 189
+        Top = 16
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 5
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtReservado_Final: TEditNumero
+        Left = 189
+        Top = 41
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 7
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtEmTransito_Final: TEditNumero
+        Left = 189
+        Top = 66
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 11
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtEmDemonstracao_Final: TEditNumero
+        Left = 189
+        Top = 91
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 15
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtConserto_Final: TEditNumero
+        Left = 419
+        Top = 16
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 8
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtFuturo_Final: TEditNumero
+        Left = 419
+        Top = 41
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 10
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtAvariado_Final: TEditNumero
+        Left = 419
+        Top = 66
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 12
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtPedido_Final: TEditNumero
+        Left = 419
+        Top = 91
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 14
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtReservaPrevia_Inicial: TEditNumero
+        Left = 101
+        Top = 117
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 16
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+      object edtReservaPrevia_Final: TEditNumero
+        Left = 189
+        Top = 117
+        Width = 77
+        Height = 24
+        MaxLength = -1
+        TabOrder = 17
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = True
+        Tamanho = 9
+      end
+    end
+    object gbxProdutos: TGroupBox
+      Left = 207
+      Top = 432
+      Width = 339
+      Height = 111
+      Caption = 'Produtos'
+      TabOrder = 6
+      object ckbProdutoEmLinha: TCheckBox
+        Left = 8
+        Top = 16
+        Width = 120
+        Height = 16
+        Caption = '&Em Linha'
+        Checked = True
+        State = cbChecked
+        TabOrder = 0
+      end
+      object ckbProdutoForadeLinha: TCheckBox
+        Left = 158
+        Top = 16
+        Width = 120
+        Height = 16
+        Caption = '&Fora de Linha'
+        Checked = True
+        State = cbChecked
+        TabOrder = 1
+      end
+      object ckbProdutoComMontagem: TCheckBox
+        Left = 8
+        Top = 53
+        Width = 120
+        Height = 16
+        Caption = '&Com Montagem'
+        Checked = True
+        State = cbChecked
+        TabOrder = 4
+      end
+      object ckbProdutoSemMontagem: TCheckBox
+        Left = 158
+        Top = 53
+        Width = 120
+        Height = 16
+        Caption = '&Sem Montagem'
+        Checked = True
+        State = cbChecked
+        TabOrder = 5
+      end
+      object ckbProdutoNaoBrinde: TCheckBox
+        Left = 8
+        Top = 72
+        Width = 120
+        Height = 16
+        Caption = '&N'#227'o Brinde'
+        Checked = True
+        State = cbChecked
+        TabOrder = 6
+      end
+      object ckbProdutoBrinde: TCheckBox
+        Left = 158
+        Top = 72
+        Width = 120
+        Height = 16
+        Caption = '&Brinde'
+        Checked = True
+        State = cbChecked
+        TabOrder = 7
+      end
+      object ckbProdutoInativo: TCheckBox
+        Left = 158
+        Top = 34
+        Width = 120
+        Height = 16
+        Caption = '&Inativo'
+        TabOrder = 3
+        OnClick = ckbProdutoInativoClick
+      end
+      object ckbProdutoAtivo: TCheckBox
+        Left = 8
+        Top = 34
+        Width = 120
+        Height = 16
+        Caption = '&Ativo'
+        Checked = True
+        State = cbChecked
+        TabOrder = 2
+        OnClick = ckbProdutoAtivoClick
+      end
+      object ckbDisponivelnoSite: TCheckBox
+        Left = 8
+        Top = 91
+        Width = 129
+        Height = 16
+        Caption = 'Dispon'#237'vel no site'
+        Checked = True
+        State = cbChecked
+        TabOrder = 8
+        OnClick = ckbDisponivelnoSiteClick
+      end
+      object ckbNaoDisponivelnoSite: TCheckBox
+        Left = 158
+        Top = 91
+        Width = 145
+        Height = 16
+        Caption = 'N'#227'o dispon'#237'vel no site'
+        Checked = True
+        State = cbChecked
+        TabOrder = 9
+        OnClick = ckbNaoDisponivelnoSiteClick
+      end
+    end
+    object gbxGrupos: TGroupBox
+      Left = 801
+      Top = 638
+      Width = 200
+      Height = 149
+      Caption = 'Colunas'
+      TabOrder = 11
+      Visible = False
+      object sbnMarcarColunas: TSpeedButton
+        Left = 168
+        Top = 18
+        Width = 22
+        Height = 22
+        Hint = 'Marcar Agentes'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFF
+          FFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCFF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFF
+          FFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCFF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+          7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCFF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+          7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFF0000FF0000FF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          FF0000FF0000FF0000FF0000FF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F
+          FF0000FF0000000000DCDCDCFF0000FF0000FF0000000000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FDCDCDC7F7F7F7F
+          7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFF0000
+          000000DCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000000000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC7F
+          7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000FF0000000000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+          7F7F7F7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000000000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFF0000FF0000000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFF00000000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFF00
+          00000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCFF0000FF0000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = sbnMarcarColunasClick
+      end
+      object sbnDesmarcarColunas: TSpeedButton
+        Left = 168
+        Top = 41
+        Width = 22
+        Height = 22
+        Hint = 'Desmarcar Agentes'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDC
+          DCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFDCDCDCDCDCDC
+          0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+          FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDC
+          DCDC7F7F7FFFFFFFFFFFFFDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+          FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFF7F
+          7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDC0000FF0000FF0000FF7F7F7F0000007F7F7F0000FF0000FF0000
+          FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFF
+          FFFF7F7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDC0000FF0000FF0000FFDCDCDC0000FF0000FF0000FFDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+          7F7FDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000000000FF0000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDC
+          DCDC7F7F7FFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000080000000000080DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+          7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000800000000000800000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+          7F7F7F7F7F7F7F7FDCDCDCFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDC0000FF0000FF0000000000000000000000FF0000FFDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDC7F
+          7F7F7F7F7F7F7F7FDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDC0000FF0000FF0000FF0000000000000000000000FF0000FF0000
+          FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDC7F
+          7F7F7F7F7F7F7F7FDCDCDC7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC
+          DCDCDC0000FF0000FF0000FFDCDCDC000000000000000000DCDCDC0000FF0000
+          FF0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDC7F
+          7F7F7F7F7F7F7F7FFFFFFF7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDC
+          0000FF0000FF0000FFDCDCDCDCDCDC7F7F7F0000007F7F7FDCDCDCDCDCDC0000
+          FF0000FF0000FFDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDC
+          DCDC7F7F7FDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = sbnDesmarcarColunasClick
+      end
+      object clbColunas: TCheckListBox
+        Left = 2
+        Top = 18
+        Width = 167
+        Height = 127
+        Columns = 1
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ItemHeight = 15
+        Items.Strings = (
+          'EM ESTOQUE'
+          'RESERVADO'
+          'TR'#194'NSITO'
+          'DEMONSTRA'#199#195'O'
+          'CONSERTO'
+          'DANIFICADA'
+          'RESERVA PR'#201'VIA'
+          'ESTOQUE F'#205'SICO')
+        ParentFont = False
+        Style = lbOwnerDrawFixed
+        TabOrder = 0
+      end
+    end
+    object ckbRelatorioemGrades: TCheckBox
+      Left = 11
+      Top = 549
+      Width = 149
+      Height = 17
+      Caption = 'Relat'#243'rio em grades'
+      TabOrder = 10
+      OnClick = ckbRelatorioemGradesClick
+    end
+    object rgpOrdenacao: TtecDBRadioGroup
+      Left = 568
+      Top = 474
+      Width = 145
+      Height = 107
+      Caption = 'Ordena'#231#227'o'
+      TabOrder = 8
+      TabStop = False
+      object rbnOdenacaoCodigoProduto: TtecRadioButton
+        Left = 8
+        Top = 16
+        Width = 129
+        Height = 17
+        Caption = 'C'#243'digo Produto'
+        TabOrder = 0
+      end
+      object rbnOdenacaoDescricaoProduto: TtecRadioButton
+        Left = 8
+        Top = 32
+        Width = 134
+        Height = 17
+        Caption = 'Descri'#231#227'o Produto'
+        Checked = True
+        TabOrder = 1
+        TabStop = True
+      end
+      object rbnOdenacaoFilial: TtecRadioButton
+        Left = 8
+        Top = 49
+        Width = 129
+        Height = 17
+        Caption = 'Filial'
+        TabOrder = 2
+      end
+      object rbnOdenacaoLocalizacao: TtecRadioButton
+        Left = 8
+        Top = 66
+        Width = 129
+        Height = 17
+        Caption = 'Localiza'#231#227'o'
+        TabOrder = 3
+      end
+      object rbnOdenacaoUltimaVenda: TtecRadioButton
+        Left = 8
+        Top = 83
+        Width = 129
+        Height = 17
+        Caption = #218'ltima Venda'
+        TabOrder = 4
+      end
+    end
+    object gbxCompostos: TGroupBox
+      Left = 568
+      Top = 439
+      Width = 145
+      Height = 38
+      Caption = 'COMPOSTOS'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 7
+      object cbbCompostos: TComboBox
+        Left = 5
+        Top = 12
+        Width = 135
+        Height = 22
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ItemHeight = 14
+        ItemIndex = 0
+        ParentFont = False
+        TabOrder = 0
+        Text = 'Com compostos'
+        Items.Strings = (
+          'Com compostos'
+          'Sem compostos'
+          'Somente compostos')
+      end
+    end
+    object pgcMultiplasSelecoes: TPageControl
+      Left = 208
+      Top = 1
+      Width = 665
+      Height = 200
+      ActivePage = tstMultiplasSelecoesProdutos
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      object tstMultiplasSelecoesProdutos: TTabSheet
+        Caption = 'PRODUTOS'
+        inline fraMultiplaSelecaoAleatoriaProdutos: TfraMultiplaSelecaoAleatoria
+          Left = 0
+          Top = 0
+          Width = 657
+          Height = 171
+          Align = alClient
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          inherited pgcMultiplaSelecaoAleatoria: TtecPageControl
+            Width = 657
+            Height = 171
+            ActivePage = fraMultiplaSelecaoAleatoriaProdutos.tstItemdeProduto
+            Font.Pitch = fpVariable
+            inherited tstItemdeProduto: TTabSheet
+              Font.Pitch = fpVariable
+              inherited fraSelecaoAleatoriaItemdeProdutos: TfraSelecaoAleatoriaItemdeProdutos
+                Width = 649
+                Height = 141
+                inherited fraSelecaoAleatoriaItemdeProduto: TfraSelecaoAleatoria
+                  Width = 649
+                  Height = 117
+                  inherited Splitter1: TSplitter
+                    Left = 614
+                    Height = 103
+                  end
+                  inherited dbgSelecaoAleatoria: TtecDBGrid
+                    Width = 614
+                    Height = 103
+                  end
+                  inherited pnlLabels: TPanel
+                    Left = 617
+                    Height = 103
+                  end
+                  inherited pnlAbaixo: TPanel
+                    Top = 103
+                    Width = 649
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 618
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+                inherited pnlParametros: TPanel
+                  Top = 117
+                  Width = 649
+                  Font.Pitch = fpVariable
+                  inherited ckbProdutosComAgendamento: TCheckBox
+                    Font.Pitch = fpVariable
+                  end
+                end
+              end
+            end
+            inherited tstProduto: TTabSheet
+              inherited fraSelecaoAleatoriaprodutos: TfraSelecaoAleatoriaprodutos
+                Width = 617
+                Height = 141
+                inherited fraSelecaoAleatoriaProduto: TfraSelecaoAleatoria
+                  Width = 617
+                  Height = 141
+                  inherited Splitter1: TSplitter
+                    Left = 582
+                    Height = 126
+                  end
+                  inherited dbgSelecaoAleatoria: TtecDBGrid
+                    Width = 582
+                    Height = 126
+                  end
+                  inherited pnlLabels: TPanel
+                    Left = 585
+                    Height = 126
+                  end
+                  inherited pnlAbaixo: TPanel
+                    Top = 126
+                    Width = 617
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 586
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaGrupoProduto: TTabSheet
+              inherited fraSelecaoaleatoriagruposprodutos: TfraSelecaoaleatoriagruposprodutos
+                inherited fraSelecaoAleatoriaGrupoProduto: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 586
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaClasseProduto: TTabSheet
+              inherited fraSelecaoaleatoriaclassesprodutos: TfraSelecaoaleatoriaclassesprodutos
+                inherited fraSelecaoAleatoriaClasseProduto: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 586
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaMarcaProduto: TTabSheet
+              inherited fraSelecaoAleatoriamarcasProdutos: TfraSelecaoAleatoriamarcasProdutos
+                inherited fraSelecaoAleatoriamarcasProduto: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 586
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriamodelosProduto: TTabSheet
+              inherited fraSelecaoAleatoriamodelosProdutos1: TfraSelecaoAleatoriamodelosProdutos
+                inherited fraSelecaoAleatoriamodelosProduto: TfraSelecaoAleatoria
+                  inherited Splitter1: TSplitter
+                    Left = 867
+                  end
+                  inherited pnlLabels: TPanel
+                    Left = 835
+                  end
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 586
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaespecificacoesmodelos: TTabSheet
+              inherited fraSelecaoAleatoriaespecificacoesmodelos1: TfraSelecaoAleatoriaespecificacoesmodelos
+                inherited fraSelecaoAleatoriaespecificacoesmodelos: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 586
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaPromocoes: TTabSheet
+              inherited fraSelecaoaleatoriapromocoes: TfraSelecaoaleatoriapromocoes
+                inherited fraSelecaoAleatoriapromocoes: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 586
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstCST: TTabSheet
+              TabVisible = True
+              inherited fraSelecaoAleatoriacst: TfraSelecaoAleatoriacst
+                inherited fraSelecaoAleatoriacst: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 586
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstCSOSN: TTabSheet
+              TabVisible = True
+              inherited fraSelecaoAleatoriacsosn: TfraSelecaoAleatoriacsosn
+                inherited fraSelecaoAleatoriacsosn: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 586
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstListaPadronizada: TTabSheet
+              TabVisible = True
+              inherited fraSelecaoaleatorialistaspadronizadas: TfraSelecaoaleatorialistaspadronizadas
+                inherited fraSelecaoAleatoriaListasPadronizadas: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 586
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaLocalizacoesEstoques: TTabSheet
+              inherited fraSelecaoaleatorialocalizacaoestoque1: TfraSelecaoaleatorialocalizacaoestoque
+                inherited fraSelecaoAleatoriaLocalizacaoEstoque: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaLotes: TTabSheet
+              inherited fraSelecaoAleatorialotes1: TfraSelecaoAleatorialotes
+                inherited fraSelecaoAleatorialotes: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaMarketPlace: TTabSheet
+              inherited fraSelecaoaleatoriamarketplace1: TfraSelecaoaleatoriamarketplace
+                inherited fraSelecaoAleatoriamarketplace: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 586
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstAtributos: TTabSheet
+              inherited fraSelecaoAleatoriaatributos1: TfraSelecaoAleatoriaatributos
+                inherited fraSelecaoAleatoriaatributos: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaServicos: TTabSheet
+              inherited fraSelecaoaleatoriaservicos1: TfraSelecaoaleatoriaservicos
+                inherited fraSelecaoAleatoriaservicos: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+      object tstMultiplasSelecoesFornecedores: TTabSheet
+        Caption = 'FORNECEDORES'
+        ImageIndex = 1
+        inline fraSelecaoAleatoriaFornecedores: TfraSelecaoAleatoriaClientes
+          Left = 0
+          Top = 0
+          Width = 657
+          Height = 171
+          Align = alClient
+          TabOrder = 0
+          inherited fraSelecaoAleatoriaCliente: TfraSelecaoAleatoria
+            Width = 657
+            Height = 171
+            inherited Splitter1: TSplitter
+              Left = 798
+              Height = 156
+            end
+            inherited dbgSelecaoAleatoria: TtecDBGrid
+              Width = 798
+              Height = 156
+            end
+            inherited pnlLabels: TPanel
+              Left = 801
+              Height = 156
+            end
+            inherited pnlAbaixo: TPanel
+              Top = 156
+              Width = 657
+              inherited pnlAbaixoDireita: TPanel
+                Left = 594
+                Font.Pitch = fpVariable
+              end
+            end
+          end
+        end
+      end
+      object tstGruposdeFornecedores: TTabSheet
+        Caption = 'GRUPOS DE FORNECEDORES'
+        ImageIndex = 2
+        inline fraSelecaoAleatoriagruposfornecedores1: TfraSelecaoAleatoriagruposfornecedores
+          Left = 0
+          Top = 0
+          Width = 657
+          Height = 171
+          Align = alClient
+          TabOrder = 0
+          inherited fraSelecaoAleatoriaGruposFornecedores: TfraSelecaoAleatoria
+            Width = 657
+            Height = 171
+            inherited Splitter1: TSplitter
+              Left = 625
+              Height = 156
+            end
+            inherited dbgSelecaoAleatoria: TtecDBGrid
+              Width = 593
+              Height = 156
+            end
+            inherited pnlLabels: TPanel
+              Left = 593
+              Height = 156
+            end
+            inherited pnlAbaixo: TPanel
+              Top = 156
+              Width = 657
+              Font.Pitch = fpVariable
+              inherited lblOrientacao: TLabel
+                Font.Pitch = fpVariable
+              end
+              inherited pnlAbaixoDireita: TPanel
+                Left = 594
+                Font.Pitch = fpVariable
+              end
+            end
+          end
+        end
+      end
+    end
+    object gbxLocalizacao: TGroupBox
+      Left = 208
+      Top = 543
+      Width = 339
+      Height = 43
+      Caption = 'Localiza'#231#227'o no Estoque'
+      TabOrder = 12
+      object edtLocalizacao: TEditTexto
+        Left = 5
+        Top = 16
+        Width = 330
+        Height = 24
+        MaxLength = -1
+        TabOrder = 0
+        CharCasenoDefault = False
+        Alignment = taLeftJustify
+      end
+    end
+    object ckbInverterLinhaColuna: TCheckBox
+      Left = 11
+      Top = 565
+      Width = 149
+      Height = 17
+      Caption = 'Inverter Linha/Coluna'
+      TabOrder = 13
+    end
+    object ckbSomenteResumoporColuna: TCheckBox
+      Left = 209
+      Top = 324
+      Width = 160
+      Height = 20
+      Caption = 'Somente resumo por coluna'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 14
+    end
+  end
+  object ecvValida: TtecEditionControlValidation
+    EditionControl = <
+      item
+        Control = edtData
+      end>
+    Left = 696
+    Top = 8
+  end
+end

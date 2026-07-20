@@ -1,0 +1,776 @@
+unit dmrelatorionotasentrada;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, DB, CheckLst,
+  // Terceiros
+  ZQuery, ZPgSqlQuery, FR_DSet, FR_DBSet, FR_Class, fmrelatorionotasentrada,
+  // Componentes
+  cpquery, cpdatasource,
+  // Constantes
+  Biblio, ctConstantes,
+  // Repositorio
+  dmtecsoft, dmbasico, clparametrossistema, dmimprimetermos,
+  // Outros
+  fmpreviewpadrao, ZTransact;
+
+type
+  TdtmRelatorioNotasEntrada = class(TdtmBasico)
+    qryCodigosFiscais: TtecQuery;
+    qryCodigosFiscaismenorcodigo: TIntegerField;
+    qryCodigosFiscaismaiorcodigo: TIntegerField;
+    qryNaturezas: TtecQuery;
+    qryNaturezascodigo: TIntegerField;
+    qryNaturezasdescricao: TStringField;
+    qryFiliais: TtecQuery;
+    qryFiliaiscodigo: TIntegerField;
+    qryFiliaisnome: TStringField;
+    qryGrupoFiliais: TtecQuery;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisdescricao: TStringField;
+    qryDuplicatas: TtecQuery;
+    frpNotasEntrada: TfrReport;
+    fdsNotasEntrada: TfrDBDataSet;
+    qryNotasPag: TtecQuery;
+    qryNotasPagcodigo: TIntegerField;
+    qryNotasPagfornecedor: TIntegerField;
+    qryNotasPagtipofornecedor: TStringField;
+    qryNotasPagnome: TStringField;
+    qryNotasPagfilial: TIntegerField;
+    qryNotasPagnomefilial: TStringField;
+    qryNotasPaggrupofilial: TIntegerField;
+    qryNotasPagnomegrupofilial: TStringField;
+    qryNotasPagserie: TStringField;
+    qryNotasPagnumero: TIntegerField;
+    qryNotasPagcodigofiscal: TIntegerField;
+    qryNotasPagnatureza: TStringField;
+    qryNotasPagdata: TDateField;
+    qryNotasPagemissao: TDateField;
+    qryNotasPagvalornota: TFloatField;
+    qryNotasPagdocumentopag: TIntegerField;
+    qryDuplicatasdatavencto: TDateField;
+    qryDuplicatasvalorvencto: TFloatField;
+    qryDuplicatasvalordesconto: TFloatField;
+    qryDuplicatasjuros: TFloatField;
+    qryDuplicatasmulta: TFloatField;
+    qryDuplicatasdatapagto: TDateField;
+    qryDuplicatasvalorpagto: TFloatField;
+    qryDuplicatasfilialpagto: TIntegerField;
+    fdsDuplicatas: TfrDBDataSet;
+    qryNotasPagtotalvalorvencto: TFloatField;
+    qryNotasPagtotalvalorpagto: TFloatField;
+    dsrNotasPag: TtecDataSource;
+    qryDuplicatascodigo: TIntegerField;
+    qryDuplicatasnumero: TIntegerField;
+    qryDuplicatasjurosdesconto: TFloatField;
+    qryNotasPagtotalvalorjurosdesconto: TFloatField;
+    qryEventos: TtecQuery;
+    qryEventoscodigo: TIntegerField;
+    qryEventosdescricao: TStringField;
+    frpNotasEntradaProdutos: TfrReport;
+    qryProdutosNotasPag: TtecQuery;
+    fdsProdutosNotasPag: TfrDBDataSet;
+    qryProdutosNotasPagcodigo: TIntegerField;
+    qryProdutosNotasPagproduto: TLargeintField;
+    qryProdutosNotasPagfilial: TIntegerField;
+    qryProdutosNotasPagquantidade: TFloatField;
+    qryProdutosNotasPagprecounitario: TFloatField;
+    qryProdutosNotasPagdescricaoproduto: TStringField;
+    qryProdutosNotasPagPrecoTotal: TCurrencyField;
+    qryNotasPagprecototal: TFloatField;
+    qryNotasPagevento: TIntegerField;
+    qryNotasPagdescricaoevento: TStringField;
+    qryNotasPagquantidadetotal: TFloatField;
+    dsrProdutosNotasPag: TtecDataSource;
+    procedure frpLivroEntradaMercadoriasTermosBeforePrint(
+      Memo: TStringList; View: TfrView);
+    procedure frpLivroEntradaMercadoriasTermosGetValue(
+      const ParName: String; var ParValue: Variant);
+    procedure qryNotasPagAfterScroll(DataSet: TDataSet);
+    procedure frpNotasEntradaBeforePrint(Memo: TStringList; View: TfrView);
+    procedure qryProdutosNotasPagCalcFields(DataSet: TDataSet);
+  Protected
+  private
+    FAgruparGrupoFilial: Boolean;
+    FAgruparFilial: Boolean;
+    FParametroCabecalho: String;
+    FDataInicial: String;
+    FDataFinal: String;
+    FCodigoFiscalInicial: String;
+    FCodigoFiscalFinal: String;
+    FNaturezas: String;
+    FEventos: String;
+    FFiliais: String;
+    FGruposFiliais: String;
+    FAgruparFornecedor: Boolean;
+    FTipodeData: Integer;
+    FAgruparEvento: Boolean;
+    fListarProdutos: boolean;
+    fListadeProdutosSelecionadosAleatoriamente: String;
+    fSituacaoNotaEntrada: String;
+    fNotaEntradaDevolucao: boolean;
+    fNotaEntradaTransferencia: boolean;
+    fNotaEntradaCompra: boolean;
+    fDuplicatas: integer;
+    fNotaEntradaTransporte: boolean;
+    procedure SetParametroFilial(const Value: String);
+    procedure SetParametroGrupoFilial(const Value: String);
+    procedure SetDataFinal(const Value: String);
+    procedure SetCodigoFiscalFinal(const Value: String);
+    function GetListaNaturezas: TLista;
+    function GetListaEventos : TLista;
+    function GetListaFiliais: TLista;
+    function GetListaGruposFiliais: TLista;
+    procedure SetTipodeData(const Value: Integer);
+    procedure SetParametroFornecedor(const Value: String);
+    procedure SetListadeProdutosSelecionadosAleatoriamente(
+      const Value: String);
+    procedure SetSituacaoNotaEntrada(const Value: String);
+    procedure SetNotaEntradaTransferencia(const Value: boolean);
+    procedure SetDuplicatas(const Value: integer);
+    { Private declarations }
+  public
+    { Public declarations }
+     constructor Create(AOwner: TComponent); override;
+     procedure ImprimirRelatorio;
+
+     property ParametroFilial: String write SetParametroFilial;
+     property ParametroGrupoFilial: String write SetParametroGrupoFilial;
+     property ParametroFornecedor: String write SetParametroFornecedor;
+
+     property DataInicial: String read FDataInicial write FDataInicial;
+     property DataFinal: String read FDataFinal write SetDataFinal;
+
+     property CodigoFiscalInicial: String read FCodigoFiscalInicial write FCodigoFiscalInicial ;
+     property CodigoFiscalFinal: String read FCodigoFiscalFinal write SetCodigoFiscalFinal;
+
+     property AgruparGrupoFilial: Boolean read FAgruparGrupoFilial write FAgruparGrupoFilial;
+     property AgruparFilial: Boolean read FAgruparFilial write FAgruparFilial;
+     property AgruparFornecedor: Boolean read FAgruparFornecedor write FAgruparFornecedor;
+     property AgruparEvento: Boolean read FAgruparEvento write FAgruparEvento;
+     property ListarProdutos: boolean read fListarProdutos write fListarProdutos;
+     property ListadeProdutosSelecionadosAleatoriamente: String read fListadeProdutosSelecionadosAleatoriamente write SetListadeProdutosSelecionadosAleatoriamente;
+
+
+     property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+
+     property ListaNaturezas: TLista read GetListaNaturezas;
+     property ListaFiliais: TLista read GetListaFiliais;
+     property ListaGruposFiliais: TLista read GetListaGruposFiliais;
+     property ListaEventos: TLista read GetListaEventos;
+
+     procedure MontarFiltroNaturezas(Natureza: TCheckListBox);
+     procedure MontarFiltroFiliais(Filiais: TCheckListBox);
+     procedure MontarFiltroGruposFiliais(GruposFiliais: TCheckListBox);
+     procedure MontarFiltroEventos (Eventos : TCheckListBox);
+
+     property TipodeData: Integer read FTipodeData write SetTipodeData;
+
+     procedure DefinirOrdenacao;
+     function AbrirConsultas: Boolean;
+     property SituacaoNotaEntrada: String read fSituacaoNotaEntrada write SetSituacaoNotaEntrada;
+
+     property NotaEntradaCompra: boolean read fNotaEntradaCompra write fNotaEntradaCompra;
+     property NotaEntradaDevolucao: boolean read fNotaEntradaDevolucao write fNotaEntradaDevolucao;
+     property NotaEntradaTransporte: boolean read fNotaEntradaTransporte write fNotaEntradaTransporte;
+     property NotaEntradaTransferencia: boolean read fNotaEntradaTransferencia write SetNotaEntradaTransferencia;
+     property Duplicatas: integer read fDuplicatas write SetDuplicatas;
+
+  end;
+
+var
+  dtmRelatorioNotasEntrada: TdtmRelatorioNotasEntrada;
+  FListaNaturezas  : TLista;
+  FListaFiliais : TLista;
+  FListaGruposFiliais : TLista;
+  FListaEventos : TLista;
+implementation
+
+{$R *.dfm}
+
+{ TdtmLivroEntradaMercadorias }
+
+constructor TdtmRelatorioNotasEntrada.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryCodigosFiscais.Tag         := ctTabelas;
+  qryFiliais.Tag                := ctTabelas;
+  qryGrupoFiliais.Tag           := ctTabelas;
+end;
+
+procedure TdtmRelatorioNotasEntrada.ImprimirRelatorio;
+{
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+  }
+begin
+  frVariables['RAZAOFILIALBASE']  := RazaoFilialBase;
+  frVariables['ENDERECO_BAIRRO']   := RuaFilialBase+ ' - '+BairroFilialBase;
+  frVariables['CEP_CIDADE_UF']:= FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase;
+
+  if ListarProdutos then
+    frVariables['Titulo']:= 'ENTRADA DE NOTAS POR PRODUTOS ENTRE '+
+      FormatDateTime('dd/mm/yy', StrToDateTime(fdatainicial))+
+  ' E '+FormatDateTime('dd/mm/yy', StrToDateTime(FDataFinal))
+  else
+    frVariables['Titulo']:= 'ENTRADA DE NOTAS POR DUPLICATAS ENTRE '+
+      FormatDateTime('dd/mm/yy', StrToDateTime(fdatainicial))+
+  ' E '+FormatDateTime('dd/mm/yy', StrToDateTime(FDataFinal));
+
+
+
+  frVariables['Outras']:= FParametroCabecalho;
+  frVariables['AgruparGrupoFilial']:=AgruparGrupoFilial;
+  frVariables['AgruparFilial']:=AgruparFilial;
+  frVariables['AgruparFornecedor']:=AgruparFornecedor;
+  frVariables['AgruparEvento']:=AgruparEvento;
+
+//  frpNotasEntrada.DesignReport;
+//  frpNotasEntradaProdutos.DesignReport;
+//  frmPreview := TfrmPreviewPadrao.create(self);
+//  frmPreview.cmbZoom.ItemIndex := 3; //125
+
+  try
+//   Relatorio := frmPreview.frCompositeReport;
+//   with frmPreview do
+   begin
+//    frCompositeReport.Reports.Clear;
+    if ListarProdutos then
+       ImprimirRelatoriofast(null, null,  MSimples, 1,[frpNotasEntradaProdutos], false, self)
+//      frCompositeReport.Reports.Add(frpNotasEntradaProdutos)
+    else
+      ImprimirRelatoriofast(null, null, MSimples, 1, [frpNotasEntrada], false, self);
+//      frCompositeReport.Reports.Add(frpNotasEntrada);
+   end;
+//   Relatorio.Preview := frmPreview.frPreviewPadrao;
+//   Relatorio.ShowReport;
+
+//   frmPreview.ShowModal;
+
+  finally
+
+//   frmPreview.Free
+
+  end;
+
+end;
+
+procedure TdtmRelatorioNotasEntrada.SetCodigoFiscalFinal(
+  const Value: String);
+Const
+ SQL = 'and np.codigofiscal between %s and %s';
+begin
+ if Value<>'0' then
+ begin
+   FCodigoFiscalFinal:=Value;
+   if FCodigoFiscalInicial='0' then
+    FCodigoFiscalInicial:=FCodigoFiscalFinal;
+ end
+ else
+  FCodigoFiscalFinal:=FCodigoFiscalInicial;
+
+ if (FCodigoFiscalInicial<>'0') or (FCodigoFiscalFinal<>'0') then
+ begin
+  qryNotasPag.MacroByName('WhereCodigosFiscais').AsString := format(sql, [Fcodigofiscalinicial, fcodigofiscalfinal]);
+  qryDuplicatas.MacroByName('WhereCodigosFiscais').AsString := format(sql, [Fcodigofiscalinicial, fcodigofiscalfinal]);
+  qryProdutosNotasPag.MacroByName('WhereCodigosFiscais').AsString := format(sql, [Fcodigofiscalinicial, fcodigofiscalfinal]);
+  FParametroCabecalho:=FParametroCabecalho+' Codigo Fiscal Entre: '+FCodigoFiscalInicial+' e '+FCodigoFiscalFinal;
+ end
+ else
+ begin
+  qryNotasPag.MacroByName('WhereCodigosFiscais').AsString := '';
+  qryDuplicatas.MacroByName('WhereCodigosFiscais').AsString := '';
+  qryProdutosNotasPag.MacroByName('WhereCodigosFiscais').AsString := '';
+ end;
+end;
+
+procedure TdtmRelatorioNotasEntrada.SetDataFinal(const Value: String);
+begin
+  if Value<>'' then
+  begin
+   FDataFinal := Value;
+   if FDataInicial='' then
+    FDataInicial:=FDataFinal;
+  end
+  else
+   FDataFinal:=FDataInicial;
+
+  qryNotasPag.ParamByName('DataInicial').AsString:=FDataInicial;
+  qryNotasPag.ParamByName('DataFinal').AsString:=FDataFinal;
+  qryDuplicatas.ParamByName('DataInicial').AsString:=FDataInicial;
+  qryDuplicatas.ParamByName('DataFinal').AsString:=FDataFinal;
+  qryProdutosNotasPag.ParamByName('DataInicial').AsString:=FDataInicial;
+  qryProdutosNotasPag.ParamByName('DataFinal').AsString:=FDataFinal;
+end;
+
+procedure TdtmRelatorioNotasEntrada.SetParametroFilial(
+  const Value: String);
+begin
+  if Value<>'' then
+  begin
+//   qryNotas.Sql[WhereFiliais]:=' and (np.filial = ' + Value + ')';
+//   qryNotasCalculos.Sql[WhereFiliais]:=' and (np.filial = ' + Value + ')';
+   FParametroCabecalho:=FParametroCabecalho+' Filial: '+Value;
+  end
+  else
+  begin
+//   qryNotas.Sql[WhereFiliais]:= '';
+//   qryNotasCalculos.Sql[WhereFiliais]:= '';
+  end;
+end;
+
+procedure TdtmRelatorioNotasEntrada.SetParametroGrupoFilial(
+  const Value: String);
+begin
+ if (Value <> '') then
+  begin
+//    qryNotas.Sql[WhereFiliais]:= ' and (np.filial in (Select filial From filiaisgruposfiliais Where grupo = ' + Value + '))';
+//    qryNotasCalculos.Sql[WhereFiliais]:= ' and (np.filial in (Select filial From filiaisgruposfiliais Where grupo = ' + Value + '))';
+    FParametroCabecalho:=FParametroCabecalho+' Grupo de Filial: '+Value;
+  end;
+end;
+
+procedure TdtmRelatorioNotasEntrada.frpLivroEntradaMercadoriasTermosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'logotipo') or
+     (View.Name = 'logotipo2') then
+   if FileExists(LogotipoFilialBase) then
+     try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+
+end;
+
+procedure TdtmRelatorioNotasEntrada.frpLivroEntradaMercadoriasTermosGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+  if ParName = 'NOMECONTADOR' then ParValue := ParSistema.NomeContador
+  else if ParName = 'CRCCONTADOR' then ParValue := ParSistema.CRCContador
+  else if ParName = 'RESPONSAVEL1' then ParValue := ParSistema.ResponsavelLivros1
+  else if ParName = 'RESPONSAVEL2' then ParValue := ParSistema.ResponsavelLivros2
+  else if Parname = 'FOLHA_OU_PAGINA' then
+       case ParSistema.LivrosFiscaisFolhaouPagina of
+        0: ParValue := ctFOLHA;
+        1: ParValue := ctPAGINA;
+       end;
+
+end;
+
+function TdtmRelatorioNotasEntrada.GetListaNaturezas: TLista;
+Var
+Ind: Integer;
+begin
+  FillChar(FListaNaturezas,SizeOf(FListaNaturezas),0);
+  qryNaturezas.Open;
+  SetLength(FListaNaturezas, qryNaturezas.RecordCount);
+  Ind:= 0;
+  while not qryNaturezas.Eof do
+  begin
+    FListaNaturezas[Ind].codigo   := qryNaturezascodigo.AsString;
+    FListaNaturezas[Ind].descricao:= qryNaturezasdescricao.AsString;
+    Inc(Ind);
+    qryNaturezas.Next;
+  end;
+  qryNaturezas.Close;
+  Result := FListaNaturezas;
+end;
+
+
+procedure TdtmRelatorioNotasEntrada.MontarFiltroNaturezas(
+  Natureza: TCheckListBox);
+var
+  STRNaturezas: String;
+  Ind: Integer;
+begin
+  STRNaturezas := '';
+  for Ind:= 0 to (Length(FListaNaturezas) - 1) do
+    if Natureza.Checked[Ind] then
+      STRNaturezas := STRNaturezas + QuotedStr(FListaNaturezas[Ind].codigo) + ',';
+  STRNaturezas := Copy(STRNaturezas, 0, Length(STRNaturezas) - 1);
+  if STRNaturezas <> '' then
+  begin
+    FNaturezas:= 'and (np.codigonatureza in (' + STRNaturezas + '))';
+    FParametroCabecalho := FParametroCabecalho+' Naturezas: '+STRNaturezas;
+  end
+  else
+    FNaturezas:= '';
+
+  qryNotasPag.MacroByName('WhereNaturezas').AsString:=FNaturezas;
+  qryDuplicatas.MacroByName('WhereNaturezas').AsString:=FNaturezas;
+end;
+
+function TdtmRelatorioNotasEntrada.GetListaFiliais: TLista;
+Var
+  Ind: Integer;
+begin
+  FillChar(FListaFiliais,SizeOf(FListaFiliais),0);
+  SetLength(FListaFiliais, qryFiliais.RecordCount);
+  Ind:= 0;
+  while not qryFiliais.Eof do
+  begin
+    FListaFiliais[Ind].codigo   := qryFiliaiscodigo.AsString;
+    FListaFiliais[Ind].descricao:= qryFiliaisnome.AsString;
+    Inc(Ind);
+    qryFiliais.Next;
+  end;
+  Result := FListaFiliais;
+end;
+
+
+function TdtmRelatorioNotasEntrada.GetListaGruposFiliais: TLista;
+Var
+  Ind: Integer;
+begin
+  FillChar(FListaGruposFiliais,SizeOf(FListaGruposFiliais),0);
+  SetLength(FListaGruposFiliais, qryGrupoFiliais.RecordCount);
+  Ind:= 0;
+  while not qryGrupoFiliais.Eof do
+  begin
+    FListaGruposFiliais[Ind].codigo   := qryGrupoFiliaiscodigo.AsString;
+    FListaGruposFiliais[Ind].descricao:= qryGrupoFiliaisdescricao.AsString;
+    Inc(Ind);
+    qryGrupoFiliais.Next;
+  end;
+  Result := FListaGruposFiliais;
+end;
+
+procedure TdtmRelatorioNotasEntrada.qryNotasPagAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  refazconsulta(qryduplicatas,[0], [qryNotasPagdocumentopag.AsVariant]);
+end;
+
+procedure TdtmRelatorioNotasEntrada.SetTipodeData(const Value: Integer);
+begin
+  FTipodeData := Value;
+  case FTipodeData of
+  0: begin
+       qryNotasPag.MacroByName('TipodeData').AsString := 'np.data';
+       qryDuplicatas.MacroByName('TipodeData').AsString := 'np.data';
+       qryProdutosNotasPag.MacroByName('TipodeData').AsString := 'np.data';
+     end;
+  1: begin
+       qryNotasPag.MacroByName('TipodeData').AsString := 'np.emissao';
+       qryDuplicatas.MacroByName('TipodeData').AsString := 'np.emissao';
+       qryProdutosNotasPag.MacroByName('TipodeData').AsString := 'np.emissao';
+     end;
+  end;
+end;
+
+procedure TdtmRelatorioNotasEntrada.SetParametroFornecedor(
+  const Value: String);
+const
+ SQL = 'and np.fornecedor = %s';
+begin
+  if Value<>'' then
+  begin
+   qryNotasPag.MacroByName('WhereFornecedores').AsString := format(SQL, [Value]);
+   qryDuplicatas.MacroByName('WhereFornecedores').AsString := format(SQL, [Value]);
+   qryProdutosNotasPag.MacroByName('WhereFornecedores').AsString := format(SQL, [Value]);
+   FParametroCabecalho:=FParametroCabecalho+' Fornecedor: '+Value;
+  end
+  else
+  begin
+   qryNotasPag.MacroByName('WhereFornecedores').AsString := '';
+   qryDuplicatas.MacroByName('WhereFornecedores').AsString := '';
+   qryProdutosNotasPag.MacroByName('WhereFornecedores').AsString := '';
+  end;
+end;
+
+procedure TdtmRelatorioNotasEntrada.MontarFiltroFiliais(
+  Filiais: TCheckListBox);
+var
+  STRFiliais: String;
+  Ind: Integer;
+begin
+  STRFiliais := '';
+  for Ind:= 0 to (Length(FListaFiliais) - 1) do
+    if Filiais.Checked[Ind] then
+      STRFiliais := STRFiliais + QuotedStr(FListaFiliais[Ind].codigo) + ',';
+  STRFiliais := Copy(STRFiliais, 0, Length(STRFiliais) - 1);
+  if STRFiliais <> '' then
+  begin
+       FFiliais:= 'and (np.filial in (' + STRFiliais + '))';
+       FParametroCabecalho := FParametroCabecalho+' Filiais: '+STRFiliais;
+  end
+  else
+       FFiliais:= '';
+
+  qryNotasPag.MacroByName('WhereFiliais').AsString:=FFiliais;
+  qryDuplicatas.MacroByName('WhereFiliais').AsString:=FFiliais;
+end;
+
+procedure TdtmRelatorioNotasEntrada.MontarFiltroGruposFiliais(
+  GruposFiliais: TCheckListBox);
+var
+  STRGruposFiliais: String;
+  Ind: Integer;
+begin
+  STRGruposFiliais := '';
+  for Ind:= 0 to (Length(FListaGruposFiliais) - 1) do
+    if GruposFiliais.Checked[Ind] then
+      STRGruposFiliais := STRGruposFiliais + QuotedStr(FListaGruposFiliais[Ind].codigo) + ',';
+  STRGruposFiliais := Copy(STRGruposFiliais, 0, Length(STRGruposFiliais) - 1);
+  if STRGruposFiliais <> '' then
+  begin
+       FGruposFiliais:= 'and (np.filial in (' + STRGruposFiliais + '))';
+       FParametroCabecalho := FParametroCabecalho+' Grupos de Filiais: '+STRGruposFiliais;
+  end
+  else
+       FGruposFiliais:= '';
+
+  qryNotasPag.MacroByName('WhereGruposFiliais').AsString:=FGruposFiliais;
+  qryDuplicatas.MacroByName('WhereGruposFiliais').AsString:=FGruposFiliais;
+end;
+
+procedure TdtmRelatorioNotasEntrada.DefinirOrdenacao;
+var
+ Ordenacao : String;
+begin
+  ordenacao:='';
+  if AgruparGrupoFilial then
+    Ordenacao:=Ordenacao+', nomegrupofilial, grupofilial ';
+
+  if AgruparFilial then
+    Ordenacao:=Ordenacao+', nomefilial, filial ';
+
+  if AgruparEvento then
+     Ordenacao:=Ordenacao+', dp.evento ';
+
+  if AgruparFornecedor then
+    Ordenacao:=Ordenacao+', nome, fornecedor ';
+
+  case TipodeData of
+   0: Ordenacao := Ordenacao + ', np.data, np.numero';
+   1: Ordenacao := Ordenacao + ', np.emissao, np.numero';
+  end;
+
+  qryNotasPag.MacroByName('ordenacao').AsString:='Order by '+copy(Ordenacao,2,length(Ordenacao)-1);
+end;
+
+function TdtmRelatorioNotasEntrada.AbrirConsultas: Boolean;
+begin
+  ReFazConsulta(qryNotasPag,[],[]);
+  ReFazConsulta(qryDuplicatas,[],[]);
+  ReFazConsulta(qryProdutosNotasPag,[],[]);
+  result := not qryNotasPag.IsEmpty;
+end;
+
+procedure TdtmRelatorioNotasEntrada.frpNotasEntradaBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') or
+     (View.Name = 'fpvLogo2')then
+  begin
+   if FileExists(LogotipoFilialBase) then
+    try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+  end
+  else
+  if TColor(strtoint(parsistema.CorZebradoRelatorio))<>TColor(clnone) then
+  begin
+   if (View.Name = 'mmoZebrado') then
+    if (frpNotasEntrada.Dictionary.Variables.Variable['LINHA'] MOD 2)=1 then
+    begin
+      frpNotasEntrada.FindObject('mmoZebrado').FillColor := TColor(strtoint(parsistema.CorZebradoRelatorio));
+      frpNotasEntrada.Dictionary.Variables.Variable['LINHASUB'] := frpNotasEntrada.Dictionary.Variables.Variable['LINHA']+1;
+    end
+    else
+    begin
+      frpNotasEntrada.FindObject('mmoZebrado').FillColor := clnone;
+    end;
+
+   if (View.Name = 'mmoZebradoSub') then
+    if (frpNotasEntrada.Dictionary.Variables.Variable['LINHASUB'] MOD 2)=1 then
+    begin
+      frpNotasEntrada.FindObject('mmoZebradoSub').FillColor := TColor(strtoint(parsistema.CorZebradoRelatorio));
+      frpNotasEntrada.Dictionary.Variables.Variable['LINHA'] := frpNotasEntrada.Dictionary.Variables.Variable['LINHASUB'];
+    end
+    else
+    begin
+      frpNotasEntrada.FindObject('mmoZebradoSub').FillColor := clnone;
+      frpNotasEntrada.Dictionary.Variables.Variable['LINHA'] := 0;
+    end;
+  end;
+
+end;
+
+function TdtmRelatorioNotasEntrada.GetListaEventos: TLista;
+
+Var
+Ind: Integer;
+begin
+  FillChar(FListaEventos,SizeOf(FListaEventos),0);
+  qryEventos.Open;
+  SetLength(FListaEventos, qryEventos.RecordCount);
+  Ind:= 0;
+  while not qryEventos.Eof do
+  begin
+    FListaEventos[Ind].codigo   := qryEventoscodigo.AsString;
+    FListaEventos[Ind].descricao:= qryEventosdescricao.AsString;
+    Inc(Ind);
+    qryEventos.Next;
+  end;
+  qryEventos.Close;
+  Result := FListaEventos;
+end;
+
+procedure TdtmRelatorioNotasEntrada.MontarFiltroEventos(
+  Eventos: TCheckListBox);
+var
+  STREventos: String;
+  Ind: Integer;
+begin
+  STREventos := '';
+  for Ind:= 0 to (Length(FListaEventos) - 1) do
+    if Eventos.Checked[Ind] then
+      STREventos := STREventos + QuotedStr(FListaEventos[Ind].codigo) + ',';
+  STREventos := Copy(STREventos, 0, Length(STREventos) - 1);
+  if STREventos <> '' then
+  begin
+    FEventos:= 'and dp.evento in (' + STREventos + ')';
+    FParametroCabecalho := FParametroCabecalho+' Eventos: '+STREventos;
+  end
+  else
+    FEventos:= '';
+  qryProdutosNotasPag.MacroByName('WhereEventos').AsString:=FEventos;
+  qryNotasPag.MacroByName('WhereEventos').AsString:=FEventos;
+  qryDuplicatas.MacroByName('WhereEventos').AsString:=FEventos;
+end;
+
+
+procedure TdtmRelatorioNotasEntrada.qryProdutosNotasPagCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  qryProdutosNotasPagPrecoTotal.AsCurrency := qryProdutosNotasPagprecounitario.AsCurrency * qryProdutosNotasPagquantidade.AsFloat;
+
+end;
+
+
+procedure TdtmRelatorioNotasEntrada.SetListadeProdutosSelecionadosAleatoriamente(
+  const Value: String);
+const
+SQL =
+  ' and exists (select pnp.codigonota ' +
+  '          from produtosnotaspag pnp ' +
+  '          where pnp.codigonota = np.codigo ' +
+  '            and pnp.produto in (%s)) ';
+
+begin
+  fListadeProdutosSelecionadosAleatoriamente := Value;
+  if Value<>'' then
+  begin
+   qryNotasPag.MacroByName('WhereListaProdutoAleatorio').AsString := format(SQL, [Value]);
+   qryProdutosNotasPag.MacroByName('WhereListaProdutoAleatorio').AsString := format(SQL, [Value]);
+   FParametroCabecalho:=FParametroCabecalho+' Lista de Produtos: '+Value;
+  end
+  else
+   qryNotasPag.MacroByName('WhereListaProdutoAleatorio').AsString := '';
+
+ qryProdutosNotasPag.MacroByName('WhereListaProdutoAleatorio').AsString := qryNotasPag.MacroByName('WhereListaProdutoAleatorio').AsString;
+ qryDuplicatas.MacroByName('WhereListaProdutoAleatorio').AsString := qryNotasPag.MacroByName('WhereListaProdutoAleatorio').AsString;
+
+
+
+
+end;
+
+procedure TdtmRelatorioNotasEntrada.SetSituacaoNotaEntrada(
+  const Value: String);
+begin
+  fSituacaoNotaEntrada := Value;
+  if Value <> '' then
+  begin
+    qryNotasPag.macroByName('WhereSituacaoNotaEntrada').asString := format('and np.situacao in (%s)',[Value]);
+    ParametroCabecalho := ParametroCabecalho + 'Sit.: ' + fSituacaoNotaEntrada;
+  end
+  else
+    qryNotasPag.macroByName('WhereSituacaoNotaEntrada').asString := '';
+
+  qryDuplicatas.MacroByName('WhereSituacaoNotaEntrada').AsString := qryNotasPag.macroByName('WhereSituacaoNotaEntrada').asString;
+  qryProdutosNotasPag.MacroByName('WhereSituacaoNotaEntrada').AsString := qryNotasPag.macroByName('WhereSituacaoNotaEntrada').asString;
+
+end;
+
+procedure TdtmRelatorioNotasEntrada.SetNotaEntradaTransferencia(
+  const Value: boolean);
+var
+  vTipoNota : String;
+
+begin
+  vTipoNota := '';
+  fNotaEntradaTransferencia := Value;
+  qryNotasPag.macrobyname('TipodeNota').asString := '';
+  if NotaEntradaCompra then
+  begin
+    qryNotasPag.macrobyname('TipodeNota').asString := ' and ( ehnotafiscalentradacompra(np.codigofiscal) ';
+    vTipoNota := 'Compra  ';
+  end;
+
+  if NotaEntradaDevolucao then
+  begin
+    if qryNotasPag.macrobyname('TipodeNota').asString <> '' then
+      qryNotasPag.macrobyname('TipodeNota').asString := qryNotasPag.macrobyname('TipodeNota').asString + ' or ehnotafiscalentradadevolucao(np.codigofiscal) '
+    else
+      qryNotasPag.macrobyname('TipodeNota').asString := ' and ( ehnotafiscalentradadevolucao(np.codigofiscal)';
+
+    vTipoNota := vTipoNota + 'Devolução  ';
+  end;
+
+  if NotaEntradaTransporte then
+  begin
+    if qryNotasPag.macrobyname('TipodeNota').asString <> '' then
+      qryNotasPag.macrobyname('TipodeNota').asString := qryNotasPag.macrobyname('TipodeNota').asString + ' or ehnotafiscalentradaTransporte(np.codigofiscal) '
+    else
+      qryNotasPag.macrobyname('TipodeNota').asString := ' and ( ehnotafiscalentradaTransporte(np.codigofiscal)';
+
+    vTipoNota := vTipoNota + 'Transporte  ';
+  end;
+
+  if NotaEntradaTransferencia then
+  begin
+    if qryNotasPag.macrobyname('TipodeNota').asString <> '' then
+      qryNotasPag.macrobyname('TipodeNota').asString := qryNotasPag.macrobyname('TipodeNota').asString + ' or ehnotafiscalentradaTransferencia(np.codigofiscal) '
+    else
+      qryNotasPag.macrobyname('TipodeNota').asString := ' and (ehnotafiscalentradaTransferenciae(np.codigofiscal) ';
+
+    vTipoNota := vTipoNota + 'Transferência  ';
+  end;
+
+  if qryNotasPag.macrobyname('TipodeNota').asString <> '' then
+    qryNotasPag.macrobyname('TipodeNota').asString := qryNotasPag.macrobyname('TipodeNota').asString + ')';
+
+  qryDuplicatas.macrobyname('TipodeNota').asString := qryNotasPag.macrobyname('TipodeNota').asString;
+  qryProdutosNotasPag.macrobyname('TipodeNota').asString := qryNotasPag.macrobyname('TipodeNota').asString;
+
+  if vTipoNota <> '' then
+  begin
+    vTipoNota := trim(vTipoNota);
+    vTipoNota := trocar(vTipoNota, '  ', ', ');
+    ParametroCabecalho := ParametroCabecalho + 'Tipo NF: ' + vTipoNota;
+  end;
+end;
+
+procedure TdtmRelatorioNotasEntrada.SetDuplicatas(const Value: integer);
+begin
+  fDuplicatas := Value;
+  case value of
+  0: qryNotasPag.macrobyname('WhereComouSemDuplicata').asString  := '';
+{  1: qryNotasPag.macrobyname('WhereComouSemDuplicata').asString  := ' and dp.numero is null';
+  2: qryNotasPag.macrobyname('WhereComouSemDuplicata').asString  := ' and dp.numero is not null';}
+  1: qryNotasPag.macrobyname('WhereComouSemDuplicata').asString  := ' and (select count(*) from duplicatas where documentopag=dp.numero) = 0';
+  2: qryNotasPag.macrobyname('WhereComouSemDuplicata').asString  := ' and (select count(*) from duplicatas where documentopag=dp.numero) > 0';
+  end;
+
+  qryDuplicatas.macrobyname('WhereComouSemDuplicata').asString  := qryNotasPag.macrobyname('WhereComouSemDuplicata').asString;
+  qryProdutosNotasPag.macrobyname('WhereComouSemDuplicata').asString  := qryNotasPag.macrobyname('WhereComouSemDuplicata').asString;
+
+end;
+
+end.

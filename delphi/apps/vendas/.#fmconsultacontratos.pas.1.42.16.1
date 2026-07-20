@@ -1,0 +1,1159 @@
+unit fmconsultacontratos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  fmajudabt, ActnList, Grids, DBGrids, cpdbgrid, ExtCtrls, StdCtrls,
+  cpdata, DBCtrls, cpdbtext, Mask, cpdbfindcontrols, ComCtrls,
+  cppagecontrol, Buttons, fmprincipalbasico,
+  cpnumero, dmconsultacontratos, ctconstantes, biblio,
+  fmconsultaporcampo, ZQuery, DB, ZPgSqlQuery, cpquery, fmconsultabasica,
+  clparametrossistema, cptexto, frconsulta, frconsultacodigo, ToolWin,
+  frselecaoaleatoria, cpdbradiogroup, frmultiplaselecaoaleatoria,
+  fratendimentosdocumentos, cpdbmemo, TypInfo, frselecaoaleatoriausuarios,
+  frselecaoaleatoriagruposusuarios,fmconfirmarimpressaonocontrato,
+  frlistatiposAtendimentos;
+
+type
+  TfrmConsultaContratos = class(TfrmAjudaBt)
+    pnlFundoJanela: TPanel;
+    gbxContratos: TGroupBox;
+    pgcContratos: TtecPageControl;
+    tstFiltros: TTabSheet;
+    gbxFilial: TGroupBox;
+    sbnProcuraFilial: TSpeedButton;
+    edfFilial: TtecDbEditFind;
+    dtxDescricaoFilial: TtecDBText;
+    gbxAbertura: TGroupBox;
+    edtAberturaInicial: TEditData;
+    edtAberturaFinal: TEditData;
+    gbxFauramento: TGroupBox;
+    edtFechamentoInicial: TEditData;
+    edtFechamentoFinal: TEditData;
+    rgbOrdenacao: TRadioGroup;
+    tstRegistros: TTabSheet;
+    gbxResultados: TGroupBox;
+    sbnGerar: TSpeedButton;
+    sbnFornecedor: TSpeedButton;
+    edfFornecedor: TtecDbEditFind;
+    dtxFornecedor: TtecDBText;
+    gbxSituacao: TGroupBox;
+    ckbReservado: TCheckBox;
+    ckbFaturado: TCheckBox;
+    ckbNotaParcial: TCheckBox;
+    ckbCancelado: TCheckBox;
+    ckbNotaFiscal: TCheckBox;
+    ckbOrcado: TCheckBox;
+    sbnImprimir: TSpeedButton;
+    aclHabilitar: TActionList;
+    actHabilitarBotoes: TAction;
+    pnlsituacao: TPanel;
+    shpAberto: TShape;
+    shpRenegociado: TShape;
+    shpReservado: TShape;
+    shpCancelado: TShape;
+    Shape1: TShape;
+    shpAtraso: TShape;
+    Shape2: TShape;
+    lblAberto: TLabel;
+    lblRenegociado: TLabel;
+    lblReservado: TLabel;
+    lblCancelado: TLabel;
+    lblQuitado: TLabel;
+    Label3: TLabel;
+    lblOrcado: TLabel;
+    pnlcontratos: TPanel;
+    dbgContratos: TtecDBGrid;
+    pnlProdutoscontratos: TPanel;
+    pnlDadosCliente: TPanel;
+    dtxNomeClienteContrato: TtecDBText;
+    dtxPlanoContrato: TtecDBText;
+    dtxPedidoCliente: TtecDBText;
+    dtxCnpj: TtecDBText;
+    dtxSituacaoContrato: TtecDBText;
+    dtxData: TtecDBText;
+    dtxFaturamento: TtecDBText;
+    pnlProdutosSimilares: TPanel;
+    gbxProdutosSimilares: TGroupBox;
+    dbgSimilares: TtecDBGrid;
+    gbxPedido: TGroupBox;
+    edtPedidocliente: TEditTexto;
+    edtXPed: TEditTexto;
+    gbxProdutosContratos: TGroupBox;
+    dbgProdutosNota: TtecDBGrid;
+    gbxDataReservado: TGroupBox;
+    edtReservadoInicial: TEditData;
+    edtReservadoFinal: TEditData;
+    dtxDataReservado: TtecDBText;
+    gbxNotasFiscais: TGroupBox;
+    tecDBGrid2: TtecDBGrid;
+    gbxValoresNotaFiscal: TGroupBox;
+    dtxtotalitens: TtecDBText;
+    dtxDesconto: TtecDBText;
+    dtxTotalVista: TtecDBText;
+    dtxFrete: TtecDBText;
+    dtxseguro: TtecDBText;
+    dtxsubstTrib: TtecDBText;
+    DtxTotalPrazo: TtecDBText;
+    dtxCreditoTroca: TtecDBText;
+    gbxFinanceiro: TGroupBox;
+    ckbemaberto: TCheckBox;
+    ckbquitado: TCheckBox;
+    ckbrenegociado: TCheckBox;
+    ckbematraso: TCheckBox;
+    dtxEmitirnotadepoisde: TtecDBText;
+    gbxTotalProdutos: TGroupBox;
+    gbxCrediTroca: TGroupBox;
+    gbxTotalVista: TGroupBox;
+    gbxSubsTributaria: TGroupBox;
+    gbxTotalPrazo: TGroupBox;
+    gbxSeguro: TGroupBox;
+    gbxFrete: TGroupBox;
+    gbxDesconto: TGroupBox;
+    gbxCliente: TGroupBox;
+    gbxPlano: TGroupBox;
+    gbxCPF_CNPJ: TGroupBox;
+    gbxNFApartirDe: TGroupBox;
+    gbxPedidoCliente: TGroupBox;
+    gbxCadastrado: TGroupBox;
+    gbxReservado: TGroupBox;
+    gbxFaturado: TGroupBox;
+    gbxCancelado: TGroupBox;
+    lblACadastro: TLabel;
+    lblAReservado: TLabel;
+    lblAFaturado: TLabel;
+    gbxCancelamento: TGroupBox;
+    edtDataCanceladoInicial: TEditData;
+    edtDataCanceladoFinal: TEditData;
+    lblACancelado: TLabel;
+    gbxDatas: TGroupBox;
+    gbxNumeroContrato: TGroupBox;
+    fraConsultaContrato: TfraConsultaCodigo;
+    sbnSalvar: TSpeedButton;
+    gbxVendedorContrato: TGroupBox;
+    fraConsultaVendedorContrato: TfraConsultaCodigo;
+    gbxFilialContrato: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigo;
+    gbxOrdenacao: TGroupBox;
+    gbxTipoContrato: TGroupBox;
+    ckbTipoContrato: TCheckBox;
+    ckbTipoOrdemServico: TCheckBox;
+    gbxGarantiaCortesia: TGroupBox;
+    ckbGarantia: TCheckBox;
+    ckbCortesia: TCheckBox;
+    gbxSituacaoGarantia: TGroupBox;
+    ckbGarantiaAprovada: TCheckBox;
+    ckbGarantiaReprovada: TCheckBox;
+    ckbNaoDefinida: TCheckBox;
+    cmbLogicalGarantia: TComboBox;
+    rgpTipoEquipamento: TGroupBox;
+    ckbNovoCliente: TCheckBox;
+    ckbUsadoCliente: TCheckBox;
+    ckbAtivoFixo: TCheckBox;
+    ckbEstoque: TCheckBox;
+    fraMultiplaSelecaoAleatoria1: TfraMultiplaSelecaoAleatoria;
+    gbxFornecedor: TGroupBox;
+    sbnAtendimento: TSpeedButton;
+    GroupBox2: TGroupBox;
+    ckbComAtendimento: TCheckBox;
+    ckbSemAtendimento: TCheckBox;
+    pgcDetalhesContrato: TPageControl;
+    tstItens: TTabSheet;
+    tstAtendimento: TTabSheet;
+    fraAtendimentosDocumentos1: TfraAtendimentosDocumentos;
+    gbxEquipamento: TGroupBox;
+    fraConsultaEquipamento: TfraConsultaCodigo;
+    gbxFretePago: TGroupBox;
+    edtFretePago: TDBEditNumero;
+    sbnContrato: TSpeedButton;
+    tstObservacoesContrato: TTabSheet;
+    mmoConsideracoes: TtecDBMemo;
+    tstObservacoesDadosFiscais: TTabSheet;
+    mmoMontagemObs: TtecDBMemo;
+    tstServicos: TTabSheet;
+    dbgServicos: TtecDBGrid;
+    lblEquipamento: TLabel;
+    dtxEquipamento: TtecDBText;
+    dtxDescricaoEquipamento: TtecDBText;
+    dtxReferencia: TtecDBText;
+    mmoComplementoEquipamento: TDBMemo;
+    gbxClientes: TGroupBox;
+    sbnClientes: TSpeedButton;
+    edfCliente: TtecDbEditFind;
+    dtxNomeCliente: TtecDBText;
+    pgcPlanos_e_Vendedores: TtecPageControl;
+    tstPlanos: TTabSheet;
+    tstVendedores: TTabSheet;
+    fraSelecaoAleatoriausuarios: TfraSelecaoAleatoriausuarios;
+    fraSelecaoAleatoriaPlanosdePagamento: TfraSelecaoAleatoria;
+    ckbExceto: TCheckBox;
+    tstGruposdeVendedores: TTabSheet;
+    fraSelecaoAleatoriagruposusuarios1: TfraSelecaoAleatoriagruposusuarios;
+    gbxDatadeCompra: TGroupBox;
+    Label1: TLabel;
+    edtDataCompraProdutoInicial: TEditData;
+    edtDataCompraProdutoFinal: TEditData;
+    gbxCodigoPedidoMarketPlace: TGroupBox;
+    edtCodigoPedidoMarketPlace: TDBEditTexto;
+    GroupBox3: TGroupBox;
+    edtPesquisacodigo_pedido_marketplace: TEditTexto;
+    gbxSomaTotais: TGroupBox;
+    lblQtdadeRegistros: TStaticText;
+    StaticText3: TStaticText;
+    StaticText4: TStaticText;
+    StaticText1: TStaticText;
+    lblRegistrosMarcados: TDBEditNumero;
+    lblTotaisRegistrosSelecionados: TDBEditNumero;
+    lblRegistrosSelecionados: TDBEditNumero;
+    lblTotaisRegistrosMarcados: TDBEditNumero;
+    ckbSelecionarTodos: TCheckBox;
+    pnlLocalizacao: TPanel;
+    StaticText5: TStaticText;
+    edtLocalizacao: TDBEditTexto;
+    fraListatiposatendimentos: TfraListatiposatendimentos;
+    procedure sbnProcuraFilialClick(Sender: TObject);
+    procedure sbnClientesClick(Sender: TObject);
+    procedure pgcExclusivosChange(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure sbnFornecedorClick(Sender: TObject);
+    procedure dbgContratosDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgContratosDblClick(Sender: TObject);
+    procedure dbgContratosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure actHabilitarBotoesUpdate(Sender: TObject);
+    procedure ckbSelecionarTodosClick(Sender: TObject);
+    procedure dbgProdutosNotaDblClick(Sender: TObject);
+    procedure dbgProdutosNotaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnSalvarClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure fraSelecaoAleatoriaPlanosdePagamentoqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaPlanosdePagamentodbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaPlanosdePagamentodbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure fraSelecaoAleatoriaPlanosdePagamentosbnProcuraClick(
+      Sender: TObject);
+    procedure ckbTipoContratoClick(Sender: TObject);
+    procedure ckbTipoOrdemServicoClick(Sender: TObject);
+    procedure sbnAtendimentoClick(Sender: TObject);
+    procedure sbnContratoClick(Sender: TObject);
+  protected
+    { Protected declaration}
+    ConsultaVendedoresProdutosContratos : TfraConsultaCodigo;
+    function PesquisaHabilitada: Boolean;
+//    function VerificaCamposConsulta: Boolean;
+    function InternoPesquisar(Titulo:String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    function ValidarCampos: Boolean;
+    procedure AtribuirDadosUsuarios(Found: Boolean);
+    procedure AtribuirDadosUsuariosServicos(Found: Boolean);
+
+  private
+    { Private declarations }
+    procedure AtribuirDadosPlanosdePagamento(Found: Boolean);
+    procedure AcionarPesquisaPlanosdePagamento;
+
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+    procedure AfterScrollLinhaColunaGradeSimilares(Sender: TObject);
+    procedure AfterPostProdutosContratos(Sender: TObject);
+
+    function NomeFrameVendedorServico: String;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure AcionarPesquisaGrade;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+
+  end;
+
+var
+  frmConsultaContratos: TfrmConsultaContratos;
+  TipoPesquisa: TtecConsultaContratos;
+
+implementation
+
+uses fmnavcontroles, dmbasico;
+
+{$R *.dfm}
+constructor TfrmConsultaContratos.Create(AOwner: TComponent);
+begin
+  dtmConsultaContratos:= TdtmConsultaContratos.Create(Self);
+  inherited;
+  with dtmConsultaContratos do begin
+    edtAberturaInicial.Text     := DateToStr(DataServidor - 60);
+    edtAberturaFinal.Text       := DateToStr(DataServidor);
+    pgcContratos.ActivePageIndex := 0;
+    dbgProdutosNota.ColumnByname('total').Visible := ParSistema.ClientePessoaJuridica;
+    dbgProdutosNota.ColumnByname('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+    dbgProdutosNota.ColumnByname('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+    dtmConsultaContratos.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+
+    dbgSimilares.ColumnByname('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+    dbgSimilares.ColumnByname('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+
+    if not ParSistema.UsarGradesProdutos then
+      dbgsimilares.ColumnByname('descricao').Width  := dbgsimilares.ColumnByname('descricao').Width +
+                                       dbgSimilares.ColumnByname('valorgrade1').Width +
+                                       dbgSimilares.ColumnByname('valorgrade2').Width;
+
+    dtmConsultaContratos.OnScrollLinhaColunaGradeSimilares := AfterScrollLinhaColunaGradeSimilares;
+//    edfFilial.SetFocus;
+  end;
+  pgcContratos.ActivePageIndex := 0;
+  if dbgProdutosNota.ColumnByname('quantidade').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosNota.ColumnByname('quantidade').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutosNota.ColumnByname('emestoque').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosNota.ColumnByname('emestoque').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutosNota.ColumnByname('reservado').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosNota.ColumnByname('reservado').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutosNota.ColumnByname('pedido').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosNota.ColumnByname('pedido').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgSimilares.ColumnByname('emestoque').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgSimilares.ColumnByname('emestoque').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgSimilares.ColumnByname('reservado').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgSimilares.ColumnByname('reservado').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgSimilares.ColumnByname('pedido').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgSimilares.ColumnByname('pedido').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  fraConsultaContrato.TipoPesquisa := pesCONTRATOS;
+  fraConsultaVendedorContrato.TipoPesquisa := pesVENDEDORES;
+
+  ConsultaVendedoresProdutosContratos := TfraConsultaCodigo.Create(self);
+  ConsultaVendedoresProdutosContratos.Name := 'fraConsultaVendedores';
+  ConsultaVendedoresProdutosContratos.edfCodigo.MaxLength := 6;
+  ConsultaVendedoresProdutosContratos.edfCodigo.DataSource := dtmConsultaContratos.dsrProdutosContratos;
+  ConsultaVendedoresProdutosContratos.edfCodigo.DataField := 'vendedor';
+  ConsultaVendedoresProdutosContratos.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaVendedoresProdutosContratos.edfCodigo.LookupSource := ConsultaVendedoresProdutosContratos.dsrProcuraVendedores;
+  ConsultaVendedoresProdutosContratos.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaVendedoresProdutosContratos.edfCodigo.LookupField := 'Codigo';
+  ConsultaVendedoresProdutosContratos.AbrirTabelaProcura := false;
+  ConsultaVendedoresProdutosContratos.TipoPesquisa := pesVENDEDORES;
+  ConsultaVendedoresProdutosContratos.OnFound := AtribuirDadosUsuarios;
+
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+
+  sbnSalvar.enabled := false;
+
+  dtmConsultaContratos.AfterPostProdutosContratos := AfterPostProdutosContratos;
+
+  fraSelecaoAleatoriaPlanosdePagamento.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaPlanosdePagamento.qrySelecaoAleatoria.Open;
+  with fraSelecaoAleatoriaPlanosdePagamento do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoriaPlanosdePagamento';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 3;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraPlano;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+    ConsultaSelecaoAleatoria.naofechartabelapesquisa := true;
+
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesPLANO;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosPlanosdePagamento;
+  end;
+
+  dtmConsultaContratos.qryProcuraVendedorContrato := fraConsultaVendedorContrato.qryProcuraVendedores;
+
+  fraAtendimentosDocumentos1.Documento := dtmConsultaContratos.GetContrato;
+  fraAtendimentosDocumentos1.TipoDocumento := dtmConsultaContratos.GetTipoDocumento;
+
+  fraConsultaEquipamento.tipopesquisa := pesEQUIPAMENTO;
+
+
+  dbgServicos.PesquisaCampo('vendedor', pesVENDEDORES, self);
+//  tfraconsultacodigo(self.FindComponent(NomeFrameVendedorServico)).CondicoesdaConsulta := CondicoesFiliaisEntrada;
+  tfraconsultacodigo(self.FindComponent(NomeFrameVendedorServico)).onFound := AtribuirDadosUsuariosServicos;
+
+
+  setarActivePage(self);
+
+end;
+
+function TfrmConsultaContratos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(result).ConsultaInterativa := not (TipoPesquisa in [cocPRODUTOS, cocCARACTERISTICAS, cocCLIENTES, cocFORNECEDORES]);
+end;
+
+function TfrmConsultaContratos.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmConsultaContratos do
+    case TipoPesquisa of
+      cocFILIAIS        : Result := ExisteFilial(NomeCampo, Value);
+      cocFORNECEDORES   : Result := ExisteFornecedor(NomeCampo, Value);
+      cocCLIENTES       : Result := ExisteCliente(NomeCampo, Value);
+      cocVENDEDORES     : Result := ExisteVendedor(NomeCampo, Value);
+    else                  Result := False;
+    end;
+end;
+
+function TfrmConsultaContratos.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmConsultaContratos do
+    case TipoPesquisa of
+      cocFORNECEDORES   : Result := ConsultarFornecedor;
+      cocFILIAIS        : Result := ConsultarFilial;
+      cocCLIENTES       : Result := ConsultarCliente;
+      cocVENDEDORES     : Result := ConsultarVendedor;
+    else                  Result := nil;
+    end;
+end;
+
+function TfrmConsultaContratos.InternoPesquisar(Titulo:String): Integer;
+begin
+  Result:= mrNone;
+  if PesquisaHabilitada then
+  begin
+    with dtmConsultaContratos do begin
+      if TipoPesquisa <> cocNENHUM then
+      begin
+        AbreTabelaConsulta(TipoPesquisa);
+        Result := inherited InternoPesquisar(Titulo);
+        if Result = mrOK then
+          Selecionar(TipoPesquisa);
+      FechaTabelaConsulta(TipoPesquisa)
+      end;
+    end;
+  end;
+end;
+
+function TfrmConsultaContratos.PesquisaHabilitada: Boolean;
+begin
+  Result:= False;
+  if CtrlOn then begin
+    if ActiveControl is TtecDBEditFind then begin
+      if edfFilial.Focused then
+        TipoPesquisa := cocFILIAIS
+      else if edfFornecedor.Focused then
+        TipoPesquisa := cocFORNECEDORES
+      else if edfCliente.Focused then
+        TipoPesquisa := cocCLIENTES
+      else
+        TipoPesquisa := cocNENHUM;
+      Result := True;
+    end;
+  end;
+end;
+
+procedure TfrmConsultaContratos.pgcExclusivosChange(Sender: TObject);
+begin
+  inherited;
+  with dtmConsultaContratos do
+  begin
+    edfFornecedor.SetFocus;
+    AbreTabelaConsulta(cocFORNECEDORES);
+    ReFazConsultaTabelas;
+  end;
+end;
+
+function TfrmConsultaContratos.ValidarCampos: Boolean;
+begin
+   Result := edtAberturaInicial.Criticar(False)  and
+             edtAberturaFinal.Criticar(False)    and
+             edtFechamentoInicial.Criticar(False) and
+             edtFechamentoFinal.Criticar(False) and
+             edtDataCompraProdutoInicial.Criticar(False) and
+             edtDataCompraProdutoFinal.Criticar(False);
+
+   if ((edtDataCompraProdutoInicial.text = '') and
+       (edtDataCompraProdutoFinal.text <> '')) or
+      ((edtDataCompraProdutoInicial.text <> '') and
+       (edtDataCompraProdutoFinal.text = '')) then
+   begin
+     Result := false;
+     MensagemAviso('Informe um intervalo completo para as datas de compra!');
+     if (edtDataCompraProdutoInicial.text = '') then
+       edtDataCompraProdutoInicial.setfocus
+     else
+       edtDataCompraProdutoFinal.setfocus;
+   end;
+
+   if Result then
+   begin
+     Result := OperadorTernario(Trim(edfFilial.Text) <> '', edfFilial.Exist, True) and
+               OperadorTernario(Trim(edfCliente.Text) <> '', edfCliente.Exist, True) and
+               OperadorTernario(Trim(edfFornecedor.Text) <> '', edfFornecedor.Exist, True)
+   end;
+end;
+
+procedure TfrmConsultaContratos.sbnProcuraFilialClick(Sender: TObject);
+begin
+  InternoPesquisar(edffilial, ctFILIAIS);
+end;
+
+procedure TfrmConsultaContratos.sbnClientesClick(Sender: TObject);
+begin
+  InternoPesquisar(edfCliente, ctCLIENTES);
+end;
+
+procedure TfrmConsultaContratos.sbnGerarClick(Sender: TObject);
+var
+  SQLSituacao, SQLTipoOrdemServico: String;
+begin
+  inherited;
+  if ValidarCampos then
+  begin
+    with dtmConsultaContratos do
+    begin
+      Filial             := edfFilial.Text;
+
+      Vendedor           := fraSelecaoAleatoriausuarios.ListaCondicional;
+      GruposUsuarios     := fraSelecaoAleatoriagruposusuarios1.ListaCondicional;
+      ExcetoPlano        := ckbExceto.Checked;
+      Plano              := fraSelecaoAleatoriaPlanosdePagamento.StringSelecionada;
+      Cliente            := edfCliente.Text;
+      Fornecedor         := edfFornecedor.Text;
+
+      AberturaInicial    := edtAberturaInicial.Text;
+      AberturaFinal      := edtAberturaFinal.Text;
+
+      DataCompraProdutoInicial  := edtDataCompraProdutoInicial.Text;
+      DataCompraProdutoFinal    := edtDataCompraProdutoFinal.Text;
+
+      AberturaInicial    := edtAberturaInicial.Text;
+      AberturaFinal      := edtAberturaFinal.Text;
+
+      FechamentoInicial  := edtFechamentoInicial.Text;
+      FechamentoFinal    := edtFechamentoFinal.Text;
+      ReservadoInicial   := edtReservadoInicial.Text;
+      ReservadoFinal     := edtReservadoFinal.Text;
+      Pedidocliente      := edtPedidocliente.Text;
+      Contrato           := fraConsultaContrato.edfCodigo.text;
+      Xped               := edtXPed.Text;
+
+      codigo_pedido_marketplace := edtPesquisacodigo_pedido_marketplace.text;
+
+      SQLSituacao := '';
+      if ckbOrcado.Checked then
+        SQLSituacao := SQLSituacao + '''O'',';
+      if ckbReservado.Checked then
+        SQLSituacao := SQLSituacao + '''R'',';
+      if ckbFaturado.Checked then
+        SQLSituacao := SQLSituacao + '''F'',';
+      if ckbNotaParcial.Checked then
+        SQLSituacao := SQLSituacao + '''P'',';
+      if ckbNotaFiscal.Checked then
+        SQLSituacao := SQLSituacao + '''N'',';
+      if ckbCancelado.Checked then
+        SQLSituacao := SQLSituacao + '''C'',';
+      if SQLSituacao = '' then
+        SQLSituacao := SQLSituacao + '''O'',''R'',''F'',''P'','+
+                                     '''N'',''C'') ';
+      FSituacao         := SQLSituacao;
+
+      SQLTipoOrdemServico := '';
+      if ckbTipoOrdemServico.checked then
+      begin
+        if ckbNovoCliente.checked then
+          SQLTipoOrdemServico := SQLTipoOrdemServico + '1,';
+
+        if ckbUsadoCliente.checked then
+          SQLTipoOrdemServico := SQLTipoOrdemServico + '2,';
+
+        if ckbAtivoFixo.checked then
+          SQLTipoOrdemServico := SQLTipoOrdemServico + '3,';
+
+        if ckbEstoque.checked then
+          SQLTipoOrdemServico := SQLTipoOrdemServico + '4,';
+      end;
+
+      TipoEqptoOrdemServico := SQLTipoOrdemServico;
+
+      Ordenacao         := rgbOrdenacao.ItemIndex;
+      FEmAberto         := ckbemaberto.Checked;
+
+      Quitado          := ckbquitado.Checked;
+
+      Renegociado      := ckbrenegociado.Checked;
+      FEmAtraso         := ckbematraso.Checked;
+
+      tipoOrdemServico := ckbTipoOrdemServico.Checked;
+      OrdemServicoemGarantia := CkbGarantia.checked;
+      OrdemServicoemCortesia := CkbCortesia.checked;
+      GarantiaAprovada := ckbGarantiaAprovada.checked;
+      GarantiaReprovada := ckbGarantiaReprovada.checked;
+      GarantiaNaoDefinida := ckbNaoDefinida.checked;
+      LogicaGarantia := cmbLogicalGarantia.text;
+
+      tipoContrato := ckbTipoContrato.Checked;
+
+
+      ListaItemProdutos := fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional;
+      ListaProdutos     := fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaprodutos.ListaCondicional;
+      ListaGrupos       := fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriagruposprodutos.ListaCondicional;
+      ListaClasses      := fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriaclassesprodutos.ListaCondicional;
+      ListaMarcas       := fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriamarcasProdutos.ListaCondicional;
+      ListaCondicionalPromocoes := fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriapromocoes.ListaCondicional;
+
+      Equipamento := '';
+      if fraConsultaEquipamento.qryProcuraEquipamento.active then
+        Equipamento       := fraConsultaEquipamento.qryProcuraEquipamento.fieldbyname('codigo').asString;
+
+      ComAtendimento := ckbComAtendimento.checked;
+      SemAtendimento := ckbSemAtendimento.checked;
+      TodosListaTiposAtendimentosMarcados := fraListatiposatendimentos.TodosMarcados;
+      ListaTiposAtendimentos := fraListatiposatendimentos.ListaSelecionada;
+
+
+      if AbrirConsultaContratos then
+      begin
+        MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO, [ctCONTRATO]));
+        pgcContratos.ActivePageIndex:=0;
+        edfFilial.SetFocus;
+      end
+      else begin
+        pgcContratos.ActivePageIndex:=1;
+        dbgContratos.SetFocus;
+      end;
+    end;
+  end;
+  ckbSelecionarTodos.Checked := False;
+end;
+
+procedure TfrmConsultaContratos.sbnFornecedorClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfFornecedor, ctFORNECEDORES);
+end;
+
+procedure TfrmConsultaContratos.dbgContratosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  TDBGrid(Sender).Canvas.Brush.Color := $007FAA55;
+  TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  if (dtmConsultaContratos.ContratoEmAtraso) and
+     (dtmConsultaContratos.SituacaoContrato<>'C') and
+     (dtmConsultaContratos.SituacaoContrato<>'O') and
+     (dtmConsultaContratos.SituacaoContrato<>'R') and not
+     (dtmConsultaContratos.ContratoRenegociado) then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clWhite;
+    TDBGrid(Sender).Canvas.Font.Color  := clRed;
+  end
+  else if (dtmConsultaContratos.ContratoEmAberto) and
+          (dtmConsultaContratos.SituacaoContrato<>'C') and
+          (dtmConsultaContratos.SituacaoContrato<>'O') and
+          (dtmConsultaContratos.SituacaoContrato<>'R') and not
+          (dtmConsultaContratos.ContratoRenegociado) then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clWhite;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end
+  else if (dtmConsultaContratos.ContratoRenegociado) and
+          (dtmConsultaContratos.SituacaoContrato<>'C') then begin
+    TDBGrid(Sender).Canvas.Brush.Color := $7DBEFF;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end
+  else if dtmConsultaContratos.SituacaoContrato = 'O' then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clAqua;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end
+  else if dtmConsultaContratos.SituacaoContrato = 'R' then begin
+    TDBGrid(Sender).Canvas.Brush.Color := $00FFD9A4;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end
+  else if (dtmConsultaContratos.SituacaoContrato = 'C') or
+          (dtmConsultaContratos.ContratoEstornado) then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end;
+  if TDBGrid(Sender).DataSource.DataSet.FieldByName('selecionar').AsBoolean then
+    TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+    
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmConsultaContratos.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    VK_Escape: begin
+               if pgcContratos.activepage = tstFiltros then
+                 begin
+                    dtmConsultaContratos.LimpaFiltros;
+                    pgcContratos.ActivePageIndex := 0;
+                    edfFilial.SetFocus;
+                 end;
+               end;
+    VK_F5 : if sbnSalvar.Enabled then sbnSalvar.Click;
+    VK_F6 : sbnGerar.Click;
+    VK_F7 : sbnImprimir.Click;
+    VK_F8 : sbnContrato.Click;
+    VK_F10: begin
+          key:=0;
+          if sbnAtendimento.Enabled then
+            sbnAtendimentoClick(nil);
+        end;
+
+  end;
+end;
+
+procedure TfrmConsultaContratos.AfterScrollLinhaColunaGradeSimilares(
+  Sender: TObject);
+begin
+  dbgSimilares.Columnbyname('valorgrade1').Title.Caption := dtmConsultaContratos.LinhadaGradeSimilares;
+  dbgSimilares.Columnbyname('valorgrade2').Title.Caption := dtmConsultaContratos.ColunadaGradeSimilares;
+end;
+
+procedure TfrmConsultaContratos.AfterScrollLinhaColunaGrade(
+  Sender: TObject);
+begin
+  dbgProdutosNota.Columnbyname('valorgrade1').Title.Caption := dtmConsultaContratos.LinhadaGradeSimilares;
+  dbgProdutosNota.Columnbyname('valorgrade2').Title.Caption := dtmConsultaContratos.ColunadaGradeSimilares;
+end;
+
+procedure TfrmConsultaContratos.dbgContratosDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmConsultaContratos.MarcarSelecionados(ckbSelecionarTodos.Checked, False);
+
+end;
+
+procedure TfrmConsultaContratos.dbgContratosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_Space then
+    if Shift = [ssCtrl] then
+      dtmConsultaContratos.MarcarSelecionados(ckbSelecionarTodos.Checked, False);
+end;
+
+procedure TfrmConsultaContratos.sbnImprimirClick(Sender: TObject);
+var
+  CarnesAbertas, ImprimirContrato: Boolean;
+begin
+      (*
+  if ({(dtmOperacoesContratos.SituacaoContrato > scRESERVADO) and} (Length(dtmOperacoesContratos.IntervaloCarnesAbertas)>0)) then
+    CarnesAbertas:= True
+  else
+  *)
+
+  frmConfirmarImpressaoNoContrato := TfrmConfirmarImpressaoNoContrato.Create(frmConfirmarImpressaoNoContrato, True, false,
+                                     false, false, false, 1, false);
+
+  frmConfirmarImpressaoNoContrato.pnlImprimirListaProdutosporLocalizacoes.visible := True;
+  frmConfirmarImpressaoNoContrato.pnlImprimirContratomeiaPagina.visible := False;
+  frmConfirmarImpressaoNoContrato.pnlParcelas.visible := False;
+  frmConfirmarImpressaoNoContrato.ckbImprimirContrato.caption := 'Relatório de Contratos/Produtos';
+
+  try
+    frmConfirmarImpressaoNoContrato.ShowModal;
+
+    if frmConfirmarImpressaoNoContrato.ModalResult = mrOK then
+    begin
+      try
+
+        dbgProdutosNota.datasource := nil;
+        dbgSimilares.datasource := nil;
+
+        if frmConfirmarImpressaoNoContrato.ckbImprimirListaProdutosporLocalizacao.checked then
+          dtmConsultaContratos.ImprimirListaProdutosporLocalizacao
+        else
+        if frmConfirmarImpressaoNoContrato.Contrato then
+          dtmConsultaContratos.ImprimirRelatorio;
+
+  {
+        if frmConfirmarImpressaoNoContrato.Carne then
+          dtmOperacoesContratos.ImprimirCarne(frmConfirmarImpressaoNoContrato.Sequencia)
+        else
+        if frmConfirmarImpressaoNoContrato.CarneAbertas then
+          dtmOperacoesContratos.ImprimirCarne(frmConfirmarImpressaoNoContrato.Sequencia);
+
+        if frmConfirmarImpressaoNoContrato.Boleto then
+          dtmOperacoesContratos.ImprimirBoleto(frmConfirmarImpressaoNoContrato.Sequencia);
+
+        if frmConfirmarImpressaoNoContrato.Saldo then
+          dtmOperacoesContratos.ImprimirSaldo;
+
+        if frmConfirmarImpressaoNoContrato.etiquetasListacasamento then
+          dtmOperacoesContratos.ImprimirEtiquetasListaCasamento;
+          }
+
+      finally
+        dbgProdutosNota.datasource := dtmConsultaContratos.dsrProdutosContratos;
+        dbgSimilares.datasource := dtmConsultaContratos.dsrProdutosSimilares;
+      end;
+    end
+  finally
+    frmConfirmarImpressaoNoContrato.Free;
+  end
+end;
+
+
+{
+begin
+  inherited;
+  if sbnImprimir.Enabled then
+  begin
+    dtmConsultaContratos.QuebraPorCliente:=False;
+    dtmConsultaContratos.ImprimirRelatorio;
+  end;
+end;
+}
+
+procedure TfrmConsultaContratos.actHabilitarBotoesUpdate(Sender: TObject);
+begin
+  inherited;
+  sbnImprimir.Enabled := dtmConsultaContratos.QtdeMarcados > 0;
+  rgpTipoEquipamento.visible := ckbTipoOrdemServico.checked;
+
+  sbnAtendimento.enabled := (dtmConsultaContratos.qryContratos.recordcount <> 0) and
+                            (pgcContratos.activepage = tstRegistros);
+
+
+  tstVendedores.Highlighted := (fraSelecaoAleatoriausuarios.fraSelecaoAleatoriausuarios.qryselecaoaleatoria.recordcount <> 0);
+  tstGruposdeVendedores.Highlighted := (fraSelecaoAleatoriagruposusuarios1.fraSelecaoAleatoriagruposusuarios.qryselecaoaleatoria.recordcount <> 0);
+  tstPlanos.Highlighted := (fraSelecaoAleatoriaPlanosdePagamento.qryselecaoaleatoria.recordcount <> 0);
+
+end;
+
+procedure TfrmConsultaContratos.ckbSelecionarTodosClick(Sender: TObject);
+begin
+  inherited;
+  dtmConsultaContratos.MarcarSelecionados(ckbSelecionarTodos.Checked, True);
+end;
+
+procedure TfrmConsultaContratos.dbgProdutosNotaDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGrade;
+end;
+
+procedure TfrmConsultaContratos.AcionarPesquisaGrade;
+begin
+  if (dbgProdutosNota.SelectedField = dtmConsultaContratos.qryProdutosContratosvendedor) or
+     (dbgProdutosNota.SelectedField = dtmConsultaContratos.qryProdutosContratosnomevendedor) then
+//  SelectedIndex in [15..16] then
+  begin
+    dbgProdutosNota.SetFocus;
+    ConsultaVendedoresProdutosContratos.CtrlOn := True;
+    ConsultaVendedoresProdutosContratos.InternoPesquisar(ctUSUARIOS);
+    dbgProdutosNota.SetFocus;
+    dbgProdutosNota.SelectedIndex :=  15;
+  end;
+end;
+
+procedure TfrmConsultaContratos.AtribuirDadosUsuarios(Found: Boolean);
+begin
+  with dtmConsultaContratos do
+  begin
+    if parsistema.NaoPermitirAlteraroVendedornosProdutosdoContrato then
+    begin
+      AtribuirDados(qryProdutosContratos,
+                    [qryProdutosContratosvendedor, qryProdutosContratosnomevendedor, qryProdutosContratosvendedoralterado],
+                    [ConsultaVendedoresProdutosContratos.qryProcuraVendedorescodigo.AsInteger,
+                     ConsultaVendedoresProdutosContratos.qryProcuraVendedoresnome.AsString,
+                     True]);
+
+     qryContratosAlteracao.edit;
+     qryContratosAlteracaovendedor.asInteger := ConsultaVendedoresProdutosContratos.qryProcuraVendedorescodigo.AsInteger;
+     qryContratosAlteracao.post;
+
+    end
+    else
+    begin
+      {
+      EditarServicosContratos;
+      qryProdutosContratosvendedor.AsInteger := ConsultaVendedoresProdutosContratos.qryProcuraVendedorescodigo.AsInteger;
+      qryServicosContratosnomevendedor.AsString := ConsultaVendedoresProdutosContratos.qryProcuraVendedoresnome.AsString;
+      qryProdutosContratosvendedoralterado.AsBoolean := true;
+      }
+      EditarProdutosContratos;
+      qryProdutosContratosvendedor.AsInteger := ConsultaVendedoresProdutosContratos.qryProcuraVendedorescodigo.AsInteger;
+      qryProdutosContratosnomevendedor.AsString := ConsultaVendedoresProdutosContratos.qryProcuraVendedoresnome.AsString;
+      qryProdutosContratosvendedoralterado.AsBoolean := true;
+
+    end;
+  end;
+end;
+
+procedure TfrmConsultaContratos.dbgProdutosNotaKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9     : begin
+                     ConsultaVendedoresProdutosContratos.CtrlOn := true;
+                     AcionarPesquisaGrade
+                   end;
+    end;
+  end
+  else
+  begin
+   case key of
+      VK_Return :
+      begin
+        if dbgProdutosNota.SelectedField = dbgProdutosNota.DataSource.DataSet.FieldByName('vendedor')  then
+        begin
+          if not ConsultaVendedoresProdutosContratos.edfCodigo.Exist then
+          begin
+            dbgProdutosNota.DataSource.DataSet.FieldByName('vendedor').Clear;
+            dbgProdutosNota.DataSource.DataSet.FieldByName('nomevendedor').Clear;
+          end
+          else
+            AtribuirDadosUsuarios(true);
+
+          dbgProdutosNota.SetFocus;
+        end;
+
+        if dtmConsultaContratos.qryProdutosContratos.State in [dsedit, dsinsert] then
+           dtmConsultaContratos.qryProdutosContratos.Post;
+      end;
+    end;
+  end;
+  inherited;
+end;
+
+procedure TfrmConsultaContratos.AfterPostProdutosContratos(
+  Sender: TObject);
+begin
+  sbnSalvar.Enabled := dtmConsultaContratos.qryContratosAlteracao.State = dsedit;;
+  if pgcDetalhesContrato.activepage = tstAtendimento then
+    fraAtendimentosDocumentos1.AbrirTabelaAtendimentosDocumentos(true);
+end;
+
+procedure TfrmConsultaContratos.sbnSalvarClick(Sender: TObject);
+begin
+  inherited;
+  dtmConsultaContratos.GravarDados;
+end;
+
+procedure TfrmConsultaContratos.Button1Click(Sender: TObject);
+begin
+  inherited;
+  while not dtmConsultaContratos.qryContratos.Eof do
+  begin
+    application.processmessages;
+
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmConsultaContratos.qryContratosnumero.asstring,
+                                                                   ClassName, True], 'TfrmCadastroContratos', True);
+
+    dtmConsultaContratos.qryContratos.Next;                                                               
+    application.processmessages;
+  end;
+
+end;
+
+procedure TfrmConsultaContratos.fraSelecaoAleatoriaPlanosdePagamentoqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+var
+  nc : integer;  
+begin
+  inherited;
+  with fraSelecaoAleatoriaPlanosdePagamento do
+  begin
+    qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'CÓDIGO';
+    qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('descricao').DisplayLabel := 'DESCRIÇÃO DO PLANO';
+    qrySelecaoAleatoria.FieldByName('descricao').ReadOnly := true;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+
+    with dbgSelecaoAleatoria do
+    for nc:= 0 to 1 do with Columns[nc].Title do
+    begin
+        Alignment:= taCenter;
+        Font.Name:= 'helvetica';
+        Font.Height:= -9;
+    end;
+    qrySelecaoAleatoria.delete;
+    
+  end;
+end;
+
+procedure TfrmConsultaContratos.fraSelecaoAleatoriaPlanosdePagamentodbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaPlanosdePagamento;
+
+end;
+
+procedure TfrmConsultaContratos.fraSelecaoAleatoriaPlanosdePagamentodbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                    fraSelecaoAleatoriaPlanosdePagamento.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                    if (Shift = []) or fraSelecaoAleatoriaPlanosdePagamento.ConsultaSelecaoAleatoria.CtrlOn then
+                      AcionarPesquisaPlanosdePagamento
+                  end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaPlanosdePagamento.dbgSelecaoAleatoria.SelectedIndex = 0  then
+               begin
+                 fraSelecaoAleatoriaPlanosdePagamento.ConsultaSelecaoAleatoria.edfCodigo.DoExit;
+                 if not fraSelecaoAleatoriaPlanosdePagamento.ConsultaSelecaoAleatoria.qryProcuraPlano.IsEmpty then
+                    AtribuirDadosPlanosdePagamento(True)
+                 else
+                 begin
+                   key := 0;
+                   fraSelecaoAleatoriaPlanosdePagamento.dbgSelecaoAleatoria.SelectedIndex := 0;
+                   fraSelecaoAleatoriaPlanosdePagamento.dbgSelecaoAleatoria.SetFocus;
+                 end;
+               end;
+  end;
+  inherited;
+
+end;
+
+procedure TfrmConsultaContratos.AtribuirDadosPlanosdePagamento(Found: Boolean);
+begin
+  with fraSelecaoAleatoriaPlanosdePagamento do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraPlanocodigo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('descricao').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraPlanodescricao.AsString;
+
+    qrySelecaoAleatoria.Post;
+  end;
+end;
+
+procedure TfrmConsultaContratos.AcionarPesquisaPlanosdePagamento;
+begin
+  with fraSelecaoAleatoriaPlanosdePagamento do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar(ctPLANOSPAGAMENTOS);
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+
+end;
+
+procedure TfrmConsultaContratos.fraSelecaoAleatoriaPlanosdePagamentosbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaPlanosdePagamento;
+end;
+
+procedure TfrmConsultaContratos.ckbTipoContratoClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbTipoContrato.checked then
+    if not ckbTipoOrdemServico.checked then
+      ckbTipoOrdemServico.checked := true;
+end;
+
+procedure TfrmConsultaContratos.ckbTipoOrdemServicoClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbTipoOrdemServico.checked then
+    if not ckbTipoContrato.checked then
+      ckbTipoContrato.checked := true;
+
+end;
+
+procedure TfrmConsultaContratos.sbnAtendimentoClick(Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['IncluirFollowupContrato',
+                                                                   dtmConsultaContratos.qryContratoscliente.asinteger,
+                                                                   dtmConsultaContratos.qryContratostipocliente.asString,
+                                                                   'V',
+                                                                   dtmConsultaContratos.qryContratosnumero.asString,
+                                                                   '',
+                                                                   dtmConsultaContratos.qryContratosNomeSituacao.asString,
+                                                                   dtmConsultaContratos.qryContratoscontrato_atual.asString],
+                                                                   'TfrmCadastroAtendimento', True);
+
+end;
+
+procedure TfrmConsultaContratos.sbnContratoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmConsultaContratos.qryContratos.recordcount <> 0 then
+  begin
+    if dtmConsultaContratos.qryContratosos.asBoolean then
+      TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmConsultaContratos.qryContratosnumero.asstring], 'TfrmOrdemServico', True)
+    else
+      TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmConsultaContratos.qryContratosnumero.asstring], 'TfrmCadastroContratos', True)
+  end;
+
+end;
+
+procedure TfrmConsultaContratos.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+  pgcContratos.activePage := tstFiltros;
+  if Value[0] <> '' then
+  begin
+    edfcliente.text := Value[0];
+    dtmConsultaContratos.qryClientes.parambyname('codigo').asString := Value[0];
+    dtmConsultaContratos.qryClientes.parambyname('tipo').asString := Value[1];
+    edfcliente.exist;
+    edfcliente.setfocus;
+  end
+
+end;
+
+function TfrmConsultaContratos.NomeFrameVendedorServico: String;
+begin
+  result := self.name+'_'+GetEnumName(TypeInfo(TtecPesquisa), integer(pesVENDEDORES))+'_'+dbgServicos.DataSource.dataset.name+'_vendedor';
+end;
+
+procedure TfrmConsultaContratos.AtribuirDadosUsuariosServicos(Found: Boolean);
+begin
+  with dtmConsultaContratos do
+  begin
+    if parsistema.NaoPermitirAlteraroVendedornosProdutosdoContrato then
+    begin
+      AtribuirDados(qryServicosContratos,
+                    [qryServicosContratosvendedor, qryServicosContratosnomevendedor, qryServicosContratosvendedoralterado],
+                    [tfraconsultacodigo(self.FindComponent(NomeFrameVendedorServico)).qryProcuraVendedorescodigo.AsInteger,
+                     tfraconsultacodigo(self.FindComponent(NomeFrameVendedorServico)).qryProcuraVendedoresnome.AsString,
+                     True]);
+
+     qryContratosAlteracao.edit;
+     qryContratosAlteracaovendedor.asInteger := tfraconsultacodigo(self.FindComponent(NomeFrameVendedorServico)).qryProcuraVendedorescodigo.AsInteger;
+     qryContratosAlteracao.post;
+
+    end
+    else
+    begin
+      EditarServicosContratos;
+//      qryServicosContratosvendedor.AsInteger := ConsultaVendedoresProdutosContratos.qryProcuraVendedorescodigo.AsInteger;
+      qryServicosContratosnomevendedor.AsString := tfraconsultacodigo(self.FindComponent(NomeFrameVendedorServico)).qryProcuraVendedoresnome.AsString;
+      qryServicosContratosvendedoralterado.AsBoolean := true;
+    end;
+  end;
+
+end;
+
+end.

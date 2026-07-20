@@ -1,0 +1,710 @@
+inherited frmParcelaQuitacaoExtra: TfrmParcelaQuitacaoExtra
+  Left = 456
+  Top = 116
+  ActiveControl = edtDataVencto
+  Caption = 'Alterar parcelas'
+  ClientHeight = 327
+  ClientWidth = 696
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    TabOrder = 2
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 696
+    inherited tblBarra: TToolBar
+      Width = 471
+    end
+    inherited tblBarraCadastro: TToolBar
+      inherited sbnExcluir: TSpeedButton
+        Caption = 'Cancelar F6'
+      end
+    end
+  end
+  object pnlFundoJanela: TPanel
+    Left = 0
+    Top = 40
+    Width = 696
+    Height = 287
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 0
+    object gbxAlterarParcelas: TGroupBox
+      Left = 0
+      Top = 0
+      Width = 696
+      Height = 287
+      Align = alClient
+      TabOrder = 0
+      object gbxVencimento: TGroupBox
+        Left = 4
+        Top = 3
+        Width = 219
+        Height = 150
+        Caption = 'VENCIMENTO'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 0
+        object gbxDataVencto: TGroupBox
+          Left = 5
+          Top = 15
+          Width = 80
+          Height = 42
+          Caption = 'Data'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          object edtDataVencto: TDBEditData
+            Left = 2
+            Top = 15
+            Width = 75
+            Height = 24
+            Alignment = taLeftJustify
+            DataField = 'datavencto'
+            DataSource = dtmQuitacaoExtraCaixa.dsrParcelas
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            Maximo = 37353
+            Minimo = 37353
+            Adicional = 0
+            ParentFont = False
+            TabOrder = 0
+            OnEnter = edtDataVenctoEnter
+            Opcional = True
+          end
+        end
+        object gbxValorVencto: TGroupBox
+          Left = 95
+          Top = 15
+          Width = 118
+          Height = 42
+          Caption = 'Valor'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          object edtValorVencto: TDBEditNumero
+            Left = 2
+            Top = 16
+            Width = 110
+            Height = 24
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = -1
+            ParentFont = False
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'valorvencto'
+            DataSource = dtmQuitacaoExtraCaixa.dsrParcelas
+          end
+        end
+        object gbxLiquido: TGroupBox
+          Left = 95
+          Top = 104
+          Width = 118
+          Height = 42
+          Caption = 'L'#237'quido'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          object dtsLiquido: TtecDBText
+            Left = 3
+            Top = 15
+            Width = 110
+            Height = 24
+            TabStop = False
+            Color = clBtnFace
+            DataField = 'liquido'
+            DataSource = dtmQuitacaoExtraCaixa.dsrParcelas
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Alignment = taLeftJustify
+          end
+        end
+        object gbxDesconto: TGroupBox
+          Left = 95
+          Top = 60
+          Width = 118
+          Height = 42
+          Caption = 'Desconto Sugerido'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+          object edtDescontoSugerido: TDBEditNumero
+            Left = 2
+            Top = 15
+            Width = 110
+            Height = 24
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = -1
+            ParentFont = False
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'descontosugerido'
+            DataSource = dtmQuitacaoExtraCaixa.dsrParcelas
+          end
+        end
+      end
+      object gbxPagamento: TGroupBox
+        Left = 229
+        Top = 3
+        Width = 452
+        Height = 259
+        Caption = 'PAGAMENTO'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+        object gbxDataPagto: TGroupBox
+          Left = 6
+          Top = 15
+          Width = 80
+          Height = 42
+          Caption = 'Data'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          object edtDataPagto: TDBEditData
+            Left = 2
+            Top = 15
+            Width = 75
+            Height = 24
+            Alignment = taLeftJustify
+            DataField = 'datapagto'
+            DataSource = dtmQuitacaoExtraCaixa.dsrParcelas
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            Maximo = 0
+            Minimo = 37353
+            Adicional = 0
+            ParentFont = False
+            TabOrder = 0
+            OnEnter = edtDataPagtoEnter
+            Opcional = True
+          end
+        end
+        object gbxValorPagto: TGroupBox
+          Left = 94
+          Top = 15
+          Width = 118
+          Height = 42
+          Caption = 'Valor'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          object edtValorPagto: TDBEditNumero
+            Left = 3
+            Top = 15
+            Width = 110
+            Height = 24
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = -1
+            ParentFont = False
+            TabOrder = 0
+            OnEnter = edtValorPagtoEnter
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'valorpagto'
+            DataSource = dtmQuitacaoExtraCaixa.dsrParcelas
+          end
+        end
+        object ckbPagamentoParcial: TCheckBox
+          Left = 221
+          Top = 31
+          Width = 64
+          Height = 18
+          Caption = 'Parcial'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          OnClick = ckbPagamentoParcialClick
+        end
+        object gbxConta: TGroupBox
+          Left = 6
+          Top = 59
+          Width = 132
+          Height = 42
+          Caption = 'N'#186' da Conta'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+          object sbnProcurarConta: TSpeedButton
+            Left = 106
+            Top = 15
+            Width = 23
+            Height = 23
+            Hint = 'Procurar contas'
+            Flat = True
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            Glyph.Data = {
+              36060000424D3606000000000000360000002800000020000000100000000100
+              18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDC800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DC800000800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000
+              00800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000
+              00800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000008000
+              00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+              FFFFDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCFFA858800000800000800000FFA858DCDCDC0000FF800000800000DCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDC
+              DCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFDCDCDCDCDCDC7F
+              7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+              FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+              FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+              FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+              FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+              FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+              FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+              FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFFFFFFFDCDCDCDCDCDCDC
+              DCDCFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              800000FFA858FFA858FFA858FFA858FFA858800000DCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FC3C3C3FFFFFFFFFFFF7F
+              7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCFFA858800000800000800000FFA858DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+              DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+            NumGlyphs = 2
+            ParentFont = False
+            OnClick = sbnProcurarContaClick
+          end
+          object Label1: TLabel
+            Left = 79
+            Top = 18
+            Width = 4
+            Height = 16
+            Alignment = taRightJustify
+            Caption = '-'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+          end
+          object dtxDigito: TtecDBText
+            Left = 85
+            Top = 15
+            Width = 16
+            Height = 24
+            TabStop = False
+            Color = clBtnFace
+            DataField = 'Digito'
+            DataSource = dtmQuitacaoExtraCaixa.dsrContas
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Alignment = taLeftJustify
+          end
+          object flkConta: TtecDBFindLookup
+            Left = 4
+            Top = 15
+            Width = 71
+            Height = 24
+            Alignment = taLeftJustify
+            DataField = 'ContaBoleto'
+            DataSource = dtmQuitacaoExtraCaixa.dsrParcelas
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = 8
+            Maximo = 0
+            Minimo = 37353
+            Adicional = 0
+            Opcional = True
+            ParentFont = False
+            TabOrder = 1
+            PermitirZero = False
+            PermitirNulo = False
+            Operacao = opATRIBUICAO
+            LookupField = 'Conta'
+            LookupSource = dtmQuitacaoExtraCaixa.dsrContas
+            Parameter = ' '
+            ActiveSetControls = False
+            DenyInsert = False
+            NoSetControls = <>
+            SetControls = <>
+            LookupParameter = 'Conta'
+          end
+        end
+        object gbxSiglaBanco: TGroupBox
+          Left = 140
+          Top = 60
+          Width = 99
+          Height = 40
+          Caption = 'Banco'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 4
+          object dtxSigla: TtecDBText
+            Left = 2
+            Top = 14
+            Width = 95
+            Height = 24
+            TabStop = False
+            Color = clBtnFace
+            DataField = 'Sigla'
+            DataSource = dtmQuitacaoExtraCaixa.dsrContas
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Alignment = taLeftJustify
+          end
+        end
+        object gbxNomeAgencia: TGroupBox
+          Left = 237
+          Top = 60
+          Width = 209
+          Height = 40
+          Caption = 'Ag'#234'ncia'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
+          object dtxNomeAgencia: TtecDBText
+            Left = 2
+            Top = 14
+            Width = 205
+            Height = 24
+            TabStop = False
+            Color = clBtnFace
+            DataField = 'Nome'
+            DataSource = dtmQuitacaoExtraCaixa.dsrContas
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Alignment = taLeftJustify
+          end
+        end
+        object gbxObservacoesBoleto: TGroupBox
+          Left = 6
+          Top = 148
+          Width = 441
+          Height = 105
+          Caption = 'Observa'#231#245'es do boleto'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 7
+          object Bevel1: TBevel
+            Left = 2
+            Top = 16
+            Width = 437
+            Height = 2
+            Align = alTop
+            Shape = bsSpacer
+          end
+          object mmoObservacao: TtecDBMemo
+            Left = 2
+            Top = 18
+            Width = 437
+            Height = 85
+            Align = alClient
+            DataField = 'observacaoboleto'
+            DataSource = dtmQuitacaoExtraCaixa.dsrParcelas
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+          end
+        end
+        object gbxEvento: TGroupBox
+          Left = 6
+          Top = 104
+          Width = 440
+          Height = 42
+          Caption = 'Evento'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 6
+          object sbnEvento: TSpeedButton
+            Left = 58
+            Top = 15
+            Width = 23
+            Height = 23
+            Hint = 'Procurar evento'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            Glyph.Data = {
+              36060000424D3606000000000000360000002800000020000000100000000100
+              18000000000000060000120B0000120B00000000000000000000C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3800000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFF7F7F7FFFFFFFC3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3800000800000800000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C38000
+              00800000800000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C38000008000
+              00800000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C38000008000008000
+              00C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFFFFFFFFFF
+              FFFFC3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3FFA858800000800000800000FFA858C3C3C30000FF800000800000C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3
+              C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFC3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7FC3C3C3C3C3C3C3C3C37F
+              7F7F7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3800000
+              FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFA858FFA858
+              FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C37F7F7FC3C3C3FFFFFFC3C3C3C3C3C3C3C3C3C3C3C3800000FFA858
+              FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3800000FFA858
+              FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3800000FFA858
+              FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C37F7F7FC3C3C3FFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C37F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFA858FFA858
+              FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3800000
+              FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FC3C3C3FFFFFFFFFFFFC3C3C3C3C3C3C3
+              C3C3FFFFFF7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              800000FFA858FFA858FFA858FFA858FFA858800000C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7FC3C3C3FFFFFFFFFFFF7F
+              7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3FFA858800000800000800000FFA858C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+              C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F7F7FC3
+              C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3}
+            NumGlyphs = 2
+            ParentFont = False
+            OnClick = sbnEventoClick
+          end
+          object dtxEvento: TtecDBText
+            Left = 82
+            Top = 15
+            Width = 353
+            Height = 24
+            TabStop = False
+            Color = clBtnFace
+            DataField = 'Descricao'
+            DataSource = dtmQuitacaoExtraCaixa.dsrEvento
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Alignment = taLeftJustify
+          end
+          object flkEvento: TtecDBFindLookup
+            Left = 4
+            Top = 15
+            Width = 52
+            Height = 24
+            Alignment = taLeftJustify
+            DataField = 'evento'
+            DataSource = dtmQuitacaoExtraCaixa.dsrParcelas
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -13
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = 4
+            Maximo = 0
+            Minimo = 37353
+            Adicional = 0
+            Opcional = True
+            ParentFont = False
+            TabOrder = 1
+            PermitirZero = False
+            PermitirNulo = False
+            Operacao = opATRIBUICAO
+            LookupField = 'Codigo'
+            LookupSource = dtmQuitacaoExtraCaixa.dsrEvento
+            Parameter = ' '
+            ActiveSetControls = False
+            DenyInsert = False
+            NoSetControls = <>
+            SetControls = <>
+            LookupParameter = 'codigo'
+          end
+        end
+      end
+    end
+  end
+end

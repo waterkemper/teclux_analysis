@@ -1,0 +1,7206 @@
+inherited dtmDREGerencial: TdtmDREGerencial
+  OldCreateOrder = False
+  Left = 573
+  Top = 207
+  Height = 208
+  Width = 446
+  object dsrDREGerencial: TtecDataSource
+    DataSet = qryDREGerencial
+    Left = 96
+    Top = 32
+  end
+  object qryDREGerencial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryDREGerencialAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'rollback;'
+      'begin;'
+      ''
+      'select dynamic_pivot_('
+      ''
+      #39
+      ''
+      'WITH '
+      ''
+      '  '
+      '  Licitacoes_Ganhas_Venda as'
+      '  ('
+      '  select'
+      '         to_char(l.datavenda, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9' cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '         True as totalizar,'
+      
+        '         cast('#39#39'Licita'#231#245'es Ganhas - Venda'#39#39'  as varchar(100)) as' +
+        ' conta,'
+      '         cast(1 as smallint) as ordem,'
+      '         sum(lc.quantidade * lc.preco) as Total'
+      ''
+      ''
+      '  from licitacoes l'
+      '       join filiais f'
+      '       on l.filialvenda = f.codigo'
+      ''
+      '       join licitacoesprodutos lc'
+      '       on lc.licitacao = l.numero'
+      ''
+      '       /*'
+      'from licitacoes l'
+      '     join filiais f'
+      '     on l.filialvenda = f.codigo'
+      ''
+      '     join usuarios u'
+      '     on l.vendedor = u.codigo'
+      ''
+      '     join clientes cl'
+      '     on l.cliente = cl.codigo'
+      ''
+      '     join vfornecedores vf'
+      '     on l.cliente = vf.codigo'
+      '     and vf.tipo = '#39#39'C'#39#39
+      ''
+      '     join licitacoesprodutos lc'
+      '          join produtos p'
+      '          on lc.produto = p.codigo'
+      ''
+      '     on lc.licitacao = l.numero'
+      '     */'
+      ''
+      ''
+      ''
+      '  where l.datavenda between'
+      ''
+      '  '#39#39':Data_Inicial'#39#39
+      ''
+      '  and'
+      ''
+      '  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      '  group by to_char(l.datavenda, '#39#39'yyyy-MM'#39#39')'
+      '  ),'
+      ''
+      '  Custos as'
+      '  ('
+      '  select'
+      '         to_char(l.datavenda, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9' cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                 True as totalizar,'
+      '         cast('#39#39'Custo'#39#39'  as varchar(100)) as conta,'
+      '         cast(3 as smallint) as ordem,'
+      
+        '         - sum(lc.quantidade * coalesce(lc.customedio,0)) as Tot' +
+        'al'
+      ''
+      ''
+      '  from licitacoes l'
+      '       join filiais f'
+      '       on l.filialvenda = f.codigo'
+      ''
+      '       join licitacoesprodutos lc'
+      '       on lc.licitacao = l.numero'
+      ''
+      ''
+      '  where l.datavenda between'
+      ''
+      '  '#39#39':Data_Inicial'#39#39
+      ''
+      '  and'
+      ''
+      '  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      '  group by to_char(l.datavenda, '#39#39'yyyy-MM'#39#39')'
+      '  ),'
+      '  '
+      '  Lucro_Bruto_Prejuizo AS '
+      '  '
+      '    (select L_G_V.ano_mes,'
+      #9'      cast('#39#39'RT'#39#39' as char(3)) as tipoconta,'
+      '              True as totalizar,'
+      
+        '          cast('#39#39'LUCRO BRUTO / PREJUIZO'#39#39'  as varchar(100)) as c' +
+        'onta,      '
+      '          cast(5 as smallint) as ordem,'
+      '          sum(l_G_V.total+Custos.total) as total          '
+      '   from Licitacoes_Ganhas_Venda  L_G_V'
+      '        join Custos '
+      '        on L_G_V.ano_mes = Custos.ano_mes'
+      '   group by L_G_V.ano_mes, Custos.ano_mes),'
+      ''
+      '  '
+      '  Emissao as '
+      '  ('
+      '  select '
+      '       to_char(cast('
+      ''
+      '       '#39#39':Data_Inicial'#39#39
+      ''
+      '       as date), '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '       cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '       False as totalizar,'
+      '       cast('#39#39'EMISS'#195'O'#39#39'  as varchar(100)) as conta,'
+      '       cast(7 as smallint) as ordem,       '
+      '       cast(null as numeric(11,2)) as Total'
+      ''
+      '  ),'
+      '  '
+      '  Faturamento_de_Licitacoes AS '
+      '  '
+      '  ('
+      ''
+      #9'select '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Faturamento de Licita'#231#245'es (notas emitidas)'#39#39'  as var' +
+        'char(100)) as conta,      '
+      #9#9'   cast(9 as smallint) as ordem, '
+      #9#9#9#9' '
+      #9'/*       sum(coalesce(pc.frete,0)) as frete,*/'
+      #9#9'   '
+      #9#9'   sum('
+      #9#9'   (pc.quantidade * pc.precovenda) -'
+      #9#9#9'ratearimpostoretidoproduto_contratos(ct.numero, pc.produto) +'
+      #9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9'coalesce(pc.frete,0) -'
+      #9#9#9'coalesce(pc.desconto,0) -  '
+      #9'/*        coalesce(pc.descontofinanceiro,0)*/'
+      #9#9#9'coalesce(pc.valordescontoitem,0)  '
+      #9#9#9') as total'
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero   '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      '  ),'
+      '  '
+      '  Faturamento_sem_Licitacoes as '
+      '  ('
+      ''
+      #9'select '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Faturamento Sem Licita'#231#245'es (notas emitidas)'#39#39'  as va' +
+        'rchar(100)) as conta,      '
+      #9#9'   cast(11 as smallint) as ordem, '
+      #9#9#9#9' '
+      #9'/*       sum(coalesce(pc.frete,0)) as frete,*/'
+      #9#9'   '
+      #9#9'   sum('
+      #9#9'   (pc.quantidade * pc.precovenda) -'
+      
+        #9#9'   ratearimpostoretidoproduto_contratos(ct.numero, pc.produto)' +
+        ' +'
+      #9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9'coalesce(pc.frete,0) -'
+      #9#9#9'coalesce(pc.desconto,0) -  '
+      #9'/*        coalesce(pc.descontofinanceiro,0) */'
+      #9#9#9'coalesce(pc.valordescontoitem,0)  '
+      #9#9#9') as total'
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' /*'
+      #9#9#9'  left join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero '
+      #9#9#9'  */  '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  and pc.licitacao is null'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'Total_Faturamento as'
+      '   (select faturamento.ano_mes, '
+      '           cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '           True as totalizar, '
+      #9'       cast('#39#39'TOTAL FATURAMENTO'#39#39' as varchar(100)) as conta, '
+      #9'       cast(13 as SMALLINT) as ordem,'
+      #9#9'   sum(faturamento.Total) as Total'
+      #9#9'   from'
+      #9#9'   ('#9'    '
+      
+        #9#9#9'   (select ano_mes, total from Faturamento_de_Licitacoes)  un' +
+        'ion ALL '
+      #9#9#9'   (select ano_mes, total from Faturamento_sem_Licitacoes)'
+      #9#9'    ) as faturamento'
+      #9#9#9'group by faturamento.ano_mes),'
+      ''
+      ''
+      #9'Custo_Eqptos_Faturamento_com_Licitacoes as'#9#9
+      #9'('
+      ''
+      #9'select '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Custo dos Equipamentos sobre o Faturamento de Licita' +
+        #231#245'es (notas emitidas)'#39#39'  as varchar(100)) as conta,      '
+      #9#9'   cast(14 as smallint) as ordem,'
+      #9#9'   '
+      #9#9'  - sum(    '
+      #9#9#9'pc.quantidade *'#9
+      ''
+      #9#9#9'  cast(coalesce( e.valorultimacompra,'
+      ''
+      #9#9#9'  case when (e.emestoque +'
+      #9#9#9#9#9#9'   e.reservado +'
+      #9#9#9#9#9#9#9#9' e.reservaprevia +'
+      #9#9#9#9#9#9#9#9' e.transito +'
+      #9#9#9#9#9#9#9#9' e.demonstracao +'
+      #9#9#9#9#9#9#9#9' e.conserto +'
+      #9#9#9#9#9#9#9#9' e.danificada) <> 0 then'
+      ''
+      ''
+      #9#9#9#9' (e.financeiro / (e.emestoque +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.reservado +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.reservaprevia +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.transito +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.demonstracao +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.conserto +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.danificada) )'
+      ''
+      #9#9#9'  end ,  0.00) as numeric(11,2))) Total'
+      #9#9#9
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' '
+      #9#9#9'  join estoques e'
+      #9#9#9'  on pc.produto = e.produto'
+      #9#9#9'  and pc.filial = e.filial'
+      #9#9#9'  '
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero   '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'Custo_Eqptos_Faturamento_sem_Licitacoes as'#9#9
+      #9'('
+      ''
+      #9'select '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Custo dos Equipamentos sobre o Faturamento sem Licit' +
+        'a'#231#245'es (notas emitidas)'#39#39'  as varchar(100)) as conta,      '
+      #9#9'   cast(15 as smallint) as ordem, '
+      #9#9#9#9' '
+      #9#9'  '
+      #9#9' - sum(pc.quantidade *'#9
+      ''
+      #9#9#9'  cast(coalesce( e.valorultimacompra,'
+      ''
+      #9#9#9'  case when (e.emestoque +'
+      #9#9#9#9#9#9'   e.reservado +'
+      #9#9#9#9#9#9#9#9' e.reservaprevia +'
+      #9#9#9#9#9#9#9#9' e.transito +'
+      #9#9#9#9#9#9#9#9' e.demonstracao +'
+      #9#9#9#9#9#9#9#9' e.conserto +'
+      #9#9#9#9#9#9#9#9' e.danificada) <> 0 then'
+      ''
+      ''
+      #9#9#9#9' (e.financeiro / (e.emestoque +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.reservado +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.reservaprevia +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.transito +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.demonstracao +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.conserto +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.danificada) )'
+      ''
+      #9#9#9'  end ,  0.00) as numeric(11,2))) Total'
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' '
+      #9#9#9'  join estoques e'
+      #9#9#9'  on pc.produto = e.produto'
+      #9#9#9'  and pc.filial = e.filial'
+      ''
+      #9#9' /*'
+      #9#9#9'  left join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero '
+      #9#9#9'  */  '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  and pc.licitacao is null'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9
+      #9'Total_Custo_Eqptos_Faturamento as'
+      '   (select Total_Custo_Eqptos_Faturamento.ano_mes, '
+      '           cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '           True as totalizar, '
+      
+        #9'       cast('#39#39'TOTAL CUSTO EQUIPAMENTO SOBRE O FATURAMENTO'#39#39' as ' +
+        'varchar(100)) as conta, '
+      #9'       cast(17 as SMALLINT) as ordem,'
+      #9#9'   sum(Total_Custo_Eqptos_Faturamento.Total) as Total'
+      #9#9'   from'
+      #9#9'   ('#9'    '
+      
+        #9#9#9'   (select ano_mes, total from Custo_Eqptos_Faturamento_com_L' +
+        'icitacoes)  union ALL '
+      
+        #9#9#9'   (select ano_mes, total from Custo_Eqptos_Faturamento_sem_L' +
+        'icitacoes)'
+      #9#9'    ) as Total_Custo_Eqptos_Faturamento'
+      #9#9#9'group by Total_Custo_Eqptos_Faturamento.ano_mes),'
+      #9#9#9
+      #9'Fretes_Sobre_Faturamento_com_Licitacoes as'
+      #9#9#9
+      #9'('
+      ''
+      #9'select '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar, '
+      
+        #9#9'   cast('#39#39'Fretes sob Licita'#231#245'es (notas emitidas)'#39#39'  as varchar' +
+        '(100)) as conta,      '
+      #9#9'   cast(19 as smallint) as ordem, '
+      #9#9#9#9' '
+      #9#9' - sum(coalesce(pc.frete,0)) as Total'
+      #9#9'   '
+      #9#9'   /*'
+      #9#9'   sum('
+      #9#9'   (pc.quantidade * pc.precovenda) + '
+      #9#9#9'coalesce(pc.acrescimo,0) + '
+      #9#9#9'coalesce(pc.frete,0) - '
+      #9#9#9'coalesce(pc.desconto,0) -  '
+      #9#9#9'coalesce(pc.descontofinanceiro,0)'
+      #9#9#9') as total'
+      #9#9#9'*/'
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero   '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false)'
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9'  and coalesce(pc.frete,0) <> 0'
+      ''
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      ''
+      #9'Fretes_Sobre_Faturamento_sem_Licitacoes as'
+      ''
+      #9'('
+      ''
+      #9'select'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Fretes sem Licita'#231#245'es (notas emitidas)'#39#39'  as varchar' +
+        '(100)) as conta,'
+      #9#9'   cast(21 as smallint) as ordem,'
+      ''
+      #9#9' - sum(coalesce(pc.frete,0)) as Total'
+      ''
+      #9#9'   /*'
+      #9#9'   sum('
+      #9#9'   (pc.quantidade * pc.precovenda) +'
+      #9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9'coalesce(pc.frete,0) -'
+      #9#9#9'coalesce(pc.desconto,0) -'
+      #9#9#9'coalesce(pc.descontofinanceiro,0)'
+      #9#9#9') as total'
+      #9#9#9'*/'
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' /*'
+      #9#9#9'  left join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero'
+      #9#9#9'  */'
+      #9#9' on ct.numero = pc.contrato'
+      ''
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false)'
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9'  and coalesce(pc.frete,0) <> 0'
+      #9'  and pc.licitacao is null'
+      ''
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      ''
+      ''
+      '    Espaco_linha_Frete as'
+      '   ('
+      '    select'
+      '       to_char(cast('
+      ''
+      '       '#39#39':Data_Inicial'#39#39
+      ''
+      '       as date), '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '           False as totalizar,'
+      '       cast('#39#39' '#39#39'  as varchar(100)) as conta,'
+      '       cast(23 as smallint) as ordem,'
+      '       cast(null as numeric(11,2)) as Total'
+      ''
+      '    ),'
+      ''
+      #9'Comissao_Sobre_Licitacoes as'
+      #9'('
+      #9'select'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      ''
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Comiss'#227'o Sobre Licita'#231#245'es '#39#39'||u.nome  as varchar(100' +
+        ')) as conta,'
+      #9#9'   cast(25 as smallint) as ordem,'
+      ''
+      ''
+      #9#9' - sum('
+      #9#9'   round('
+      #9#9'   ('
+      #9#9#9' ('
+      #9#9#9'   cv.perccomissao *'
+      ''
+      #9#9#9'   ('
+      #9#9#9'   (pc.quantidade * pc.precovenda) -'
+      
+        #9#9#9#9'ratearimpostoretidoproduto_contratos(ct.numero, pc.produto) ' +
+        '+'
+      #9#9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9#9'coalesce(pc.frete,0) -'
+      #9#9#9#9'coalesce(pc.desconto,0) -'
+      #9#9'/*        coalesce(pc.descontofinanceiro,0)*/'
+      #9#9#9#9'coalesce(pc.valordescontoitem,0)'
+      #9#9#9#9')'
+      #9#9#9'  )/100'
+      #9#9#9'),2)'
+      ''
+      ''
+      #9#9#9') as total'
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero'
+      #9#9' on ct.numero = pc.contrato'
+      ''
+      #9#9' join contratosvendedores cv'
+      #9#9#9'  join usuarios u'
+      #9#9#9'  on cv.vendedor = u.codigo'
+      #9#9' on ct.numero = cv.contrato'
+      ''
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false)'
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9'  and not pc.brinde'
+      ''
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39'), u.nome'
+      #9'),'
+      ''
+      #9'Total_Comissao_Sobre_Licitacoes as'
+      #9'('
+      #9'  select ano_mes, '
+      #9'         cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '                 True as totalizar,'
+      
+        #9'         cast('#39#39'TOTAL COMISS'#213'ES SOBRE LICITA'#199#213'ES'#39#39'  as varchar(' +
+        '100)) as conta,'
+      #9'         cast(27 as smallint) as ordem,'
+      #9#9'   - sum(total) as total'
+      '      from'
+      #9'  ('
+      #9'  select'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      
+        #9#9'   cast('#39#39'Comiss'#227'o Sobre Licita'#231#245'es '#39#39'||u.nome  as varchar(100' +
+        ')) as conta,'
+      #9#9'   cast(12 as smallint) as ordem,'
+      ''
+      ''
+      #9#9'   sum('
+      #9#9'   round('
+      #9#9'   ('
+      #9#9#9' ('
+      #9#9#9'   cv.perccomissao *'
+      ''
+      #9#9#9'   ('
+      #9#9#9'   (pc.quantidade * pc.precovenda) -'
+      
+        #9#9#9#9'ratearimpostoretidoproduto_contratos(ct.numero, pc.produto) ' +
+        '+'
+      #9#9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9#9'coalesce(pc.frete,0) -'
+      #9#9#9#9'coalesce(pc.desconto,0) -'
+      #9#9'/*        coalesce(pc.descontofinanceiro,0)*/'
+      #9#9#9#9'coalesce(pc.valordescontoitem,0)'
+      #9#9#9#9')'
+      #9#9#9'  )/100'
+      #9#9#9'),2)'
+      ''
+      ''
+      #9#9#9') as total'
+      ''
+      ''
+      #9'   from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero'
+      #9#9' on ct.numero = pc.contrato'
+      ''
+      #9#9' join contratosvendedores cv'
+      #9#9#9'  join usuarios u'
+      #9#9#9'  on cv.vendedor = u.codigo'
+      #9#9' on ct.numero = cv.contrato'
+      ''
+      #9'   where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'    and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'    and not (coalesce(ct.os_garantia,false)'
+      #9'    and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'    and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9'    and not pc.brinde'
+      ''
+      #9'   group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39'), u.nome'
+      #9'  ) as Total_Comissao_Sobre_Licitacoes'
+      #9'  group by ano_mes'
+      #9'),'
+      ''
+      ''
+      #9'Comissao_Sem_Licitacoes as'
+      #9'('
+      ''
+      ''
+      '   '#9'    select'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Comiss'#227'o Sem Licita'#231#245'es '#39#39'||u.nome  as varchar(100))' +
+        ' as conta,'
+      #9#9'   cast(29 as smallint) as ordem,'
+      ''
+      ''
+      #9#9' - sum('
+      #9#9'   round('
+      #9#9'   ('
+      #9#9#9' ('
+      #9#9#9'   cv.perccomissao *'
+      ''
+      #9#9#9'   ('
+      #9#9#9'   (pc.quantidade * pc.precovenda) -'
+      
+        #9#9#9#9'ratearimpostoretidoproduto_contratos(ct.numero, pc.produto) ' +
+        '+'
+      #9#9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9#9'coalesce(pc.frete,0) - '
+      #9#9#9#9'coalesce(pc.desconto,0) -  '
+      #9#9'/*        coalesce(pc.descontofinanceiro,0)*/'
+      #9#9#9#9'coalesce(pc.valordescontoitem,0)  '
+      #9#9#9#9')'
+      #9#9#9'  )/100'
+      #9#9#9'),2)'
+      #9#9#9
+      #9#9#9
+      #9#9#9') as total'
+      ''
+      ''
+      #9'     from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join contratosvendedores cv'
+      #9#9#9'  join usuarios u'
+      #9#9#9'  on cv.vendedor = u.codigo    '
+      #9#9' on ct.numero = cv.contrato'
+      #9#9' '
+      #9#9'where ct.origem is null and'
+      #9#9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9#9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9#9'  and not (coalesce(ct.os_garantia,false)'
+      #9#9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9#9'  and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9#9'  and not pc.brinde'
+      #9#9'  and pc.licitacao is null'
+      ''
+      #9#9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39'), u.nome'
+      #9'),'
+      ''
+      ''
+      #9'Total_Comissao_Sem_Licitacoes as'
+      #9'('
+      ''
+      #9'  select ano_mes, '
+      #9'         cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '                 True as totalizar,'
+      
+        #9'         cast('#39#39'TOTAL COMISS'#213'ES SEM LICITA'#199#213'ES'#39#39'  as varchar(10' +
+        '0)) as conta,'
+      #9'         cast(31 as smallint) as ordem,'
+      #9#9'   - sum(total) as total'
+      '      from'
+      #9'  ('
+      ''
+      ''
+      ''
+      '   '#9'    select'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      
+        #9#9'   cast('#39#39'Comiss'#227'o Sem Licita'#231#245'es '#39#39'||u.nome  as varchar(100))' +
+        ' as conta,'
+      #9#9'   cast(13 as smallint) as ordem,'
+      ''
+      ''
+      #9#9'   sum('
+      #9#9'   round('
+      #9#9'   ('
+      #9#9#9' ('
+      #9#9#9'   cv.perccomissao *'
+      ''
+      #9#9#9'   ('
+      #9#9#9'   (pc.quantidade * pc.precovenda) -'
+      
+        #9#9#9#9'ratearimpostoretidoproduto_contratos(ct.numero, pc.produto) ' +
+        '+'
+      #9#9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9#9'coalesce(pc.frete,0) -'
+      #9#9#9#9'coalesce(pc.desconto,0) -'
+      #9#9'/*        coalesce(pc.descontofinanceiro,0)*/'
+      #9#9#9#9'coalesce(pc.valordescontoitem,0)'
+      #9#9#9#9')'
+      #9#9#9'  )/100'
+      #9#9#9'),2)'
+      ''
+      ''
+      #9#9#9') as total'
+      ''
+      ''
+      #9'     from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato'
+      ''
+      #9#9' join contratosvendedores cv'
+      #9#9#9'  join usuarios u'
+      #9#9#9'  on cv.vendedor = u.codigo'
+      #9#9' on ct.numero = cv.contrato'
+      ''
+      #9#9'where ct.origem is null and'
+      #9#9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9#9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9#9'  and not (coalesce(ct.os_garantia,false)'
+      #9#9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9#9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9#9'  '
+      #9#9'  and not pc.brinde'
+      #9#9'  and pc.licitacao is null'
+      #9#9#9' '
+      #9#9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39'), u.nome'
+      #9#9
+      #9'  ) AS Total_Comissao_Sem_Licitacoes'#9
+      #9'  group by ano_mes'
+      #9'),'
+      #9
+      #9'ICMS_sobre_Faturamento_de_Licitacoes as'
+      #9'('
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento de Licita'#231#245'es - ICMS'#39#39'  a' +
+        's varchar(100)) as conta,      '
+      #9#9'   cast(33 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(pdf.icmsvalor) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero   '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'IPI_sobre_Faturamento_de_Licitacoes as'
+      #9'('
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento de Licita'#231#245'es - IPI'#39#39'  as' +
+        ' varchar(100)) as conta,      '
+      #9#9'   cast(35 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(pdf.valoripi) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero   '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false)'
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9'  and not pc.brinde'
+      ''
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      ''
+      ''
+      #9'PIS_sobre_Faturamento_de_Licitacoes as'
+      #9'('
+      #9'SELECT'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento de Licita'#231#245'es - PIS'#39#39'  as' +
+        ' varchar(100)) as conta,'
+      #9#9'   cast(37 as smallint) as ordem,'
+      ''
+      #9#9' - sum(pdf.pisvalor) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero'
+      #9#9' on ct.numero = pc.contrato'
+      ''
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      ''
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto'
+      #9#9' and pc.filial = pdf.filial'
+      #9#9' and df.numero = pdf.dadofiscal'
+      ''
+      ''
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false)'
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9'  and not pc.brinde'
+      ''
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      ''
+      #9'COFINS_sobre_Faturamento_de_Licitacoes as'
+      #9'('
+      ''
+      #9'SELECT'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento de Licita'#231#245'es - COFINS'#39#39' ' +
+        ' as varchar(100)) as conta,'
+      #9#9'   cast(39 as smallint) as ordem,'
+      ''
+      #9#9' - sum(pdf.cofinsvalor) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero'
+      #9#9' on ct.numero = pc.contrato'
+      ''
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false)'
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'Total_Impostos_sobre_Faturamento_de_Licitacoes as'
+      #9'('
+      ''
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'TOTAL IMPOSTOS SOBRE FATURAMENTO DE LICITA'#199#213'ES'#39#39'  as' +
+        ' varchar(100)) as conta,      '
+      #9#9'   cast(41 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(coalesce(pdf.cofinsvalor,0) + '
+      #9#9'       coalesce(pdf.pisvalor,0) + '
+      #9#9#9'   coalesce(pdf.valoripi,0) + '
+      #9#9#9'   coalesce(pdf.icmsvalor,0)) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero   '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'ICMS_sobre_Faturamento_sem_Licitacoes as '#9
+      #9'('
+      ''
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento sem Licita'#231#245'es - ICMS'#39#39'  ' +
+        'as varchar(100)) as conta,      '
+      #9#9'   cast(43 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(pdf.icmsvalor) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9'  and pc.licitacao is null'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'IPI_sobre_Faturamento_sem_Licitacoes as '
+      #9'('
+      ''
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento sem Licita'#231#245'es - IPI'#39#39'  a' +
+        's varchar(100)) as conta,      '
+      #9#9'   cast(43 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(pdf.valoripi) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9'  and pc.licitacao is null'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'PIS_sobre_Faturamento_sem_Licitacoes as '
+      #9'('
+      ''
+      ''
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento sem Licita'#231#245'es - PIS'#39#39'  a' +
+        's varchar(100)) as conta,      '
+      #9#9'   cast(45 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(pdf.pisvalor) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9'  and pc.licitacao is null'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'COFINS_sobre_Faturamento_sem_Licitacoes as '
+      #9'('
+      ''
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento sem Licita'#231#245'es - COFINS'#39#39 +
+        '  as varchar(100)) as conta,      '
+      #9#9'   cast(47 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(pdf.cofinsvalor) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9'  and pc.licitacao is null'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'Total_Impostos_sobre_Faturamento_sem_Licitacoes as'
+      #9'('
+      ''
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'TOTAL IMPOSTOS SOBRE FATURAMENTO SEM LICITA'#199#213'ES'#39#39'  a' +
+        's varchar(100)) as conta,      '
+      #9#9'   cast(48 as smallint) as ordem,'
+      #9#9'   '
+      #9#9' - sum(coalesce(pdf.cofinsvalor,0) + '
+      #9#9'       coalesce(pdf.pisvalor,0) + '
+      #9#9#9'   coalesce(pdf.valoripi,0) + '
+      #9#9#9'   coalesce(pdf.icmsvalor,0)) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9'  and pc.licitacao is null'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      ''
+      ''
+      '  pg_eventos_Credito_Previsao_Impostos as'
+      '  ('
+      ''
+      '  select to_char(d.datavencto, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '         cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '         True as totalizar,'
+      '         d.descricao as conta,'
+      '         cast(49 as SMALLINT) as ordem,'
+      '         sum(d.valorvencto) as Total'
+      '  from'
+      ''
+      '    ('
+      ''
+      '    select'
+      '          d.datavencto,'
+      ''
+      '          /*'
+      '          (select e2.descricao'
+      '           from eventos e2'
+      '           where e2.codigo <> e.codigo'
+      '             and position(e2.classificacao in e.classificacao)=1'
+      '             and e2.tipo = '#39#39'S'#39#39
+      '             order by e2.classificacao desc limit 1'
+      '            ) as descricao,'
+      '            */'
+      '          e.descricao,'
+      ''
+      '          d.valorvencto'
+      ''
+      ''
+      '    from duplicatas d'
+      '         join documentospag dp'
+      '         on d.documentopag = dp.numero'
+      '         join eventos e'
+      '         on coalesce(d.evento, dp.evento) = e.codigo'
+      ''
+      '    where d.datavencto between'
+      ''
+      '    '#39#39':Data_Inicial'#39#39
+      ''
+      '    and'
+      ''
+      '    '#39#39':Data_Final'#39#39
+      ''
+      '      and e.incluirnadregerencial'
+      '      and dp.previsao = true'
+      '/*      and d.autorizado = true*/'
+      '      and trim(e.descricao) <> '#39#39'Empr'#233'stimos Bancos'#39#39
+      '      and e.descricao = '#39#39'PREVIS'#195'O DE CR'#201'DITOS DE IMPOSTOS'#39#39
+      '  )  as d'
+      '/*  where trim(d.descricao) = '#39#39'Investimentos'#39#39' */'
+      '  group by to_char(d.datavencto, '#39#39'yyyy-MM'#39#39'), d.descricao'
+      '  order by to_char(d.datavencto, '#39#39'yyyy-MM'#39#39'), d.descricao'
+      '  ),'
+      ''
+      '    '
+      '      pg_eventos_ as'
+      '  ('
+      '  '
+      '  select to_char(d.datavencto, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '         cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '         True as totalizar, '
+      '         d.descricao as conta,'
+      '         cast(51 as SMALLINT) as ordem,      '
+      '         - sum(d.valorvencto) as Total'
+      '  from'
+      '  '
+      '    (         '
+      '      '
+      '    select'
+      '          /* d.datavencto, */'
+      '          dp.emissao as datavencto,'
+      '          '
+      '          (select e2.descricao'
+      '           from eventos e2 '
+      '           where e2.codigo <> e.codigo'
+      '             and position(e2.classificacao in e.classificacao)=1'
+      '             and e2.tipo = '#39#39'S'#39#39
+      '             order by e2.classificacao desc limit 1         '
+      '            ) as descricao,'
+      ''
+      '          d.valorvencto'
+      '                  '
+      '          '
+      '    from duplicatas d'
+      '         join documentospag dp'
+      '         on d.documentopag = dp.numero'
+      '         join eventos e'
+      '         on coalesce(d.evento, dp.evento) = e.codigo'
+      '         '
+      '    where dp.emissao between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      '      and e.incluirnadregerencial'
+      '      and dp.previsao = false'
+      '      and d.autorizado = true'
+      
+        '      and trim(e.descricao) <> '#39#39'Empr'#233'stimos Bancos'#39#39' /* Existe ' +
+        'uma linha espec'#237'fica para empr'#233'stimo */'
+      '  )  as d'
+      '  where trim(d.descricao) <> '#39#39'Investimentos'#39#39' '
+      '  group by to_char(d.datavencto, '#39#39'yyyy-MM'#39#39'), d.descricao'
+      '  order by to_char(d.datavencto, '#39#39'yyyy-MM'#39#39'), d.descricao'
+      '  ),'
+      ''
+      '    '
+      '    Soma_despesas as'
+      '   (select sel.ano_mes, '
+      '           cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '           True as totalizar,'
+      #9'       cast('#39#39'TOTAL DESPESAS'#39#39' as varchar(100)) as conta, '
+      #9'       cast(53 as SMALLINT) as ordem,'
+      #9#9'   sum(sel.Total) as Total'
+      #9#9'   from'
+      #9#9'   ('#9'    '
+      
+        #9#9#9'   (select ano_mes, total from Total_Impostos_sobre_Faturamen' +
+        'to_sem_Licitacoes)  union ALL'
+      
+        #9#9#9'   (select ano_mes, total from Total_Impostos_sobre_Faturamen' +
+        'to_de_Licitacoes) union all'
+      
+        '                           (select ano_mes, total from pg_evento' +
+        's_Credito_Previsao_Impostos) union all'
+      ''
+      ''
+      
+        '               (select ano_mes, total from pg_eventos_) union al' +
+        'l'
+      
+        '               (select ano_mes, total from Total_Comissao_Sem_Li' +
+        'citacoes) union all'
+      
+        '               (select ano_mes, total from Total_Comissao_sobre_' +
+        'Licitacoes) union all'
+      
+        '               (select ano_mes, total from Total_Custo_Eqptos_Fa' +
+        'turamento) union all'
+      
+        '               (select ano_mes, total from Fretes_Sobre_Faturame' +
+        'nto_sem_Licitacoes) union all'
+      
+        '               (select ano_mes, total from Fretes_Sobre_Faturame' +
+        'nto_com_Licitacoes)'
+      #9#9'    ) as sel'
+      #9#9#9'group by sel.ano_mes'
+      '     ),'
+      '     '
+      '   Lucro_do_Exercicio as'
+      '   (select sel.ano_mes, '
+      '           cast('#39#39'RT'#39#39' as char(3)) as tipoconta,'
+      '           True as totalizar,'
+      #9'       cast('#39#39'LUCRO DO EXERC'#205'CIO'#39#39' as varchar(100)) as conta, '
+      #9'       cast(55 as SMALLINT) as ordem,'
+      #9#9'   sum(sel.Total) as Total'
+      #9#9'   from'
+      #9#9'   ('#9'    '
+      #9#9#9'   (select ano_mes, total from Total_Faturamento)  union ALL '
+      #9#9#9'   (select ano_mes, total from Soma_despesas) '
+      #9#9'    ) as sel'
+      #9#9#9'group by sel.ano_mes'
+      '     ),'
+      '     '
+      '  Linha_Caixa as '
+      '  ('
+      '  select '
+      '       to_char(cast('
+      ''
+      '       '#39#39':Data_Inicial'#39#39
+      ''
+      '       as date), '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '       cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '       False as totalizar,'
+      '       cast('#39#39'CAIXA'#39#39'  as varchar(100)) as conta,      '
+      '       cast(57 as smallint) as ordem,       '
+      '       cast(null as numeric(11,2)) as Total'
+      ''
+      '  ),'
+      '     '
+      '     '
+      '    Recebimentos_em_Aberto as'
+      '    ('
+      '        WITH Recebimentos_em_Aberto_ as'
+      '        ( '
+      
+        '           select sel.faturamento, sum(sel.valorvencto) as valor' +
+        'vencto FROM'
+      '             (    '
+      '               ('
+      '                  Select c.faturamento'
+      '                   , sum(p.valorvencto) as valorvencto'
+      '                   '
+      '                     '
+      '                  from'
+      '                     ((contratos c'
+      '                     join'
+      '                        (filiais f'
+      '                        left join'
+      '                           (filiaisgruposfiliais fgf'
+      '                           join'
+      '                              gruposfiliais gf'
+      '                              on'
+      '                                 fgf.grupo=gf.codigo)'
+      '                           on'
+      '                              f.codigo = fgf.filial)'
+      '                        on'
+      '                           c.filialvenda = f.codigo)'
+      '                     join'
+      '                        (parcelas p'
+      '                        left join'
+      '                           (filiais f_p'
+      '                           left join'
+      '                              (filiaisgruposfiliais fgf_p'
+      '                              join'
+      '                                 gruposfiliais gf_p'
+      '                                 on'
+      '                                    fgf_p.grupo=gf_p.codigo)'
+      '                              on'
+      '                                 f_p.codigo = fgf_p.filial)'
+      '                           on'
+      '                              p.filialpagto = f_p.codigo)'
+      '                        on'
+      '                           c.numero = p.contrato)'
+      '                     left join'
+      '                        usuarios u'
+      '                        on'
+      '                           c.vendedor = u.codigo'
+      '                  Where'
+      '                     c.numero = p.contrato'
+      '                     and c.Situacao IN ('#39#39'F'#39#39
+      '                                      ,'#39#39'N'#39#39
+      '                                      ,'#39#39'P'#39#39')'
+      '                     AND NOT contratos_renegociado(c.numero)'
+      '                     and coalesce(p.tipopagto,'#39#39#39#39') <>'#39#39'E'#39#39
+      '                     and'
+      '                     case'
+      '                        when c.os'
+      '                           then c.tipoequipamento in (1, 2)'
+      '                           else true'
+      '                     end'
+      '                     and'
+      '                     ('
+      '                        p.datapagto is null'
+      '                     )'
+      '                     and c.faturamento <='
+      ''
+      '                       '#39#39':Data_Final'#39#39
+      ''
+      ''
+      '                     and coalesce(p.formapagamento,'#39#39#39#39')<>'#39#39'T'#39#39
+      '                     '
+      '                  group by c.faturamento   '
+      '                     '
+      '                     '
+      '               )'
+      '             '
+      '               '
+      '              /* N'#195'O TRATAM DEVOLU'#199#213'ES '
+      '      union all'
+      ''
+      '               ('
+      '                  Select c.faturamento'
+      '                   , - sum(p.valorvencto) as valorvencto'
+      '                  from'
+      '                     ((contratos c'
+      '                     join'
+      '                        (filiais f'
+      '                        left join'
+      '                           (filiaisgruposfiliais fgf'
+      '                           join'
+      '                              gruposfiliais gf'
+      '                              on'
+      '                                 fgf.grupo=gf.codigo)'
+      '                           on'
+      '                              f.codigo = fgf.filial)'
+      '                        on'
+      '                           c.filialvenda = f.codigo)'
+      '                     join'
+      '                        (parcelas p'
+      '                        left join'
+      '                           (filiais f_p'
+      '                           left join'
+      '                              (filiaisgruposfiliais fgf_p'
+      '                              join'
+      '                                 gruposfiliais gf_p'
+      '                                 on'
+      '                                    fgf_p.grupo=gf_p.codigo)'
+      '                              on'
+      '                                 f_p.codigo = fgf_p.filial)'
+      '                           on'
+      '                              p.filialpagto = f_p.codigo)'
+      '                        on'
+      '                           c.numero = p.contrato)'
+      '                     left join'
+      '                        usuarios u'
+      '                        on'
+      '                           c.vendedor = u.codigo'
+      '                  Where'
+      '                     c.numero                   = p.contrato'
+      '                     and p.deventrada is not null'
+      '                     AND NOT contratos_renegociado(c.numero)'
+      '                     and'
+      '                     case'
+      '                        when c.os'
+      '                           then c.tipoequipamento in (1, 2)'
+      '                           else true'
+      '                     end'
+      '                     and '#39#39'f'#39#39
+      '                     and'
+      '                     ('
+      '                        p.datapagto is null'
+      '                     )'
+      '                     and c.faturamento <= current_date'
+      '                     and coalesce(p.formapagamento,'#39#39#39#39')<>'#39#39'T'#39#39
+      '                     '
+      '                 group by c.faturamento    '
+      '               )'
+      '               */'
+      '             ) as sel group by sel.faturamento'
+      '      )'
+      ''
+      '      select to_char(mon_last,'#39#39'YYYY-MM'#39#39') as ano_mes,'
+      '              cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '              false as totalizar,'
+      '      '#9'      cast('#39#39'A Receber'#39#39' as varchar(100)) as conta,'
+      #9'          cast(59 as SMALLINT) as ordem,'
+      ''
+      '              (select sum(valorvencto) '
+      '               from Recebimentos_em_Aberto_'
+      
+        '               where faturamento <= mon_last) as Total          ' +
+        '       '
+      '      from         '
+      '      (        '
+      '                          '
+      '          select min(cast(d as date)) as mon_first,'
+      '                 max(cast(d as date)) as mon_last'
+      '          FROM   generate_series(date'
+      ''
+      '          '#39#39':Data_Inicial'#39#39
+      ''
+      '          ,'
+      '          date'
+      ''
+      '          '#39#39':Data_Final'#39#39
+      ''
+      '          , interval '#39#39'1 day'#39#39') d'
+      '          group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      '                                             '
+      '      )  as sel    '
+      '    '
+      '    ),'
+      '    '
+      '    '
+      '    Pagamentos_em_Aberto as'
+      '    ('
+      '    '
+      '        with Pagamentos_em_Aberto as'
+      '        ('
+      ''
+      '          '
+      '           select emissao, sum(valorliquido) as valorliquido'
+      '           From'
+      '           ('
+      '           '
+      '               ('
+      '                  Select d.emissao,'
+      '                         sum(coalesce(t.valorvencto,0) - '
+      
+        '                             coalesce(t.valordesconto,0)) as val' +
+        'orliquido'#9#9'   '
+      '                  From'
+      '                     ((duplicatas t'
+      '                     left join'
+      '                        notaspag n'
+      '                        on'
+      '                           n.documentopag = t.documentopag)'
+      '                     join'
+      '                        (((documentospag d'
+      '                        join'
+      '                           (filiais f'
+      '                           left join'
+      '                              (filiaisgruposfiliais fgf'
+      '                              left join'
+      '                                 gruposfiliais gf'
+      '                                 on'
+      '                                    fgf.grupo=gf.codigo )'
+      '                              on'
+      '                                 f.codigo=fgf.filial)'
+      '                           on'
+      '                              d.filialemissao=f.codigo)'
+      '                        JOIN'
+      '                           eventos e'
+      '                           ON'
+      '                              d.evento = e.Codigo)'
+      '                        join'
+      '                           vfornecedores vf'
+      '                           on'
+      '                              d.fornecedor         = vf.codigo'
+      '                              and d.tipofornecedor = vf.tipo)'
+      '                        on'
+      '                           t.documentopag = d.numero)'
+      '                  where'
+      '                     '#39#39't'#39#39
+      '                     and'
+      '                     ('
+      '                      /*  t.datapagto is null */'
+      
+        '                        (t.datapagto is null or (t.datapagto bet' +
+        'ween'
+      ''
+      '                        '#39#39':Data_Inicial'#39#39
+      ''
+      '                        and'
+      ''
+      '                        '#39#39':Data_Final'#39#39
+      ''
+      '                        ))'
+      '                     )'
+      '                     and'
+      '                     ('
+      '                        d.emissao between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      '                     )'
+      '                     and'
+      '                     ('
+      '                        t.autorizado = true'
+      ''
+      '                     )'
+      '                     and d.previsao = False'
+      ''
+      '        '#9#9#9' '
+      '                  group by d.emissao'
+      '        '#9#9'  '
+      '               )'
+      '            union all'
+      '               ('
+      '                  Select'
+      '                     d.emissao,'
+      '                     sum(d.valor) as valorliquido'
+      '                  From'
+      '                     (((documentospag d'
+      '                     join'
+      '                        (filiais f'
+      '                        left join'
+      '                           (filiaisgruposfiliais fgf'
+      '                           left join'
+      '                              gruposfiliais gf'
+      '                              on'
+      '                                 fgf.grupo=gf.codigo)'
+      '                           on'
+      '                              f.codigo=fgf.filial)'
+      '                        on'
+      '                           d.filialemissao=f.codigo)'
+      '                     JOIN'
+      '                        eventos e'
+      '                        ON'
+      '                           d.evento = e.Codigo)'
+      '                     join'
+      '                        vfornecedores vf'
+      '                        on'
+      '                           d.fornecedor         = vf.codigo'
+      '                           and d.tipofornecedor = vf.tipo)'
+      '                  where'
+      '                     coalesce(d.adiantamento,false)'
+      '                     and '#39#39'f'#39#39
+      '                     and'
+      '                     ('
+      '                        d.emissao between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      '                     )'
+      '                  group by d.emissao '#9#9' '
+      '               )'
+      '            ) as sel   '
+      '            group by emissao'
+      '        )'
+      ''
+      ''
+      '        select to_char(mon_last,'#39#39'YYYY-MM'#39#39') as ano_mes,'
+      #9#9'      cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                      False as totalizar,'
+      '      '#9'      cast('#39#39#192' Pagar'#39#39' as varchar(100)) as conta, '
+      #9'          cast(61 as SMALLINT) as ordem,'
+      '        '
+      '              -  (select sum(valorliquido) '
+      '                 from Pagamentos_em_Aberto'
+      
+        '                 where emissao <= mon_last) as Total            ' +
+        '     '
+      '        from         '
+      '        (        '
+      '          select min(cast(d as date)) as mon_first,'
+      '                 max(cast(d as date)) as mon_last'
+      '          FROM   generate_series(date'
+      ''
+      '          '#39#39':Data_Inicial'#39#39
+      ''
+      '          ,'
+      '          date'
+      ''
+      '          '#39#39':Data_Final'#39#39
+      ''
+      '          , interval '#39#39'1 day'#39#39') d'
+      '          group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      '        )  as sel '
+      '    ),'
+      '    '
+      '    '
+      '  Linha_Bancos_e_Caixa as '
+      '  ('
+      '  select '
+      '       to_char(cast('
+      ''
+      '       '#39#39':Data_Inicial'#39#39
+      ''
+      '       as date), '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '       cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '       False as totalizar,'
+      '       cast('#39#39'  '#39#39'  as varchar(100)) as conta,      '
+      '       cast(63 as smallint) as ordem,       '
+      '       cast(null as numeric(11,2)) as Total'
+      ''
+      '  ),'
+      '    '
+      '    '
+      '  Saldos_Bancos_e_Caixa as'
+      '  ('
+      '  '
+      '      select to_char(periodo.mon_last,'#39#39'yyyy-MM'#39#39') as ano_mes,'
+      
+        '      /*       c.banco, b.nome, c.agencia, ag.nome, c.conta, c.d' +
+        'igito,*/'
+      #9'         cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '              false as totalizar,   '
+      
+        '             cast(b.nome||'#39#39' '#39#39'||'#39#39'Ag. '#39#39'||ag.nome||'#39#39' '#39#39'||cast(' +
+        'c.conta as varchar)||'#39#39'-'#39#39'||cast(c.digito as varchar) as varchar' +
+        '(100)) as conta,'
+      '             cast(64 as smallint) as ordem,'
+      
+        '             saldobanco(c.conta, periodo.mon_last,'#39#39'C'#39#39') as Tota' +
+        'l'
+      '             '
+      '      from contas c'
+      '           join agencias ag'
+      '           on c.banco = ag.banco'
+      '           and c.agencia = ag.codigo'
+      '           '
+      '           join bancos b'
+      '           on c.banco = b.codigo,'
+      
+        '                                                                ' +
+        '                ('
+      
+        '                                                                ' +
+        '                  select min(cast(d as date)) as mon_first,'
+      
+        '                                                                ' +
+        '                         max(cast(d as date)) as mon_last'
+      
+        '                                                                ' +
+        '                  FROM   generate_series(date'
+      ''
+      
+        '                                                                ' +
+        '                  '#39#39':Data_Inicial'#39#39
+      ''
+      
+        '                                                                ' +
+        '                  ,'
+      
+        '                                                                ' +
+        '                  date'
+      ''
+      
+        '                                                                ' +
+        '                  '#39#39':Data_Final'#39#39
+      ''
+      
+        '                                                                ' +
+        '                  , interval '#39#39'1 day'#39#39') d'
+      
+        '                                                                ' +
+        '                  group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '                  order by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '                  ) as periodo'
+      '  ),'
+      '  '
+      '  '
+      '  Total_Saldos_Bancos_e_Caixa as'
+      '  ('
+      '     select ano_mes, '
+      '            /* descricao,  */'
+      #9#9#9'cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '                        false as totalizar,'
+      
+        '            cast('#39#39'TOTAL SALDOS BANC'#193'RIOS E CAIXA CERON'#39#39' as var' +
+        'char(100)) as conta,'
+      '            cast(65 as smallint) as ordem,'
+      '            sum(Total) as Total '
+      '     from'
+      '     '
+      '     ('
+      '      select to_char(periodo.mon_last,'#39#39'yyyy-MM'#39#39') as ano_mes,'
+      
+        '      /*       c.banco, b.nome, c.agencia, ag.nome, c.conta, c.d' +
+        'igito, */'
+      
+        '             cast(b.nome||'#39#39' '#39#39'||'#39#39'Ag. '#39#39'||ag.nome||'#39#39' '#39#39'||cast(' +
+        'c.conta as varchar)||'#39#39'-'#39#39'||cast(c.digito as varchar) as varchar' +
+        '(100)) as conta,'
+      '             cast(65 as smallint) as ordem,'
+      
+        '             saldobanco(c.conta, periodo.mon_last,'#39#39'C'#39#39') as Tota' +
+        'l'
+      '             '
+      '      from contas c'
+      '           join agencias ag'
+      '           on c.banco = ag.banco'
+      '           and c.agencia = ag.codigo'
+      '           '
+      '           join bancos b'
+      '           on c.banco = b.codigo,'
+      
+        '                                                                ' +
+        '                ('
+      
+        '                                                                ' +
+        '                  select min(cast(d as date)) as mon_first,'
+      
+        '                                                                ' +
+        '                         max(cast(d as date)) as mon_last'
+      
+        '                                                                ' +
+        '                  FROM   generate_series(date'
+      ''
+      
+        '                                                                ' +
+        '                  '#39#39':Data_Inicial'#39#39
+      ''
+      
+        '                                                                ' +
+        '                  ,'
+      
+        '                                                                ' +
+        '                  date'
+      ''
+      
+        '                                                                ' +
+        '                  '#39#39':Data_Final'#39#39
+      ''
+      
+        '                                                                ' +
+        '                  , interval '#39#39'1 day'#39#39') d'
+      
+        '                                                                ' +
+        '                  group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '                  order by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '                  ) as periodo'
+      ''
+      ''
+      '  '
+      '   ) as sel'
+      '     group by ano_mes'
+      '     order by ano_mes'
+      '  ),'
+      '  '
+      '    '
+      '    '
+      '  pg_eventos_Emprestimos as'
+      '  ('
+      '  '
+      '            select '
+      
+        '                  to_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39') as ano_' +
+        'mes,'
+      '        /*          periodo.mon_last,'
+      '                  dp.emissao, */'
+      #9#9#9#9'  cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                                  False as totalizar,'
+      '                   e.descricao as conta,'
+      '                   cast(66 as SMALLINT) as ordem,'
+      '        /*           d.valorvencto */'
+      '                   '
+      '                  - sum(d.valorvencto) as Total'
+      '            from duplicatas d'
+      '                 join documentospag dp'
+      '                 on d.documentopag = dp.numero'
+      '                 join eventos e'
+      '                 on coalesce(d.evento, dp.evento) = e.codigo,'
+      '                 '
+      
+        '                                                                ' +
+        '                  ('
+      
+        '                                                                ' +
+        '                    select min(cast(d as date)) as mon_first,'
+      
+        '                                                                ' +
+        '                           max(cast(d as date)) as mon_last'
+      
+        '                                                                ' +
+        '                    FROM   generate_series(date'
+      ''
+      
+        '                                                                ' +
+        '                    '#39#39':Data_Inicial'#39#39
+      ''
+      
+        '                                                                ' +
+        '                    ,'
+      
+        '                                                                ' +
+        '                    date'
+      ''
+      
+        '                                                                ' +
+        '                    '#39#39':Data_Final'#39#39
+      ''
+      
+        '                                                                ' +
+        '                    , interval '#39#39'1 day'#39#39') d'
+      
+        '                                                                ' +
+        '                    group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '                    order by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '                    ) as periodo'
+      ''
+      '            where dp.emissao <= periodo.mon_last'
+      
+        '              and (d.datapagto is null or (d.datapagto between p' +
+        'eriodo.mon_first and periodo.mon_last))'
+      '              and e.incluirnadregerencial'
+      '              and dp.previsao = false'
+      '              and d.autorizado = true'
+      '              and trim(e.descricao) = '#39#39'Empr'#233'stimos Bancos'#39#39
+      ''
+      
+        '        group by to_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39'), e.descr' +
+        'icao'
+      '        order by to_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39')        '
+      '  '
+      '  ),'
+      '    '
+      #9
+      '  pg_eventos_Investimentos as'
+      '  ('
+      ''
+      '  select to_char(d.datavencto, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '         cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '         True as totalizar,'
+      '         d.descricao as conta,'
+      '         cast(67 as SMALLINT) as ordem,'
+      '         - sum(d.valorvencto) as Total'
+      '  from'
+      ''
+      '    ('
+      ''
+      '    select'
+      '          d.datavencto,'
+      ''
+      '          (select e2.descricao'
+      '           from eventos e2'
+      '           where e2.codigo <> e.codigo'
+      '             and position(e2.classificacao in e.classificacao)=1'
+      '             and e2.tipo = '#39#39'S'#39#39
+      '             order by e2.classificacao desc limit 1'
+      '            ) as descricao,'
+      ''
+      '          d.valorvencto'
+      ''
+      ''
+      '    from duplicatas d'
+      '         join documentospag dp'
+      '         on d.documentopag = dp.numero'
+      '         join eventos e'
+      '         on coalesce(d.evento, dp.evento) = e.codigo'
+      ''
+      '    where d.datavencto between'
+      ''
+      '    '#39#39':Data_Inicial'#39#39
+      ''
+      '    and'
+      ''
+      '    '#39#39':Data_Final'#39#39
+      ''
+      '      and e.incluirnadregerencial'
+      '      and dp.previsao = false'
+      '      and d.autorizado = true'
+      '      and trim(e.descricao) <> '#39#39'Empr'#233'stimos Bancos'#39#39
+      '  )  as d'
+      '  where trim(d.descricao) = '#39#39'Investimentos'#39#39
+      '  group by to_char(d.datavencto, '#39#39'yyyy-MM'#39#39'), d.descricao'
+      '  order by to_char(d.datavencto, '#39#39'yyyy-MM'#39#39'), d.descricao'
+      '  ),'
+      ''
+      ''
+      ''
+      '    Estoques as '
+      '    ('
+      '    '
+      ''
+      '      select ano_mes,'
+      #9'       cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '               False as totalizar,'
+      '           CAST('#39#39'Estoque'#39#39' as varchar(100)) as conta,'
+      '           cast(69 as smallint) as ordem,'
+      '           round(sum(Total), 2)      as Total'
+      '      from'
+      '         ('
+      ''
+      ''
+      '            select'
+      '            /*'
+      '               case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigogrupofilial'
+      '                     else cast(null as integer)'
+      '               end as codigogrupofilial'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then nomegrupofilial'
+      '                     else cast(null as varchar)'
+      '               end as nomegrupofilial'
+      '             , case'
+      '                  When '#39#39't'#39#39
+      '                     then codigofilial'
+      '                     else cast(null as integer)'
+      '               end as codigofilial'
+      '             , case'
+      '                  When '#39#39't'#39#39
+      '                     then nomefilial'
+      '                     else cast(null as varchar)'
+      '               end as nomefilial'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then localizacao'
+      '                     else cast(null as varchar)'
+      '               end as localizacao'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigoclasse'
+      '                     else cast(null as varchar)'
+      '               end as codigoclasse'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then classeproduto'
+      '                     else cast(null as varchar)'
+      '               end as classeproduto'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigogrupo'
+      '                     else cast(null as varchar)'
+      '               end as codigogrupo'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then grupoproduto'
+      '                     else cast(null as varchar)'
+      '               end as grupoproduto'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigoproduto'
+      '                     else cast(null as bigint)'
+      '               end as codigoproduto'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigoprodutovisual'
+      '                     else cast(null as varchar(30))'
+      '               end as codigoprodutovisual'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then produto'
+      '                     else cast(null as varchar)'
+      '               end as produto'
+      '               '
+      '             , */ case'
+      '                  When '#39#39'f'#39#39
+      '                     then financeiro'
+      '                     else'
+      '                        ('
+      '                           case'
+      
+        '                              when coalesce(qtdultimaentrada,0)<' +
+        '>0'
+      
+        '                                 then (qtdestoque*(custo_ultimae' +
+        'ntrada/qtdultimaentrada))'
+      '                                 else cast(null as numeric)'
+      '                           end'
+      '                        )'
+      '               end as Total, ano_mes'
+      '      /*       , qtdestoque*/'
+      '            from'
+      '               ('
+      ''
+      '                  SELECT'
+      '                     ep.*'
+      
+        '                   , estoques_preco(ep.codigoitem,ep.codigofilia' +
+        'l) as precovenda'
+      
+        '                   , financeiro/qtdestoque                      ' +
+        '   as custo_medio'
+      '                   , case'
+      '                        when '#39#39'f'#39#39
+      
+        '                           then custoestoquefisico(ep.codigoitem' +
+        ',ep.codigofilial,'
+      ''
+      '                           '#39#39':Data_Final'#39#39
+      ''
+      '                           )'
+      '                           else ep.valor'
+      '                     end as Custo_ultimaEntrada'
+      '                  from'
+      '                     ('
+      ''
+      '                        SELECT'
+      '                           ep.*'
+      '                        from'
+      '                           ('
+      ''
+      '                              SELECT'
+      '                                 ep.*'
+      
+        '                               , (ep.emestoque+ep.reservado+ep.t' +
+        'ransito+ep.demonstracao+ep.conserto+ep.danificada+ep.reservaprev' +
+        'ia/*+ep.estoquefisico*/) AS qtdestoque'
+      
+        '                               , f.nome                         ' +
+        '                                                                ' +
+        '                     AS nomefilial'
+      
+        '                               , gf.descricao                   ' +
+        '                                                                ' +
+        '                     as nomegrupofilial'
+      
+        '                               , gf.codigo                      ' +
+        '                                                                ' +
+        '                     as codigogrupofilial'
+      '                              FROM'
+      '                                 ('
+      ''
+      '                                    select'
+      '                                       ep.*'
+      '                                       /*'
+      '                                     , ('
+      '                                          select'
+      
+        '                                             i.classificacaofisc' +
+        'al'
+      '                                          from'
+      '                                             ipi i'
+      '                                          where'
+      '                                             i.codigo = c.ipi'
+      '                                       )'
+      
+        '                                                      as classif' +
+        'icacaofiscal'
+      
+        '                                     , cl.descricao   AS classep' +
+        'roduto'
+      
+        '                                     , cl.codigo      AS codigoc' +
+        'lasse'
+      
+        '                                     , g.descricao    AS grupopr' +
+        'oduto'
+      
+        '                                     , g.codigo       AS codigog' +
+        'rupo'
+      '                                     , c.descricao    AS produto'
+      
+        '                                     , c.codigo       AS codigop' +
+        'roduto'
+      
+        '                                     , c.codigovisual as codigop' +
+        'rodutovisual'
+      '                                     , cast(p.descricao'
+      '                                          ||'#39#39' '#39#39
+      
+        '                                          ||coalesce(p.valorgrad' +
+        'e1,'#39#39#39#39')'
+      '                                          ||'#39#39' '#39#39
+      
+        '                                          ||coalesce(p.valorgrad' +
+        'e2,'#39#39#39#39') as varchar) AS item'
+      
+        '                                     , ma.descricao             ' +
+        '                   AS marca'
+      '                                     , p.referencia'
+      
+        '                                     , p.codigovisual as codigoi' +
+        'temvisual'
+      '                                     , c.unidade'
+      '                                     , c.subconta'
+      '                                     */'
+      '                                    from'
+      '                                       ('
+      ''
+      '                                          select'
+      '                                             ep.*'
+      '                                           , m2.valor'
+      
+        '                                           , m2.quantidade as qt' +
+        'dUltimaEntrada'
+      '                                          from'
+      '                                             ('
+      ''
+      
+        '                                                select ano_mes, ' +
+        'mon_last'
+      
+        '                                                 , e.codigofilia' +
+        'l'
+      '                                                 , e.codigoitem'
+      '                                                 , e.localizacao'
+      
+        '                                                 , e.precocomicm' +
+        's'
+      '                                                 ,'
+      
+        '                                                   /*,estoques_p' +
+        'reco(e.produto,e.filial) as precovenda*/'
+      '                                                   m.emestoque'
+      '                                                 , m.reservado'
+      '                                                 , m.transito'
+      
+        '                                                 , m.demonstraca' +
+        'o'
+      '                                                 , m.conserto'
+      '                                                 , m.danificada'
+      
+        '                                                 , m.reservaprev' +
+        'ia'
+      
+        '                                                 , m.estoquefisi' +
+        'co'
+      '                                                 , m.financeiro'
+      '                                                from'
+      '                                                   ('
+      ''
+      
+        '                                                      select ano' +
+        '_mes, mon_last'
+      
+        '                                                       ,  m.nume' +
+        'ro'
+      
+        '                                                       , e.filia' +
+        'l  as codigofilial'
+      
+        '                                                       , e.produ' +
+        'to as codigoitem'
+      
+        '                                                       , e.local' +
+        'izacao'
+      
+        '                                                       , e.preco' +
+        'comicms'
+      '                                                      from'
+      '                                                         ('
+      ''
+      
+        '                                                            sele' +
+        'ct ano_mes, mon_last'
+      
+        '                                                             , m' +
+        '2.numero'
+      
+        '                                                             , m' +
+        '1.produto'
+      
+        '                                                             , m' +
+        '1.filial'
+      '                                                            from'
+      '                                                               ('
+      ''
+      
+        '                                                                ' +
+        '  select ano_mes, mon_last'
+      
+        '                                                                ' +
+        '   , m1.data'
+      
+        '                                                                ' +
+        '   , m1.produto'
+      
+        '                                                                ' +
+        '   , m1.filial'
+      
+        '                                                                ' +
+        '   , ('
+      
+        '                                                                ' +
+        '        select'
+      
+        '                                                                ' +
+        '           max(m2.lancto)'
+      
+        '                                                                ' +
+        '        from'
+      
+        '                                                                ' +
+        '           movimentos m2'
+      
+        '                                                                ' +
+        '        where'
+      
+        '                                                                ' +
+        '           m2.produto    = m1.produto'
+      
+        '                                                                ' +
+        '           and m2.filial = m1.filial'
+      
+        '                                                                ' +
+        '           and m2.data   = m1.data'
+      
+        '                                                                ' +
+        '     )'
+      
+        '                                                                ' +
+        '     as lancto'
+      
+        '                                                                ' +
+        '  from'
+      
+        '                                                                ' +
+        '     ('
+      ''
+      
+        '                                                                ' +
+        '        select'
+      
+        '                                                                ' +
+        '           TO_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39') as ano_mes, pe' +
+        'riodo.mon_last,'
+      
+        '                                                                ' +
+        '           max(m1.data) as data'
+      
+        '                                                                ' +
+        '         , m1.produto'
+      
+        '                                                                ' +
+        '         , m1.filial'
+      
+        '                                                                ' +
+        '        from'
+      
+        '                                                                ' +
+        '           movimentos m1,'
+      
+        '                                                                ' +
+        '           '
+      
+        '                                                                ' +
+        '          ('
+      
+        '                                                                ' +
+        '            select min(cast(d as date)) as mon_first,'
+      
+        '                                                                ' +
+        '                   max(cast(d as date)) as mon_last'
+      
+        '                                                                ' +
+        '            FROM   generate_series(date'
+      ''
+      
+        '                                                                ' +
+        '            '#39#39':Data_Inicial'#39#39
+      ''
+      
+        '                                                                ' +
+        '            ,'
+      
+        '                                                                ' +
+        '            date'
+      ''
+      
+        '                                                                ' +
+        '            '#39#39':Data_Final'#39#39
+      ''
+      
+        '                                                                ' +
+        '            , interval '#39#39'1 day'#39#39') d'
+      
+        '                                                                ' +
+        '            group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '            order by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '            ) as periodo'
+      
+        '                                                                ' +
+        '          '
+      
+        '                                                                ' +
+        '        where'
+      
+        '                                                                ' +
+        '           m1.data <= periodo.mon_last '
+      
+        '                                                                ' +
+        '           /* and m1.produto = 55 */'
+      
+        '                                                                ' +
+        '        group by'
+      
+        '                                                                ' +
+        '           TO_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39'), periodo.mon_l' +
+        'ast'
+      
+        '                                                                ' +
+        '         ,  m1.produto'
+      
+        '                                                                ' +
+        '         , m1.filial'
+      
+        '                                                                ' +
+        '        order by'
+      
+        '                                                                ' +
+        '          TO_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39')'
+      
+        '                                                                ' +
+        '         ,  m1.produto'
+      
+        '                                                                ' +
+        '         , m1.filial                                            ' +
+        '                       '
+      
+        '                                                                ' +
+        '     )'
+      
+        '                                                                ' +
+        '     as m1                                                      ' +
+        '         '
+      '                                                               )'
+      
+        '                                                               a' +
+        's m1'
+      
+        '                                                               j' +
+        'oin'
+      
+        '                                                                ' +
+        '  movimentos m2'
+      
+        '                                                                ' +
+        '  on'
+      
+        '                                                                ' +
+        '     m1.data        = m2.data'
+      
+        '                                                                ' +
+        '     and m1.lancto  = m2.lancto'
+      
+        '                                                                ' +
+        '     and m1.produto = m2.produto'
+      
+        '                                                                ' +
+        '     and m1.filial  = m2.filial'
+      '                                                         )'
+      '                                                         as m'
+      '                                                         join'
+      
+        '                                                            esto' +
+        'ques e'
+      '                                                            on'
+      
+        '                                                               m' +
+        '.produto    = e.produto'
+      
+        '                                                               a' +
+        'nd m.filial = e.filial'
+      '                                                   )'
+      '                                                   as e'
+      '                                                   join'
+      
+        '                                                      movimentos' +
+        ' m'
+      '                                                      on'
+      
+        '                                                         e.numer' +
+        'o         = m.numero'
+      
+        '                                                         and m.f' +
+        'inanceiro<>0'
+      '                                                         '
+      '                                             )'
+      '                                             as ep'
+      '                                             LEFT JOIN'
+      '                                                movimentos m2'
+      '                                                ON'
+      
+        '                                                   m2.produto   ' +
+        ' = ep.codigoitem'
+      
+        '                                                   AND m2.filial' +
+        ' = ep.codigofilial'
+      
+        '                                                   and m2.numero' +
+        ' ='
+      '                                                   ('
+      '                                                      SELECT'
+      
+        '                                                         m.numer' +
+        'o'
+      
+        '                                                         /*max(m' +
+        '.numero)*/'
+      '                                                      from'
+      
+        '                                                         movimen' +
+        'tos m'
+      '                                                      where'
+      
+        '                                                         m.produ' +
+        'to                              =ep.codigoitem'
+      
+        '                                                         and m.f' +
+        'ilial                           =ep.codigofilial'
+      
+        '                                                         and m.d' +
+        'ata <=  mon_last                           '
+      
+        '                                                         and sub' +
+        'string(m.operacao from 12 for 1)='#39#39'+'#39#39
+      '                                                      order by'
+      
+        '                                                         m.data ' +
+        'desc'
+      
+        '                                                       , m.lanct' +
+        'o desc limit 1'
+      '                                                   )'
+      '                                       )'
+      '                                       as ep'
+      
+        '                                       /*trocado para kilar, fic' +
+        'a bem mais rapido*/'
+      '                                       JOIN'
+      '                                          produtos p'
+      '                                          on'
+      
+        '                                             p.codigo=ep.codigoi' +
+        'tem'
+      '                                       JOIN'
+      '                                          caracteristicas c'
+      '                                          on'
+      
+        '                                             c.codigo=p.caracter' +
+        'istica'
+      '                                             /*'
+      '                                       JOIN'
+      '                                          grupos g'
+      '                                          on'
+      '                                             g.codigo=c.grupo'
+      '                                       JOIN'
+      '                                          classes cl'
+      '                                          on'
+      '                                             cl.codigo=c.classe'
+      '                                       JOIN'
+      '                                          marcas ma'
+      '                                          on'
+      '                                             ma.codigo=c.marca'
+      '                                             */'
+      
+        '                                       /*  muito lento na kilar ' +
+        '- 02-01-2013 - banco 8.4  JOIN ( produtos p  JOIN (((caracterist' +
+        'icas c  JOIN grupos g  ON c.grupo = g.codigo)  JOIN classes cl  ' +
+        'ON c.classe=cl.codigo)  JOIN marcas ma  ON c.marca=ma.codigo)  O' +
+        'N p.caracteristica=c.codigo)  ON p.codigo = ep.codigoitem */'
+      '                                    where'
+      '                                       TRUE'
+      
+        '                                       /* ((not (c.inativo is no' +
+        't null)) or (c.inativo>'#39#39'30/06/2024'#39#39')) Comentado em 13/09/2019 ' +
+        'por L'#218'CIO WATERKEMPER */'
+      
+        '                                       and c.tipoproduto in ('#39#39'0' +
+        '0'#39#39')'
+      '                                       '
+      '                                 )'
+      '                                 as ep'
+      '                                 JOIN'
+      '                                    (filiais f'
+      '                                    left join'
+      '                                       (filiaisgruposfiliais fgf'
+      '                                       join'
+      '                                          gruposfiliais gf'
+      '                                          on'
+      
+        '                                             fgf.grupo = gf.codi' +
+        'go)'
+      '                                       on'
+      '                                          fgf.filial = f.codigo)'
+      '                                    ON'
+      
+        '                                       f.codigo = ep.codigofilia' +
+        'l'
+      '                              Order by'
+      '                                 nomefilial'
+      '                               , codigofilial'
+      '      /*                         , codigoitemvisual*/'
+      '                               , codigoitem'
+      '      /*                         , item*/'
+      ''
+      '                           )'
+      '                           as ep'
+      '                        WHERE'
+      '                           qtdestoque>0'
+      '                     )'
+      '                     as ep'
+      '               )'
+      '               as temp'
+      '         )'
+      '         as temp'
+      '         group by ano_mes order by ano_mes'
+      '    ),'
+      '    '
+      '    '
+      '    Adiantamentos_de_Pagamentos as'
+      '    ('
+      '    '
+      
+        '        select to_char(max(periodo.mon_last), '#39#39'yyyy-MM'#39#39')  as a' +
+        'no_mes,'
+      #9#9'              cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                      False as totalizar,        '
+      
+        '                      cast('#39#39'Importa'#231#227'o (PEDIDOS J'#193' PAGOS POR AN' +
+        'TECIPA'#199#195'O)'#39#39' as varchar(100)) as conta, '
+      '                      cast(71 as SMALLINT) as ordem,'
+      '              - sum(saldo) as total'
+      '        from'
+      '        ('
+      '        select sel.*,'
+      '               Calcular_Saldo_Adiantamento(sel.numero,'
+      ''
+      '               cast('
+      ''
+      '                 '#39#39':Data_Final'#39#39
+      ''
+      '                 as date)'
+      ''
+      '               ) as Saldo'
+      '        from'
+      '        ('
+      '        select sel.*,'
+      '               (select max(dp.numero)'
+      '                from documentospag dp'
+      '                where dp.fornecedor = sel.fornecedor '
+      '                  and dp.tipofornecedor = sel.tipofornecedor'
+      '                  and dp.emissao = sel.emissao) as numero'
+      ''
+      '                  '
+      '                  '
+      '        from'
+      '        (       '
+      ''
+      
+        '        select dp.fornecedor, dp.tipofornecedor, max(dp.emissao)' +
+        ' as emissao'
+      '        from documentospag dp'
+      '             join tipospagamentos tp'
+      '             on dp.tipopagamento = tp.codigo'
+      '        where coalesce(dp.adiantamento,false) '
+      '        and dp.emissao <='
+      ''
+      '          '#39#39':Data_Final'#39#39
+      ''
+      '        /*and dp.fornecedor = 695*/'
+      
+        '        group by dp.fornecedor, dp.tipofornecedor, to_char(dp.em' +
+        'issao, '#39#39'YYYY/MM'#39#39')'
+      
+        '        order by dp.fornecedor, dp.tipofornecedor, to_char(dp.em' +
+        'issao, '#39#39'YYYY/MM'#39#39')'
+      ''
+      '        ) as sel'
+      '        ) as sel'
+      '        )  as sel,'
+      '                ('
+      '                  select min(cast(d as date)) as mon_first,'
+      '                         max(cast(d as date)) as mon_last'
+      '                  FROM   generate_series(date'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  ,'
+      '                  date'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      '                  , interval '#39#39'1 day'#39#39') d'
+      '                  group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      '                  order by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      '                  ) as periodo'
+      '          where sel.emissao <= periodo.mon_last'
+      ''
+      '        group by to_char(periodo.mon_last, '#39#39'YYYY/MM'#39#39')'
+      '        order by to_char(periodo.mon_last, '#39#39'YYYY/MM'#39#39')'
+      '    '
+      '    '
+      '    ),'
+      ''
+      ''
+      '    Recebimentos_mes as'
+      '    ('
+      '    '
+      '        Select to_char(p.datapagto, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '              cast('#39#39'DT'#39#39' as char(3)) as tipoconta,'
+      '              True as totalizar,'
+      
+        '      '#9'      cast('#39#39'RECEBIMENTOS M'#202'S'#39#39' as varchar(100)) as conta' +
+        ', '
+      #9'          cast(75 as SMALLINT) as ordem,'
+      '        '
+      '              sum(p.valorpagto) as Total'
+      ''
+      '        from ((contratos c join (filiais f'
+      
+        '                                left join (filiaisgruposfiliais ' +
+        'fgf'
+      '                                          join gruposfiliais gf'
+      
+        '                                          on fgf.grupo=gf.codigo' +
+        ')'
+      '                                on f.codigo = fgf.filial)'
+      '                         on c.filialvenda = f.codigo)'
+      ''
+      '                         join (parcelas p'
+      '                          left join (filiais f_p'
+      
+        '                                left join (filiaisgruposfiliais ' +
+        'fgf_p'
+      
+        '                                          join gruposfiliais gf_' +
+        'p'
+      
+        '                                          on fgf_p.grupo=gf_p.co' +
+        'digo)'
+      '                                on f_p.codigo = fgf_p.filial)'
+      '                          on  p.filialpagto = f_p.codigo)'
+      '                         on c.numero = p.contrato)'
+      ''
+      
+        '                         left join usuarios u on c.vendedor = u.' +
+        'codigo,'
+      '                         '
+      '                  (       '
+      '                  select min(cast(d as date)) as mon_first,'
+      '                         max(cast(d as date)) as mon_last'
+      '                  FROM   generate_series(date'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  ,'
+      '                  date'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      '                  , interval '#39#39'1 day'#39#39') d'
+      '                  group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      '                  ) as intervalo'
+      ''
+      ''
+      
+        '        Where c.numero = p.contrato and c.Situacao IN ('#39#39'F'#39#39','#39#39'N' +
+        #39#39','#39#39'P'#39#39')'
+      
+        '          AND NOT contratos_renegociado(c.numero)  and coalesce(' +
+        'p.tipopagto,'#39#39#39#39') <>'#39#39'E'#39#39
+      
+        '          and case when c.os then c.tipoequipamento in (1,2) els' +
+        'e true end'
+      '          and (p.datapagto is not null)'
+      
+        '          and coalesce(p.formapagamento,'#39#39#39#39')<>'#39#39'T'#39#39' and p.datap' +
+        'agto between intervalo.mon_first and intervalo.mon_last'
+      '        group by to_char(p.datapagto, '#39#39'yyyy-MM'#39#39')'
+      ''
+      '    ),'
+      ''
+      ''
+      ''
+      '    Pagamentos_mes as'
+      '    ('
+      ''
+      
+        '                  Select to_char(t.datapagto, '#39#39'yyyy-MM'#39#39') as an' +
+        'o_mes,'
+      
+        '                            cast('#39#39'DT'#39#39' as char(3)) as tipoconta' +
+        ','
+      '                            True as totalizar,'
+      
+        '                            cast('#39#39'PAGAMENTOS M'#202'S'#39#39' as varchar(1' +
+        '00)) as conta, '
+      '                            cast(77 as SMALLINT) as ordem,'
+      '                  '
+      '                       -  sum(coalesce(t.valorpagto,0)) as Total'
+      '                  From'
+      '                     ((duplicatas t'
+      '                     left join'
+      '                        notaspag n'
+      '                        on'
+      '                           n.documentopag = t.documentopag)'
+      '                     join'
+      '                        (((documentospag d'
+      '                        join'
+      '                           (filiais f'
+      '                           left join'
+      '                              (filiaisgruposfiliais fgf'
+      '                              left join'
+      '                                 gruposfiliais gf'
+      '                                 on'
+      '                                    fgf.grupo=gf.codigo )'
+      '                              on'
+      '                                 f.codigo=fgf.filial)'
+      '                           on'
+      '                              d.filialemissao=f.codigo)'
+      '                        JOIN'
+      '                           eventos e'
+      '                           ON'
+      '                              d.evento = e.Codigo)'
+      '                        join'
+      '                           vfornecedores vf'
+      '                           on'
+      '                              d.fornecedor         = vf.codigo'
+      '                              and d.tipofornecedor = vf.tipo)'
+      '                        on'
+      '                           t.documentopag = d.numero),'
+      '                           '
+      '                        (        '
+      
+        '                          select min(cast(d as date)) as mon_fir' +
+        'st,'
+      
+        '                                 max(cast(d as date)) as mon_las' +
+        't'
+      '                          FROM   generate_series(date'
+      ''
+      '                          '#39#39':Data_Inicial'#39#39
+      ''
+      '                          ,'
+      '                          date'
+      ''
+      '                          '#39#39':Data_Final'#39#39
+      ''
+      '                          , interval '#39#39'1 day'#39#39') d'
+      '                          group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      '                        )  as intervalo '
+      ''
+      '                  where'
+      '                     '#39#39't'#39#39
+      '                     and'
+      '                     ('
+      '                        t.datapagto is not null'
+      '                     )'
+      '                     and'
+      '                     ('
+      
+        '                        t.datapagto between intervalo.mon_first ' +
+        'and intervalo.mon_last'
+      '                     )'
+      '                     and'
+      '                     ('
+      '                        t.autorizado = true'
+      '                     )'
+      '        '#9#9#9' '
+      '                  group by to_char(t.datapagto, '#39#39'yyyy-MM'#39#39')    '
+      '    '
+      '    )'
+      ''
+      
+        '  select tipoconta, totalizar, conta, sum(ordem) as ordem, ano_m' +
+        'es, sum(Total) as Total'
+      '  from'
+      ''
+      '  ('
+      ''
+      '     ('
+      '        select tipoconta,'
+      '               totalizar,'
+      '               conta, sum(ordem) as ordem,'
+      '               ano_mes,'
+      '               sum(Total) as Total'
+      '         from'
+      '        ('
+      ''
+      ''
+      
+        '          (select * from Licitacoes_Ganhas_Venda)     '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Custos)                      '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Lucro_Bruto_Prejuizo)        '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from emissao)                     '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Faturamento_de_Licitacoes)   '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Faturamento_sem_Licitacoes)  '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Total_Faturamento)           '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Custo_Eqptos_Faturamento_com_Licitacoes' +
+        ') '#9'UNION ALL'
+      
+        '          (select * from Custo_Eqptos_Faturamento_sem_Licitacoes' +
+        ') '#9'UNION ALL'
+      
+        '          (select * from Total_Custo_Eqptos_Faturamento) '#9#9#9'UNIO' +
+        'N ALL'
+      
+        '          (select * from Fretes_Sobre_Faturamento_com_Licitacoes' +
+        ') '#9'UNION ALL'
+      
+        '          (select * from Fretes_Sobre_Faturamento_sem_Licitacoes' +
+        ') '#9'UNION ALL'
+      '          (select * from Espaco_linha_Frete) '#9#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from Comissao_Sobre_Licitacoes) '#9#9#9#9'UNION AL' +
+        'L'
+      
+        '          (select * from Total_Comissao_Sobre_Licitacoes)  '#9#9#9'UN' +
+        'ION ALL'
+      '          (select * from Comissao_Sem_Licitacoes) '#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from Total_Comissao_Sem_Licitacoes) '#9#9#9'UNION' +
+        ' ALL'
+      ''
+      '          /*'
+      
+        '          (select * from ICMS_sobre_Faturamento_de_Licitacoes)'#9#9 +
+        'UNION ALL'
+      
+        '          (select * from IPI_sobre_Faturamento_de_Licitacoes)'#9#9'U' +
+        'NION ALL'
+      
+        '          (select * from PIS_sobre_Faturamento_de_Licitacoes)'#9#9'U' +
+        'NION ALL'
+      
+        '          (select * from COFINS_sobre_Faturamento_de_Licitacoes)' +
+        #9'UNION ALL'
+      
+        '          (select * from Total_Impostos_sobre_Faturamento_de_Lic' +
+        'itacoes)'#9'UNION ALL'
+      ''
+      
+        '          (select * from ICMS_sobre_Faturamento_sem_Licitacoes)'#9 +
+        #9'UNION ALL'
+      
+        '          (select * from IPI_sobre_Faturamento_sem_Licitacoes)'#9#9 +
+        'UNION ALL'
+      
+        '          (select * from PIS_sobre_Faturamento_sem_Licitacoes)'#9#9 +
+        'UNION ALL'
+      
+        '          (select * from COFINS_sobre_Faturamento_sem_Licitacoes' +
+        ')'#9'UNION ALL'
+      
+        '          (select * from Total_Impostos_sobre_Faturamento_sem_Li' +
+        'citacoes)'#9'UNION ALL'
+      '          */'
+      ''
+      '          (select  ano_mes,'
+      '                   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        '                   cast('#39#39'Imposto (Sob Faturamento Sem Abatiment' +
+        'os)'#39#39' as varchar(100)) as conta,'
+      '                   cast(49 as smallint) as ordem,'
+      '                   sum(total) as Total'
+      '            from'
+      '            ('
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_de_Licitacoes)                     UNION ALL'
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_sem_Licitacoes)'
+      ''
+      '            ) as sel'
+      '            group by ano_mes'
+      ''
+      '          )   UNION ALL'
+      ''
+      
+        '          (select * from pg_eventos_Credito_Previsao_Impostos) U' +
+        'NION ALL'
+      ''
+      '          (select  ano_mes,'
+      '                   cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        '                   cast('#39#39'Total Impostos'#39#39' as varchar(100)) as c' +
+        'onta,'
+      '                   cast(50 as smallint) as ordem,'
+      '                   sum(total) as Total'
+      '            from'
+      '            ('
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_de_Licitacoes)                     UNION ALL'
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_sem_Licitacoes)   union all'
+      
+        '              (select ano_mes, total from pg_eventos_Credito_Pre' +
+        'visao_Impostos)'
+      ''
+      ''
+      '            ) as sel'
+      '            group by ano_mes'
+      ''
+      '          )   UNION ALL'
+      ''
+      ''
+      '          (select * from pg_eventos_) '#9#9#9#9#9#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from Soma_despesas)                         ' +
+        '     UNION ALL'
+      
+        '          (select * from Lucro_do_Exercicio)                    ' +
+        '     UNION ALL'
+      ''
+      
+        '          (select * from Linha_Caixa)                     '#9#9#9#9'UN' +
+        'ION ALL'
+      ''
+      
+        '          (select * from Recebimentos_em_Aberto)                ' +
+        '     UNION ALL'
+      
+        '          (select * from Pagamentos_em_Aberto)                  ' +
+        '     UNION ALL'
+      
+        '          (select * from Linha_Bancos_e_Caixa)                  ' +
+        '     UNION ALL'
+      
+        '          (select * from Saldos_Bancos_e_Caixa)                 ' +
+        '      UNION ALL'
+      
+        '          (select * from Total_Saldos_Bancos_e_Caixa)           ' +
+        '            UNION ALL'
+      '          (select * from pg_eventos_Emprestimos) '#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from pg_eventos_Investimentos) '#9#9#9#9#9'UNION AL' +
+        'L'
+      
+        '          (select * from Estoques)                       UNION A' +
+        'LL'
+      '          (select * from Adiantamentos_de_pagamentos) UNION ALL'
+      ''
+      ''
+      '          (select  ano_mes,'
+      '                   cast('#39#39'RT'#39#39' as char(3)) as tipoconta,'
+      '                   false as totalizar,'
+      
+        '                   cast('#39#39'TOTAL L'#205'QUIDO'#39#39' as varchar(100)) as co' +
+        'nta,'
+      '                   cast(74 as smallint) as ordem,'
+      '                   sum(total) as Total'
+      '            from'
+      '            ('
+      
+        '              (select ano_mes, total from Recebimentos_em_Aberto' +
+        ')                     UNION ALL'
+      
+        '              (select ano_mes, total from Pagamentos_em_Aberto) ' +
+        '                      UNION ALL'
+      
+        '              (select ano_mes, total from Total_Saldos_Bancos_e_' +
+        'Caixa)                       UNION ALL'
+      
+        '              (select ano_mes, total from pg_eventos_Emprestimos' +
+        ') '#9#9#9#9#9'UNION ALL'
+      
+        '              (select ano_mes, total from pg_eventos_Investiment' +
+        'os) '#9#9#9#9#9'UNION ALL'
+      
+        '              (select ano_mes, total from Estoques)             ' +
+        '          UNION ALL'
+      
+        '              (select ano_mes, total from Adiantamentos_de_pagam' +
+        'entos)'
+      ''
+      '            ) as sel'
+      '            group by ano_mes'
+      ''
+      '          ) UNION ALL'
+      ''
+      '          (select * from Recebimentos_mes) UNION ALL'
+      '          (select * from Pagamentos_mes)'
+      ''
+      '        ) as sel'
+      '        group by tipoconta, totalizar, conta, ano_mes, ordem'
+      '        order by ordem, conta, ano_mes'
+      ''
+      '        )'
+      #9#9
+      #9
+      ''
+      '        union all'
+      ''
+      '        ('
+      ''
+      '        select tipoconta,'
+      '               totalizar,'
+      '               conta, ordem,'
+      '               cast('#39#39'TOTAL'#39#39' as varchar(7)) as ano_mes,'
+      
+        #9#9#9'   sum(case when totalizar then Total else cast(null as numer' +
+        'ic(11,2)) end) as Total'
+      '         from'
+      '        ('
+      ''
+      
+        '          (select * from Licitacoes_Ganhas_Venda)     '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Custos)                      '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Lucro_Bruto_Prejuizo)        '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from emissao)                     '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Faturamento_de_Licitacoes)   '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Faturamento_sem_Licitacoes)  '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Total_Faturamento)           '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Custo_Eqptos_Faturamento_com_Licitacoes' +
+        ') '#9'UNION ALL'
+      
+        '          (select * from Custo_Eqptos_Faturamento_sem_Licitacoes' +
+        ') '#9'UNION ALL'
+      
+        '          (select * from Total_Custo_Eqptos_Faturamento) '#9#9#9'UNIO' +
+        'N ALL'
+      
+        '          (select * from Fretes_Sobre_Faturamento_com_Licitacoes' +
+        ') '#9'UNION ALL'
+      
+        '          (select * from Fretes_Sobre_Faturamento_sem_Licitacoes' +
+        ') '#9'UNION ALL'
+      '          (select * from Espaco_linha_Frete) '#9#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from Comissao_Sobre_Licitacoes) '#9#9#9#9'UNION AL' +
+        'L'
+      
+        '          (select * from Total_Comissao_Sobre_Licitacoes)  '#9#9#9'UN' +
+        'ION ALL'
+      '          (select * from Comissao_Sem_Licitacoes) '#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from Total_Comissao_Sem_Licitacoes) '#9#9#9'UNION' +
+        ' ALL'
+      ''
+      '          /*'
+      
+        '          (select * from ICMS_sobre_Faturamento_de_Licitacoes)'#9#9 +
+        'UNION ALL'
+      
+        '          (select * from IPI_sobre_Faturamento_de_Licitacoes)'#9#9'U' +
+        'NION ALL'
+      
+        '          (select * from PIS_sobre_Faturamento_de_Licitacoes)'#9#9'U' +
+        'NION ALL'
+      
+        '          (select * from COFINS_sobre_Faturamento_de_Licitacoes)' +
+        #9'UNION ALL'
+      
+        '          (select * from Total_Impostos_sobre_Faturamento_de_Lic' +
+        'itacoes)'#9'UNION ALL'
+      ''
+      
+        '          (select * from ICMS_sobre_Faturamento_sem_Licitacoes)'#9 +
+        #9'UNION ALL'
+      
+        '          (select * from IPI_sobre_Faturamento_sem_Licitacoes)'#9#9 +
+        'UNION ALL'
+      
+        '          (select * from PIS_sobre_Faturamento_sem_Licitacoes)'#9#9 +
+        'UNION ALL'
+      
+        '          (select * from COFINS_sobre_Faturamento_sem_Licitacoes' +
+        ')'#9'UNION ALL'
+      
+        '          (select * from Total_Impostos_sobre_Faturamento_sem_Li' +
+        'citacoes)'#9'UNION ALL'
+      '          */'
+      ''
+      '          (select  ano_mes,'
+      '                   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        '                   cast('#39#39'Imposto (Sob Faturamento Sem Abatiment' +
+        'os)'#39#39' as varchar(100)) as conta,'
+      '                   cast(49 as smallint) as ordem,'
+      '                   sum(total) as Total'
+      '            from'
+      '            ('
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_de_Licitacoes)                     UNION ALL'
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_sem_Licitacoes)'
+      ''
+      '            ) as sel'
+      '            group by ano_mes'
+      ''
+      '          )   UNION ALL'
+      ''
+      
+        '          (select * from pg_eventos_Credito_Previsao_Impostos) U' +
+        'NION ALL'
+      ''
+      '          (select  ano_mes,'
+      '                   cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        '                   cast('#39#39'Total Impostos'#39#39' as varchar(100)) as c' +
+        'onta,'
+      '                   cast(50 as smallint) as ordem,'
+      '                   sum(total) as Total'
+      '            from'
+      '            ('
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_de_Licitacoes)                     UNION ALL'
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_sem_Licitacoes)   union all'
+      
+        '              (select ano_mes, total from pg_eventos_Credito_Pre' +
+        'visao_Impostos)'
+      ''
+      ''
+      '            ) as sel'
+      '            group by ano_mes'
+      ''
+      '          )   UNION ALL'
+      ''
+      ''
+      '          (select * from pg_eventos_) '#9#9#9#9#9#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from Soma_despesas)                         ' +
+        '     UNION ALL'
+      
+        '          (select * from Lucro_do_Exercicio)                    ' +
+        '     UNION ALL'
+      ''
+      
+        '          (select * from Linha_Caixa)                     '#9#9#9#9'UN' +
+        'ION ALL'
+      ''
+      
+        '          (select * from Recebimentos_em_Aberto)                ' +
+        '     UNION ALL'
+      
+        '          (select * from Pagamentos_em_Aberto)                  ' +
+        '     UNION ALL'
+      
+        '          (select * from Linha_Bancos_e_Caixa)                  ' +
+        '     UNION ALL'
+      
+        '          (select * from Saldos_Bancos_e_Caixa)                 ' +
+        '      UNION ALL'
+      
+        '          (select * from Total_Saldos_Bancos_e_Caixa)           ' +
+        '            UNION ALL'
+      '          (select * from pg_eventos_Emprestimos) '#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from pg_eventos_Investimentos) '#9#9#9#9#9'UNION AL' +
+        'L'
+      
+        '          (select * from Estoques)                       UNION A' +
+        'LL'
+      '          (select * from Adiantamentos_de_pagamentos) UNION ALL'
+      ''
+      ''
+      '          (select  ano_mes,'
+      '                   cast('#39#39'RT'#39#39' as char(3)) as tipoconta,'
+      '                   false as totalizar,'
+      
+        '                   cast('#39#39'TOTAL L'#205'QUIDO'#39#39' as varchar(100)) as co' +
+        'nta,'
+      '                   cast(74 as smallint) as ordem,'
+      '                   sum(total) as Total'
+      '            from'
+      '            ('
+      
+        '              (select ano_mes, total from Recebimentos_em_Aberto' +
+        ')                     UNION ALL'
+      
+        '              (select ano_mes, total from Pagamentos_em_Aberto) ' +
+        '                      UNION ALL'
+      
+        '              (select ano_mes, total from Total_Saldos_Bancos_e_' +
+        'Caixa)                       UNION ALL'
+      
+        '              (select ano_mes, total from pg_eventos_Emprestimos' +
+        ') '#9#9#9#9#9'UNION ALL'
+      
+        '              (select ano_mes, total from pg_eventos_Investiment' +
+        'os) '#9#9#9#9#9'UNION ALL'
+      
+        '              (select ano_mes, total from Estoques)             ' +
+        '          UNION ALL'
+      
+        '              (select ano_mes, total from Adiantamentos_de_pagam' +
+        'entos)'
+      ''
+      '            ) as sel'
+      '            group by ano_mes'
+      ''
+      '          ) UNION ALL'
+      ''
+      '          (select * from Recebimentos_mes) UNION ALL'
+      '          (select * from Pagamentos_mes)'
+      ''
+      '        '
+      #9#9') as sel'
+      '        group by tipoconta, totalizar, conta, ordem'
+      ''
+      '        order by ordem, conta, ano_mes'
+      #9'   )'
+      ''
+      '      ) as sel'
+      ''
+      '      group by tipoconta, totalizar, conta, ano_mes, ordem'
+      '      order by ordem, conta, ano_mes'
+      ''
+      ''
+      #39','
+      ''
+      #39' select sel.* from'
+      ' ('
+      ''
+      '  ('
+      '  select distinct to_char(cast('
+      ''
+      '        '#39#39':Data_Inicial'#39#39
+      ''
+      
+        '           as date)  + s.a,'#39#39'YYYY-MM'#39#39') as ano_mes from generate' +
+        '_series(1,cast('
+      ''
+      '            '#39#39':Data_Final'#39#39
+      ''
+      '               as date)-cast('
+      ''
+      '              '#39#39':Data_Inicial'#39#39
+      ''
+      '                as date)) as s(a) order by 1'
+      '  )'
+      ''
+      'union all'
+      ''
+      '  ('
+      ' select  cast('#39#39'TOTAL'#39#39' as varchar(7)) as ano_mes'
+      '  )'
+      ''
+      ' ) as sel '#39','
+      ''
+      #39'conta'#39','
+      ' '#39', tipoconta'#39','
+      ''
+      #39'ano_mes'#39', '#39'total'#39', '#39'curs'#39
+      ''
+      ')'
+      'as cur;'
+      ''
+      'fetch ALL in curs'
+      '')
+    RequestLive = False
+    Left = 160
+    Top = 40
+  end
+  object qryDREGerencial_Aux: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryDREGerencialAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'rollback;'
+      'begin;'
+      ''
+      'select dynamic_pivot_('
+      ''
+      #39
+      ''
+      'WITH '
+      ''
+      '  '
+      '  Licitacoes_Ganhas_Venda as'
+      '  ('
+      '  select'
+      '         to_char(l.datavenda, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9' cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '         True as totalizar,'
+      
+        '         cast('#39#39'Licita'#231#245'es Ganhas - Venda'#39#39'  as varchar(100)) as' +
+        ' conta,'
+      '         cast(1 as smallint) as ordem,'
+      '         sum(lc.quantidade * lc.preco) as Total'
+      ''
+      ''
+      '  from licitacoes l'
+      '       join filiais f'
+      '       on l.filialvenda = f.codigo'
+      ''
+      '       join licitacoesprodutos lc'
+      '       on lc.licitacao = l.numero'
+      ''
+      '       /*'
+      'from licitacoes l'
+      '     join filiais f'
+      '     on l.filialvenda = f.codigo'
+      ''
+      '     join usuarios u'
+      '     on l.vendedor = u.codigo'
+      ''
+      '     join clientes cl'
+      '     on l.cliente = cl.codigo'
+      ''
+      '     join vfornecedores vf'
+      '     on l.cliente = vf.codigo'
+      '     and vf.tipo = '#39#39'C'#39#39
+      ''
+      '     join licitacoesprodutos lc'
+      '          join produtos p'
+      '          on lc.produto = p.codigo'
+      ''
+      '     on lc.licitacao = l.numero'
+      '     */'
+      ''
+      ''
+      ''
+      '  where l.datavenda between'
+      ''
+      '  '#39#39':Data_Inicial'#39#39
+      ''
+      '  and'
+      ''
+      '  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      '  group by to_char(l.datavenda, '#39#39'yyyy-MM'#39#39')'
+      '  ),'
+      ''
+      '  Custos as'
+      '  ('
+      '  select'
+      '         to_char(l.datavenda, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9' cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                 True as totalizar,'
+      '         cast('#39#39'Custo'#39#39'  as varchar(100)) as conta,'
+      '         cast(3 as smallint) as ordem,'
+      
+        '         - sum(lc.quantidade * coalesce(lc.customedio,0)) as Tot' +
+        'al'
+      ''
+      ''
+      '  from licitacoes l'
+      '       join filiais f'
+      '       on l.filialvenda = f.codigo'
+      ''
+      '       join licitacoesprodutos lc'
+      '       on lc.licitacao = l.numero'
+      ''
+      ''
+      '  where l.datavenda between'
+      ''
+      '  '#39#39':Data_Inicial'#39#39
+      ''
+      '  and'
+      ''
+      '  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      '  group by to_char(l.datavenda, '#39#39'yyyy-MM'#39#39')'
+      '  ),'
+      '  '
+      '  Lucro_Bruto_Prejuizo AS '
+      '  '
+      '    (select L_G_V.ano_mes,'
+      #9'      cast('#39#39'RT'#39#39' as char(3)) as tipoconta,'
+      '              True as totalizar,'
+      
+        '          cast('#39#39'LUCRO BRUTO / PREJUIZO'#39#39'  as varchar(100)) as c' +
+        'onta,      '
+      '          cast(5 as smallint) as ordem,'
+      '          sum(l_G_V.total+Custos.total) as total          '
+      '   from Licitacoes_Ganhas_Venda  L_G_V'
+      '        join Custos '
+      '        on L_G_V.ano_mes = Custos.ano_mes'
+      '   group by L_G_V.ano_mes, Custos.ano_mes),'
+      ''
+      '  '
+      '  Emissao as '
+      '  ('
+      '  select '
+      '       to_char(cast('
+      ''
+      '       '#39#39':Data_Inicial'#39#39
+      ''
+      '       as date), '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '       cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '       False as totalizar,'
+      '       cast('#39#39'EMISS'#195'O'#39#39'  as varchar(100)) as conta,'
+      '       cast(7 as smallint) as ordem,       '
+      '       cast(null as numeric(11,2)) as Total'
+      ''
+      '  ),'
+      '  '
+      '  Faturamento_de_Licitacoes AS '
+      '  '
+      '  ('
+      ''
+      #9'select '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Faturamento de Licita'#231#245'es (notas emitidas)'#39#39'  as var' +
+        'char(100)) as conta,      '
+      #9#9'   cast(9 as smallint) as ordem, '
+      #9#9#9#9' '
+      #9'/*       sum(coalesce(pc.frete,0)) as frete,*/'
+      #9#9'   '
+      #9#9'   sum('
+      #9#9'   (pc.quantidade * pc.precovenda) -'
+      #9#9#9'ratearimpostoretidoproduto_contratos(ct.numero, pc.produto) +'
+      #9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9'coalesce(pc.frete,0) -'
+      #9#9#9'coalesce(pc.desconto,0) -  '
+      #9'/*        coalesce(pc.descontofinanceiro,0)*/'
+      #9#9#9'coalesce(pc.valordescontoitem,0)  '
+      #9#9#9') as total'
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero   '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      '  ),'
+      '  '
+      '  Faturamento_sem_Licitacoes as '
+      '  ('
+      ''
+      #9'select '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Faturamento Sem Licita'#231#245'es (notas emitidas)'#39#39'  as va' +
+        'rchar(100)) as conta,      '
+      #9#9'   cast(11 as smallint) as ordem, '
+      #9#9#9#9' '
+      #9'/*       sum(coalesce(pc.frete,0)) as frete,*/'
+      #9#9'   '
+      #9#9'   sum('
+      #9#9'   (pc.quantidade * pc.precovenda) -'
+      
+        #9#9'   ratearimpostoretidoproduto_contratos(ct.numero, pc.produto)' +
+        ' +'
+      #9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9'coalesce(pc.frete,0) -'
+      #9#9#9'coalesce(pc.desconto,0) -  '
+      #9'/*        coalesce(pc.descontofinanceiro,0) */'
+      #9#9#9'coalesce(pc.valordescontoitem,0)  '
+      #9#9#9') as total'
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' /*'
+      #9#9#9'  left join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero '
+      #9#9#9'  */  '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  and pc.licitacao is null'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'Total_Faturamento as'
+      '   (select faturamento.ano_mes, '
+      '           cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '           True as totalizar, '
+      #9'       cast('#39#39'TOTAL FATURAMENTO'#39#39' as varchar(100)) as conta, '
+      #9'       cast(13 as SMALLINT) as ordem,'
+      #9#9'   sum(faturamento.Total) as Total'
+      #9#9'   from'
+      #9#9'   ('#9'    '
+      
+        #9#9#9'   (select ano_mes, total from Faturamento_de_Licitacoes)  un' +
+        'ion ALL '
+      #9#9#9'   (select ano_mes, total from Faturamento_sem_Licitacoes)'
+      #9#9'    ) as faturamento'
+      #9#9#9'group by faturamento.ano_mes),'
+      ''
+      ''
+      #9'Custo_Eqptos_Faturamento_com_Licitacoes as'#9#9
+      #9'('
+      ''
+      #9'select '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Custo dos Equipamentos sobre o Faturamento de Licita' +
+        #231#245'es (notas emitidas)'#39#39'  as varchar(100)) as conta,      '
+      #9#9'   cast(14 as smallint) as ordem,'
+      #9#9'   '
+      #9#9'  - sum(    '
+      #9#9#9'pc.quantidade *'#9
+      ''
+      #9#9#9'  cast(coalesce( e.valorultimacompra,'
+      ''
+      #9#9#9'  case when (e.emestoque +'
+      #9#9#9#9#9#9'   e.reservado +'
+      #9#9#9#9#9#9#9#9' e.reservaprevia +'
+      #9#9#9#9#9#9#9#9' e.transito +'
+      #9#9#9#9#9#9#9#9' e.demonstracao +'
+      #9#9#9#9#9#9#9#9' e.conserto +'
+      #9#9#9#9#9#9#9#9' e.danificada) <> 0 then'
+      ''
+      ''
+      #9#9#9#9' (e.financeiro / (e.emestoque +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.reservado +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.reservaprevia +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.transito +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.demonstracao +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.conserto +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.danificada) )'
+      ''
+      #9#9#9'  end ,  0.00) as numeric(11,2))) Total'
+      #9#9#9
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' '
+      #9#9#9'  join estoques e'
+      #9#9#9'  on pc.produto = e.produto'
+      #9#9#9'  and pc.filial = e.filial'
+      #9#9#9'  '
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero   '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'Custo_Eqptos_Faturamento_sem_Licitacoes as'#9#9
+      #9'('
+      ''
+      #9'select '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Custo dos Equipamentos sobre o Faturamento sem Licit' +
+        'a'#231#245'es (notas emitidas)'#39#39'  as varchar(100)) as conta,      '
+      #9#9'   cast(15 as smallint) as ordem, '
+      #9#9#9#9' '
+      #9#9'  '
+      #9#9' - sum(pc.quantidade *'#9
+      ''
+      #9#9#9'  cast(coalesce( e.valorultimacompra,'
+      ''
+      #9#9#9'  case when (e.emestoque +'
+      #9#9#9#9#9#9'   e.reservado +'
+      #9#9#9#9#9#9#9#9' e.reservaprevia +'
+      #9#9#9#9#9#9#9#9' e.transito +'
+      #9#9#9#9#9#9#9#9' e.demonstracao +'
+      #9#9#9#9#9#9#9#9' e.conserto +'
+      #9#9#9#9#9#9#9#9' e.danificada) <> 0 then'
+      ''
+      ''
+      #9#9#9#9' (e.financeiro / (e.emestoque +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.reservado +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.reservaprevia +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.transito +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.demonstracao +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.conserto +'
+      #9#9#9#9#9#9#9#9#9#9#9#9' e.danificada) )'
+      ''
+      #9#9#9'  end ,  0.00) as numeric(11,2))) Total'
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' '
+      #9#9#9'  join estoques e'
+      #9#9#9'  on pc.produto = e.produto'
+      #9#9#9'  and pc.filial = e.filial'
+      ''
+      #9#9' /*'
+      #9#9#9'  left join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero '
+      #9#9#9'  */  '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  and pc.licitacao is null'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9
+      #9'Total_Custo_Eqptos_Faturamento as'
+      '   (select Total_Custo_Eqptos_Faturamento.ano_mes, '
+      '           cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '           True as totalizar, '
+      
+        #9'       cast('#39#39'TOTAL CUSTO EQUIPAMENTO SOBRE O FATURAMENTO'#39#39' as ' +
+        'varchar(100)) as conta, '
+      #9'       cast(17 as SMALLINT) as ordem,'
+      #9#9'   sum(Total_Custo_Eqptos_Faturamento.Total) as Total'
+      #9#9'   from'
+      #9#9'   ('#9'    '
+      
+        #9#9#9'   (select ano_mes, total from Custo_Eqptos_Faturamento_com_L' +
+        'icitacoes)  union ALL '
+      
+        #9#9#9'   (select ano_mes, total from Custo_Eqptos_Faturamento_sem_L' +
+        'icitacoes)'
+      #9#9'    ) as Total_Custo_Eqptos_Faturamento'
+      #9#9#9'group by Total_Custo_Eqptos_Faturamento.ano_mes),'
+      #9#9#9
+      #9'Fretes_Sobre_Faturamento_com_Licitacoes as'
+      #9#9#9
+      #9'('
+      ''
+      #9'select '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar, '
+      
+        #9#9'   cast('#39#39'Fretes sob Licita'#231#245'es (notas emitidas)'#39#39'  as varchar' +
+        '(100)) as conta,      '
+      #9#9'   cast(19 as smallint) as ordem, '
+      #9#9#9#9' '
+      #9#9' - sum(coalesce(pc.frete,0)) as Total'
+      #9#9'   '
+      #9#9'   /*'
+      #9#9'   sum('
+      #9#9'   (pc.quantidade * pc.precovenda) + '
+      #9#9#9'coalesce(pc.acrescimo,0) + '
+      #9#9#9'coalesce(pc.frete,0) - '
+      #9#9#9'coalesce(pc.desconto,0) -  '
+      #9#9#9'coalesce(pc.descontofinanceiro,0)'
+      #9#9#9') as total'
+      #9#9#9'*/'
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero   '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false)'
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9'  and coalesce(pc.frete,0) <> 0'
+      ''
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      ''
+      #9'Fretes_Sobre_Faturamento_sem_Licitacoes as'
+      ''
+      #9'('
+      ''
+      #9'select'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Fretes sem Licita'#231#245'es (notas emitidas)'#39#39'  as varchar' +
+        '(100)) as conta,'
+      #9#9'   cast(21 as smallint) as ordem,'
+      ''
+      #9#9' - sum(coalesce(pc.frete,0)) as Total'
+      ''
+      #9#9'   /*'
+      #9#9'   sum('
+      #9#9'   (pc.quantidade * pc.precovenda) +'
+      #9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9'coalesce(pc.frete,0) -'
+      #9#9#9'coalesce(pc.desconto,0) -'
+      #9#9#9'coalesce(pc.descontofinanceiro,0)'
+      #9#9#9') as total'
+      #9#9#9'*/'
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' /*'
+      #9#9#9'  left join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero'
+      #9#9#9'  */'
+      #9#9' on ct.numero = pc.contrato'
+      ''
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false)'
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9'  and coalesce(pc.frete,0) <> 0'
+      #9'  and pc.licitacao is null'
+      ''
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      ''
+      ''
+      '    Espaco_linha_Frete as'
+      '   ('
+      '    select'
+      '       to_char(cast('
+      ''
+      '       '#39#39':Data_Inicial'#39#39
+      ''
+      '       as date), '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '           False as totalizar,'
+      '       cast('#39#39' '#39#39'  as varchar(100)) as conta,'
+      '       cast(23 as smallint) as ordem,'
+      '       cast(null as numeric(11,2)) as Total'
+      ''
+      '    ),'
+      ''
+      #9'Comissao_Sobre_Licitacoes as'
+      #9'('
+      #9'select'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      ''
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Comiss'#227'o Sobre Licita'#231#245'es '#39#39'||u.nome  as varchar(100' +
+        ')) as conta,'
+      #9#9'   cast(25 as smallint) as ordem,'
+      ''
+      ''
+      #9#9' - sum('
+      #9#9'   round('
+      #9#9'   ('
+      #9#9#9' ('
+      #9#9#9'   cv.perccomissao *'
+      ''
+      #9#9#9'   ('
+      #9#9#9'   (pc.quantidade * pc.precovenda) -'
+      
+        #9#9#9#9'ratearimpostoretidoproduto_contratos(ct.numero, pc.produto) ' +
+        '+'
+      #9#9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9#9'coalesce(pc.frete,0) -'
+      #9#9#9#9'coalesce(pc.desconto,0) -'
+      #9#9'/*        coalesce(pc.descontofinanceiro,0)*/'
+      #9#9#9#9'coalesce(pc.valordescontoitem,0)'
+      #9#9#9#9')'
+      #9#9#9'  )/100'
+      #9#9#9'),2)'
+      ''
+      ''
+      #9#9#9') as total'
+      ''
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero'
+      #9#9' on ct.numero = pc.contrato'
+      ''
+      #9#9' join contratosvendedores cv'
+      #9#9#9'  join usuarios u'
+      #9#9#9'  on cv.vendedor = u.codigo'
+      #9#9' on ct.numero = cv.contrato'
+      ''
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false)'
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9'  and not pc.brinde'
+      ''
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39'), u.nome'
+      #9'),'
+      ''
+      #9'Total_Comissao_Sobre_Licitacoes as'
+      #9'('
+      #9'  select ano_mes, '
+      #9'         cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '                 True as totalizar,'
+      
+        #9'         cast('#39#39'TOTAL COMISS'#213'ES SOBRE LICITA'#199#213'ES'#39#39'  as varchar(' +
+        '100)) as conta,'
+      #9'         cast(27 as smallint) as ordem,'
+      #9#9'   - sum(total) as total'
+      '      from'
+      #9'  ('
+      #9'  select'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      
+        #9#9'   cast('#39#39'Comiss'#227'o Sobre Licita'#231#245'es '#39#39'||u.nome  as varchar(100' +
+        ')) as conta,'
+      #9#9'   cast(12 as smallint) as ordem,'
+      ''
+      ''
+      #9#9'   sum('
+      #9#9'   round('
+      #9#9'   ('
+      #9#9#9' ('
+      #9#9#9'   cv.perccomissao *'
+      ''
+      #9#9#9'   ('
+      #9#9#9'   (pc.quantidade * pc.precovenda) -'
+      
+        #9#9#9#9'ratearimpostoretidoproduto_contratos(ct.numero, pc.produto) ' +
+        '+'
+      #9#9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9#9'coalesce(pc.frete,0) -'
+      #9#9#9#9'coalesce(pc.desconto,0) -'
+      #9#9'/*        coalesce(pc.descontofinanceiro,0)*/'
+      #9#9#9#9'coalesce(pc.valordescontoitem,0)'
+      #9#9#9#9')'
+      #9#9#9'  )/100'
+      #9#9#9'),2)'
+      ''
+      ''
+      #9#9#9') as total'
+      ''
+      ''
+      #9'   from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero'
+      #9#9' on ct.numero = pc.contrato'
+      ''
+      #9#9' join contratosvendedores cv'
+      #9#9#9'  join usuarios u'
+      #9#9#9'  on cv.vendedor = u.codigo'
+      #9#9' on ct.numero = cv.contrato'
+      ''
+      #9'   where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'    and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'    and not (coalesce(ct.os_garantia,false)'
+      #9'    and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'    and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9'    and not pc.brinde'
+      ''
+      #9'   group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39'), u.nome'
+      #9'  ) as Total_Comissao_Sobre_Licitacoes'
+      #9'  group by ano_mes'
+      #9'),'
+      ''
+      ''
+      #9'Comissao_Sem_Licitacoes as'
+      #9'('
+      ''
+      ''
+      '   '#9'    select'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Comiss'#227'o Sem Licita'#231#245'es '#39#39'||u.nome  as varchar(100))' +
+        ' as conta,'
+      #9#9'   cast(29 as smallint) as ordem,'
+      ''
+      ''
+      #9#9' - sum('
+      #9#9'   round('
+      #9#9'   ('
+      #9#9#9' ('
+      #9#9#9'   cv.perccomissao *'
+      ''
+      #9#9#9'   ('
+      #9#9#9'   (pc.quantidade * pc.precovenda) -'
+      
+        #9#9#9#9'ratearimpostoretidoproduto_contratos(ct.numero, pc.produto) ' +
+        '+'
+      #9#9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9#9'coalesce(pc.frete,0) - '
+      #9#9#9#9'coalesce(pc.desconto,0) -  '
+      #9#9'/*        coalesce(pc.descontofinanceiro,0)*/'
+      #9#9#9#9'coalesce(pc.valordescontoitem,0)  '
+      #9#9#9#9')'
+      #9#9#9'  )/100'
+      #9#9#9'),2)'
+      #9#9#9
+      #9#9#9
+      #9#9#9') as total'
+      ''
+      ''
+      #9'     from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join contratosvendedores cv'
+      #9#9#9'  join usuarios u'
+      #9#9#9'  on cv.vendedor = u.codigo    '
+      #9#9' on ct.numero = cv.contrato'
+      #9#9' '
+      #9#9'where ct.origem is null and'
+      #9#9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9#9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9#9'  and not (coalesce(ct.os_garantia,false)'
+      #9#9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9#9'  and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9#9'  and not pc.brinde'
+      #9#9'  and pc.licitacao is null'
+      ''
+      #9#9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39'), u.nome'
+      #9'),'
+      ''
+      ''
+      #9'Total_Comissao_Sem_Licitacoes as'
+      #9'('
+      ''
+      #9'  select ano_mes, '
+      #9'         cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '                 True as totalizar,'
+      
+        #9'         cast('#39#39'TOTAL COMISS'#213'ES SEM LICITA'#199#213'ES'#39#39'  as varchar(10' +
+        '0)) as conta,'
+      #9'         cast(31 as smallint) as ordem,'
+      #9#9'   - sum(total) as total'
+      '      from'
+      #9'  ('
+      ''
+      ''
+      ''
+      '   '#9'    select'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      
+        #9#9'   cast('#39#39'Comiss'#227'o Sem Licita'#231#245'es '#39#39'||u.nome  as varchar(100))' +
+        ' as conta,'
+      #9#9'   cast(13 as smallint) as ordem,'
+      ''
+      ''
+      #9#9'   sum('
+      #9#9'   round('
+      #9#9'   ('
+      #9#9#9' ('
+      #9#9#9'   cv.perccomissao *'
+      ''
+      #9#9#9'   ('
+      #9#9#9'   (pc.quantidade * pc.precovenda) -'
+      
+        #9#9#9#9'ratearimpostoretidoproduto_contratos(ct.numero, pc.produto) ' +
+        '+'
+      #9#9#9#9'coalesce(pc.acrescimo,0) +'
+      #9#9#9#9'coalesce(pc.frete,0) -'
+      #9#9#9#9'coalesce(pc.desconto,0) -'
+      #9#9'/*        coalesce(pc.descontofinanceiro,0)*/'
+      #9#9#9#9'coalesce(pc.valordescontoitem,0)'
+      #9#9#9#9')'
+      #9#9#9'  )/100'
+      #9#9#9'),2)'
+      ''
+      ''
+      #9#9#9') as total'
+      ''
+      ''
+      #9'     from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato'
+      ''
+      #9#9' join contratosvendedores cv'
+      #9#9#9'  join usuarios u'
+      #9#9#9'  on cv.vendedor = u.codigo'
+      #9#9' on ct.numero = cv.contrato'
+      ''
+      #9#9'where ct.origem is null and'
+      #9#9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9#9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9#9'  and not (coalesce(ct.os_garantia,false)'
+      #9#9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9#9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9#9'  '
+      #9#9'  and not pc.brinde'
+      #9#9'  and pc.licitacao is null'
+      #9#9#9' '
+      #9#9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39'), u.nome'
+      #9#9
+      #9'  ) AS Total_Comissao_Sem_Licitacoes'#9
+      #9'  group by ano_mes'
+      #9'),'
+      #9
+      #9'ICMS_sobre_Faturamento_de_Licitacoes as'
+      #9'('
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento de Licita'#231#245'es - ICMS'#39#39'  a' +
+        's varchar(100)) as conta,      '
+      #9#9'   cast(33 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(pdf.icmsvalor) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero   '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'IPI_sobre_Faturamento_de_Licitacoes as'
+      #9'('
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento de Licita'#231#245'es - IPI'#39#39'  as' +
+        ' varchar(100)) as conta,      '
+      #9#9'   cast(35 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(pdf.valoripi) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero   '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false)'
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9'  and not pc.brinde'
+      ''
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      ''
+      ''
+      #9'PIS_sobre_Faturamento_de_Licitacoes as'
+      #9'('
+      #9'SELECT'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento de Licita'#231#245'es - PIS'#39#39'  as' +
+        ' varchar(100)) as conta,'
+      #9#9'   cast(37 as smallint) as ordem,'
+      ''
+      #9#9' - sum(pdf.pisvalor) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero'
+      #9#9' on ct.numero = pc.contrato'
+      ''
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      ''
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto'
+      #9#9' and pc.filial = pdf.filial'
+      #9#9' and df.numero = pdf.dadofiscal'
+      ''
+      ''
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false)'
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      ''
+      #9'  and not pc.brinde'
+      ''
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      ''
+      #9'COFINS_sobre_Faturamento_de_Licitacoes as'
+      #9'('
+      ''
+      #9'SELECT'
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento de Licita'#231#245'es - COFINS'#39#39' ' +
+        ' as varchar(100)) as conta,'
+      #9#9'   cast(39 as smallint) as ordem,'
+      ''
+      #9#9' - sum(pdf.cofinsvalor) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero'
+      #9#9' on ct.numero = pc.contrato'
+      ''
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2)'
+      #9'  and not (coalesce(ct.os_garantia,false)'
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39')'
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'Total_Impostos_sobre_Faturamento_de_Licitacoes as'
+      #9'('
+      ''
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'TOTAL IMPOSTOS SOBRE FATURAMENTO DE LICITA'#199#213'ES'#39#39'  as' +
+        ' varchar(100)) as conta,      '
+      #9#9'   cast(41 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(coalesce(pdf.cofinsvalor,0) + '
+      #9#9'       coalesce(pdf.pisvalor,0) + '
+      #9#9#9'   coalesce(pdf.valoripi,0) + '
+      #9#9#9'   coalesce(pdf.icmsvalor,0)) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9#9'  join licitacoesprodutos lp'
+      #9#9#9'  on pc.licitacao = lp.licitacao'
+      #9#9#9'  and pc.produto = lp.produto'
+      #9#9#9'  and pc.numeroprodutolicitacao = lp.numero   '
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'ICMS_sobre_Faturamento_sem_Licitacoes as '#9
+      #9'('
+      ''
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento sem Licita'#231#245'es - ICMS'#39#39'  ' +
+        'as varchar(100)) as conta,      '
+      #9#9'   cast(43 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(pdf.icmsvalor) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9'  and pc.licitacao is null'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'IPI_sobre_Faturamento_sem_Licitacoes as '
+      #9'('
+      ''
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento sem Licita'#231#245'es - IPI'#39#39'  a' +
+        's varchar(100)) as conta,      '
+      #9#9'   cast(43 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(pdf.valoripi) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9'  and pc.licitacao is null'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'PIS_sobre_Faturamento_sem_Licitacoes as '
+      #9'('
+      ''
+      ''
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento sem Licita'#231#245'es - PIS'#39#39'  a' +
+        's varchar(100)) as conta,      '
+      #9#9'   cast(45 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(pdf.pisvalor) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9'  and pc.licitacao is null'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'COFINS_sobre_Faturamento_sem_Licitacoes as '
+      #9'('
+      ''
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'Impostos sobre Faturamento sem Licita'#231#245'es - COFINS'#39#39 +
+        '  as varchar(100)) as conta,      '
+      #9#9'   cast(47 as smallint) as ordem, '
+      #9#9'   '
+      #9#9' - sum(pdf.cofinsvalor) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9'  and pc.licitacao is null'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      #9
+      #9'Total_Impostos_sobre_Faturamento_sem_Licitacoes as'
+      #9'('
+      ''
+      #9'SELECT '
+      #9#9'   to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      #9#9'   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        #9#9'   cast('#39#39'TOTAL IMPOSTOS SOBRE FATURAMENTO SEM LICITA'#199#213'ES'#39#39'  a' +
+        's varchar(100)) as conta,      '
+      #9#9'   cast(48 as smallint) as ordem,'
+      #9#9'   '
+      #9#9' - sum(coalesce(pdf.cofinsvalor,0) + '
+      #9#9'       coalesce(pdf.pisvalor,0) + '
+      #9#9#9'   coalesce(pdf.valoripi,0) + '
+      #9#9#9'   coalesce(pdf.icmsvalor,0)) as total'
+      ''
+      #9'from contratos ct'
+      #9#9' join produtoscontratos pc'
+      #9#9' on ct.numero = pc.contrato '
+      #9#9' '
+      #9#9' join dadosfiscais df'
+      #9#9' on ct.numero = df.contrato'
+      #9#9' '
+      #9#9' join produtosdadosfiscais pdf'
+      #9#9' on pc.produto = pdf.produto     '
+      #9#9' and pc.filial = pdf.filial'#9
+      #9#9' and df.numero = pdf.dadofiscal '
+      #9#9' '
+      #9#9' '
+      #9'where ct.origem is null and'
+      #9#9'  ct.faturamento between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      ''
+      #9'  and case when ct.os then ct.tipoequipamento in (1,2) '
+      #9'  and not (coalesce(ct.os_garantia,false) '
+      #9'  and ct.os_garantia_status='#39#39'A'#39#39') '
+      #9'  and not coalesce(ct.os_cortesia,false) else true end'
+      #9'  '
+      #9'  and not pc.brinde'
+      #9'  and pc.licitacao is null'
+      #9#9' '
+      #9'group by to_char(ct.faturamento, '#39#39'yyyy-MM'#39#39')'
+      ''
+      #9'),'
+      ''
+      ''
+      '  pg_eventos_Credito_Previsao_Impostos as'
+      '  ('
+      ''
+      '  select to_char(d.datavencto, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '         cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '         True as totalizar,'
+      '         d.descricao as conta,'
+      '         cast(49 as SMALLINT) as ordem,'
+      '         sum(d.valorvencto) as Total'
+      '  from'
+      ''
+      '    ('
+      ''
+      '    select'
+      '          d.datavencto,'
+      ''
+      '          /*'
+      '          (select e2.descricao'
+      '           from eventos e2'
+      '           where e2.codigo <> e.codigo'
+      '             and position(e2.classificacao in e.classificacao)=1'
+      '             and e2.tipo = '#39#39'S'#39#39
+      '             order by e2.classificacao desc limit 1'
+      '            ) as descricao,'
+      '            */'
+      '          e.descricao,'
+      ''
+      '          d.valorvencto'
+      ''
+      ''
+      '    from duplicatas d'
+      '         join documentospag dp'
+      '         on d.documentopag = dp.numero'
+      '         join eventos e'
+      '         on coalesce(d.evento, dp.evento) = e.codigo'
+      ''
+      '    where d.datavencto between'
+      ''
+      '    '#39#39':Data_Inicial'#39#39
+      ''
+      '    and'
+      ''
+      '    '#39#39':Data_Final'#39#39
+      ''
+      '      and e.incluirnadregerencial'
+      '      and dp.previsao = true'
+      '/*      and d.autorizado = true*/'
+      '      and trim(e.descricao) <> '#39#39'Empr'#233'stimos Bancos'#39#39
+      '      and e.descricao = '#39#39'PREVIS'#195'O DE CR'#201'DITOS DE IMPOSTOS'#39#39
+      '  )  as d'
+      '/*  where trim(d.descricao) = '#39#39'Investimentos'#39#39' */'
+      '  group by to_char(d.datavencto, '#39#39'yyyy-MM'#39#39'), d.descricao'
+      '  order by to_char(d.datavencto, '#39#39'yyyy-MM'#39#39'), d.descricao'
+      '  ),'
+      ''
+      '    '
+      '      pg_eventos_ as'
+      '  ('
+      '  '
+      '  select to_char(d.datavencto, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '         cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '         True as totalizar, '
+      '         d.descricao as conta,'
+      '         cast(51 as SMALLINT) as ordem,      '
+      '         - sum(d.valorvencto) as Total'
+      '  from'
+      '  '
+      '    (         '
+      '      '
+      '    select'
+      '          /* d.datavencto, */'
+      '          dp.emissao as datavencto,'
+      '          '
+      '          (select e2.descricao'
+      '           from eventos e2 '
+      '           where e2.codigo <> e.codigo'
+      '             and position(e2.classificacao in e.classificacao)=1'
+      '             and e2.tipo = '#39#39'S'#39#39
+      '             order by e2.classificacao desc limit 1         '
+      '            ) as descricao,'
+      ''
+      '          d.valorvencto'
+      '                  '
+      '          '
+      '    from duplicatas d'
+      '         join documentospag dp'
+      '         on d.documentopag = dp.numero'
+      '         join eventos e'
+      '         on coalesce(d.evento, dp.evento) = e.codigo'
+      '         '
+      '    where dp.emissao between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      '      and e.incluirnadregerencial'
+      '      and dp.previsao = false'
+      '      and d.autorizado = true'
+      
+        '      and trim(e.descricao) <> '#39#39'Empr'#233'stimos Bancos'#39#39' /* Existe ' +
+        'uma linha espec'#237'fica para empr'#233'stimo */'
+      '  )  as d'
+      '  where trim(d.descricao) <> '#39#39'Investimentos'#39#39' '
+      '  group by to_char(d.datavencto, '#39#39'yyyy-MM'#39#39'), d.descricao'
+      '  order by to_char(d.datavencto, '#39#39'yyyy-MM'#39#39'), d.descricao'
+      '  ),'
+      ''
+      '    '
+      '    Soma_despesas as'
+      '   (select sel.ano_mes, '
+      '           cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '           True as totalizar,'
+      #9'       cast('#39#39'TOTAL DESPESAS'#39#39' as varchar(100)) as conta, '
+      #9'       cast(53 as SMALLINT) as ordem,'
+      #9#9'   sum(sel.Total) as Total'
+      #9#9'   from'
+      #9#9'   ('#9'    '
+      
+        #9#9#9'   (select ano_mes, total from Total_Impostos_sobre_Faturamen' +
+        'to_sem_Licitacoes)  union ALL'
+      
+        #9#9#9'   (select ano_mes, total from Total_Impostos_sobre_Faturamen' +
+        'to_de_Licitacoes) union all'
+      
+        '                           (select ano_mes, total from pg_evento' +
+        's_Credito_Previsao_Impostos) union all'
+      ''
+      ''
+      
+        '               (select ano_mes, total from pg_eventos_) union al' +
+        'l'
+      
+        '               (select ano_mes, total from Total_Comissao_Sem_Li' +
+        'citacoes) union all'
+      
+        '               (select ano_mes, total from Total_Comissao_sobre_' +
+        'Licitacoes) union all'
+      
+        '               (select ano_mes, total from Total_Custo_Eqptos_Fa' +
+        'turamento) union all'
+      
+        '               (select ano_mes, total from Fretes_Sobre_Faturame' +
+        'nto_sem_Licitacoes) union all'
+      
+        '               (select ano_mes, total from Fretes_Sobre_Faturame' +
+        'nto_com_Licitacoes)'
+      #9#9'    ) as sel'
+      #9#9#9'group by sel.ano_mes'
+      '     ),'
+      '     '
+      '   Lucro_do_Exercicio as'
+      '   (select sel.ano_mes, '
+      '           cast('#39#39'RT'#39#39' as char(3)) as tipoconta,'
+      '           True as totalizar,'
+      #9'       cast('#39#39'LUCRO DO EXERC'#205'CIO'#39#39' as varchar(100)) as conta, '
+      #9'       cast(55 as SMALLINT) as ordem,'
+      #9#9'   sum(sel.Total) as Total'
+      #9#9'   from'
+      #9#9'   ('#9'    '
+      #9#9#9'   (select ano_mes, total from Total_Faturamento)  union ALL '
+      #9#9#9'   (select ano_mes, total from Soma_despesas) '
+      #9#9'    ) as sel'
+      #9#9#9'group by sel.ano_mes'
+      '     ),'
+      '     '
+      '  Linha_Caixa as '
+      '  ('
+      '  select '
+      '       to_char(cast('
+      ''
+      '       '#39#39':Data_Inicial'#39#39
+      ''
+      '       as date), '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '       cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '       False as totalizar,'
+      '       cast('#39#39'CAIXA'#39#39'  as varchar(100)) as conta,      '
+      '       cast(57 as smallint) as ordem,       '
+      '       cast(null as numeric(11,2)) as Total'
+      ''
+      '  ),'
+      '     '
+      '     '
+      '    Recebimentos_em_Aberto as'
+      '    ('
+      '        WITH Recebimentos_em_Aberto_ as'
+      '        ( '
+      
+        '           select sel.faturamento, sum(sel.valorvencto) as valor' +
+        'vencto FROM'
+      '             (    '
+      '               ('
+      '                  Select c.faturamento'
+      '                   , sum(p.valorvencto) as valorvencto'
+      '                   '
+      '                     '
+      '                  from'
+      '                     ((contratos c'
+      '                     join'
+      '                        (filiais f'
+      '                        left join'
+      '                           (filiaisgruposfiliais fgf'
+      '                           join'
+      '                              gruposfiliais gf'
+      '                              on'
+      '                                 fgf.grupo=gf.codigo)'
+      '                           on'
+      '                              f.codigo = fgf.filial)'
+      '                        on'
+      '                           c.filialvenda = f.codigo)'
+      '                     join'
+      '                        (parcelas p'
+      '                        left join'
+      '                           (filiais f_p'
+      '                           left join'
+      '                              (filiaisgruposfiliais fgf_p'
+      '                              join'
+      '                                 gruposfiliais gf_p'
+      '                                 on'
+      '                                    fgf_p.grupo=gf_p.codigo)'
+      '                              on'
+      '                                 f_p.codigo = fgf_p.filial)'
+      '                           on'
+      '                              p.filialpagto = f_p.codigo)'
+      '                        on'
+      '                           c.numero = p.contrato)'
+      '                     left join'
+      '                        usuarios u'
+      '                        on'
+      '                           c.vendedor = u.codigo'
+      '                  Where'
+      '                     c.numero = p.contrato'
+      '                     and c.Situacao IN ('#39#39'F'#39#39
+      '                                      ,'#39#39'N'#39#39
+      '                                      ,'#39#39'P'#39#39')'
+      '                     AND NOT contratos_renegociado(c.numero)'
+      '                     and coalesce(p.tipopagto,'#39#39#39#39') <>'#39#39'E'#39#39
+      '                     and'
+      '                     case'
+      '                        when c.os'
+      '                           then c.tipoequipamento in (1, 2)'
+      '                           else true'
+      '                     end'
+      '                     and'
+      '                     ('
+      '                        p.datapagto is null'
+      '                     )'
+      '                     and c.faturamento <='
+      ''
+      '                       '#39#39':Data_Final'#39#39
+      ''
+      ''
+      '                     and coalesce(p.formapagamento,'#39#39#39#39')<>'#39#39'T'#39#39
+      '                     '
+      '                  group by c.faturamento   '
+      '                     '
+      '                     '
+      '               )'
+      '             '
+      '               '
+      '              /* N'#195'O TRATAM DEVOLU'#199#213'ES '
+      '      union all'
+      ''
+      '               ('
+      '                  Select c.faturamento'
+      '                   , - sum(p.valorvencto) as valorvencto'
+      '                  from'
+      '                     ((contratos c'
+      '                     join'
+      '                        (filiais f'
+      '                        left join'
+      '                           (filiaisgruposfiliais fgf'
+      '                           join'
+      '                              gruposfiliais gf'
+      '                              on'
+      '                                 fgf.grupo=gf.codigo)'
+      '                           on'
+      '                              f.codigo = fgf.filial)'
+      '                        on'
+      '                           c.filialvenda = f.codigo)'
+      '                     join'
+      '                        (parcelas p'
+      '                        left join'
+      '                           (filiais f_p'
+      '                           left join'
+      '                              (filiaisgruposfiliais fgf_p'
+      '                              join'
+      '                                 gruposfiliais gf_p'
+      '                                 on'
+      '                                    fgf_p.grupo=gf_p.codigo)'
+      '                              on'
+      '                                 f_p.codigo = fgf_p.filial)'
+      '                           on'
+      '                              p.filialpagto = f_p.codigo)'
+      '                        on'
+      '                           c.numero = p.contrato)'
+      '                     left join'
+      '                        usuarios u'
+      '                        on'
+      '                           c.vendedor = u.codigo'
+      '                  Where'
+      '                     c.numero                   = p.contrato'
+      '                     and p.deventrada is not null'
+      '                     AND NOT contratos_renegociado(c.numero)'
+      '                     and'
+      '                     case'
+      '                        when c.os'
+      '                           then c.tipoequipamento in (1, 2)'
+      '                           else true'
+      '                     end'
+      '                     and '#39#39'f'#39#39
+      '                     and'
+      '                     ('
+      '                        p.datapagto is null'
+      '                     )'
+      '                     and c.faturamento <= current_date'
+      '                     and coalesce(p.formapagamento,'#39#39#39#39')<>'#39#39'T'#39#39
+      '                     '
+      '                 group by c.faturamento    '
+      '               )'
+      '               */'
+      '             ) as sel group by sel.faturamento'
+      '      )'
+      ''
+      '      select to_char(mon_last,'#39#39'YYYY-MM'#39#39') as ano_mes,'
+      '              cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '              false as totalizar,'
+      '      '#9'      cast('#39#39'A Receber'#39#39' as varchar(100)) as conta,'
+      #9'          cast(59 as SMALLINT) as ordem,'
+      ''
+      '              (select sum(valorvencto) '
+      '               from Recebimentos_em_Aberto_'
+      
+        '               where faturamento <= mon_last) as Total          ' +
+        '       '
+      '      from         '
+      '      (        '
+      '                          '
+      '          select min(cast(d as date)) as mon_first,'
+      '                 max(cast(d as date)) as mon_last'
+      '          FROM   generate_series(date'
+      ''
+      '          '#39#39':Data_Inicial'#39#39
+      ''
+      '          ,'
+      '          date'
+      ''
+      '          '#39#39':Data_Final'#39#39
+      ''
+      '          , interval '#39#39'1 day'#39#39') d'
+      '          group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      '                                             '
+      '      )  as sel    '
+      '    '
+      '    ),'
+      '    '
+      '    '
+      '    Pagamentos_em_Aberto as'
+      '    ('
+      '    '
+      '        with Pagamentos_em_Aberto as'
+      '        ('
+      ''
+      '          '
+      '           select emissao, sum(valorliquido) as valorliquido'
+      '           From'
+      '           ('
+      '           '
+      '               ('
+      '                  Select d.emissao,'
+      '                         sum(coalesce(t.valorvencto,0) - '
+      
+        '                             coalesce(t.valordesconto,0)) as val' +
+        'orliquido'#9#9'   '
+      '                  From'
+      '                     ((duplicatas t'
+      '                     left join'
+      '                        notaspag n'
+      '                        on'
+      '                           n.documentopag = t.documentopag)'
+      '                     join'
+      '                        (((documentospag d'
+      '                        join'
+      '                           (filiais f'
+      '                           left join'
+      '                              (filiaisgruposfiliais fgf'
+      '                              left join'
+      '                                 gruposfiliais gf'
+      '                                 on'
+      '                                    fgf.grupo=gf.codigo )'
+      '                              on'
+      '                                 f.codigo=fgf.filial)'
+      '                           on'
+      '                              d.filialemissao=f.codigo)'
+      '                        JOIN'
+      '                           eventos e'
+      '                           ON'
+      '                              d.evento = e.Codigo)'
+      '                        join'
+      '                           vfornecedores vf'
+      '                           on'
+      '                              d.fornecedor         = vf.codigo'
+      '                              and d.tipofornecedor = vf.tipo)'
+      '                        on'
+      '                           t.documentopag = d.numero)'
+      '                  where'
+      '                     '#39#39't'#39#39
+      '                     and'
+      '                     ('
+      '                      /*  t.datapagto is null */'
+      
+        '                        (t.datapagto is null or (t.datapagto bet' +
+        'ween'
+      ''
+      '                        '#39#39':Data_Inicial'#39#39
+      ''
+      '                        and'
+      ''
+      '                        '#39#39':Data_Final'#39#39
+      ''
+      '                        ))'
+      '                     )'
+      '                     and'
+      '                     ('
+      '                        d.emissao between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      '                     )'
+      '                     and'
+      '                     ('
+      '                        t.autorizado = true'
+      ''
+      '                     )'
+      '                     and d.previsao = False'
+      ''
+      '        '#9#9#9' '
+      '                  group by d.emissao'
+      '        '#9#9'  '
+      '               )'
+      '            union all'
+      '               ('
+      '                  Select'
+      '                     d.emissao,'
+      '                     sum(d.valor) as valorliquido'
+      '                  From'
+      '                     (((documentospag d'
+      '                     join'
+      '                        (filiais f'
+      '                        left join'
+      '                           (filiaisgruposfiliais fgf'
+      '                           left join'
+      '                              gruposfiliais gf'
+      '                              on'
+      '                                 fgf.grupo=gf.codigo)'
+      '                           on'
+      '                              f.codigo=fgf.filial)'
+      '                        on'
+      '                           d.filialemissao=f.codigo)'
+      '                     JOIN'
+      '                        eventos e'
+      '                        ON'
+      '                           d.evento = e.Codigo)'
+      '                     join'
+      '                        vfornecedores vf'
+      '                        on'
+      '                           d.fornecedor         = vf.codigo'
+      '                           and d.tipofornecedor = vf.tipo)'
+      '                  where'
+      '                     coalesce(d.adiantamento,false)'
+      '                     and '#39#39'f'#39#39
+      '                     and'
+      '                     ('
+      '                        d.emissao between'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  and'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      '                     )'
+      '                  group by d.emissao '#9#9' '
+      '               )'
+      '            ) as sel   '
+      '            group by emissao'
+      '        )'
+      ''
+      ''
+      '        select to_char(mon_last,'#39#39'YYYY-MM'#39#39') as ano_mes,'
+      #9#9'      cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                      False as totalizar,'
+      '      '#9'      cast('#39#39#192' Pagar'#39#39' as varchar(100)) as conta, '
+      #9'          cast(61 as SMALLINT) as ordem,'
+      '        '
+      '              -  (select sum(valorliquido) '
+      '                 from Pagamentos_em_Aberto'
+      
+        '                 where emissao <= mon_last) as Total            ' +
+        '     '
+      '        from         '
+      '        (        '
+      '          select min(cast(d as date)) as mon_first,'
+      '                 max(cast(d as date)) as mon_last'
+      '          FROM   generate_series(date'
+      ''
+      '          '#39#39':Data_Inicial'#39#39
+      ''
+      '          ,'
+      '          date'
+      ''
+      '          '#39#39':Data_Final'#39#39
+      ''
+      '          , interval '#39#39'1 day'#39#39') d'
+      '          group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      '        )  as sel '
+      '    ),'
+      '    '
+      '    '
+      '  Linha_Bancos_e_Caixa as '
+      '  ('
+      '  select '
+      '       to_char(cast('
+      ''
+      '       '#39#39':Data_Inicial'#39#39
+      ''
+      '       as date), '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '       cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '       False as totalizar,'
+      '       cast('#39#39'  '#39#39'  as varchar(100)) as conta,      '
+      '       cast(63 as smallint) as ordem,       '
+      '       cast(null as numeric(11,2)) as Total'
+      ''
+      '  ),'
+      '    '
+      '    '
+      '  Saldos_Bancos_e_Caixa as'
+      '  ('
+      '  '
+      '      select to_char(periodo.mon_last,'#39#39'yyyy-MM'#39#39') as ano_mes,'
+      
+        '      /*       c.banco, b.nome, c.agencia, ag.nome, c.conta, c.d' +
+        'igito,*/'
+      #9'         cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '              false as totalizar,   '
+      
+        '             cast(b.nome||'#39#39' '#39#39'||'#39#39'Ag. '#39#39'||ag.nome||'#39#39' '#39#39'||cast(' +
+        'c.conta as varchar)||'#39#39'-'#39#39'||cast(c.digito as varchar) as varchar' +
+        '(100)) as conta,'
+      '             cast(64 as smallint) as ordem,'
+      
+        '             saldobanco(c.conta, periodo.mon_last,'#39#39'C'#39#39') as Tota' +
+        'l'
+      '             '
+      '      from contas c'
+      '           join agencias ag'
+      '           on c.banco = ag.banco'
+      '           and c.agencia = ag.codigo'
+      '           '
+      '           join bancos b'
+      '           on c.banco = b.codigo,'
+      
+        '                                                                ' +
+        '                ('
+      
+        '                                                                ' +
+        '                  select min(cast(d as date)) as mon_first,'
+      
+        '                                                                ' +
+        '                         max(cast(d as date)) as mon_last'
+      
+        '                                                                ' +
+        '                  FROM   generate_series(date'
+      ''
+      
+        '                                                                ' +
+        '                  '#39#39':Data_Inicial'#39#39
+      ''
+      
+        '                                                                ' +
+        '                  ,'
+      
+        '                                                                ' +
+        '                  date'
+      ''
+      
+        '                                                                ' +
+        '                  '#39#39':Data_Final'#39#39
+      ''
+      
+        '                                                                ' +
+        '                  , interval '#39#39'1 day'#39#39') d'
+      
+        '                                                                ' +
+        '                  group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '                  order by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '                  ) as periodo'
+      '  ),'
+      '  '
+      '  '
+      '  Total_Saldos_Bancos_e_Caixa as'
+      '  ('
+      '     select ano_mes, '
+      '            /* descricao,  */'
+      #9#9#9'cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '                        false as totalizar,'
+      
+        '            cast('#39#39'TOTAL SALDOS BANC'#193'RIOS E CAIXA CERON'#39#39' as var' +
+        'char(100)) as conta,'
+      '            cast(65 as smallint) as ordem,'
+      '            sum(Total) as Total '
+      '     from'
+      '     '
+      '     ('
+      '      select to_char(periodo.mon_last,'#39#39'yyyy-MM'#39#39') as ano_mes,'
+      
+        '      /*       c.banco, b.nome, c.agencia, ag.nome, c.conta, c.d' +
+        'igito, */'
+      
+        '             cast(b.nome||'#39#39' '#39#39'||'#39#39'Ag. '#39#39'||ag.nome||'#39#39' '#39#39'||cast(' +
+        'c.conta as varchar)||'#39#39'-'#39#39'||cast(c.digito as varchar) as varchar' +
+        '(100)) as conta,'
+      '             cast(65 as smallint) as ordem,'
+      
+        '             saldobanco(c.conta, periodo.mon_last,'#39#39'C'#39#39') as Tota' +
+        'l'
+      '             '
+      '      from contas c'
+      '           join agencias ag'
+      '           on c.banco = ag.banco'
+      '           and c.agencia = ag.codigo'
+      '           '
+      '           join bancos b'
+      '           on c.banco = b.codigo,'
+      
+        '                                                                ' +
+        '                ('
+      
+        '                                                                ' +
+        '                  select min(cast(d as date)) as mon_first,'
+      
+        '                                                                ' +
+        '                         max(cast(d as date)) as mon_last'
+      
+        '                                                                ' +
+        '                  FROM   generate_series(date'
+      ''
+      
+        '                                                                ' +
+        '                  '#39#39':Data_Inicial'#39#39
+      ''
+      
+        '                                                                ' +
+        '                  ,'
+      
+        '                                                                ' +
+        '                  date'
+      ''
+      
+        '                                                                ' +
+        '                  '#39#39':Data_Final'#39#39
+      ''
+      
+        '                                                                ' +
+        '                  , interval '#39#39'1 day'#39#39') d'
+      
+        '                                                                ' +
+        '                  group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '                  order by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '                  ) as periodo'
+      ''
+      ''
+      '  '
+      '   ) as sel'
+      '     group by ano_mes'
+      '     order by ano_mes'
+      '  ),'
+      '  '
+      '    '
+      '    '
+      '  pg_eventos_Emprestimos as'
+      '  ('
+      '  '
+      '            select '
+      
+        '                  to_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39') as ano_' +
+        'mes,'
+      '        /*          periodo.mon_last,'
+      '                  dp.emissao, */'
+      #9#9#9#9'  cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                                  False as totalizar,'
+      '                   e.descricao as conta,'
+      '                   cast(66 as SMALLINT) as ordem,'
+      '        /*           d.valorvencto */'
+      '                   '
+      '                  - sum(d.valorvencto) as Total'
+      '            from duplicatas d'
+      '                 join documentospag dp'
+      '                 on d.documentopag = dp.numero'
+      '                 join eventos e'
+      '                 on coalesce(d.evento, dp.evento) = e.codigo,'
+      '                 '
+      
+        '                                                                ' +
+        '                  ('
+      
+        '                                                                ' +
+        '                    select min(cast(d as date)) as mon_first,'
+      
+        '                                                                ' +
+        '                           max(cast(d as date)) as mon_last'
+      
+        '                                                                ' +
+        '                    FROM   generate_series(date'
+      ''
+      
+        '                                                                ' +
+        '                    '#39#39':Data_Inicial'#39#39
+      ''
+      
+        '                                                                ' +
+        '                    ,'
+      
+        '                                                                ' +
+        '                    date'
+      ''
+      
+        '                                                                ' +
+        '                    '#39#39':Data_Final'#39#39
+      ''
+      
+        '                                                                ' +
+        '                    , interval '#39#39'1 day'#39#39') d'
+      
+        '                                                                ' +
+        '                    group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '                    order by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '                    ) as periodo'
+      ''
+      '            where dp.emissao <= periodo.mon_last'
+      
+        '              and (d.datapagto is null or (d.datapagto between p' +
+        'eriodo.mon_first and periodo.mon_last))'
+      '              and e.incluirnadregerencial'
+      '              and dp.previsao = false'
+      '              and d.autorizado = true'
+      '              and trim(e.descricao) = '#39#39'Empr'#233'stimos Bancos'#39#39
+      ''
+      
+        '        group by to_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39'), e.descr' +
+        'icao'
+      '        order by to_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39')        '
+      '  '
+      '  ),'
+      '    '
+      #9
+      '  pg_eventos_Investimentos as'
+      '  ('
+      ''
+      '  select to_char(d.datavencto, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '         cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '         True as totalizar,'
+      '         d.descricao as conta,'
+      '         cast(67 as SMALLINT) as ordem,'
+      '         - sum(d.valorvencto) as Total'
+      '  from'
+      ''
+      '    ('
+      ''
+      '    select'
+      '          d.datavencto,'
+      ''
+      '          (select e2.descricao'
+      '           from eventos e2'
+      '           where e2.codigo <> e.codigo'
+      '             and position(e2.classificacao in e.classificacao)=1'
+      '             and e2.tipo = '#39#39'S'#39#39
+      '             order by e2.classificacao desc limit 1'
+      '            ) as descricao,'
+      ''
+      '          d.valorvencto'
+      ''
+      ''
+      '    from duplicatas d'
+      '         join documentospag dp'
+      '         on d.documentopag = dp.numero'
+      '         join eventos e'
+      '         on coalesce(d.evento, dp.evento) = e.codigo'
+      ''
+      '    where d.datavencto between'
+      ''
+      '    '#39#39':Data_Inicial'#39#39
+      ''
+      '    and'
+      ''
+      '    '#39#39':Data_Final'#39#39
+      ''
+      '      and e.incluirnadregerencial'
+      '      and dp.previsao = false'
+      '      and d.autorizado = true'
+      '      and trim(e.descricao) <> '#39#39'Empr'#233'stimos Bancos'#39#39
+      '  )  as d'
+      '  where trim(d.descricao) = '#39#39'Investimentos'#39#39
+      '  group by to_char(d.datavencto, '#39#39'yyyy-MM'#39#39'), d.descricao'
+      '  order by to_char(d.datavencto, '#39#39'yyyy-MM'#39#39'), d.descricao'
+      '  ),'
+      ''
+      ''
+      ''
+      '    Estoques as '
+      '    ('
+      '    '
+      ''
+      '      select ano_mes,'
+      #9'       cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '               False as totalizar,'
+      '           CAST('#39#39'Estoque'#39#39' as varchar(100)) as conta,'
+      '           cast(69 as smallint) as ordem,'
+      '           round(sum(Total), 2)      as Total'
+      '      from'
+      '         ('
+      ''
+      ''
+      '            select'
+      '            /*'
+      '               case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigogrupofilial'
+      '                     else cast(null as integer)'
+      '               end as codigogrupofilial'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then nomegrupofilial'
+      '                     else cast(null as varchar)'
+      '               end as nomegrupofilial'
+      '             , case'
+      '                  When '#39#39't'#39#39
+      '                     then codigofilial'
+      '                     else cast(null as integer)'
+      '               end as codigofilial'
+      '             , case'
+      '                  When '#39#39't'#39#39
+      '                     then nomefilial'
+      '                     else cast(null as varchar)'
+      '               end as nomefilial'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then localizacao'
+      '                     else cast(null as varchar)'
+      '               end as localizacao'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigoclasse'
+      '                     else cast(null as varchar)'
+      '               end as codigoclasse'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then classeproduto'
+      '                     else cast(null as varchar)'
+      '               end as classeproduto'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigogrupo'
+      '                     else cast(null as varchar)'
+      '               end as codigogrupo'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then grupoproduto'
+      '                     else cast(null as varchar)'
+      '               end as grupoproduto'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigoproduto'
+      '                     else cast(null as bigint)'
+      '               end as codigoproduto'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigoprodutovisual'
+      '                     else cast(null as varchar(30))'
+      '               end as codigoprodutovisual'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then produto'
+      '                     else cast(null as varchar)'
+      '               end as produto'
+      '               '
+      '             , */ case'
+      '                  When '#39#39'f'#39#39
+      '                     then financeiro'
+      '                     else'
+      '                        ('
+      '                           case'
+      
+        '                              when coalesce(qtdultimaentrada,0)<' +
+        '>0'
+      
+        '                                 then (qtdestoque*(custo_ultimae' +
+        'ntrada/qtdultimaentrada))'
+      '                                 else cast(null as numeric)'
+      '                           end'
+      '                        )'
+      '               end as Total, ano_mes'
+      '      /*       , qtdestoque*/'
+      '            from'
+      '               ('
+      ''
+      '                  SELECT'
+      '                     ep.*'
+      
+        '                   , estoques_preco(ep.codigoitem,ep.codigofilia' +
+        'l) as precovenda'
+      
+        '                   , financeiro/qtdestoque                      ' +
+        '   as custo_medio'
+      '                   , case'
+      '                        when '#39#39'f'#39#39
+      
+        '                           then custoestoquefisico(ep.codigoitem' +
+        ',ep.codigofilial,'
+      ''
+      '                           '#39#39':Data_Final'#39#39
+      ''
+      '                           )'
+      '                           else ep.valor'
+      '                     end as Custo_ultimaEntrada'
+      '                  from'
+      '                     ('
+      ''
+      '                        SELECT'
+      '                           ep.*'
+      '                        from'
+      '                           ('
+      ''
+      '                              SELECT'
+      '                                 ep.*'
+      
+        '                               , (ep.emestoque+ep.reservado+ep.t' +
+        'ransito+ep.demonstracao+ep.conserto+ep.danificada+ep.reservaprev' +
+        'ia/*+ep.estoquefisico*/) AS qtdestoque'
+      
+        '                               , f.nome                         ' +
+        '                                                                ' +
+        '                     AS nomefilial'
+      
+        '                               , gf.descricao                   ' +
+        '                                                                ' +
+        '                     as nomegrupofilial'
+      
+        '                               , gf.codigo                      ' +
+        '                                                                ' +
+        '                     as codigogrupofilial'
+      '                              FROM'
+      '                                 ('
+      ''
+      '                                    select'
+      '                                       ep.*'
+      '                                       /*'
+      '                                     , ('
+      '                                          select'
+      
+        '                                             i.classificacaofisc' +
+        'al'
+      '                                          from'
+      '                                             ipi i'
+      '                                          where'
+      '                                             i.codigo = c.ipi'
+      '                                       )'
+      
+        '                                                      as classif' +
+        'icacaofiscal'
+      
+        '                                     , cl.descricao   AS classep' +
+        'roduto'
+      
+        '                                     , cl.codigo      AS codigoc' +
+        'lasse'
+      
+        '                                     , g.descricao    AS grupopr' +
+        'oduto'
+      
+        '                                     , g.codigo       AS codigog' +
+        'rupo'
+      '                                     , c.descricao    AS produto'
+      
+        '                                     , c.codigo       AS codigop' +
+        'roduto'
+      
+        '                                     , c.codigovisual as codigop' +
+        'rodutovisual'
+      '                                     , cast(p.descricao'
+      '                                          ||'#39#39' '#39#39
+      
+        '                                          ||coalesce(p.valorgrad' +
+        'e1,'#39#39#39#39')'
+      '                                          ||'#39#39' '#39#39
+      
+        '                                          ||coalesce(p.valorgrad' +
+        'e2,'#39#39#39#39') as varchar) AS item'
+      
+        '                                     , ma.descricao             ' +
+        '                   AS marca'
+      '                                     , p.referencia'
+      
+        '                                     , p.codigovisual as codigoi' +
+        'temvisual'
+      '                                     , c.unidade'
+      '                                     , c.subconta'
+      '                                     */'
+      '                                    from'
+      '                                       ('
+      ''
+      '                                          select'
+      '                                             ep.*'
+      '                                           , m2.valor'
+      
+        '                                           , m2.quantidade as qt' +
+        'dUltimaEntrada'
+      '                                          from'
+      '                                             ('
+      ''
+      
+        '                                                select ano_mes, ' +
+        'mon_last'
+      
+        '                                                 , e.codigofilia' +
+        'l'
+      '                                                 , e.codigoitem'
+      '                                                 , e.localizacao'
+      
+        '                                                 , e.precocomicm' +
+        's'
+      '                                                 ,'
+      
+        '                                                   /*,estoques_p' +
+        'reco(e.produto,e.filial) as precovenda*/'
+      '                                                   m.emestoque'
+      '                                                 , m.reservado'
+      '                                                 , m.transito'
+      
+        '                                                 , m.demonstraca' +
+        'o'
+      '                                                 , m.conserto'
+      '                                                 , m.danificada'
+      
+        '                                                 , m.reservaprev' +
+        'ia'
+      
+        '                                                 , m.estoquefisi' +
+        'co'
+      '                                                 , m.financeiro'
+      '                                                from'
+      '                                                   ('
+      ''
+      
+        '                                                      select ano' +
+        '_mes, mon_last'
+      
+        '                                                       ,  m.nume' +
+        'ro'
+      
+        '                                                       , e.filia' +
+        'l  as codigofilial'
+      
+        '                                                       , e.produ' +
+        'to as codigoitem'
+      
+        '                                                       , e.local' +
+        'izacao'
+      
+        '                                                       , e.preco' +
+        'comicms'
+      '                                                      from'
+      '                                                         ('
+      ''
+      
+        '                                                            sele' +
+        'ct ano_mes, mon_last'
+      
+        '                                                             , m' +
+        '2.numero'
+      
+        '                                                             , m' +
+        '1.produto'
+      
+        '                                                             , m' +
+        '1.filial'
+      '                                                            from'
+      '                                                               ('
+      ''
+      
+        '                                                                ' +
+        '  select ano_mes, mon_last'
+      
+        '                                                                ' +
+        '   , m1.data'
+      
+        '                                                                ' +
+        '   , m1.produto'
+      
+        '                                                                ' +
+        '   , m1.filial'
+      
+        '                                                                ' +
+        '   , ('
+      
+        '                                                                ' +
+        '        select'
+      
+        '                                                                ' +
+        '           max(m2.lancto)'
+      
+        '                                                                ' +
+        '        from'
+      
+        '                                                                ' +
+        '           movimentos m2'
+      
+        '                                                                ' +
+        '        where'
+      
+        '                                                                ' +
+        '           m2.produto    = m1.produto'
+      
+        '                                                                ' +
+        '           and m2.filial = m1.filial'
+      
+        '                                                                ' +
+        '           and m2.data   = m1.data'
+      
+        '                                                                ' +
+        '     )'
+      
+        '                                                                ' +
+        '     as lancto'
+      
+        '                                                                ' +
+        '  from'
+      
+        '                                                                ' +
+        '     ('
+      ''
+      
+        '                                                                ' +
+        '        select'
+      
+        '                                                                ' +
+        '           TO_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39') as ano_mes, pe' +
+        'riodo.mon_last,'
+      
+        '                                                                ' +
+        '           max(m1.data) as data'
+      
+        '                                                                ' +
+        '         , m1.produto'
+      
+        '                                                                ' +
+        '         , m1.filial'
+      
+        '                                                                ' +
+        '        from'
+      
+        '                                                                ' +
+        '           movimentos m1,'
+      
+        '                                                                ' +
+        '           '
+      
+        '                                                                ' +
+        '          ('
+      
+        '                                                                ' +
+        '            select min(cast(d as date)) as mon_first,'
+      
+        '                                                                ' +
+        '                   max(cast(d as date)) as mon_last'
+      
+        '                                                                ' +
+        '            FROM   generate_series(date'
+      ''
+      
+        '                                                                ' +
+        '            '#39#39':Data_Inicial'#39#39
+      ''
+      
+        '                                                                ' +
+        '            ,'
+      
+        '                                                                ' +
+        '            date'
+      ''
+      
+        '                                                                ' +
+        '            '#39#39':Data_Final'#39#39
+      ''
+      
+        '                                                                ' +
+        '            , interval '#39#39'1 day'#39#39') d'
+      
+        '                                                                ' +
+        '            group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '            order by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '            ) as periodo'
+      
+        '                                                                ' +
+        '          '
+      
+        '                                                                ' +
+        '        where'
+      
+        '                                                                ' +
+        '           m1.data <= periodo.mon_last '
+      
+        '                                                                ' +
+        '           /* and m1.produto = 55 */'
+      
+        '                                                                ' +
+        '        group by'
+      
+        '                                                                ' +
+        '           TO_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39'), periodo.mon_l' +
+        'ast'
+      
+        '                                                                ' +
+        '         ,  m1.produto'
+      
+        '                                                                ' +
+        '         , m1.filial'
+      
+        '                                                                ' +
+        '        order by'
+      
+        '                                                                ' +
+        '          TO_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39')'
+      
+        '                                                                ' +
+        '         ,  m1.produto'
+      
+        '                                                                ' +
+        '         , m1.filial                                            ' +
+        '                       '
+      
+        '                                                                ' +
+        '     )'
+      
+        '                                                                ' +
+        '     as m1                                                      ' +
+        '         '
+      '                                                               )'
+      
+        '                                                               a' +
+        's m1'
+      
+        '                                                               j' +
+        'oin'
+      
+        '                                                                ' +
+        '  movimentos m2'
+      
+        '                                                                ' +
+        '  on'
+      
+        '                                                                ' +
+        '     m1.data        = m2.data'
+      
+        '                                                                ' +
+        '     and m1.lancto  = m2.lancto'
+      
+        '                                                                ' +
+        '     and m1.produto = m2.produto'
+      
+        '                                                                ' +
+        '     and m1.filial  = m2.filial'
+      '                                                         )'
+      '                                                         as m'
+      '                                                         join'
+      
+        '                                                            esto' +
+        'ques e'
+      '                                                            on'
+      
+        '                                                               m' +
+        '.produto    = e.produto'
+      
+        '                                                               a' +
+        'nd m.filial = e.filial'
+      '                                                   )'
+      '                                                   as e'
+      '                                                   join'
+      
+        '                                                      movimentos' +
+        ' m'
+      '                                                      on'
+      
+        '                                                         e.numer' +
+        'o         = m.numero'
+      
+        '                                                         and m.f' +
+        'inanceiro<>0'
+      '                                                         '
+      '                                             )'
+      '                                             as ep'
+      '                                             LEFT JOIN'
+      '                                                movimentos m2'
+      '                                                ON'
+      
+        '                                                   m2.produto   ' +
+        ' = ep.codigoitem'
+      
+        '                                                   AND m2.filial' +
+        ' = ep.codigofilial'
+      
+        '                                                   and m2.numero' +
+        ' ='
+      '                                                   ('
+      '                                                      SELECT'
+      
+        '                                                         m.numer' +
+        'o'
+      
+        '                                                         /*max(m' +
+        '.numero)*/'
+      '                                                      from'
+      
+        '                                                         movimen' +
+        'tos m'
+      '                                                      where'
+      
+        '                                                         m.produ' +
+        'to                              =ep.codigoitem'
+      
+        '                                                         and m.f' +
+        'ilial                           =ep.codigofilial'
+      
+        '                                                         and m.d' +
+        'ata <=  mon_last                           '
+      
+        '                                                         and sub' +
+        'string(m.operacao from 12 for 1)='#39#39'+'#39#39
+      '                                                      order by'
+      
+        '                                                         m.data ' +
+        'desc'
+      
+        '                                                       , m.lanct' +
+        'o desc limit 1'
+      '                                                   )'
+      '                                       )'
+      '                                       as ep'
+      
+        '                                       /*trocado para kilar, fic' +
+        'a bem mais rapido*/'
+      '                                       JOIN'
+      '                                          produtos p'
+      '                                          on'
+      
+        '                                             p.codigo=ep.codigoi' +
+        'tem'
+      '                                       JOIN'
+      '                                          caracteristicas c'
+      '                                          on'
+      
+        '                                             c.codigo=p.caracter' +
+        'istica'
+      '                                             /*'
+      '                                       JOIN'
+      '                                          grupos g'
+      '                                          on'
+      '                                             g.codigo=c.grupo'
+      '                                       JOIN'
+      '                                          classes cl'
+      '                                          on'
+      '                                             cl.codigo=c.classe'
+      '                                       JOIN'
+      '                                          marcas ma'
+      '                                          on'
+      '                                             ma.codigo=c.marca'
+      '                                             */'
+      
+        '                                       /*  muito lento na kilar ' +
+        '- 02-01-2013 - banco 8.4  JOIN ( produtos p  JOIN (((caracterist' +
+        'icas c  JOIN grupos g  ON c.grupo = g.codigo)  JOIN classes cl  ' +
+        'ON c.classe=cl.codigo)  JOIN marcas ma  ON c.marca=ma.codigo)  O' +
+        'N p.caracteristica=c.codigo)  ON p.codigo = ep.codigoitem */'
+      '                                    where'
+      '                                       TRUE'
+      
+        '                                       /* ((not (c.inativo is no' +
+        't null)) or (c.inativo>'#39#39'30/06/2024'#39#39')) Comentado em 13/09/2019 ' +
+        'por L'#218'CIO WATERKEMPER */'
+      
+        '                                       and c.tipoproduto in ('#39#39'0' +
+        '0'#39#39')'
+      '                                       '
+      '                                 )'
+      '                                 as ep'
+      '                                 JOIN'
+      '                                    (filiais f'
+      '                                    left join'
+      '                                       (filiaisgruposfiliais fgf'
+      '                                       join'
+      '                                          gruposfiliais gf'
+      '                                          on'
+      
+        '                                             fgf.grupo = gf.codi' +
+        'go)'
+      '                                       on'
+      '                                          fgf.filial = f.codigo)'
+      '                                    ON'
+      
+        '                                       f.codigo = ep.codigofilia' +
+        'l'
+      '                              Order by'
+      '                                 nomefilial'
+      '                               , codigofilial'
+      '      /*                         , codigoitemvisual*/'
+      '                               , codigoitem'
+      '      /*                         , item*/'
+      ''
+      '                           )'
+      '                           as ep'
+      '                        WHERE'
+      '                           qtdestoque>0'
+      '                     )'
+      '                     as ep'
+      '               )'
+      '               as temp'
+      '         )'
+      '         as temp'
+      '         group by ano_mes order by ano_mes'
+      '    ),'
+      '    '
+      '    '
+      '    Adiantamentos_de_Pagamentos as'
+      '    ('
+      '    '
+      
+        '        select to_char(max(periodo.mon_last), '#39#39'yyyy-MM'#39#39')  as a' +
+        'no_mes,'
+      #9#9'              cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                      False as totalizar,        '
+      
+        '                      cast('#39#39'Importa'#231#227'o (PEDIDOS J'#193' PAGOS POR AN' +
+        'TECIPA'#199#195'O)'#39#39' as varchar(100)) as conta, '
+      '                      cast(71 as SMALLINT) as ordem,'
+      '              - sum(saldo) as total'
+      '        from'
+      '        ('
+      '        select sel.*,'
+      '               Calcular_Saldo_Adiantamento(sel.numero,'
+      ''
+      '               cast('
+      ''
+      '                 '#39#39':Data_Final'#39#39
+      ''
+      '                 as date)'
+      ''
+      '               ) as Saldo'
+      '        from'
+      '        ('
+      '        select sel.*,'
+      '               (select max(dp.numero)'
+      '                from documentospag dp'
+      '                where dp.fornecedor = sel.fornecedor '
+      '                  and dp.tipofornecedor = sel.tipofornecedor'
+      '                  and dp.emissao = sel.emissao) as numero'
+      ''
+      '                  '
+      '                  '
+      '        from'
+      '        (       '
+      ''
+      
+        '        select dp.fornecedor, dp.tipofornecedor, max(dp.emissao)' +
+        ' as emissao'
+      '        from documentospag dp'
+      '             join tipospagamentos tp'
+      '             on dp.tipopagamento = tp.codigo'
+      '        where coalesce(dp.adiantamento,false) '
+      '        and dp.emissao <='
+      ''
+      '          '#39#39':Data_Final'#39#39
+      ''
+      '        /*and dp.fornecedor = 695*/'
+      
+        '        group by dp.fornecedor, dp.tipofornecedor, to_char(dp.em' +
+        'issao, '#39#39'YYYY/MM'#39#39')'
+      
+        '        order by dp.fornecedor, dp.tipofornecedor, to_char(dp.em' +
+        'issao, '#39#39'YYYY/MM'#39#39')'
+      ''
+      '        ) as sel'
+      '        ) as sel'
+      '        )  as sel,'
+      '                ('
+      '                  select min(cast(d as date)) as mon_first,'
+      '                         max(cast(d as date)) as mon_last'
+      '                  FROM   generate_series(date'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  ,'
+      '                  date'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      '                  , interval '#39#39'1 day'#39#39') d'
+      '                  group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      '                  order by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      '                  ) as periodo'
+      '          where sel.emissao <= periodo.mon_last'
+      ''
+      '        group by to_char(periodo.mon_last, '#39#39'YYYY/MM'#39#39')'
+      '        order by to_char(periodo.mon_last, '#39#39'YYYY/MM'#39#39')'
+      '    '
+      '    '
+      '    ),'
+      ''
+      ''
+      '    Recebimentos_mes as'
+      '    ('
+      '    '
+      '        Select to_char(p.datapagto, '#39#39'yyyy-MM'#39#39') as ano_mes,'
+      '              cast('#39#39'DT'#39#39' as char(3)) as tipoconta,'
+      '              True as totalizar,'
+      
+        '      '#9'      cast('#39#39'RECEBIMENTOS M'#202'S'#39#39' as varchar(100)) as conta' +
+        ', '
+      #9'          cast(75 as SMALLINT) as ordem,'
+      '        '
+      '              sum(p.valorpagto) as Total'
+      ''
+      '        from ((contratos c join (filiais f'
+      
+        '                                left join (filiaisgruposfiliais ' +
+        'fgf'
+      '                                          join gruposfiliais gf'
+      
+        '                                          on fgf.grupo=gf.codigo' +
+        ')'
+      '                                on f.codigo = fgf.filial)'
+      '                         on c.filialvenda = f.codigo)'
+      ''
+      '                         join (parcelas p'
+      '                          left join (filiais f_p'
+      
+        '                                left join (filiaisgruposfiliais ' +
+        'fgf_p'
+      
+        '                                          join gruposfiliais gf_' +
+        'p'
+      
+        '                                          on fgf_p.grupo=gf_p.co' +
+        'digo)'
+      '                                on f_p.codigo = fgf_p.filial)'
+      '                          on  p.filialpagto = f_p.codigo)'
+      '                         on c.numero = p.contrato)'
+      ''
+      
+        '                         left join usuarios u on c.vendedor = u.' +
+        'codigo,'
+      '                         '
+      '                  (       '
+      '                  select min(cast(d as date)) as mon_first,'
+      '                         max(cast(d as date)) as mon_last'
+      '                  FROM   generate_series(date'
+      ''
+      '                  '#39#39':Data_Inicial'#39#39
+      ''
+      '                  ,'
+      '                  date'
+      ''
+      '                  '#39#39':Data_Final'#39#39
+      ''
+      '                  , interval '#39#39'1 day'#39#39') d'
+      '                  group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      '                  ) as intervalo'
+      ''
+      ''
+      
+        '        Where c.numero = p.contrato and c.Situacao IN ('#39#39'F'#39#39','#39#39'N' +
+        #39#39','#39#39'P'#39#39')'
+      
+        '          AND NOT contratos_renegociado(c.numero)  and coalesce(' +
+        'p.tipopagto,'#39#39#39#39') <>'#39#39'E'#39#39
+      
+        '          and case when c.os then c.tipoequipamento in (1,2) els' +
+        'e true end'
+      '          and (p.datapagto is not null)'
+      
+        '          and coalesce(p.formapagamento,'#39#39#39#39')<>'#39#39'T'#39#39' and p.datap' +
+        'agto between intervalo.mon_first and intervalo.mon_last'
+      '        group by to_char(p.datapagto, '#39#39'yyyy-MM'#39#39')'
+      ''
+      '    ),'
+      ''
+      ''
+      ''
+      '    Pagamentos_mes as'
+      '    ('
+      ''
+      
+        '                  Select to_char(t.datapagto, '#39#39'yyyy-MM'#39#39') as an' +
+        'o_mes,'
+      
+        '                            cast('#39#39'DT'#39#39' as char(3)) as tipoconta' +
+        ','
+      '                            True as totalizar,'
+      
+        '                            cast('#39#39'PAGAMENTOS M'#202'S'#39#39' as varchar(1' +
+        '00)) as conta, '
+      '                            cast(77 as SMALLINT) as ordem,'
+      '                  '
+      '                       -  sum(coalesce(t.valorpagto,0)) as Total'
+      '                  From'
+      '                     ((duplicatas t'
+      '                     left join'
+      '                        notaspag n'
+      '                        on'
+      '                           n.documentopag = t.documentopag)'
+      '                     join'
+      '                        (((documentospag d'
+      '                        join'
+      '                           (filiais f'
+      '                           left join'
+      '                              (filiaisgruposfiliais fgf'
+      '                              left join'
+      '                                 gruposfiliais gf'
+      '                                 on'
+      '                                    fgf.grupo=gf.codigo )'
+      '                              on'
+      '                                 f.codigo=fgf.filial)'
+      '                           on'
+      '                              d.filialemissao=f.codigo)'
+      '                        JOIN'
+      '                           eventos e'
+      '                           ON'
+      '                              d.evento = e.Codigo)'
+      '                        join'
+      '                           vfornecedores vf'
+      '                           on'
+      '                              d.fornecedor         = vf.codigo'
+      '                              and d.tipofornecedor = vf.tipo)'
+      '                        on'
+      '                           t.documentopag = d.numero),'
+      '                           '
+      '                        (        '
+      
+        '                          select min(cast(d as date)) as mon_fir' +
+        'st,'
+      
+        '                                 max(cast(d as date)) as mon_las' +
+        't'
+      '                          FROM   generate_series(date'
+      ''
+      '                          '#39#39':Data_Inicial'#39#39
+      ''
+      '                          ,'
+      '                          date'
+      ''
+      '                          '#39#39':Data_Final'#39#39
+      ''
+      '                          , interval '#39#39'1 day'#39#39') d'
+      '                          group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      '                        )  as intervalo '
+      ''
+      '                  where'
+      '                     '#39#39't'#39#39
+      '                     and'
+      '                     ('
+      '                        t.datapagto is not null'
+      '                     )'
+      '                     and'
+      '                     ('
+      
+        '                        t.datapagto between intervalo.mon_first ' +
+        'and intervalo.mon_last'
+      '                     )'
+      '                     and'
+      '                     ('
+      '                        t.autorizado = true'
+      '                     )'
+      '        '#9#9#9' '
+      '                  group by to_char(t.datapagto, '#39#39'yyyy-MM'#39#39')    '
+      '    '
+      '    )'
+      ''
+      
+        '  select tipoconta, totalizar, conta, sum(ordem) as ordem, ano_m' +
+        'es, sum(Total) as Total'
+      '  from'
+      ''
+      '  ('
+      ''
+      '     ('
+      '        select tipoconta,'
+      '               totalizar,'
+      '               conta, sum(ordem) as ordem,'
+      '               ano_mes,'
+      '               sum(Total) as Total'
+      '         from'
+      '        ('
+      ''
+      ''
+      
+        '          (select * from Licitacoes_Ganhas_Venda)     '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Custos)                      '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Lucro_Bruto_Prejuizo)        '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from emissao)                     '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Faturamento_de_Licitacoes)   '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Faturamento_sem_Licitacoes)  '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Total_Faturamento)           '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Custo_Eqptos_Faturamento_com_Licitacoes' +
+        ') '#9'UNION ALL'
+      
+        '          (select * from Custo_Eqptos_Faturamento_sem_Licitacoes' +
+        ') '#9'UNION ALL'
+      
+        '          (select * from Total_Custo_Eqptos_Faturamento) '#9#9#9'UNIO' +
+        'N ALL'
+      
+        '          (select * from Fretes_Sobre_Faturamento_com_Licitacoes' +
+        ') '#9'UNION ALL'
+      
+        '          (select * from Fretes_Sobre_Faturamento_sem_Licitacoes' +
+        ') '#9'UNION ALL'
+      '          (select * from Espaco_linha_Frete) '#9#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from Comissao_Sobre_Licitacoes) '#9#9#9#9'UNION AL' +
+        'L'
+      
+        '          (select * from Total_Comissao_Sobre_Licitacoes)  '#9#9#9'UN' +
+        'ION ALL'
+      '          (select * from Comissao_Sem_Licitacoes) '#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from Total_Comissao_Sem_Licitacoes) '#9#9#9'UNION' +
+        ' ALL'
+      ''
+      '          /*'
+      
+        '          (select * from ICMS_sobre_Faturamento_de_Licitacoes)'#9#9 +
+        'UNION ALL'
+      
+        '          (select * from IPI_sobre_Faturamento_de_Licitacoes)'#9#9'U' +
+        'NION ALL'
+      
+        '          (select * from PIS_sobre_Faturamento_de_Licitacoes)'#9#9'U' +
+        'NION ALL'
+      
+        '          (select * from COFINS_sobre_Faturamento_de_Licitacoes)' +
+        #9'UNION ALL'
+      
+        '          (select * from Total_Impostos_sobre_Faturamento_de_Lic' +
+        'itacoes)'#9'UNION ALL'
+      ''
+      
+        '          (select * from ICMS_sobre_Faturamento_sem_Licitacoes)'#9 +
+        #9'UNION ALL'
+      
+        '          (select * from IPI_sobre_Faturamento_sem_Licitacoes)'#9#9 +
+        'UNION ALL'
+      
+        '          (select * from PIS_sobre_Faturamento_sem_Licitacoes)'#9#9 +
+        'UNION ALL'
+      
+        '          (select * from COFINS_sobre_Faturamento_sem_Licitacoes' +
+        ')'#9'UNION ALL'
+      
+        '          (select * from Total_Impostos_sobre_Faturamento_sem_Li' +
+        'citacoes)'#9'UNION ALL'
+      '          */'
+      ''
+      '          (select  ano_mes,'
+      '                   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        '                   cast('#39#39'Imposto (Sob Faturamento Sem Abatiment' +
+        'os)'#39#39' as varchar(100)) as conta,'
+      '                   cast(49 as smallint) as ordem,'
+      '                   sum(total) as Total'
+      '            from'
+      '            ('
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_de_Licitacoes)                     UNION ALL'
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_sem_Licitacoes)'
+      ''
+      '            ) as sel'
+      '            group by ano_mes'
+      ''
+      '          )   UNION ALL'
+      ''
+      
+        '          (select * from pg_eventos_Credito_Previsao_Impostos) U' +
+        'NION ALL'
+      ''
+      '          (select  ano_mes,'
+      '                   cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        '                   cast('#39#39'Total Impostos'#39#39' as varchar(100)) as c' +
+        'onta,'
+      '                   cast(50 as smallint) as ordem,'
+      '                   sum(total) as Total'
+      '            from'
+      '            ('
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_de_Licitacoes)                     UNION ALL'
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_sem_Licitacoes)   union all'
+      
+        '              (select ano_mes, total from pg_eventos_Credito_Pre' +
+        'visao_Impostos)'
+      ''
+      ''
+      '            ) as sel'
+      '            group by ano_mes'
+      ''
+      '          )   UNION ALL'
+      ''
+      ''
+      '          (select * from pg_eventos_) '#9#9#9#9#9#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from Soma_despesas)                         ' +
+        '     UNION ALL'
+      
+        '          (select * from Lucro_do_Exercicio)                    ' +
+        '     UNION ALL'
+      ''
+      
+        '          (select * from Linha_Caixa)                     '#9#9#9#9'UN' +
+        'ION ALL'
+      ''
+      
+        '          (select * from Recebimentos_em_Aberto)                ' +
+        '     UNION ALL'
+      
+        '          (select * from Pagamentos_em_Aberto)                  ' +
+        '     UNION ALL'
+      
+        '          (select * from Linha_Bancos_e_Caixa)                  ' +
+        '     UNION ALL'
+      
+        '          (select * from Saldos_Bancos_e_Caixa)                 ' +
+        '      UNION ALL'
+      
+        '          (select * from Total_Saldos_Bancos_e_Caixa)           ' +
+        '            UNION ALL'
+      '          (select * from pg_eventos_Emprestimos) '#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from pg_eventos_Investimentos) '#9#9#9#9#9'UNION AL' +
+        'L'
+      
+        '          (select * from Estoques)                       UNION A' +
+        'LL'
+      '          (select * from Adiantamentos_de_pagamentos) UNION ALL'
+      ''
+      ''
+      '          (select  ano_mes,'
+      '                   cast('#39#39'RT'#39#39' as char(3)) as tipoconta,'
+      '                   false as totalizar,'
+      
+        '                   cast('#39#39'TOTAL L'#205'QUIDO'#39#39' as varchar(100)) as co' +
+        'nta,'
+      '                   cast(74 as smallint) as ordem,'
+      '                   sum(total) as Total'
+      '            from'
+      '            ('
+      
+        '              (select ano_mes, total from Recebimentos_em_Aberto' +
+        ')                     UNION ALL'
+      
+        '              (select ano_mes, total from Pagamentos_em_Aberto) ' +
+        '                      UNION ALL'
+      
+        '              (select ano_mes, total from Total_Saldos_Bancos_e_' +
+        'Caixa)                       UNION ALL'
+      
+        '              (select ano_mes, total from pg_eventos_Emprestimos' +
+        ') '#9#9#9#9#9'UNION ALL'
+      
+        '              (select ano_mes, total from pg_eventos_Investiment' +
+        'os) '#9#9#9#9#9'UNION ALL'
+      
+        '              (select ano_mes, total from Estoques)             ' +
+        '          UNION ALL'
+      
+        '              (select ano_mes, total from Adiantamentos_de_pagam' +
+        'entos)'
+      ''
+      '            ) as sel'
+      '            group by ano_mes'
+      ''
+      '          ) UNION ALL'
+      ''
+      '          (select * from Recebimentos_mes) UNION ALL'
+      '          (select * from Pagamentos_mes)'
+      ''
+      '        ) as sel'
+      '        group by tipoconta, totalizar, conta, ano_mes, ordem'
+      '        order by ordem, conta, ano_mes'
+      ''
+      '        )'
+      #9#9
+      #9
+      ''
+      '        union all'
+      ''
+      '        ('
+      ''
+      '        select tipoconta,'
+      '               totalizar,'
+      '               conta, ordem,'
+      '               cast('#39#39'TOTAL'#39#39' as varchar(7)) as ano_mes,'
+      
+        #9#9#9'   sum(case when totalizar then Total else cast(null as numer' +
+        'ic(11,2)) end) as Total'
+      '         from'
+      '        ('
+      ''
+      
+        '          (select * from Licitacoes_Ganhas_Venda)     '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Custos)                      '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Lucro_Bruto_Prejuizo)        '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from emissao)                     '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Faturamento_de_Licitacoes)   '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Faturamento_sem_Licitacoes)  '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Total_Faturamento)           '#9#9#9#9'UNION ' +
+        'ALL'
+      
+        '          (select * from Custo_Eqptos_Faturamento_com_Licitacoes' +
+        ') '#9'UNION ALL'
+      
+        '          (select * from Custo_Eqptos_Faturamento_sem_Licitacoes' +
+        ') '#9'UNION ALL'
+      
+        '          (select * from Total_Custo_Eqptos_Faturamento) '#9#9#9'UNIO' +
+        'N ALL'
+      
+        '          (select * from Fretes_Sobre_Faturamento_com_Licitacoes' +
+        ') '#9'UNION ALL'
+      
+        '          (select * from Fretes_Sobre_Faturamento_sem_Licitacoes' +
+        ') '#9'UNION ALL'
+      '          (select * from Espaco_linha_Frete) '#9#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from Comissao_Sobre_Licitacoes) '#9#9#9#9'UNION AL' +
+        'L'
+      
+        '          (select * from Total_Comissao_Sobre_Licitacoes)  '#9#9#9'UN' +
+        'ION ALL'
+      '          (select * from Comissao_Sem_Licitacoes) '#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from Total_Comissao_Sem_Licitacoes) '#9#9#9'UNION' +
+        ' ALL'
+      ''
+      '          /*'
+      
+        '          (select * from ICMS_sobre_Faturamento_de_Licitacoes)'#9#9 +
+        'UNION ALL'
+      
+        '          (select * from IPI_sobre_Faturamento_de_Licitacoes)'#9#9'U' +
+        'NION ALL'
+      
+        '          (select * from PIS_sobre_Faturamento_de_Licitacoes)'#9#9'U' +
+        'NION ALL'
+      
+        '          (select * from COFINS_sobre_Faturamento_de_Licitacoes)' +
+        #9'UNION ALL'
+      
+        '          (select * from Total_Impostos_sobre_Faturamento_de_Lic' +
+        'itacoes)'#9'UNION ALL'
+      ''
+      
+        '          (select * from ICMS_sobre_Faturamento_sem_Licitacoes)'#9 +
+        #9'UNION ALL'
+      
+        '          (select * from IPI_sobre_Faturamento_sem_Licitacoes)'#9#9 +
+        'UNION ALL'
+      
+        '          (select * from PIS_sobre_Faturamento_sem_Licitacoes)'#9#9 +
+        'UNION ALL'
+      
+        '          (select * from COFINS_sobre_Faturamento_sem_Licitacoes' +
+        ')'#9'UNION ALL'
+      
+        '          (select * from Total_Impostos_sobre_Faturamento_sem_Li' +
+        'citacoes)'#9'UNION ALL'
+      '          */'
+      ''
+      '          (select  ano_mes,'
+      '                   cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        '                   cast('#39#39'Imposto (Sob Faturamento Sem Abatiment' +
+        'os)'#39#39' as varchar(100)) as conta,'
+      '                   cast(49 as smallint) as ordem,'
+      '                   sum(total) as Total'
+      '            from'
+      '            ('
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_de_Licitacoes)                     UNION ALL'
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_sem_Licitacoes)'
+      ''
+      '            ) as sel'
+      '            group by ano_mes'
+      ''
+      '          )   UNION ALL'
+      ''
+      
+        '          (select * from pg_eventos_Credito_Previsao_Impostos) U' +
+        'NION ALL'
+      ''
+      '          (select  ano_mes,'
+      '                   cast('#39#39'T'#39#39' as char(3)) as tipoconta,'
+      '                   True as totalizar,'
+      
+        '                   cast('#39#39'Total Impostos'#39#39' as varchar(100)) as c' +
+        'onta,'
+      '                   cast(50 as smallint) as ordem,'
+      '                   sum(total) as Total'
+      '            from'
+      '            ('
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_de_Licitacoes)                     UNION ALL'
+      
+        '              (select ano_mes, total from Total_Impostos_sobre_F' +
+        'aturamento_sem_Licitacoes)   union all'
+      
+        '              (select ano_mes, total from pg_eventos_Credito_Pre' +
+        'visao_Impostos)'
+      ''
+      ''
+      '            ) as sel'
+      '            group by ano_mes'
+      ''
+      '          )   UNION ALL'
+      ''
+      ''
+      '          (select * from pg_eventos_) '#9#9#9#9#9#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from Soma_despesas)                         ' +
+        '     UNION ALL'
+      
+        '          (select * from Lucro_do_Exercicio)                    ' +
+        '     UNION ALL'
+      ''
+      
+        '          (select * from Linha_Caixa)                     '#9#9#9#9'UN' +
+        'ION ALL'
+      ''
+      
+        '          (select * from Recebimentos_em_Aberto)                ' +
+        '     UNION ALL'
+      
+        '          (select * from Pagamentos_em_Aberto)                  ' +
+        '     UNION ALL'
+      
+        '          (select * from Linha_Bancos_e_Caixa)                  ' +
+        '     UNION ALL'
+      
+        '          (select * from Saldos_Bancos_e_Caixa)                 ' +
+        '      UNION ALL'
+      
+        '          (select * from Total_Saldos_Bancos_e_Caixa)           ' +
+        '            UNION ALL'
+      '          (select * from pg_eventos_Emprestimos) '#9#9#9#9#9'UNION ALL'
+      
+        '          (select * from pg_eventos_Investimentos) '#9#9#9#9#9'UNION AL' +
+        'L'
+      
+        '          (select * from Estoques)                       UNION A' +
+        'LL'
+      '          (select * from Adiantamentos_de_pagamentos) UNION ALL'
+      ''
+      ''
+      '          (select  ano_mes,'
+      '                   cast('#39#39'RT'#39#39' as char(3)) as tipoconta,'
+      '                   false as totalizar,'
+      
+        '                   cast('#39#39'TOTAL L'#205'QUIDO'#39#39' as varchar(100)) as co' +
+        'nta,'
+      '                   cast(74 as smallint) as ordem,'
+      '                   sum(total) as Total'
+      '            from'
+      '            ('
+      
+        '              (select ano_mes, total from Recebimentos_em_Aberto' +
+        ')                     UNION ALL'
+      
+        '              (select ano_mes, total from Pagamentos_em_Aberto) ' +
+        '                      UNION ALL'
+      
+        '              (select ano_mes, total from Total_Saldos_Bancos_e_' +
+        'Caixa)                       UNION ALL'
+      
+        '              (select ano_mes, total from pg_eventos_Emprestimos' +
+        ') '#9#9#9#9#9'UNION ALL'
+      
+        '              (select ano_mes, total from pg_eventos_Investiment' +
+        'os) '#9#9#9#9#9'UNION ALL'
+      
+        '              (select ano_mes, total from Estoques)             ' +
+        '          UNION ALL'
+      
+        '              (select ano_mes, total from Adiantamentos_de_pagam' +
+        'entos)'
+      ''
+      '            ) as sel'
+      '            group by ano_mes'
+      ''
+      '          ) UNION ALL'
+      ''
+      '          (select * from Recebimentos_mes) UNION ALL'
+      '          (select * from Pagamentos_mes)'
+      ''
+      '        '
+      #9#9') as sel'
+      '        group by tipoconta, totalizar, conta, ordem'
+      ''
+      '        order by ordem, conta, ano_mes'
+      #9'   )'
+      ''
+      '      ) as sel'
+      ''
+      '      group by tipoconta, totalizar, conta, ano_mes, ordem'
+      '      order by ordem, conta, ano_mes'
+      ''
+      ''
+      #39','
+      ''
+      #39' select sel.* from'
+      ' ('
+      ''
+      '  ('
+      '  select distinct to_char(cast('
+      ''
+      '        '#39#39':Data_Inicial'#39#39
+      ''
+      
+        '           as date)  + s.a,'#39#39'YYYY-MM'#39#39') as ano_mes from generate' +
+        '_series(1,cast('
+      ''
+      '            '#39#39':Data_Final'#39#39
+      ''
+      '               as date)-cast('
+      ''
+      '              '#39#39':Data_Inicial'#39#39
+      ''
+      '                as date)) as s(a) order by 1'
+      '  )'
+      ''
+      'union all'
+      ''
+      '  ('
+      ' select  cast('#39#39'TOTAL'#39#39' as varchar(7)) as ano_mes'
+      '  )'
+      ''
+      ' ) as sel '#39','
+      ''
+      #39'conta'#39','
+      ' '#39', tipoconta'#39','
+      ''
+      #39'ano_mes'#39', '#39'total'#39', '#39'curs'#39
+      ''
+      ')'
+      'as cur;'
+      ''
+      'fetch ALL in curs'
+      '')
+    RequestLive = False
+    Left = 296
+    Top = 32
+  end
+end

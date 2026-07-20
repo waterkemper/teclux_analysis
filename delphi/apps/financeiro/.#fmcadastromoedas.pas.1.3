@@ -1,0 +1,217 @@
+unit fmcadastromoedas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, DBCtrls,
+  cptexto, Mask, cpdbfindcontrols, Grids, DBGrids, biblio,
+  cpdbgrid, frconsulta, frconsultacodigo, ctconstantes, fmcadastromoedascotacoes,
+  cpdata, cpdbmesano, Windows, ToolWin, cpdbspinedit, cpdbdata;
+
+type
+  TfrmCadastroMoedas = class(TfrmCadastroPadrao)
+    gbxCodigoMoeda: TGroupBox;
+    edfCodigoMoeda: TtecDBFindLookup;
+    gbxDescricaoMoeda: TGroupBox;
+    edtDescricaoMoeda: TDBEditTexto;
+    gbxDecimais: TGroupBox;
+    gbxMoedasCotacoes: TGroupBox;
+    dbgCotacaoMoedas: TtecDBGrid;
+    gbxMes: TGroupBox;
+    edtMesAno: TDBEditmesano;
+    pnlOpcoesProdutos: TPanel;
+    sbnReplicarValor: TSpeedButton;
+    ckbMoedaPadrao: TDBCheckBox;
+    dbsDecimais: TDBSpinEdit;
+    gbxInativo: TGroupBox;
+    edtInativo: TDBEditData;
+    procedure dbsDecimaisMoedaChanged(Sender: TObject; NewValue: Integer);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure dbgCotacaoMoedasDblClick(Sender: TObject);
+    procedure dbgCotacaoMoedasKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure sbnReplicarValorClick(Sender: TObject);
+    procedure dbgCotacaoMoedasEnter(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    ConsultaMoedas : TfraConsultaCodigo;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure AbrirMoedas;
+    procedure IncluirCotacoesMoedas(Editar: Boolean);
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure CondicoesdaConsultaMoedas;
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+  end;
+
+var
+  frmCadastroMoedas: TfrmCadastroMoedas;
+
+implementation
+uses dmcadastromoedas;
+
+{$R *.dfm}
+
+{ TfrmCadastroMoedas }
+
+constructor TfrmCadastroMoedas.Create(AOwner: TComponent);
+begin
+  dtmCadastroMoedas := TdtmCadastroMoedas.Create(Self);
+  inherited;
+  DataSet := dtmCadastroMoedas.qryMoedas;
+  ConsultaMoedas := TfraConsultaCodigo.Create(self);
+  ConsultaMoedas.edfCodigo.DataSource := dtmCadastroMoedas.dsrMoedas;
+  ConsultaMoedas.edfCodigo.DataField := 'codigo';
+  ConsultaMoedas.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaMoedas.AbrirTabelaProcura := false;
+  ConsultaMoedas.TipoPesquisa := pesMOEDAS;
+  ConsultaMoedas.OnFound := AbrirMoedas;
+  consultamoedas.CondicoesdaConsulta := CondicoesdaConsultaMoedas;
+  dbgCotacaoMoedas.OnDelete := dtmCadastroMoedas.ExcluirMoedas;
+end;
+
+destructor TfrmCadastroMoedas.Destroy;
+begin
+  dtmCadastroMoedas.qryMoedas.close;
+  dtmCadastroMoedas.qryMoedasCotacoes.close;
+  inherited;
+  frmCadastroMoedas := nil;
+end;
+
+function TfrmCadastroMoedas.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroMoedas.ExcluirMoedas;
+  end;
+end;
+
+function TfrmCadastroMoedas.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    dtmCadastroMoedas.GravarMoedas;
+end;
+
+function TfrmCadastroMoedas.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroMoedas.IncluirMoedas;
+  end;
+end;
+
+procedure TfrmCadastroMoedas.dbsDecimaisMoedaChanged(Sender: TObject;
+  NewValue: Integer);
+  var a: integer;
+begin
+  inherited;
+ a:=0;
+end;
+
+procedure TfrmCadastroMoedas.AbrirMoedas;
+begin
+  edfCodigoMoeda.Text := ConsultaMoedas.ValorSelecionado;
+  dtmCadastroMoedas.
+        refazconsulta(dtmCadastroMoedas.qryMoedas,[0],
+             [ConsultaMoedas.ValorSelecionado]);
+  AlterarEstadoBotoes;
+end;
+
+procedure TfrmCadastroMoedas.IncluirCotacoesMoedas(Editar: Boolean);
+begin
+  dtmCadastroMoedas.IncluirCotacoesMoedas(Editar);
+  frmCadastroMoedasCotacoes := TfrmCadastroMoedasCotacoes.Create(Self);
+  frmCadastroMoedasCotacoes.DataSet := dtmCadastroMoedas.qryMoedasCotacoes;
+  frmCadastroMoedasCotacoes.ShowModal;
+  frmCadastroMoedasCotacoes.Free;
+end;
+
+procedure TfrmCadastroMoedas.sbnIncluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  IncluirCotacoesMoedas(False);
+end;
+
+procedure TfrmCadastroMoedas.dbgCotacaoMoedasDblClick(Sender: TObject);
+begin
+  inherited;
+  IncluirCotacoesMoedas(True);
+end;
+
+procedure TfrmCadastroMoedas.dbgCotacaoMoedasKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  Case Key of
+    vk_Return  : dtmCadastroMoedas.GravarMoedaCotacao;
+    vk_Escape : dtmCadastroMoedas.CancelarMoedaCotacao;
+  end;
+end;
+
+procedure TfrmCadastroMoedas.sbnExcluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroMoedas.ExcluirCotacoesMoedas;
+end;
+
+procedure TfrmCadastroMoedas.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key = vk_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        ConsultaMoedas.InternoPesquisar(ctMOEDA);
+        self.SetFocus;
+      end
+    end;
+  end
+  else
+  begin
+    if (key = vk_g) then
+      sbnReplicarValorClick(self);
+  end;
+end;
+
+procedure TfrmCadastroMoedas.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaMoedas.InternoPesquisar(ctMOEDA);
+  self.SetFocus;
+end;
+
+procedure TfrmCadastroMoedas.sbnReplicarValorClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroMoedas.ReplicarMoeda(dbgCotacaoMoedas.SelectedIndex);
+end;
+
+procedure TfrmCadastroMoedas.dbgCotacaoMoedasEnter(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroMoedas.GravarMoedaCotacao;
+end;
+
+procedure TfrmCadastroMoedas.CondicoesdaConsultaMoedas;
+begin
+  ConsultaMoedas.qryProcuraMoedas.ParamByName('PermitirInativos').asboolean := true;
+  ConsultaMoedas.qryConsultaMoedas.ParamByName('PermitirInativos').asboolean := true;
+end;
+
+end.

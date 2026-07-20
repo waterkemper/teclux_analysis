@@ -1,0 +1,525 @@
+unit dmNCM;
+
+interface
+
+uses
+  SysUtils, Classes, Forms, dmbasico, DB, ZQuery, ZPgSqlQuery, Math, cpquery,
+  dmtecsoft, cpdatasource, ctconstantes, biblio, ZTransact, ZSqlTypes;
+
+type
+  TdtmNCM = class(TdtmBasico)
+
+    qrySecoes: TtecQuery;
+    dsrSecoes: TtecDataSource;
+
+    qrySecoesNotas: TtecQuery;
+    dsrSecoesNotas: TtecDataSource;
+    qrySecoesNotasNotas: TStringField;
+
+    qrySecoesCapitulos: TtecQuery;
+    dsrSecoesCapitulos: TtecDataSource;
+    qrySecoesCapitulosNumero: TStringField;
+    qrySecoesCapitulosDescricao: TStringField;
+
+    qryCapitulos: TtecQuery;
+    dsrCapitulos: TtecDataSource;
+    qryCapitulosDescricaoSecao: TStringField;
+    qryCapitulosDescricaoCapitulo: TStringField;
+
+    qryCapitulosNotas: TtecQuery;
+    dsrCapitulosNotas: TtecDataSource;
+    qryCapitulosNotasNotas: TStringField;
+
+    qryCapitulosNCM: TtecQuery;
+    dsrCapitulosNCM: TtecDataSource;
+    qryCapitulosNCMCodigoTIPI: TStringField;
+    qryCapitulosNCMexTIPI: TStringField;
+    qryCapitulosNCMDescricao: TStringField;
+    qryCapitulosNCMAliquota: TStringField;
+    qrySecoesdescricao: TStringField;
+    qrySecoessecao: TIntegerField;
+    qryCapitulossecao: TIntegerField;
+    qryCapituloscapitulo: TIntegerField;
+    qryImportar: TtecQuery;
+    qryNCMInexistentes: TtecQuery;
+    dsrNCMInexistentes: TtecDataSource;
+    qryNCMInexistentesCodigo: TIntegerField;
+    qryNCMInexistentesDescricao: TStringField;
+    qryNCMInexistentesExTIPI: TStringField;
+    qryNCMInexistentesAliquota: TFloatField;
+    qryCapitulosNCMNacionalFederal: TFloatField;
+    qryCapitulosNCMImportadosFederal: TFloatField;
+    qryCapitulosNCMCargaEstadual: TFloatField;
+    qryCapitulosNCMCargaMunicipal: TFloatField;
+    qryCapitulosNCMVigenciaInicio: TDateField;
+    qryCapitulosNCMVigenciaFim: TDateField;
+    qryCapitulosNCMChaveIBPT: TStringField;
+    qryCapitulosNCMFonteDados: TStringField;
+    qryMVAProtocolos: TtecQuery;
+    qryMVAProtocolosDescricao: TStringField;
+    qryMVAProtocoloEstados: TtecQuery;
+    qryMVAProtocoloEstadosEstado: TStringField;
+    qryMVAProtocoloEstadosAtivo: TBooleanField;
+    qryMVAProtocoloEstadosPercReducaoMVA: TFloatField;
+    qryMVAGrupos: TtecQuery;
+    dsrMVAProtocolos: TtecDataSource;
+    dsrMVAProtocoloEstados: TtecDataSource;
+    dsrMVAGrupos: TtecDataSource;
+    qryMVAGruposGrupo: TIntegerField;
+    qryMVAGruposDescricao: TStringField;
+    qryMVAProdutosNCM: TtecQuery;
+    dsrMVAProdutosNCM: TtecDataSource;
+    qryMVAProdutosNCMGrupo: TIntegerField;
+    qryMVAProdutosNCMItem: TIntegerField;
+    qryMVAProdutosNCMNCM: TStringField;
+    qryMVAProdutosNCMDescricao: TStringField;
+    qryMVAProdutosNCM_MVA: TFloatField;
+    qryMVAProtocoloEstadosNomeEstado: TStringField;
+    qryMVAProdutosNCMSubNCM: TStringField;
+    qryMVAProtocolosprotocolo: TStringField;
+    qryMVAProtocoloEstadosprotocolo: TStringField;
+    qryMVAGruposprotocolo: TStringField;
+    qryProtocolosAtualizar: TtecQuery;
+    dsrProtocolosAtualizar: TtecDataSource;
+    qryProtocolosAtualizarprotocolo: TStringField;
+    qryProtocolosAtualizarnomeprotocolo: TStringField;
+    qryProtocolosAtualizarAC: TBooleanField;
+    qryProtocolosAtualizarAL: TBooleanField;
+    qryProtocolosAtualizarAM: TBooleanField;
+    qryProtocolosAtualizarAP: TBooleanField;
+    qryProtocolosAtualizarBA: TBooleanField;
+    qryProtocolosAtualizarCE: TBooleanField;
+    qryProtocolosAtualizarDF: TBooleanField;
+    qryProtocolosAtualizarES: TBooleanField;
+    qryProtocolosAtualizarGO: TBooleanField;
+    qryProtocolosAtualizarMA: TBooleanField;
+    qryProtocolosAtualizarMG: TBooleanField;
+    qryProtocolosAtualizarMS: TBooleanField;
+    qryProtocolosAtualizarMT: TBooleanField;
+    qryProtocolosAtualizarPA: TBooleanField;
+    qryProtocolosAtualizarPB: TBooleanField;
+    qryProtocolosAtualizarPE: TBooleanField;
+    qryProtocolosAtualizarPI: TBooleanField;
+    qryProtocolosAtualizarPR: TBooleanField;
+    qryProtocolosAtualizarRS: TBooleanField;
+    qryProtocolosAtualizarRN: TBooleanField;
+    qryProtocolosAtualizarRO: TBooleanField;
+    qryProtocolosAtualizarRJ: TBooleanField;
+    qryProtocolosAtualizarRR: TBooleanField;
+    qryProtocolosAtualizarSC: TBooleanField;
+    qryProtocolosAtualizarSE: TBooleanField;
+    qryProtocolosAtualizarSP: TBooleanField;
+    qryProtocolosAtualizarTO: TBooleanField;
+    qryProtocolosAtualizarselecionar: TBooleanField;
+    qryAtualizarProtocolos: TtecQuery;
+    qryMVAProdutosNCMProtocolo: TStringField;
+    qryIPIsemNCM: TtecQuery;
+    dsrIPIsemNCM: TtecDataSource;
+    qryIPIsemNCMDescricao: TStringField;
+    qryIPIsemNCMipi: TIntegerField;
+    qryIPIsemNCMProduto: TStringField;
+    qryIPIsemNCMncm: TStringField;
+    qryNCMInexistentesncm: TStringField;
+    qryMVACadastradas: TtecQuery;
+    dsrMVACadstradas: TtecDataSource;
+    qryMVACadastradasCodigo: TIntegerField;
+    qryMVACadastradasDescricao: TStringField;
+    qryMVACadastradasNCM: TStringField;
+    qryMVACadastradasMVA: TFloatField;
+    qryMVACadastradasPercReducaoMVA: TFloatField;
+    qryMVACadastradasEstadosAtivos: TStringField;
+
+    procedure qrySecoesNewRecord(DataSet: TDataSet);
+    procedure qrySecoesAfterScroll(DataSet: TDataSet);
+    procedure qryCapitulosAfterScroll(DataSet: TDataSet);
+    procedure qryMVAGruposAfterScroll(DataSet: TDataSet);
+    procedure qryMVAProtocoloEstadosAfterInsert(DataSet: TDataSet);
+    procedure qryMVAGruposAfterInsert(DataSet: TDataSet);
+    procedure qryMVAProdutosNCMBeforePost(DataSet: TDataSet);
+    procedure qryMVAGruposBeforePost(DataSet: TDataSet);
+    procedure qryMVAProdutosNCMAfterInsert(DataSet: TDataSet);
+    procedure qryMVAProtocoloEstadosAfterPost(DataSet: TDataSet);
+    procedure qryMVAGruposAfterPost(DataSet: TDataSet);
+    procedure qryMVAProdutosNCMAfterPost(DataSet: TDataSet);
+    procedure qryMVAProdutosNCMAfterDelete(DataSet: TDataSet);
+    procedure qryMVAGruposAfterDelete(DataSet: TDataSet);
+    procedure qryMVAProtocolosAfterInsert(DataSet: TDataSet);
+    procedure qryMVAProtocolosAfterScroll(DataSet: TDataSet);
+    procedure qryProtocolosAtualizarselecionarChange(Sender: TField);
+    procedure qryProtocolosAtualizarAfterInsert(DataSet: TDataSet);
+  private
+    { Private declarations }
+    UltimoMVAGrupo, UltimoMVAProdutosNCM : integer;
+    procedure EditarMVAProtocolos;
+
+  protected
+    qryProcuraMVAProtocolos : TtecQuery;
+  public
+    { Public declarations }
+    nProtocolosAtualizar : integer;
+    constructor Create(AOwner: TComponent); override;
+
+    procedure IncluirMVAGrupos;
+    procedure EditarMVAGrupos;
+
+    procedure IncluirMVAProdutosNCM;
+    procedure EditarMVAProdutosNCM;
+
+    procedure ExcluirMVAGrupos;
+    procedure ExcluirMVAProdutosNCM;
+
+    procedure IncluirMVAProtocolos;
+    procedure ExcluirMVAProtocolos;
+    function GravarMVAProtocolos: boolean;
+
+    procedure IncluirMVAProtocoloEstados;
+
+    procedure AtualizarMVAs;
+
+    procedure MarcarRegistrosProtocolosAtualizar(Marcando, Todos: boolean);
+
+    procedure GravarProtocolosAtualizar;
+
+  end;
+
+var
+  dtmNCM: TdtmNCM;
+
+implementation
+
+uses fmAtualizarMVAs;
+
+{$R *.dfm}
+
+{ TdtmNCM }
+
+constructor TdtmNCM.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  UltimoMVAGrupo := 0;
+  UltimoMVAProdutosNCM := 0;
+
+  qrySecoes.Open;
+  qrySecoesNotas.Open;
+  qrySecoesCapitulos.Open;
+
+  qryCapitulos.Open;
+  qryCapitulosNotas.Open;
+  qryCapitulosNCM.Open;
+
+  qryMVAProtocolos.Open;
+
+
+end;
+
+
+
+
+procedure TdtmNCM.qrySecoesNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+//  qryTiposPagamentossaidadocaixa.Value:=false;
+end;
+
+
+
+procedure TdtmNCM.qrySecoesAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qrySecoesNotas,['Secao'], [qrySecoessecao.AsString]);
+  RefazConsultaPorNome(qrySecoesCapitulos,['Secao'], [qrySecoessecao.AsString]);
+
+end;
+
+procedure TdtmNCM.qryCapitulosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  refazconsultapornome(qryCapitulosNotas, ['capitulo'], [qryCapitulosCapitulo.AsString]);
+  refazconsultapornome(qryCapitulosNCM, ['capitulo'], [qryCapitulosCapitulo.AsString]);
+end;
+
+procedure TdtmNCM.qryMVAGruposAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+//  RefazConsultaPorNome(qryMVAProdutosNCM, ['Protocolo','Grupo'], [qryMVAGruposProtocolo.asinteger, qryMVAGruposGrupo.asString]);
+
+//  qryMVAProdutosNCM.DisableControls;
+//  qryMVAProdutosNCM.ShowRecordTypes := [ztModified, ztInserted, ztDeleted, ztUnmodified];
+
+  if qryMVAProdutosNCM.active then
+  begin
+    qryMVAProdutosNCM.last;
+    UltimoMVAProdutosNCM := qryMVAProdutosNCMItem.asinteger;
+  end;
+
+//  qryMVAProdutosNCM.ShowRecordTypes := [ztModified, ztInserted, ztUnmodified];
+//  qryMVAProdutosNCM.EnableControls;
+
+    
+end;
+
+procedure TdtmNCM.qryMVAProtocoloEstadosAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryMVAProtocoloEstados.cancel;
+end;
+
+procedure TdtmNCM.qryMVAGruposAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryMVAGruposGrupo.asInteger := UltimoMVAGrupo + 1;
+end;
+
+procedure TdtmNCM.qryMVAProdutosNCMAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryMVAProdutosNCMItem.asinteger := UltimoMVAProdutosNCM + 1;
+  qryMVAProdutosNCMSubNCM.asString := '';
+end;
+
+procedure TdtmNCM.qryMVAProdutosNCMBeforePost(DataSet: TDataSet);
+begin
+  inherited;
+  if qryMVAProdutosNCM.state = dsinsert then
+    UltimoMVAProdutosNCM := qryMVAProdutosNCMItem.asinteger;
+
+  qryMVAProdutosNCMGrupo.AsInteger := qryMVAGruposGrupo.asinteger;
+end;
+
+procedure TdtmNCM.qryMVAGruposBeforePost(DataSet: TDataSet);
+begin
+  inherited;
+  if qryMVAGrupos.state = dsinsert then
+    UltimoMVAGrupo := qryMVAGruposGrupo.asinteger;
+end;
+
+procedure TdtmNCM.EditarMVAProtocolos;
+begin
+  qryMVAProtocolos.edit;
+end;
+
+procedure TdtmNCM.qryMVAProtocoloEstadosAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  EditarMVAProtocolos;
+end;
+
+procedure TdtmNCM.qryMVAGruposAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  EditarMVAProtocolos;
+end;
+
+procedure TdtmNCM.qryMVAProdutosNCMAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  EditarMVAProtocolos;
+end;
+
+procedure TdtmNCM.IncluirMVAGrupos;
+begin
+  qryMVAGrupos.append;
+  qryMVAGruposDescricao.FocusControl;
+end;
+
+procedure TdtmNCM.IncluirMVAProdutosNCM;
+begin
+  qryMVAProdutosNCM.append;
+  qryMVAProdutosNCMItem.FocusControl;
+end;
+
+procedure TdtmNCM.ExcluirMVAGrupos;
+begin
+  if MensagemConfirmacao('A exclusão deste grupo de MVA e seus registros associados?') = smbOk then
+  begin
+    LimparTabela(qryMVAProdutosNCM);
+    qryMVAGrupos.delete;
+//    perpetrar([qryMVAGrupos, qryMVAProdutosNCM]);
+  end;
+end;
+
+procedure TdtmNCM.ExcluirMVAProdutosNCM;
+begin
+  if MensagemConfirmacao('A exclusão deste item de produto de MVA?') = smbOk then
+  begin
+    qryMVAProdutosNCM.delete;
+//    perpetrar([qryMVAProdutosNCM]);
+  end;
+end;
+
+procedure TdtmNCM.qryMVAProdutosNCMAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  EditarMVAProtocolos;
+end;
+
+procedure TdtmNCM.qryMVAGruposAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  EditarMVAProtocolos;
+end;
+
+procedure TdtmNCM.IncluirMVAProtocolos;
+begin
+  qryMVAProtocolos.append;
+  qryMVAProtocolosProtocolo.FocusControl;
+end;
+
+procedure TdtmNCM.IncluirMVAProtocoloEstados;
+var
+  a: Integer;
+begin
+
+  qryMVAProtocoloEstados.AfterInsert := nil;
+  for a := 1 to QtdadeUnidadesFederacao do
+  begin
+    qryMVAProtocoloEstados.append;
+    qryMVAProtocoloEstadosEstado.asstring := UnidadesFederacao[a];
+    qryMVAProtocoloEstadosNomeEstado.asstring := UnidadesFederacaoNome[a];
+    qryMVAProtocoloEstadosAtivo.asboolean := true;
+
+    qryMVAProtocoloEstados.post;
+  end;
+  qryMVAProtocoloEstados.AfterInsert := qryMVAProtocoloEstadosAfterInsert;
+end;
+
+procedure TdtmNCM.qryMVAProtocolosAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  IncluirMVAProtocoloEstados;
+end;
+
+procedure TdtmNCM.qryMVAProtocolosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+
+  RefazConsultaPorNome(qryMVAGrupos, ['Protocolo'], [qryMVAProtocolosProtocolo.asString]);
+  RefazConsultaPorNome(qryMVAProdutosNCM, ['Protocolo'{,'Grupo'}], [qryMVAGruposProtocolo.asString{, qryMVAGruposGrupo.asString}]);
+
+//  qryMVAGrupos.DisableControls;
+  qryMVAGrupos.ShowRecordTypes := [ztModified, ztInserted, ztDeleted, ztUnmodified];
+  qryMVAGrupos.last;
+  UltimoMVAGrupo := qryMVAGruposGrupo.asinteger;
+  qryMVAGrupos.ShowRecordTypes := [ztModified, ztInserted, ztUnmodified];
+//  qryMVAGrupos.EnableControls;
+
+
+  qryMVAGruposAfterScroll(qryMVAGrupos);
+
+
+  RefazConsultaPorNome(qryMVAProtocoloEstados, ['Protocolo'], [qryMVAProtocolosProtocolo.asString]);
+  if qryMVAProtocoloEstados.isempty then
+    IncluirMVAProtocoloEstados;
+
+
+end;
+
+procedure TdtmNCM.EditarMVAGrupos;
+begin
+  qryMVAGrupos.edit;
+  qryMVAGruposDescricao.FocusControl;
+end;
+
+procedure TdtmNCM.EditarMVAProdutosNCM;
+begin
+  qryMVAProdutosNCM.edit;
+  qryMVAProdutosNCMItem.FocusControl;
+ end;
+
+procedure TdtmNCM.ExcluirMVAProtocolos;
+begin
+  if MensagemConfirmacao('A exclusão deste MVA protocolo e seus registros associados?') = smbOk then
+  begin
+    try
+      qryMVAProdutosNCM.MasterSource := nil;
+      LimparTabela(qryMVAProtocoloEstados);
+      LimparTabela(qryMVAProdutosNCM);
+      LimparTabela(qryMVAGrupos);
+      qryMVAProtocolos.delete;
+      perpetrar([qryMVAProtocoloEstados, qryMVAProdutosNCM, qryMVAGrupos, qryMVAProtocolos]);
+    finally
+      qryMVAProdutosNCM.MasterSource := dsrMVAGrupos;
+    end;
+  end;
+end;
+
+function TdtmNCM.GravarMVAProtocolos: boolean;
+begin
+   result := (qryMVAProtocolos.state in [dsedit, dsinsert]) and qryMVAProtocolos.CheckRequiredFields;
+  if result then
+  begin
+    AtribuirChave(qryMVAProtocoloEstados, [qryMVAProtocoloEstadosprotocolo], [qryMVAProtocolosprotocolo]);
+    AtribuirChave(qryMVAGrupos, [qryMVAGruposprotocolo], [qryMVAProtocolosprotocolo]);
+    AtribuirChave(qryMVAProdutosNCM, [qryMVAProdutosNCMprotocolo, qryMVAProdutosNCMGrupo], [qryMVAGruposprotocolo, qryMVAGruposGrupo], false, false, true);
+    result := qrymvagrupos.CheckRequiredFields(true);
+
+    if result  then
+      result := qryMVAProdutosNCM.CheckRequiredFields(true);
+
+    if result then
+      result := perpetrar([qryMVAProtocolos, qryMVAProtocoloEstados, qryMVAGrupos, qryMVAProdutosNCM]);
+  end;
+end;
+
+procedure TdtmNCM.AtualizarMVAs;
+begin
+  nProtocolosAtualizar := 0;
+  qryProtocolosAtualizar.close;
+  qryProtocolosAtualizar.open;
+  if qryProtocolosAtualizar.Locate('protocolo', qryMVAProtocolosprotocolo.AsString, []) then
+  begin
+    qryProtocolosAtualizar.edit;
+    qryProtocolosAtualizarselecionar.asboolean := true;
+    qryProtocolosAtualizar.post;
+  end;
+
+  frmAtualizarMVAs := TfrmAtualizarMVAs.create(frmAtualizarMVAs);
+
+  frmAtualizarMVAs.showmodal;
+  frmAtualizarMVAs.free;
+
+
+    
+end;
+
+procedure TdtmNCM.qryProtocolosAtualizarselecionarChange(Sender: TField);
+begin
+  inherited;
+  if qryProtocolosAtualizarselecionar.asboolean then
+    inc(nProtocolosAtualizar)
+  else
+    dec(nProtocolosAtualizar);
+
+
+end;
+
+procedure TdtmNCM.qryProtocolosAtualizarAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryProtocolosAtualizar.cancel;
+end;
+
+procedure TdtmNCM.MarcarRegistrosProtocolosAtualizar(Marcando, Todos: boolean);
+begin
+  if todos then
+    MarcarRegistros(qryProtocolosAtualizar, qryProtocolosAtualizarselecionar, Marcando, true )
+  else
+    MarcarRegistros(qryProtocolosAtualizar, qryProtocolosAtualizarselecionar, not qryProtocolosAtualizarselecionar.asboolean, false );
+
+end;
+
+procedure TdtmNCM.GravarProtocolosAtualizar;
+begin
+  qryProtocolosAtualizar.first;
+  while not qryProtocolosAtualizar.eof do
+  begin
+    if qryProtocolosAtualizarselecionar.asboolean then
+      RefazConsultaPorNome(qryAtualizarProtocolos, ['Protocolo'], [qryProtocolosAtualizarprotocolo.asstring]);
+    qryProtocolosAtualizar.next;
+  end;
+end;
+
+end.
+

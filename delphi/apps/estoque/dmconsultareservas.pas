@@ -1,0 +1,330 @@
+unit dmconsultareservas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  DB,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Constantes
+  ctconstantes, biblio,
+  // Componentes
+  cpdatasource, cpquery,
+  // Repositorio
+  dmbasico, dmtecsoft, clparametrossistema, ZTransact;
+
+type
+  TdtmConsultaReservas = class(TdtmBasico)
+    qryConsultaProdutos: TtecQuery;
+    qryConsultaProdutoscodigo: TLargeintField;
+    qryConsultaProdutosdescricao: TStringField;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryReservas: TtecQuery;
+    dsrReservas: TtecDataSource;
+    qryProcuraFiliais: TtecQuery;
+    qryProcuraFiliaiscodigo: TIntegerField;
+    dsrProcuraFiliais: TtecDataSource;
+    qryProcuraProdutos: TtecQuery;
+    dsrProcuraProdutos: TtecDataSource;
+    qryProcuraFiliaisnome: TStringField;
+    qryProcuraProdutoscodigo: TLargeintField;
+    qryProcuraProdutosdescricao: TStringField;
+    qryProcuraVendedores: TtecQuery;
+    dsrVendedores: TtecDataSource;
+    qryConsultaVendedores: TtecQuery;
+    qryProcuraVendedorescodigo: TIntegerField;
+    qryProcuraVendedoresnome: TStringField;
+    qryConsultaVendedoresnome: TStringField;
+    qryConsultaVendedorescodigo: TIntegerField;
+    qryReservasquantidade: TFloatField;
+    qryReservasbaixado: TFloatField;
+    qryReservasfilialestoque: TIntegerField;
+    qryReservasnumero: TIntegerField;
+    qryReservasdata: TDateTimeField;
+    qryReservascliente: TStringField;
+    qryReservasusuario: TIntegerField;
+    qryReservasendereco: TStringField;
+    qryReservasfilialreserva: TIntegerField;
+    qryReservasdescricaoproduto: TStringField;
+    qryReservasnomeusuario: TStringField;
+    qryReservasproduto: TLargeintField;
+    qryReservaslinha: TStringField;
+    qryReservascoluna: TStringField;
+    qryReservasvalorgrade1: TStringField;
+    qryReservasvalorgrade2: TStringField;
+    qryConsultaProdutosvalorgrade1: TStringField;
+    qryConsultaProdutosvalorgrade2: TStringField;
+    procedure qryConsultaProdutosAfterOpen(DataSet: TDataSet);
+    procedure qryReservasAfterScroll(DataSet: TDataSet);
+  private
+    FFilial: String;
+    FProduto: String;
+    FDataFinal: String;
+    FVendedor: String;
+    FOrdenar: Integer;
+    FSituacao: Integer;
+    FDataInicial: String;
+    FReserva: String;
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    function  GetConsultarProdutos: TTecQuery;
+    function  GetConsultarFiliais: TtecQuery;
+    function  GetConsultarVendedores: TtecQuery;
+    procedure SetProduto(const Value: String);
+    procedure SetDataFinal(const Value: String);
+    procedure SetDataInicial(const Value: String);
+    procedure SetOrdenar(const Value: Integer);
+    procedure SetReserva(const Value: String);
+    procedure SetSituacao(const Value: Integer);
+    procedure SetVendedor(const Value: String);
+    procedure SetFilial(const Value: String);
+    procedure MontaIntervaloEmissao;
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+  public
+    constructor Create(AOwner: TComponent); override;
+    function  ConsultaReserva: Boolean;
+    function  ExisteProduto(Campo, Codigo: String): Boolean;
+    function  ExisteFilial(Campo, Codigo: String): Boolean;
+    function  ExisteVendedor(Campo, Codigo: String): Boolean;
+    procedure Selecionar(Pesquisa: TtecPesquisa);
+    procedure AbreTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+    procedure FecharTabelaReserva;
+
+    property ConsultarProdutos: TTecQuery Read GetConsultarProdutos;
+    property ConsultarFiliais: TtecQuery read GetConsultarFiliais;
+    property ConsultarVendedores: TtecQuery read GetConsultarVendedores;
+    property Filial: String read FFilial write SetFilial;
+    property Produto: String read FProduto write SetProduto;
+    property Vendedor: String read FVendedor write SetVendedor;
+    property Reserva: String read FReserva write SetReserva;
+    property DataInicial: String read FDataInicial write SetDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    property Situacao: Integer read FSituacao write SetSituacao;
+    property Ordenar: Integer read FOrdenar write SetOrdenar;
+    property  OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property LinhadaGrade: String read GetLinhadaGrade;
+    property ColunadaGrade: String read GetColunadaGrade;
+    
+  end;
+
+var
+  dtmConsultaReservas: TdtmConsultaReservas;
+
+implementation
+
+const
+  WhereBase     = 17;
+  WhereEmissao  = WhereBase + 1;
+  WhereReserva  = WhereBase + 2;
+  WhereProduto  = WhereBase + 3;
+  WhereFilial   = WhereBase + 4;
+  WhereVendedor = WhereBase + 5;
+  WhereSituacao = WhereBase + 6;
+  WhereOrdenar  = WhereBase + 11;
+
+{$R *.dfm}
+
+function TdtmConsultaReservas.GetConsultarProdutos: TtecQuery;
+begin
+  Result := qryConsultaProdutos;
+end;
+
+function TdtmConsultaReservas.GetConsultarFiliais: TtecQuery;
+begin
+  Result := qryConsultaFiliais;
+end;
+
+function TdtmConsultaReservas.ExisteProduto(Campo,Codigo: String): boolean;
+const
+  SQL = 'Where (to_ascii(p.%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  qryConsultaProdutos.Sql[03]:= Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaProdutos.Open;
+  Result := (qryConsultaProdutos.RecordCount > 0);
+end;
+
+function TdtmConsultaReservas.ExisteFilial(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaFiliais, Campo, Codigo);
+end;
+
+procedure TdtmConsultaReservas.Selecionar(Pesquisa: TtecPesquisa);
+begin
+  case Pesquisa of
+    pesCARACTERISTICAS: RefazConsulta(qryProcuraProdutos,[0],[qryConsultaProdutoscodigo.AsLargeInt]);
+    pesFILIAIS        : RefazConsulta(qryProcuraFiliais,[0],[qryConsultaFiliaiscodigo.AsInteger]);
+    pesVENDEDORES     : RefazConsulta(qryProcuraVendedores,[0],[qryConsultaVendedorescodigo.AsInteger]);
+  end;
+end;
+
+procedure TdtmConsultaReservas.AbreTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+     pesCARACTERISTICAS: begin
+                           qryConsultaProdutos.Sql[03]:= 'Where (p.codigo = 0)';
+                           qryConsultaProdutos.Open;
+                         end;
+     pesFILIAIS        : Abre(ctPesquisaFilial);
+     pesVENDEDORES     : Abre(ctPesquisaVendedor);
+  end;
+end;
+
+procedure TdtmConsultaReservas.FechaTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+     pesCARACTERISTICAS: Fecha(ctPesquisaProdutos);
+     pesFILIAIS        : Fecha(ctPesquisaFilial);
+     pesVENDEDORES     : Fecha(ctPesquisaVendedor); 
+  end;
+end;
+
+constructor TdtmConsultaReservas.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryReservas.Tag           := ctTabelasConsultaReservas;
+  qryProcuraFiliais.Tag     := ctTabelas;
+  qryProcuraProdutos.Tag    := ctTabelas;
+  qryProcuraVendedores.Tag  := ctTabelas;
+  qryConsultaProdutos.Tag   := ctPesquisaProdutos;
+  qryConsultaFiliais.Tag    := ctPesquisaFilial;
+  qryConsultaVendedores.Tag := ctPesquisaVendedor;
+  qryReservasquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryReservasbaixado.DisplayFormat    := ParSistema.MascaraQuantidadeGrade;
+end;
+
+function TdtmConsultaReservas.ConsultaReserva: boolean;
+begin
+  qryReservas.Open;
+  Result:= qryReservas.IsEmpty;
+end;
+
+procedure TdtmConsultaReservas.SetProduto(const Value: String);
+begin
+  if Value <> '' then
+       qryReservas.Sql[WhereProduto]:= 'and (pr.produto = ' + Value + ')'
+  else qryReservas.Sql[WhereProduto]:= '';
+end;
+
+procedure TdtmConsultaReservas.SetDataFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FDataFinal := Value
+  else FDataFinal := '';
+  MontaIntervaloEmissao;
+end;
+
+procedure TdtmConsultaReservas.SetDataInicial(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FDataInicial := Value
+  else FDataInicial := '';
+  MontaIntervaloEmissao;
+end;
+
+procedure TdtmConsultaReservas.SetOrdenar(const Value: Integer);
+begin
+  Case Value of
+    0: qryReservas.Sql[WhereOrdenar]:= 'Order By r.numero';
+    1: qryReservas.Sql[WhereOrdenar]:= 'Order By UPPER(TO_ASCII(descricaoproduto,''LATIN1''))';
+    2: qryReservas.Sql[WhereOrdenar]:= 'Order By data';
+  end;
+end;
+
+procedure TdtmConsultaReservas.SetReserva(const Value: String);
+begin
+  if Value <> '' then
+       qryReservas.Sql[WhereReserva]:= 'and (r.numero = ' + Value + ')'
+  else qryReservas.Sql[WhereReserva]:= '';
+end;
+
+procedure TdtmConsultaReservas.SetSituacao(const Value: Integer);
+begin
+  case Value of
+    0: qryReservas.Sql[WhereSituacao]:= 'and (0  < (Select sum(pr1.quantidade - coalesce(pr1.baixado,0))' + #10#13 +
+                                                   'From produtosreservas pr1' + #10#13 +
+                                                   'Where (pr1.reserva = r.numero))) and (r.cancelado is null)';
+    1: qryReservas.Sql[WhereSituacao]:= 'and (0 >= (Select sum(pr1.quantidade - coalesce(pr1.baixado,0))' + #10#13 +
+                                                   'From produtosreservas pr1' + #10#13 +
+                                                   'Where (pr1.reserva = r.numero)))  and (r.cancelado is null)';
+    2: qryReservas.Sql[WhereSituacao]:= 'and (r.cancelado is not null)';
+    3: qryReservas.Sql[WhereSituacao]:= '';
+  end;
+end;
+
+procedure TdtmConsultaReservas.SetVendedor(const Value: String);
+begin
+  if Value <> '' then
+       qryReservas.Sql[WhereVendedor]:= 'and (r.usuario = ' + Value + ')'
+  else qryReservas.Sql[WhereVendedor]:= '';
+end;
+
+procedure TdtmConsultaReservas.SetFilial(const Value: String);
+begin
+  if Value <> '' then
+       qryReservas.Sql[WhereFilial]:= 'and (r.filial = ' + Value + ')'
+  else qryReservas.Sql[WhereFilial]:= '';
+end;
+
+procedure TdtmConsultaReservas.MontaIntervaloEmissao;
+const
+  Data_1 = '(cast(r.data as date) = ';
+  Data_2 = '(cast(r.data as date) between (';
+begin
+  if not DataEmBranco(FDataInicial) then begin
+    if DataEmBranco(FDataFinal) then
+         qryReservas.Sql[WhereEmissao]:= Data_1 + '''' + FDataInicial + ''')'
+    else qryReservas.Sql[WhereEmissao]:= Data_2 + '''' + FDataInicial + ''') and (''' + FDataFinal + '''))';
+  end
+  else begin
+    if not DataEmBranco(FDataFinal) then
+         qryReservas.Sql[WhereEmissao]:= Data_1 + '''' + FDataFinal + ''')'
+    else qryReservas.Sql[WhereEmissao]:= '';
+  end;
+end;
+
+function TdtmConsultaReservas.ExisteVendedor(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaVendedores, Campo, Codigo);
+end;
+
+function TdtmConsultaReservas.GetConsultarVendedores: TtecQuery;
+begin
+  Result:= qryConsultaVendedores;
+end;
+
+procedure TdtmConsultaReservas.FecharTabelaReserva;
+begin
+  qryReservas.Close;
+end;
+
+function TdtmConsultaReservas.GetColunadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryReservascoluna.AsString)
+end;
+
+function TdtmConsultaReservas.GetLinhadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryReservaslinha.AsString)
+end;
+
+procedure TdtmConsultaReservas.qryConsultaProdutosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryConsultaProdutosvalorgrade1.Visible := ParSistema.UsarGradesProdutos;
+  qryConsultaProdutosvalorgrade2.Visible := ParSistema.UsarGradesProdutos;
+end;
+
+procedure TdtmConsultaReservas.qryReservasAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(FOnScrollLinhaColunaGrade) then
+  FOnScrollLinhaColunaGrade(DataSet)
+
+end;
+
+end.

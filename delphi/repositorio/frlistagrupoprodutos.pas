@@ -1,0 +1,176 @@
+unit frlistagrupoprodutos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  ExtCtrls, Buttons, StdCtrls, CheckLst, biblio, dmtecsoft, DB,
+  ZQuery, ZPgSqlQuery, cpquery, ctconstantes;
+
+type
+  TfraListaGrupoProdutos = class(TFrame)
+    gbx: TGroupBox;
+    clbgrupoprodutos: TCheckListBox;
+    pnldireito: TPanel;
+    sbnDesmarcar: TSpeedButton;
+    sbnMarcar: TSpeedButton;
+    Bevel1: TBevel;
+    qryGruposProdutos: TtecQuery;
+    qryGruposProdutoscodigo: TStringField;
+    qryGruposProdutosdescricao: TStringField;
+    procedure sbnMarcarClick(Sender: TObject);
+    procedure sbnDesmarcarClick(Sender: TObject);
+  private
+    FTodosMarcados: Boolean;
+    FListaSelecionada: String;
+    FPlanilhaCustos: boolean;
+    function GetListaGrupos: TLista;
+    function GetListaSelecionada: String;
+    function GetTodosMarcados: Boolean;
+    procedure SetPlanilhaCustos(const Value: boolean);
+  private
+    { Private declarations }
+    property ListaGrupos: TLista read GetListaGrupos;
+
+  public
+    { Public declarations }
+    constructor Create(Aowner:Tcomponent);override;
+    property TodosMarcados: Boolean read GetTodosMarcados write FTodosMarcados;
+    property ListaSelecionada: String read GetListaSelecionada write FListaSelecionada;
+    property PlanilhaCustos: boolean read FPlanilhaCustos write SetPlanilhaCustos;
+    procedure MarcarListaGrupos(Lista: String);
+  end;
+
+implementation
+
+var
+FLista  : TLista;
+
+
+{$R *.dfm}
+
+{ TfraListaGrupoProdutos }
+
+constructor TfraListaGrupoProdutos.Create(Aowner: Tcomponent);
+begin
+  inherited;
+  qryGruposProdutos.DataBase := dtmtecsoft.dbatecsoft;
+  qryGruposProdutos.Transaction := dtmtecsoft.tstTecSoft;
+  ObterLista(ListaGrupos, clbgrupoprodutos);
+end;
+
+function TfraListaGrupoProdutos.GetListaGrupos: TLista;
+Var
+  Ind: Integer;
+begin
+  FillChar(FLista,SizeOf(FLista),0);
+  if PlanilhaCustos then
+    qryGruposProdutos.MacroByName('WherePlanilhaCustos').AsString :=
+      'where g.planilhacustos'
+  else
+    qryGruposProdutos.MacroByName('WherePlanilhaCustos').AsString := '';
+
+  qryGruposProdutos.Open;
+  SetLength(FLista, qryGruposProdutos.RecordCount);
+  Ind:= 0;
+  while not qryGruposProdutos.Eof do begin
+    FLista[Ind].codigo   := qryGruposProdutoscodigo.AsString;
+    FLista[Ind].descricao:= qryGruposProdutosdescricao.AsString;
+    Inc(Ind);
+    qryGruposProdutos.Next;
+  end;
+  qryGruposProdutos.Close;
+  Result := FLista;
+end;
+
+procedure TfraListaGrupoProdutos.sbnMarcarClick(Sender: TObject);
+begin
+  MarcarLista(clbgrupoprodutos, True);
+end;
+
+procedure TfraListaGrupoProdutos.sbnDesmarcarClick(Sender: TObject);
+begin
+  MarcarLista(clbgrupoprodutos, False);
+end;
+
+function TfraListaGrupoProdutos.GetListaSelecionada: String;
+var
+ i: integer;
+begin
+  FListaSelecionada := '';
+  for i:=0 to clbgrupoprodutos.Items.Count -1 do
+    if clbgrupoprodutos.Checked[i] then
+      FListaSelecionada := FListaSelecionada + quotedstr(flista[i].codigo)+',';
+
+  if FListaSelecionada<>'' then
+    FListaSelecionada := copy(FListaSelecionada,1,length(FListaSelecionada)-1);
+
+  Result := FListaSelecionada;
+end;
+
+function TfraListaGrupoProdutos.GetTodosMarcados: Boolean;
+var
+ i: integer;
+ Desmarcados : Boolean;
+begin
+  Desmarcados := true;
+  FTodosMarcados := True;
+
+  for i:=0 to clbgrupoprodutos.Items.Count -1 do
+    if not (clbgrupoprodutos.Checked[i]) then
+      FTodosMarcados := False
+    else
+    if Desmarcados then
+      Desmarcados := false;
+
+  Result := FTodosMarcados or Desmarcados;
+end;
+
+procedure TfraListaGrupoProdutos.SetPlanilhaCustos(const Value: boolean);
+begin
+  if value <> FPlanilhaCustos then
+  begin
+    clbgrupoprodutos.Items.Clear;
+    FPlanilhaCustos := Value;
+    ObterLista(ListaGrupos, clbgrupoprodutos);
+  end;
+end;
+
+procedure TfraListaGrupoProdutos.MarcarListaGrupos(Lista: String);
+var
+ grupo: String;
+ i: integer;
+
+ procedure Selecionar;
+ var
+   ind : integer;
+ begin
+    for Ind:= 0 to (Length(flista) - 1) do
+      if grupo = flista[ind].codigo then
+      begin
+        clbgrupoprodutos.Checked[ind] := true;
+        break;
+      end
+ end;
+
+begin
+ if lista<>'' then
+ begin
+   MarcarLista(clbgrupoprodutos, False);
+   for i:=1 to length(lista) do
+   begin
+     if lista[i]=',' then
+     begin
+       selecionar;
+       grupo := '';
+     end
+     else
+       if lista[i]<>'''' then
+         grupo := grupo + lista[i];
+   end;
+   if grupo<>'' then
+     selecionar;
+ end;
+end;
+
+end.

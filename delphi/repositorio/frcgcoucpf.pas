@@ -1,0 +1,101 @@
+unit frcgcoucpf;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Mask, DBCtrls, ExtCtrls, DB, clparametrossistema,
+  //Componentes
+  cpcpfcnpj, cpdbradiogroup;
+
+type
+  Tfracgcoucpf = class(TFrame)
+    gbxCPGouCGC: TGroupBox;
+    rgbTipoPessoa: TtecDBRadioGroup;
+    rbnFisica: TtecRadioButton;
+    rbnJuridica: TtecRadioButton;
+    edtCPFCNPJ: TDBEditCPFCNPJ;
+    gbxCPF_CNPJ: TGroupBox;
+    procedure edtCPFCNPJKeyPress(Sender: TObject; var Key: Char);
+    procedure edtCPFCNPJChangeTipo(Sender: TObject);
+    procedure rbnJuridicaClick(Sender: TObject);
+    procedure rbnFisicaClick(Sender: TObject);
+  protected
+    procedure AlteraTipoPessoa;
+  public
+    constructor Create(AOwner: TComponent); override;
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+uses ctconstantes;
+
+{ TfraCGCouCPF }
+
+procedure Tfracgcoucpf.AlteraTipoPessoa;
+begin
+  if gbxCPF_CNPJ.Caption <> '' then
+    case rgbTipoPessoa.ItemIndex of
+      0: gbxCPF_CNPJ.Caption:= 'CPF MF';
+      1: gbxCPF_CNPJ.Caption:= 'CNPJ MF';
+    end;
+end;
+
+constructor Tfracgcoucpf.Create(AOwner: TComponent);
+begin
+  inherited;
+  if parsistema.ClientePessoaJuridica then
+  begin
+    rbnJuridica.checked := true;
+    edtCPFCNPJ.Tipo := 'J';
+    AlteraTipoPessoa;
+  end
+  else
+  begin
+    rbnFisica.checked := true;
+    edtCPFCNPJ.Tipo := 'F';
+    AlteraTipoPessoa;
+  end;
+end;
+
+procedure Tfracgcoucpf.edtCPFCNPJChangeTipo(Sender: TObject);
+begin
+  AlteraTipoPessoa;
+end;
+
+procedure Tfracgcoucpf.edtCPFCNPJKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+    Key:= #0;
+end;
+
+procedure Tfracgcoucpf.rbnJuridicaClick(Sender: TObject);
+begin
+  if not rgbTipoPessoa.ReadOnly then
+  begin
+    if rbnJuridica.Checked then
+    begin
+      edtCPFCNPJ.Tipo := 'J';
+      AlteraTipoPessoa
+    end;
+  end;
+end;
+
+
+procedure Tfracgcoucpf.rbnFisicaClick(Sender: TObject);
+begin
+  if not rgbTipoPessoa.ReadOnly then
+  begin
+    if rbnFisica.Checked then
+    begin
+      edtCPFCNPJ.Tipo := 'F';
+      AlteraTipoPessoa
+    end;
+  end;
+end;
+
+end.

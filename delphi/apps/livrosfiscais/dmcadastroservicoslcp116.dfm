@@ -1,0 +1,48 @@
+inherited dtmCadastroServicosLCP116: TdtmCadastroServicosLCP116
+  OldCreateOrder = False
+  Left = 639
+  Top = 108
+  Height = 213
+  Width = 249
+  object dsrServicoslcp116: TtecDataSource
+    DataSet = qryServicoslcp116
+    Left = 48
+    Top = 24
+  end
+  object qryServicoslcp116: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select s.codigo,'
+      '       s.descricao'
+      'from servicoslcp116 s'
+      'where s.codigo = :codigo')
+    RequestLive = True
+    Left = 48
+    Top = 80
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryServicoslcp116codigo: TStringField
+      FieldName = 'codigo'
+      Required = True
+      Size = 6
+    end
+    object qryServicoslcp116descricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 512
+    end
+  end
+end

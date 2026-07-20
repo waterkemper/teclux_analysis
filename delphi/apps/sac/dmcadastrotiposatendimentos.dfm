@@ -1,0 +1,118 @@
+inherited dtmCadastroTiposAtendimentos: TdtmCadastroTiposAtendimentos
+  Left = 198
+  Top = 281
+  Height = 199
+  Width = 487
+  object qryTiposAtendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    OnNewRecord = qryTiposAtendimentosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '          descricao,'
+      '          tipo'
+      'from tiposatendimentos'
+      'where codigo = :codigo')
+    RequestLive = True
+    Left = 121
+    Top = 15
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryTiposAtendimentoscodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryTiposAtendimentosdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 30
+    end
+    object qryTiposAtendimentostipo: TStringField
+      FieldName = 'tipo'
+      Required = True
+      Size = 1
+    end
+  end
+  object dsrTiposAtendimentos: TtecDataSource
+    DataSet = qryTiposAtendimentos
+    Left = 121
+    Top = 71
+  end
+  object qryConsultaTiposAtendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select descricao,'
+      '           codigo,'
+      '           tipo'
+      'from tiposatendimentos'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 344
+    Top = 15
+    object qryConsultaTiposAtendimentosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryConsultaTiposAtendimentoscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+    object qryConsultaTiposAtendimentostipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Size = 1
+    end
+  end
+  object dsrConsultaTiposAtendimentos: TtecDataSource
+    DataSet = qryConsultaTiposAtendimentos
+    Left = 344
+    Top = 71
+  end
+  object qryTiposAtendimentosProximoCodigo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select tiposatendimentos_proximocodigo() as codigo')
+    RequestLive = False
+    Left = 121
+    Top = 134
+    object qryTiposAtendimentosProximoCodigocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+end

@@ -1,0 +1,1066 @@
+inherited frmListaItensnfe: TfrmListaItensnfe
+  Left = 74
+  Top = 129
+  ActiveControl = dbgProdutosNFE
+  Caption = 'Lista de '#237'tens da NFE'
+  ClientHeight = 521
+  ClientWidth = 1363
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object pnlBottom: TPanel
+    Left = 0
+    Top = 495
+    Width = 1363
+    Height = 26
+    Align = alBottom
+    TabOrder = 0
+    object lblPresencadoItem: TLabel
+      Left = 20
+      Top = 6
+      Width = 132
+      Height = 13
+      Caption = 'Distribui'#231#227'o do '#237'tem na NFe'
+    end
+    object shNotaImpressa: TShape
+      Left = 6
+      Top = 7
+      Width = 11
+      Height = 11
+      Brush.Color = 8366677
+      Enabled = False
+      Pen.Width = 0
+    end
+    object bbnOK: TBitBtn
+      Left = 655
+      Top = 1
+      Width = 80
+      Height = 25
+      Caption = 'OK'
+      TabOrder = 0
+      TabStop = False
+      OnClick = bbnOKClick
+      Glyph.Data = {
+        DE010000424DDE01000000000000760000002800000024000000120000000100
+        0400000000006801000000000000000000001000000000000000000000000000
+        80000080000000808000800000008000800080800000C0C0C000808080000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        3333333333333333333333330000333333333333333333333333F33333333333
+        00003333344333333333333333388F3333333333000033334224333333333333
+        338338F3333333330000333422224333333333333833338F3333333300003342
+        222224333333333383333338F3333333000034222A22224333333338F338F333
+        8F33333300003222A3A2224333333338F3838F338F33333300003A2A333A2224
+        33333338F83338F338F33333000033A33333A222433333338333338F338F3333
+        0000333333333A222433333333333338F338F33300003333333333A222433333
+        333333338F338F33000033333333333A222433333333333338F338F300003333
+        33333333A222433333333333338F338F00003333333333333A22433333333333
+        3338F38F000033333333333333A223333333333333338F830000333333333333
+        333A333333333333333338330000333333333333333333333333333333333333
+        0000}
+      NumGlyphs = 2
+    end
+    object bbnCancelar: TBitBtn
+      Left = 742
+      Top = 1
+      Width = 80
+      Height = 25
+      Cancel = True
+      Caption = '&Cancelar'
+      ModalResult = 2
+      TabOrder = 1
+      TabStop = False
+      Glyph.Data = {
+        DE010000424DDE01000000000000760000002800000024000000120000000100
+        0400000000006801000000000000000000001000000000000000000000000000
+        80000080000000808000800000008000800080800000C0C0C000808080000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        333333333333333333333333000033338833333333333333333F333333333333
+        0000333911833333983333333388F333333F3333000033391118333911833333
+        38F38F333F88F33300003339111183911118333338F338F3F8338F3300003333
+        911118111118333338F3338F833338F3000033333911111111833333338F3338
+        3333F8330000333333911111183333333338F333333F83330000333333311111
+        8333333333338F3333383333000033333339111183333333333338F333833333
+        00003333339111118333333333333833338F3333000033333911181118333333
+        33338333338F333300003333911183911183333333383338F338F33300003333
+        9118333911183333338F33838F338F33000033333913333391113333338FF833
+        38F338F300003333333333333919333333388333338FFF830000333333333333
+        3333333333333333333888330000333333333333333333333333333333333333
+        0000}
+      NumGlyphs = 2
+    end
+    object ckbVisualizarComSaldosQuantidadeNFe: TCheckBox
+      Left = 1120
+      Top = 5
+      Width = 225
+      Height = 17
+      Caption = 'Visualizar somente quantidades com saldo'
+      TabOrder = 2
+      OnClick = ckbVisualizarComSaldosQuantidadeNFeClick
+    end
+  end
+  object pnlTop: TPanel
+    Left = 0
+    Top = 0
+    Width = 1363
+    Height = 41
+    Align = alTop
+    TabOrder = 1
+    object gbxDescricao: TGroupBox
+      Left = 12
+      Top = 0
+      Width = 773
+      Height = 37
+      Caption = 'Produto'
+      TabOrder = 4
+      object dtxProdutoDescricao: TEditTexto
+        Left = 130
+        Top = 13
+        Width = 639
+        Height = 21
+        TabStop = False
+        Color = clBtnFace
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        MaxLength = -1
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        CharCasenoDefault = False
+        Alignment = taLeftJustify
+      end
+      object edfCaracteristica: TtecDBText
+        Left = 2
+        Top = 13
+        Width = 129
+        Height = 21
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'codigovisual'
+        DataSource = dtmCadastroNotasFiscais.dsrCaracteristicasNotaFiscal
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        MaxLength = 18
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 1
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxElemtoLinha: TGroupBox
+      Left = 787
+      Top = 0
+      Width = 135
+      Height = 37
+      Caption = 'Linha'
+      TabOrder = 0
+      object edtLinha: TDBEditTexto
+        Left = 1
+        Top = 13
+        Width = 131
+        Height = 21
+        TabStop = False
+        DataField = 'valorgrade1'
+        DataSource = dtmCadastroNotasFiscais.dsrCaracteristicasNotaFiscal
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        MaxLength = -1
+        ParentFont = False
+        TabOrder = 0
+        OnExit = edtLinhaExit
+        OnKeyDown = edtLinhaKeyDown
+        CharCasenoDefault = False
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxElemtoColuna: TGroupBox
+      Left = 924
+      Top = 0
+      Width = 135
+      Height = 37
+      Caption = 'Coluna'
+      TabOrder = 1
+      object edtColuna: TDBEditTexto
+        Left = 4
+        Top = 13
+        Width = 127
+        Height = 21
+        TabStop = False
+        DataField = 'valorgrade2'
+        DataSource = dtmCadastroNotasFiscais.dsrCaracteristicasNotaFiscal
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        MaxLength = -1
+        ParentFont = False
+        TabOrder = 0
+        OnExit = edtColunaExit
+        OnKeyDown = edtColunaKeyDown
+        CharCasenoDefault = False
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxProdutonoFornecedor: TGroupBox
+      Left = 1060
+      Top = 0
+      Width = 189
+      Height = 37
+      Caption = 'Produto no Fornecedor'
+      TabOrder = 2
+      object edtProdutonoFornecedor: TDBEditTexto
+        Left = 2
+        Top = 12
+        Width = 183
+        Height = 23
+        DataField = 'produtonofornecedor'
+        DataSource = dtmCadastroNotasFiscais.dsrCaracteristicasNotaFiscal
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = -1
+        ParentFont = False
+        TabOrder = 0
+        OnKeyDown = edtProdutonoFornecedorKeyDown
+        CharCasenoDefault = False
+        Alignment = taLeftJustify
+      end
+    end
+    object ckbAplicarFiltro: TDBIntCheckBox
+      Left = 1261
+      Top = 16
+      Width = 81
+      Height = 17
+      Caption = 'Aplicar Filtro'
+      TabOrder = 3
+      OnKeyDown = ckbAplicarFiltroKeyDown
+      DataField = 'aplicarfiltro'
+      DataSource = dtmCadastroNotasFiscais.dsrCaracteristicasNotaFiscal
+    end
+  end
+  object gbxItensNFE: TGroupBox
+    Left = 0
+    Top = 41
+    Width = 1363
+    Height = 311
+    Align = alClient
+    Caption = 'Itens da NFe'
+    TabOrder = 2
+    object dbgProdutosNFE: TtecDBGrid
+      Left = 2
+      Top = 15
+      Width = 1359
+      Height = 294
+      Align = alClient
+      DataSource = dtmCadastroNotasFiscais.dsrProdutosNotasPagNFE
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgConfirmDelete, dgCancelOnExit]
+      ParentFont = False
+      TabOrder = 0
+      TitleFont.Charset = DEFAULT_CHARSET
+      TitleFont.Color = clBlack
+      TitleFont.Height = -13
+      TitleFont.Name = 'helvetica'
+      TitleFont.Pitch = fpVariable
+      TitleFont.Style = []
+      OnDrawColumnCell = dbgProdutosNFEDrawColumnCell
+      OnDblClick = dbgProdutosNFEDblClick
+      OnKeyDown = dbgProdutosNFEKeyDown
+      RowWrap = 60
+      Large = False
+      DoubleRowColor = False
+      MsgDelete = 'o PRODUTO NOTA FISCAL'
+      TitleMinHeight = 100
+      CellHeights = 100
+      StrippedColor = 16054260
+      CanDelete = True
+      CanNotInsertFromGrid = True
+      PostOnEnter = True
+      PostOnSetUpDown = False
+      DenySort = False
+      DefaultRowHeight = 19
+      ExibirNumerodaLinha = False
+      NaoAtribuirDadosaTabelaaoDigitar = False
+      ShowWhenFieldInvisible = False
+      CanClickWhenEditing = False
+      Columns = <
+        item
+          Expanded = False
+          FieldName = 'numero'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'N'#186
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 25
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'produtonofornecedor'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'PRODUTO FORNECEDOR'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 158
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'descricaofornecedor'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'DESCRI'#199#195'O PRODUTO FORNECEDOR'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 336
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'infadprod'
+          ReadOnly = True
+          Title.Caption = 'INFORMA'#199#213'ES ADICIONAIS'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 391
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'uCom'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'UN'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 25
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'quantidade'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'QTDE'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 65
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'fatorconversao'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'FATOR'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 94
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'qtdeestoque'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'QT ESTOQUE'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 65
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'saldoquantidadelc'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'PENDENTE'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 56
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'quantidadeselecionadalc'
+          Title.Caption = 'SELECIONADO'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'precounitario'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'PRE'#199'O UNIT'#193'RIO'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 90
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'valortotal'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'VALOR TOTAL'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 67
+          Visible = True
+        end
+        item
+          Alignment = taCenter
+          Expanded = False
+          FieldName = 'ncmfornecedor'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'NCM FORNEC'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 75
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'CFOP'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 35
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'csticms'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'CST ICMS'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'csosn'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'CSOSN'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'orig'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'ORIG'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'vBCICMS'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'BC ICMS'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 65
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'pICMS'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = '% ICMS'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 35
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'vICMS'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'VLR ICMS'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 65
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'pMVAST'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'MVA ST'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 40
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'pICMSST'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = '% ICMS ST'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 50
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'vICMSST'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'VLR ICMS ST'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 65
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'pCredSN'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = '% Cred SN'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 53
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'vCredICMSSN'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'VLR CRED SN'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'cstipi'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'CST IPI'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'pIPI'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = '% IPI'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 30
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'vIPI'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'VLR IPI'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 65
+          Visible = True
+        end>
+    end
+  end
+  object gbxItensNFELancados: TGroupBox
+    Left = 0
+    Top = 352
+    Width = 1363
+    Height = 143
+    Align = alBottom
+    Caption = 'Itens na empresa'
+    TabOrder = 3
+    object dbgProdutosNotasPagNFEItems: TtecDBGrid
+      Left = 2
+      Top = 15
+      Width = 1359
+      Height = 126
+      Align = alClient
+      DataSource = dtmCadastroNotasFiscais.dsrProdutosNotasPagNFEItems
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgConfirmDelete, dgCancelOnExit]
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 0
+      TitleFont.Charset = DEFAULT_CHARSET
+      TitleFont.Color = clBlack
+      TitleFont.Height = -13
+      TitleFont.Name = 'helvetica'
+      TitleFont.Pitch = fpVariable
+      TitleFont.Style = []
+      OnDrawColumnCell = dbgProdutosNotasPagNFEItemsDrawColumnCell
+      RowWrap = 60
+      Large = False
+      DoubleRowColor = False
+      MsgDelete = 'o PRODUTO NOTA FISCAL'
+      TitleMinHeight = 100
+      CellHeights = 100
+      StrippedColor = 16054260
+      CanDelete = True
+      CanNotInsertFromGrid = False
+      PostOnEnter = True
+      PostOnSetUpDown = False
+      DenySort = False
+      DefaultRowHeight = 19
+      ExibirNumerodaLinha = True
+      NaoAtribuirDadosaTabelaaoDigitar = False
+      ShowWhenFieldInvisible = False
+      CanClickWhenEditing = False
+      Columns = <
+        item
+          Expanded = False
+          FieldName = 'produtodigitado'
+          Title.Alignment = taCenter
+          Title.Caption = 'ITEM EMPRESA'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 110
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'caracteristicavisual'
+          Title.Alignment = taCenter
+          Title.Caption = 'PRODUTO'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 76
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'valorgrade1'
+          Title.Alignment = taCenter
+          Title.Caption = 'LINHA'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'valorgrade2'
+          Title.Alignment = taCenter
+          Title.Caption = 'COLUNA'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'descricaoproduto'
+          Title.Alignment = taCenter
+          Title.Caption = 'DESCRI'#199#195'O PRODUTO NA EMPRESA'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 250
+          Visible = True
+        end
+        item
+          Alignment = taCenter
+          Expanded = False
+          FieldName = 'ncmempresa'
+          Title.Alignment = taCenter
+          Title.Caption = 'NCM EMPRESA'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 75
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'quantidade'
+          Title.Alignment = taCenter
+          Title.Caption = 'QTDE NFE'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 54
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'unidadenfe'
+          Title.Alignment = taCenter
+          Title.Caption = 'UN'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 25
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'descricaounidadenfe'
+          Title.Alignment = taCenter
+          Title.Caption = 'DESCRI'#199#195'O'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 65
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'fatorconversao'
+          Title.Alignment = taCenter
+          Title.Caption = 'FATOR'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 65
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'unidade'
+          Title.Alignment = taCenter
+          Title.Caption = 'UN'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 25
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'qtdeestoque'
+          Title.Alignment = taCenter
+          Title.Caption = 'QT ESTOQUE'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 65
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'PrecoUnitarioFatorizado'
+          Title.Alignment = taCenter
+          Title.Caption = 'PRE'#199'O UNIT'#193'RIO'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'valortotal'
+          Title.Alignment = taCenter
+          Title.Caption = 'VALOR TOTAL'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 70
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'pedido'
+          Title.Alignment = taCenter
+          Title.Caption = 'PEDIDO'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 40
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'precounitariopedido'
+          Title.Caption = 'PRE'#199'O PEDIDO'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'percUnitario_x_Pedido'
+          Title.Alignment = taCenter
+          Title.Caption = '%'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 41
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'codigofiscal'
+          Title.Alignment = taCenter
+          Title.Caption = 'CFOP'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 32
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'descricaocodigofiscal'
+          Title.Alignment = taCenter
+          Title.Caption = 'DESCRI'#199#195'O OPERA'#199#195'O'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 190
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'natureza'
+          Title.Alignment = taCenter
+          Title.Caption = 'NATUREZA'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 60
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'descricaonatureza'
+          Title.Alignment = taCenter
+          Title.Caption = 'DESCRI'#199#195'O NATUREZA'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 200
+          Visible = True
+        end>
+    end
+  end
+end

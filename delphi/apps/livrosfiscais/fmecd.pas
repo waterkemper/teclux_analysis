@@ -1,0 +1,235 @@
+unit fmecd;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Forms, Dialogs,
+  StdCtrls, fmrelatoriopadrao, ExtCtrls, Buttons, fmajudabt, Mask,
+  cpdata, ComCtrls, biblio, ctconstantes, Controls, ACBrSped,
+  cpdbradiogroup, frconsultacontabil, frconsultacodigocontabil, cpnumero,
+  DBCtrls, cpdbtext, cpdbmemo, cptexto, cpdbdata, cpdbmesano, Windows,
+  fmcadastropadrao, frconsulta, frconsultacodigo, cpdbfindcontrols, ToolWin, {Qete,} DB,
+  dateutils, Grids, DBGrids, cpdbgrid, DBMaplistCombobox;
+
+type
+  TfrmECD = class(TfrmCadastroPadrao)
+    sbnGerarArquivo: TSpeedButton;
+    mmoErro: TMemo;
+    pnlTop: TPanel;
+    gbxExercicio: TGroupBox;
+    gbxArquivo: TGroupBox;
+    dtxArquivo: TtecDBText;
+    edtExercicio: TtecDbEditFind;
+    gbxFilial: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigo;
+    rbnSituacao: TtecDBRadioGroup;
+    rbnCISAO: TtecRadioButton;
+    rbnFUSAO: TtecRadioButton;
+    rbnINCORPORACAO: TtecRadioButton;
+    rbnEXTINSAO: TtecRadioButton;
+    gbxNumOrd: TGroupBox;
+    edtNum_Ord: TDBEditNumero;
+    gbxLivro: TGroupBox;
+    gbxNatureza: TGroupBox;
+    edtNatureza: TDBEditTexto;
+    gbxErro: TGroupBox;
+    rbnind_sit_ini_per: TtecDBRadioGroup;
+    tecRadioButton1: TtecRadioButton;
+    tecRadioButton2: TtecRadioButton;
+    tecRadioButton3: TtecRadioButton;
+    tecRadioButton4: TtecRadioButton;
+    rgrEscrituracao: TtecDBRadioGroup;
+    rbnOriginal: TtecRadioButton;
+    rbnSubstituta: TtecRadioButton;
+    tecDBRadioGroup2: TtecDBRadioGroup;
+    tecRadioButton9: TtecRadioButton;
+    tecRadioButton10: TtecRadioButton;
+    stxEmpresaDe: TStaticText;
+    rbnAbertura: TtecRadioButton;
+    GroupBox1: TGroupBox;
+    edtIND_ADM_FUN_CLU: TDBMaplistCombobox;
+    ckbJ800: TDBCheckBox;
+    stxIdentificacao: TStaticText;
+    stxDeMoeda: TStaticText;
+    gbxOutrasInformacoes: TGroupBox;
+    stxOutras: TStaticText;
+    rgbINd_esc: TtecDBRadioGroup;
+    rbnIndEsc_G: TtecRadioButton;
+    rbnIndEsc_R: TtecRadioButton;
+    rbnIndEsc_A: TtecRadioButton;
+    rbnIndEsc_B: TtecRadioButton;
+    rbnIndEsc_Z: TtecRadioButton;
+    gbxSubstituicaoECD: TGroupBox;
+    ckbJ801: TDBCheckBox;
+    stxSubstituicao: TStaticText;
+    tecRadioButton5: TtecRadioButton;
+    procedure sbnGerarArquivoClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+  protected
+    fraConsultaICMSObrigacoes : TfraConsultaCodigoContabil;
+    fraConsultaAjusteICMS : TfraConsultaCodigoContabil;
+    fraConsultaecd : TfraConsultaCodigoContabil;
+    procedure AbrirECD(Found: Boolean);
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AlterarEstadoBotoes; override;
+
+  private
+    { Private declarations }
+    function  ValidarCamposSelecao: Boolean;
+    procedure ACBrSPEDContabilonError(Sender: TObject);
+    function  InternoIncluir: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+
+    { Public declarations}
+  end;
+
+var
+  frmECD: TfrmECD;
+
+implementation
+
+uses dmecd;
+
+{$R *.dfm}
+
+procedure TfrmECD.ACBrSPEDContabilonError(Sender: TObject);
+begin
+  mmoErro.Lines.Add(dtmECD.erro);
+end;
+
+constructor TfrmECD.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmECD := TdtmECD.Create(self);
+  DataSet := dtmECD.qryecd;
+  dtmECD.ACBrSPEDContabilonError := ACBrSPEDContabilonError;
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+
+  fraConsultaecd := TfraConsultaCodigoContabil.Create(self);
+  fraConsultaecd.edfCodigo.Operacao := opPESQUISA;
+  fraConsultaecd.AbrirTabelaProcura := false;
+  fraConsultaecd.TipoPesquisa := pesECD;
+  fraConsultaecd.OnFound := AbrirECD;
+
+  ckbJ800.Checked:= False;
+  ckbJ801.Checked:= False;
+
+  sbnGerarArquivo.Enabled := false;
+  stxEmpresaDe.    Height:= 10;
+  stxIdentificacao.Height:= 10;
+  stxDeMoeda.      Height:= 10;
+  stxOutras.       Height:= 10;
+  stxSubstituicao. Height:= 10;
+
+end;
+
+procedure TfrmECD.sbnGerarArquivoClick(Sender: TObject);
+begin
+  inherited;
+  if ValidarCamposSelecao then
+  begin
+     mmoErro.Clear;
+     with dtmECD do
+     begin
+       if GerarArquivo(qryecdnomearquivo.AsString) then
+         MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[qryecdnomearquivo.AsString]));
+     end;
+  end
+end;
+
+function TfrmECD.ValidarCamposSelecao: Boolean;
+begin
+  result := not length(trim(edtExercicio.Text))<>4;
+  if not result then
+  begin
+    MensagemAviso(ctPERIODOINVALIDO);
+    edtExercicio.SetFocus;
+  end;
+end;
+
+
+function TfrmECD.InternoExcluir: Boolean;
+begin
+  Result := inherited InternoExcluir;
+  if Result then
+    if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['a escrita contábil digital'])) = smbOK then
+      Result := dtmECD.Excluirecd
+    else
+      Result := False
+end;
+
+function TfrmECD.InternoGravar: Boolean;
+begin
+  inherited InternoGravar;
+  Result := dtmECD.Gravarecd
+end;
+
+function TfrmECD.InternoIncluir: Boolean;
+begin
+  result := inherited internoincluir;
+  if result then
+    Result := dtmECD.Incluirecd;
+end;
+
+destructor TfrmECD.Destroy;
+begin
+  inherited;
+  dtmECD := nil;
+  frmECD := nil;
+end;
+
+
+procedure TfrmECD.AbrirECD(Found: Boolean);
+begin
+  edtExercicio.Text := fraConsultaecd.qryProcuraECDexercicio.AsString;
+  fraConsultaFilial.edfCodigo.Text := fraConsultaecd.qryProcuraECDfilial.AsString;
+  dtmECD.
+        refazconsulta(dtmECD.qryecd,[0,1],
+             [fraConsultaecd.qryProcuraECDexercicio.AsString,
+              fraConsultaecd.qryProcuraECDfilial.AsString]);
+end;
+
+procedure TfrmECD.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  fraConsultaecd.InternoPesquisar('ECD - Escrita Contábil Digital');
+  self.SetFocus;
+end;
+
+procedure TfrmECD.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key = VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        fraConsultaecd.InternoPesquisar('ECD - Escrita Contábil Digital');
+        self.SetFocus;
+      end
+    end
+    else
+    if (key = VK_F8) then
+    begin
+      if sbnGerarArquivo.Enabled then
+        sbnGerarArquivoClick(nil);
+    end;
+  end;
+end;
+
+procedure TfrmECD.AlterarEstadoBotoes;
+begin
+  inherited;
+
+  sbnGerarArquivo.Enabled := sbnIncluir.Enabled and
+                             not sbnSalvar.Enabled and
+                             (dtmECD.qryecd.RecordCount<>0);
+end;
+
+end.

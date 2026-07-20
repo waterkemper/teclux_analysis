@@ -1,0 +1,61 @@
+program teclux_conferencia;
+
+uses
+  shellapi,
+  ctconstantes,
+  SysUtils,
+  Forms,
+{  fmsplash,}
+  dmbasico,
+  fmConferencia_x1_240x320 in '..\..\repositorio\fmConferencia_x1_240x320.pas' {frmConferenciacoletor_x1_240x320},
+  versao in 'versao.pas';
+
+{$R *.res}
+
+begin
+{
+  Application.Initialize;
+  Application.CreateForm(TfrmConferenciacoletor_x1_240x320, frmConferenciacoletor_x1_240x320);
+  Application.Run;
+  }
+
+
+  Application.Initialize;
+//  Application.Icon.LoadFromFile('teclux.ico');
+  try
+//    Application.CreateForm(TfrmMonitorNFeEntradaSefaz, frmMonitorNFeEntradaSefaz);
+    Application.Title := 'tecLUX - Coletor Conferência';
+{    frmSplash := TfrmSplash.Create(Application);
+    frmSplash.setVersao(GetVersao);
+    frmSplash.Show;                }
+
+//    if LerConfiguracaoSistema(frmSplash.Notificacao, true, true) then
+    if LerConfiguracaoSistema(nil, true, true) then
+    begin
+      VersaoBanco := TdtmBasico.VersaoBanco;
+      TdtmBasico.SetVersaoTecLUX(GetVersao);
+//      Application.CreateForm(TfrmTecsoft, frmTecsoft);
+      Application.CreateForm(TfrmConferenciacoletor_x1_240x320, frmConferenciacoletor_x1_240x320);
+      frmConferenciacoletor_x1_240x320.visible := false;
+
+//      RegisterHelpViewer;
+//      VerificarECF(frmSplash.Notificacao);
+      {$IFDEF MSWINDOWS}
+//      PendenciasTEF(frmSplash.Notificacao);
+      {$ENDIF}
+//      PendenciaNFe(frmSplash.Notificacao);
+    end
+  finally
+
+{    frmSplash.Free;}
+    if Assigned(frmConferenciacoletor_x1_240x320) then
+      frmConferenciacoletor_x1_240x320.visible := true;
+
+    Application.Run;
+
+
+  end;
+
+
+end.
+

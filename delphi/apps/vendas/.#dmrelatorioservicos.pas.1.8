@@ -1,0 +1,283 @@
+unit dmrelatorioservicos;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  CheckLst, cpquery, ctconstantes, FR_DSet, FR_DBSet, FR_Class,
+  fmpreviewpadrao, biblio, clparametrossistema, dmtecsoft, ZTransact;
+
+type
+  TdtmRelatorioServicos = class(TdtmBasico)
+    qryServicos: TtecQuery;
+    dsrServicos: TtecDataSource;
+    qryServicoscodigo: TIntegerField;
+    qryServicosdescricao: TStringField;
+    qryServicosmarcar: TBooleanField;
+    qryRelatorioServicos: TtecQuery;
+    qryRelatorioServicosfilialvenda: TIntegerField;
+    qryRelatorioServicosnomefilialvenda: TStringField;
+    qryRelatorioServicosgrupofilialvenda: TIntegerField;
+    qryRelatorioServicosnomegrupofilialvenda: TStringField;
+    qryRelatorioServicosfaturamento: TDateField;
+    qryRelatorioServicoscontrato: TStringField;
+    qryRelatorioServicostipocliente: TStringField;
+    qryRelatorioServicoscliente: TIntegerField;
+    qryRelatorioServicosnome: TStringField;
+    qryRelatorioServicosservico: TIntegerField;
+    qryRelatorioServicosdescricaoservico: TStringField;
+    qryRelatorioServicosdescricaoequipamento: TStringField;
+    qryRelatorioServicosquantidade: TIntegerField;
+    qryRelatorioServicosvalorservico: TFloatField;
+    qryRelatorioServicostotalbruto: TFloatField;
+    qryRelatorioServicosdesconto: TFloatField;
+    qryRelatorioServicostotalliquido: TFloatField;
+    dsrRelatorioServicos: TtecDataSource;
+    frpRelatorioServicos: TfrReport;
+    fdsRelatorioServicos: TfrDBDataSet;
+    frpRelatorioServicosResumo: TfrReport;
+    qryRelatorioServicos_Vendas: TtecQuery;
+    qryRelatorioServicos_Devolucoes: TtecQuery;
+    qryRelatorioServicossituacao: TStringField;
+    qryRelatorioServicosEquipamento: TStringField;
+    procedure qryServicosAfterInsert(DataSet: TDataSet);
+    procedure frpRelatorioServicosBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpRelatorioServicosResumoBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    FParametroCabecalho: String;
+    FDataInicial: String;
+    FDataFinal: String;
+    FAgruparFilial: boolean;
+    FAgruparGrupoFilial: boolean;
+    FResumo: Integer;
+    FFiliais: String;
+    FGruposFiliais: String;
+    procedure SetDataFinal(const Value: String);
+    procedure SetDataInicial(const Value: String);
+    procedure SetFiliais(const Value: String);
+    procedure SetGruposFiliais(const Value: String);
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure MarcarServicosSelecionadas(Marcando, Todos: Boolean);
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    property DataInicial: String read FDataInicial write SetDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    procedure MontarFiltroServicos;
+    property AgruparGrupoFilial: boolean read FAgruparGrupoFilial write FAgruparGrupoFilial;
+    property AgruparFilial: boolean read FAgruparFilial write FAgruparFilial;
+    property Resumo: Integer read FResumo write FResumo;
+    procedure MontarOrdenacao;
+    procedure MontarConsultaRelatorio;
+    function AbrirConsultaRelatorio: Boolean;
+    procedure ImprimirRelatorio;
+    property Filiais: String read FFiliais write SetFiliais;
+    property GruposFiliais: String read FGruposFiliais write SetGruposFiliais;
+  end;
+
+var
+  dtmRelatorioServicos: TdtmRelatorioServicos;
+  FListaFiliais : TLista;
+  FListaGruposFiliais : TLista;
+
+  const
+  FiltroGrupoFilial = ' AND ( ct.filialvenda IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                        'WHERE fgf.grupo IN (%s))) ';
+
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmRelatorioServicos }
+
+function TdtmRelatorioServicos.AbrirConsultaRelatorio: Boolean;
+begin
+ ReFazConsulta(qryRelatorioServicos,[],[]);
+ result := not qryRelatorioServicos.IsEmpty;
+end;
+
+constructor TdtmRelatorioServicos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryServicos.Tag := ctTabelas;
+end;
+
+destructor TdtmRelatorioServicos.Destroy;
+begin
+  inherited;
+
+end;
+
+procedure TdtmRelatorioServicos.ImprimirRelatorio;
+begin
+  frVariables['AgruparGrupoFilial']:=FAgruparGrupoFilial;
+  frVariables['AgruparFilial']:=FAgruparFilial;
+
+  ImprimirRelatoriofast('RELATÓRIO DE SERVICOS', FParametroCabecalho, MPadrao, FResumo,
+                     [frpRelatorioServicos, frpRelatorioServicosResumo], false, self);
+end;
+
+procedure TdtmRelatorioServicos.MarcarServicosSelecionadas(Marcando,
+  Todos: Boolean);
+var
+ RegistroAtual : TBookMark;
+begin
+ RegistroAtual := qryServicos.GetBookmark;
+ MarcarRegistros(qryservicos,
+                qryServicosMarcar,
+                Marcando,
+                Todos);
+ qryservicos.GotoBookmark(RegistroAtual);
+ qryServicos.FreeBookmark(RegistroAtual);
+end;
+
+procedure TdtmRelatorioServicos.MontarFiltroServicos;
+var
+ servicos : String;
+begin
+  GuardarRegistroAtual(qryServicos, true);
+  servicos := '';
+  qryServicos.First;
+  while not qryServicos.Eof do
+  begin
+    if qryServicosmarcar.AsBoolean then
+      servicos := servicos+qryServicoscodigo.AsString+',';
+    qryservicos.Next;
+  end;
+  if servicos<>'' then
+  begin
+    delete(servicos,length(servicos),1);
+    qryRelatorioServicos.MacroByName('WhereServicos').AsString := 'and sc.servico in ('+servicos+')';
+    FParametroCabecalho := FParametroCabecalho+' Servicos: '+servicos;
+  end
+  else
+    qryRelatorioServicos.MacroByName('WhereServicos').AsString := '';
+  VoltarRegistroAtual(qryServicos);
+end;
+
+procedure TdtmRelatorioServicos.MontarOrdenacao;
+var
+Ordenacao: String;
+begin
+  Ordenacao:='';
+  if FAgruparGrupoFilial then
+    Ordenacao:=' nomegrupofilialvenda, grupofilialvenda ';
+
+  if FAgruparFilial then
+    if FAgruparGrupoFilial then
+      Ordenacao:=Ordenacao+', nomefilialvenda, filialvenda '
+    else
+      Ordenacao:=' nomefilialvenda, filialvenda ';
+
+  if Ordenacao<>'' then
+    Ordenacao := Ordenacao+', descricaoservico, servico, faturamento, contrato '
+  else
+    Ordenacao := Ordenacao+' descricaoservico, servico, faturamento, contrato  ';
+
+//  qryRelatorioServicos.MacroByName('ordenacao').asstring := 'Order by '+Ordenacao;
+  qryRelatorioServicos.sql.Append('Order by '+Ordenacao);
+
+end;
+
+procedure TdtmRelatorioServicos.qryServicosAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryServicos.Cancel;
+end;
+
+procedure TdtmRelatorioServicos.SetDataFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+  begin
+    FDataFinal := Value;
+    if DataEmBranco(FDataInicial) then
+      FDataInicial:=FDataFinal;
+  end
+  else
+   FDataFinal := FDataInicial;
+
+  qryRelatorioServicos.ParamByName('DataInicial').AsString := FDataInicial;
+  qryRelatorioServicos.ParamByName('DataFinal').AsString := FDataFinal;
+  
+  FParametroCabecalho := 'Entre :'+FDataInicial+' e '+FDataFinal;
+
+end;
+
+procedure TdtmRelatorioServicos.SetDataInicial(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+    FDataInicial := Value;
+end;
+
+procedure TdtmRelatorioServicos.frpRelatorioServicosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRelatorioServicos, View);
+
+end;
+
+procedure TdtmRelatorioServicos.frpRelatorioServicosResumoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRelatorioServicosResumo, View);
+
+end;
+
+procedure TdtmRelatorioServicos.MontarConsultaRelatorio;
+begin
+ qryRelatorioServicos.Sql.Clear;
+ qryRelatorioServicos.Sql.Text := qryRelatorioServicos_Vendas.Sql.Text+
+                                  ' union all '+
+                                  qryRelatorioServicos_Devolucoes.Sql.Text;
+end;
+
+procedure TdtmRelatorioServicos.SetFiliais(const Value: String);
+begin
+  FFiliais := Value;
+  if Value <> '' then
+    qryRelatorioServicos.MacroByName('WhereFiliais').AsString:='and (ct.filialvenda in (' + Value + '))'
+  else
+    qryRelatorioServicos.MacroByName('WhereFiliais').AsString:='';
+end;
+
+procedure TdtmRelatorioServicos.SetGruposFiliais(const Value: String);
+begin
+  FGruposFiliais := Value;
+  if Value<>'' then
+  begin
+    if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+      qryRelatorioServicos.MacroByName('WhereFiliais').AsString:=
+        qryRelatorioServicos.MacroByName('WhereFiliais').AsString +' and '+
+        format(FiltroGrupoFilial,[Value])
+    else
+    if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+      qryRelatorioServicos.MacroByName('WhereFiliais').AsString:=
+        format(FiltroGrupoFilial,[Value]);
+  end;
+end;
+
+procedure TdtmRelatorioServicos.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:/logadmin1.sql') then
+    Listar.loadfromfile('c:/logadmin1.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:/logadmin1.sql');
+  listar.free;
+end;
+
+end.

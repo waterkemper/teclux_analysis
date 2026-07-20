@@ -1,0 +1,312 @@
+unit dmrelatorioextratoconta;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, ctconstantes, FR_Class, FR_DSet, FR_DBSet, ZTransact, fmpreviewpadrao,
+  Biblio, variants;
+
+type
+  TdtmRelatorioExtratoConta = class(TdtmBasico)
+    frpExtratoConta: TfrReport;
+    qryMovtosBancos: TtecQuery;
+    qryMovtosBancosConta: TIntegerField;
+    qryMovtosBancosData: TDateField;
+    qryMovtosBancosSequencia: TIntegerField;
+    qryMovtosBancosCompensacao: TDateField;
+    qryMovtosBancosSeqCompensacao: TIntegerField;
+    qryMovtosBancosDocumento: TStringField;
+    qryMovtosBancosEvento: TIntegerField;
+    qryMovtosBancosTipo: TStringField;
+    qryMovtosBancosObservacoes: TStringField;
+    fdsMovtosBancos: TfrDBDataSet;
+    qryMovtosBancosDocumentoObservacoes: TStringField;
+    qryMovtosBancosvalordebito: TFloatField;
+    qryMovtosBancosvalorcredito: TFloatField;
+    qryMovtosBancosdescricaoevento: TStringField;
+    qryMovtosBancos_Data: TtecQuery;
+    qryMovtosBancos_Compensacao: TtecQuery;
+    qryMovtosBancosvalor: TFloatField;
+    qryMovtosBancossaldo: TFloatField;
+    qryUltimoLancto: TtecQuery;
+    qryUltimoLanctoData: TDateField;
+    dsrUltimoLancto: TtecDataSource;
+    qryMovtosBancosexibirsaldo: TBooleanField;
+    qryMovtosBancosorigemlancto: TStringField;
+    qryMovtosBancosvalorevento: TFloatField;
+    qryMovtosBancosultimopagamentolote: TBooleanField;
+    qryMovtosBancossigla: TStringField;
+    qryMovtosBancosdigito: TStringField;
+    qryMovtosBancostitular: TStringField;
+    procedure qryMovtosBancosCalcFields(DataSet: TDataSet);
+    procedure frpExtratoContaBeforePrint(Memo: TStringList; View: TfrView);
+    procedure frpExtratoContaGetValue(const ParName: String;
+      var ParValue: Variant);
+  private
+    FParametroDebito: Boolean;
+    FParametroCredito: Boolean;
+    FParametroDocumento: Integer;
+    FParametroOrdenacao: Integer;
+    FParametroDataInicial: String;
+    FParametroConta: String;
+    FParametroEvento: String;
+    FParametroDataFinal: String;
+    FParametroCabecalho: String;
+    function GetTabelaConsultaContas: TZDataset;
+    function GetParametroCabecalho: String;
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner:     TComponent); override;
+    property TabelaConsultaContas: TZDataset read GetTabelaConsultaContas;
+    function  ExisteConta(campo, codigo: string): boolean;
+    procedure AbrirTabelas(TipoPesquisa: TtecMovtosBancos);
+    procedure FecharTabelas(TipoPesquisa: TtecMovtosBancos);
+    procedure ImprimirExtratoConta;
+    property ParametroConta: String read FParametroConta write FParametroConta;
+    property ParametroEvento: String read FParametroEvento write FParametroEvento;
+    property ParametroDebito: Boolean read FParametroDebito write FParametroDebito;
+    property ParametroCredito: Boolean read FParametroCredito write FParametroCredito;
+    property ParametroDataInicial: String read FParametroDataInicial write FParametroDataInicial;
+    property ParametroDataFinal: String read FParametroDataFinal write FParametroDataFinal;
+    property ParametroOrdenacao: Integer read FParametroOrdenacao write FParametroOrdenacao;
+    property ParametroDocumento: Integer read FParametroDocumento write FParametroDocumento;
+    property ParametroCabecalho: String read GetParametroCabecalho write FParametroCabecalho;
+    function  NumeroContaFoiAlterado: Boolean;
+    function  UltimaDataLancamento: Boolean;
+
+  end;
+
+var
+  dtmRelatorioExtratoConta: TdtmRelatorioExtratoConta;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmRelatorioExtratoConta }
+
+procedure TdtmRelatorioExtratoConta.AbrirTabelas(
+  TipoPesquisa: TtecMovtosBancos);
+begin
+  Case TipoPesquisa of
+      tmbCONTAS:  Abre(ctConsultaContas);
+      tmbEVENTOS: Abre(ctConsultaEventos);
+  end;
+end;
+
+constructor TdtmRelatorioExtratoConta.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+
+procedure TdtmRelatorioExtratoConta.FecharTabelas(
+  TipoPesquisa: TtecMovtosBancos);
+begin
+   Case TipoPesquisa of
+      tmbCONTAS:  Fecha(ctConsultaContas);
+      tmbEVENTOS: Fecha(ctConsultaEventos);
+   end;
+end;
+
+function TdtmRelatorioExtratoConta.GetTabelaConsultaContas: TZDataset;
+begin
+end;
+
+
+procedure TdtmRelatorioExtratoConta.ImprimirExtratoConta;
+const  {WhereEvento  = 'AND mbe.Evento = %s';}
+      WhereDebito  = 'AND mbe.Tipo   = ''E''';
+      WhereCredito = 'AND mbe.Tipo   = ''S''';
+
+      OrdenacaoLancamento  = 'ORDER BY mb.conta, coalesce(mb.Data, cast(:datainicial as date)), coalesce(mb.Sequencia, cast(0 as integer)), mb.Evento, mb.SequenciaEvento';
+      OrdenacaoCompensacao = 'ORDER BY mb.conta, coalesce(mb.Compensacao, cast(:datainicial as date)), coalesce(mb.SeqCompensacao, cast(0 as integer)), mb.Evento, mb.SequenciaEvento';
+
+{ar    Relatorio: TfrReport;
+       frmPreview: TfrmPreviewPadrao; }
+{      DizeresExtrato: String;}
+
+begin
+
+{   FParametroCabecalho := '';}
+   case ParametroOrdenacao of
+      0: begin
+            frVariables['Ordenacao']:= 'Lancamento';
+            qryMovtosBancos.Sql.Text:= qryMovtosBancos_Data.Sql.Text;
+            qrymovtosBancos.MacroByName('Ordenacao').AsString := OrdenacaoLancamento;
+{            DizeresExtrato := ' LANÇAMENTOS DE ';}
+         end;
+      1: begin
+            frVariables['Ordenacao']:= 'Compensacao';
+            qryMovtosBancos.Sql.Text := qryMovtosBancos_Compensacao.Sql.Text;
+            qrymovtosBancos.MacroByName('Ordenacao').AsString := OrdenacaoCompensacao;
+{            DizeresExtrato := ' COMPENSAÇÕES DE ';}
+         end;
+   end;
+
+   qryMovtosBancos.ParamByName('DataInicial').AsString:= ParametroDataInicial;
+   qryMovtosBancos.ParamByName('DataFinal').  AsString:= ParametroDataFinal;
+
+   if ParametroConta<>'' then
+     qryMovtosBancos.MacroByName('Contas').AsString := ' and (' + ParametroConta + ')'
+   else
+     qryMovtosBancos.MacroByName('Contas').AsString := '';
+
+   qryMovtosBancos.ParamByName('DataSaldo').  AsString:= DateToStr(StrToDate(ParametroDataInicial) - 1);
+
+   {
+   FParametroCabecalho := qryProcuraContasSigla.  AsString + ' - C/C ' +
+                          qryProcuraContasConta.  AsString +  '-'  +
+                          qryProcuraContasDigito. AsString + ' - ' +
+                          qryProcuraContasTitular.AsString + CrLf  +
+                          DizeresExtrato + ParametroDataInicial + ' A ' + ParametroDataFinal + CrLf;
+   }
+
+   if ParametroEvento<>'' then
+   begin
+     qryMovtosBancos.ParamByName('FiltrarEvento').AsBoolean := false;
+     qryMovtosBancos.MacroByName('Evento').AsString := ' and (' + ParametroEvento +' ) ';
+   end
+   else
+   begin
+     qryMovtosBancos.MacroByName('Evento').AsString := '';
+     qryMovtosBancos.ParamByName('FiltrarEvento').AsBoolean := True;
+   end;
+
+
+   {
+   if ParametroEvento <> ''
+   then qrymovtosBancos.MacroByName('WhereEvento').AsString := Format(WhereEvento,[parametroevento])
+   else qrymovtosBancos.MacroByName('WhereEvento').AsString := '';
+   }
+
+   if ParametroDebito and not ParametroCredito then begin
+      qrymovtosBancos.MacroByName('WhereTipo').AsString := WhereDebito;
+      FParametroCabecalho:= FParametroCabecalho + ' - DÉBITOS';
+   end
+   else if not ParametroDebito and ParametroCredito then begin
+           qrymovtosBancos.MacroByName('WhereTipo').AsString := WhereCredito;
+           FParametroCabecalho := FParametroCabecalho + ' - CRÉDITOS';
+        end;
+
+   Refazconsulta(qryMovtosBancos,[],[]);
+   frVariables['Titulo']:= 'EXTRATO DE CONTA';
+   frVariables['SubTitulo']:= FParametroCabecalho;
+//  frpExtratoConta.DesignReport;
+
+
+   ImprimirRelatoriofast(null, FParametroCabecalho, MSimples, 0, [frpExtratoConta], false, self);
+
+   {
+   frmPreview := TfrmPreviewPadrao.create(self);
+   frmPreview.cmbZoom.ItemIndex := 3; //125%
+   try
+      Relatorio := frmPreview.frCompositeReport;
+      with frmPreview do begin
+         frCompositeReport.Reports.Clear;
+         frCompositeReport.Reports.Add(frpExtratoConta);
+      end;
+      Relatorio.Preview := frmPreview.frPreviewPadrao;
+      Relatorio.ShowReport;
+      frmPreview.ShowModal;
+
+   finally
+      frmPreview.Free
+   end;
+   }
+
+end;
+
+procedure TdtmRelatorioExtratoConta.qryMovtosBancosCalcFields(
+  DataSet: TDataSet);
+begin
+   inherited;
+   if qryMovtosBancosDocumento.AsString <> '' then begin
+
+      if qryMovtosBancosOrigemLancto.AsString = 'R'
+      then qryMovtosBancosDocumentoObservacoes.AsString:= qryMovtosBancosDocumento.AsString
+      else qryMovtosBancosDocumentoObservacoes.AsString:= 'Doc ' +
+                                                          qryMovtosBancosDocumento.AsString;
+
+      if qryMovtosBancosObservacoes.AsString <> ''
+      then qryMovtosBancosDocumentoObservacoes.AsString :=
+           qryMovtosBancosDocumentoObservacoes.AsString + ' - ' +
+                                            qryMovtosBancosObservacoes.AsString;
+   end
+   else qryMovtosBancosDocumentoObservacoes.AsString :=
+        qryMovtosBancosObservacoes.AsString;
+
+   case ParametroDocumento of
+   0: qryMovtosBancosDocumentoObservacoes.AsString :=
+                        copy(qryMovtosBancosDocumentoObservacoes.AsString,0,55);
+  end;
+end;
+
+procedure TdtmRelatorioExtratoConta.frpExtratoContaBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpExtratoConta, view);
+end;
+
+
+function TdtmRelatorioExtratoConta.NumeroContaFoiAlterado: Boolean;
+begin
+
+end;
+
+
+
+function TdtmRelatorioExtratoConta.UltimaDataLancamento: Boolean;
+begin
+   if qryUltimoLancto.Active then qryUltimoLancto.Close;
+   qryUltimoLancto.Open;
+   Result:= not qryUltimoLancto.IsEmpty;
+end;
+
+function TdtmRelatorioExtratoConta.ExisteConta(campo,
+  codigo: string): boolean;
+begin
+
+end;
+
+function TdtmRelatorioExtratoConta.GetParametroCabecalho: String;
+var
+  DizeresExtrato: String;
+begin
+   FParametroCabecalho := '';
+   case ParametroOrdenacao of
+      0: begin
+            frVariables['Ordenacao']:= 'Lancamento';
+            DizeresExtrato := ' LANÇAMENTOS DE ';
+         end;
+      1: begin
+            frVariables['Ordenacao']:= 'Compensacao';
+            qryMovtosBancos.Sql.Text := qryMovtosBancos_Compensacao.Sql.Text;
+            DizeresExtrato := ' COMPENSAÇÕES DE ';
+         end;
+   end;
+
+
+   FParametroCabecalho := qryMovtosBancosSigla.  AsString + ' - C/C ' +
+
+                          qryMovtosBancosConta.  AsString +  '-'  +
+                          qryMovtosBancosDigito. AsString + ' - ' +
+                          qryMovtosBancosTitular.AsString + CrLf  +
+                          DizeresExtrato + ParametroDataInicial + ' A ' + ParametroDataFinal + CrLf;
+
+
+  Result := FParametroCabecalho;
+end;
+
+procedure TdtmRelatorioExtratoConta.frpExtratoContaGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+  if ParName = 'SubTitulo' then
+    ParValue := ParametroCabecalho;
+end;
+
+end.

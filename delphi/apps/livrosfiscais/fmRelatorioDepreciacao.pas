@@ -1,0 +1,261 @@
+unit fmRelatorioDepreciacao;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmajudabt, ComCtrls, Buttons, ToolWin, ExtCtrls, StdCtrls, Mask,
+  cpdata, frconsultacontabil, frconsultacodigocontabil, dmRelatorioDepreciacao,
+  frselecaoaleatoria, db, ctconstantes, frconsulta, frconsultacodigo, cpdbfindcontrols, biblio, clparametrossistema,
+  cpnumero, fmrelatoriopadrao;
+
+type
+  TfrmRelatorioDepreciacao = class(TFrmRelatorioPadrao)
+    gbxPeriodo: TGroupBox;
+    lblA: TLabel;
+    edtMesInicial: TEditMes;
+    edtMesFinal: TEditMes;
+    gbxBens: TGroupBox;
+    fraSelecaoAleatoriaImobilizado: TfraSelecaoAleatoria;
+    gbxExercicio: TGroupBox;
+    edtExercicioAtualContabilidade: TEditNumero;
+    rgpResumo: TRadioGroup;
+    procedure fraSelecaoAleatoriaImobilizadoqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaImobilizadosbnProcuraClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaImobilizadodbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaImobilizadodbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+    procedure AtribuirDadosImobilizado(Found: Boolean);
+    procedure AcionarPesquisaImobilizado;
+    function ValidaCampos: Boolean;
+    procedure InternoImpressao; override;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); Override;
+    destructor  Destroy; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+
+  end;
+
+var
+  frmRelatorioDepreciacao: TfrmRelatorioDepreciacao;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmRelatorioDepreciacao }
+
+procedure TfrmRelatorioDepreciacao.AcionarPesquisaImobilizado;
+begin
+  with fraSelecaoAleatoriaImobilizado do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar('Imobilizado');
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+
+end;
+
+procedure TfrmRelatorioDepreciacao.AtribuirDadosImobilizado(Found: Boolean);
+begin
+  with fraSelecaoAleatoriaImobilizado do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('numero').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraImobilizado.fieldbyname('numero').AsString;
+
+    qrySelecaoAleatoria.FieldByName('produtovisual').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraImobilizado.fieldbyname('produtovisual').AsString;
+
+    qrySelecaoAleatoria.FieldByName('descricaodobem').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraImobilizado.fieldbyname('descricaodobem').AsString;
+
+    qrySelecaoAleatoria.Post;
+  end;
+end;
+
+constructor TfrmRelatorioDepreciacao.Create(AOwner: TComponent);
+begin
+
+  dtmRelatorioDepreciacao := TdtmRelatorioDepreciacao.Create(self);
+  inherited;
+
+  fraSelecaoAleatoriaImobilizado.CampoParaLista := 'numero';
+  fraSelecaoAleatoriaImobilizado.qrySelecaoAleatoria.Open;
+  with fraSelecaoAleatoriaImobilizado do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(fraSelecaoAleatoriaImobilizado);
+
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoriaImobilizado';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 6;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'numero';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraimobilizado;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'numero';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'numero';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+    ConsultaSelecaoAleatoria.naofechartabelapesquisa := true;
+
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesIMOBILIZADO;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosImobilizado;
+  end;
+
+
+  edtMesInicial.Text:= '01';
+  edtMesFinal.Text  := '12';
+
+  edtExercicioAtualContabilidade.Text := inttostr(parsistema.EXERCICIOCONTABILIDADE);
+
+
+end;
+
+destructor TfrmRelatorioDepreciacao.Destroy;
+begin
+  inherited;
+  frmRelatorioDepreciacao := nil;
+end;
+
+procedure TfrmRelatorioDepreciacao.fraSelecaoAleatoriaImobilizadoqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+var nc: integer;  
+begin
+  inherited;
+  with fraSelecaoAleatoriaImobilizado do
+  begin
+    qrySelecaoAleatoria.FieldByName('numero').DisplayLabel := 'NÚMERO';
+    qrySelecaoAleatoria.FieldByName('numero').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('produtovisual').DisplayLabel := 'PRODUTO VISUAL';
+    qrySelecaoAleatoria.FieldByName('produtovisual').ReadOnly := true;
+
+    qrySelecaoAleatoria.FieldByName('descricaodobem').DisplayLabel := 'DESCRIÇÃO DO BEM';
+    qrySelecaoAleatoria.FieldByName('descricaodobem').ReadOnly := true;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+
+    with dbgSelecaoAleatoria do
+
+    for nc:= 0 to 2 do with Columns[nc].Title do
+    begin
+        Alignment:= taCenter;
+        Font.Name:= 'helvetica';
+        Font.Height:= -9;
+    end;
+  end;
+
+end;
+
+procedure TfrmRelatorioDepreciacao.fraSelecaoAleatoriaImobilizadosbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaImobilizado;
+end;
+
+procedure TfrmRelatorioDepreciacao.fraSelecaoAleatoriaImobilizadodbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaImobilizado;
+end;
+
+procedure TfrmRelatorioDepreciacao.fraSelecaoAleatoriaImobilizadodbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                    fraSelecaoAleatoriaImobilizado.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                    if (Shift = []) or fraSelecaoAleatoriaImobilizado.ConsultaSelecaoAleatoria.CtrlOn then
+                      AcionarPesquisaImobilizado
+                  end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaImobilizado.dbgSelecaoAleatoria.SelectedIndex = 0  then
+               begin
+                 fraSelecaoAleatoriaImobilizado.ConsultaSelecaoAleatoria.edfCodigo.text := fraSelecaoAleatoriaImobilizado.qrySelecaoAleatoria.FieldByName('codigo').asString;
+                 fraSelecaoAleatoriaImobilizado.ConsultaSelecaoAleatoria.edfCodigo.exist;
+                 if not fraSelecaoAleatoriaImobilizado.ConsultaSelecaoAleatoria.qryProcuraImobilizado.IsEmpty then
+                    AtribuirDadosImobilizado(true)
+                 else
+                 begin
+                   key := 0;
+                   fraSelecaoAleatoriaImobilizado.dbgSelecaoAleatoria.SelectedIndex := 0;
+                   fraSelecaoAleatoriaImobilizado.dbgSelecaoAleatoria.SetFocus;
+                 end;
+               end;
+  end;
+  inherited;
+
+end;
+
+procedure TfrmRelatorioDepreciacao.FormShow(Sender: TObject);
+begin
+  inherited;
+  edtMesInicial.SetFocus;
+  edtMesInicial.SelectAll;
+
+end;
+
+function TfrmRelatorioDepreciacao.ValidaCampos: Boolean;
+begin
+  result := not (trim(edtExercicioAtualContabilidade.Text)='');
+  if not result then
+    MensagemAviso('O exercício não foi informado.')
+  else
+  begin
+    result := edtMesInicial.DataValida and edtMesFinal.DataValida;
+    if result then
+    begin
+      result := (not (trim(edtMesInicial.text)='') and not (trim(edtMesFinal.text)=''));
+      if result then
+      begin
+        Result:=strtoint(edtMesInicial.Text) <= Strtoint(edtMesFinal.Text);
+        if not result then
+        begin
+          MensagemAviso('O mês inicial deve ser menor ou igual ao mês final.');
+          edtMesInicial.SetFocus;
+        end;
+      end
+      else
+      begin
+        MensagemAviso(ctDATAINVALIDA);
+        edtMesInicial.SetFocus;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmRelatorioDepreciacao.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+end;
+
+procedure TfrmRelatorioDepreciacao.InternoImpressao;
+begin
+  inherited;
+  if ValidaCampos then
+    dtmRelatorioDepreciacao.GerarRelatorio(edtExercicioAtualContabilidade.Text, edtMesInicial.text, edtMesFinal.text,
+                                               fraSelecaoAleatoriaImobilizado.StringSelecionada, rgpREsumo.itemindex );
+
+end;
+
+end.

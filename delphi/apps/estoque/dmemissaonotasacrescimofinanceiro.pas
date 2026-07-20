@@ -1,0 +1,785 @@
+unit dmemissaonotasacrescimofinanceiro;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, Dialogs, ZTransact, math, clnfe, dmimprimenotaentrada;
+
+type
+  TdtmEmissaoNotasAcrescimoFinanceiro = class(TdtmBasico)
+    qryECFsData: TtecQuery;
+    dsrECFsData: TtecDataSource;
+    qryCupons: TtecQuery;
+    dsrCupons: TtecDataSource;
+    qryLimitesAcrescimoFinanceiro: TtecQuery;
+    qryLimitesAcrescimoFinanceirojurosmaximo: TFloatField;
+    qryAtualizarCupons: TtecQuery;
+    qryNotasPag: TtecQuery;
+    qryCuponsdata: TDateField;
+    qryCuponsmaquina: TIntegerField;
+    qryCuponsintervensao: TIntegerField;
+    qryCuponsfilial: TIntegerField;
+    qryCuponsQtdeparcelas_f: TLargeintField;
+    qryCuponsentrada: TFloatField;
+    qryCuponsfinanciado: TFloatField;
+    qryCuponsicms: TFloatField;
+    qryCuponsacrescimo: TFloatField;
+    qryCuponsvalorvista: TFloatField;
+    qryCuponsvalortotal: TFloatField;
+    qryCuponsnumero: TIntegerField;
+    qryECFsDatadata: TDateField;
+    qryECFsDatamaquina: TIntegerField;
+    qryECFsDataintervensao: TIntegerField;
+    qryECFsDataacrescimo: TFloatField;
+    qryECFsDatavaloricms: TFloatField;
+    qryECFsDatafilial: TIntegerField;
+    qryECFsDataexcluido: TFloatField;
+    qryECFsDatapercentual: TCurrencyField;
+    dsrNotasPag: TtecDataSource;
+    qryProdutosNotasPag: TtecQuery;
+    dsrProdutosNotasPag: TtecDataSource;
+    spcNotasPagProximoCodigo: TtecQuery;
+    spcNotasPagProximoCodigocodigo: TIntegerField;
+    qryDatas: TtecQuery;
+    dsrDatas: TtecDataSource;
+    qryDatasdata: TDateField;
+    qryDatasfilial: TIntegerField;
+    qryDatasacrescimo: TFloatField;
+    qryDatasexcluido: TFloatField;
+    qryDatasvaloricms: TFloatField;
+    qryDataspercentual: TCurrencyField;
+    qryProdutos: TtecQuery;
+    qryCaracteristicas: TtecQuery;
+    qryNaturezasPadrao: TtecQuery;
+    qryNaturezasPadraodescricao: TStringField;
+    qryNaturezasPadraonatureza: TIntegerField;
+    qryNaturezasPadraocodigofiscal: TIntegerField;
+    qryNaturezasPadraodescricaonatureza: TStringField;
+    qryNaturezasPadraopiscst: TStringField;
+    qryNaturezasPadraocofinscst: TStringField;
+    qryNaturezasPadraoipicst: TStringField;
+    qryNaturezasPadraoicmscst: TStringField;
+    qryNumeroNota: TtecQuery;
+    qryNumeroNotanumeroinicial: TIntegerField;
+    qryNumeroNotamodelonota: TIntegerField;
+    qryNaturezasPadraonaogerarcreditoicms: TBooleanField;
+    qryNaturezasPadraonaogerarcreditoipi: TBooleanField;
+    qryNaturezasPadraonaocalcularipisobrefrete: TBooleanField;
+    qryCuponsFiscais: TtecQuery;
+    qryCuponsFiscaisfilial: TIntegerField;
+    qryCuponsFiscaismaquina: TIntegerField;
+    qryCuponsFiscaisintervensao: TIntegerField;
+    qryCuponsFiscaisnumero: TIntegerField;
+    qryCuponsFiscaisdadofiscal: TIntegerField;
+    qryCuponsFiscaisicmsestornado: TBooleanField;
+    qryCuponsFiscaisnumeroserie: TStringField;
+    qryCuponsFiscaiscodigonota: TIntegerField;
+    qryCuponsFiscaisdata: TDateField;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryECFsDataCalcFields(DataSet: TDataSet);
+    procedure qryDatasCalcFields(DataSet: TDataSet);
+    procedure qryNotasPagNewRecord(DataSet: TDataSet);
+  private
+    FCalculando: Boolean;
+    FTotIsentas: Real;
+//    FTotBase: Real;
+    FTotICMS: Real;
+{    function Calcular: Boolean;}
+    function GetTabelaECFsDataVazia: Boolean;
+
+    procedure ImprimirNotasFiscais;
+
+    { Private declarations }
+  protected
+    function VerificarSerieFilial:Boolean;
+  public
+    constructor Create(AOwner: TComponent); override;
+    function GerarConsulta(filial, dataInicial, dataFinal: String): Boolean;
+    function GravarNota: Boolean;
+    procedure FecharTabelas;
+
+    property TabelaECFsDataVazia : Boolean read GetTabelaECFsDataVazia;
+
+    property TotIsentas: Real read FTotIsentas write FTotIsentas;
+    property TotICMS: Real read FTotICMS write FTotICMS;
+
+    function EmitirNFe(Validando: Boolean = False): Boolean;
+
+//    property TotBase: Real read FTotBase write FTotBase;
+    { Public declarations }
+  end;
+
+var
+  dtmEmissaoNotasAcrescimoFinanceiro: TdtmEmissaoNotasAcrescimoFinanceiro;
+
+implementation
+
+uses clparametrossistema, biblio, ctconstantes, dmimprimefiscal;
+{$R *.dfm}
+
+{ TdtmEmissaoNotasAcrescimoFinanceiro }
+
+{
+function TdtmEmissaoNotasAcrescimoFinanceiro.Calcular: Boolean;
+var
+  AcrescimoExcluido,
+  TotalAcrescimoExcluido,
+//  Base,
+  ICMSTotal, ICMSCupom : Real;
+begin
+  Result := true;
+  FCalculando := True;
+  AcrescimoExcluido := 0;  TotalAcrescimoExcluido := 0;  ICMSTotal := 0; ICMSCupom := 0;
+//  Base := 0;
+  GuardarRegistroAtual(qryECFsData,true);
+  qryECFsData.First;
+  while not qryECFsData.Eof do
+  begin
+    qryCupons.First;
+    while not qryCupons.Eof do
+    begin
+
+      ICMSCupom := 0;
+
+      if ParSistema.UsarLimitesAcrescimoFinanceiro then
+      begin
+        ReFazConsulta(qryLimitesAcrescimoFinanceiro, [0, 1], [qryCuponsdata.AsDateTime, qryCuponsQtdeparcelas_f.AsVariant]);
+        AcrescimoExcluido := truncar(qryCuponsfinanciado.AsFloat * (qryLimitesAcrescimoFinanceirojurosmaximo.AsFloat / 100),2);
+        if AcrescimoExcluido > qryCuponsacrescimo.AsFloat then
+          AcrescimoExcluido := qryCuponsacrescimo.AsFloat;
+        TotalAcrescimoExcluido := TotalAcrescimoExcluido + AcrescimoExcluido;
+//        Base := Base + (qryCuponsvalortotal.AsFloat - AcrescimoExcluido);
+      end
+      else
+      begin
+        AcrescimoExcluido := qryCuponsacrescimo.AsFloat;
+        TotalAcrescimoExcluido := TotalAcrescimoExcluido + AcrescimoExcluido;
+//        Base := Base + (qryCuponsvalortotal.AsFloat - AcrescimoExcluido);
+      end;
+
+      qryProdutosDadosFiscais.First;
+      while not qryProdutosDadosFiscais.Eof do
+      begin
+        ICMSCupom := ICMSCupom + ((( (qryProdutosDadosFiscaisprecovenda.AsFloat +
+                           qryProdutosDadosFiscaisfrete.AsFloat +
+                           qryProdutosDadosFiscaisseguro.AsFloat)  / (qryCuponsvalorvista.AsFloat + qryCuponsdesconto.AsFloat)) * AcrescimoExcluido) * (qryProdutosDadosFiscaisaliquotaicms.AsFloat / 100));
+
+        qryProdutosDadosFiscais.Next;
+      end;
+
+      qrycupons.Edit;
+      qryCuponsicms.AsCurrency := RoundTo(ICMSCupom, -2);
+      qryCupons.Post;
+
+      ICMSTotal := ICMSTotal + qryCuponsicms.AsCurrency;
+
+      qryCupons.Next;
+
+    end;
+
+    qryECFsData.Edit;
+    qryECFsDataexcluido.AsFloat := TotalAcrescimoExcluido;
+    qryECFsDataicms.AsFloat := roundto(ICMSTotal,-2);
+    qryECFsData.Post;
+
+    TotalAcrescimoExcluido := 0;
+    ICMSTotal := 0;
+    qryECFsData.Next;
+  end;
+  VoltarRegistroAtual(qryECFsData);
+  TotIsentas := TotalAcrescimoExcluido;
+  TotICMS    := ICMSTotal;
+//  TotBase    := Base;
+  FCalculando := False;
+end;
+}
+
+constructor TdtmEmissaoNotasAcrescimoFinanceiro.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+function TdtmEmissaoNotasAcrescimoFinanceiro.GerarConsulta(filial,
+  dataInicial, dataFinal: String): Boolean;
+begin
+
+  ReFazConsultapornome(qryDatas, ['datainicial','datafinal','filial'],
+                        [datainicial, datafinal, filial]);
+
+  ReFazConsultapornome(qryECFsData, ['datainicial','datafinal','filial'],
+                        [datainicial, datafinal, filial]);
+
+  ReFazConsultapornome(qryCupons, ['datainicial','datafinal','filial'],
+                        [datainicial, datafinal, filial]);
+
+  ReFazConsultapornome(qryCuponsFiscais, ['datainicial','datafinal','filial'],
+                        [datainicial, datafinal, filial]);
+
+
+  Result := qryDatas.IsEmpty;
+end;
+
+function TdtmEmissaoNotasAcrescimoFinanceiro.GravarNota: Boolean;
+var
+  datafinal: TDateTime;
+  vDescricaoComplementar {, vListaCuponsFiscais} : String;
+  linha : Integer;
+  I : integer;
+
+  vChaveAcesso: String;
+
+  procedure SelecionarCodigoNaturezaProduto(descricao: String);
+  begin
+    result := qryNaturezasPadrao.Locate('descricao',descricao,[]);
+    if result then
+    begin
+      qryProdutosNotasPag.FieldByName('natureza').asinteger     := qryNaturezasPadraonatureza.AsInteger;
+      qryProdutosNotasPag.FieldByName('codigofiscal').AsInteger := qryNaturezasPadraocodigofiscal.AsInteger;
+      qryProdutosNotasPag.FieldByName('ipicst').asstring        := qryNaturezasPadraoipicst.AsString;
+      qryProdutosNotasPag.FieldByName('cofinscst').AsString     := qryNaturezasPadraocofinscst.AsString;
+      qryProdutosNotasPag.FieldByName('piscst').AsString        := qryNaturezasPadraopiscst.AsString;
+      qryProdutosNotasPag.FieldByName('incidencia').AsString    := qryNaturezasPadraoicmscst.AsString;
+      qryProdutosNotasPag.FieldByName('naogerarcreditoicms').Asboolean := qryNaturezasPadraonaogerarcreditoicms.AsBoolean;
+      qryProdutosNotasPag.FieldByName('naogerarcreditoipi').Asboolean := qryNaturezasPadraonaogerarcreditoipi.AsBoolean;
+      qryProdutosNotasPag.FieldByName('naocalcularipisobrefrete').AsBoolean := qryNaturezasPadraonaocalcularipisobrefrete.AsBoolean;
+
+      qryProdutosNotasPag.FieldByName('codigofiscal').AsInteger := 1000 + qryProdutosNotasPag.FieldByName('codigofiscal').AsInteger mod 1000
+    end
+    else
+      MensagemAviso(ctNATUREZAPADRAONAOVINCULADA);
+  end;
+
+  procedure SelecionarCodigoNatureza(descricao: String);
+  begin
+    result := qryNaturezasPadrao.Locate('descricao',descricao,[]);
+    if result then
+    begin
+      qryNotasPag.FieldByName('codigonatureza').asinteger := qryNaturezasPadraonatureza.AsInteger;
+      qryNotasPag.FieldByName('natureza').asString        := qryNaturezasPadraodescricaonatureza.AsString;
+      qryNotasPag.FieldByName('codigofiscal').AsInteger   := qryNaturezasPadraocodigofiscal.AsInteger;
+      qryNotasPag.FieldByName('codigofiscal').AsInteger   := 1000 + qryNotasPag.FieldByName('codigofiscal').AsInteger mod 1000
+    end
+    else
+      MensagemAviso(ctNATUREZAPADRAONAOVINCULADA);
+  end;
+
+
+begin
+
+  refazconsultapornome(qryNotasPag,['codigo'],[0]);
+  refazconsultapornome(qryProdutosNotasPag,['codigonota'],[0]);
+
+{  vListaCuponsFiscais := '';}
+
+  Result := True;
+
+  ReFazConsulta(qryNaturezasPadrao,[],[]);
+
+  RefazConsultaPorNome(qryCaracteristicas,['descricao'],['ECF']);
+  if qryCaracteristicas.IsEmpty then
+  begin
+    MensagemErro('Inclua o ítem ''ECF'' no cadastro de produtos');
+    result := false;
+  end;
+
+  if result then
+  begin
+    RefazConsultaPorNome(qryProdutos,['descricao'],['ECF']);
+    if qryprodutos.IsEmpty then
+    begin
+      MensagemErro('Inclua o sub ítem ''ECF'' no cadastro de produtos');
+      result := false;
+    end;
+  end;
+
+  if result then
+    result := VerificarSerieFilial;
+
+  if result then
+  begin
+    try
+
+      qrydatas.first;
+      while not qrydatas.Eof do
+      begin
+
+        qryNotasPag.Append;
+
+        spcNotasPagProximoCodigo.Open;
+        qryNotasPag.FieldByName('codigo').AsInteger := spcNotasPagProximoCodigocodigo.AsInteger;
+        spcNotasPagProximoCodigo.close;
+
+        qryNotasPag.FieldByName('fornecedor').AsInteger := FilialBase;
+        qryNotasPag.FieldByName('tipofornecedor').AsString  := 'L';
+        qryNotasPag.FieldByName('serie').AsString := SerieSugestao;
+        qryNotasPag.fieldbyname('numero').AsInteger := qryNumeroNotanumeroinicial.AsInteger;
+
+        qryNumeroNota.Edit;
+        qryNumeroNotanumeroinicial.AsInteger := qryNumeroNotanumeroinicial.AsInteger + 1;
+        qryNumeroNota.Post;
+
+        SelecionarCodigoNatureza(noACRESCIMOFINANCEIRO);
+
+        if qryNaturezasPadrao.Locate('natureza', qryProdutosNotasPag.fieldbyname('natureza').AsInteger, []) then
+          qryNotasPag.fieldbyname('natureza').AsString := qryNaturezasPadraodescricaonatureza.AsString;
+
+        qryNotasPag.fieldbyname('filial').AsInteger   := FilialBase;
+        qryNotasPag.fieldbyname('data').AsDateTime    := DataServidor;
+        qryNotasPag.fieldbyname('emissao').AsDateTime := DataServidor;
+        qryNotasPag.fieldbyname('estado').AsString    := EstadoFilialBase;
+
+        qryNotasPag.fieldbyname('cnpj').AsString      := cnpjfilialbase;
+        qryNotasPag.fieldbyname('nome').AsString      := RazaoFilialBase;
+
+        qryNotasPag.fieldbyname('foneddd').AsString           := DDDFilialbase;
+        qryNotasPag.fieldbyname('fonenumero').AsString        := FoneFilialBase;
+        qryNotasPag.fieldbyname('inscricaoestadual').AsString := InscricaoEstadualFilialBase;
+
+        if qryNotasPag.fieldbyname('estado').AsString = '.' then {estrangeiro}
+        begin
+          qryNotasPag.fieldbyname('pais').asstring           := CodigoCidadeIBGEFilialBase;
+          qryNotasPag.fieldbyname('nomepais').AsString       := CidadeFilialBase;
+          qryNotasPag.fieldbyname('rua').AsString            := RuaSemNumeroFilialBase;
+          qryNotasPag.fieldbyname('endnumero').AsString      := NumeroFilialBase;
+          qryNotasPag.fieldbyname('endcomplemento').AsString := ComplementoFilialBase;
+          qryNotasPag.fieldbyname('cidade').AsString         := CodigoBairroFilialBase;
+          qryNotasPag.fieldbyname('nomecidade').AsString     := BairroFilialBase;
+          qryNotasPag.fieldbyname('estado').AsString         := EstadoFilialBase;
+        end
+        else
+        begin
+          qryNotasPag.fieldbyname('pais').AsInteger          := 1058;
+          qryNotasPag.fieldbyname('nomepais').AsString       := 'Brasil';
+          qryNotasPag.fieldbyname('rua').AsString            := RuaSemNumeroFilialBase;
+          qryNotasPag.fieldbyname('endnumero').AsString      := NumeroFilialBase;
+          qryNotasPag.fieldbyname('endcomplemento').AsString := ComplementoFilialBase;
+          qryNotasPag.fieldbyname('bairro').AsString         := CodigoBairroFilialBase;
+          qryNotasPag.fieldbyname('nomebairro').AsString     := BairroFilialBase;
+          qryNotasPag.fieldbyname('cidade').AsString         := CodigoCidadeFilialBase;
+          qryNotasPag.fieldbyname('nomecidade').AsString     := CidadeFilialBase;
+          qryNotasPag.fieldbyname('cidadeibge').AsString     := CodigoCidadeIBGEFilialBase;
+          qryNotasPag.fieldbyname('estado').AsString         := EstadoFilialBase;
+          qryNotasPag.fieldbyname('cep').Asstring            := CEPFilialBase;
+        end;
+
+        qryNotasPag.fieldbyname('inscricaoestadual').AsString := InscricaoEstadualFilialBase;
+        qryNotasPag.fieldbyname('permitirimprimir').AsBoolean := True;
+        qryNotasPag.fieldbyname('situacao').AsString := 'N';
+
+        qryNotasPag.Post;
+
+        I:= 0;
+        qryECFsData.First;
+        while not qryECFsData.Eof do
+        begin
+          vDescricaoComplementar := '';
+          qryCupons.First;
+          while not qrycupons.Eof do
+          begin
+            vDescricaoComplementar := vDescricaoComplementar + qryCuponsnumero.AsString     + ', ';
+{            vListaCuponsFiscais := vListaCuponsFiscais + '('+ qryCuponsfilial.AsString      + ', ' +
+                                                              qryCuponsmaquina.AsString     + ', '+
+                                                              qryCuponsintervensao.asstring + ', '+
+                                                              qryCuponsnumero.asstring      + '), ';}
+            qrycupons.Next;
+          end;
+
+          delete(vDescricaoComplementar,length(vDescricaoComplementar)-1, 2);
+{          Delete(vListaCuponsFiscais, length(vListaCuponsFiscais) - 1, 2);}
+
+          qryCuponsFiscais.First;
+          while not qrycuponsfiscais.Eof do
+          begin
+            qryCuponsFiscais.edit;
+            qryCuponsFiscaiscodigonota.AsInteger := qrynotaspag.fieldbyname('codigo').asinteger;
+            qryCuponsFiscaisicmsestornado.AsBoolean := true;
+            qryCuponsFiscais.Post;
+            qryCuponsFiscais.next;
+          end;
+
+          inc(I);
+
+          qryProdutosNotasPag.Append;
+
+          qryprodutosnotaspag.FieldByName('codigonota').AsInteger := qryNotasPag.FieldByName('codigo').AsInteger;
+          qryprodutosnotaspag.FieldByName('numero').AsInteger := I;
+          qryprodutosnotaspag.FieldByName('produto').AsString := qryProdutos.fieldbyname('codigo').AsString;
+          qryprodutosnotaspag.FieldByName('filial').AsInteger := qryECFsDatafilial.AsInteger;
+          SelecionarCodigoNaturezaProduto(noACRESCIMOFINANCEIRO);
+          AtribuirDadosProdutos(qryprodutosnotaspag,qrynotaspag,nil,false,NotaAcrescimoFinanceiro);
+          qryprodutosnotaspag.fieldbyname('descricaoproduto').AsString :=
+              qryProdutos.fieldbyname('descricao').AsString + ' ' + qryECFsDatamaquina.AsString + ' - CF '+vDescricaoComplementar;
+
+          qryprodutosnotaspag.fieldbyname('aliquotaicms').AsCurrency := qryECFsDatapercentual.AsCurrency;
+          qryprodutosnotaspag.fieldbyname('quantidade').AsCurrency := 1;
+          qryprodutosnotaspag.fieldbyname('precounitario').AsCurrency := qryECFsDataexcluido.AsCurrency;
+          qryprodutosnotaspag.fieldbyname('icmsbasecalculo').AsCurrency := qryECFsDataexcluido.AsCurrency;
+          qryprodutosnotaspag.fieldbyname('icmsvalor').AsCurrency := qryECFsDatavaloricms.AsCurrency;
+          qryprodutosnotaspag.FieldByName('enquadramento').AsString := '999';
+
+          qryProdutosNotasPag.post;
+
+          qryECFsData.next
+        end;
+
+        if result then
+          result := CalcularImpostos(qryprodutosnotaspag, qrynotaspag, false, true, false, nil, nil, false, NotaAcrescimoFinanceiro, false, true, nil);
+
+        if result then
+        begin
+
+          if ParSistema.EmissorNfe then
+          begin
+            // DADOS NF-e
+            qryNotasPag.Edit;
+            qryNotasPag.fieldbyname('versaolayout').AsCurrency := 3.10;
+            if qryNotasPag.fieldbyname('modelodocto').IsNull then
+              qryNotasPag.fieldbyname('modelodocto').AsString  := '55';
+            qryNotasPag.fieldbyname('codaleatorio').AsInteger  := Aleatorio(qryNotasPag.fieldbyname('data').AsDateTime, qryNotasPag.fieldbyname('numero').Asstring);
+            { 0 – pagamento à vista   1 – pagamento à prazo     2 - outros }
+            qryNotasPag.fieldbyname('formapagto').AsInteger    := 2;
+            { 1-Retrato/ 2-Paisagem }
+            qryNotasPag.fieldbyname('formatodanfe').AsInteger  := 1;
+            {1-Normal/ 2-Contingência}
+            qryNotasPag.fieldbyname('formaemissao').AsInteger  := NFeTipoEmissao;
+
+            vChaveAcesso :=
+                       copy(CodigoCidadeIBGEFilialBase,1,2)+                            // 2
+                       FormatDateTime('YYMM',qryNotasPag.fieldbyname('data').AsDateTime)+             // 4
+                       preencheString(CNPJFilialBase,'0',14,false)+                     // 14
+                       preencheString(qryNotasPag.fieldbyname('modelodocto').AsString,'0',2,false)+   // 2
+                       preencheString(SerieSugestao,'0',3,false)+                       // 3
+                       preencheString(qryNotasPag.fieldbyname('numero').Asstring,'0',9,false) +       // 9
+                       qryNotasPag.fieldbyname('formaemissao').Asstring + //1
+                       preencheString(qryNotasPag.fieldbyname('codaleatorio').Asstring,'0',8,false);  // 8
+
+            qryNotasPag.fieldbyname('digchaveacesso').AsString  := Modulo11(vChaveAcesso);
+            qryNotasPag.fieldbyname('chv_nfe').AsString  := vChaveAcesso+qryNotasPag.fieldbyname('digchaveacesso').AsString;
+
+
+            {1 - PRODUÇÃO 2 - HOMOLOGAÇÃO}
+            qryNotasPag.fieldbyname('ambiente').AsInteger       := NFeAmbiente;// '2';
+
+            {1 - normal 2 - compelementar}
+            qryNotasPag.fieldbyname('finalidadenf').AsInteger   := 1;
+
+            qryNotasPag.fieldbyname('procemissao').AsString     := '0';
+            qryNotasPag.fieldbyname('versaoteclux').AsString    := VersaoTecLUX;
+            qryNotasPag.fieldbyname('infcomplementar').AsString := qryNotasPag.fieldbyname('observacoes').AsString;
+            qryNotasPag.Post;
+
+            result := EmitirNFe(True);
+
+          end;
+
+          if result then
+            qrydatas.next
+          else
+            break;
+
+        end;
+
+      end;
+
+      if result then
+        Result := Perpetrar([qryNotasPag, qryNumeroNota, qryProdutosNotasPag, qrycuponsfiscais]);
+
+
+      if Result then
+      begin
+      {
+        qryAtualizarCupons.MacroByName('ListaCuponsFiscais').AsString := vListaCuponsFiscais;
+        qryAtualizarCupons.ExecSql;
+        Perpetrar([]);
+      }
+        ImprimirNotasFiscais;
+      end
+      else
+        MensagemAviso('Ocorreram problemas durante a geração das notas, por favor tente novamente');
+
+      FecharTabelas;
+
+    except
+      on E: Exception do ShowMessage(E.Message);
+    end;
+
+  end;
+end;
+
+function TdtmEmissaoNotasAcrescimoFinanceiro.GetTabelaECFsDataVazia: Boolean;
+begin
+  Result := qryECFsData.IsEmpty;
+end;
+
+procedure TdtmEmissaoNotasAcrescimoFinanceiro.ImprimirNotasFiscais;
+begin
+  try
+    qryNotasPag.First;
+    while not qryNotasPag.Eof do
+    begin
+      if ParSistema.EmissorNfe then
+        EmitirNFe
+      else
+      begin
+        if not assigned(dtmImprimeNotaEntrada) then
+          dtmImprimeNotaEntrada := TdtmImprimeNotaEntrada.Create(Self);
+        dtmImprimeNotaEntrada.ImprimirNotasPag(qryNotasPag.FieldByName('codigo').AsInteger);
+      end;
+
+      qryNotasPag.Next;
+    end;
+  finally
+    if assigned(dtmImprimeNotaEntrada) then
+    begin
+      dtmImprimeNotaEntrada.Free;
+      dtmImprimeNotaEntrada := nil;
+    end;
+  end;
+end;
+
+
+procedure TdtmEmissaoNotasAcrescimoFinanceiro.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+ arquivo : String;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  arquivo := 'c:\icms.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+procedure TdtmEmissaoNotasAcrescimoFinanceiro.FecharTabelas;
+begin
+  qryDatas.Close;
+  qryECFsData.Close;
+  qryCupons.Close;
+  qrycuponsfiscais.close;
+
+  qryNotasPag.Close;
+  qryNumeroNota.Close;
+  qryProdutosNotasPag.close;
+  
+end;
+
+procedure TdtmEmissaoNotasAcrescimoFinanceiro.qryECFsDataCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryECFsDataexcluido.AsCurrency <> 0 then
+    qryECFsDatapercentual.AsCurrency := qryECFsDatavaloricms.AsCurrency * 100 / qryECFsDataexcluido.AsCurrency;
+end;
+
+procedure TdtmEmissaoNotasAcrescimoFinanceiro.qryDatasCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryDatasexcluido.AsCurrency <> 0 then
+    qryDataspercentual.AsCurrency := qryDatasvaloricms.AsCurrency * 100 / qryDatasexcluido.AsCurrency;
+
+end;
+
+function TdtmEmissaoNotasAcrescimoFinanceiro.VerificarSerieFilial: Boolean;
+begin
+  ReFazConsulta(qryNumeroNota, [0, 1], [FilialBase, SerieSugestao]);
+  if qryNumeroNota.RecordCount = 0 then begin
+    MensagemAviso(format(ctFILIALSEMSERIE, [FilialBase, 'mercadorias']));
+    Result := False;
+  end else if qryNumeroNotamodelonota.IsNull then begin
+    MensagemAviso(ctSERIESUGESTAOSEMMODELO);
+    Result := False;
+  end else
+    Result := True;
+end;
+
+procedure TdtmEmissaoNotasAcrescimoFinanceiro.qryNotasPagNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryNotasPag.FieldByName('modelodocto').AsString := ModeloDoctoFiscal;
+  qryNotasPag.FieldByName('regimetributario').AsInteger := RegimeTributario;
+end;
+
+function TdtmEmissaoNotasAcrescimoFinanceiro.EmitirNFe(
+  Validando: Boolean): Boolean;
+var
+  LoteNFe, {ReciboNFe,} ProtocoloNFe, status, DataHoraProcessamento: String;
+  NFe: TTecNotaFiscalEletronica;
+begin
+  Result := False;
+  if not validando then
+    NFe := TTecNotaFiscalEletronica.Create
+  else
+    NFe := TTecNotaFiscalEletronica.Create(dtmTecSoft.Database);
+
+    {
+  NFe.DiretorioEnvio       := NFeDirEnvio;
+  NFe.DiretorioEnviado     := NFeDirEnviados;
+  NFe.DiretorioRetorno     := NFeDirRetorno;
+  NFe.DiretorioCompartilha := NfeDirCompartilha;
+  NFe.Executavel           := NFeExecNFe;
+  }
+  try
+    if not Validando then
+    begin
+      ShowProcessando('Gerando o arquivo da NF-e!');
+      Sleep(500);
+    end;
+
+    // EMITENTE
+    NFe.Emit_Documento := CNPJFilialBase;
+    NFe.Emit_Nome      := RazaoFilialBase;
+    NFe.Emit_Rua       := RuaSemNumeroFilialBase;
+    NFe.Emit_Nro       := NumeroFilialBase;
+    NFe.Emit_Compl     := ComplementoFilialBase;
+    NFe.Emit_Bairro    := BairroFilialBase;
+    NFe.Emit_CodMun    := CodigoCidadeIBGEFilialBase;
+    NFe.Emit_Mun       := CidadeFilialBase;
+    NFe.Emit_UF        := EstadoFilialBase;
+    NFe.Emit_CEP       := CEPFilialBase;
+    NFe.Emit_Fone      := DDDFilialBase+FoneFilialBase;
+    NFe.Emit_IE        := InscricaoEstadualFilialBase;
+    NFe.Emit_IM        := InscricaoMunicipalFilialBase;
+    NFe.Emit_CNAE      := CNAEFiscalFilialBase;
+    NFe.Emit_CRT       := qryNotasPag.FieldByName('regimetributario').AsInteger;
+
+    // DESTINATARIO
+    NFe.Dest_TipoPessoa := 'J';
+    NFe.Dest_Documento := qryNotasPag.FieldByName('cnpj').AsString;
+    NFe.Dest_Nome      := qryNotasPag.FieldByName('nome').AsString;
+    NFe.Dest_Rua       := qryNotasPag.FieldByName('rua').AsString;
+    NFe.Dest_Nro       := qryNotasPag.FieldByName('endnumero').AsString;
+    NFe.Dest_Compl     := qryNotasPag.FieldByName('endcomplemento').AsString;
+    NFe.Dest_Bairro    := qryNotasPag.FieldByName('nomebairro').AsString;
+    NFe.Dest_CodMun    := qryNotasPag.FieldByName('cidadeibge').AsString;
+    NFe.Dest_Mun       := qryNotasPag.FieldByName('nomecidade').AsString;
+    NFe.Dest_UF        := qryNotasPag.FieldByName('estado').AsString;
+    NFe.Dest_CEP       := qryNotasPag.FieldByName('cep').AsString;
+    NFe.Dest_CodPais   := qryNotasPag.FieldByName('pais').AsInteger;
+    NFe.Dest_Pais      := qryNotasPag.FieldByName('nomepais').AsString;
+    NFe.Dest_Fone      := qryNotasPag.FieldByName('foneddd').AsString+qryNotasPag.FieldByName('fonenumero').AsString;
+    NFe.Dest_IE        := qryNotasPag.FieldByName('inscricaoestadual').AsString;
+//    NFe.Dest_ISUF      := qryNotasPag.FieldByName('iesubsttributario').AsString;
+
+    NFe.Validando      := Validando;
+
+    Result := NFe.GerarNFe(qryNotasPag,nil,qryProdutosNotasPag,nil,nil,
+                   nil,nil,nil,nil,nil,SerieSugestao,'E');
+
+    if Result and not Validando then
+    begin
+      if NFeTipoEmissao in [1,3] then
+      begin
+        ShowProcessando;
+        ShowProcessando('Verificando status do serviço NF-e!');
+        Sleep(500);
+        if NFe.VerificarStatusServico(IntToStr(NFeAmbiente)) then
+        begin
+          ShowProcessando;
+          ShowProcessando('Processando o arquivo de envio da NF-e!');
+          Sleep(500);
+          Result := NFe.EnviarNFe(qryNotasPag.fieldbyname('chv_nfe').AsString, LoteNFe, {ReciboNFe}
+                                  ProtocoloNFe, status, DataHoraProcessamento);
+          if Result then
+          begin
+            qryNotasPag.Edit;
+            qryNotasPag.fieldbyname('numlotenfe').AsString   := LoteNFe;
+            {
+            qryNotasPag.fieldbyname('numrecibonfe').AsString := ReciboNFe;
+            qryNotasPag.Post;
+            Result := Perpetrar([qryNotasPag]);
+            if Result then
+            begin
+              ShowProcessando;
+              ShowProcessando('Consultando o arquivo de retorno da NF-e!');
+              Sleep(500);
+              Result := NFe.ConsultarSituacaoLote(ReciboNFe, ProtocoloNFe, status, DataHoraProcessamento, IntToStr(NFeAmbiente));
+            end;
+            if Result then
+            begin
+              qryNotasPag.Edit;
+              }
+
+              qryNotasPag.fieldbyname('numprotocolonfe').AsString := ProtocoloNFe;
+              qryNotasPag.fieldbyname('statusnfe').AsString := status;
+
+              qryNotasPag.fieldbyname('dhprocnfe').AsDateTime :=  FormatarTimeStamp(DataHoraProcessamento);
+              qryNotasPag.Post;
+              Result := Perpetrar([qryNotasPag]);
+              if Result then
+              begin
+                ShowProcessando;
+                ShowProcessando('Gerando o arquivo de compartilhamento da NF-e!');
+                Sleep(500);
+                Result := NFe.CompartilharXML(qryNotasPag.fieldbyname('chv_nfe').AsString,
+                                              {ReciboNFe,} qryNotasPag.fieldbyname('filial').AsString,
+                                              SerieSugestao, qryNotasPag.fieldbyname('numero').AsString,
+                                              qryNotasPag.fieldbyname('emissao').AsDateTime,
+                                              qryNotasPag.fieldbyname('numlotenfe').AsString);
+                if Result then
+                begin
+                  ShowProcessando;
+                  ShowProcessando('Imprimindo o DANFE!');
+                  try
+                    NFe.ImprimirDanfe({ChaveAcesso+qryNotaFiscaldigchaveacesso.AsString,}
+                                      qryNotasPag.fieldbyname('filial').AsString,
+                                      qryNotasPag.fieldbyname('serie').AsString,
+                                      qryNotasPag.fieldbyname('numero').AsString,
+                                      qryNotasPag.fieldbyname('localentrega_cep').AsString,
+                                      '',
+                                      IntToStr(NFeNVias), NFeLogotipoDANFE,
+                                      ParSistema.NomeImpressoraNotaMercadorias, NFeVisualizarDANFE,
+                                      qryNotasPag.fieldbyname('emissao').AsDateTime,
+                                      qryProdutosNotasPag,
+                                      NFeExecDANFE, Enviar, 'S');
+                  finally
+                    ShowProcessando;
+                  end;
+                end
+                else
+                  ShowProcessando;
+              end;
+              {
+            end
+            else
+              ShowProcessando;
+              }
+          end
+          else
+            ShowProcessando;
+        end
+        else
+          ShowProcessando;
+      end
+      else
+      begin
+        if not NFeVisualizarDANFE then
+          MensagemAviso('Impressão da Nota Fiscal será iniciada.');
+        NFe.ImprimirDanfe({ChaveAcesso+qryNotaFiscaldigchaveacesso.AsString,}
+                          qryNotasPag.fieldbyname('filial').AsString,
+                          qryNotasPag.fieldbyname('serie').AsString,
+                          qryNotasPag.fieldbyname('numero').AsString,
+                          qryNotasPag.fieldbyname('localentrega_cep').AsString,
+                          '',
+                          IntToStr(NFeNVias), NFeLogotipoDANFE,
+                          ParSistema.NomeImpressoraNotaMercadorias, NFeVisualizarDANFE,
+                          qryNotasPag.fieldbyname('emissao').AsDateTime,
+                          qryProdutosNotasPag,
+                          NFeExecDANFE, Enviar, 'E');
+      end;
+    end;
+  finally
+    FreeAndNil(NFe);
+  end;
+end;
+
+end.

@@ -1,0 +1,467 @@
+unit dmBalanceteFinanceiro;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, Biblio, FR_Class, FR_DSet, FR_DBSet, DB,
+  FR_Desgn, fmpreviewpadrao, clparametrossistema, ctconstantes,
+  cpdatasource, ZQuery, ZPgSqlQuery, cpquery, ZTransact, dmtecsoft,
+  variants;
+
+type
+  TdtmBalanceteFinanceiro = class(TdtmBasico)
+    qrySaldosFinanceiros: TtecQuery;
+    qryContasBancarias: TtecQuery;
+    qryListaContasTemporaria: TtecQuery;
+    qryListaContasTemporariaCodigo: TIntegerField;
+    dsrListaContasTemporaria: TtecDataSource;
+    dsrContasBancarias: TtecDataSource;
+    dsrSaldosFinanceiros: TtecDataSource;
+    qryEventos: TtecQuery;
+    fdsEventos: TfrDBDataSet;
+    qryEventosTotal: TtecQuery;
+    fdsEventosTotal: TfrDBDataSet;
+    dsrEventos: TtecDataSource;
+    qryContasBancariasConta: TIntegerField;
+    qryContasBancariasContaDigito: TStringField;
+    qryContasBancariasBanco: TStringField;
+    qryContasBancariasSelecionada: TBooleanField;
+    qryContasBancariasAgencia: TStringField;
+    qryGerarSaldosFinanceiros: TtecQuery;
+    qryGerarSaldosFinanceirosAcumularSaldosFinanceiros: TBooleanField;
+    dsrGerarSaldosFinanceiros: TtecDataSource;
+    qrySaldosFinanceirosExercicio: TIntegerField;
+    qrySaldosFinanceirosEvento: TIntegerField;
+    qrySaldosFinanceirosTotalMes: TArrayField;
+    frpBalancoBancario_12: TfrReport;
+    frpBalancoBancario_6: TfrReport;
+    qryEventosTotalExercicio: TIntegerField;
+    qryEventosTotalEvento: TIntegerField;
+    qryEventosTotalClassificacao: TStringField;
+    qryEventosTotalTipo: TStringField;
+    qryEventosTotalDescricao: TStringField;
+    qryEventosTotalDescricaoEdentada: TStringField;
+    qryEventosTotalMes: TStringField;
+    qryEventosTotalSaldoMes: TFloatField;
+    fdsEventosReceitas: TfrDBDataSet;
+    fdsEventosReceitasTotal: TfrDBDataSet;
+    fdsEventosDespesas: TfrDBDataSet;
+    fdsEventosDespesasTotal: TfrDBDataSet;
+    qryEventosTotalSaldoMesNormal: TFloatField;
+    qryEventosEvento: TIntegerField;
+    qryEventosClassificacao: TStringField;
+    qryEventosTipo: TStringField;
+    qryEventosDescricao: TStringField;
+    qryEventosDescricaoEdentada: TStringField;
+    qryContasBancariasSaldo: TFloatField;
+    procedure frpBalancoBancario_12BeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryEventosAfterScroll(DataSet: TDataSet);
+  private
+    { Private declarations }
+  public
+    AnoInicial, AnoFinal, MesInicial, MesFinal : integer;
+//    DespesasOutraPagina: Boolean;
+    ListaContasTemporaria: vString;
+    function SelecionarExercicio(Inicio, Fim: String): String;
+    procedure CriarListaContasTemporaria(SoContasComSaldo: Boolean);
+    function AbrirtabelaPrincipal: Boolean;
+    function SoEventosComMovimento: String;
+    function NrMesesIntervalo: Integer;
+    function SQLqryEventosTotal(EventosSemMovimento: Boolean): String;
+    procedure AtribuirDatas(DataInicial, DataFinal: String);
+    procedure SelecionarContas(Marcar, TodasAsContas: Boolean);
+    procedure ImprimirBalanceteFinanceiro(Funcao:                   Integer;
+                                          DataInicial:              String;
+                                          DataFinal:                String;
+                                          SoContasComSaldo:         Boolean;
+                                          EventosSemMovimento:      Boolean;
+                                          CodigoEvento:             Boolean;
+                                          PularLinhaAntesSintetica: Boolean;
+                                          DespesasOutraPagina:      Boolean);
+
+    { Public declarations }
+  end;
+
+var
+  dtmBalanceteFinanceiro: TdtmBalanceteFinanceiro;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmBalanceteFinanceiro }
+
+function TdtmBalanceteFinanceiro.AbrirtabelaPrincipal: Boolean;
+begin
+  qryEventos.Close;
+  qryEventosTotal.Close;
+  qryEventos.Open;
+  qryEventosTotal.Open;
+
+  result:= not qryEventos.IsEmpty
+end;
+
+
+procedure TdtmBalanceteFinanceiro.ImprimirBalanceteFinanceiro(Funcao:                   Integer;
+                                                              DataInicial:              String;
+                                                              DataFinal:                String;
+                                                              SoContasComSaldo:         Boolean;
+                                                              EventosSemMovimento:      Boolean;
+                                                              CodigoEvento:             Boolean;
+                                                              PularLinhaAntesSintetica: Boolean;
+                                                              DespesasOutraPagina:      Boolean);
+
+var {Relatorio: TfrReport;
+    frmPreview: TfrmPreviewPadrao;}
+    ListaContas: String;
+begin
+
+  CriarListaContasTemporaria(SoContasComSaldo);
+
+  RefazConsultaPorNome(qryGerarSaldosFinanceiros,['Exercicio'],[AnoInicial]);
+  if AnoInicial <> AnoFinal
+  then RefazConsultaPorNome(qryGerarSaldosFinanceiros,['Exercicio'],[AnoFinal]);
+
+  qrySaldosFinanceiros.Open;
+
+  qryEventosTotal.Sql.Text := SQLqryEventosTotal(EventosSemMovimento);
+
+  if not EventosSemMovimento
+  then qryEventos.MacroByName('SoEventosComMovimento').AsString:= SoEventosComMovimento
+  else qryEventos.MacroByName('SoEventosComMovimento').AsString:= '';
+
+
+  case Funcao of
+    0: begin
+         frVariables['TITULO'] := 'BALANCETE FINANCEIRO ANALÍTICO';
+         qryEventos.     MacroByName('Sintetico').AsString:= '';
+         qryEventosTotal.MacroByName('Sintetico').AsString:= '';
+       end;
+    1: begin
+         frVariables['TITULO'] := 'BALANCETE FINANCEIRO SINTÉTICO';
+         qryEventos.     MacroByName('Sintetico').AsString:= 'AND e.Tipo = ''S''';
+         qryEventosTotal.MacroByName('Sintetico').AsString:= 'AND e.Tipo = ''S''';
+       end;
+  end;
+
+  qryEventos.     ParamByName('ImprimirCodigoEvento').AsBoolean:= CodigoEvento;
+  qryEventosTotal.ParamByName('ImprimirCodigoEvento').AsBoolean:= CodigoEvento;
+
+
+  if AbrirtabelaPrincipal then begin
+    AtribuirParametrosBaseRelatorio;
+
+//    frmPreview := TfrmPreviewPadrao.Create(Self);
+//    frmPreview.cmbZoom.ItemIndex:= 3;
+    try
+//      Relatorio:= frmPreview.frCompositeReport;
+//      with frmPreview do
+      begin
+//        frCompositeReport.Reports.Clear;
+
+        frVariables['Pular_Linha']   := PularLinhaAntesSintetica;
+        frVariables['SubTitulo']     := 'ENTRE ' + DataInicial + ' E ' + DataFinal;
+        frVariables['FoneFilialBase']:= FormatarFone(DDDFilialBase,FoneFilialBase);
+        frVariables['OutraPagina']   := DespesasOutraPagina;
+
+        if qryContasBancarias.RecordCount = qryListaContasTemporaria.RecordCount
+        then frVariables['Outras']:= 'TODAS AS CONTAS'
+        else begin
+           qryListaContasTemporaria.Open;
+           qryListaContasTemporaria.First;
+           ListaContas:= 'CONTAS: ';
+           while not qryListaContasTemporaria.Eof do begin;
+              ListaContas:= ListaContas + qryListaContasTemporariaCodigo.AsString + ', ';
+              qryListaContasTemporaria.Next;
+           end;
+           Delete(ListaContas,Length(ListaContas)-1,2);
+           frVariables['Outras']:= ListaContas;
+        end;
+
+//        frpBalancoBancario_6.DesignReport;
+//        frpBalancoBancario_12.DesignReport;
+
+        if NrMesesIntervalo <= 6 then
+          ImprimirRelatoriofast(null, null, MSimples, 0, [frpBalancoBancario_6], false, self)
+          //frCompositeReport.Reports.Add(frpBalancoBancario_6)
+        else
+          //frCompositeReport.Reports.Add(frpBalancoBancario_12);
+          ImprimirRelatoriofast(null, null, MSimples, 0, [frpBalancoBancario_12], false, self)
+
+//        Relatorio.Preview := frmPreview.frPreviewPadrao;
+//        Relatorio.ShowReport;
+//        frmPreview.ShowModal;
+      end;
+    finally
+//      frmPreview.Free;
+    end;
+  end
+  else
+    MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']));
+end;
+
+
+procedure TdtmBalanceteFinanceiro.SelecionarContas(Marcar, TodasAsContas: Boolean);
+begin
+
+   if TodasAsContas
+   then try GuardarRegistroAtual(qryContasBancarias,True);
+            qryContasBancarias.First;
+            while not qryContasBancarias.Eof do begin
+               qryContasBancarias.Edit;
+               qryContasBancariasSelecionada.AsBoolean := Marcar;
+               qryContasBancarias.Post;
+               qryContasBancarias.Next;
+            end;
+        finally
+           VoltarRegistroAtual(qryContasBancarias);
+           qryContasBancarias.Edit;
+        end
+
+   else try qryContasBancarias.Edit;
+            qryContasBancariasSelecionada.AsBoolean := not qryContasBancariasSelecionada.AsBoolean;
+            qryContasBancarias.Post;
+        finally
+           qryContasBancarias.Edit;
+        end;
+end;
+
+
+
+
+function TdtmBalanceteFinanceiro.SelecionarExercicio(Inicio, Fim: String): String;
+var i, Ano: integer;
+begin
+  If StrToInt(Inicio) = StrToInt(FIm) then
+    Result:= Inicio
+  else
+  begin
+    for i:= StrToInt(Inicio) to StrToInt(Fim) do
+    begin
+      Ano:= i;
+      Result:= Result + inttostr(Ano) + ',';
+    end;
+    Delete(Result,length(Result),1);
+  end;
+  Result:=  Result;
+end;
+
+
+
+procedure TdtmBalanceteFinanceiro.CriarListaContasTemporaria(SoContasComSaldo: Boolean);
+var HaContasSelecionadas: Boolean;
+
+begin
+
+   {------------------------------------------------------------------ Eliminacao das contas atuais}
+   qryListaContasTemporaria.Open;
+   LimparTabela(qryListaContasTemporaria);
+   {
+   qryListaContasTemporaria.First;
+   while not qryListaContasTemporaria.IsEmpty do begin
+      qryListaContasTemporaria.Delete;
+      qryListaContasTemporaria.Next;
+   end;
+   }
+   Perpetrar([qryListaContasTemporaria]);
+
+   {--------------------------------------------------------------------- Inserção das novas contas}
+   HaContasSelecionadas:= False;
+   qryContasBancarias.First;
+   while not HaContasSelecionadas and not qryContasBancarias.Eof do begin
+       HaContasSelecionadas:= qryContasBancariasSelecionada.AsBoolean;
+       if not HaContasSelecionadas then qryContasBancarias.Next;
+   end;
+
+   qryContasBancarias.First;
+   while not qryContasBancarias.Eof do begin
+      if not HaContasSelecionadas or qryContasBancariasSelecionada.AsBoolean
+      then if not SoContasComSaldo or
+                 (SoContasComSaldo and (qryContasBancariasSaldo.AsCurrency <> 0)) then begin
+
+              qryListaContasTemporaria.Open;
+              qryListaContasTemporaria.Append;
+              qryListaContasTemporariaCodigo.AsInteger:= qryContasBancariasConta.AsInteger;
+              qryListaContasTemporaria.Post;
+           end;
+      qryContasBancarias.Next;
+   end;
+   Perpetrar([qryListaContasTemporaria]);
+end;
+
+
+
+procedure TdtmBalanceteFinanceiro.frpBalancoBancario_12BeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpBalancoBancario_12, View);
+end;
+
+
+
+function TdtmBalanceteFinanceiro.NrMesesIntervalo: Integer;
+begin
+   Result:= 12 * (AnoFinal - AnoInicial) + MesFinal - MesInicial + 1;
+end;
+
+
+
+function TdtmBalanceteFinanceiro.SoEventosComMovimento: String;
+var Mes: Integer;
+    SQL: String;
+begin
+
+   {------------------------------------------------------------------------------------------------
+    AND (SELECT COALESCE(... + TotalMes[03] + TotalMes[04] + TotalMes[05] + ..., 0) <> 0
+            FROM SaldosFinanceiros
+            WHERE Exercicio = IIII)
+   ------------------------------------------------------------------------------------------------}
+   if AnoInicial = AnoFinal then begin
+      SQL:= ' AND (SELECT COALESCE(';
+      for Mes:= MesInicial to MesFinal do
+          SQL:= SQL + 'TotalMes[' + FStr(Mes,$21) + '] + ';
+
+      SQL:= Copy(SQL,1,Length(SQL)-3) +
+            ', 0) <> 0 FROM SaldosFinanceiros WHERE Exercicio = ' + FStr(AnoInicial,$41) + ' AND Evento = e.Codigo)';
+   end
+
+   {------------------------------------------------------------------------------------------------
+    AND ((SELECT COALESCE(... + TotalMes[10] + TotalMes[11] + TotalMes[12], 0) <> 0
+             FROM SaldosFinanceiros
+             WHERE Exercicio = IIII)
+
+      OR (SELECT TotalMes[01] + TotalMes[02] + TotalMes[03] +  ... <> 0
+             FROM SaldosFinanceiros
+             WHERE Exercicio = IIII))
+   ------------------------------------------------------------------------------------------------}
+
+   else begin
+      SQL:= ' AND ((SELECT COALESCE(';
+      for Mes:= MesInicial to 12 do
+          SQL:= SQL + 'TotalMes[' + FStr(Mes,$21) + '] + ';
+      SQL:= Copy(SQL,1,Length(SQL)-3) +
+            ', 0) <> 0 FROM SaldosFinanceiros WHERE Exercicio = ' + FStr(AnoInicial,$41) + ' AND Evento = e.Codigo)';
+
+      SQL:= SQL + ' OR (SELECT COALESCE(';
+      for Mes:= 1 to MesFinal do
+          SQL:= SQL + 'TotalMes[' + FStr(Mes,$21) + '] + ';
+      SQL:= Copy(SQL,1,Length(SQL)-3) +
+          ', 0) <> 0 FROM SaldosFinanceiros WHERE Exercicio = ' + FStr(AnoFinal,$41) + ' AND Evento = e.Codigo))';
+   end;
+
+   Result:= SQL;
+end;
+
+
+
+procedure TdtmBalanceteFinanceiro.AtribuirDatas(DataInicial, DataFinal:String);
+begin
+  AnoInicial:= StrToInt(Copy(DataInicial,7,4));
+  MesInicial:= StrToInt(Copy(DataInicial,4,2));
+
+  AnoFinal  := StrToInt(Copy(DataFinal,  7,4));
+  MesFinal  := StrToInt(Copy(DataFinal,  4,2));
+end;
+
+
+
+function TdtmBalanceteFinanceiro.SQLqryEventosTotal(EventosSemMovimento: Boolean): String;
+
+Const SQLMensal = ' SELECT sf.Exercicio,'            + CrLf +
+                  '        sf.Evento,'               + CrLf +
+                  '        e.Classificacao, e.Tipo,' + CrLf +
+                  ''                                 + CrLf +
+                  '        CASE WHEN :ImprimirCodigoEvento AND e.tipo = ''A'''                                                                   + CrLf +
+                  '             THEN CAST(e.Classificacao || ''       '' || TO_CHAR(e.Codigo, ''999999'') || ''   '' || e.Descricao AS VARCHAR)' + CrLf +
+                  '             ELSE CAST(e.Classificacao || ''       '' || e.Descricao AS VARCHAR)'                                             + CrLf +
+                  '        END AS Descricao,'                                                                                                    + CrLf +
+                  ''                                                                                                                             + CrLf +
+                  '        CASE WHEN :ImprimirCodigoEvento AND e.Tipo = ''A'''                                                                                  + CrLf +
+                  '             THEN CAST(REPEAT('' '', LENGTH(BTRIM(e.Classificacao))) || TO_CHAR(e.Codigo, ''999999'') || ''   '' || e.Descricao AS VARCHAR)' + CrLf +
+                  '             ELSE CAST(REPEAT('' '', LENGTH(BTRIM(e.Classificacao))) || e.Descricao AS VARCHAR)'                                             + CrLf +
+                  '        END AS DescricaoEdentada,'                                                                                                           + CrLf +
+
+                  '        CAST(''YYYY/MM'' AS VARCHAR(7)) AS Mes,'             + CrLf +
+                  '        COALESCE(sf.TotalMes[MM], 0) AS SaldoMesNormal,' + CrLf +
+                  '        ABS(COALESCE(sf.TotalMes[MM], 0)) AS SaldoMes'   + CrLf +
+                  ''                                                        + CrLf +
+                  '    FROM SaldosFinanceiros sf'                   + CrLf +
+                  '         JOIN Eventos e ON sf.Evento = e.Codigo' + CrLf +
+                  ''                                                + CrLf +
+                  ' WHERE sf.Exercicio = YYYY'                      + CrLf +
+                  '        %Sintetico'                              + CrLf;
+
+
+       UnionAll = ''          + CrLf +
+                  'UNION ALL' + CrLf +
+                  ''          + CrLf;
+
+
+
+
+var Mes: Integer;
+    SQL: String;
+
+begin
+
+   SQL:= ';'             + CrLf +
+         'SELECT * FROM' + CrLf +
+         '('             + CrLf;
+
+   if AnoInicial = AnoFinal then begin
+      for Mes:= MesInicial to MesFinal do begin
+          SQL:= SQL + Trocar(Trocar(SQLMensal,'YYYY', FStr(AnoInicial,$41)),'MM',FStr(Mes,$21));
+
+          if not EventosSemMovimento
+          then SQL:= SQL + SoEventosComMovimento + CrLf;
+
+          if Mes <> MesFinal
+          then SQL:= SQL + UnionAll;
+      end;
+   end
+   else begin
+      for Mes:= MesInicial to 12 do begin
+          SQL:= SQL + Trocar(Trocar(SQLMensal,'YYYY', FStr(AnoInicial,$41)),'MM',FStr(Mes,$21));
+
+          if not EventosSemMovimento
+          then SQL:= SQL + SoEventosComMovimento + CrLf;
+          SQL:= SQL + UnionAll;
+      end;
+
+      for Mes:= 1 to MesFinal do begin
+          SQL:= SQL + Trocar(Trocar(SQLMensal,'YYYY', FStr(AnoFinal,$41)),'MM',FStr(Mes,$21));
+
+          if not EventosSemMovimento
+          then SQL:= SQL + SoEventosComMovimento + CrLf;
+
+          if Mes <> MesFinal
+          then SQL:= SQL + UnionAll;
+      end;
+   end;
+
+   SQL:= SQL + ') AS s' + CrLf +
+               ''       + CrLf +
+               'ORDER BY Classificacao, Descricao, Mes;';
+   Result:= SQL;
+end;
+
+
+
+procedure TdtmBalanceteFinanceiro.qryEventosAfterScroll(DataSet: TDataSet);
+var I: Integer;
+
+begin
+   inherited;
+   if qryEventosTotal.Active
+   then if qryEventosTotal.RecordCount < NrMesesIntervalo
+        then for I:= qryEventosTotal.RecordCount + 1 to NrMesesIntervalo do begin
+                 qryEventosTotal.Append;
+                 qryEventosTotalEvento.AsInteger:= qryEventosEvento.AsInteger;
+                 qryEventosTotal.Post;
+             end;
+end;
+
+end.
+

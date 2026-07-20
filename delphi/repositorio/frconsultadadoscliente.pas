@@ -1,0 +1,364 @@
+unit frconsultadadoscliente;
+
+interface
+
+uses
+   //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  ExtCtrls, ComCtrls, DBCtrls, StdCtrls, Grids, DBGrids,
+  //Biblio
+  ctconstantes,
+  //Projeto
+  dmconsultadadoscliente,
+  //Repositorio
+  frendereco,
+  //Componentes
+  cpdbtext, cpdbgrid, cpdbmemo, cppagecontrol, Mask, cpcpfcnpj, DB,
+  cpdatasource, clparametrossistema, cpnumero, Buttons,
+  fmcadastrosaldoclientes, clusuario, biblio, cptexto, cpfone, Provider,
+  DBClient, AdvObj, BaseGrid, AdvGrid, DBAdvGrid;
+
+type
+  TfraConsultaDadosCliente = class(TFrame)
+    pgcDetalhesCliente: TtecPageControl;
+    tstEndereco: TTabSheet;
+    fraEnderecoCliente: TfraEndereco;
+    gbxSPC: TGroupBox;
+    tstCartas: TTabSheet;
+    tstSPC: TTabSheet;
+    tstCobranca: TTabSheet;
+    dbgCobranca: TtecDBGrid;
+    mmoCobrancaInformes: TtecDBMemo;
+    dtxEmpresa: TtecDBText;
+    lblEmpresa: TLabel;
+    dtxNaturalEstado: TtecDBText;
+    lblNaturalEstado: TLabel;
+    dtxNaturalCidade: TtecDBText;
+    lblNaturalCidade: TLabel;
+    lblNascimento: TLabel;
+    dtxNascimento: TtecDBText;
+    lblDocumento: TLabel;
+    dtxDocumento: TtecDBText;
+    lblSexo: TLabel;
+    dtxSexo: TtecDBText;
+    lblResumoCobranca: TLabel;
+    lblDataSPC: TLabel;
+    pnlCarta: TPanel;
+    Label1: TLabel;
+    lblAviso2: TLabel;
+    lblCPFCNPJ: TLabel;
+    dtxPessoaNumero: TtecDBText;
+    tstCheques: TTabSheet;
+    pgcCheques: TtecPageControl;
+    tstCheques1: TTabSheet;
+    dbgCheques: TtecDBGrid;
+    tstResgate: TTabSheet;
+    dbgResgates: TtecDBGrid;
+    dbgParcelasCartas: TtecDBGrid;
+    dtxSituacaoCarta: TtecDBText;
+    dbgCartas: TtecDBGrid;
+    dbgSPC: TtecDBGrid;
+    dtxSituacaoSPC: TtecDBText;
+    dbgParcelasSPC: TtecDBGrid;
+    lblValorSPC: TLabel;
+    lblRegistro: TLabel;
+    lblDivida: TLabel;
+    lblTipoRegistro: TLabel;
+    pnlAvalisado: TPanel;
+    lblNome_Avalista_ou_Avalizado: TLabel;
+    lblTituloAvalista: TLabel;
+    dsrCliente: TtecDataSource;
+    dsrAtendimentosCliente: TtecDataSource;
+    dsrCartasCliente: TtecDataSource;
+    dsrSPCCliente: TtecDataSource;
+    dsrCheques: TtecDataSource;
+    dsrParcelasCheques: TtecDataSource;
+    dsrParcelasSPC: TtecDataSource;
+    dsrParcelasCartas: TtecDataSource;
+    dtxNomeCargo: TtecDBText;
+    tstSaldoCredito: TTabSheet;
+    dbgSaldoTroca: TtecDBGrid;
+    edtSaldoAtual: TDBEditNumero;
+    dsrSaldoTroca: TtecDataSource;
+    dsrSaldoAtual: TtecDataSource;
+    sbnIncluirSaldo: TSpeedButton;
+    GroupBox1: TGroupBox;
+    edtFoneRamal: TDBEditTexto;
+    lblFoneRamal: TLabel;
+    edtFoneNumero: TDBEditFone;
+    lblFoneNumero: TLabel;
+    edtFoneDDD: TDBEditNumero;
+    lblDDD: TLabel;
+    tstLimitesCredito: TTabSheet;
+    gbxRendas: TGroupBox;
+    Label23: TLabel;
+    Label24: TLabel;
+    Label25: TLabel;
+    Label26: TLabel;
+    Label27: TLabel;
+    tecDBText36: TtecDBText;
+    tecDBText37: TtecDBText;
+    tecDBText38: TtecDBText;
+    tecDBText39: TtecDBText;
+    tecDBText40: TtecDBText;
+    tecDBText41: TtecDBText;
+    Panel2: TPanel;
+    Label34: TLabel;
+    GroupBox6: TGroupBox;
+    Label28: TLabel;
+    tecDBText42: TtecDBText;
+    tecDBText43: TtecDBText;
+    Label33: TLabel;
+    GroupBox7: TGroupBox;
+    dsrLimitesCredito: TtecDataSource;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    tecDBText1: TtecDBText;
+    tecDBText2: TtecDBText;
+    tecDBText3: TtecDBText;
+    Panel1: TPanel;
+    Panel5: TPanel;
+    lblAtraso30: TLabel;
+    lblAtraso60: TLabel;
+    lblAtrasoMais60: TLabel;
+    lblAtrasoTotal: TLabel;
+    tecDBText55: TtecDBText;
+    tecDBText56: TtecDBText;
+    tecDBText57: TtecDBText;
+    tecDBText62: TtecDBText;
+    tecDBText58: TtecDBText;
+    tecDBText59: TtecDBText;
+    tecDBText60: TtecDBText;
+    tecDBText63: TtecDBText;
+    Panel3: TPanel;
+    Panel4: TPanel;
+    Label7: TLabel;
+    tecDBText4: TtecDBText;
+    tstPontualidade: TTabSheet;
+    GroupBox2: TGroupBox;
+    Label32: TLabel;
+    tecDBText47: TtecDBText;
+    gbxAtrasoHoje: TGroupBox;
+    Label37: TLabel;
+    tecDBText51: TtecDBText;
+    gbxMaiorAtraso: TGroupBox;
+    gbxDataMaiorAtraso: TGroupBox;
+    tecDBText50: TtecDBText;
+    gbxValorMaiorAtraso: TGroupBox;
+    tecDBText49: TtecDBText;
+    tecDBText48: TtecDBText;
+    lblDiasMaior: TLabel;
+    gbxUltimoAtraso: TGroupBox;
+    gbxDataUltimoAtraso: TGroupBox;
+    tecDBText54: TtecDBText;
+    gbxValorUltimoAtraso: TGroupBox;
+    tecDBText53: TtecDBText;
+    tecDBText52: TtecDBText;
+    Label36: TLabel;
+    lblDebitos: TLabel;
+    Label6: TLabel;
+    Label5: TLabel;
+    gbxSaldoAtual: TGroupBox;
+    dsrChequesDevolvidos_aVencer: TtecDataSource;
+    tstCashBack: TTabSheet;
+    DBAdvGridcashback_saldos: TDBAdvGrid;
+    dsrcashback_saldos: TtecDataSource;
+    pnlBottomCashBack: TPanel;
+    sbnIncluirSaldoCashBack: TSpeedButton;
+    GroupBox3: TGroupBox;
+    DBEditNumero1: TDBEditNumero;
+    procedure sbnIncluirSaldoClick(Sender: TObject);
+    procedure sbnIncluirSaldoCashBackClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    dtmconsultadadoscliente: Tdtmconsultadadoscliente;
+  public
+    { Public declarations }
+//    vTotalChequesDevolvidos, vTotalChequesaVencer : Currency;
+    constructor Create(AOwner: TComponent); override;
+    procedure BuscarDadosCliente(Cliente: Integer; TipoCliente:String);
+    procedure ZerarDadosCliente(Cliente: Integer);
+    procedure AtualizaControles;
+    procedure FiltrarChequesDevolvidoseaVencer(Filtrar: Boolean);
+  end;
+
+implementation
+
+uses fmcadastroSaldoCashBack;
+
+{$R *.dfm}
+
+{ TfraConsultaDadosCliente }
+
+
+procedure TfraConsultaDadosCliente.AtualizaControles;
+begin
+  lblTituloAvalista.Caption :='';
+  lblNome_Avalista_ou_Avalizado.Caption := '';
+
+  lblResumoCobranca.Caption := dtmConsultaDadosCliente.ResumoCobranca;
+  lblDataSPC.Caption        := dtmConsultaDadosCliente.DataSPC;
+  lblValorSPC.Caption       := Format('%8.2m',[dtmConsultaDadosCliente.ValorSPC]);
+  if (dtmconsultadadoscliente.Nome_Avalista_ou_Avalizado<>'') then
+  begin
+   if (dtmconsultadadoscliente.eAvalista) then
+   begin
+    lblTituloAvalista.Caption := ctAVALISTADE;
+    lblNome_Avalista_ou_Avalizado.Caption := dtmconsultadadoscliente.Nome_Avalista_ou_Avalizado;
+   end
+   else
+   begin
+    lblTituloAvalista.Caption := ctAVALIZADOPOR;
+    lblNome_Avalista_ou_Avalizado.Caption := dtmconsultadadoscliente.Nome_Avalista_ou_Avalizado;
+   end;
+  end;
+  if dtmconsultadadoscliente.RegistradoSPC then
+  begin
+   lblTipoRegistro.Caption   := ctSPC;
+   gbxSPC.Font.Color := clRed;
+  end
+  else
+  begin
+   if (lblDataSPC.Caption<>'') then
+     lblTipoRegistro.Caption := ctINTERNO
+   else  lblTipoRegistro.Caption :='' ;
+   gbxSPC.Font.Color := clBlack;
+  end;
+  pnlCarta.Visible          := dtmConsultaDadosCliente.CartaDevolvida;
+
+  (*
+  DBAdvGridcashback_saldos.SaveFixedCells := false;
+  DBAdvGridcashback_saldos.Group(DBAdvGridcashback_saldos.ColumnByFieldName['data_hora'].Index);
+  DBAdvGridcashback_saldos.SubGroup(DBAdvGridcashback_saldos.ColumnByFieldName['cashback'].Index-1);
+  DBAdvGridcashback_saldos.SubGroup(DBAdvGridcashback_saldos.ColumnByFieldName['produto'].Index-1);
+  DBAdvGridcashback_saldos.GroupSum(DBAdvGridcashback_saldos.ColumnByFieldName['valor'].Index-1);
+  DBAdvGridcashback_saldos.AddNode();
+{  DBAdvGridcashback_saldos.GroupSum(DBAdvGridcashback_saldos.ColumnByFieldName['saldo'].Index-1);}
+
+  {
+  DBAdvGridcashback_saldos.Cells[1,0] :='Mês';
+  DBAdvGridcashback_saldos.Cells[2,0] :='Data/Produto';
+}
+  //Advstringgrid1.ExpandAll;
+  DBAdvGridcashback_saldos.ContractAll;
+  *)
+  
+
+  DBAdvGridcashback_saldos.row := DBAdvGridcashback_saldos.rowcount-1;
+
+
+
+end;
+
+procedure TfraConsultaDadosCliente.BuscarDadosCliente(cliente: integer; TipoCliente:String);
+begin
+  dtmConsultaDadosCliente.AbrirDadosCliente(cliente, tipocliente);
+  AtualizaControles;
+
+  if dtmConsultaDadosCliente.qrycashback_saldos.recordcount <> 0 then
+  begin
+    DBAdvGridcashback_saldos.AutoSize := True;
+    DBAdvGridcashback_saldos.refresh;
+    DBAdvGridcashback_saldos.autosize := False;
+  end;
+
+end;
+
+constructor TfraConsultaDadosCliente.Create(AOwner: TComponent);
+begin
+  dtmconsultadadoscliente        := Tdtmconsultadadoscliente.Create(Self);
+  inherited;
+  dsrCliente.DataSet             := dtmconsultadadoscliente.qryCliente;
+  dsrAtendimentosCliente.DataSet := dtmconsultadadoscliente.qryAtendimentosCliente;
+  dsrCartasCliente.DataSet       := dtmconsultadadoscliente.qryCartasCliente;
+  dsrSPCCliente.DataSet          := dtmconsultadadoscliente.qrySPCCliente;
+  dsrCheques.DataSet             := dtmconsultadadoscliente.qryCheques;
+  dsrParcelasCheques.DataSet     := dtmconsultadadoscliente.qryParcelasCheques;
+  dsrParcelasSPC.DataSet         := dtmconsultadadoscliente.qryParcelasSPC;
+  dsrParcelasCartas.DataSet      := dtmconsultadadoscliente.qryParcelasCartas;
+  dsrCliente.OnDataChange        := dtmconsultadadoscliente.dsrClienteDataChange;
+  pgcDetalhesCliente.ActivePage  := tstEndereco;
+  tstSaldoCredito.TabVisible     := parsistema.utilizarcreditotrocacontrato;
+  tstLimitesCredito.TabVisible   := ParSistema.VerificarLimiteCreditoPontuacao;
+
+
+end;
+
+procedure TfraConsultaDadosCliente.ZerarDadosCliente(Cliente: Integer);
+begin
+  dtmConsultaDadosCliente.FecharDadosCliente(Cliente);
+  AtualizaControles;
+end;
+
+procedure TfraConsultaDadosCliente.sbnIncluirSaldoClick(Sender: TObject);
+var
+  Usuario           : TtecUsuarios;
+begin
+  if UsuarioLogin.DevolucaoNumerario then
+  begin
+    Usuario:= dtmConsultaDadosCliente.ObterAutorizacao(taSENHA);
+    if Assigned(Usuario) then
+      dtmconsultadadoscliente.UsuarioAutorizacao:= Usuario.CodigoUsuario;
+  end
+  else
+  begin
+    Usuario:= dtmConsultaDadosCliente.ObterAutorizacao(taLOGIN, 'Para acerto de saldo', ctAUTORIZADO);
+    dtmconsultadadoscliente.UsuarioAutorizacao:= Usuario.CodigoUsuario;
+  end;
+  try
+    if Assigned(Usuario) and Usuario.DevolucaoNumerario then
+    begin
+       frmCadastroSaldoClientes := TfrmCadastroSaldoClientes.create(self, dtmconsultadadoscliente);
+       frmCadastroSaldoClientes.ShowModal;
+       frmcadastroSaldoclientes.free;
+    end
+    else
+      MensagemAviso(ctUSUARIOSEMPERMISSAO);
+  finally
+    Usuario.Free;
+  end;
+end;
+
+procedure TfraConsultaDadosCliente.FiltrarChequesDevolvidoseaVencer(
+  Filtrar: Boolean);
+begin
+  dtmConsultaDadosCliente.FiltrarChequesDevolvidoseaVencer(Filtrar);
+  dtmconsultadadoscliente.cdsChequesDevolvidos_aVencer.Close;
+  dtmconsultadadoscliente.cdsChequesDevolvidos_aVencer.Open;
+  dtmconsultadadoscliente.cdsChequesDevolvidos_aVencer.first;
+end;
+
+procedure TfraConsultaDadosCliente.sbnIncluirSaldoCashBackClick(
+  Sender: TObject);
+var
+  Usuario           : TtecUsuarios;
+begin
+  if UsuarioLogin.DevolucaoNumerario then
+  begin
+    Usuario:= dtmConsultaDadosCliente.ObterAutorizacao(taSENHA);
+    if Assigned(Usuario) then
+      dtmconsultadadoscliente.UsuarioAutorizacao:= Usuario.CodigoUsuario;
+  end
+  else
+  begin
+    Usuario:= dtmConsultaDadosCliente.ObterAutorizacao(taLOGIN, 'Para acerto de saldo CashBack', ctAUTORIZADO);
+    dtmconsultadadoscliente.UsuarioAutorizacao:= Usuario.CodigoUsuario;
+  end;
+  try
+    if Assigned(Usuario) and Usuario.DevolucaoNumerario then
+    begin
+       frmCadastroSaldoCashBack := TfrmCadastroSaldoCashBack.create(self, dtmconsultadadoscliente);
+       frmCadastroSaldoCashBack.ShowModal;
+       frmCadastroSaldoCashBack.free;
+       dtmconsultadadoscliente.AbrirValoresCashBack;
+    end
+    else
+      MensagemAviso(ctUSUARIOSEMPERMISSAO);
+  finally
+    Usuario.Free;
+  end;
+end;
+
+end.

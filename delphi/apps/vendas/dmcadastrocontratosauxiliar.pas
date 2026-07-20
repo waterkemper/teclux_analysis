@@ -1,0 +1,491 @@
+unit dmcadastrocontratosauxiliar;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, ZTransact, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, ctconstantes, clusuario, clparametrossistema, dmtecsoft;
+
+type
+  TdtmCadastroContratosAuxiliar = class(TdtmBasico)
+    qryProdutosSimilares: TtecQuery;
+    qryProdutosSimilaresdescricao: TStringField;
+    qryProdutosSimilaresvalorgrade1: TStringField;
+    qryProdutosSimilaresvalorgrade2: TStringField;
+    qryProdutosSimilarescodigo: TLargeintField;
+    qryProdutosSimilaresfilial: TIntegerField;
+    qryProdutosSimilaresemestoque: TFloatField;
+    qryProdutosSimilaresreservado: TFloatField;
+    qryProdutosSimilaresunidade: TStringField;
+    qryProdutosSimilaresbrinde: TBooleanField;
+    qryProdutosSimilaresvalorproduto: TFloatField;
+    qryProdutosSimilaressimilares: TLargeintField;
+    qryProdutosSimilareslinha: TStringField;
+    qryProdutosSimilarescoluna: TStringField;
+    qryProdutosSimilarescaracteristica: TLargeintField;
+    qryProdutosSimilarespreco: TIntegerField;
+    qryProdutosSimilaresdescricaopreco: TStringField;
+    qryProdutosSimilarescodigovisual: TStringField;
+    qryConsultaEstoques: TtecQuery;
+    qryPrecosCargos: TtecQuery;
+    qryPrecosCargoscodigo: TIntegerField;
+    qryPrecosCargosproduto: TLargeintField;
+    qryPrecosCargosdescricao: TStringField;
+    qryPrecosCargosvalorproduto: TFloatField;
+    qryConsultaProdutosPedidos: TtecQuery;
+    qryModelosCaracteristicas: TtecQuery;
+    qryModelosCaracteristicascaracteristica: TLargeintField;
+    qryModelosCaracteristicasdescricaomodelo: TStringField;
+    qryModelosCaracteristicasespecificacao: TStringField;
+    qryModelosCaracteristicasobservacao: TStringField;
+    qryModelosCaracteristicasmodelo: TIntegerField;
+    qryCupomDesconto: TtecQuery;
+    qryCupomDescontocodigo: TIntegerField;
+    qryCupomDescontotipo_desconto: TStringField;
+    qryCupomDescontovalor_desconto: TFloatField;
+    qryCupomDescontoproduto: TLargeintField;
+    qryNotasDevolucoesContrato: TtecQuery;
+    qryNotasDevolucoesContratofornecedor: TIntegerField;
+    qryNotasDevolucoesContratotipofornecedor: TStringField;
+    qryNotasDevolucoesContratonomefornecedor: TStringField;
+    qryNotasDevolucoesContratoserie: TStringField;
+    qryNotasDevolucoesContratonumero: TIntegerField;
+    qryNotasDevolucoesContratodata: TDateField;
+    qryNotasDevolucoesContratosituacao: TStringField;
+    qryNotasDevolucoesContratodescricaosituacao: TStringField;
+    qryNotasDevolucoesContratovalornota: TFloatField;
+    qryNotasDevolucoesContratofilialsaida: TIntegerField;
+    qryNotasDevolucoesContratoseriesaida: TStringField;
+    qryNotasDevolucoesContratonumerosaida: TIntegerField;
+    qryNotasDevolucoesContratomaquina: TIntegerField;
+    qryNotasDevolucoesContratointervensao: TIntegerField;
+    qryNotasDevolucoesContratodatasaida: TDateField;
+    qryNotasDevolucoesContratodadofiscal: TIntegerField;
+    dsrNotasDevolucoesContrato: TtecDataSource;
+    qryNotaseCuponsdoContrato: TtecQuery;
+    qryNotaseCuponsdoContratofilial: TIntegerField;
+    qryNotaseCuponsdoContratoserie: TStringField;
+    qryNotaseCuponsdoContratomaquina: TIntegerField;
+    qryNotaseCuponsdoContratointervensao: TIntegerField;
+    qryNotaseCuponsdoContratonumero: TIntegerField;
+    qryNotaseCuponsdoContratodatasaida: TDateField;
+    qryNotaseCuponsdoContratosituacao: TStringField;
+    qryNotaseCuponsdoContratodescricaosituacao: TStringField;
+    qryNotaseCuponsdoContratocliente: TIntegerField;
+    qryNotaseCuponsdoContratotipocliente: TStringField;
+    qryNotaseCuponsdoContratonomecliente: TStringField;
+    qryNotaseCuponsdoContratovalortotal: TFloatField;
+    qryNotaseCuponsdoContratodadofiscal: TIntegerField;
+    dsrNotaseCuponsdoContrato: TDataSource;
+    qryUltimaTroca: TtecQuery;
+    qryTransformarTrocaemDevolucao: TtecQuery;
+    qryUltimaTrocacontrato: TStringField;
+    qryUltimaTrocatrocaddoem: TDateField;
+    qryCondicao_ReverterContrato_Troca_Devolucao: TtecQuery;
+    qryCondicao_ReverterContrato_Troca_Devolucaocondicaosaldo: TBooleanField;
+    qryNotaseCuponsdoContratonatureza: TStringField;
+    qryProdutosSimilaresmodelos_agg: TStringField;
+    qryProdutosSimilarespromocao: TIntegerField;
+    qryProdutosSimilaresdescricaopromocao: TStringField;
+    qryProdutosSimilaresgrupo: TStringField;
+    qryProdutosSimilaresdescricaogrupo: TStringField;
+    qryConsultaEquipamentos: TtecQuery;
+    qryConsultaEquipamentosdescricao: TStringField;
+    qryConsultaEquipamentosreferencia: TStringField;
+    qryConsultaEquipamentosmodelo: TStringField;
+    qryConsultaEquipamentosano: TIntegerField;
+    qryConsultaEquipamentosdescricaomarca: TStringField;
+    qryConsultaEquipamentosCodigo: TStringField;
+    qryConsultaVendedores: TtecQuery;
+    qryConsultaVendedoresnome: TStringField;
+    qryConsultaVendedorescodigo: TIntegerField;
+    qryConsultaConjuges: TtecQuery;
+    qryConsultaConjugesnome: TStringField;
+    qryConsultaConjugespessoanumero: TStringField;
+    qryConsultaConjugescodigo: TIntegerField;
+    qryConsultaConjugesnascto: TDateField;
+    qryConsultaCidades: TtecQuery;
+    qryConsultaCidadesnome: TStringField;
+    qryConsultaCidadescodigo: TIntegerField;
+    qryConsultaCidadesestado: TStringField;
+    qryConsultaReservasProduto: TtecQuery;
+    qryConsultaReservasProdutonumero: TIntegerField;
+    qryConsultaReservasProdutodata: TDateTimeField;
+    qryConsultaReservasProdutocliente: TStringField;
+    qryConsultaReservasProdutodescricao: TStringField;
+    qryConsultaReservasProdutoquantidade: TFloatField;
+    qryConsultaReservasProdutovalorgrade1: TStringField;
+    qryConsultaReservasProdutovalorgrade2: TStringField;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientesapelido: TStringField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientestipoorig: TStringField;
+    qryConsultaClientescivil: TStringField;
+    qryConsultaClientesemail: TStringField;
+    qryConsultaAgentes: TtecQuery;
+    qryConsultaAgentesdescricao: TStringField;
+    qryConsultaAgentescodigo: TIntegerField;
+    qryConsultaFornecedorTransporte: TtecQuery;
+    qryConsultaFornecedorTransporterazao: TStringField;
+    qryConsultaFornecedorTransportepessoanumero: TStringField;
+    qryConsultaFornecedorTransportecodigo: TIntegerField;
+    qryConsultaFornecedorTransportenome: TStringField;
+    qryConsultaFornecedorTransporteestado: TStringField;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryConsultaEstados: TtecQuery;
+    qryConsultaEstadoscodigo: TStringField;
+    qryConsultaEstadosnome: TStringField;
+    qryNotaseCuponsdoContratochv_nfe: TStringField;
+    qryNotasDevolucoesContratochv_nfe: TStringField;
+    qryNotasFrete: TtecQuery;
+    dsrNotasFrete: TtecDataSource;
+    qryNotasFretefornecedor: TIntegerField;
+    qryNotasFretetipofornecedor: TStringField;
+    qryNotasFretenomefornecedor: TStringField;
+    qryNotasFreteserie: TStringField;
+    qryNotasFretenumero: TIntegerField;
+    qryNotasFretedata: TDateField;
+    qryNotasFretesituacao: TStringField;
+    qryNotasFretedescricaosituacao: TStringField;
+    qryNotasFretevalornota: TFloatField;
+    qryNotasFretefilialsaida: TIntegerField;
+    qryNotasFreteseriesaida: TStringField;
+    qryNotasFretenumerosaida: TIntegerField;
+    qryNotasFretemaquina: TIntegerField;
+    qryNotasFreteintervensao: TIntegerField;
+    qryNotasFretedatasaida: TDateField;
+    qryNotasFretedadofiscal: TIntegerField;
+    qryNotasFretechv_nfe: TStringField;
+    qryConsultaFilialProduto: TtecQuery;
+    qryConsultaFilialProdutonome: TStringField;
+    qryConsultaFilialProdutocodigo: TIntegerField;
+    qryConsultaAnalista: TtecQuery;
+    qryConsultaAnalistanome: TStringField;
+    qryConsultaAnalistacodigo: TIntegerField;
+    qryConsultaCargosCliente: TtecQuery;
+    qryConsultaCargosClientedescricao: TStringField;
+    qryConsultaCargosClientecodigo: TIntegerField;
+    qryPeriodosEntrega: TtecQuery;
+    qryPeriodosEntregacodigo: TIntegerField;
+    qryPeriodosEntregadescricao: TStringField;
+    qryPeriodosEntregahorapadrao: TTimeField;
+    dsrPeriodosEntrega: TtecDataSource;
+    qryClientes: TtecQuery;
+    qryClientescodigo: TIntegerField;
+    qryClientesnomecidadenaturalidade: TStringField;
+    qryClientesnomecidade: TStringField;
+    qryClientescodigoibge: TIntegerField;
+    qryClientesnomebairro: TStringField;
+    qryClientesnomecidadeempresa: TStringField;
+    qryClientesnomebairroempresa: TStringField;
+    qryClientesnomecidadeconjuge: TStringField;
+    qryClientesnomebairroconjuge: TStringField;
+    qryClientesnomecidadereferencia: TStringField;
+    qryClientesnomebairroreferencia: TStringField;
+    qryClientesnome: TStringField;
+    qryClientesnascto: TDateField;
+    qryClientesapelido: TStringField;
+    qryClientessexo: TStringField;
+    qryClientescivil: TStringField;
+    qryClientescivildata: TDateField;
+    qryClientesiddocumento: TStringField;
+    qryClientesidorgao: TStringField;
+    qryClientesiddata: TDateField;
+    qryClientesidestado: TStringField;
+    qryClientespessoatipo: TStringField;
+    qryClientespessoanumero: TStringField;
+    qryClientesinscricaomunicipal: TStringField;
+    qryClientesmae: TStringField;
+    qryClientespai: TStringField;
+    qryClientesconceito: TIntegerField;
+    qryClientesnaturalcidade: TIntegerField;
+    qryClientesnaturalestado: TStringField;
+    qryClientesrua: TStringField;
+    qryClientesnumero: TIntegerField;
+    qryClientescomplemento: TStringField;
+    qryClientesestado: TStringField;
+    qryClientescidade: TIntegerField;
+    qryClientesbairro: TIntegerField;
+    qryClientescep: TIntegerField;
+    qryClientesfonetipo: TStringField;
+    qryClientesfoneddd: TIntegerField;
+    qryClientesfonenumero: TIntegerField;
+    qryClientesfoneramal: TStringField;
+    qryClientesfone2ddd: TIntegerField;
+    qryClientesfone2numero: TIntegerField;
+    qryClientesfone2ramal: TStringField;
+    qryClientesrestipo: TStringField;
+    qryClientesresonus: TFloatField;
+    qryClientesrestempo: TDateField;
+    qryClientesempresa: TStringField;
+    qryClientesempadmissao: TDateField;
+    qryClientesempcep: TIntegerField;
+    qryClientesempcomprovado: TBooleanField;
+    qryClientesempfoneddd: TIntegerField;
+    qryClientesempfonenumero: TIntegerField;
+    qryClientesempfoneramal: TStringField;
+    qryClientesempoutrasdescricao: TStringField;
+    qryClientesempoutrasfaixa: TIntegerField;
+    qryClientesempoutrasvalor: TFloatField;
+    qryClientesemprendafaixa: TIntegerField;
+    qryClientesemprendavalor: TFloatField;
+    qryClientesemprua: TStringField;
+    qryClientesempnumero: TIntegerField;
+    qryClientesempcomplemento: TStringField;
+    qryClientesempestado: TStringField;
+    qryClientesempcidade: TIntegerField;
+    qryClientesempbairro: TIntegerField;
+    qryClientesempcargo: TIntegerField;
+    qryClientesconjuge: TIntegerField;
+    qryClientesconnome: TStringField;
+    qryClientesconadmissao: TDateField;
+    qryClientesconcep: TIntegerField;
+    qryClientesconempresa: TStringField;
+    qryClientesconfoneddd: TIntegerField;
+    qryClientesconfonenumero: TIntegerField;
+    qryClientesconfoneramal: TStringField;
+    qryClientesconnascto: TDateField;
+    qryClientesconrendafaixa: TIntegerField;
+    qryClientesconrendavalor: TFloatField;
+    qryClientesconrua: TStringField;
+    qryClientesconnumero: TIntegerField;
+    qryClientesconcomplemento: TStringField;
+    qryClientesconestado: TStringField;
+    qryClientesconcidade: TIntegerField;
+    qryClientesconbairro: TIntegerField;
+    qryClientesconcargo: TIntegerField;
+    qryClientesreferencia: TStringField;
+    qryClientesreftipo: TStringField;
+    qryClientesrefrua: TStringField;
+    qryClientesrefnumero: TIntegerField;
+    qryClientesrefcomplemento: TStringField;
+    qryClientesrefestado: TStringField;
+    qryClientesrefcidade: TIntegerField;
+    qryClientesrefcodigoibge: TIntegerField;
+    qryClientesrefbairro: TIntegerField;
+    qryClientesrefcep: TIntegerField;
+    qryClientesreffoneddd: TIntegerField;
+    qryClientesreffonenumero: TIntegerField;
+    qryClientesreffoneramal: TStringField;
+    qryClientesreffone2ddd: TIntegerField;
+    qryClientesreffone2numero: TIntegerField;
+    qryClientesreffone2ramal: TStringField;
+    qryClientesobservacoes: TStringField;
+    qryClientesemail: TStringField;
+    qryClientesautomovel: TBooleanField;
+    qryClientescartaocredito: TBooleanField;
+    qryClientescartaoloja: TBooleanField;
+    qryClientescheque: TBooleanField;
+    qryClienteschequeespecial: TBooleanField;
+    qryClientesdependentes: TIntegerField;
+    qryClientesonus: TFloatField;
+    qryClientescontribicms: TBooleanField;
+    qryClientesnosimples: TBooleanField;
+    qryClientesOrgaoPublico: TBooleanField;
+    qryClientesconsumidorfinal: TBooleanField;
+    qryClientessuframa: TStringField;
+    qryClientesenderecoalterado: TDateField;
+    qryClientesfilialcadastro: TIntegerField;
+    qryClientesultimaalteracao: TDateField;
+    qryClientesplanopadrao: TIntegerField;
+    qryClientespracapagtocidade: TStringField;
+    qryClientespracapagtoestado: TStringField;
+    qryClientesdatahoraconferenciacadastro: TDateTimeField;
+    dsrClientes: TtecDataSource;
+    qryNotasBoleto: TtecQuery;
+    qryNotasBoletonumero: TIntegerField;
+    qryNotasBoletoserie: TStringField;
+    qryProdutosSimilaresespecificacoes_agg: TStringField;
+    qryPeriodosEntregainativo: TDateField;
+    qryPeriodosEntregainicio: TTimeField;
+    qryPeriodosEntregafim: TTimeField;
+    qryEntregas: TtecQuery;
+    dsrEntregas: TtecDataSource;
+    qryEntregascodigo_postagem: TStringField;
+    qryEntregasdata_hora: TDateTimeField;
+    qryEntregassituacao: TStringField;
+    qryNotaseCuponsdoContratocontrato: TStringField;
+    qryNotasDevolucoesContratocontrato: TStringField;
+    qryNotasFretecontrato: TStringField;
+    qryEntregascodigo: TLargeintField;
+    qryEntregascontrato: TStringField;
+    qryEntregasnotafilial: TIntegerField;
+    qryEntregasnotaserie: TStringField;
+    qryEntregasnotanumero: TIntegerField;
+    qryEntregasProximo: TtecQuery;
+    qryEntregasProximocodgo: TLargeintField;
+    qryparametros_contratoprimogenito: TtecQuery;
+    qryparametros_contratoprimogenitoprimogenito: TMemoField;
+    qryparametros_contratoprimogenitocontrato: TMemoField;
+    qryClientesestrangeiro: TBooleanField;
+    procedure qryNotaseCuponsdoContratoAfterScroll(DataSet: TDataSet);
+    procedure qryNotasDevolucoesContratoAfterScroll(DataSet: TDataSet);
+    procedure DataModuleCreate(Sender: TObject);
+    procedure qryConsultaFornecedorTransporteAfterOpen(DataSet: TDataSet);
+    procedure qryProdutosSimilaresAfterOpen(DataSet: TDataSet);
+    procedure qryProdutosSimilaresAfterScroll(DataSet: TDataSet);
+    procedure qryNotasFreteAfterScroll(DataSet: TDataSet);
+    procedure qryNotasFreteBeforeOpen(DataSet: TDataSet);
+    procedure qryNotaseCuponsdoContratoBeforeOpen(DataSet: TDataSet);
+    procedure qryNotasDevolucoesContratoBeforeOpen(DataSet: TDataSet);
+    procedure qryConsultaEstoquesBeforeOpen(DataSet: TDataSet);
+  private
+    FOnScrollLinhaColunaGradeSimilares: TNotifyEvent;
+    { Private declarations }
+  public
+    { Public declarations }
+    property  OnScrollLinhaColunaGradeSimilares: TNotifyEvent read FOnScrollLinhaColunaGradeSimilares write FOnScrollLinhaColunaGradeSimilares;
+  end;
+       {
+var
+ dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar;
+ }
+
+
+implementation
+
+uses dmCadastroContratos;
+
+
+{$R *.dfm}
+
+procedure TdtmCadastroContratosAuxiliar.qryNotaseCuponsdoContratoAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  if qryNotasDevolucoesContrato.active then
+    if (qryNotaseCuponsdoContratodadofiscal.asinteger <> qryNotasDevolucoesContratodadofiscal.asinteger) then
+      qryNotasDevolucoesContrato.locate('dadofiscal', qryNotaseCuponsdoContratodadofiscal.asinteger, []);
+
+  if qryNotasFrete.active then
+    if (qryNotaseCuponsdoContratodadofiscal.asinteger <> qryNotasFretedadofiscal.asinteger) then
+      qryNotasFrete.locate('dadofiscal', qryNotaseCuponsdoContratodadofiscal.asinteger, []);
+
+
+end;
+
+procedure TdtmCadastroContratosAuxiliar.qryNotasDevolucoesContratoAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if (qryNotaseCuponsdoContratodadofiscal.asinteger <> qryNotasDevolucoesContratodadofiscal.asinteger) and
+     qryNotaseCuponsdoContrato.active then
+    qryNotaseCuponsdoContrato.locate('dadofiscal', qryNotasDevolucoesContratodadofiscal.asinteger, []);
+
+end;
+
+procedure TdtmCadastroContratosAuxiliar.DataModuleCreate(Sender: TObject);
+begin
+  inherited;
+  RemoveDataModule(Self);
+  
+//  qryClientes.Tag := ctVendaTabelaCadastroClientes;
+   qryConsultaVendedores.Tag           := ctVendaTabelaConsultaVendedores;
+   qryConsultaAnalista.Tag             := ctVendaTabelaConsultaAnalistaCredito;
+   qryConsultaCargosCliente.Tag        := ctVendaTabelaConsultaCargos;
+   qryConsultaConjuges.Tag             := ctVendaTabelaConsultaConjuge;
+   qryConsultaCidades.Tag              := ctVendaTabelaConsultaCidades;
+   qryConsultaReservasProduto.Tag      := ctVendaTabelaConsultaReservas;
+   qryConsultaCidades.Params[0].AsString   := EstadoFilialBase;
+   qryConsultaClientes.Tag             := ctVendaTabelaConsultaClientes;
+   qryConsultaAgentes.Tag              := ctvendatabelaconsultaAgentes;
+   qryConsultaFornecedorTransporte.Tag := ctVendaTabelaConsultaFornecedor;
+   qryConsultaEstados.Tag              := ctVendaTabelaConsultaEstados;
+   qryClientes.Tag                     := ctVendaTabelaCadastroClientes;
+
+  if UsuarioLogin.Vendedor then
+    qryConsultaReservasProduto.Params[0].AsInteger := CodigoUsuario;
+
+  qryConsultaFiliais.Tag              := ctVendaTabelaConsultaFiliais;
+  qryConsultaFilialProduto.Tag        := ctVendaTabelaConsultaFilialProduto;
+
+  qryProdutosSimilaresemestoque.DisplayFormat  := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosSimilaresreservado.DisplayFormat  := ParSistema.MascaraQuantidadeGrade;
+
+
+end;
+
+procedure TdtmCadastroContratosAuxiliar.qryConsultaFornecedorTransporteAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+;
+end;
+
+procedure TdtmCadastroContratosAuxiliar.qryProdutosSimilaresAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not TdtmCadastroContratos(self.owner).OperacaoEmBloco and
+     not TdtmCadastroContratos(self.owner).AbrindoOS then
+  begin
+    qryProdutosSimilaresvalorgrade1.Visible := ParSistema.UsarGradesProdutos;
+    qryProdutosSimilaresvalorgrade2.Visible := ParSistema.UsarGradesProdutos;
+  end;
+
+end;
+
+procedure TdtmCadastroContratosAuxiliar.qryProdutosSimilaresAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+    if Assigned(OnScrollLinhaColunaGradeSimilares) then
+      if not TdtmCadastroContratos(self.owner).OperacaoEmBloco and
+         not TdtmCadastroContratos(self.owner).AbrindoOS then
+           OnScrollLinhaColunaGradeSimilares(qryProdutosSimilares);
+
+end;
+
+procedure TdtmCadastroContratosAuxiliar.qryNotasFreteAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if (qryNotaseCuponsdoContratodadofiscal.asinteger <> qryNotasFretedadofiscal.asinteger) and
+     qryNotaseCuponsdoContrato.active then
+    qryNotaseCuponsdoContrato.locate('dadofiscal', qryNotasFretedadofiscal.asinteger, []);
+end;
+
+procedure TdtmCadastroContratosAuxiliar.qryNotasFreteBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryparametros_contratoprimogenito,['contrato', 'primogenito'],
+     [qryNotasFrete.parambyname('contrato').asString,
+      qryNotasFrete.parambyname('primogenito').asString],True);
+end;
+
+procedure TdtmCadastroContratosAuxiliar.qryNotaseCuponsdoContratoBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryparametros_contratoprimogenito,['contrato', 'primogenito'],
+     [qryNotaseCuponsdoContrato.parambyname('contrato').asString,
+      qryNotaseCuponsdoContrato.parambyname('primogenito').asString],True);
+
+end;
+
+procedure TdtmCadastroContratosAuxiliar.qryNotasDevolucoesContratoBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryparametros_contratoprimogenito,['contrato', 'primogenito'],
+     [qryNotasDevolucoesContrato.parambyname('contrato').asString,
+      qryNotasDevolucoesContrato.parambyname('primogenito').asString],True);
+end;
+
+procedure TdtmCadastroContratosAuxiliar.qryConsultaEstoquesBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+;
+end;
+
+end.

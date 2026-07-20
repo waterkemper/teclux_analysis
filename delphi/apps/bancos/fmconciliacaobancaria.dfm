@@ -1,0 +1,825 @@
+inherited frmConciliacaoBancaria: TfrmConciliacaoBancaria
+  Left = 328
+  Top = 142
+  ActiveControl = fraLerContaCorrenteSaldo1
+  Caption = 'Concilia'#231#227'o Banc'#225'ria'
+  ClientHeight = 565
+  ClientWidth = 942
+  FormStyle = fsMDIChild
+  Visible = True
+  OnKeyDown = FormKeyDown
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    TabOrder = 3
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 942
+    TabOrder = 2
+    inherited tblBarra: TToolBar
+      Left = 336
+      Width = 606
+      inherited sbnProcurar: TSpeedButton
+        Visible = False
+      end
+    end
+    inherited tblBarraCadastro: TToolBar
+      Width = 336
+      inherited sbnIncluir: TSpeedButton
+        Enabled = False
+      end
+      object sbnAlterarDatas: TSpeedButton
+        Left = 225
+        Top = 2
+        Width = 111
+        Height = 35
+        Hint = 'Exclui o Registro Atual'
+        Caption = 'Alterar Datas (F2)'
+        Enabled = False
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+          5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+          FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+          DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+          80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+          5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          00000000FFFF00FFFF00FFFF000000DCDCDC00000000FFFF00FFFF00FFFF0000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCDCDCDCDCDCDC585858DC
+          DCDC585858FFFFFFDCDCDCDCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+          80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+          5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+          DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+          FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+          5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        Layout = blGlyphTop
+        NumGlyphs = 2
+        Spacing = 0
+        OnClick = sbnAlterarDatasClick
+      end
+    end
+  end
+  object gbxParametros: TGroupBox
+    Left = 0
+    Top = 44
+    Width = 929
+    Height = 519
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 1
+    object dbgSelecionados: TtecDBGrid
+      Left = 2
+      Top = 152
+      Width = 927
+      Height = 338
+      DataSource = dtmConciliacaoBancaria.dsrMovtosBancos
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgAlwaysShowSelection, dgCancelOnExit]
+      ParentFont = False
+      TabOrder = 2
+      TitleFont.Charset = DEFAULT_CHARSET
+      TitleFont.Color = clBlack
+      TitleFont.Height = -13
+      TitleFont.Name = 'helvetica'
+      TitleFont.Pitch = fpVariable
+      TitleFont.Style = []
+      OnCellClick = dbgSelecionadosCellClick
+      OnDrawColumnCell = dbgSelecionadosDrawColumnCell
+      OnKeyDown = dbgSelecionadosKeyDown
+      RowWrap = 60
+      Large = False
+      DoubleRowColor = False
+      TitleMinHeight = 100
+      CellHeights = 100
+      StrippedColor = 16054260
+      Lines3dV = c3dINNER
+      Lines3dH = c3dINNER
+      CanDelete = False
+      PostOnEnter = False
+      DenySort = False
+      DefaultRowHeight = 19
+      ExibirNumerodaLinha = False
+      Columns = <
+        item
+          Expanded = False
+          FieldName = 'Compensacao'
+          Title.Alignment = taCenter
+          Title.Caption = 'DATA'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 70
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'Documento'
+          Title.Alignment = taCenter
+          Title.Caption = 'N'#186' DOCTO'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 80
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'Observacoes'
+          Title.Alignment = taCenter
+          Title.Caption = 'OBSERVA'#199#213'ES'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 300
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'EveDescricao'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'EVENTO'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 205
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'Valor'
+          Title.Alignment = taCenter
+          Title.Caption = 'VALOR'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 92
+          Visible = True
+        end
+        item
+          Alignment = taCenter
+          Expanded = False
+          FieldName = 'Origem'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = ' '
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 15
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'Tipo'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'TIPO'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Visible = False
+        end
+        item
+          Expanded = False
+          FieldName = 'Saldo'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'SALDO'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 92
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'SeqCompensacao'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Visible = False
+        end
+        item
+          Expanded = False
+          FieldName = 'Selecionado'
+          ReadOnly = True
+          Title.Alignment = taCenter
+          Title.Caption = 'SEL'
+          Title.Font.Charset = DEFAULT_CHARSET
+          Title.Font.Color = clBlack
+          Title.Font.Height = -9
+          Title.Font.Name = 'helvetica'
+          Title.Font.Pitch = fpVariable
+          Title.Font.Style = []
+          Width = 23
+          Visible = True
+        end>
+    end
+    object gbxAnterior: TGroupBox
+      Left = 782
+      Top = 119
+      Width = 95
+      Height = 36
+      Caption = 'EM'
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 3
+      object dtxSaldoAnterior: TtecDBText
+        Left = 2
+        Top = 12
+        Width = 90
+        Height = 23
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'Saldo'
+        DataSource = dtmConciliacaoBancaria.dsrLanctoAnterior
+        Enabled = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxLancamentos: TGroupBox
+      Left = 15
+      Top = 132
+      Width = 769
+      Height = 23
+      Caption = 'LAN'#199'AMENTOS'
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 4
+    end
+    object gbxLegenda: TGroupBox
+      Left = 2
+      Top = 486
+      Width = 925
+      Height = 31
+      Align = alBottom
+      TabOrder = 5
+      object lblP: TLabel
+        Left = 10
+        Top = 10
+        Width = 17
+        Height = 16
+        Caption = 'P -'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clRed
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+      end
+      object Label1: TLabel
+        Left = 31
+        Top = 14
+        Width = 80
+        Height = 12
+        Caption = 'CONTAS A PAGAR'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clRed
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblReceber: TLabel
+        Left = 132
+        Top = 10
+        Width = 17
+        Height = 16
+        Caption = 'R -'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clGreen
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+      end
+      object Label3: TLabel
+        Left = 154
+        Top = 14
+        Width = 73
+        Height = 12
+        Caption = 'RECEBIMENTOS'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clGreen
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblSelecionarMovto: TLabel
+        Left = 464
+        Top = 11
+        Width = 197
+        Height = 15
+        Caption = '<Ctrl+Enter -Selecionar Movimento>'
+      end
+      object sbnExibirOcultarEventos: TSpeedButton
+        Left = 280
+        Top = 10
+        Width = 137
+        Height = 17
+        Hint = 'Ctrl+E Para exibir ou ocultar os eventos do lan'#231'amento'
+        Caption = 'Exibir &Eventos'
+        Flat = True
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        NumGlyphs = 2
+        ParentFont = False
+        OnClick = sbnExibirOcultarEventosClick
+      end
+      object ckbSelecionarTodos: TCheckBox
+        Left = 709
+        Top = 11
+        Width = 208
+        Height = 17
+        Caption = 'Selecionar todos os lan'#231'amentos'
+        TabOrder = 0
+        OnClick = ckbSelecionarTodosClick
+      end
+    end
+    object gbxConciliar: TGroupBox
+      Left = 717
+      Top = 63
+      Width = 158
+      Height = 49
+      Caption = 'CONCILIAR'
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      object gbxAteData: TGroupBox
+        Left = 78
+        Top = 12
+        Width = 80
+        Height = 36
+        Caption = 'AT'#201
+        Enabled = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        object edtDataFinal: TEditData
+          Left = 2
+          Top = 10
+          Width = 75
+          Height = 23
+          Hint = 'Data para t'#233'rmino da concilia'#231#227'o'
+          AutoSize = False
+          Enabled = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = 10
+          ParentFont = False
+          TabOrder = 0
+          OnExit = edtDataFinalExit
+          Minimo = 0
+          Maximo = 37353
+        end
+      end
+      object gbxDeData: TGroupBox
+        Left = 0
+        Top = 12
+        Width = 80
+        Height = 36
+        Caption = 'DE'
+        Enabled = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        object edtDataInicial: TEditData
+          Left = 2
+          Top = 10
+          Width = 75
+          Height = 23
+          Hint = 'Data para in'#237'cio da concilia'#231#227'o'
+          AutoSize = False
+          Enabled = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = 10
+          ParentFont = False
+          TabOrder = 0
+          OnExit = edtDataInicialExit
+          Minimo = 0
+          Maximo = 37353
+        end
+      end
+    end
+    object gbxOrdenacao: TGroupBox
+      Left = 716
+      Top = 9
+      Width = 158
+      Height = 49
+      Caption = 'ORDENA'#199#195'O'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      object ckbNoDocto: TCheckBox
+        Left = 8
+        Top = 16
+        Width = 81
+        Height = 31
+        Caption = 'N'#186' DOCTO'
+        Checked = True
+        State = cbChecked
+        TabOrder = 0
+        OnClick = ckbNoDoctoClick
+      end
+      object ckbValor: TCheckBox
+        Left = 88
+        Top = 16
+        Width = 65
+        Height = 31
+        Caption = 'VALOR'
+        TabOrder = 1
+        OnClick = ckbValorClick
+      end
+    end
+    object dbgMovtosBancosEventos: TtecDBGrid
+      Left = 2
+      Top = 346
+      Width = 925
+      Height = 100
+      DataSource = dtmConciliacaoBancaria.dsrMovtosBancosEventos
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 6
+      TitleFont.Charset = DEFAULT_CHARSET
+      TitleFont.Color = clBlack
+      TitleFont.Height = -9
+      TitleFont.Name = 'helvetica'
+      TitleFont.Pitch = fpVariable
+      TitleFont.Style = []
+      Visible = False
+      RowWrap = 60
+      Large = False
+      DoubleRowColor = False
+      TitleMinHeight = 100
+      CellHeights = 100
+      StrippedColor = 16054260
+      CanDelete = True
+      PostOnEnter = True
+      DenySort = False
+      DefaultRowHeight = 19
+      ExibirNumerodaLinha = False
+      Columns = <
+        item
+          Expanded = False
+          FieldName = 'evento'
+          Title.Alignment = taCenter
+          Title.Caption = 'EVENTO'
+          Width = 50
+          Visible = True
+        end
+        item
+          Alignment = taCenter
+          Expanded = False
+          FieldName = 'tipo'
+          Title.Alignment = taCenter
+          Title.Caption = 'T'
+          Width = 15
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'descricaoevento'
+          Title.Alignment = taCenter
+          Title.Caption = 'DESCRI'#199#195'O'
+          Width = 480
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'contatransf'
+          Title.Alignment = taCenter
+          Title.Caption = 'CONTA'
+          Width = 50
+          Visible = True
+        end
+        item
+          Alignment = taCenter
+          Expanded = False
+          FieldName = 'digito'
+          Title.Alignment = taCenter
+          Title.Caption = 'D'#205'G.'
+          Width = 30
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'sigla'
+          Title.Alignment = taCenter
+          Title.Caption = 'SIGLA'
+          Width = 80
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'nomeagencia'
+          Title.Alignment = taCenter
+          Title.Caption = 'AG'#202'NCIA'
+          Width = 83
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'valor'
+          Title.Alignment = taCenter
+          Title.Caption = 'VALOR'
+          Width = 90
+          Visible = True
+        end>
+    end
+    object gbxObservacoes: TGroupBox
+      Left = 2
+      Top = 445
+      Width = 925
+      Height = 41
+      Align = alBottom
+      Caption = 'OBSERVA'#199#213'ES'
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 7
+      Visible = False
+      object mmoObservacoes: TtecDBMemo
+        Left = 2
+        Top = 14
+        Width = 921
+        Height = 25
+        Align = alClient
+        DataField = 'Observacoes'
+        DataSource = dtmConciliacaoBancaria.dsrMovtosBancosEventos
+        Enabled = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = 1000
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+      end
+    end
+    object gbxEventos: TGroupBox
+      Left = 15
+      Top = 332
+      Width = 906
+      Height = 16
+      Caption = 'EVENTOS'
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 8
+      Visible = False
+    end
+  end
+  inline fraLerContaCorrenteSaldo1: TfraLerContaCorrenteSaldo
+    Left = 4
+    Top = 52
+    Width = 696
+    Height = 111
+    HorzScrollBar.Range = 691
+    VertScrollBar.Range = 104
+    AutoScroll = False
+    Color = clBtnFace
+    ParentColor = False
+    TabOrder = 0
+    inherited gbxContaCorrente: TGroupBox
+      Height = 106
+      Font.Height = -11
+      ParentColor = False
+      inherited gbxBanco: TGroupBox
+        Top = 14
+        Height = 36
+        Caption = 'BANCO'
+        Font.Height = -9
+        inherited dtxSigla: TtecDBText
+          Top = 10
+          Width = 164
+        end
+      end
+      inherited gbxAgencia: TGroupBox
+        Top = 14
+        Height = 36
+        Caption = 'AG'#202'NCIA'
+        Font.Height = -9
+        inherited dtxNomeAgencia: TtecDBText
+          Top = 10
+          Width = 292
+        end
+      end
+      inherited gbxTitular: TGroupBox
+        Top = 59
+        Height = 36
+        Caption = 'TITULAR'
+        Font.Height = -9
+        inherited dtxTitular: TtecDBText
+          Top = 10
+          Width = 292
+        end
+      end
+      inherited gbxSaldo: TGroupBox
+        Top = 59
+        Height = 36
+        Caption = 'SALDO LAN'#199'ADO AT'#201
+        Font.Height = -9
+        inherited dtxSaldo: TDBEditNumero
+          Top = 12
+        end
+      end
+      inherited gbxConta: TGroupBox
+        Top = 59
+        Height = 36
+        Caption = 'N'#186' DA CONTA'
+        Font.Height = -9
+        inherited sbnProcurarConta: TSpeedButton
+          Top = 9
+          Height = 25
+          OnClick = fraLerContaCorrenteSaldo1sbnProcurarContaClick
+        end
+        inherited lblDigito: TLabel
+          Top = 11
+          Height = 18
+          Font.Height = -16
+        end
+        inherited edfConta: TtecDbEditFind
+          Top = 10
+          Font.Height = -12
+          MaxLength = 9
+          OnFound = fraLerContaCorrenteSaldo1edfContaFound
+          Parameter = 'Conta'
+          ActiveSetControls = True
+          DenyInsert = True
+          NoSetControls = <
+            item
+              Control = fraLerContaCorrenteSaldo1.sbnProcurarConta
+            end>
+          SetControls = <
+            item
+              Control = gbxParametros
+            end>
+        end
+        inherited dtxDigito: TtecDBText
+          Top = 10
+          Height = 23
+          Font.Height = -12
+        end
+      end
+    end
+    inherited dsrProcuraContas: TtecDataSource
+      DataSet = dtmConciliacaoBancaria.qryProcuraContas
+    end
+  end
+end

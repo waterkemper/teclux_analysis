@@ -1,0 +1,125 @@
+unit fmcadastroservicoslcp116;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, cpnumero,
+  DBCtrls, cpdbtext, Mask, cpdbfindcontrols,  dmcadastroservicoslcp116, frconsulta,
+  frconsultacodigo, ctconstantes, cptexto, Windows, cpdbmemo, ToolWin;
+
+type
+  TfrmCadastroServicosLCP116 = class(TfrmCadastroPadrao)
+    gbxCodigoFalha: TGroupBox;
+    gbxDescricaoFalha: TGroupBox;
+    edfCodigo: TtecDbEditFind;
+    mmoDescricao: TtecDBMemo;
+    pnlFundoJanela: TPanel;
+    procedure sbnProcurarClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    ConsultaServico: TfraConsultaCodigo;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AbrirServico(Found: Boolean);
+    procedure AtribuirDadosServico;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    { Public declarations }
+  end;
+
+var
+  frmCadastroServicosLCP116: TfrmCadastroServicosLCP116;
+
+implementation
+
+uses biblio;
+{$R *.dfm}
+
+{ TfrmCadastroServicosLCP116 }
+
+procedure TfrmCadastroServicosLCP116.AbrirServico(Found: Boolean);
+begin
+  edfCodigo.Text := ConsultaServico.ValorSelecionado;
+  with dtmCadastroServicosLCP116 do
+     refazconsulta(qryServicoslcp116,[0], [ConsultaServico.ValorSelecionado]);
+end;
+
+procedure TfrmCadastroServicosLCP116.AtribuirDadosServico;
+begin
+  dtmCadastroServicosLCP116.AtribuirCodigo(ConsultaServico.qryProcuraServicosLCP116.fieldbyname('codigo').AsString);
+end;
+
+constructor TfrmCadastroServicosLCP116.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCadastroServicosLCP116 := TdtmCadastroServicosLCP116.Create(Self);
+  DataSet := dtmCadastroServicosLCP116.qryServicoslcp116;
+
+  ConsultaServico := TfraConsultaCodigo.Create(self);
+  ConsultaServico.edfCodigo.DataSource := dtmCadastroServicosLCP116.dsrServicoslcp116;
+  ConsultaServico.edfCodigo.DataField := 'codigo';
+  ConsultaServico.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaServico.AbrirTabelaProcura := false;
+  ConsultaServico.TipoPesquisa := pesSERVICOSLCP116;
+  ConsultaServico.OnFound := AbrirServico;
+  ConsultaServico.Name := 'fraConsultaServico';
+end;
+
+destructor TfrmCadastroServicosLCP116.Destroy;
+begin
+  dtmCadastroServicosLCP116.qryServicoslcp116.close;
+  dtmCadastroServicosLCP116 := nil;
+  inherited;
+end;
+
+function TfrmCadastroServicosLCP116.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+      Result := dtmCadastroServicosLCP116.ExcluirFalha;
+  end;
+end;
+
+function TfrmCadastroServicosLCP116.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    Result := dtmCadastroServicosLCP116.GravarServico;
+end;
+
+function TfrmCadastroServicosLCP116.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroServicosLCP116.IncluirServico;
+  end;
+end;
+
+procedure TfrmCadastroServicosLCP116.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key = VK_F9) then
+      if sbnProcurar.Enabled then
+        if ConsultaServico.InternoPesquisar('') = mrOK then
+          edfCodigo.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroServicosLCP116.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaServico.InternoPesquisar('');
+  edfCodigo.SetFocus;
+  edfCodigo.SelectAll;
+end;
+
+end.

@@ -1,0 +1,1832 @@
+unit dmgerarcobrancacef;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, dmtecsoft, DB, cpdatasource, ZQuery, Variants,
+  ZPgSqlQuery, cpquery, Forms, Biblio, ctconstantes, fr_dset, fr_dbset,
+  fr_class, fmPreviewPadrao, ZTransact, DateUtils, clparametrossistema;
+
+type
+  TdtmGerarCobrancaCEF = class(TdtmBasico)
+    qryContratosParcelas: TtecQuery;
+    dsrContratosParcelas: TtecDataSource;
+    qryContratosParcelascliente: TIntegerField;
+    qryContratosParcelasnome: TStringField;
+    qryContratosParcelasselecionado: TBooleanField;
+    qryContratosParcelascodigo: TIntegerField;
+    qryContratosParcelasrazao: TStringField;
+    qryContratosParcelaspessoatipo: TStringField;
+    qryContratosParcelaspessoanumero: TStringField;
+    qryContratosParcelascnpj: TStringField;
+    qryContratosParcelasinscricaoestadual: TStringField;
+    qryContratosParcelasrua: TStringField;
+    qryContratosParcelascidade: TIntegerField;
+    qryContratosParcelasbairro: TIntegerField;
+    qryContratosParcelascep: TIntegerField;
+    qryContratosParcelasestado: TStringField;
+    qryContratosParcelastipo: TStringField;
+    qryContratosParcelasfonenumero: TIntegerField;
+    qryContratosParcelasfoneddd: TIntegerField;
+    qryContratosParcelasfoneramal: TStringField;
+    qryContratosParcelasfonenumeroempresa: TIntegerField;
+    qryContratosParcelasfonedddempresa: TIntegerField;
+    qryContratosParcelasfoneramalempresa: TStringField;
+    qryContratosParcelasempresa: TStringField;
+    qryContratosParcelasgrupofornecedor: TIntegerField;
+    qryContratosParcelascivil: TStringField;
+    qryContratosParcelasmarkup: TFloatField;
+    qryContratosParcelasconjuge: TIntegerField;
+    qryContratosParcelasconceito: TIntegerField;
+    qryContratosParcelasenderecoalterado: TDateField;
+    qryContratosParcelasemail: TStringField;
+    qryContratosParcelasdebito: TIntegerField;
+    qryContratosParcelascredito: TIntegerField;
+    qryContratosParcelasnosimples: TBooleanField;
+    qryContratosParcelascontribicms: TBooleanField;
+    qryContratosParcelasnumero: TIntegerField;
+    qryContratosParcelascomplemento: TStringField;
+    qryContratosParcelasnomebairro: TStringField;
+    qryContratosParcelasnomecidade: TStringField;
+    qryParcelas: TtecQuery;
+    dsrparcelas: TtecDataSource;
+    qryImoveis: TtecQuery;
+    dsrImoveis: TtecDataSource;
+    qryParcelascontrato: TIntegerField;
+    qryParcelastipo: TStringField;
+    qryParcelasorigem: TStringField;
+    qryParcelasnumero: TIntegerField;
+    qryParcelastaxajuros: TFloatField;
+    qryParcelasmoeda: TStringField;
+    qryParcelasdatabase: TDateField;
+    qryParcelasdatavencto: TDateField;
+    qryParcelasvalorcorrigido: TFloatField;
+    qryParcelasvalordevido: TFloatField;
+    qryParcelasjuros: TFloatField;
+    qryContratosParcelascontrato: TIntegerField;
+    qryImoveiscontrato: TIntegerField;
+    qryImoveisdatacontrato: TDateField;
+    qryImoveissigla: TStringField;
+    qryImoveiscodigoempreendimento: TIntegerField;
+    qryImoveisempreendimento: TStringField;
+    qryImoveisdescricao: TStringField;
+    qryImoveisunidade: TIntegerField;
+    qryImoveistipounidade: TStringField;
+    qryImoveisnumero: TStringField;
+    qryParcelasnrpagto: TIntegerField;
+    qryParcelasvalorhistorico: TFloatField;
+    qryDadosRetorno: TtecQuery;
+    dsrDadosRetorno: TtecDataSource;
+    qryDadosRetornocontrato: TIntegerField;
+    qryDadosRetornoempreendimento: TIntegerField;
+    qryDadosRetornocliente: TIntegerField;
+    qryDadosRetornonomecliente: TStringField;
+    qryDadosRetornotipoparcela: TStringField;
+    qryDadosRetornoparcela: TIntegerField;
+    qryDadosRetornobanco: TIntegerField;
+    qryDadosRetornocodmov: TIntegerField;
+    qryDadosRetornodesccricaomov: TStringField;
+    qryDadosRetornodatavencto: TDateField;
+    qryDadosRetornovalorvencto: TFloatField;
+    qryDadosRetornodatapagto: TDateField;
+    qryDadosRetornovalorpagto: TFloatField;
+    qryDadosRetornodatacreditado: TDateField;
+    qryDadosRetornovalorcreditado: TFloatField;
+    qryDadosRetornomoeda: TIntegerField;
+    qryParcelasRetorno: TtecQuery;
+    dsrParcelasRetorno: TtecDataSource;
+    qryParcelasRetornocontrato: TIntegerField;
+    qryParcelasRetornotipo: TStringField;
+    qryParcelasRetornonumero: TIntegerField;
+    qryParcelasRetornonrpagto: TIntegerField;
+    qryParcelasRetornoorigem: TStringField;
+    qryParcelasRetornodatavencto: TDateField;
+    qryParcelasRetornovalorhistorico: TFloatField;
+    qryParcelasRetornovalorcontratado: TFloatField;
+    qryParcelasRetornomoeda: TStringField;
+    qryParcelasRetornodatabase: TDateField;
+    qryParcelasRetornotaxajuros: TFloatField;
+    qryParcelasRetornodatapagto: TDateField;
+    qryParcelasRetornovalorpagto: TFloatField;
+    qryParcelasRetornopromissoria: TBooleanField;
+    qryParcelasRetornodocumento: TStringField;
+    qryParcelasRetornoobservacoes: TStringField;
+    qryParcelasRetornojuroscompostos: TBooleanField;
+    qryParcelasRetornovalorcorrigido: TFloatField;
+    qryParcelasRetornovalordevido: TFloatField;
+    qryDadosRetornoacrescimo: TFloatField;
+    qryDadosRetornodescontos: TFloatField;
+    qryDadosRetornoiof: TFloatField;
+    qryDadosRetornoabatimentos: TFloatField;
+    qryDadosRetornotarifa: TFloatField;
+    frpRelatorioRetorno: TfrReport;
+    fdsDadosRetorno: TfrDBDataSet;
+    qryDadosRetornoerro: TBooleanField;
+    qryDadosRetornodescerro: TStringField;
+    qryDadosRetornooutras: TBooleanField;
+    qryContratosParcelastipoparcela: TStringField;
+    qryContratosParcelasnumeroparcela: TIntegerField;
+    qryContratosParcelasorigemparcela: TStringField;
+    qryContratosParcelasvenctoparcela: TDateField;
+    qryContratosParcelasvalorparcela: TFloatField;
+    qryMovtosBancos: TtecQuery;
+    dsrMovtosBancos: TtecDataSource;
+    qryMovtosBancosEventos: TtecQuery;
+    dsrMovtosBancosEventos: TtecDataSource;
+    qryMovtosBancosconta: TIntegerField;
+    qryMovtosBancosdata: TDateField;
+    qryMovtosBancossequencia: TIntegerField;
+    qryMovtosBancoscompensacao: TDateField;
+    qryMovtosBancosseqcompensacao: TIntegerField;
+    qryMovtosBancosdataoriginal: TDateField;
+    qryMovtosBancosevento: TIntegerField;
+    qryMovtosBancostipo: TStringField;
+    qryMovtosBancosorigemlancto: TStringField;
+    qryMovtosBancosdocumento: TStringField;
+    qryMovtosBancosobservacoes: TStringField;
+    qryMovtosBancosvalor: TFloatField;
+    qryMovtosBancosEventosconta: TIntegerField;
+    qryMovtosBancosEventosdata: TDateField;
+    qryMovtosBancosEventossequencia: TIntegerField;
+    qryMovtosBancosEventosevento: TIntegerField;
+    qryMovtosBancosEventostipo: TStringField;
+    qryMovtosBancosEventosvalor: TFloatField;
+    qrySequencia: TtecQuery;
+    qrySequenciasequencia: TIntegerField;
+    qryParametros: TtecQuery;
+    qryParametroscreditarcofinsvenda: TIntegerField;
+    qryParametroscreditarcsllvenda: TIntegerField;
+    qryParametroscreditarirpjvenda: TIntegerField;
+    qryParametroscreditarpisvenda: TIntegerField;
+    qryParametrosdebitarcofinschaves: TIntegerField;
+    qryParametrosdebitarcsllchaves: TIntegerField;
+    qryParametrosdebitarirpjchaves: TIntegerField;
+    qryParametrosdebitarpischaves: TIntegerField;
+    qryParametroscreditarcofinsrecebimento: TIntegerField;
+    qryParametroscreditarcsllrecebimento: TIntegerField;
+    qryParametroscreditarirpjrecebimento: TIntegerField;
+    qryParametroscreditarpisrecebimento: TIntegerField;
+    qryParametrosevento: TIntegerField;
+    dsrParametros: TtecDataSource;
+    qryParcelasRetornovalorvencto: TFloatField;
+    qryParcelasRetornotipopagto: TStringField;
+    qryParcelasRetornorecibopagto: TIntegerField;
+    qryParcelasRetornocheque: TStringField;
+    qryParcelasRetornobancocheque: TIntegerField;
+    qryParcelasRetornoagencia: TIntegerField;
+    qryParcelasRetornocontapagto: TIntegerField;
+    qryParcelasRetornoemitente: TStringField;
+    qryParcelasRetornosequencia: TIntegerField;
+    qryParcelasRetornoevento: TIntegerField;
+    qryProcessarRecebimentos: TtecQuery;
+    spcRecibos: TtecQuery;
+    spcRecibosrecibo: TIntegerField;
+    qryParcelasRetornonumeroorigem: TLargeintField;
+    qryProcessarRecebimentoslancamentos: TStringField;
+    qryClienteContrato: TtecQuery;
+    dsrClienteContrato: TtecDataSource;
+    qryClienteContratocliente: TIntegerField;
+    qryClienteContratoempreendimento: TIntegerField;
+    qryDadosRetornoteclux: TBooleanField;
+    qryParametrosContasImoveis: TtecQuery;
+    dsrParametrosContasImoveis: TtecDataSource;
+    qryParametrosContasImoveiscreditarcofinsvenda: TIntegerField;
+    qryParametrosContasImoveiscreditarcsllvenda: TIntegerField;
+    qryParametrosContasImoveiscreditarirpjvenda: TIntegerField;
+    qryParametrosContasImoveiscreditarpisvenda: TIntegerField;
+    qryParametrosContasImoveisdebitarcofinschaves: TIntegerField;
+    qryParametrosContasImoveisdebitarcsllchaves: TIntegerField;
+    qryParametrosContasImoveisdebitarirpjchaves: TIntegerField;
+    qryParametrosContasImoveisdebitarpischaves: TIntegerField;
+    qryParametrosContasImoveiscreditarcofinsrecebimento: TIntegerField;
+    qryParametrosContasImoveiscreditarcsllrecebimento: TIntegerField;
+    qryParametrosContasImoveiscreditarirpjrecebimento: TIntegerField;
+    qryParametrosContasImoveiscreditarpisrecebimento: TIntegerField;
+    qryParametrosContasImoveisevento: TIntegerField;
+    qryParametrosContasImoveishistoricovendalancamento: TIntegerField;
+    qryParametrosContasImoveishistoricovendaimpostos: TIntegerField;
+    qryParametrosContasImoveishistoricochavesvalorvenda: TIntegerField;
+    qryParametrosContasImoveishistoricochavesimpostos: TIntegerField;
+    qryParametrosContasImoveishistoricochavescustoscomissoes: TIntegerField;
+    qryParametrosContasImoveishistoricochavesatualizacaomonetaria: TIntegerField;
+    qryParametrosContasImoveishistoricorecebcaixabanco: TIntegerField;
+    qryParametrosContasImoveishistoricorecebprincipal: TIntegerField;
+    qryParametrosContasImoveishistoricorecebatualizacaomonetaria: TIntegerField;
+    qryParametrosContasImoveishistoricorecebdescontos: TIntegerField;
+    qryParametrosContasImoveishistoricorecebjuros: TIntegerField;
+    qryParametrosContasImoveishistoricoapropriacaomensal: TIntegerField;
+    qryParametrosContasImoveishistoricoapropriacaomensalimpostos: TIntegerField;
+    qryParametrosContasImoveishistoricorecebimpostos: TIntegerField;
+    qryParametrosContasImoveiscontacreditarcef: TIntegerField;
+    qryParametrosContasImoveisprazodevolucaocobranca: TIntegerField;
+    qryDadosRetornoorigemparcela: TStringField;
+    frpRelatorioRetornoEmp: TfrReport;
+    qryClienteContratotipocliente: TStringField;
+    qryClienteContratonomecliente: TStringField;
+    qryClienteContratonomeempreendimento: TStringField;
+    qryDadosRetornonomeempreendimento: TStringField;
+    qryEmpreendimento: TtecQuery;
+    dsrEmpreendimento: TtecDataSource;
+    qryEmpreendimentocodigo: TIntegerField;
+    qryEmpreendimentonome: TStringField;
+    qryDadosRetornoRelatorioEmp: TtecQuery;
+    dsrDadosRetornoRelatorioEmp: TtecDataSource;
+    qryDadosRetornoRelatorioEmpcontrato: TIntegerField;
+    qryDadosRetornoRelatorioEmpempreendimento: TIntegerField;
+    qryDadosRetornoRelatorioEmpnomeempreendimento: TStringField;
+    qryDadosRetornoRelatorioEmpcliente: TIntegerField;
+    qryDadosRetornoRelatorioEmpnomecliente: TStringField;
+    qryDadosRetornoRelatorioEmptipoparcela: TStringField;
+    qryDadosRetornoRelatorioEmpparcela: TIntegerField;
+    qryDadosRetornoRelatorioEmporigemparcela: TStringField;
+    qryDadosRetornoRelatorioEmpbanco: TIntegerField;
+    qryDadosRetornoRelatorioEmpcodmov: TIntegerField;
+    qryDadosRetornoRelatorioEmpdesccricaomov: TStringField;
+    qryDadosRetornoRelatorioEmpdatavencto: TDateField;
+    qryDadosRetornoRelatorioEmpvalorvencto: TFloatField;
+    qryDadosRetornoRelatorioEmpdatapagto: TDateField;
+    qryDadosRetornoRelatorioEmpvalorpagto: TFloatField;
+    qryDadosRetornoRelatorioEmpdatacreditado: TDateField;
+    qryDadosRetornoRelatorioEmpvalorcreditado: TFloatField;
+    qryDadosRetornoRelatorioEmpmoeda: TIntegerField;
+    qryDadosRetornoRelatorioEmpacrescimo: TFloatField;
+    qryDadosRetornoRelatorioEmpdescontos: TFloatField;
+    qryDadosRetornoRelatorioEmpiof: TFloatField;
+    qryDadosRetornoRelatorioEmpabatimentos: TFloatField;
+    qryDadosRetornoRelatorioEmptarifa: TFloatField;
+    qryDadosRetornoRelatorioEmperro: TBooleanField;
+    qryDadosRetornoRelatorioEmpoutras: TBooleanField;
+    qryDadosRetornoRelatorioEmpteclux: TBooleanField;
+    qryDadosRetornoRelatorioEmpdescerro: TStringField;
+    fdsDadosRetornoRelatorioEmp: TfrDBDataSet;
+    qryContratosParcelasendereco: TStringField;
+    qryContratosParcelascampomaior: TBooleanField;
+    qryParcelasImoveis: TtecQuery;
+    qryDadosRetornosite: TBooleanField;
+    qryDadosRetornotecvin: TBooleanField;
+    qryDadosRetornocobcaixa: TBooleanField;
+    procedure frpRelatorioRetornoBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure ZmonitorMonitorEvent(Sql, Result: String);
+  private
+    FDataFinal: String;
+    FDataInicial: String;
+    FNomeEmp: String;
+    FEmpreendimento: String;
+    FNrOrigem: String;
+    FSomenteLeituraContabilidade: Boolean;
+    FDescricaoParcela: String;
+    { Private declarations }
+
+  protected
+    function ParametrosContratos: String;
+    procedure GerarMovimentacaoBancaria;
+    procedure GerarLancamentosContabeis;
+    function  DescricaoParcelas: String;
+    procedure VerificacoesContrato(Contrato: String);
+    procedure VerificarEmpreendimento(Emp: String);
+    procedure GerarDadosRelatorioEmpreendimento;
+
+  public
+    { Public declarations }
+    ArquivoRenomear: String;
+    NrErrosDetectados: Integer;
+    NroEmpreendimento: Integer;
+    NroCliente       : Integer;
+    NomeCliente      : String;
+    NomeEmpreendimento: String;
+
+    constructor Create(AOwner: TComponent); override;
+
+    property NrOrigem : String read FNrOrigem write FNrOrigem;
+    property DescricaoParcela: String read FDescricaoParcela write FDescricaoParcela;
+    function  ConsultarClientes(Empreendimento, DataInicial, DataFinal: String): Boolean;
+    procedure GerarArquivosRemessa(Diretorio, Empreendimento: String);
+    procedure ProcessarArquivoRetorno(Arquivo: String);
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+    function  ExisteMarcados: Boolean;
+    function  ExisteEnderecoTamanhoMaior40: Boolean;
+    function  DiminuiuCampo : Boolean;
+//  ------------------------------------------------------------------------------------
+    procedure MoveStr(Campo: String;  Var PraOnde;  Size:  Integer);
+    procedure MoveStrDir(Campo: String;  Var PraOnde;  Size:  Integer);
+    procedure MoveNro(Numero: Currency;  Var PraOnde; Size: Integer);
+    procedure MoveInt(Numero: LargeInt; Var PraOnde; Size: integer);
+    Procedure MoveVal(Numero: Currency;  Var PraOnde;  Size: Integer);
+    function  TiraPonto(vValStr: String): String;
+    procedure MoveCrLf(Campo: String;  Var PraOnde;  Size:  Integer);
+//  ------------------------------------------------------------------------------------
+    function GeraStr(Campo: String;  Size:  Integer): String;
+    function GeraNro(Numero: Currency; Size: Integer): String;
+    function GeraVal(Numero: Currency; Size: integer): String;
+    function TratarValor(Valor: String): Currency;
+    function TratarData(Valor: String): TDateTime;
+//  ------------------------------------------------------------------------------------
+    procedure GravarDadosCliente(Var Arq);
+    procedure GravarArquivoParcelas(Var Arq);
+    procedure GravarArquivoEspelho;
+    function  GravarParcelas: Boolean;
+    procedure RefazConsultaParcelas(Empreendimento, Cliente, Parcelas : Integer; TipoParcela, DataVencto: Variant);
+    function  ConverterTipoParcela(Tipo: Integer): String; overload;
+    function  ConverterTipoParcela(Tipo: Char): Integer; overload;
+    function  GetNumeroRecibo: Integer;
+    function  GetNumeroOrigem: Int64;
+//  ------------------------------------------------------------------------------------
+    procedure ImprimirRelatorio;
+//  ------------------------------------------------------------------------------------
+    property DataInicial    : String read FDataInicial write FDataInicial;
+    property DataFinal      : String read FDataFinal   write FDataFinal;
+    property Empreendimento : String read FEmpreendimento write FEmpreendimento;
+    property NomeEmp        : String read FNomeEmp  write FNomeEmp;
+//  ------------------------------------------------------------------------------------
+    Procedure MontarTabelaMovimentos;
+    Procedure MontarTabelasMotivosOcorrencia;
+end;
+Const
+  CrLf = #13+#10;
+  CabecalhoRetorno = '-------- --- --- ---------- ---- ------------- Cliente ---------------- --'+
+                     ' -- --- -- ----------- -- ------------------------ Vencimento ------------'+
+                     '------------- ---------------- Pagamento -------------- ------ Tarifas ----'+CrLf+
+                     'Arquivo  Emp Blc Tipo       N§   Codigo  Nome                           CT '+
+                     'Pe Par Pg Num. Banco  Cd Compra   Vl Origem  Juros      Correcao   Dt Venc.'+
+                     ' Vl.Venc.   Data     Acrescimos Total Pago Creditado  Data     Valor'+CrLf+
+                     '-------- --- --- ---------- ---- ------- ------------------------------ --'+
+                     ' -- --- -- ----------- -- -------- ---------- ---------- ---------- -------'+
+                     '- ---------- -------- ---------- ---------- ---------- -------- ----------';
+   MacroTecVim = 'Where vi.empreendimento = :Empreendimento and'+CrLf+
+                 'pi.tipo = :TipoParcela and'+CrLf+
+                 'pi.numero = :Numero and'+CrLf+
+                 'co.cliente  = :Cliente AND'+CrLf+
+                 'co.principal AND'+CrLf+
+                 'CASE WHEN vi.Situacao IN (''C'',''R'') THEN FALSE'+CrLf+
+                 '     WHEN vi.Situacao IN (''T'', ''G'', ''S'') AND'+CrLf+
+                 '          vi.DataAlteracao > :DataVencto THEN TRUE'+CrLf+
+                 '     WHEN vi.Situacao IN (''F'',''D'',''Q'',''V'') THEN TRUE'+CrLf+
+                 '     ELSE FALSE'+CrLf+
+                 'END';
+   MacroTecLux = 'Where pi.tipo = :TipoParcela and'+CrLf+
+                 'pi.numero = :Numero and'+CrLf+
+                 'pi.contrato  = :Contrato';
+
+Type T_ArqClientes = Record
+       ACLSacado:          Array[  1.. 15] of Char;
+       ACLNome:            Array[ 16.. 55] of Char;
+       ACLNomeFantasia:    Array[ 56.. 95] of Char;
+       ACLGrupo:           Array[ 96..105] of Char;
+       ACLTipoPessoa:      Array[106..106] of Char; {F ou J}
+       ACLFiller1:         Array[107..112] of Char; {000000}
+       ACLCpfCnpj:         Array[113..126] of Char;
+       ACLEndereco:        Array[127..166] of Char;
+       ACLBairro:          Array[167..181] of Char;
+       ACLCidade:          Array[182..196] of Char;
+       ACLUF:              Array[197..198] of Char;
+       ACLCEP:             Array[199..206] of Char;
+       ACLFone:            Array[207..226] of Char;
+       ACLFiller2:         Array[227..253] of Char; {zeros}
+       ACLCrLf:            Array[254..255] of Char;
+     End;
+
+     T_ArqEspelho = Record
+       ESPContrato         : Array[  1.. 15] of Char; // 15
+       ESPEmpreendimento   : Array[ 17.. 19] of Char; //  3
+       ESPBloco            : Array[ 21.. 23] of Char; //  3
+       ESPTipoImovel       : Array[ 25.. 34] of Char; // 10
+       ESPNumero           : Array[ 36.. 39] of Char; //  4
+       ESPCliente          : Array[ 41.. 47] of Char; //  7
+       ESPNome             : Array[ 49.. 78] of Char; // 30
+       ESPCT               : Array[ 80.. 81] of Char; //  2
+       ESPPeriodo          : Array[ 83.. 84] of Char; //  2
+       ESPParcela          : Array[ 86.. 88] of Char; //  3
+       ESPPg               : Array[ 90.. 91] of Char; //  2
+       ESPDataVencto       : Array[ 93..100] of Char; //  8
+       ESPValor            : Array[102..111] of Char; // 10
+       ESPCrLf             : Array[112..113] of Char; // Quebra de Linha
+     End;
+
+     T_ArqTitulos = Record
+       ATTSacado:          Array[  1.. 15] of Char;
+       ATTNumero:          Array[ 16.. 30] of Char;
+       ATTNossoNumero:     Array[ 31.. 41] of Char;
+       ATTCarteira:        Array[ 42.. 45] of Char;
+       ATTAceite:          Array[ 46.. 46] of Char; {S ou N}
+       ATTEspecie:         Array[ 47.. 48] of Char;
+       ATTInstrucao:       Array[ 49.. 49] of Char; {1=Devolucao}
+       ATTPrazoDevol:      Array[ 50.. 53] of Char;
+       ATTOpcaoVencto:     Array[ 54.. 54] of Char; {1}
+       ATTDataVencto:      Array[ 55.. 62] of Char;
+       ATTDataEmissao:     Array[ 63.. 70] of Char;
+       ATTMoeda:           Array[ 71.. 72] of Char; {09}
+       ATTValor:           Array[ 73.. 87] of Char;
+       ATTJurosDia:        Array[ 88..102] of Char;
+       ATTDataDesconto:    Array[103..110] of Char;
+       ATTValorDesconto:   Array[111..125] of Char;
+       ATTValorAbatimento: Array[126..140] of Char;
+       ATTDataMulta:       Array[141..148] of Char;
+       ATTValorMulta:      Array[149..163] of Char;
+       ATTTipoBloqueto:    Array[164..164] of Char;
+       ATTCompensacao:     Array[165..165] of Char; {S}
+       ATTFiller1:         Array[166..168] of Char; {000}
+       ATTAvalista:        Array[169..188] of Char;
+       ATTTipoPessoaAval:  Array[189..189] of Char; {1=CPF, 2=CNPJ}
+       ATTCpfCnpjAval:     Array[190..209] of Char;
+       ATTMensagem1:       Array[210..249] of Char;
+       ATTMensagem2:       Array[250..289] of Char;
+       ATTMensagem3:       Array[290..329] of Char;
+       ATTMensagem4:       Array[330..369] of Char;
+       ATTMensagem5:       Array[370..409] of Char;
+       ATTMensagem6:       Array[410..449] of Char;
+       ATTCrLf:            Array[450..451] of Char;
+     End;
+
+     T_HeaderArq = Record
+        HEABanco:               Array[001..003] of Char;
+        HEALote:                Array[004..007] of Char;
+        HEARegistro:            Array[008..008] of Char;
+        HEAFiller_1:            Array[009..017] of Char;
+        HEATipoPessoa:          Array[018..018] of Char; {1=CPF 2=CNPJ}
+        HEACgcCpf:              Array[019..032] of Char;
+        HEAConvenio:            Array[033..048] of Char;
+        HEAFiller_2:            Array[049..052] of Char;
+        HEAAgencia:             Array[053..057] of Char;
+        HEADigAgencia:          Array[058..058] of Char;
+        HEAConta:               Array[059..070] of Char;
+        HEADigConta:            Array[071..071] of Char;
+        HEADigAgenciaConta:     Array[072..072] of Char;
+        HEAEmpresa:             Array[073..102] of Char; {EMPREENDIMENTOS ...}
+        HEANomeBanco:           Array[103..132] of Char; {CAIXA ECONOMICA FEDERAL}
+        HEAFiller_3:            Array[133..142] of Char;
+        HEACodRemessa:          Array[143..143] of Char; {1=Remessa, 2=Retorno}
+        HEADataGeracao:         Array[144..151] of Char; {DDMMAAAA}
+        HEAHoraGeracao:         Array[152..157] of Char; {HHMMSS}
+        HEASeqArquivo:          Array[158..163] of Char;
+        HEAVersaoLayOut:        Array[164..166] of Char; {030}
+        HEADensidade:           Array[167..171] of Char; {BPI}
+        HEAIndicacao:           Array[172..191] of Char; {Reservado Banco}
+        HEAFiller_5:            Array[192..211] of Char; {Reservado Empresa}
+        HEAFiller_6:            Array[212..240] of Char; {Reservado CNAB/Febraban}
+        HEACrLf:                Array[241..242] of Char; {CrLf}
+     End;
+
+     T_HeaderLote = Record
+        HELBanco:               Array[001..003] of Char;
+        HELLote:                Array[004..007] of Char;
+        HELRegistro:            Array[008..008] of Char; {1}
+        HELOperacao:            Array[009..009] of Char; {T=Retorno}
+        HELServico:             Array[010..011] of Char; {01=Cobran‡a}
+        HELFiller_1:            Array[012..013] of Char; {00}
+        HELVersaoLayOut:        Array[014..016] of Char; {020}
+        HELFiller_2:            Array[017..017] of Char; {' '}
+        HELTipoPessoa:          Array[018..018] of Char; {1=CPF 2=CNPJ}
+        HELCgcCpf:              Array[019..033] of Char;
+        HELConvenio:            Array[034..049] of Char;
+        HELFiller_3:            Array[050..053] of Char;
+        HELAgencia:             Array[054..058] of Char;
+        HELDigAgencia:          Array[059..059] of Char;
+        HELConta:               Array[060..071] of Char;
+        HELDigConta:            Array[072..072] of Char;
+        HELDigAgenciaConta:     Array[073..073] of Char;
+        HELEmpresa:             Array[074..103] of Char; {EMPREENDIMENTOS ...}
+        HELMensagem_1:          Array[104..143] of Char; {CAIXA ECONOMICA FEDERAL}
+        HELMensagem_2:          Array[144..183] of Char;
+        HELRemessa:             Array[184..191] of Char; {N£mero da Remessa}
+        HELDataGeracao:         Array[192..199] of Char; {DDMMAAAA}
+        HELDataCredito:         Array[200..207] of Char; {DDMMAAAA}
+        HELFiller_4:            Array[208..240] of Char; {Reservado CNAB/Febraban}
+        HELCrLf:                Array[241..242] of Char; {CrLf}
+     End;
+
+     T_Segmento_T = Record
+        SGTBanco:               Array[001..003] of Char;
+        SGTLote:                Array[004..007] of Char;
+        SGTRegistro:            Array[008..008] of Char; {3}
+        SGTSequencia:           Array[009..013] of Char; {Sequencia no Lote}
+        SGTIndica_T:            Array[014..014] of Char; {T}
+        SGTFiller_1:            Array[015..015] of Char; {' '}
+        SGTCodMovto:            Array[016..017] of Char;
+        SGTAgencia:             Array[018..022] of Char;
+        SGTDigAgencia:          Array[023..023] of Char;
+        SGTConta:               Array[024..035] of Char;
+        SGTDigConta:            Array[036..036] of Char;
+        SGTDigAgenciaConta:     Array[037..037] of Char;
+        SGTFiller_2:            Array[038..046] of Char; {Brancos}
+        SGTNossoNumero:         Array[047..057] of Char;
+        SGTCarteira:            Array[058..058] of Char;
+        SGTNumeroDoc:           Array[059..069] of Char;
+        SGTFiller_3:            Array[070..073] of Char; {Brancos}
+        SGTDataVencto:          Array[074..081] of Char; {DDMMAAAA}
+        SGTValorCorrig:         Array[082..096] of Char;
+        SGTBancoPagto:          Array[097..099] of Char;
+        SGTAgenciaPagto:        Array[100..104] of Char;
+        SGTDigAgePagto:         Array[105..105] of Char;
+
+        {Chave de acesso `as parcelas}
+        SGTEmpreendimento:      Array[106..108] of Char;
+        SGTCliente:             Array[109..113] of Char;
+        SGTContrato:            Array[114..115] of Char;
+        SGTPeriodo:             Array[116..117] of Char;
+        SGTParcela:             Array[118..120] of Char;
+
+        SGTRestanteUsoEmp:      Array[121..130] of Char;
+        SGTMoeda:               Array[131..132] of Char;
+        SGTTipoPessoaCli:       Array[133..133] of Char; {1=CPF, 2=CNPJ 0=Nao informado 9=Outros}
+        SGTCgcCpfCli:           Array[134..148] of Char;
+        SGTNomeCli:             Array[149..188] of Char;
+        SGTFiller_4:            Array[189..198] of Char; {Brancos}
+        SGTTarifa:              Array[199..213] of Char;
+        SGTOcorrencia:          Array[214..223] of Char; {at‚ 5 c¢d. de 2 bytes}
+        SGTFiller_5:            Array[224..240] of Char; {Brancos}
+        SGTCrLf:                Array[241..242] of Char; {CrLf}
+     End;
+
+     T_Segmento_U = Record
+        SGUBanco:               Array[001..003] of Char;
+        SGULote:                Array[004..007] of Char;
+        SGURegistro:            Array[008..008] of Char; {3}
+        SGUSequencia:           Array[009..013] of Char; {Sequencia no Lote}
+        SGUIndica_U:            Array[014..014] of Char; {U}
+        SGUFiller_1:            Array[015..015] of Char; {' '}
+        SGUCodMovto:            Array[016..017] of Char;
+        SGUAcrescimos:          Array[018..032] of Char;
+        SGUDescontos:           Array[033..047] of Char;
+        SGUAbatimentos:         Array[048..062] of Char;
+        SGUIOF:                 Array[063..077] of Char;
+        SGUValorPagoCliente:    Array[078..092] of Char;
+        SGUCreditado:           Array[093..107] of Char;
+        SGUOutrasDespesas:      Array[108..122] of Char;
+        SGUOutrosCreditos:      Array[123..137] of Char;
+        SGUDataPagto:           Array[138..145] of Char; {DDMMAAAA}
+        SGUDataCredito:         Array[146..153] of Char; {DDMMAAAA}
+        SGUDataTarifa:          Array[154..161] of Char; {DDMMAAAA}
+        SGUFiller_2:            Array[162..240] of Char; {Brancos}
+        SGUCrLf:                Array[241..242] of Char; {CrLf}
+     End;
+
+     T_Segmento_W = Record
+        SGWBanco:               Array[001..003] of Char;
+        SGWLote:                Array[004..007] of Char;
+        SGWRegistro:            Array[008..008] of Char; {3}
+        SGWSequencia:           Array[009..013] of Char; {Sequencia no Lote}
+        SGWIndica_W:            Array[014..014] of Char; {W}
+        SGWFiller_1:            Array[015..015] of Char; {' '}
+        SGWCodMovto:            Array[016..017] of Char;
+        SGWPosicaoArq:          Array[018..023] of Char;
+        SGWFiller_2:            Array[024..024] of Char; {' '}
+        SGWCampoErro:           Array[1..19] of Record
+           SGWCodCampo:         Array[025..028] of Char; {CCTS -> CC=n§ do campo
+                                                                   T=Tipo registro
+                                                                   S=Segmento}
+           SGWCodErro:          Array[029..031] of Char;
+        End;
+        SGWFiller_3:            Array[158..240] of Char; {Brancos}
+        SGWCrLf:                Array[241..242] of Char; {CrLf}
+     End;
+Type
+   T_GABuffer = Record
+       HeaderArq:    T_HeaderArq;
+       HeaderLote:   T_HeaderLote;
+       Segmento_T:   T_Segmento_T;
+       Segmento_U:   T_Segmento_U;
+       Segmento_W:   T_Segmento_W;
+       Arquivo:      File;
+       ArqAberto:    Boolean;
+       Achou:        Array[1..2] of Boolean;
+       NrAuxDAT:     Byte;
+       NrRelDAT:     Byte;
+       Movimento:    Array[1..45] of String[32]; {1 = arquivo rejeitado}
+       MotOcor_42A:  Array[1..98] of String[80];
+       MotOcor_42B:  Array[1..11] of String[80];
+       MotOcor_42C:  Array[2..10] of String[80];
+       MotOcor_Rej:  Array[1..19] of String[60];
+       NrRead:       Word;
+       Imprimiu:     Boolean;
+
+       Totais: Array[0..2] of Record
+         TotalVencto,
+         TotalJurosCont,
+         TotalCorrecao,
+         TotalCorrig,
+         TotalAcrescimo,
+         TotalPago,
+         TotalCreditado,
+         TotalTarifas: Comp;
+       End;
+
+   End;
+
+
+var
+  dtmGerarCobrancaCEF: TdtmGerarCobrancaCEF;
+  Arq: File;
+  GABuffer: ^T_GABuffer;
+  NomeArquivoCliente,
+  NomeArquivoTitulos,
+  NomeArquivoEspelho,
+  ArquivoRetorno: String;
+  TecLux : Boolean;
+  Site : Boolean;
+  TecVin : Boolean;
+  CobCaixa : Boolean;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmGerarCobrancaCEF }
+
+function TdtmGerarCobrancaCEF.ConsultarClientes(Empreendimento,DataInicial, DataFinal: String): Boolean;
+begin
+  if Empreendimento <> '' then
+  begin
+    qryContratosParcelas.MacroByName('Empreendimento').AsString:= 'and vi.empreendimento = '+Empreendimento;
+    qryParcelas.MacroByName('Empreendimento').AsString := 'and vi.empreendimento = '+Empreendimento;
+  end
+  else
+  begin
+    qryContratosParcelas.MacroByName('Empreendimento').AsString:= '';
+    qryParcelas.MacroByName('Empreendimento').AsString := '';
+  end;
+
+  RefazConsultaPorNome(qryContratosParcelas,['DataInicial','DataFinal'],[strtodate(DataInicial),strtodate(DataFinal)]);
+  RefazConsultaPorNome(qryParcelas,['DataInicial','DataFinal'],[strtodate(DataInicial),strtodate(DataFinal)]);
+
+  Result:= not qryContratosParcelas.IsEmpty;
+end;
+
+function TdtmGerarCobrancaCEF.ConverterTipoParcela(Tipo: Integer): String;
+begin
+   Result:= CHR(Tipo + $40);        {Retorna 'A' para 1, 'B' para 2, etc}
+end;
+
+function TdtmGerarCobrancaCEF.ConverterTipoParcela(Tipo: Char): Integer;
+begin
+  Result:= Ord(Tipo) - $40; {Retorna 1 para 'A', 2 para 'B', etc}
+end;
+
+
+function TdtmGerarCobrancaCEF.ExisteMarcados: Boolean;
+begin
+  Result:= False;
+  GuardarRegistroAtual(qryContratosParcelas, true);
+  qryContratosParcelas.First;
+  while not qryContratosParcelas.Eof do
+  begin
+    if qryContratosParcelasselecionado.AsBoolean then
+      Result:= true;
+    qryContratosParcelas.Next;
+  end;
+  VoltarRegistroAtual(qryContratosParcelas);
+end;
+
+function TdtmGerarCobrancaCEF.GeraNro(Numero: Currency; Size: Integer): String;
+Var Campo: String;
+Begin
+  Campo := FloatToStr(Numero);
+  While Length(Campo) < Size do
+        Campo:= '0'+ Campo;
+
+  Result:= Campo;
+end;
+
+procedure TdtmGerarCobrancaCEF.GerarArquivosRemessa(Diretorio, Empreendimento: String);
+var Pos: TBookmark;
+begin
+  NomeArquivoCliente:= Diretorio+'C'+FormatDateTime('DD-MM-YYYY',DataServidor)+'.txt';
+  NomeArquivoTitulos:= Diretorio+'T'+FormatDateTime('DD-MM-YYYY',DataServidor)+'.txt';
+  NomeArquivoEspelho:= Diretorio+'E'+FormatDateTime('DD-MM-YYYY',DataServidor)+'.txt';
+  if ExisteMarcados then
+  begin
+    try
+      AssignFile(Arq,NomeArquivoCliente);
+      Rewrite(Arq,SizeOf(T_ArqClientes));
+      qryImoveis.MacroByName('Contratos').AsString:= ParametrosContratos;
+      qryImoveis.Open;
+      Pos:= qryContratosParcelas.GetBookmark;
+      qryContratosParcelas.DisableControls;
+      qryContratosParcelas.First;
+      while not qryContratosParcelas.Eof do
+      begin
+        if qryContratosParcelasselecionado.AsBoolean then
+          GravarDadosCliente(Arq);
+        qryContratosParcelas.Next;
+      end;
+
+      AssignFile(Arq,NomeArquivoTitulos);
+      Rewrite(Arq,SizeOf(T_ArqTitulos));
+
+      GuardarRegistroAtual(qryParcelas, true);
+      qryParcelas.First;
+      while not qryParcelas.Eof do
+      begin
+        GravarArquivoParcelas(Arq);
+        qryParcelas.Next;
+      end;
+      VoltarRegistroAtual(qryParcelas);
+
+      GravarArquivoEspelho;
+      qryContratosParcelas.GotoBookmark(Pos);
+      qryContratosParcelas.FreeBookmark(Pos);
+      qryContratosParcelas.EnableControls;
+      MensagemAviso('Arquivos gerados com sucesso:'+CrLf+
+                    'Cliente: '+NomeArquivoCliente+CrLf+
+                    'Títulos: '+NomeArquivoTitulos+CrLf+
+                    'Espelho: '+NomeArquivoEspelho);
+    except
+      on E:EFCreateError do
+        MensagemErro(E.Message);
+    end;
+    Close(Arq);
+  end
+  else
+    MensagemAviso(format(ctNENHUMREGISTROSELECIONADO,['registro']));
+end;
+
+function TdtmGerarCobrancaCEF.GeraStr(Campo: String; Size: Integer): String;
+var Pos: Integer;
+begin
+  Campo := ANSIUpperCase(Campo);
+
+  if Size > Length(Campo) then
+  begin
+     Pos := Length(Campo) + 1;
+     while Length(Campo) <> Size do
+     begin
+       Insert(' ', Campo, Pos);
+     Inc(Pos);
+     end;
+  end
+  else
+    Delete(Campo,Size+1,Length(Campo));
+  Result:= Campo;
+end;
+
+function TdtmGerarCobrancaCEF.GeraVal(Numero: Currency; Size: integer): String;
+Var Campo: String;
+Begin
+  Campo := FormatFloat('###,###,##0.00',Numero);
+  While Length(Campo) < Size do
+        Campo:= ' '+ Campo;
+  Result:= Campo;
+end;
+
+procedure TdtmGerarCobrancaCEF.GravarArquivoEspelho;
+var
+  Arq: TextFile;
+  EspelhoParcelas: T_ArqEspelho;
+  Linha : String;
+  TotalVencto : Currency;
+  Contrato, Empreend, Bloco, tipoImovel,
+  Numero, cliente, nomecliente, CT, Periodo,
+  parcela, Pg, datavencto, valor: String;
+
+  procedure GravarLinha_String(str : String);
+  begin
+  {$IFDEF LINUX}
+   Writeln(Arq, str+#13);
+  {$ELSE }
+   Writeln(Arq, str);
+  {$ENDIF}
+  end;
+
+  procedure Cabecalho;
+  begin
+    GravarLinha_String('PERIODO DE VENCIMENTOS');
+    GravarLinha_String('DE: '+FDataInicial+' ATÉ: '+FDataFinal);
+    GravarLinha_String('ARQUIVOS:   CLIENTES: '+NomeArquivoCliente);
+    GravarLinha_String('            TÍTULOS : '+NomeArquivoTitulos);
+    GravarLinha_String('--------------- --- --- ---------- ---- ------------- Cliente ---------------- -- -- --- -- --- Vencimento ----');
+    GravarLinha_String('Número Interno  Emp Blc Tipo       Nº   Codigo  Nome                           CT Pe Par Pg Data     Valor');
+    GravarLinha_String('--------------- --- --- ---------- ---- ------- ------------------------------ -- -- --- -- -------- ----------');
+  end;
+
+  procedure Rodape;
+  var EspelhoArquivo: T_ArqEspelho;
+  begin
+
+    GravarLinha_String('---------------------------------------------------------------------------------------------------------------');
+    GravarLinha_String('TOTAL                                                                                                '+GeraVal(TotalVencto,SizeOf(EspelhoArquivo.ESPValor)));
+    GravarLinha_String('---------------------------------------------------------------------------------------------------------------');
+  end;
+
+begin
+  try
+    AssignFile(Arq, NomeArquivoEspelho);
+    Rewrite(Arq);
+
+    Cabecalho;
+
+    begin
+      TotalVencto:= 0;
+      GuardarRegistroAtual(qryParcelas, True);
+      qryParcelas.First;
+      while not qryParcelas.Eof do
+      begin
+        qryImoveis.Locate('Contrato', qryParcelascontrato.AsVariant,[]);
+        qryContratosParcelas.Locate('Contrato;tipoparcela;numeroparcela',varArrayof([qryParcelascontrato.AsVariant,
+                                                                                     qryParcelastipo.AsVariant,
+                                                                                     qryParcelasnumero.AsVariant]),[]);
+        with EspelhoParcelas do
+        begin
+          Contrato    := GeraNro(qryParcelascontrato.AsInteger, sizeOf(ESPContrato))+' ';
+          Empreend    := GeraStr(qryImoveissigla.AsString, sizeOf(ESPEmpreendimento))+' ';
+          Bloco       := GeraStr(qryImoveisdescricao.AsString, sizeOf(ESPBloco))+' ';
+          TipoImovel  := GeraStr(qryImoveistipounidade.AsString, sizeOf(ESPTipoImovel))+' ';
+          Numero      := GeraStr(qryImoveisnumero.AsString, sizeOf(ESPNumero))+' ';
+          Cliente     := GeraNro(qryContratosParcelascliente.AsInteger, sizeOf(ESPCliente))+' ';
+          nomecliente := GeraStr(qryContratosParcelasnome.AsString, sizeOf(ESPNome))+' ';
+          CT          := GeraStr(' ', sizeOf(ESPCT))+' ';
+          Periodo     := GeraStr(qryParcelastipo.AsString, sizeOf(ESPPeriodo))+' ';
+          Parcela     := GeraNro(qryParcelasnumero.AsInteger, sizeOf(ESPParcela))+' ';
+          Pg          := GeraStr(' ', sizeOf(ESPPg))+' ';
+          datavencto  := GeraStr(FormatDateTime('DDMMYYYY', qryParcelasdatavencto.AsDateTime), sizeOf(ESPDataVencto))+' ';
+          Valor       := GeraVal(qryParcelasvalordevido.AsFloat, sizeOf(ESPValor))+' ';
+
+        end;
+        if qryContratosParcelasselecionado.AsBoolean then
+        begin
+          TotalVencto := TotalVencto + qryParcelasvalorcorrigido.AsFloat;
+          Linha:= Contrato + Empreend + Bloco + tipoImovel + Numero + cliente + nomecliente +
+                  CT + Periodo + parcela + Pg + datavencto + valor;
+
+          GravarLinha_String(Linha);
+        end;
+        qryParcelas.Next;
+      end;
+      VoltarRegistroAtual(qryParcelas);
+    end;
+    Rodape;
+  Except
+    on E:EFCreateError do
+      MensagemErro(E.Message);
+  end;
+  closefile(arq);
+end;
+
+procedure TdtmGerarCobrancaCEF.GravarArquivoParcelas(var Arq);
+Var Arquivo:  File Absolute Arq;
+    DetalhesParcelas: T_ArqTitulos;
+    NumeroInt: LargeInt;
+    Comprador, TipoParcela: Integer;
+    Valor, Multa : Currency;
+    Sigla, Bloco, ContratoStr,
+    DataMulta, JurosDia : String;
+    PrazoDevolucao : Integer;
+begin
+  with DetalhesParcelas do
+  begin
+    qryImoveis.Locate('Contrato', qryParcelascontrato.AsVariant,[]);
+    qryContratosParcelas.Locate('Contrato;tipoparcela;numeroparcela',varArrayof([qryParcelascontrato.AsVariant,
+                                                                                 qryParcelastipo.AsVariant,
+                                                                                 qryParcelasnumero.AsVariant]),[]);
+    if qryContratosParcelasselecionado.AsBoolean then
+    begin
+      Comprador:= qryContratosParcelascliente.AsInteger;
+      Sigla:= qryImoveissigla.AsString;
+      Bloco:= qryImoveisdescricao.AsString;
+      PrazoDevolucao := qryParametrosContasImoveisprazodevolucaocobranca.AsInteger;
+      TipoParcela:= ConverterTipoParcela(qryParcelastipo.Asstring[1]);     //100000000
+      NumeroInt:= 9889;                                                   //9889CCCCCCBBSSS
+      NumeroInt:= NumeroInt * 1000000 + qryParcelascontrato.AsInteger;    //988900003502020
+      NumeroInt:= NumeroInt * 100  + TipoParcela;
+      NumeroInt:= NumeroInt * 1000 + qryParcelasnumero.AsInteger;
+      FillChar(DetalhesParcelas, SizeOf(DetalhesParcelas),'0');
+      MoveNro(Comprador, ATTSacado, SizeOf(ATTSacado));
+      MoveInt(NumeroInt, ATTNumero, SizeOf(ATTNumero));
+      FillChar(ATTNossoNumero, SizeOf(ATTNossoNumero),' ');
+      MoveNro(11,ATTCarteira,  SizeOf(ATTCarteira));
+      MoveStr('N',ATTAceite,   SizeOf(ATTAceite));
+      MoveNro(02,ATTEspecie,   SizeOf(ATTEspecie));
+      MoveNro(1,ATTInstrucao,  SizeOf(ATTInstrucao));
+      MoveNro(PrazoDevolucao,ATTPrazoDevol,SizeOf(ATTPrazoDevol));
+      MoveNro(1,     ATTOpcaoVencto,SizeOf(ATTOpcaoVencto));
+      MoveStr(FormatDateTime('DDMMYYYY', qryParcelasdatavencto.AsDateTime),ATTDataVencto, SizeOf(ATTDataVencto));
+      MoveStr(FormatDateTime('DDMMYYYY', DataServidor),ATTDataEmissao,SizeOf(ATTDataEmissao)); {Ver}
+      MoveNro(09,    ATTMoeda,      SizeOf(ATTMoeda));
+      //PAREI AQUI EM 01/10/2009
+      Valor:= strtocurr(TiraPonto(FormatFloat('###,###,###,##0.00',qryParcelasvalordevido.AsCurrency)));
+      MoveNro(Valor,ATTValor,SizeOf(ATTValor));
+
+      if qryParcelastaxajuros.AsFloat > 0 then
+        JurosDia:= currtostr(qryParcelasvalordevido.AsCurrency * qryParcelastaxajuros.AsFloat/3000)
+      else
+        JurosDia:= '0';
+      JurosDia:= TiraPonto(FormatFloat('###,###,###,##0.00',(Truncar(strtocurr(JurosDia),2))));
+
+      MoveNro(strtocurr(JurosDia),ATTJurosDia,SizeOf(ATTJurosDia));
+      MoveStr(FormatDateTime('DDMMYYYY', qryParcelasdatavencto.AsDateTime),ATTDataDesconto, SizeOf(ATTDataDesconto));
+      DataMulta:= datetostr(SomarDia(qryParcelasdatavencto.AsDateTime,1,'N'));
+      MoveStr(FormatDateTime('DDMMYYYY', strtodate(DataMulta)),ATTDataMulta, SizeOf(ATTDataMulta));
+      Multa:= truncar((qryParcelasvalordevido.AsCurrency * 0.02),2);
+      Multa:= strtocurr(TiraPonto(FormatFloat('###,###,###,##0.00',(Truncar(Multa,2)))));
+      MoveNro(Multa,ATTValorMulta,SizeOf(ATTValorMulta));
+      MoveNro(1,       ATTTipoBloqueto,SizeOf(ATTTipoBloqueto)); {Ver}
+      MoveStr('S',     ATTCompensacao, SizeOf(ATTCompensacao));
+      FillChar(ATTAvalista,SizeOf(ATTAvalista)+
+                           SizeOf(ATTTipoPessoaAval)+
+                           SizeOf(ATTCpfCnpjAval)+
+                           SizeOf(ATTMensagem1)+
+                           SizeOf(ATTMensagem2)+
+                           SizeOf(ATTMensagem3)+
+                           SizeOf(ATTMensagem4)+
+                           SizeOf(ATTMensagem5)+
+                           SizeOf(ATTMensagem6),' ');
+      ContratoStr :=  qryImoveissigla.AsString+'-'+
+                      preencheString(qryImoveisnumero.AsString,'0',4,False)+
+                      qryImoveisdescricao.AsString+'/'+
+                      FormatDateTime('YY',qryImoveisdatacontrato.AsDateTime);
+      MoveStr('EM: '+qryImoveissigla.AsString+ ' - '+
+              'CO: '+ContratoStr,ATTMensagem1,SizeOf(ATTMensagem1));
+
+      MoveStr('CL: '+preencheString(qryContratosParcelascliente.AsString,'0',5,False)+' - '+
+              'CO: '+qryParcelascontrato.AsString,
+               ATTMensagem2,SizeOf(ATTMensagem2));
+
+      MoveStr(' PE: '+preencheString(inttostr(TipoParcela),'0',2,False)+' '+
+              ' PARCELA: '+ qryParcelasorigem.AsString,
+                ATTMensagem3,SizeOf(ATTMensagem3));
+
+      MoveStr(CrLf,ATTCrLf,SizeOf(ATTCrLf));
+      BlockWrite(Arquivo,DetalhesParcelas,1);
+    end;
+  end;
+end;
+
+procedure TdtmGerarCobrancaCEF.GravarDadosCliente(var Arq);
+Var Arquivo:  File Absolute Arq;
+    DetalhesClientes: T_ArqClientes;
+    CPFCNPJ, Endereco, Rua, CEP, Fone : String;
+begin
+  with DetalhesClientes do
+  begin
+    Rua:= qryContratosParcelasendereco.AsString;
+
+    {if qryContratosParcelascomplemento.AsString <> ''then
+      if qryContratosParcelasnumero.AsInteger > 0
+        then Endereco:= Rua + ', ' + qryContratosParcelasnumero.AsString +
+                              ' - '+ qryContratosParcelascomplemento.AsString
+        else Endereco:= Rua + ' - '+ qryContratosParcelascomplemento.AsString
+    else Endereco:= Rua;
+
+    if Length(Rua) > 40 then
+    begin
+      Rua:= Trocar(Rua,'RUA ', 'R ');
+      Rua:= Trocar(Rua,'AVENIDA ', 'AV ');
+      Rua:= Trocar(Rua,'BAIRRO', '');
+      Rua:= Trocar(Rua,'BLOCO', 'BL');
+      Rua:= Trocar(Rua,'PROFESSOR', 'PROF');
+      Rua:= Trocar(Rua,'  ', ' ');
+      Rua:= Trocar(Rua,'DESEMBARGADOR', 'DES');
+      Rua:= Trocar(Rua,'PREFEITO', 'PREF');
+      Rua:= Trocar(Rua,'SENADOR', 'SER');
+      Rua:= Trocar(Rua,'VEREADOR', 'VER');
+      Rua:= Trocar(Rua,'ESTRADA', 'EST');
+      Rua:= Trocar(Rua,'APTO', 'AP');
+      Rua:= Trocar(Rua,'DOUTOR', 'DR');
+      Rua:= Trocar(Rua,'RODOVIA', 'ROD');
+      Rua:= Trocar(Rua,'SERVIDAO', 'SERV');
+      Rua:= Trocar(Rua,'CAPITAO', 'CAP');
+
+    end;
+      }
+    Fone    := FormatarFone(qryContratosParcelasfoneddd.AsString,qryContratosParcelasfonenumero.AsString);
+    CEP     := qryContratosParcelascep.AsString;
+    CPFCNPJ := qryContratosParcelaspessoanumero.AsString;
+
+    FillChar(DetalhesClientes,SizeOf(DetalhesClientes),'0');
+
+    MoveNro(qryContratosParcelascliente.AsCurrency, ACLSacado, SizeOf(ACLSacado));
+    MoveStr(qryContratosParcelasnome.AsString, ACLNome, SizeOf(ACLNome));
+    MoveStr('', ACLNomeFantasia, SizeOf(ACLNomeFantasia));
+    MoveStr('', ACLGrupo, SizeOf(ACLGrupo));
+    MoveStr(qryContratosParcelaspessoatipo.AsString, ACLTipoPessoa, SizeOf(ACLTipoPessoa));
+    MoveStr('', ACLFiller1, SizeOf(ACLFiller1));
+    MoveStrDir(CPFCNPJ, ACLCpfCnpj, SizeOf(ACLCpfCnpj));
+    MoveStr(Rua, ACLEndereco, SizeOf(ACLEndereco));
+    MoveStr(qryContratosParcelasnomebairro.AsString, ACLBairro, SizeOf(ACLBairro));
+    MoveStr(qryContratosParcelasnomecidade.AsString, ACLCidade, SizeOf(ACLCidade));
+    MoveStr(qryContratosParcelasestado.AsString, ACLUF, SizeOf(ACLUF));
+    MoveStr(CEP, ACLCEP, SizeOf(ACLCEP));
+    MoveStr(Fone, ACLFone, SizeOf(ACLFone));
+    MoveNro(0, ACLFiller2, SizeOf(ACLFiller2));
+    MoveStr(CrLf, ACLCrLf, SizeOf(ACLCrLf));
+
+    BlockWrite(Arquivo,DetalhesClientes,1);
+  end;
+end;
+
+function TdtmGerarCobrancaCEF.GravarParcelas: Boolean;
+ procedure GravarMensagemRetorno(Msg: Char);
+ begin
+   case msg of
+     'O': Begin
+            qryDadosRetorno.Edit;
+            qryDadosRetornoOutras.AsBoolean:= True;
+            qryDadosRetornodescerro.AsString:= 'Outras Operações.';
+            qryDadosRetorno.Post;
+          end;
+     'A': Begin
+            qryDadosRetorno.Edit;
+            qryDadosRetornoerro.AsBoolean:= True;
+            qryDadosRetornodescerro.AsString:= 'A parcela já está paga.';
+            qryDadosRetorno.Post;
+          end;
+     'E': Begin
+            qryDadosRetorno.Edit;
+            qryDadosRetornoerro.AsBoolean:= True;
+            qryDadosRetornodescerro.AsString:= 'Erro no arquivo de retorno'+#10#13+
+                                               'Data e/ou valor de pagamento incorreto.';
+            qryDadosRetorno.Post;
+          end;
+     'N': Begin
+            qryDadosRetorno.Edit;
+            qryDadosRetornoerro.AsBoolean:= True;
+            qryDadosRetornodescerro.AsString:= 'Cliente e/ou parcela não encontrado(a).';
+            qryDadosRetorno.Post;
+          end;
+   end;
+   if qryDadosRetornoErro.AsBoolean then
+      Inc(NrErrosDetectados);
+end;
+
+begin
+  Result:= False;
+  NrErrosDetectados:= 0;
+  qryDadosRetorno.First;
+  while not qryDadosRetorno.Eof do
+  begin
+    if qryDadosRetornocodmov.AsInteger = 06 then
+    begin
+      if qryDadosRetornoteclux.AsBoolean or qryDadosRetornosite.AsBoolean then
+      begin
+        qryParcelasRetorno.MacroByName('MacroWhere').AsString:= MacroTecLux;
+        RefazConsultaPorNome(qryParcelasRetorno,['TipoParcela','Numero','Contrato'],
+                                                [qryDadosRetornotipoparcela.AsVariant,
+                                                 qryDadosRetornoparcela.AsVariant,
+                                                 qryDadosRetornocontrato.AsVariant]);
+      end
+      else
+      begin
+        if qryDadosRetornotecvin.AsBoolean then
+        begin
+          qryParcelasRetorno.MacroByName('MacroWhere').AsString:= MacroTecVim;
+          RefazConsultaParcelas(qryDadosRetornoempreendimento.AsInteger,
+                                qryDadosRetornocliente.AsInteger,
+                                qryDadosRetornoparcela.AsInteger,
+                                qryDadosRetornotipoparcela.AsString,
+                                FormatDateTime('yyyy-mm-dd',qryDadosRetornodatavencto.AsDateTime));
+        end;
+      end;
+
+      if (qryParcelasRetorno.RecordCount > 0) and not qrydadosretornocobcaixa.asboolean then
+      begin
+        if qryParcelasRetornodatapagto.IsNull then
+        begin
+          try
+            qryParcelasRetorno.Edit;
+            qryParcelasRetornodatapagto.AsDateTime   := qryDadosRetornodatapagto.AsDateTime;
+            qryParcelasRetornorecibopagto.AsInteger  := GetNumeroRecibo;
+            qryParcelasRetornovalorpagto.AsCurrency  := qryDadosRetornovalorpagto.AsCurrency;
+            qryParcelasRetornonumeroorigem.AslargeInt:= GetNumeroOrigem;
+            qryParcelasRetornotipopagto.AsString     := 'Q';
+            qryParcelasRetornocontapagto.AsInteger   := qryParametrosContasImoveiscontacreditarcef.AsInteger;
+            qryParcelasRetorno.Post;
+
+            qryDadosRetorno.Edit;
+            qryDadosRetornoorigemparcela.AsString    := qryParcelasRetornoorigem.AsString;
+            qryDadosRetorno.Post;
+          except
+            GravarMensagemRetorno('E');
+          end;
+        end
+        else
+        begin
+          GravarMensagemRetorno('A');
+        end;
+      end
+      else
+        GravarMensagemRetorno('N');
+    end
+    else
+      GravarMensagemRetorno('O');
+    if qryDadosRetornodescerro.IsNull then
+    begin
+      GerarMovimentacaoBancaria;
+      Perpetrar([qryParcelasRetorno], False);
+      GerarLancamentosContabeis;
+    end;
+    qryDadosRetorno.Next;
+  end;
+  if Perpetrar([qryParcelasRetorno, qryMovtosBancos, qryMovtosbancosEventos]) then
+    Result:= true;
+end;
+
+procedure TdtmGerarCobrancaCEF.ImprimirRelatorio;
+Var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  AtribuirParametrosBaseRelatorio;
+  GerarDadosRelatorioEmpreendimento;
+  frVariables['TITULO']:= 'ARQUIVO RECEBIDO DA CEF';
+  frVariables['OUTRAS']:= 'Arquivo retorno: '+ArquivoRetorno;
+  qryDadosRetorno.SortByField('empreendimento,cliente');
+//  frpRelatorioRetorno.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  try
+    Relatorio := frmPreview.frCompositeReport;
+    frmPreview.frCompositeReport.Reports.Clear;
+    frmPreview.frCompositeReport.DoublePass:= True;
+    frmPreview.frCompositeReport.Reports.Add(frpRelatorioRetorno);
+    frmPreview.frCompositeReport.Reports.Add(frpRelatorioRetornoEmp);
+    Relatorio.Preview := frmPreview.frPreviewPadrao;
+    Relatorio.ShowReport;
+    frmPreview.ShowModal;
+  finally
+    frmPreview.Free;
+  end;
+end;
+
+procedure TdtmGerarCobrancaCEF.MarcarSelecionados(Marcando,Todos: Boolean);
+begin
+  MarcarRegistros(qryContratosParcelas,
+                  qryContratosParcelasselecionado,
+                  Marcando,
+                  Todos);
+end;
+
+procedure TdtmGerarCobrancaCEF.MontarTabelaMovimentos;
+begin
+  With GABuffer^ do
+  Begin
+    Movimento[01]:= 'ARQUIVO/REGISTRO REJEITADO';
+    Movimento[02]:= 'ENTRADA CONFIRMADA';
+    Movimento[03]:= 'ENTRADA REJEITADA';
+    Movimento[06]:= 'LIQUIDAÇÃO';
+    Movimento[09]:= 'BAIXA';
+    Movimento[12]:= 'CONFIRMA RECEB. INSTR.ABATIMENTO';
+    Movimento[13]:= 'CONF. RECEB.INSTR.CANCEL.ABATIM.';
+    Movimento[14]:= 'CONF. RECEB.INSTR.ALTER. VENCTO';
+    Movimento[17]:= 'LIQ.APÓS BAIXA/LIQ.TIT. NÃO REG.';
+    Movimento[10]:= 'CONF. RECEB. INSTR. DE PROTESTO';
+    Movimento[20]:= 'CONF.REC.INSTR.SUST./CANC.PROT.';
+    Movimento[23]:= 'REMESSA A CARTÓRIO';
+    Movimento[24]:= 'RETIRA CARTÓRIO E FICA CARTEIRA';
+    Movimento[25]:= 'BAIXA DEVIDO PROTESTO';
+    Movimento[26]:= 'INSTRUÇÃO REJEITADA';
+    Movimento[27]:= 'CONFIRMA PEDIDO ALTER.DADOS DIV.';
+    Movimento[28]:= 'DÉBITO DE TARIFAS/CUSTAS';
+    Movimento[30]:= 'ALTERAÇÃO DE DADOS REJEITADA';
+    Movimento[36]:= 'CONFIRMA RECEB. INSTR. DESCTO';
+    Movimento[37]:= 'CONFIRMA RECEB.INSTR.CANC.DESCTO';
+    Movimento[43]:= 'ESTORNO DE PROTESTO/SUSTAÇÃO';
+    Movimento[44]:= 'ESTORNO DE BAIXA / LIQUIDAÇÃO';
+    Movimento[45]:= 'ALTERAÇÃO DE DADOS';
+  End;
+end;
+
+procedure TdtmGerarCobrancaCEF.MontarTabelasMotivosOcorrencia;
+begin
+  With GABuffer^ do
+  Begin
+    MotOcor_42A[01]:= 'CÓDIGO DO BANCO INVÁLIDO';
+    MotOcor_42A[02]:= 'CÓDIGO DO REGISTRO INVÁLIDO';
+    MotOcor_42A[03]:= 'CÓDIGO DO SEGMENTO INVÁLIDO';
+    MotOcor_42A[05]:= 'CÓDIGO DE MOVIMENTO INVÁLIDO';
+    MotOcor_42A[06]:= 'TIPO/NÚMERO DE INSCRIÇÃO DO CEDENTE INVÁLIDOS';
+    MotOcor_42A[07]:= 'AGÊNCIA/CONTA/DV INVÁLIDO';
+    MotOcor_42A[08]:= 'NOSSO NÚMERO INVÁLIDO';
+    MotOcor_42A[09]:= 'NOSSO NÚMERO DUPLICADO';
+    MotOcor_42A[10]:= 'CARTEIRA INVÁLIDA';
+    MotOcor_42A[11]:= 'FORMA DE CADASTRAMENTO DO TÍTULO INVÁLIDO';
+    MotOcor_42A[12]:= 'TIPO DE DOCUMENTO INVÁLIDO';
+    MotOcor_42A[13]:= 'IDENTIFICAÇÃO DA EMISSÃO DO BLOQUETO INVÁLIDA';
+    MotOcor_42A[14]:= 'IDENTIFICAÇÃO DA DISTRIBUIÇÃO DO BLOQUETO INVÁLIDO';
+    MotOcor_42A[15]:= 'CARACTERÍSTICAS DA COBRANCA INCOMPATÍVEIS';
+    MotOcor_42A[16]:= 'DATA DE VENCIMENTO INVÁLIDA';
+    MotOcor_42A[20]:= 'VALOR DO TÍTULO INVÁLIDO';
+    MotOcor_42A[21]:= 'ESPÉCIE DO TÍTULO INVÁLIDA';
+    MotOcor_42A[23]:= 'ACEITE INVÁLIDO';
+    MotOcor_42A[24]:= 'DATA DA EMISSÃO INVÁLIDA';
+    MotOcor_42A[26]:= 'CÓDIGO DE JUROS DE MORA INVÁLIDO';
+    MotOcor_42A[27]:= 'VALOR/TAXA DE JUROS DE MORA INVÁLIDO';
+    MotOcor_42A[28]:= 'CÓDIGO DO DESCONTO INVÁLIDO';
+    MotOcor_42A[29]:= 'VALOR DO DESCONTO MAIOR OU IGUAL AO VALOR DO TÍTULO';
+    MotOcor_42A[30]:= 'DESCONTO A CONCEDER NÃO CONFERE';
+    MotOcor_42A[32]:= 'VALOR DO IOF INVÁLIDO';
+    MotOcor_42A[33]:= 'VALOR DO ABATIMENTO INVÁLIDO';
+    MotOcor_42A[37]:= 'CÓDIGO PARA PROTESTO INVÁLIDO';
+    MotOcor_42A[38]:= 'PRAZO PARA PROTESTO INVÁLIDO';
+    MotOcor_42A[40]:= 'TÍTULO COM ORDEM DE PROTESTO EMITIDA';
+    MotOcor_42A[42]:= 'CÓDIGO PARA BAIXA/DEVOLUÇÃO INVÁLIDO';
+    MotOcor_42A[43]:= 'PRAZO PARA BAIXA/DEVOLUÇÃO INVÁLIDO';
+    MotOcor_42A[44]:= 'CÓDIGO DA MOEDA INVÁLIDO';
+    MotOcor_42A[45]:= 'NOME DO SACADO NÃO INFORMADO';
+    MotOcor_42A[46]:= 'TIPO/NÚMERO DE INSCRIÇÃO DO SACADO INVÁLIDOS';
+    MotOcor_42A[47]:= 'ENDEREÇO DO SACADO NÂO INFORMADO';
+    MotOcor_42A[48]:= 'CEP INVÁLIDO';
+    MotOcor_42A[49]:= 'CEP SEM PRAÇA DE COBRANÇA (NÃO LOCALIZADO)';
+    MotOcor_42A[52]:= 'UNIDADE DA FEDERAÇÃO INVÁLIDA';
+    MotOcor_42A[53]:= 'INSCRIÇÃO DO SACADOR INVÁLIDA';
+    MotOcor_42A[57]:= 'CÓDIGO DA MULTA INVÁLIDO';
+    MotOcor_42A[58]:= 'DATA DA MULTA INVÁLIDA';
+    MotOcor_42A[59]:= 'VALOR/PERCENTUAL DA MULTA INVÁLIDO';
+    MotOcor_42A[60]:= 'MOVIMENTO PARA TÍTULO NAO CADASTRADO';
+    MotOcor_42A[61]:= 'AGÊNCIA COBRADORA INVÁLIDA';
+    MotOcor_42A[62]:= 'TIPO DE IMPRESSÃO INVÁLIDO';
+    MotOcor_42A[63]:= 'ENTRADA PARA TÍTULO JA CADASTRADO';
+    MotOcor_42A[68]:= 'MOVIMENTAÇÃO INVÁLIDA PARA O TÍTULO';
+    MotOcor_42A[69]:= 'ALTERAÇÃO DE DADOS INVÁLIDA';
+    MotOcor_42A[70]:= 'APELIDO DO CLIENTE NÃO CADASTRADO';
+    MotOcor_42A[71]:= 'ERRO NA COMPOSIÇÃO DO ARQUIVO';
+    MotOcor_42A[72]:= 'LOTE DE SERVIÇO INVÁLIDO';
+    MotOcor_42A[73]:= 'CÓDIGO DO CEDENTE INVÁLID';
+    MotOcor_42A[74]:= 'CEDENTE NÃO PERTENCE À COBRANÇA ELETRÔNICA/APELIDO NÃO CONFERE COM CEDENTE';
+    MotOcor_42A[75]:= 'NOME DA EMPRESA INVÁLIDO';
+    MotOcor_42A[76]:= 'NOME DO BANCO INVÁLIDO';
+    MotOcor_42A[77]:= 'CÓDIGO DA REMESSA INVÁLIDO';
+    MotOcor_42A[78]:= 'DATA/HORA DE GERAÇÃO DO ARQUIVO INVÁLIDA';
+    MotOcor_42A[79]:= 'NÚMERO SEQUENCIAL DO ARQUIVO INVÁLIDO';
+    MotOcor_42A[80]:= 'NÚMERO DA VERSÃO DO LAYOUT DO ARQUIVO/LOTE INVÁLIDO';
+    MotOcor_42A[81]:= 'LITERAL "REMESSA-TESTE" VÁLIDA SOMENTE PARA FASE DE TESTES';
+    MotOcor_42A[82]:= 'LITERAL "REMESSA-TESTE" OBRIGATÓRIO PARA FASE DE TESTES';
+    MotOcor_42A[83]:= 'TIPO/NÚMERO DE INSCRIÇÃO DA EMPRESA INVÁLIDOS';
+    MotOcor_42A[84]:= 'TIPO DE OPERAÇÃO INVÁLIDO';
+    MotOcor_42A[85]:= 'TIPO DE SERVIÇO INVÁLIDO';
+    MotOcor_42A[86]:= 'FORMA DE LANÇAMENTO INVÁLIDO';
+    MotOcor_42A[87]:= 'NÚMERO DA REMESSA INVÁLIDO';
+    MotOcor_42A[88]:= 'NÚMERO DA REMESSA MENOR/IGUAL QUE DA REMESSA ANTERIOR';
+    MotOcor_42A[89]:= 'LOTE DE SERVIÇO DIVERGENTE';
+    MotOcor_42A[90]:= 'NÚMERO SEQUENCIAL DO REGISTRO INVÁLIDO';
+    MotOcor_42A[91]:= 'ERRO NA SEQUÊNCIA DE SEGMENTO DO REGISTRO DETALHE';
+    MotOcor_42A[92]:= 'CÓDIGO DE MOVIMENTO DIVERGENTE ENTRE GRUPO DE SEGMENTOS';
+    MotOcor_42A[93]:= 'QUANTIDADE DE REGISTROS NO LOTE INVÁLIDO';
+    MotOcor_42A[94]:= 'QUANTIDADE DE REGISTROS NO LOTE DIVERGENTE';
+    MotOcor_42A[95]:= 'QUANTIDADE DE LOTES DO ARQUIVO INVÁLIDO';
+    MotOcor_42A[96]:= 'QUANTIDADE DE LOTES NO ARQUIVO DIVERGENTE';
+    MotOcor_42A[97]:= 'QUANTIDADE DE REGISTROS NO ARQUIVO INVÁLIDO';
+    MotOcor_42A[98]:= 'QUANTIDADE DE REGISTROS NO ARQUIVO DIVERGENTE';
+    MotOcor_42B[01]:= 'TARIFA DE EXTRATO DE POSIÇÃO';
+    MotOcor_42B[02]:= 'TARIFA DE MANUTENÇÃO DE TÍTULO VENCIDO';
+    MotOcor_42B[03]:= 'TARIFA DE SUSTAÇÃO';
+    MotOcor_42B[04]:= 'TARIFA DE PROTESTO';
+    MotOcor_42B[05]:= 'TARIFA DE OUTRAS INSTRUÇÕES';
+    MotOcor_42B[06]:= 'TARIFA DE OUTRAS OCORRÊNCIAS';
+    MotOcor_42B[07]:= 'TARIFA DE ENVIO DE DUPLICATAS AO SACADO';
+    MotOcor_42B[08]:= 'CUSTAS DE PROTESTO';
+    MotOcor_42B[09]:= 'CUSTAS DE SUSTAÇÃO DE PROTESTO';
+    MotOcor_42B[10]:= 'CUSTAS DO CARTÓRIO DISTRIBUIDOR';
+    MotOcor_42B[11]:= 'CUSTAS EDITAL';
+    MotOcor_42C[02]:= 'LOTÉRICAS';
+    MotOcor_42C[03]:= 'NO PRÓPRIO BANCO';
+    MotOcor_42C[04]:= 'COMPENSAÇÃO ELETRÔNICA';
+    MotOcor_42C[05]:= 'COMPENSAÇÃO CONVENCIONAL';
+    MotOcor_42C[06]:= 'OUTROS CANAIS';
+    MotOcor_42C[07]:= 'CORRESPONDENTE BANCÁRIO';
+    MotOcor_42C[08]:= 'EM CARTÓRIO';
+    MotOcor_42C[09]:= 'COMANDADA BANCO';
+    MotOcor_42C[10]:= 'COMANDADA CLIENTE ARQUIVO';
+    MotOcor_Rej[01]:= 'O ARQUIVO ESTÁ VAZIO';
+    MotOcor_Rej[02]:= 'NÃO É ARQUIVO DE RETORNO DA CEF';
+    MotOcor_Rej[03]:= 'ARQUIVO DA FASE DE TESTES';
+    MotOcor_Rej[04]:= 'VERSÃO DO HEADER DO ARQ. NÃO É 030';
+    MotOcor_Rej[05]:= 'O ARQUIVO SÓ CONTEM O HEADER';
+    MotOcor_Rej[06]:= 'NÃO É ARQUIVO DE RETORNO DA CEF';
+    MotOcor_Rej[07]:= 'VERSÃO DO HEADER DO LOTE NÃO É 020';
+    MotOcor_Rej[08]:= 'LOTE DO ARQUIVO SEM NENHUM SEGMENTO';
+    MotOcor_Rej[09]:= 'SEGMENTO NÃO PREVISTO';
+    MotOcor_Rej[10]:= 'O ARQUIVO NÃO CONTÉM TRAILER DO LOTE';
+    MotOcor_Rej[11]:= 'O ARQUIVO NÃO CONTÉM TRAILER';
+    MotOcor_Rej[12]:= 'O PROCESSAMENTO DO ARQUIVO FOI INTERROMPIDO';
+    MotOcor_Rej[13]:= 'SEGMENTO "U" SEM SEGMENTO "T" CORRESPONDENTE';
+    MotOcor_Rej[14]:= 'VENDA NÃO LOCALIZADA';
+    MotOcor_Rej[15]:= 'PARCELA NÃO LOCALIZADA';
+    MotOcor_Rej[16]:= 'PARCELA ASSOCIADA A OUTRO DOCUMENTO';
+    MotOcor_Rej[17]:= 'PARCELA JÁ PAGA';
+    MotOcor_Rej[18]:= 'PARCELA EM ABERTO';
+    MotOcor_Rej[19]:= 'ARQUIVO INDICADOR DE RESULTADO DA REMESSA';
+  End;
+end;
+
+procedure TdtmGerarCobrancaCEF.MoveCrLf(Campo: String; var PraOnde; Size: Integer);
+begin
+  Move(CrLf, PraOnde, Size);
+end;
+
+procedure TdtmGerarCobrancaCEF.MoveNro(Numero: Currency; var PraOnde;Size: Integer);
+Var Campo: String;
+Begin
+  Campo := FloatToStr(Numero);
+  While Length(Campo) < Size do
+        Campo:= '0'+ Campo;
+
+  Move(Campo[1],PraOnde,Size);
+end;
+
+procedure TdtmGerarCobrancaCEF.MoveInt(Numero: LargeInt; var PraOnde;Size: Integer);
+Var Campo: String;
+Begin
+  Campo := IntToStr(Numero);
+  While Length(Campo) < Size do
+        Campo:= '0'+ Campo;
+
+  Move(Campo[1],PraOnde,Size);
+end;
+
+procedure TdtmGerarCobrancaCEF.MoveStr(Campo: String; var PraOnde; Size: Integer);
+var Pos: Integer;
+begin
+  Campo := RetiraAcento(Campo);
+  Campo := ANSIUpperCase(Campo);
+
+  if Size > Length(Campo) then begin
+     Pos := Length(Campo) + 1;
+
+     while Length(Campo) <> Size do begin
+        Insert(' ', Campo, Pos);
+        Inc(Pos);
+     end;
+  end;
+  Move(Campo[1],PraOnde,Size);
+end;
+
+procedure TdtmGerarCobrancaCEF.MoveStrDir(Campo: String; var PraOnde; Size: Integer);
+var Pos: Integer;
+begin
+  Campo := RetiraAcento(Campo);
+  Campo := ANSIUpperCase(Campo);
+
+  if Size > Length(Campo) then begin
+     Pos := Length(Campo) + 1;
+
+     while Length(Campo) <> Size do begin
+        Insert(' ', Campo, 1);
+        Inc(Pos);
+     end;
+  end;
+  Move(Campo[1],PraOnde,Size);
+end;
+
+procedure TdtmGerarCobrancaCEF.MoveVal(Numero: Currency; var PraOnde; Size: Integer);
+Var Campo: String;
+Begin
+   Campo := TIRAPONTO(FormatFloat('00000000000.00', Numero));
+   While Length(Campo) < Size do
+         Campo:= '0'+Campo;
+
+   Move(Campo[1], PraOnde, Size);
+end;
+
+function TdtmGerarCobrancaCEF.ParametrosContratos: String;
+var Contratos : String;
+begin
+  Result:= '';
+  GuardarRegistroAtual(qryParcelas, true);
+  qryParcelas.First;
+  while not qryParcelas.Eof do
+  begin
+    Contratos:= Contratos + qryParcelascontrato.AsString+',';
+    qryParcelas.Next;
+  end;
+  VoltarRegistroAtual(qryParcelas);
+  Delete(Contratos,length(Contratos),1);
+  Result:= Contratos
+end;
+
+procedure TdtmGerarCobrancaCEF.ProcessarArquivoRetorno(Arquivo: String);
+var Arq: TextFile;
+    Linha : String;
+    Segmento: Char;
+
+  procedure ProcessarSegmento_T;
+  begin
+    TecLux:= strtoint(Copy(Linha,106,4)) = 9889;
+    Site := False;
+    TecVin := False;
+    CobCaixa := false;
+
+    if TecLux then
+    begin
+      qryDadosRetorno.Append;
+      VerificacoesContrato(Copy(Linha,110,6));
+      qryDadosRetornocontrato.AsInteger:= strtoint(Copy(Linha,110,6));
+      qryDadosRetornoempreendimento.AsInteger:= NroEmpreendimento;
+      qryDadosRetornonomeempreendimento.AsString := NomeEmpreendimento;
+      qryDadosRetornocliente.AsInteger:= NroCliente;
+      qryDadosRetornonomecliente.AsString:= Copy(Linha,149,40);
+      qryDadosRetornotipoparcela.AsString:= ConverterTipoParcela(strtoint(Copy(Linha, 116,2)));
+      qryDadosRetornoparcela.AsInteger:= strtoint(Copy(Linha,118,3));
+      qryDadosRetornoorigemparcela.AsString:=  qryDadosRetornotipoparcela.AsString+'-'+ preencheString(Copy(Linha,118,3),'0',3,False);
+      qryDadosRetornobanco.AsInteger:= strtoint(Copy(Linha, 1,3));
+      qryDadosRetornodatavencto.AsDateTime:= TratarData(Copy(Linha, 74,8));
+      qryDadosRetornovalorvencto.AsFloat:= TratarValor(Copy(Linha, 82, 15));
+      qryDadosRetornomoeda.AsString:= Copy(Linha, 131,2);
+      qryDadosRetornoteclux.AsBoolean:= True;
+      qryDadosRetornosite.AsBoolean:= False;
+      qryDadosRetornotecvin.AsBoolean:= False;
+      qryDadosRetornocobcaixa.AsBoolean:= False;
+
+      qryDadosRetorno.Post;
+    end
+    else
+    begin
+      Site := (copy(LInha,049,8) = copy(Linha,113,8)) and
+              (copy(LInha,049,8) = copy(Linha,156,8));
+
+            {Em 11/NOV/2010,  ficou combinado com  o Márcio da ZITA que ele não
+             irá mais gerar boletos individualizados pelo COBCAIZA, mas só pelo
+             SITE. Se porventura vier a gerar, ele fará procedimento manual.   }
+
+      CobCaixa := FALSE; //Site and (copy(LInha,74,8) <> '00000000');
+
+      if not CobCaixa then
+      begin
+
+        if site then
+        begin
+          RefazConsultaPorNome(qryParcelasImoveis,['nossonumero'],[copy(LInha,049,8)]);
+          site := qryParcelasImoveis.RecordCount<>0;
+        end;
+
+        if site  then
+        begin
+          qryDadosRetorno.Append;
+          qryDadosRetornocontrato.AsInteger:= qryParcelasImoveis.fieldbyname('contrato').AsInteger;
+          qryDadosRetornoempreendimento.AsInteger:= qryParcelasImoveis.fieldbyname('empreendimento').AsInteger;
+          VerificarEmpreendimento(qryParcelasImoveis.fieldbyname('empreendimento').Asstring);
+          qryDadosRetornonomeempreendimento.AsString := NomeEmpreendimento;
+          qryDadosRetornocliente.AsInteger:= qryParcelasImoveis.fieldbyname('cliente').AsInteger;;
+          qryDadosRetornonomecliente.AsString:= qryParcelasImoveis.fieldbyname('nome').AsString;
+          qryDadosRetornotipoparcela.AsString:= qryParcelasImoveis.fieldbyname('tipo').AsString;
+          qryDadosRetornoparcela.AsInteger:= qryParcelasImoveis.fieldbyname('numero').Asinteger;
+          qryDadosRetornoorigemparcela.AsString:=  qryDadosRetornotipoparcela.AsString+'-'+ preencheString(qryDadosRetornoparcela.AsString,'0',3,False);
+          qryDadosRetornobanco.AsInteger:= strtoint(Copy(Linha, 1,3));
+          qryDadosRetornodatavencto.AsDateTime:= qryParcelasImoveis.fieldbyname('datavencto').AsDateTime;
+          qryDadosRetornovalorvencto.AsFloat:= TratarValor(Copy(Linha, 82, 15));
+          qryDadosRetornomoeda.AsString:= Copy(Linha, 131,2);
+          qryDadosRetornoteclux.AsBoolean:= False;
+          qryDadosRetornosite.AsBoolean:= True;
+          qryDadosRetornotecvin.AsBoolean:= False;
+          qryDadosRetornocobcaixa.AsBoolean:= False;
+          qryDadosRetorno.Post;
+        end
+        else
+        begin
+          TecVin := true;
+          qryDadosRetorno.Append;
+          qryDadosRetornocontrato.AsInteger:= strtoint(Copy(Linha,114,2));
+          qryDadosRetornoempreendimento.AsInteger:= strtoint(Copy(Linha,106,3));
+          VerificarEmpreendimento(Copy(Linha,106,3));
+          qryDadosRetornonomeempreendimento.AsString := NomeEmpreendimento;
+          qryDadosRetornocliente.AsInteger:= strtoint(Copy(Linha, 109,5));
+          qryDadosRetornonomecliente.AsString:= Copy(Linha,149,40);
+          qryDadosRetornotipoparcela.AsString:= ConverterTipoParcela(strtoint(Copy(Linha, 116,2)));
+          qryDadosRetornoparcela.AsInteger:= strtoint(trim(Copy(Linha,118,3)));
+          qryDadosRetornoorigemparcela.AsString:=  qryDadosRetornotipoparcela.AsString+'-'+ preencheString(Copy(Linha,118,3),'0',3,False);
+          qryDadosRetornobanco.AsInteger:= strtoint(Copy(Linha, 1,3));
+          qryDadosRetornodatavencto.AsDateTime:= TratarData(Copy(Linha, 74,8));
+          qryDadosRetornovalorvencto.AsFloat:= TratarValor(Copy(Linha, 82, 15));
+          qryDadosRetornomoeda.AsString:= Copy(Linha, 131,2);
+          qryDadosRetornoteclux.AsBoolean:= False;
+          qryDadosRetornosite.AsBoolean:= False;
+          qryDadosRetornotecvin.AsBoolean:= True;
+          qryDadosRetornocobcaixa.AsBoolean:= False;
+          qryDadosRetorno.Post;
+        end;
+      end
+      else
+      begin
+          qryDadosRetorno.Append;
+ {         qryDadosRetornocontrato.AsInteger:= qryParcelasImoveis.fieldbyname('contrato').AsInteger;
+          qryDadosRetornoempreendimento.AsInteger:= qryParcelasImoveis.fieldbyname('empreendimento').AsInteger;
+          VerificarEmpreendimento(qryParcelasImoveis.fieldbyname('empreendimento').Asstring);
+          qryDadosRetornonomeempreendimento.AsString := NomeEmpreendimento;
+          qryDadosRetornocliente.AsInteger:= qryParcelasImoveis.fieldbyname('cliente').AsInteger;;
+          qryDadosRetornonomecliente.AsString:= qryParcelasImoveis.fieldbyname('nome').AsString;
+          qryDadosRetornotipoparcela.AsString:= qryParcelasImoveis.fieldbyname('tipo').AsString;
+          qryDadosRetornoparcela.AsInteger:= qryParcelasImoveis.fieldbyname('numero').Asinteger;
+          qryDadosRetornoorigemparcela.AsString:=  qryDadosRetornotipoparcela.AsString+'-'+ preencheString(qryDadosRetornoparcela.AsString,'0',3,False);
+}
+          qryDadosRetornobanco.AsInteger:= strtoint(Copy(Linha, 1,3));
+
+          qryDadosRetornodatavencto.AsDateTime:= TratarData(Copy(Linha, 74,8));
+          qryDadosRetornovalorvencto.AsFloat:= TratarValor(Copy(Linha, 82, 15));
+          qryDadosRetornomoeda.AsString:= Copy(Linha, 131,2);
+          qryDadosRetornoteclux.AsBoolean:= False;
+          qryDadosRetornosite.AsBoolean:= False;
+          qryDadosRetornotecvin.AsBoolean:= False;
+          qryDadosRetornocobcaixa.AsBoolean:= true;
+          qryDadosRetorno.Post;
+      end;
+    end;
+  end;
+
+  procedure ProcessarSegmento_U;
+  begin
+    qryDadosRetorno.Edit;
+    qryDadosRetornocodmov.AsInteger:= strtoint(Copy(Linha,16,2));
+    qryDadosRetornodesccricaomov.AsString:= GABuffer.Movimento[strtoint(Copy(Linha,16,2))];
+    qryDadosRetornodatapagto.AsDateTime:= TratarData(Copy(Linha, 138,8));
+    qryDadosRetornovalorpagto.AsFloat:=  TratarValor(Copy(Linha, 78, 15));
+    if Copy(Linha, 146, 8) <> '00000000' then
+      qryDadosRetornodatacreditado.AsDateTime:= TratarData(Copy(Linha, 146, 8));
+    qryDadosRetornovalorcreditado.AsFloat:= TratarValor(Copy(Linha, 93, 15));
+    qryDadosRetornoacrescimo.AsFloat:= TratarValor(Copy(Linha,18,15));
+    qryDadosRetornoiof.AsFloat:= TratarValor(Copy(Linha,63,15));
+    qryDadosRetornodescontos.AsFloat:= TratarValor(Copy(Linha,33,15));
+    qryDadosRetornoabatimentos.AsFloat:= TratarValor(Copy(Linha,48,15));
+    qryDadosRetorno.Post;
+  end;
+
+  procedure ProcessarSegmento_W;
+  begin
+
+  end;
+
+begin
+  AssignFile(Arq, Arquivo);
+  Reset(Arq);
+  ArquivoRetorno:= Arquivo;
+  New(GABuffer);
+  FillChar(GABuffer^,SizeOf(T_GABuffer),0);
+  MontarTabelasMotivosOcorrencia;
+  MontarTabelaMovimentos;
+
+  if assigned(qrydadosretorno) then
+    qryDadosRetorno.Close;
+
+  qryDadosRetorno.Open;
+  qryDadosRetorno.Delete;
+  while not Eof(Arq) do
+  begin
+    Readln(Arq, Linha);
+    Segmento:= Linha[14];
+    if Segmento in ['T','U','W'] then
+    begin
+      case Segmento of
+      'T': ProcessarSegmento_T;
+      'U': ProcessarSegmento_U;
+      'W': ProcessarSegmento_W;
+      end;
+    end;
+  end;
+  CloseFile(Arq);
+end;
+
+procedure TdtmGerarCobrancaCEF.RefazConsultaParcelas(Empreendimento,Cliente, Parcelas: Integer; TipoParcela, DataVencto: Variant);
+begin
+  RefazConsultaPorNome(qryParcelasRetorno,['Empreendimento','Cliente','TipoParcela','Numero'],[Empreendimento,
+                                                                                               Cliente,
+                                                                                               TipoParcela,
+                                                                                               Parcelas]);
+end;
+
+function TdtmGerarCobrancaCEF.TiraPonto(vValStr: String): String;
+Var I: Integer;
+begin
+  Result := '';
+  for I := 1 to Length(vValStr) do
+  begin
+    if (Copy(vValStr,I,1) = '.') or (Copy(vValStr,I,1) = ',') then
+      Result := Result + ''
+    else
+      Result := Result + Copy(vValStr,I,1);
+  end;
+end;
+
+function TdtmGerarCobrancaCEF.TratarData(Valor: String): TDateTime;
+var Data: TDateTime;
+begin
+  Data:= strtodate(Copy(Valor,1,2)+'/'+Copy(Valor,3,2)+'/'+Copy(Valor,5,4));
+  Result:= Data;
+end;
+
+function TdtmGerarCobrancaCEF.TratarValor(Valor: String): Currency;
+Var Numero: Integer;
+begin
+  Numero:= length(Valor)-1;
+  Insert(',',Valor,Numero);
+  Result:= Strtocurr(Valor);
+end;
+
+procedure TdtmGerarCobrancaCEF.frpRelatorioRetornoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRelatorioRetorno,View);
+end;
+
+procedure TdtmGerarCobrancaCEF.ZMonitorMonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.Create;
+  arquivo := 'c:\gerararquivoCEF.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+procedure TdtmGerarCobrancaCEF.GerarMovimentacaoBancaria;
+Var Sequencia: Integer;
+    Descricao: String;
+
+  procedure InserirMovto;
+  begin
+    RefazConsulta(qryMovtosBancos,[],[]);
+    qryMovtosBancos.Append;
+    qryMovtosBancosconta.AsInteger        := qryParametrosContasImoveiscontacreditarcef.AsInteger;
+    qryMovtosBancosdata.AsDateTime        := qryDadosRetornodatapagto.AsDateTime;
+    qryMovtosBancossequencia.AsInteger    := Sequencia;
+    qryMovtosBancoscompensacao.AsDateTime := qryDadosRetornodatapagto.AsDateTime;
+    qryMovtosBancosevento.AsInteger       := qryParametrosevento.AsInteger;
+    qryMovtosBancosorigemlancto.AsString  := 'T';
+//      qryMovtosBancosdocumento.AsString     := RecebimentosInt.NroCheque;
+    qryMovtosBancosobservacoes.AsString   := Descricao;
+    qryMovtosBancosvalor.AsFloat          := qryDadosRetornovalorcreditado.AsFloat;
+    qryMovtosBancos.Post;
+
+    qryMovtosBancosEventos.Open;
+    qryMovtosBancosEventos.Append;
+    qryMovtosBancosEventosconta.AsInteger        := qryParametrosContasImoveiscontacreditarcef.AsInteger;
+    qryMovtosBancosEventosdata.AsDateTime        := qryDadosRetornodatapagto.AsDateTime;
+    qryMovtosBancosEventossequencia.AsInteger    := Sequencia;
+    qryMovtosBancosEventosevento.AsInteger       := qryParametrosevento.AsInteger;
+    qryMovtosBancosEventosvalor.AsFloat          := qryDadosRetornovalorcreditado.AsFloat;
+    qryMovtosBancosEventos.Post;
+    Perpetrar([qryMovtosBancos, qryMovtosbancosEventos], False);
+  end;
+
+begin
+  Descricao:= DescricaoParcelas;
+  RefazConsultaPorNome(qryParametros,[],[]);
+  RefazConsultaPorNome(qrySequencia,['ContaPagto','DataPagto'],[qryParametrosContasImoveiscontacreditarcef.AsInteger, qryDadosRetornodatapagto.AsVariant]);
+  Sequencia:= qrySequenciasequencia.AsInteger + 1;
+  InserirMovto;
+end;
+
+function TdtmGerarCobrancaCEF.DescricaoParcelas: String;
+var Tipo, Parcela, Saida: String;
+    Numero, a, i, g, Total: Integer;
+begin
+  Result:= 'NP '  + qryDadosRetornoTipoParcela.AsString + '-'
+                  + preencheString(qryDadosRetornoParcela.AsString,'0',3,False)+' - ' 
+                  + qryDadosRetornonomecliente.AsString;
+  FDescricaoParcela := Result;
+end;
+
+
+procedure TdtmGerarCobrancaCEF.GerarLancamentosContabeis;
+begin
+  qryProcessarRecebimentos.ParamByName('Filial').AsInteger  := FilialBase;
+  qryProcessarRecebimentos.ParamByName('Recibo').AsInteger  := qryParcelasRetornorecibopagto.AsInteger;
+  qryProcessarRecebimentos.ExecSql;
+end;
+
+
+function TdtmGerarCobrancaCEF.GetNumeroRecibo: Integer;
+begin
+  spcRecibos.Open;
+  Result:= spcRecibosrecibo.AsInteger;
+  spcRecibos.Close;
+end;
+
+function TdtmGerarCobrancaCEF.GetNumeroOrigem: Int64;
+var Contrato, Parcela, TipoStr, NrPagto : String;
+    Evento, Tipo: Integer;
+begin
+  if qryParcelasRetornonumeroorigem.AsSTring <> '' then
+    Result:= StrToInt64(qryParcelasRetornonumeroorigem.AsSTring)
+  else
+  begin
+    Evento  := 4;
+    Contrato:= preencheString(qryParcelasRetornocontrato.AsString,'0',6,false)+inttostr(Evento);
+    Tipo    := ConverterTipoParcela(qryParcelasRetornotipo.AsString[1]);
+    Parcela := preencheString(qryParcelasRetornonumero.AsString, '0',3,False);
+    NrPagto := preencheString(qryParcelasRetornonrpagto.AsString,'0',2,False);
+    TipoStr := preencheString(inttostr(Tipo),'0',2,False);
+    Result  := strtoint64(Contrato + TipoStr + Parcela + NrPagto);
+  end;
+end;
+
+procedure TdtmGerarCobrancaCEF.VerificacoesContrato(Contrato: String);
+begin
+  RefazConsultaPorNome(qryClienteContrato,['Contrato'],[strtoint(Contrato)]);
+  NroEmpreendimento:= qryClienteContratoempreendimento.AsInteger;
+  NroCliente       := qryClienteContratocliente.AsInteger;
+  NomeCliente      := qryClienteContratonomecliente.AsString;
+  NomeEmpreendimento:= qryClienteContratonomeempreendimento.AsString;
+end;
+
+constructor TdtmGerarCobrancaCEF.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryParametrosContasImoveis.Open;
+end;
+
+procedure TdtmGerarCobrancaCEF.VerificarEmpreendimento(Emp: String);
+begin
+  RefazConsultaPorNome(qryEmpreendimento,['Emp'],[Emp]);
+  NroEmpreendimento:= qryEmpreendimentocodigo.AsInteger;
+  NomeEmpreendimento:= qryEmpreendimentonome.AsString;
+
+end;
+
+procedure TdtmGerarCobrancaCEF.GerarDadosRelatorioEmpreendimento;
+begin
+  if assigned(qryDadosRetornoRelatorioEmp) then
+    qryDadosRetornoRelatorioEmp.Close;
+
+  qryDadosRetornoRelatorioEmp.Open;
+  qryDadosRetornoRelatorioEmp.Delete;
+
+  GuardarRegistroAtual(qryDadosRetorno, true);
+  qryDadosRetorno.First;
+  while not qryDadosRetorno.Eof do
+  begin
+    if qryDadosRetornocodmov.AsInteger =  06 then
+    begin
+      qryDadosRetornoRelatorioEmp.Append;
+      qryDadosRetornoRelatorioEmpcontrato.AsInteger          := qryDadosRetornocontrato.AsInteger;
+      qryDadosRetornoRelatorioEmpempreendimento.AsInteger    := qryDadosRetornoempreendimento.AsInteger;
+      qryDadosRetornoRelatorioEmpcliente.AsInteger           := qryDadosRetornocliente.AsInteger;
+      qryDadosRetornoRelatorioEmpnomecliente.AsString        := qryDadosRetornonomecliente.AsString;
+      qryDadosRetornoRelatorioEmptipoparcela.AsString        := qryDadosRetornotipoparcela.AsString;
+      qryDadosRetornoRelatorioEmpparcela.AsInteger           := qryDadosRetornoparcela.AsInteger;
+      qryDadosRetornoRelatorioEmpbanco.AsInteger             := qryDadosRetornobanco.AsInteger;
+      qryDadosRetornoRelatorioEmpcodmov.AsInteger            := qryDadosRetornocodmov.AsInteger;
+      qryDadosRetornoRelatorioEmpdesccricaomov.AsString      := qryDadosRetornodesccricaomov.AsString;
+      qryDadosRetornoRelatorioEmpdatavencto.AsDateTime       := qryDadosRetornodatavencto.AsDateTime;
+      qryDadosRetornoRelatorioEmpvalorvencto.AsCurrency      := qryDadosRetornovalorvencto.AsCurrency;
+      qryDadosRetornoRelatorioEmpdatapagto.AsDateTime        := qryDadosRetornodatapagto.AsDateTime;
+      qryDadosRetornoRelatorioEmpvalorpagto.AsCurrency       := qryDadosRetornovalorpagto.AsCurrency;
+      qryDadosRetornoRelatorioEmpdatacreditado.AsDateTime    := qryDadosRetornodatacreditado.AsDateTime;
+      qryDadosRetornoRelatorioEmpvalorcreditado.AsCurrency   := qryDadosRetornovalorcreditado.AsCurrency;
+      qryDadosRetornoRelatorioEmporigemparcela.AsString      := qryDadosRetornoorigemparcela.AsString;
+      qryDadosRetornoRelatorioEmpnomeempreendimento.AsString := qryDadosRetornonomeempreendimento.AsString;
+      qryDadosRetornoRelatorioEmpdescerro.AsString           := qryDadosRetornodescerro.AsString;
+      qryDadosRetornoRelatorioEmp.Post;
+    end;
+    qryDadosRetorno.Next;
+  end;
+  VoltarRegistroAtual(qryDadosRetorno);
+end;
+
+function TdtmGerarCobrancaCEF.ExisteEnderecoTamanhoMaior40: Boolean;
+begin
+  Result:= False;
+  GuardarRegistroAtual(qryContratosParcelas, True);
+  qryContratosParcelas.First;
+  while not qryContratosParcelas.Eof do
+  begin
+    if qryContratosParcelascampomaior.AsBoolean then
+    begin
+      if not DiminuiuCampo then
+      begin
+        Result:= True;
+        //Break;
+      end;
+    end;
+    qryContratosParcelas.Next;
+  end;
+  VoltarRegistroAtual(qryContratosParcelas);
+end;
+
+function TdtmGerarCobrancaCEF.DiminuiuCampo: Boolean;
+var Rua: String;
+begin
+  Rua:= qryContratosParcelasendereco.AsString;
+
+  if Length(Rua) > 40 then
+  begin
+    Rua:= Trocar(Rua,'RUA ', 'R ');
+    Rua:= Trocar(Rua,'AVENIDA ', 'AV ');
+    Rua:= Trocar(Rua,'BAIRRO', '');
+    Rua:= Trocar(Rua,'BLOCO', 'BL');
+    Rua:= Trocar(Rua,'PROFESSOR', 'PROF');
+    Rua:= Trocar(Rua,'  ', ' ');
+    Rua:= Trocar(Rua,'DESEMBARGADOR', 'DES');
+    Rua:= Trocar(Rua,'PREFEITO', 'PREF');
+    Rua:= Trocar(Rua,'SENADOR', 'SER');
+    Rua:= Trocar(Rua,'VEREADOR', 'VER');
+    Rua:= Trocar(Rua,'ESTRADA', 'EST');
+    Rua:= Trocar(Rua,'APTO', 'AP');
+    Rua:= Trocar(Rua,'DOUTOR', 'DR');
+    Rua:= Trocar(Rua,'RODOVIA', 'ROD');
+    Rua:= Trocar(Rua,'SERVIDAO', 'SERV');
+    Rua:= Trocar(Rua,'CAPITAO', 'CAP');
+    Rua:= Trocar(Rua,'GENERAL', 'GAL');
+    qryContratosParcelas.Edit;
+    qryContratosParcelasendereco.AsString:= Rua;
+    if Length(Rua) <= 40 then
+      qryContratosParcelascampomaior.AsBoolean:= False;
+    qryContratosParcelas.Post;
+  end;
+  Result:= Length(Rua) <= 40;
+end;
+
+end.

@@ -1,0 +1,136 @@
+unit dmVerificacaoReservas;
+
+interface
+
+uses
+  SysUtils, Classes, DB, ZQuery, ZPgSqlQuery, cpquery, cpdatasource,
+  dmbasico, dmtecsoft, biblio;
+
+type
+  TdtmVerificacaoReservas = class(TdtmBasico)
+    dsrReservasPrevias: TtecDataSource;
+    qryReservasPrevias: TtecQuery;
+    qryReservadoFuturo: TtecQuery;
+    dsrReservadoFuturo: TtecDataSource;
+    qryReservasPreviasproduto: TLargeintField;
+    qryReservasPreviasdescricao: TStringField;
+    qryReservasPreviasresultadocurvaabc: TStringField;
+    qryReservasPreviasfilial: TIntegerField;
+    qryReservasPreviasemestoque: TFloatField;
+    qryReservasPreviasreservaprevia: TFloatField;
+    qryReservasPreviaspedidos_em_aberto: TFloatField;
+    qryReservadoFuturoproduto: TLargeintField;
+    qryReservadoFuturodescricao: TStringField;
+    qryReservadoFuturoresultadocurvaabc: TStringField;
+    qryReservadoFuturofilial: TIntegerField;
+    qryReservadoFuturoemestoque: TFloatField;
+    qryReservadoFuturoreservado: TFloatField;
+    qryReservadoFuturofuturo: TFloatField;
+    qryReservadoFuturopendentes_emissao: TFloatField;
+    qryReservasPreviasprodutovisual: TStringField;
+    qryReservadoFuturoprodutovisual: TStringField;
+    qryReservasPreviasSaldoReservaPrevia: TFloatField;
+    qryReservadoFuturoSaldoReservadoFuturo: TFloatField;
+    procedure DataModuleCreate(Sender: TObject);
+    procedure qryReservasPreviasCalcFields(DataSet: TDataSet);
+    procedure qryReservadoFuturoCalcFields(DataSet: TDataSet);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+
+    procedure AbrirConsulta(LitadeFiliais,
+          ListadeItemProdutos, ListadeProdutos,
+          ListadeGrupos, ListadeClasses, ListadeMarcas: String);
+
+  end;
+
+var
+  dtmVerificacaoReservas: TdtmVerificacaoReservas;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmVerificacaoReservas }
+
+procedure TdtmVerificacaoReservas.AbrirConsulta(LitadeFiliais,
+  ListadeItemProdutos, ListadeProdutos, ListadeGrupos, ListadeClasses,
+  ListadeMarcas: String);
+begin
+  if LitadeFiliais <> '' then
+    qryReservasPrevias.macrobyname('CondicaoFilial').asString := 'and f.codigo in ('+LitadeFiliais+')'
+  else
+    qryReservasPrevias.macrobyname('CondicaoFilial').asString := '';
+
+  if ListadeItemProdutos <> '' then
+    qryReservasPrevias.macrobyname('CondicaoProduto').asString := 'and ('+ListadeItemProdutos+')'
+  else
+    qryReservasPrevias.macrobyname('CondicaoProduto').asString := '';
+
+  if ListadeProdutos <> '' then
+    qryReservasPrevias.macrobyname('CondicaoCaracteristica').asString := 'and ('+ListadeProdutos+')'
+  else
+    qryReservasPrevias.macrobyname('CondicaoCaracteristica').asString := '';
+
+  if ListadeGrupos <> '' then
+    qryReservasPrevias.macrobyname('CondicaoGrupo').asString := 'and ('+ ListadeGrupos + ')'
+  else
+    qryReservasPrevias.macrobyname('CondicaoGrupo').asString := '';
+
+  if ListadeClasses <> '' then
+    qryReservasPrevias.macrobyname('CondicaoClasse').asString := 'and ('+ ListadeClasses +')'
+  else
+    qryReservasPrevias.macrobyname('CondicaoClasse').asString := '';
+
+  if ListadeMarcas <> '' then
+    qryReservasPrevias.macrobyname('CondicaoMarca').asString := 'and ('+ ListadeMarcas +')'
+  else
+    qryReservasPrevias.macrobyname('CondicaoMarca').asString := '';
+
+  qryReservadoFuturo.macros := qryReservasPrevias.macros;
+
+  qryReservadoFuturo.close;
+  qryReservasPrevias.close;
+
+  qryReservadoFuturo.OPen;
+  qryReservasPrevias.Open;
+
+end;
+
+constructor TdtmVerificacaoReservas.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+procedure TdtmVerificacaoReservas.DataModuleCreate(Sender: TObject);
+begin
+  inherited;
+  RemoveDataModule(Self);
+end;
+
+procedure TdtmVerificacaoReservas.qryReservasPreviasCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryReservasPreviasSaldoReservaPrevia.asFloat :=
+    qryReservasPreviasreservaprevia.asFloat -
+    qryReservasPreviaspedidos_em_aberto.asFloat;
+    
+end;
+
+procedure TdtmVerificacaoReservas.qryReservadoFuturoCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryReservadoFuturoSaldoReservadoFuturo.asFloat :=
+    (qryReservadoFuturoreservado.AsFloat +
+     qryReservadoFuturofuturo.AsFloat) -
+     qryReservadoFuturopendentes_emissao.asFloat;
+
+
+end;
+
+end.

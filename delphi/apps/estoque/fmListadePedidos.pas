@@ -1,0 +1,128 @@
+unit fmListadePedidos;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, dmconsultacompras, Grids, AdvObj, BaseGrid, AdvGrid, DBAdvGrid,
+  StdCtrls, ExtCtrls, Buttons;
+
+type
+  TfrmListadePedidos = class(TForm)
+    dbgListaPedidosFiliaisRequisitante: TDBAdvGrid;
+    gbxListaRequisitante: TGroupBox;
+    gbxListaRequisitado: TGroupBox;
+    dbgListaPedidosFiliaisRequisitado: TDBAdvGrid;
+    pnlListaPedidosFiliaisRequisitante: TPanel;
+    pnlListaPedidosFiliaisRequisitado: TPanel;
+    sbnCancelaFilialRequisitante: TSpeedButton;
+    sbnCancelaFilialRequisitada: TSpeedButton;
+    Timer1: TTimer;
+    procedure dbgListaPedidosFiliaisRequisitanteClick(Sender: TObject);
+    procedure dbgListaPedidosFiliaisRequisitadoClick(Sender: TObject);
+    procedure sbnCancelaFilialRequisitanteClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure sbnCancelaFilialRequisitadaClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+
+  end;
+
+var
+  frmListadePedidos: TfrmListadePedidos;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmListadePedidos }
+
+constructor TfrmListadePedidos.Create(AOwner: TComponent);
+var
+ vindex : integer;
+begin
+  inherited;
+  with dbgListaPedidosFiliaisRequisitante do
+  begin
+    FloatingFooter.Visible := False;
+    FloatingFooter.Visible := True;
+
+    vindex := ColumnByFieldName['qtdepedida'].Index;
+    FloatingFooter.ColumnCalc[vIndex] := acSum;
+
+    vindex := ColumnByFieldName['qtderecebida'].Index;
+    FloatingFooter.ColumnCalc[vIndex] := acSum;
+
+//    AutoNumberCol(0);
+  end;
+
+  with dbgListaPedidosFiliaisRequisitado do
+  begin
+    FloatingFooter.Visible := False;
+    FloatingFooter.Visible := True;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['qtdepedida'].Index] := acSum;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['qtderecebida'].Index] := acSum;
+//    AutoNumberCol(0);
+  end;
+
+  dbgListaPedidosFiliaisRequisitante.syncgrid.grid := dbgListaPedidosFiliaisRequisitado;
+  dbgListaPedidosFiliaisRequisitado.syncgrid.grid := dbgListaPedidosFiliaisRequisitante;
+
+
+end;
+
+procedure TfrmListadePedidos.dbgListaPedidosFiliaisRequisitanteClick(
+  Sender: TObject);
+begin
+//  dbgListaPedidosFiliaisRequisitante.syncgrid.grid := dbgListaPedidosFiliaisRequisitado;
+//  dbgListaPedidosFiliaisRequisitado.syncgrid.grid := dbgListaPedidosFiliaisRequisitante;
+end;
+
+procedure TfrmListadePedidos.dbgListaPedidosFiliaisRequisitadoClick(
+  Sender: TObject);
+begin
+//  dbgListaPedidosFiliaisRequisitante.syncgrid.grid := dbgListaPedidosFiliaisRequisitado;
+//  dbgListaPedidosFiliaisRequisitado.syncgrid.grid := dbgListaPedidosFiliaisRequisitante;
+end;
+
+procedure TfrmListadePedidos.sbnCancelaFilialRequisitanteClick(
+  Sender: TObject);
+begin
+  dtmconsultacompras.CancelarPedidoFilialRequisitante
+end;
+
+procedure TfrmListadePedidos.Timer1Timer(Sender: TObject);
+begin
+  sbnCancelaFilialRequisitante.enabled := ((dtmconsultacompras.qryListaPedidosFiliais_Requisitanterequisitante.asinteger =
+                                           strtoint(dtmconsultacompras.FilialRequisitante))
+
+                                           or
+
+                                          (dtmconsultacompras.qryListaPedidosFiliais_Requisitanterequisitada.asinteger =
+                                           strtoint(dtmconsultacompras.FilialRequisitante))) and
+
+                                          (dtmconsultacompras.qryListaPedidosFiliais_Requisitantesituacao.asstring = 'A');
+
+
+  sbnCancelaFilialRequisitada.enabled := ((dtmconsultacompras.qryListaPedidosFiliais_Requisitadorequisitada.asinteger =
+                                          strtoint(dtmconsultacompras.FilialRequisitante)) or
+
+                                          (dtmconsultacompras.qryListaPedidosFiliais_Requisitadorequisitante.asinteger =
+                                           strtoint(dtmconsultacompras.FilialRequisitante))) and
+
+                                         (dtmconsultacompras.qryListaPedidosFiliais_Requisitadosituacao.asString = 'A');
+
+
+
+end;
+
+procedure TfrmListadePedidos.sbnCancelaFilialRequisitadaClick(
+  Sender: TObject);
+begin
+  dtmconsultacompras.CancelarPedidoFilialRequisitada
+end;
+
+end.

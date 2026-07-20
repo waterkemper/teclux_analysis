@@ -1,0 +1,1004 @@
+unit dmexportacaoprodutos;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, DBClient, ZQuery, ZPgSqlQuery, cpquery, clparametrossistema,
+  ZTransact, StrUtils;
+
+type
+  TdtmExportacaoProdutos = class(TdtmBasico)
+    qryProdutos: TtecQuery;
+    qryCaracteristicas: TtecQuery;
+    qryColunasPrecos: TtecQuery;
+    qryFornecedores: TtecQuery;
+    qryFornecedoresProdutos: TtecQuery;
+    qryGruposFornecedores: TtecQuery;
+    qryBairros: TtecQuery;
+    qryRegioes: TtecQuery;
+    qryTabelaFretes: TtecQuery;
+    qrycidades: TtecQuery;
+    qryEstados: TtecQuery;
+    qryConceitos: TtecQuery;
+    qryPrecos: TtecQuery;
+  private
+    { Private declarations }
+  public
+    function GerarExportacao(PeriodoInicial, PeriodoFinal, DirSaida: String; ExportarColunadePrecos: Boolean): Boolean;
+    { Public declarations }
+  end;
+
+const
+  barra = {$ifdef mswindows}'\'{$else}'/'{$endif};
+
+var
+  dtmExportacaoProdutos: TdtmExportacaoProdutos;
+
+implementation
+
+uses
+  biblio;
+{$R *.dfm}
+
+{ TdtmExportacaoProdutos }
+
+function TdtmExportacaoProdutos.GerarExportacao(PeriodoInicial,
+  PeriodoFinal, DirSaida: String; ExportarColunadePrecos: Boolean): Boolean;
+var
+{  Caracteristicas,}
+  Grupos,
+  Classes,
+  Unidades,
+  IPI,
+  ICMS,
+  Marcas,
+  Grades,
+  PlanosContas,
+  Historicos,
+  {Produtos,}
+ { Precos,}
+  Colunas{,
+  {ColunasPrecos,}
+  {fornecedores,}
+    {GruposFornecedores,}
+{    Bairros,}
+     { Regioes,}
+     { TabelaFrete,}
+     { Cidades,}
+     {   Estados ,
+    Conceitos ,
+  fornecedoresprodutos}: TStringList;
+
+  ListaCaracteristicas: String;
+  ListaFornecedores: String;
+    ListaGruposFornecedores: String;
+    ListaBairros: String;
+      ListaRegioes: String;
+      ListaTabelaFretes: String;
+      ListaCidades: String;
+        ListaEstado: String;
+    ListaConceitos: String;
+
+begin
+  Result := True;
+  try
+    with qryCaracteristicas do
+    begin
+      MacroByName('data').AsString := MontarIntervaloData('c.data',PeriodoInicial,PeriodoFinal,true);
+      Open;
+      if (recordcount <> 0) then
+      begin
+
+        ListaCaracteristicas := '';
+        ListaFornecedores := '';
+        ListaGruposFornecedores := '';
+        ListaBairros := '';
+        ListaRegioes := '';
+        ListaTabelaFretes := '';
+        ListaCidades := '';
+        ListaEstado := '';
+        ListaConceitos := '';
+
+        Grupos := TStringList.Create;
+        Grupos.Sorted := true;
+        Grupos.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+
+        Classes := TStringList.Create;
+        Classes.Sorted := true;
+        Classes.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+
+        Unidades := TStringList.Create;
+        Unidades.Sorted := true;
+        Unidades.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+
+        IPI := TStringList.Create;
+        IPI.Sorted := true;
+        IPI.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+
+        ICMS := TStringList.Create;
+        ICMS.Sorted := true;
+        ICMS.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+
+        Marcas := TStringList.Create;
+        Marcas.Sorted := true;
+        Marcas.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+
+        Grades := TStringList.Create;
+        Grades.Sorted := true;
+        Grades.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+
+        PlanosContas := TStringList.Create;
+        PlanosContas.Sorted := true;
+        PlanosContas.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+
+        Historicos := TStringList.Create;
+        Historicos.Sorted := true;
+        Historicos.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+
+        {
+        Caracteristicas := TStringList.Create;
+        Caracteristicas.Sorted := true;
+        Caracteristicas.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+        }
+
+        {
+        Fornecedores := TStringList.Create;
+        Fornecedores.Sorted := true;
+        Fornecedores.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+        }
+
+        {
+        GruposFornecedores := TStringList.Create;
+        GruposFornecedores.Sorted := true;
+        GruposFornecedores.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+        }
+
+        {
+        Bairros := TStringList.Create;
+        Bairros.Sorted := true;
+        Bairros.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+        }
+
+        {
+        Regioes := TStringList.Create;
+        Regioes.Sorted := true;
+        Regioes.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+        }
+
+        {
+        TabelaFrete := TStringList.Create;
+        TabelaFrete.Sorted := true;
+        TabelaFrete.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+        }
+
+        {
+        Cidades := TStringList.Create;
+        Cidades.Sorted := true;
+        Cidades.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+
+        Estados := TStringList.Create;
+        Estados.Sorted := true;
+        Estados.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+        }
+                {
+        Conceitos := TStringList.Create;
+        Conceitos.Sorted := true;
+        Conceitos.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+        }
+
+        {
+        FornecedoresProdutos := TStringList.Create;
+        FornecedoresProdutos.Sorted := true;
+        FornecedoresProdutos.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+        }
+
+        try
+          {try}
+            while not Eof do
+            begin
+              if not FieldByName('grupo').IsNull then
+              begin
+                if grupos.IndexOf(fieldbyname('grupo').AsString           + ';' +
+                           fieldbyname('grupo_descricao').AsString + ';' +
+                           fieldbyname('grupo_classe').AsString    + ';' +
+                           fieldbyname('grupo_comissao').AsString  + ';' +
+                           fieldbyname('grupo_tipocomissao').AsString  + ';' +
+                           fieldbyname('grupo_vendanegativa').AsString + ';' +
+                           fieldbyname('grupo_markup').AsString    + ';' +
+                           fieldbyname('grupo_multiplo').AsString  + ';' +
+                           fieldbyname('grupo_inativo').AsString   + ';' +
+                           fieldbyname('grupo_calcularpreco').AsString  + ';' +
+                           fieldbyname('grupo_naoreplicar').AsString    + ';' +
+                           fieldbyname('grupo_planilhacustos').AsString + ';') = -1 then
+
+                Grupos.Add(fieldbyname('grupo').AsString           + ';' +
+                           fieldbyname('grupo_descricao').AsString + ';' +
+                           fieldbyname('grupo_classe').AsString    + ';' +
+                           fieldbyname('grupo_comissao').AsString  + ';' +
+                           fieldbyname('grupo_tipocomissao').AsString  + ';' +
+                           fieldbyname('grupo_vendanegativa').AsString + ';' +
+                           fieldbyname('grupo_markup').AsString    + ';' +
+                           fieldbyname('grupo_multiplo').AsString  + ';' +
+                           fieldbyname('grupo_inativo').AsString   + ';' +
+                           fieldbyname('grupo_calcularpreco').AsString  + ';' +
+                           fieldbyname('grupo_naoreplicar').AsString    + ';' +
+                           fieldbyname('grupo_planilhacustos').AsString + ';');
+              end;
+
+              if not FieldByName('classe').IsNull then
+              begin
+                if Classes.IndexOf(fieldbyname('classe').AsString               + ';' +
+                            fieldbyname('classe_descricao').AsString     + ';' +
+                            fieldbyname('classe_comissao').AsString      + ';' +
+                            fieldbyname('classe_tipocomissao').AsString  + ';' +
+                            fieldbyname('classe_vendanegativa').AsString + ';' +
+                            fieldbyname('classe_multiplo').AsString      + ';' +
+                            fieldbyname('classe_inativo').AsString       + ';' +
+                            fieldbyname('classe_naoreplicar').AsString   + ';') = -1 then
+
+                Classes.Add(fieldbyname('classe').AsString               + ';' +
+                            fieldbyname('classe_descricao').AsString     + ';' +
+                            fieldbyname('classe_comissao').AsString      + ';' +
+                            fieldbyname('classe_tipocomissao').AsString  + ';' +
+                            fieldbyname('classe_vendanegativa').AsString + ';' +
+                            fieldbyname('classe_multiplo').AsString      + ';' +
+                            fieldbyname('classe_inativo').AsString       + ';' +
+                            fieldbyname('classe_naoreplicar').AsString   + ';');
+              end;
+
+              if not FieldByName('unidade').IsNull then
+              begin
+                if unidades.IndexOf(fieldbyname('unidade').AsString + ';' +
+                             fieldbyname('unidade_descricao').AsString + ';') = -1 then
+
+                Unidades.Add(fieldbyname('unidade').AsString + ';' +
+                             fieldbyname('unidade_descricao').AsString + ';');
+              end;
+
+              if not FieldByName('ipi').IsNull then
+              begin
+                if ipi.IndexOf(fieldbyname('ipi').AsString + ';' +
+                        fieldbyname('ipi_descricao').AsString + ';' +
+                        fieldbyname('ipi_classificacaofiscal').AsString + ';' +
+                        fieldbyname('ipi_aliquota').AsString + ';' +
+                        fieldbyname('ipi_genero').AsString + ';' +
+                        fieldbyname('ipi_extipi').AsString + ';') = -1 then
+
+                IPI.Add(fieldbyname('ipi').AsString + ';' +
+                        fieldbyname('ipi_descricao').AsString + ';' +
+                        fieldbyname('ipi_classificacaofiscal').AsString + ';' +
+                        fieldbyname('ipi_aliquota').AsString + ';' +
+                        fieldbyname('ipi_genero').AsString + ';' +
+                        fieldbyname('ipi_extipi').AsString + ';');
+              end;
+
+              if not FieldByName('icms').IsNull then
+              begin
+                if icms.indexof(fieldbyname('icms').AsString + ';' +
+                         fieldbyname('icms_descricao').AsString + ';' +
+                         fieldbyname('icms_tipo').AsString + ';') = -1 then
+
+                ICMS.Add(fieldbyname('icms').AsString + ';' +
+                         fieldbyname('icms_descricao').AsString + ';' +
+                         fieldbyname('icms_tipo').AsString + ';');
+              end;
+
+              if not FieldByName('marca').IsNull then
+              begin
+                 if marcas.IndexOf(fieldbyname('marca').AsString + ';' +
+                           fieldbyname('marca_descricao').AsString + ';' +
+                           fieldbyname('marca_inativo').AsString + ';') = -1 then
+
+                Marcas.Add(fieldbyname('marca').AsString + ';' +
+                           fieldbyname('marca_descricao').AsString + ';' +
+                           fieldbyname('marca_inativo').AsString + ';');
+              end;
+
+              if not FieldByName('grade1').IsNull then
+              begin
+                if grades.IndexOf(fieldbyname('grade1').AsString + ';' +
+                           fieldbyname('grade1_descricao').AsString + ';') = -1 then
+
+                Grades.Add(fieldbyname('grade1').AsString + ';' +
+                           fieldbyname('grade1_descricao').AsString + ';');
+              end;
+
+              if not FieldByName('grade2').IsNull then
+              begin
+                if grades.IndexOf(fieldbyname('grade2').AsString + ';' +
+                           fieldbyname('grade2_descricao').AsString + ';') = -1 then
+
+                Grades.Add(fieldbyname('grade2').AsString + ';' +
+                           fieldbyname('grade2_descricao').AsString + ';');
+              end;
+
+              if not FieldByName('debitarvendaavista').IsNull then
+                PlanosContas.Add(fieldbyname('debitarvendaavista').AsString            + ';' +
+                                 fieldbyname('debitarvendaavista_classificacao').AsString + ';' +
+                                 fieldbyname('debitarvendaavista_descricao').AsString  + ';' +
+                                 fieldbyname('debitarvendaavista_tipo').AsString       + ';' +
+                                 fieldbyname('debitarvendaavista_inativo').AsString    + ';' +
+                                 fieldbyname('debitarvendaavista_referencia').AsString + ';' +
+                                 fieldbyname('debitarvendaavista_natureza').AsString   + ';' +
+                                 fieldbyname('debitarvendaavista_dataincalt').AsString + ';' +
+                                 fieldbyname('debitarvendaavista_demosped').AsString   + ';');
+
+              if not FieldByName('debitarvendaaprazo').IsNull then
+                PlanosContas.Add(fieldbyname('debitarvendaaprazo').AsString            + ';' +
+                                 fieldbyname('debitarvendaaprazo_classificacao').AsString + ';' +
+                                 fieldbyname('debitarvendaaprazo_descricao').AsString  + ';' +
+                                 fieldbyname('debitarvendaaprazo_tipo').AsString       + ';' +
+                                 fieldbyname('debitarvendaaprazo_inativo').AsString    + ';' +
+                                 fieldbyname('debitarvendaaprazo_referencia').AsString + ';' +
+                                 fieldbyname('debitarvendaaprazo_natureza').AsString   + ';' +
+                                 fieldbyname('debitarvendaaprazo_dataincalt').AsString + ';' +
+                                 fieldbyname('debitarvendaaprazo_demosped').AsString   + ';');
+
+              if not FieldByName('debitarabatimentos').IsNull then
+                PlanosContas.Add(fieldbyname('debitarabatimentos').AsString            + ';' +
+                                 fieldbyname('debitarabatimentos_classificacao').AsString + ';' +
+                                 fieldbyname('debitarabatimentos_descricao').AsString  + ';' +
+                                 fieldbyname('debitarabatimentos_tipo').AsString       + ';' +
+                                 fieldbyname('debitarabatimentos_inativo').AsString    + ';' +
+                                 fieldbyname('debitarabatimentos_referencia').AsString + ';' +
+                                 fieldbyname('debitarabatimentos_natureza').AsString   + ';' +
+                                 fieldbyname('debitarabatimentos_dataincalt').AsString + ';' +
+                                 fieldbyname('debitarabatimentos_demosped').AsString   + ';');
+
+              if not FieldByName('debitardevolucoes').IsNull then
+                PlanosContas.Add(fieldbyname('debitardevolucoes').AsString            + ';' +
+                                 fieldbyname('debitardevolucoes_classificacao').AsString + ';' +
+                                 fieldbyname('debitardevolucoes_descricao').AsString  + ';' +
+                                 fieldbyname('debitardevolucoes_tipo').AsString       + ';' +
+                                 fieldbyname('debitardevolucoes_inativo').AsString    + ';' +
+                                 fieldbyname('debitardevolucoes_referencia').AsString + ';' +
+                                 fieldbyname('debitardevolucoes_natureza').AsString   + ';' +
+                                 fieldbyname('debitardevolucoes_dataincalt').AsString + ';' +
+                                 fieldbyname('debitardevolucoes_demosped').AsString   + ';');
+
+              if not FieldByName('creditarvendaavista').IsNull then
+                PlanosContas.Add(fieldbyname('creditarvendaavista').AsString            + ';' +
+                                 fieldbyname('creditarvendaavista_classificacao').AsString + ';' +
+                                 fieldbyname('creditarvendaavista_descricao').AsString  + ';' +
+                                 fieldbyname('creditarvendaavista_tipo').AsString       + ';' +
+                                 fieldbyname('creditarvendaavista_inativo').AsString    + ';' +
+                                 fieldbyname('creditarvendaavista_referencia').AsString + ';' +
+                                 fieldbyname('creditarvendaavista_natureza').AsString   + ';' +
+                                 fieldbyname('creditarvendaavista_dataincalt').AsString + ';' +
+                                 fieldbyname('creditarvendaavista_demosped').AsString   + ';');
+
+              if not FieldByName('creditarvendaaprazo').IsNull then
+                PlanosContas.Add(fieldbyname('creditarvendaaprazo').AsString            + ';' +
+                                 fieldbyname('creditarvendaaprazo_classificacao').AsString + ';' +
+                                 fieldbyname('creditarvendaaprazo_descricao').AsString  + ';' +
+                                 fieldbyname('creditarvendaaprazo_tipo').AsString       + ';' +
+                                 fieldbyname('creditarvendaaprazo_inativo').AsString    + ';' +
+                                 fieldbyname('creditarvendaaprazo_referencia').AsString + ';' +
+                                 fieldbyname('creditarvendaaprazo_natureza').AsString   + ';' +
+                                 fieldbyname('creditarvendaaprazo_dataincalt').AsString + ';' +
+                                 fieldbyname('creditarvendaaprazo_demosped').AsString   + ';');
+
+              if not FieldByName('creditarabatimentos').IsNull then
+                PlanosContas.Add(fieldbyname('creditarabatimentos').AsString            + ';' +
+                                 fieldbyname('creditarabatimentos_classificacao').AsString + ';' +
+                                 fieldbyname('creditarabatimentos_descricao').AsString  + ';' +
+                                 fieldbyname('creditarabatimentos_tipo').AsString       + ';' +
+                                 fieldbyname('creditarabatimentos_inativo').AsString    + ';' +
+                                 fieldbyname('creditarabatimentos_referencia').AsString + ';' +
+                                 fieldbyname('creditarabatimentos_natureza').AsString   + ';' +
+                                 fieldbyname('creditarabatimentos_dataincalt').AsString + ';' +
+                                 fieldbyname('creditarabatimentos_demosped').AsString   + ';');
+
+              if not FieldByName('creditardevolucoes').IsNull then
+                PlanosContas.Add(fieldbyname('creditardevolucoes').AsString            + ';' +
+                                 fieldbyname('creditardevolucoes_classificacao').AsString + ';' +
+                                 fieldbyname('creditardevolucoes_descricao').AsString  + ';' +
+                                 fieldbyname('creditardevolucoes_tipo').AsString       + ';' +
+                                 fieldbyname('creditardevolucoes_inativo').AsString    + ';' +
+                                 fieldbyname('creditardevolucoes_referencia').AsString + ';' +
+                                 fieldbyname('creditardevolucoes_natureza').AsString   + ';' +
+                                 fieldbyname('creditardevolucoes_dataincalt').AsString + ';' +
+                                 fieldbyname('creditardevolucoes_demosped').AsString   + ';');
+
+              if not FieldByName('historicovendaavista').IsNull then
+                Historicos.Add(fieldbyname('historicovendaavista').AsString           + ';' +
+                               fieldbyname('historicovendaavista_descricao').AsString + ';' +
+                               fieldbyname('historicovendaavista_historico').AsString + ';' +
+                               fieldbyname('historicovendaavista_caixa').AsString     + ';' +
+                               fieldbyname('historicovendaavista_pagar').AsString     + ';' +
+                               fieldbyname('historicovendaavista_contabil').AsString  + ';');
+
+              if not FieldByName('historicovendaaprazo').IsNull then
+                Historicos.Add(fieldbyname('historicovendaaprazo').AsString           + ';' +
+                               fieldbyname('historicovendaaprazo_descricao').AsString + ';' +
+                               fieldbyname('aaprazo_historico').AsString + ';'        +
+                               fieldbyname('historicovendaaprazo_caixa').AsString     + ';' +
+                               fieldbyname('historicovendaaprazo_pagar').AsString     + ';' +
+                               fieldbyname('historicovendaaprazo_contabil').AsString  + ';');
+
+              if not FieldByName('historicoabatimentos').IsNull then
+                Historicos.Add(fieldbyname('historicoabatimentos').AsString           + ';' +
+                               fieldbyname('historicoabatimentos_descricao').AsString + ';' +
+                               fieldbyname('historicoabatimentos_historico').AsString + ';' +
+                               fieldbyname('historicoabatimentos_caixa').AsString     + ';' +
+                               fieldbyname('historicoabatimentos_pagar').AsString     + ';' +
+                               fieldbyname('historicoabatimentos_contabil').AsString  + ';');
+
+              if not FieldByName('historicodevolucoes').IsNull then
+                Historicos.Add(fieldbyname('historicodevolucoes').AsString           + ';' +
+                               fieldbyname('historicodevolucoes_descricao').AsString + ';' +
+                               fieldbyname('historicodevolucoes_historico').AsString + ';' +
+                               fieldbyname('historicodevolucoes_caixa').AsString     + ';' +
+                               fieldbyname('historicodevolucoes_pagar').AsString     + ';' +
+                               fieldbyname('historicodevolucoes_contabil').AsString  + ';');
+
+                               {
+              Caracteristicas.Add(fieldbyname('codigo').AsString        + ';' +
+                                  fieldbyname('codigovisual').AsString  + ';' +
+                                  fieldbyname('descricao').AsString     + ';' +
+                                  TagControls(fieldbyname('complemento').AsString)   + ';' +
+                                  fieldbyname('grupo').AsString         + ';' +
+                                  fieldbyname('classe').AsString        + ';' +
+                                  fieldbyname('unidade').AsString       + ';' +
+                                  fieldbyname('ipi').AsString           + ';' +
+                                  fieldbyname('fatorpreco').AsString    + ';' +
+                                  fieldbyname('subconta').AsString      + ';' +
+                                  fieldbyname('vendanegativa').AsString + ';' +
+                                  fieldbyname('composto').AsString      + ';' +
+                                  fieldbyname('discriminarcomposto').AsString + ';' +
+                                  fieldbyname('discriminarpreco').AsString    + ';' +
+                                  fieldbyname('montagem').AsString        + ';' +
+                                  fieldbyname('origem').AsString          + ';' +
+                                  fieldbyname('icms').AsString            + ';' +
+                                  fieldbyname('aliquotapis').AsString     + ';' +
+                                  fieldbyname('aliquotacofins').AsString  + ';' +
+                                  fieldbyname('incidencia').AsString      + ';' +
+                                  fieldbyname('percreducaobase').AsString + ';' +
+                                  fieldbyname('volumes').AsString         + ';' +
+                                  fieldbyname('foralinha').AsString       + ';' +
+                                  fieldbyname('emitecomplemento').AsString+ ';' +
+                                  fieldbyname('inativo').AsString         + ';' +
+                                  fieldbyname('obslegal').AsString        + ';' +
+                                  fieldbyname('brinde').AsString          + ';' +
+                                  fieldbyname('tipocomissao').AsString    + ';' +
+                                  fieldbyname('comissao').AsString        + ';' +
+                                  fieldbyname('emiteetiqueta').AsString   + ';' +
+                                  fieldbyname('marca').AsString           + ';' +
+                                  fieldbyname('markup').AsString          + ';' +
+                                  fieldbyname('multiplo').AsString        + ';' +
+                                  TagControls(fieldbyname('observacao').AsString)      + ';' +
+                                  fieldbyname('grade1').AsString          + ';' +
+                                  fieldbyname('grade2').AsString          + ';' +
+                                  fieldbyname('baseicms').AsString        + ';' +
+                                  fieldbyname('bonus').AsString           + ';' +
+                                  fieldbyname('DebitarVendaaVista').AsString   + ';' +
+                                  fieldbyname('DebitarVendaaPrazo').AsString   + ';' +
+                                  fieldbyname('DebitarAbatimentos').AsString   + ';' +
+                                  fieldbyname('DebitarDevolucoes').AsString    + ';' +
+                                  fieldbyname('CreditarVendaaVista').AsString  + ';' +
+                                  fieldbyname('CreditarVendaaPrazo').AsString  + ';' +
+                                  fieldbyname('CreditarAbatimentos').AsString  + ';' +
+                                  fieldbyname('CreditarDevolucoes').AsString   + ';' +
+                                  fieldbyname('HistoricoVendaaVista').AsString + ';' +
+                                  fieldbyname('HistoricoVendaaPrazo').AsString + ';' +
+                                  fieldbyname('HistoricoAbatimentos').AsString + ';' +
+                                  fieldbyname('HistoricoDevolucoes').AsString  + ';' +
+                                  fieldbyname('producaopropria').AsString      + ';' +
+                                  fieldbyname('SubstituicaoIPI').AsString + ';' +
+                                  fieldbyname('especial').AsString        + ';' +
+                                  fieldbyname('tipoatividade').AsString   + ';' +
+                                  fieldbyname('ICMSModalidade').AsString  + ';' +
+                                  fieldbyname('ICMSModSubst').AsString    + ';' +
+                                  fieldbyname('foralinhal').AsString      + ';' +
+                                  fieldbyname('inativol').AsString        + ';' +
+                                  fieldbyname('PISCST').AsString          + ';' +
+                                  fieldbyname('COFINSCST').AsString       + ';' +
+                                  fieldbyname('IPICST').AsString          + ';' +
+                                  fieldbyname('TipoProduto').AsString     + ';' +
+                                  fieldbyname('custoadicionalproduto').AsString + ';' +
+                                  fieldbyname('data').AsString + ';' +
+                                  fieldbyname('csosn').AsString+';');
+                               }
+              ListaCaracteristicas := ListaCaracteristicas + fieldbyname('codigo').AsString+ ',';
+
+
+
+              Next;
+            end;
+
+            if {Caracteristicas.Count > 0} qryCaracteristicas.recordcount > 0 then
+            begin
+                    {
+              Precos := TStringList.Create;
+              Precos.Sorted := true;
+              Precos.Duplicates := dupIgnore;
+                     }
+              qryPrecos.MacroByName('data').AsString := MontarIntervaloData('c.data',PeriodoInicial,PeriodoFinal,true);
+              qryprecos.Open;
+
+              {
+              while not qryprecos.Eof do
+              begin
+                Precos.Add(qryprecos.fieldbyname('caracteristica').AsString  + ';' +
+                           qryprecos.fieldbyname('codigo').AsString           + ';' +
+                           qryprecos.fieldbyname('preco_descricao').AsString + ';' +
+                           qryprecos.fieldbyname('preco_avariado').AsString  + ';' );
+                qryprecos.Next;
+              end;
+              }
+
+{              if Precos.Count > 0 then}
+              if qryprecos.RecordCount <> 0 then
+{                Precos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Precos.txt');}
+                qryprecos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Precos.txt', false, false,
+                            '"caracteristica";"codigo";"preco_descricao";"preco_avariado"', '', ';', false, true, true, true, true, true, true, 'dd/mm/yyyy');
+
+              {Caracteristicas.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Produtos.txt');}
+              qryCaracteristicas.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Produtos.txt', false, false,
+              '"codigo";"codigovisual";"descricao";"complemento";"grupo";"classe";"unidade";"ipi";"fatorpreco";"subconta";"vendanegativa";"composto";"discriminarcomposto";'+
+              '"discriminarpreco";"montagem";"origem";"icms";"aliquotapis";"aliquotacofins";"incidencia";"percreducaobase";"volumes";"foralinha";"emitecomplemento";'+
+              '"inativo";"obslegal";"brinde";"tipocomissao";"comissao";"emiteetiqueta";"marca";"markup";"multiplo";"observacao";"grade1";"grade2";"baseicms";"bonus";'+
+              '"DebitarVendaaVista";"DebitarVendaaPrazo";"DebitarAbatimentos";"DebitarDevolucoes";"CreditarVendaaVista";"CreditarVendaaPrazo";"CreditarAbatimentos";'+
+              '"CreditarDevolucoes";"HistoricoVendaaVista";"HistoricoVendaaPrazo";"HistoricoAbatimentos";"HistoricoDevolucoes";"producaopropria";"SubstituicaoIPI";'+
+              '"especial";"tipoatividade";"ICMSModalidade";"ICMSModSubst";"foralinhal";"inativol";"PISCST";"COFINSCST";"IPICST";"TipoProduto";"custoadicionalproduto";'+
+              '"data";"csosn"','',';',false,true,true,true,true,true,true,'dd/mm/yyyy');
+              
+              ListaCaracteristicas := copy(ListaCaracteristicas,1,length(ListaCaracteristicas)-1);
+
+              if not ParSistema.NaoExportarFornecedornaExportacaodeProdutos then
+              begin
+                qryFornecedoresProdutos.MacroByName('listacaracteristicas').AsString := ListaCaracteristicas;
+                qryFornecedoresProdutos.Close;
+                qryFornecedoresProdutos.Open;
+                while not qryFornecedoresProdutos.eof do
+                begin
+                  {
+                  fornecedoresprodutos.add(qryFornecedoresProdutos.fieldbyname('caracteristica').AsString + ';' +
+                                           qryFornecedoresProdutos.fieldbyname('fornecedor').AsString + ';' +
+                                           qryFornecedoresProdutos.fieldbyname('referencia').AsString + ';' +
+                                           qryFornecedoresProdutos.fieldbyname('preco').AsString + ';' +
+                                           qryFornecedoresProdutos.fieldbyname('ipi').AsString + ';' +
+                                           qryFornecedoresProdutos.fieldbyname('data').AsString + ';' +
+                                           TagControls(qryFornecedoresProdutos.fieldbyname('observacao').AsString)+ ';');
+                  }
+                  ListaFornecedores := ListaFornecedores + qryFornecedoresProdutos.fieldbyname('fornecedor').AsString + ',';
+                  qryFornecedoresProdutos.next;
+                end;
+
+                if {ListaFornecedores<>''} qryFornecedoresProdutos.recordcount <> 0 then
+                begin
+                  {fornecedoresprodutos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'FornecedoresProdutos.txt');}
+                  qryFornecedoresProdutos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'FornecedoresProdutos.txt', false, false,
+                      '"caracteristica";"fornecedor";"referencia";"preco";"ipi";"data";"observacao"','',';',false, true, true, true, true, true, true, 'dd/mm/yyyy');
+
+                  ListaFornecedores := copy(ListaFornecedores,1,length(ListaFornecedores)-1);
+                  qryFornecedores.MacroByName('listafornecedores').AsString := ListaFornecedores;
+                  qryFornecedores.Close;
+                  qryFornecedores.Open;
+
+                  while not qryFornecedores.eof do
+                  begin
+                    {
+                    fornecedores.add(
+                     qryFornecedores.fieldbyname('codigo').AsString + ';' +
+                     qryFornecedores.fieldbyname('nome').AsString + ';' +
+                     qryFornecedores.fieldbyname('razao').AsString + ';' +
+                     qryFornecedores.fieldbyname('pessoatipo').AsString + ';' +
+                     qryFornecedores.fieldbyname('pessoanumero').AsString + ';' +
+                     TagControls(qryFornecedores.fieldbyname('rua').AsString)+ ';' +
+                     qryFornecedores.fieldbyname('bairro').AsString + ';' +
+                     qryFornecedores.fieldbyname('cidade').AsString + ';' +
+                     qryFornecedores.fieldbyname('estado').AsString + ';' +
+                     qryFornecedores.fieldbyname('grupofornecedor').AsString + ';' +
+                     qryFornecedores.fieldbyname('cep').AsString + ';' +
+                     qryFornecedores.fieldbyname('foneddd').AsString + ';' +
+                     qryFornecedores.fieldbyname('fonenumero').AsString + ';' +
+                     qryFornecedores.fieldbyname('faxddd').AsString + ';' +
+                     qryFornecedores.fieldbyname('faxnumero').AsString + ';' +
+                     qryFornecedores.fieldbyname('inscricaoestadual').AsString + ';' +
+                     qryFornecedores.fieldbyname('contato').AsString + ';' +
+                     qryFornecedores.fieldbyname('debito').AsString + ';' +
+                     qryFornecedores.fieldbyname('credito').AsString + ';' +
+                     TagControls(qryFornecedores.fieldbyname('observacoes').AsString) + ';' +
+                     qryFornecedores.fieldbyname('email').AsString + ';' +
+                     qryFornecedores.fieldbyname('markup').AsString + ';' +
+                     qryFornecedores.fieldbyname('inativo').AsString + ';' +
+                     qryFornecedores.fieldbyname('conceito').AsString + ';' +
+                     qryFornecedores.fieldbyname('enderecoalterado').AsString + ';' +
+                     qryFornecedores.fieldbyname('nosimples').AsString + ';' +
+                     qryFornecedores.fieldbyname('contribicms').AsString + ';' +
+                     qryFornecedores.fieldbyname('suframa').AsString + ';' +
+                     qryFornecedores.fieldbyname('rntc').AsString + ';' +
+                     qryFornecedores.fieldbyname('numero').AsString + ';' +
+                     TagControls(qryFornecedores.fieldbyname('complemento').AsString) + ';' +
+                     qryFornecedores.fieldbyname('fornecedorparaiss').AsString + ';' +
+                     qryFornecedores.fieldbyname('site').AsString + ';' +
+                     qryFornecedores.fieldbyname('adiantamento').AsString + ';' +
+                     qryFornecedores.fieldbyname('debitoqdocliente').AsString + ';' +
+                     qryFornecedores.fieldbyname('creditoqdocliente').AsString + ';' +
+                     qryFornecedores.fieldbyname('historicocontabil').AsString + ';' +
+                     qryFornecedores.fieldbyname('tipofornec_produto_p').AsString + ';' +
+                     qryFornecedores.fieldbyname('tipofornec_tranporte_t').AsString + ';' +
+                     qryFornecedores.fieldbyname('tipofornec_montagem_m').AsString +';');
+                     }
+
+                     if qryFornecedores.fieldbyname('grupofornecedor').AsString<>'' then
+                       ListaGruposFornecedores := ListaGruposFornecedores + qryFornecedores.fieldbyname('grupofornecedor').AsString + ',';
+
+                     ListaBairros := ListaBairros + '(' + quotedstr(qryfornecedores.fieldbyname('estado').AsString) + ','+
+                                                          qryfornecedores.fieldbyname('cidade').AsString + ','+
+                                                          qryfornecedores.fieldbyname('bairro').AsString + '),';
+
+                     if qryFornecedores.fieldbyname('conceito').AsString<>'' then
+                       ListaConceitos := ListaConceitos + qryFornecedores.fieldbyname('conceito').AsString + ',';
+
+                     qryFornecedores.next;
+
+
+                  end;
+
+                  {fornecedores.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Fornecedores.txt');}
+                  qryfornecedores.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Fornecedores.txt', false, false,
+                  '"codigo";"nome";"razao";"pessoatipo";"pessoanumero";"rua";"bairro";"cidade";"estado";"grupofornecedor";"cep";"foneddd";"fonenumero";"faxddd";"faxnumero";'+
+                  '"inscricaoestadual";"contato";"debito";"credito";"observacoes";"email";"markup";"inativo";"conceito";"enderecoalterado";"nosimples";"contribicms";'+
+                  '"suframa";"rntc";"numero";"complemento";"fornecedorparaiss";"site";"adiantamento";"debitoqdocliente";"creditoqdocliente";"historicocontabil";'+
+                  '"tipofornec_produto_p";"tipofornec_tranporte_t";"tipofornec_montagem_m"', '', ';', false, true, true, true, true, true, true, 'dd/mm/yyyy');
+
+
+                  if ListaConceitos<>'' then
+                  begin
+                    ListaConceitos := copy(ListaConceitos,1,length(ListaConceitos)-1);
+                    qryConceitos.MacroByName('ListaConceitos').AsString := ListaConceitos;
+                    qryConceitos.Close;
+                    qryConceitos.open;
+
+                    {
+                    while not qryConceitos.Eof do
+                    begin
+                      Conceitos.Add(qryConceitos.fieldbyname('codigo').asstring + ';' +
+                                    qryConceitos.fieldbyname('descricao').asstring + ';' +
+                                    qryConceitos.fieldbyname('inativo').asstring + ';' +
+                                    qryConceitos.fieldbyname('restricoes').asstring+ ';');
+                      qryConceitos.Next;
+                    end;
+                    Conceitos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Conceitos.txt');
+                    }
+                    qryConceitos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Conceitos.txt', false, false,
+                     '"codigo";"descricao";"inativo";"restricoes"', '', ';', false, true, true, true, true, true, true, 'dd/mm/yyyy');
+
+                  end;
+
+                  if ListaGruposFornecedores<>'' then
+                  begin
+                    ListaGruposFornecedores := copy(ListaGruposFornecedores,1,length(ListaGruposFornecedores)-1);
+                    qryGruposFornecedores.MacroByName('ListaGruposFornecedores').AsString := ListaGruposFornecedores;
+                    qryGruposFornecedores.Close;
+                    qryGruposFornecedores.open;
+                    {
+                    while not qryGruposFornecedores.Eof do
+                    begin
+                      GruposFornecedores.Add(qryGruposFornecedores.fieldbyname('codigo').AsString + ';' +
+                                             qrygruposfornecedores.fieldbyname('nome').AsString+ ';' );
+                      qryGruposFornecedores.Next;
+                    end;
+                    GruposFornecedores.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'GruposFornecedores.txt');
+                    }
+                    qryGruposFornecedores.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'GruposFornecedores.txt', false, false,
+                    '"codigo";"nome"', '', ';', false, true, true, true, true, true, true, 'dd/mm/yyyy');
+
+                  end;
+
+                  if ListaBairros<>'' then
+                  begin
+                    ListaBairros := copy(ListaBairros,1,length(ListaBairros)-1);
+                    qrybairros.MacroByName('ListaBairros').AsString := ListaBairros;
+                    qrybairros.Close;
+                    qrybairros.Open;
+
+                    while not qrybairros.Eof do
+                    begin
+                      {
+                      bairros.Add(qrybairros.fieldbyname('estado').AsString + ';' +
+                                  qrybairros.fieldbyname('cidade').AsString + ';' +
+                                  qrybairros.fieldbyname('codigo').AsString + ';' +
+                                  qrybairros.fieldbyname('nome').AsString + ';' +
+                                  qrybairros.fieldbyname('regiao').AsString + ';' +
+                                  qrybairros.fieldbyname('pontos').AsString + ';' +
+                                  qrybairros.fieldbyname('cep').AsString + ';' +
+                                  qrybairros.fieldbyname('frete').AsString + ';' +
+                                  qrybairros.fieldbyname('cidadecorreio').AsString + ';' +
+                                  qrybairros.fieldbyname('codigocorreio').AsString+ ';' );
+                       }
+                       
+                      if qrybairros.fieldbyname('regiao').AsString<>'' then
+                        ListaRegioes := ListaRegioes + quotedstr(qrybairros.fieldbyname('regiao').AsString) + ',';
+
+                      if qrybairros.fieldbyname('frete').AsString<>'' then
+                        ListaTabelaFretes := ListaTabelaFretes + qrybairros.fieldbyname('frete').AsString + ',';
+
+                      ListaCidades := ListaCidades + '(' + quotedstr(qryBairros.fieldbyname('estado').AsString) + ','+
+                                                          qryBairros.fieldbyname('cidade').AsString  + '),';
+
+                      qrybairros.Next;
+                    end;
+
+                    {bairros.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Bairros.txt');}
+                    qryBairros.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Bairros.txt', false, false,
+                    '"estado";"cidade";"codigo";"nome";"regiao";"pontos";"cep";"frete";"cidadecorreio";"codigocorreio"',
+                    '', ';', false, true, true, true, true, true, true, 'dd/mm/yyyy');
+
+                    if ListaRegioes<>'' then
+                    begin
+                      ListaRegioes := copy(ListaRegioes,1,length(ListaRegioes)-1);
+                      qryRegioes.MacroByName('ListaRegioes').AsString := ListaRegioes;
+                      qryRegioes.Close;
+                      qryRegioes.Open;
+                      {
+                      while not qryRegioes.Eof do
+                      begin
+                        Regioes.Add(qryRegioes.fieldbyname('codigo').AsString + ';' +
+                                    qryRegioes.fieldbyname('nome').AsString + ';' +
+                                    qryRegioes.fieldbyname('pontos').AsString + ';' +
+                                    qryRegioes.fieldbyname('frete').AsString+ ';');
+                        qryRegioes.Next;
+                      end;
+                      Regioes.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Regioes.txt');
+                      }
+                      qryRegioes.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Regioes.txt', false, false,
+                      '"codigo";"nome";"pontos";"frete"', '', ';', false, true, true, true, true, true, true,'dd/mm/yyyy');
+                    end;
+
+                    if ListaTabelaFretes<>'' then
+                    begin
+                      ListaTabelaFretes := copy(ListaTabelaFretes,1,length(ListaTabelaFretes)-1);
+                      qryTabelaFretes.MacroByName('ListaTabelaFretes').AsString := ListaTabelaFretes;
+                      qryTabelaFretes.Close;
+                      qryTabelaFretes.Open;
+
+                      {
+                      while not qryTabelaFretes.Eof do
+                      begin
+                        TabelaFrete.Add(qryTabelaFretes.fieldbyname('codigo').AsString+';'+
+                                        qryTabelaFretes.fieldbyname('descricao').AsString+';'+
+                                        TagControls(qryTabelaFretes.fieldbyname('observacoes').AsString)+';'+
+                                        qryTabelaFretes.fieldbyname('valorcliente').AsString+';'+
+                                        qryTabelaFretes.fieldbyname('valorfornecedor').AsString+ ';');
+                        qryTabelaFretes.Next;
+                      end;
+                      TabelaFrete.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'TabeladeFretes.txt');
+                      }
+                      qryTabelaFretes.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'TabeladeFretes.txt', false, false,
+                      '"codigo";"descricao";"observacoes";"valorcliente";"valorfornecedor"','', ';', false, true, true, true, true, true, true, 'dd/mm/yyyy');
+
+
+                    end;
+
+                    if ListaCidades<>'' then
+                    begin
+                      ListaCidades := copy(ListaCidades,1,length(ListaCidades)-1);
+                      qryCidades.MacroByName('ListaCidades').AsString := ListaCidades;
+                      qryCidades.Close;
+                      qryCidades.Open;
+
+                      while not qryCidades.Eof do
+                      begin
+                        {
+                        Cidades.Add(qrycidades.fieldbyname('estado').AsString+';'+
+                                    qrycidades.fieldbyname('codigo').AsString+';'+
+                                    qrycidades.fieldbyname('nome').AsString+';'+
+                                    qrycidades.fieldbyname('pontos').AsString+';'+
+                                    qrycidades.fieldbyname('cep').AsString+';'+
+                                    qrycidades.fieldbyname('cepinicial').AsString+';'+
+                                    qrycidades.fieldbyname('cepfinal').AsString+';'+
+                                    qrycidades.fieldbyname('foneprestadora').AsString+';'+
+                                    qrycidades.fieldbyname('foneddd').AsString+';'+
+                                    qrycidades.fieldbyname('codigocorreio').AsString+';'+
+                                    qrycidades.fieldbyname('codigoibge').AsString+ ';');
+                                    }
+                        ListaEstado := ListaEstado + quotedstr(qrycidades.fieldbyname('estado').AsString)+',';
+                        qryCidades.Next;
+                      end;
+                      {Cidades.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Cidades.txt');}
+                      qryCidades.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Cidades.txt', false, false,
+                      '"estado";"codigo";"nome";"pontos";"cep";"cepinicial";"cepfinal";"foneprestadora";"foneddd";"codigocorreio";"codigoibge"',
+                      '', ';', false, true, true, true, true, true, true, 'dd/mm/yyyy');
+
+
+                      if ListaEstado<>'' then
+                      begin
+                        ListaEstado := copy(ListaEstado,1,length(ListaEstado)-1);
+                        qryEstados.MacroByName('ListaEstados').AsString := ListaEstado;
+                        qryEstados.Close;
+                        qryEstados.Open;
+
+                        {
+                        while not qryEstados.Eof do
+                        begin
+                          Estados.Add(qryestados.fieldbyname('codigo').AsString+';'+
+                                      qryestados.fieldbyname('nome').AsString+';'+
+                                      qryestados.fieldbyname('pontos').AsString+';'+
+                                      qryestados.fieldbyname('codigoibge').AsString+ ';');
+                          qryestados.Next;
+                        end;
+                        Estados.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Estados.txt');
+                        }
+                        qryEstados.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Estados.txt', false, false,
+                        '"codigo";"nome";"pontos";"codigoibge"', '', ';', false, true, true, true, true, true, true, 'dd/mm/yyyy');
+
+                      end;
+                    end;
+                  end;
+                end;
+              end
+              else
+              begin
+                {fornecedoresprodutos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'FornecedoresProdutos.txt');}
+                {fornecedores.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Fornecedores.txt');}
+                {Conceitos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Conceitos.txt');}
+                {GruposFornecedores.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'GruposFornecedores.txt');}
+                {bairros.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Bairros.txt');}
+                {Regioes.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Regioes.txt');
+                TabelaFrete.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'TabeladeFretes.txt');
+                Cidades.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Cidades.txt');
+                Estados.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Estados.txt');}
+              end;
+            end;
+            if Grupos.Count > 0 then
+              Grupos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Grupos.txt');
+            if Classes.Count > 0 then
+              Classes.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Classes.txt');
+            if Unidades.Count > 0 then
+              Unidades.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Unidades.txt');
+            if IPI.Count > 0 then
+              IPI.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Ipi.txt');
+            if ICMS.Count > 0 then
+              ICMS.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Icms.txt');
+            if Marcas.Count > 0 then
+              Marcas.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Marcas.txt');
+            if Grades.Count > 0 then
+              Grades.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Grades.txt');
+            if PlanosContas.Count > 0 then
+              PlanosContas.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'PlanosContas.txt');
+            if Historicos.Count > 0 then
+              Historicos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Historicos.txt');
+
+          {except
+            Result := False;
+          end;}
+        finally
+{          Caracteristicas.Free;}
+          Grupos.Free;
+          Classes.Free;
+          Unidades.Free;
+          IPI.Free;
+          ICMS.Free;
+          Marcas.Free;
+          Grades.Free;
+          PlanosContas.Free;
+          Historicos.Free;
+        end;
+      end;
+    end;
+
+    with qryProdutos do
+    begin
+      MacroByName('data').AsString := MontarIntervaloData('p.data',PeriodoInicial,PeriodoFinal,true);
+      Open;
+      if (recordcount <> 0) then
+      begin
+        {
+        Produtos := TStringList.Create;
+        Produtos.Sorted := true;
+        Produtos.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+        }
+
+        try
+          try
+            {
+            while not Eof do
+            begin
+
+              Produtos.Add(fieldbyname('codigo').AsString        + ';' +
+                           fieldbyname('codigovisual').AsString   + ';' +
+                           fieldbyname('descricao').AsString      + ';' +
+                           fieldbyname('caracteristica').AsString + ';' +
+                           fieldbyname('preco').AsString          + ';' +
+                           fieldbyname('referencia').AsString     + ';' +
+                           fieldbyname('valorgrade1').AsString    + ';' +
+                           fieldbyname('valorgrade2').AsString    + ';' +
+                           fieldbyname('inativo').AsString        + ';' +
+                           fieldbyname('foralinha').AsString      + ';' +
+                           fieldbyname('codigorecolha').AsString  + ';' +
+                           fieldbyname('descricaocomplementar').AsString+ ';' +
+                           fieldbyname('caracteristicas').AsString+ ';' +
+                           fieldbyname('palavraschave').AsString  + ';' +
+                           fieldbyname('aparecernosite').AsString + ';' +
+                           fieldbyname('foralinhal').AsString     + ';' +
+                           fieldbyname('inativol').AsString       + ';' +
+                           fieldbyname('data').AsString           + ';');
+              Next;
+            end;
+            }
+
+            qryprodutos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'ItensProdutos.txt', false, false,
+              '"codigo";"codigovisual";"descricao";"caracteristica";"preco";"referencia";"valorgrade1";"valorgrade2";"inativo";'+
+              '"foralinha";"codigorecolha";"descricaocomplementar";"caracteristicas";"palavraschave";"aparecernosite";"foralinhal";"inativol";"data"',
+              '',';',false, true, true, true, true, true, true, 'dd/mm/yyyy');
+            {
+            if Produtos.Count > 0 then
+              Produtos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'ItensProdutos.txt');
+            }
+          except
+            Result := False;
+          end;
+        finally
+          {Precos.Free;}
+          {Produtos.Free;}
+        end;
+      end;
+    end;
+
+    with qryColunasPrecos do
+    begin
+      MacroByName('data').AsString := ' AND ((data BETWEEN ' + QuotedStr(PeriodoInicial) + ' AND ' + QuotedStr(PeriodoFinal) + ')' +
+                                      'OR (alteracao BETWEEN ' + QuotedStr(PeriodoInicial) + ' AND ' + QuotedStr(PeriodoFinal) + ')) ';
+      Open;
+      if (recordcount <> 0) then
+      begin
+      {
+        ColunasPrecos := TStringList.Create;
+        ColunasPrecos.Sorted := true;
+        ColunasPrecos.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+      }
+
+        Colunas := TStringList.Create;
+        Colunas.Sorted := true;
+        Colunas.Duplicates := dupIgnore; // Evita a inclusão de duas ocorrências iguais
+
+        try
+          try
+
+            if ExportarColunadePrecos then
+            begin
+              while not Eof do
+              begin
+                {
+                ColunasPrecos.Add(fieldbyname('caracteristica').AsString + ';' +
+                                  fieldbyname('preco').AsString     + ';' +
+                                  fieldbyname('coluna').AsString    + ';' +
+                                  fieldbyname('valor').AsString     + ';' +
+                                  fieldbyname('validade').AsString  + ';' +
+                                  fieldbyname('data').AsString      + ';' +
+                                  fieldbyname('alteracao').AsString + ';');
+                }
+
+                 Colunas.Add(fieldbyname('coluna').AsString    + ';' +
+                             fieldbyname('coluna_descricao').AsString + ';');
+                Next;
+              end;
+            end;
+
+//            if ColunasPrecos.Count > 0 then
+{            ColunasPrecos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'ColunasPrecos.txt');}
+            qryColunasPrecos.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'ColunasPrecos.txt', false, false,
+              '"caracteristica";"preco";"coluna";"valor";"validade";"data";"alteracao"', '', ';', false, true, true, true, true, true, true, 'dd/mm/yyyy');
+
+            if Colunas.Count > 0 then
+              Colunas.SaveToFile(DirSaida+IfThen(DirSaida[length(DirSaida)] <> barra,barra)+'Colunas.txt');
+          except
+            Result := False;
+          end;
+        finally
+         { ColunasPrecos.Free;}
+          Colunas.Free;
+        end;
+      end;
+    end;
+  finally
+    qryCaracteristicas.Close;
+    qryProdutos.Close;
+    qryColunasPrecos.Close;
+  end;
+end;
+
+end.

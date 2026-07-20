@@ -1,0 +1,433 @@
+inherited frmUnificarClientes: TfrmUnificarClientes
+  Left = 198
+  Top = 126
+  Caption = 'Unificar Cadastro de Clientes'
+  ClientHeight = 578
+  ClientWidth = 1149
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  FormStyle = fsMDIChild
+  OldCreateOrder = False
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited pnlBarra: TPanel
+    TabOrder = 2
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 1149
+    inherited tblBarra: TToolBar
+      Left = 381
+      Width = 768
+      inherited sbnProcurar: TSpeedButton
+        Visible = False
+      end
+    end
+    inherited tblBarraCadastro: TToolBar
+      Width = 381
+      inherited sbnIncluir: TSpeedButton
+        Visible = False
+      end
+      inherited sbnExcluir: TSpeedButton
+        Visible = False
+      end
+      object sbnAbrirCadastroClientes: TSpeedButton
+        Left = 225
+        Top = 2
+        Width = 80
+        Height = 39
+        Hint = 'Exibir Cadastro de Clientes'
+        Caption = 'F6 Cliente'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000000000000000000000000000000000000000000000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          0000000000FF0000FF0000FF0000FF0000FF0000FF0000FF000000000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDC000000
+          0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000000000800000
+          00DCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFF7F7F7FDCDCDCFFFFFFDCDCDC000000000000
+          0000800000800000800000800000800000800000800000800000000000800000
+          80000000DCDCDCDCDCDC7F7F7F7F7F7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFF7F7F7FFFFFFFFFFFFF7F7F7FDCDCDCFFFFFF000000000000
+          0000000000000000000000000000000000000000000000000000000000000000
+          80000080000000DCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7FDCDCDCFFFFFF7F7F7FDCDCDCDCDCDC000000
+          7F7F7F000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFF0000
+          00000080000080000000DCDCDC7F7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFF7F7F7FFFFFFFFFFFFF7F7F7FDCDCDCDCDCDC
+          000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFF0000
+          00000000000080000000DCDCDCDCDCDC7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCFFFFFFFFFFFF7F7F7FFFFFFF7F7F7F7F7F7FDCDCDC7F7F7FDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFF7F7F7F000000000000000000000000FFFFFF0000
+          00FFFFFF000000000000DCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFFFFFFFFFFFF7F
+          7F7F7F7F7F7F7F7F7F7F7FDCDCDC7F7F7FFFFFFF7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDC000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00FFFFFF000000000000DCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+          DCDCDCDCDCDCDCDCFFFFFFFFFFFF7F7F7FFFFFFF7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDC000000FFFFFFFFFFFF7F7F7F0000000000000000000000
+          00FFFFFF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFF
+          FFFFFFFFFF7F7F7F7F7F7F7F7F7F7F7F7FDCDCDC7F7F7FFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC000000000000000000FFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F
+          7F7F7F7F7FDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000FFFFFFFFFFFF7F7F7F0000000000
+          00000000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+          7F7FDCDCDCFFFFFFFFFFFF7F7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000000000000000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        Layout = blGlyphTop
+        NumGlyphs = 2
+        Spacing = 0
+        OnClick = sbnAbrirCadastroClientesClick
+      end
+      object sbnAbrirFichaFinanceira: TSpeedButton
+        Left = 305
+        Top = 2
+        Width = 76
+        Height = 39
+        Hint = 'Exibir Ficha Financeira'
+        Caption = 'F7 Ficha'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000000000000000000000000000000000000000000000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          0000000000FF0000FF0000FF0000FF0000FF0000FF0000FF000000000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDC000000
+          0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000000000800000
+          00DCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFF7F7F7FDCDCDCFFFFFFDCDCDC000000000000
+          0000800000800000800000800000800000800000800000800000000000800000
+          80000000DCDCDCDCDCDC7F7F7F7F7F7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFF7F7F7FFFFFFFFFFFFF7F7F7FDCDCDCFFFFFF000000000000
+          0000000000000000000000000000000000000000000000000000000000000000
+          80000080000000DCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7FDCDCDCFFFFFF7F7F7FDCDCDCDCDCDC000000
+          7F7F7F000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFF0000
+          00000080000080000000DCDCDC7F7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFF7F7F7FFFFFFFFFFFFF7F7F7FDCDCDCDCDCDC
+          000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFF0000
+          00000000000080000000DCDCDCDCDCDC7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCFFFFFFFFFFFF7F7F7FFFFFFF7F7F7F7F7F7FDCDCDC7F7F7FDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFF7F7F7F000000000000000000000000FFFFFF0000
+          00FFFFFF000000000000DCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFFFFFFFFFFFF7F
+          7F7F7F7F7F7F7F7F7F7F7FDCDCDC7F7F7FFFFFFF7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDC000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00FFFFFF000000000000DCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+          DCDCDCDCDCDCDCDCFFFFFFFFFFFF7F7F7FFFFFFF7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDC000000FFFFFFFFFFFF7F7F7F0000000000000000000000
+          00FFFFFF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFF
+          FFFFFFFFFF7F7F7F7F7F7F7F7F7F7F7F7FDCDCDC7F7F7FFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC000000000000000000FFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F
+          7F7F7F7F7FDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000FFFFFFFFFFFF7F7F7F0000000000
+          00000000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F
+          7F7FDCDCDCFFFFFFFFFFFF7F7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000000000000000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        Layout = blGlyphTop
+        NumGlyphs = 2
+        Spacing = 0
+        OnClick = sbnAbrirFichaFinanceiraClick
+      end
+    end
+  end
+  object dbgClientesDuplicados: TtecDBGrid
+    Left = 0
+    Top = 45
+    Width = 1149
+    Height = 355
+    Align = alClient
+    DataSource = dtmUnificarClientes.dsrClientesDuplicados
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'MS Sans Serif'
+    Font.Pitch = fpVariable
+    Font.Style = [fsBold]
+    Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+    ParentFont = False
+    TabOrder = 0
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -9
+    TitleFont.Name = 'MS Sans Serif'
+    TitleFont.Pitch = fpVariable
+    TitleFont.Style = []
+    OnDrawColumnCell = dbgClientesDuplicadosDrawColumnCell
+    OnDblClick = dbgClientesDuplicadosDblClick
+    OnKeyDown = dbgClientesDuplicadosKeyDown
+    RowWrap = 60
+    Large = False
+    DoubleRowColor = False
+    TitleMinHeight = 100
+    CellHeights = 100
+    StrippedColor = 16054260
+    CanDelete = False
+    CanNotInsertFromGrid = False
+    PostOnEnter = False
+    PostOnSetUpDown = False
+    DenySort = False
+    DefaultRowHeight = 17
+    ExibirNumerodaLinha = False
+    NaoAtribuirDadosaTabelaaoDigitar = False
+    ShowWhenFieldInvisible = False
+    CanClickWhenEditing = False
+    Columns = <
+      item
+        Expanded = False
+        FieldName = 'pessoanumero'
+        ReadOnly = True
+        Title.Alignment = taCenter
+        Title.Caption = 'CNPJ/CPF'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -9
+        Title.Font.Name = 'Arial'
+        Title.Font.Pitch = fpVariable
+        Title.Font.Style = []
+        Width = 120
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'codigo'
+        ReadOnly = True
+        Title.Alignment = taCenter
+        Title.Caption = 'C'#211'DIGO'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -9
+        Title.Font.Name = 'Arial'
+        Title.Font.Pitch = fpVariable
+        Title.Font.Style = []
+        Width = 50
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'nome'
+        ReadOnly = True
+        Title.Alignment = taCenter
+        Title.Caption = 'NOME'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -9
+        Title.Font.Name = 'Arial'
+        Title.Font.Pitch = fpVariable
+        Title.Font.Style = []
+        Width = 255
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'apelido'
+        ReadOnly = True
+        Title.Alignment = taCenter
+        Title.Caption = 'APELIDO'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -9
+        Title.Font.Name = 'Arial'
+        Title.Font.Pitch = fpVariable
+        Title.Font.Style = []
+        Width = 180
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'codigoselecionado'
+        ReadOnly = True
+        Title.Alignment = taCenter
+        Title.Caption = 'SELECIONADO'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -9
+        Title.Font.Name = 'Arial'
+        Title.Font.Pitch = fpVariable
+        Title.Font.Style = []
+        Width = 75
+        Visible = True
+      end
+      item
+        Alignment = taCenter
+        Expanded = False
+        FieldName = 'datacadastro'
+        Title.Alignment = taCenter
+        Title.Caption = 'CADASTRO'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -9
+        Title.Font.Name = 'Arial'
+        Title.Font.Pitch = fpVariable
+        Title.Font.Style = []
+        Visible = True
+      end
+      item
+        Alignment = taCenter
+        Expanded = False
+        FieldName = 'ultimaalteracao'
+        Title.Alignment = taCenter
+        Title.Caption = 'ALTERA'#199#195'O'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -9
+        Title.Font.Name = 'Arial'
+        Title.Font.Pitch = fpVariable
+        Title.Font.Style = []
+        Width = 64
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'nomeusariosite'
+        Title.Alignment = taCenter
+        Title.Caption = 'NOME USU'#193'RIO SITE'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -9
+        Title.Font.Name = 'Arial'
+        Title.Font.Pitch = fpVariable
+        Title.Font.Style = []
+        Width = 200
+        Visible = True
+      end
+      item
+        Alignment = taCenter
+        Expanded = False
+        FieldName = 'datacadastrousuariosite'
+        Title.Alignment = taCenter
+        Title.Caption = 'CADASTRO SITE'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -9
+        Title.Font.Name = 'Arial'
+        Title.Font.Pitch = fpVariable
+        Title.Font.Style = []
+        Width = 80
+        Visible = True
+      end>
+  end
+  object pnlBottom: TPanel
+    Left = 0
+    Top = 400
+    Width = 1149
+    Height = 178
+    Align = alBottom
+    BevelOuter = bvNone
+    Enabled = False
+    TabOrder = 3
+    object lblLegenda: TLabel
+      Left = 790
+      Top = 163
+      Width = 198
+      Height = 13
+      Alignment = taCenter
+      Caption = '<Ctrl Barra de Espa'#231'o>Marcar/Desmarcar'
+    end
+    object pnlLegenda: TPanel
+      Left = 6
+      Top = 159
+      Width = 1139
+      Height = 2
+      BevelOuter = bvLowered
+      Enabled = False
+      TabOrder = 0
+    end
+    inline fraEndereco1: TfraEndereco
+      Left = 3
+      Top = 4
+      Width = 429
+      Height = 152
+      HorzScrollBar.Visible = False
+      VertScrollBar.Visible = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      inherited gbxEndereco: TGroupBox
+        inherited pnlNumero: TPanel
+          inherited edtNumeroEndereco: TDBEditTexto
+            TabStop = False
+            Color = clBtnFace
+            DataField = 'numero'
+            DataSource = dtmUnificarClientes.dsrClientesDuplicados
+            ReadOnly = True
+          end
+          inherited edtComplemento: TDBEditTexto
+            TabStop = False
+            Color = clBtnFace
+            DataField = 'complemento'
+            DataSource = dtmUnificarClientes.dsrClientesDuplicados
+            ReadOnly = True
+          end
+        end
+        inherited pnlBairro: TPanel
+          inherited edtBairro: TtecDoubleDBEdit
+            Color = clBtnFace
+            DataField = 'complemento'
+            DataSource = dtmUnificarClientes.dsrClientesDuplicados
+          end
+        end
+        inherited pnlCidade: TPanel
+          inherited edtCEP: TDBEditCep
+            Color = clBtnFace
+            DataField = 'cep'
+            DataSource = dtmUnificarClientes.dsrClientesDuplicados
+          end
+          inherited edtCidade: TtecDoubleDBEdit
+            Color = clBtnFace
+            DataField = 'nomecidadecliente'
+            DataSource = dtmUnificarClientes.dsrClientesDuplicados
+          end
+          inherited edtEstado: TDBEditTexto
+            Color = clBtnFace
+            DataField = 'estado'
+            DataSource = dtmUnificarClientes.dsrClientesDuplicados
+          end
+        end
+        inherited pnlRua: TPanel
+          inherited mmoRua: TtecDBMemo
+            Color = clBtnFace
+            DataField = 'rua'
+            DataSource = dtmUnificarClientes.dsrClientesDuplicados
+          end
+        end
+      end
+    end
+  end
+end

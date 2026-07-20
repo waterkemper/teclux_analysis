@@ -1,0 +1,67 @@
+unit fmlancamentoscontabeisrecebimentos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, {Qete,} DB,
+  //Projeto
+  dmcontratosimoveis, fmcadastropadrao, DBCtrls, cptexto, cpdbdata, Mask,
+  cpdbfindcontrols, ComCtrls, Buttons, ExtCtrls, cpnumero, cpdata,
+  //Repositorio
+  frlancamentocontabilidade, dmlancamentocontabilidade, fmAjudaBt,
+  //Biblio
+  ctconstantes, Biblio, cpdbtext, frconsulta, frconsultacodigo, clparametrossistema,
+  ToolWin;
+
+type
+  Tfrmlancamentoscontabeisrecebimentos = class(TfrmAjudaBt)
+    LancamentosContabeis: TfraLancamentoContabilidade;
+  private
+    { Private declarations }
+    Recebimentos : TRecebimentos;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmlancamentoscontabeisrecebimentos: Tfrmlancamentoscontabeisrecebimentos;
+
+implementation
+
+{$R *.dfm}
+
+{ Tfrmlancamentoscontabeisrecebimentos }
+
+constructor Tfrmlancamentoscontabeisrecebimentos.Create(AOwner: TComponent);
+begin
+  inherited;
+  Recebimentos:= TRecebimentos.Create(False);
+  with LancamentosContabeis do
+  begin
+    lblLegenda.Visible       := False;
+    lblContaCreditoPagamento.Visible := False;
+    shContaCreditoPagamento.Visible  := False;
+    OrdenarLancamentos:= dtmContratosImoveis.GetOrdenarLancamentos;
+    Origem := 'T';
+    dtmContratosImoveis.NrOrigem:= Origem;
+    SomenteLeituraContabilidade := dtmContratosImoveis.getSomenteLeituraContabilidade;
+    DataDocumento := dtmContratosImoveis.getDataPagtoParcela;
+
+    AbrirLancamentos('T', dtmContratosImoveis.GetNrOrigem, False);
+  end;
+end;
+
+destructor Tfrmlancamentoscontabeisrecebimentos.Destroy;
+begin
+  LancamentosContabeis:= nil;
+  Recebimentos:= nil;
+  Recebimentos.Free;
+  inherited;
+  frmlancamentoscontabeisrecebimentos:= nil;
+  
+end;
+
+end.

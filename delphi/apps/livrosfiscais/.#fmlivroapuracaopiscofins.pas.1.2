@@ -1,0 +1,186 @@
+unit fmlivroapuracaoPisCofins;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmrelatoriopadrao, ExtCtrls, Buttons, StdCtrls, cpdata, cpnumero,
+  DBCtrls, cpdbtext, Mask, cpdbfindcontrols, ComCtrls, cppagecontrol,
+  cpeditioncontrolvalidation, DateUtils,
+  fmconsultabasica, fmconsultaporcampo,
+  ZQuery,
+  biblio, ctconstantes, cptexto,
+  DB, clparametrossistema, ToolWin;
+
+type
+  TfrmLivroApuracaoPisCofins = class(TfrmRelatorioPadrao)
+    gbxImprimir: TGroupBox;
+    ckbLivroApuracaoPisCofins: TCheckBox;
+    ckbResumo: TCheckBox;
+    ecvValida: TtecEditionControlValidation;
+    gbxFilial: TGroupBox;
+    edfFilial: TtecDbEditFind;
+    sbnProcurarFilial: TSpeedButton;
+    dtxFilial: TtecDBText;
+    gbxPeriodo: TGroupBox;
+    edtMesAno: TEditMesAno;
+    procedure sbnProcurarFilialClick(Sender: TObject);
+    procedure ckbLivroApuracaoPisCofinsClick(Sender: TObject);
+    procedure ckbResumoClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+     function InternoPesquisar(Titulo: String): Integer; override;
+     function JanelaPesquisa: TfrmConsultaBasica; override;
+     function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+     function TabelaDePesquisa: TZDataSet; override;
+     procedure internoImpressao; Override;
+  public
+    { Public declarations }
+   constructor Create(AOwner: TComponent); override;
+   destructor Destroy; override;
+   function PesquisaHabilitada: Boolean;
+   function TituloPesquisa: String;
+   function ValidarCamposSelecao: Boolean;
+  end;
+
+var
+  frmLivroApuracaoPisCofins: TfrmLivroApuracaoPisCofins;
+  TipoPesquisa: TTecPesquisa;
+  ControleValido: TWinControl;
+
+implementation
+{$R *.dfm}
+uses dmlivroapuracaoPisCofins;
+
+{ TfrmLivroApuracaoPisCofins }
+
+constructor TfrmLivroApuracaoPisCofins.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmLivroApuracaoPisCofins := TdtmLivroApuracaoPisCofins.Create(Self);
+
+  with dtmLivroApuracaoPisCofins do
+   Abre(ctTabelas);
+
+  edtMesAno.Text := FormatDateTime('mm/yyyy', DataLocal);
+   
+end;
+
+destructor TfrmLivroApuracaoPisCofins.Destroy;
+begin
+  dtmLivroApuracaoPisCofins:=nil;
+  inherited;
+  frmLivroApuracaoPisCofins := nil;
+end;
+
+function TfrmLivroApuracaoPisCofins.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmLivroApuracaoPisCofins do
+    case TipoPesquisa of
+      pesFILIAIS      : Result := ExisteFilial(NomeCampo, Value);
+    else  Result:= False;
+    end;
+end;
+
+procedure TfrmLivroApuracaoPisCofins.internoImpressao;
+begin
+ inherited;
+ if ValidarCamposSelecao then
+  with dtmLivroApuracaoPisCofins do
+  begin
+   ParametroCabecalho:='';
+   MesAno := edtMesAno.Text;
+   ParametroFilial:=edfFilial.Text;
+   LivrodeApuracaoPisCofins:=ckbLivroApuracaoPisCofins.Checked;
+   Resumo:=ckbResumo.Checked;
+   if AbrirConsultaRelatorios then
+     ImprimirRelatorio
+   else
+     
+  end;
+end;
+
+function TfrmLivroApuracaoPisCofins.InternoPesquisar(Titulo: String): Integer;
+begin
+  if PesquisaHabilitada then
+    with dtmLivroApuracaoPisCofins do
+    begin
+      AbreTabelaPesquisa(TipoPesquisa);
+      Result := inherited InternoPesquisar(TituloPesquisa);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FechaTabelaPesquisa(TipoPesquisa);
+    end
+  else
+    Result := 0;
+end;
+
+function TfrmLivroApuracaoPisCofins.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa:= True;
+end;
+
+function TfrmLivroApuracaoPisCofins.PesquisaHabilitada: Boolean;
+begin
+  Result:= False;
+  if (CtrlOn) and (ActiveControl is TtecDBEditFind) then
+  begin
+    if edfFilial.Focused then
+      TipoPesquisa := pesFILIAIS;
+    Result:= True;
+  end;
+end;
+
+function TfrmLivroApuracaoPisCofins.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmLivroApuracaoPisCofins do
+    case TipoPesquisa of
+      pesFILIAIS      : Result := ConsultarFilial;
+      pesGRUPOSFILIAIS: Result := ConsultarGrupoFilial;
+    else  Result:= nil;
+    end;
+end;
+
+function TfrmLivroApuracaoPisCofins.TituloPesquisa: String;
+begin
+  case TipoPesquisa of
+    pesFILIAIS      : Result := ctFILIAIS;
+    pesGRUPOSFILIAIS: Result := ctGRUPOFILIAIS;
+  end;
+end;
+
+function TfrmLivroApuracaoPisCofins.ValidarCamposSelecao: Boolean;
+begin
+  result:=ecvValida.Verify(gbxFilial, ControleValido);
+  if result then
+    Result := OperadorTernario(Trim(edffilial.Text) <> '',edffilial.Exist, True);
+
+  if result then
+    result:=ecvValida.Verify(gbxPeriodo, ControleValido);
+
+end;
+
+procedure TfrmLivroApuracaoPisCofins.sbnProcurarFilialClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfFilial, ctFILIAIS);
+end;
+
+procedure TfrmLivroApuracaoPisCofins.ckbLivroApuracaoPisCofinsClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbLivroApuracaoPisCofins.Checked then
+    ckbResumo.Checked := True;
+end;
+
+procedure TfrmLivroApuracaoPisCofins.ckbResumoClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbResumo.Checked then
+    ckbLivroApuracaoPisCofins.Checked := True;
+end;
+
+end.

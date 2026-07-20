@@ -1,0 +1,1018 @@
+unit dmlivroentradamercadorias;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, DB, CheckLst,
+  // Terceiros
+  ZQuery, ZPgSqlQuery, FR_DSet, FR_DBSet, FR_Class,
+  // Componentes
+  cpquery, cpdatasource,
+  // Constantes
+  Biblio, ctConstantes,
+  // Repositorio
+  dmtecsoft, dmbasico, clparametrossistema, dmimprimetermos,
+  // Outros
+  fmpreviewpadrao, ZTransact, StdCtrls;
+
+type
+  TdtmLivroEntradaMercadorias = class(TdtmBasico)
+    qryProcuraFiliais: TtecQuery;
+    dsrProcuraFiliais: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryCodigosEmitentes: TtecQuery;
+    qryCodigosEmitentesfornecedor: TIntegerField;
+    qryCodigosEmitentestipofornecedor: TStringField;
+    qryCodigosEmitentesnome: TStringField;
+    qryCodigosEmitentesestado: TStringField;
+    qryCodigosEmitentescnpj: TStringField;
+    qryCodigosEmitentesinscricaoestadual: TStringField;
+    fdsCodigosEmitentes: TfrDBDataSet;
+    frpCodigosEmitentes: TfrReport;
+    qryResumoDiario_ICMS: TtecQuery;
+    fdsResumoDiario_ICMS: TfrDBDataSet;
+    frpResumoDiario_ICMS: TfrReport;
+    qryProcuraFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisnome: TStringField;
+    qryProcuraFiliaisrazao: TStringField;
+    qryProcuraFiliaiscnpj: TStringField;
+    qryProcuraFiliaisinscricaoestadual: TStringField;
+    qryProcuraFiliaisrua: TStringField;
+    qryProcuraFiliaisestado: TStringField;
+    qryProcuraFiliaisnomecidade: TStringField;
+    qryProcuraFiliaisnomebairro: TStringField;
+    qryProcuraFiliaiscep: TIntegerField;
+    qryProcuraFiliaisjunta: TStringField;
+    qryProcuraFiliaisjuntadata: TDateField;
+    qryNaturezas: TtecQuery;
+    qryNaturezascodigo: TIntegerField;
+    qryNaturezasdescricao: TStringField;
+    qryCodigosFiscais: TtecQuery;
+    qryCodigosFiscaismenorcodigo: TIntegerField;
+    qryCodigosFiscaismaiorcodigo: TIntegerField;
+    dsrCodigosFiscais: TtecDataSource;
+    qryNotasPag: TtecQuery;
+    qryNotasPagsituacao: TStringField;
+    qryNotasPagcodigo: TIntegerField;
+    qryNotasPagestado: TStringField;
+    qryNotasPagvalornota: TFloatField;
+    qryNotasPagserie: TStringField;
+    qryNotasPagdata: TDateField;
+    qryNotasPagvalortotal_icms: TFloatField;
+    qryNotasPagvalortotal_ipi: TFloatField;
+    qryNotasPagobslivroentrada: TStringField;
+    qryNotasPagoperacao: TMemoField;
+    qryCalculosNotaspag_ICMS: TtecQuery;
+    qryCalculosNotaspag_IPI: TtecQuery;
+    qryCalculosNotaspag_ICMScodigonota: TIntegerField;
+    qryCalculosNotaspag_ICMStipo: TIntegerField;
+    qryCalculosNotaspag_ICMSaliquota: TFloatField;
+    qryCalculosNotaspag_ICMSbase: TFloatField;
+    qryCalculosNotaspag_ICMSvalor: TFloatField;
+    qryCalculosNotaspag_IPIcodigonota: TIntegerField;
+    qryCalculosNotaspag_IPItipo: TIntegerField;
+    qryCalculosNotaspag_IPIaliquota: TFloatField;
+    qryCalculosNotaspag_IPIbase: TFloatField;
+    qryCalculosNotaspag_IPIvalor: TFloatField;
+    dsrNotasPag: TtecDataSource;
+    fdsNotasPag: TfrDBDataSet;
+    fdsCalculosNotaspag_ICMS: TfrDBDataSet;
+    fdsCalculosNotaspag_IPI: TfrDBDataSet;
+    frpLivroEntradaMercadoriasICMS_IPI: TfrReport;
+    qryNotasPagdifvalortotal_icms: TBooleanField;
+    qryNotasPagdifvalortotal_ipi: TBooleanField;
+    qryResumoNotasPag_ICMS: TtecQuery;
+    fdsResumoNotasPag_ICMS: TfrDBDataSet;
+    qryResumoNotasPag_IPI: TtecQuery;
+    fdsResumoNotasPag_IPI: TfrDBDataSet;
+    frpResumoNotasPag_IPI: TfrReport;
+    frpResumoNotasPag_ICMS: TfrReport;
+    qryResumoDiario_IPI: TtecQuery;
+    fdsResumoDiario_IPI: TfrDBDataSet;
+    frpResumoDiario_IPI: TfrReport;
+    qryNotasPaginscricaoestadual: TStringField;
+    qryNotasPagnumero: TIntegerField;
+    qryNotasPagemissao: TDateField;
+    qryNotasPagfornecedor: TIntegerField;
+    qryNotasPagnome: TStringField;
+    qryResumoNotasPag_IPIvalornota: TFloatField;
+    qryResumoNotasPag_IPIbase: TFloatField;
+    qryResumoNotasPag_IPIvalor: TFloatField;
+    qryResumoNotasPag_IPIisentas: TFloatField;
+    qryResumoNotasPag_IPIoutras: TFloatField;
+    qryResumoNotasPag_IPIcodigofiscal: TIntegerField;
+    qryResumoNotasPag_IPIdescricao: TStringField;
+    qryResumoNotasPag_IPItitulo: TIntegerField;
+    qryResumoNotasPag_IPIdescricaotitulo: TStringField;
+    qryResumoNotasPag_IPIsubtitulo: TIntegerField;
+    qryResumoNotasPag_IPIdescricaosubtitulo: TStringField;
+    qryResumoNotasPag_ICMSvalornota: TFloatField;
+    qryResumoNotasPag_ICMSbase: TFloatField;
+    qryResumoNotasPag_ICMSvalor: TFloatField;
+    qryResumoNotasPag_ICMSisentas: TFloatField;
+    qryResumoNotasPag_ICMSoutras: TFloatField;
+    qryResumoNotasPag_ICMScodigofiscal: TIntegerField;
+    qryResumoNotasPag_ICMSdescricao: TStringField;
+    qryResumoNotasPag_ICMStitulo: TIntegerField;
+    qryResumoNotasPag_ICMSdescricaotitulo: TStringField;
+    qryResumoNotasPag_ICMSsubtitulo: TIntegerField;
+    qryResumoNotasPag_ICMSdescricaosubtitulo: TStringField;
+    qryResumoDiario_ICMSdata: TDateField;
+    qryResumoDiario_ICMSoutrasvalornota: TFloatField;
+    qryResumoDiario_ICMSoutrasbase: TFloatField;
+    qryResumoDiario_ICMSoutrasvalor: TFloatField;
+    qryResumoDiario_ICMSavistavalornota: TFloatField;
+    qryResumoDiario_ICMSavistabase: TFloatField;
+    qryResumoDiario_ICMSavistavalor: TFloatField;
+    qryResumoDiario_ICMSaprazovalornota: TFloatField;
+    qryResumoDiario_ICMSaprazobase: TFloatField;
+    qryResumoDiario_ICMSaprazovalor: TFloatField;
+    qryResumoDiario_IPIdata: TDateField;
+    qryResumoDiario_IPIoutrasvalornota: TFloatField;
+    qryResumoDiario_IPIoutrasbase: TFloatField;
+    qryResumoDiario_IPIoutrasvalor: TFloatField;
+    qryResumoDiario_IPIavistavalornota: TFloatField;
+    qryResumoDiario_IPIavistabase: TFloatField;
+    qryResumoDiario_IPIavistavalor: TFloatField;
+    qryResumoDiario_IPIaprazovalornota: TFloatField;
+    qryResumoDiario_IPIaprazobase: TFloatField;
+    qryResumoDiario_IPIaprazovalor: TFloatField;
+    qryCalculos_ICMS_IPI: TtecQuery;
+    qryCalculos_ICMS: TtecQuery;
+    qryCalculosNotaspag_ICMSisentas: TFloatField;
+    qryCalculosNotaspag_ICMSoutras: TFloatField;
+    qryCalculosNotaspag_ICMScodigofiscal: TIntegerField;
+    qryCalculosNotaspag_IPIcodigofiscal: TIntegerField;
+    dsrCalculosNotaspag_ICMS: TtecDataSource;
+    frpLivroEntradaMercadorias: TfrReport;
+    qryNotasPagleituraviaxml: TBooleanField;
+    procedure frpLivroEntradaMercadoriasBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpCodigosEmitentesBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryNotasPagCalcFields(DataSet: TDataSet);
+    procedure frpLivroEntradaMercadoriasICMS_IPIGetValue(
+      const ParName: String; var ParValue: Variant);
+    procedure frpLivroEntradaMercadoriasICMS_IPIBeforePrint(
+      Memo: TStringList; View: TfrView);
+    procedure frpResumoNotasPag_ICMSBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpResumoNotasPag_IPIBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpResumoDiario_ICMSBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpResumoDiario_IPIBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryNotasPagFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryNotasPagBeforeOpen(DataSet: TDataSet);
+    procedure qryCalculosNotaspag_ICMSBeforeOpen(DataSet: TDataSet);
+    procedure qryCalculosNotaspag_IPIBeforeOpen(DataSet: TDataSet);
+    procedure qryCodigosEmitentesBeforeOpen(DataSet: TDataSet);
+    procedure qryResumoNotasPag_IPIBeforeOpen(DataSet: TDataSet);
+    procedure qryResumoDiario_IPIBeforeOpen(DataSet: TDataSet);
+    procedure qryResumoDiario_ICMSBeforeOpen(DataSet: TDataSet);
+    procedure qryResumoNotasPag_ICMSBeforeOpen(DataSet: TDataSet);
+  Protected
+    ImpressaoTermos: TdtmImprimeTermos;
+  private
+    FParametroCabecalho: String;
+    FNaturezasNotas: String;
+    FNaturezasProdutos: String;
+    FParametroArquivoDCIP: String;
+    fVerificarErros: Boolean;
+    function GetCodigoFilial: Integer;
+    function GetConsultarFilial: TtecQuery;
+    function GetListaNaturezas: TLista;
+    function GerarArquivoDCIP: Boolean;
+    function CriticarIE(IE: String): Boolean;
+    procedure SetVerificarErros(const Value: Boolean);
+    { Private declarations }
+  public
+    { Public declarations }
+     constructor Create(AOwner: TComponent); override;
+     function ExisteFilial(Campo, Codigo: string): Boolean;
+     procedure AbreTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+     procedure FechaTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+     procedure Selecionar(Pesquisa: TtecPesquisa);
+     property ConsultarFilial: TtecQuery read GetConsultarFilial;
+     property CodigoFilial: Integer read GetCodigoFilial;
+     property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+     property ParametroArquivoDCIP: String read FParametroArquivoDCIP write FParametroArquivoDCIP;
+     property ListaNaturezas: TLista read GetListaNaturezas;
+     procedure MontarFiltroNaturezas(Natureza: TCheckListBox);
+     procedure ImprimirRelatorio(DataInicial, DataFinal,
+                                 ParametroFilial,
+                                 CodigoFiscalInicial,
+                                 CodigoFiscalFinal: String;
+                                 ParametroLivro,
+                                 ParametroPagina,
+                                 ParametroMaximo : Variant;
+                                 LivrodeEntrada,
+                                 CodigosEmitentes,
+                                 ResumoSintetico,
+                                 ResumoDiario,
+                                 LivroEntradas: Boolean;
+                                 ParametroRelatorio :Integer);overload;
+     property VerificarErros : Boolean read fVerificarErros write SetVerificarErros; 
+
+
+  end;
+
+var
+  dtmLivroEntradaMercadorias: TdtmLivroEntradaMercadorias;
+  FListaNaturezas  : TLista;
+
+implementation
+
+Const
+ WhereFiliais   = 38;
+
+{$R *.dfm}
+
+{ TdtmLivroEntradaMercadorias }
+
+procedure TdtmLivroEntradaMercadorias.AbreTabelaPesquisa(
+  TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesFILIAIS      : Abre(ctPesquisaFilial);
+  end;
+end;
+
+constructor TdtmLivroEntradaMercadorias.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryConsultaFiliais.Tag:= ctPesquisaFilial;
+  qryProcuraFiliais.Tag:= ctTabelas;
+  qryProcuraFiliais.Params[0].AsInteger := FilialBase;
+  qryCodigosFiscais.Tag:=ctTabelas;
+end;
+
+function TdtmLivroEntradaMercadorias.ExisteFilial(Campo,
+  Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, Campo, Codigo);
+end;
+
+procedure TdtmLivroEntradaMercadorias.FechaTabelaPesquisa(
+  TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesFILIAIS      : Fecha(ctPesquisaFilial);
+  end;
+end;
+
+function TdtmLivroEntradaMercadorias.GetCodigoFilial: Integer;
+begin
+  Result := qryConsultaFiliaiscodigo.AsInteger;
+end;
+
+
+function TdtmLivroEntradaMercadorias.GetConsultarFilial: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+procedure TdtmLivroEntradaMercadorias.Selecionar(Pesquisa: TtecPesquisa);
+begin
+  case Pesquisa of
+    pesFILIAIS      : RefazConsulta(qryProcuraFiliais,[0],[CodigoFilial]);
+  end;
+end;
+
+
+function TdtmLivroEntradaMercadorias.GetListaNaturezas: TLista;
+Var
+Ind: Integer;
+begin
+  FillChar(FListaNaturezas,SizeOf(FListaNaturezas),0);
+  qryNaturezas.Open;
+  SetLength(FListaNaturezas, qryNaturezas.RecordCount);
+  Ind:= 0;
+  while not qryNaturezas.Eof do
+  begin
+    FListaNaturezas[Ind].codigo   := qryNaturezascodigo.AsString;
+    FListaNaturezas[Ind].descricao:= qryNaturezasdescricao.AsString;
+    Inc(Ind);
+    qryNaturezas.Next;
+  end;
+  qryNaturezas.Close;
+  Result := FListaNaturezas;
+end;
+
+
+procedure TdtmLivroEntradaMercadorias.MontarFiltroNaturezas(
+  Natureza: TCheckListBox);
+var
+  STRNaturezas: String;
+  Ind: Integer;
+begin
+  STRNaturezas := '';
+  for Ind:= 0 to (Length(FListaNaturezas) - 1) do
+    if Natureza.Checked[Ind] then
+      STRNaturezas := STRNaturezas + QuotedStr(FListaNaturezas[Ind].codigo) + ',';
+  STRNaturezas := Copy(STRNaturezas, 0, Length(STRNaturezas) - 1);
+  if STRNaturezas <> '' then
+  begin
+    FNaturezasNotas:= ' and exists (select cnp.codigonatureza '+
+                                  ' from calculosnotaspag cnp '+
+                                  ' where cnp.codigonota = np.codigo '+
+                                    ' and (cnp.codigonatureza in (' + STRNaturezas + ')) limit 1) ';
+    FNaturezasProdutos:= 'and (cnp.codigonatureza in (' + STRNaturezas + '))'
+  end
+  else
+  begin
+    FNaturezasNotas:= '';
+    FNaturezasProdutos:= '';
+  end;
+end;
+
+procedure TdtmLivroEntradaMercadorias.frpLivroEntradaMercadoriasBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpLivroEntradaMercadorias, View);
+end;
+
+procedure TdtmLivroEntradaMercadorias.frpCodigosEmitentesBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpCodigosEmitentes, View);
+end;
+
+function TdtmLivroEntradaMercadorias.GerarArquivoDCIP: Boolean;
+var
+  PosBarra,
+  NRegistrosDeclaracao: integer;
+  Arq: TextFile;
+  NomeArquivo: String;
+  ValorCredito,
+  SomatorioValorNota,
+  SomatorioValorCredito: Currency;
+
+  procedure GravarLinha_String(str : String);
+  begin
+  {$IFDEF LINUX}
+   Writeln(Arq, str+#13);
+  {$ELSE }
+   Writeln(Arq, str);
+  {$ENDIF}
+   NRegistrosDeclaracao := NRegistrosDeclaracao + 1;
+  end;
+
+begin
+  Result := False;
+  {$IFDEF LINUX}
+    PosBarra := Pos('/', FParametroArquivoDCIP);
+  {$ELSE }
+    PosBarra := Pos('\', FParametroArquivoDCIP);
+  {$ENDIF }
+  if PosBarra = 0 then
+    NomeArquivo := ExtractFilePath(Application.ExeName) + FParametroArquivoDCIP
+  else
+    NomeArquivo := FParametroArquivoDCIP;
+  try
+    AssignFile(Arq, NomeArquivo);
+    Rewrite(Arq);
+
+    NRegistrosDeclaracao := 0;
+    SomatorioValorNota   := 0;
+    SomatorioValorCredito:= 0;
+    qryNotasPag.First;
+    while not qryNotasPag.Eof do
+    begin
+      ValorCredito := Truncar((qryNotasPagvalornota.AsCurrency * 0.07),2);
+      if CriticarIE(qryNotasPaginscricaoestadual.AsString) then
+      begin
+        Result := True;
+        GravarLinha_String(
+             format('%9.9d',[strtoint(SomenteNumero(InscricaoEstadualFilialBase))]) +
+             FormatDateTime('YYYYMM',qryNotasPagdata.AsDateTime)+
+             '020' +
+             format('%9.9d',[strtoint(SomenteNumero(qryNotasPaginscricaoestadual.AsString))]) +
+             '001' +
+             format('%-3s',[qrynotaspagserie.AsString]) +
+             '  ' +
+             format('%9.9d',[qryNotasPagnumero.AsInteger]) +
+             FormatDateTime('YYYYMMDD',qryNotasPagemissao.AsDateTime)+
+             formatfloat('00000000000000000', round(qryNotasPagvalornota.Ascurrency*100)) +
+             formatfloat('00000000000000000', round(qryNotasPagvalornota.Ascurrency*100)) +
+             formatfloat('00000000000000000', round(ValorCredito*100))
+             );
+      end
+      else
+      begin
+        Result := False;
+        MensagemAviso('Inscrição Estadual inválida para o fornecedor: ' +
+                      qryNotasPagfornecedor.AsString + ' - ' +
+                      qryNotasPagnome.AsString);
+        break;
+      end;
+      SomatorioValorNota := SomatorioValorNota + qryNotasPagvalornota.Ascurrency;
+      SomatorioValorCredito := SomatorioValorCredito + ValorCredito;
+
+      qryNotasPag.Next;
+    end;
+
+    if Result then
+    begin
+      GravarLinha_String(
+               format('%9.9d',[strtoint(SomenteNumero(InscricaoEstadualFilialBase))])+
+               FormatDateTime('YYYYMM',qryNotasPagdata.AsDateTime)+
+               '030' +
+               formatfloat('00000000000000000', round(SomatorioValorNota*100)) +
+               formatfloat('00000000000000000', round(SomatorioValorNota*100)) +
+               formatfloat('00000000000000000', round(SomatorioValorCredito*100))
+               );
+
+      GravarLinha_String('900' + format('%7.7d',[NRegistrosDeclaracao+1]));
+    end;
+  finally
+    closefile(arq);
+  end;
+end;
+
+function TdtmLivroEntradaMercadorias.CriticarIE(IE: String): Boolean;
+var
+  StrGeral:   String[25];
+  Digito:     Array[0..25] of byte;
+  Campo:      String[25] absolute Digito;
+  Original:   String;
+  Tamanho:    Byte;
+  Digitos:    Byte;
+  Limite:     Byte;
+  Inicio:     Byte;
+  Passo:      Integer;
+  I,J:        Byte;
+  Soma:       Integer;
+  Multiplica: Integer;
+begin
+  Result := True;
+  Limite := 0;
+  Inicio := 0;
+  Passo  := 0;
+  Digitos:= 0;
+  
+  Campo:= Trocar(Trocar(Trocar(IE,'.',''),'-',''),'/','');
+  if Campo = 'ISENTO' then
+    Campo := '';
+  Original := Campo;
+  Tamanho := Length(Campo);
+  if Tamanho = 9 then
+  begin
+    Digitos := 1;
+    Limite := 10;
+    Inicio := 9;
+    Passo := -1;
+    Dec(Tamanho,Digitos);
+
+    for I:= 1 to Tamanho do
+    begin                                 {Converte para n£meros}           
+      Digito[I]:= Digito[I] and $0F;      {e  verifica  se   são}           
+      Result := (Digito[I] in [0..9]);    {todos numerais.      }
+    end;
+
+    if Result then
+      for I:= 1 to Digitos do
+      begin
+        Soma       := 0;
+        Multiplica := Inicio;
+        for J:= Tamanho + I - 1 downto 1 do
+        begin
+          Inc(Soma,Digito[J] * Multiplica);
+          if Multiplica = Limite then
+            Multiplica := Inicio
+          else
+            Inc(Multiplica,Passo);
+        end;
+        Soma := (Soma mod 11) mod 10;
+        Digito[Tamanho+I]:= Soma;
+      end;
+
+    if Result then
+    begin
+      StrGeral := '';
+      for I:=1 to Digitos do
+      begin
+        StrGeral := StrGeral + Chr(Digito[Tamanho+I] or $30);
+        Result := (Chr(Digito[Tamanho+I] or $30) = Original[Tamanho+I]);
+      end;
+    end;
+  end
+  else
+    Result := False;
+end;
+
+procedure TdtmLivroEntradaMercadorias.qryNotasPagCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not qryNotasPag.ParamByName('ExisteFiltroNatureza_ou_Codigo').AsBoolean then
+  begin
+    if qrynotaspagleituraviaxml.asboolean then
+    begin
+      qryNotasPagdifvalortotal_icms.AsBoolean := abs(qryNotasPagvalortotal_icms.AsCurrency - qryNotasPagvalornota.AsCurrency)>0.01;
+      qryNotasPagdifvalortotal_ipi.AsBoolean := abs(qryNotasPagvalortotal_ipi.AsCurrency - qryNotasPagvalornota.AsCurrency)>0.01;
+    end
+    else
+    begin
+      qryNotasPagdifvalortotal_icms.AsBoolean := qryNotasPagvalortotal_icms.AsCurrency <> qryNotasPagvalornota.AsCurrency;
+      qryNotasPagdifvalortotal_ipi.AsBoolean := qryNotasPagvalortotal_ipi.AsCurrency <> qryNotasPagvalornota.AsCurrency;
+    end;
+  end
+  else
+  begin
+    qryNotasPagdifvalortotal_icms.AsBoolean := false;
+    qryNotasPagdifvalortotal_ipi.AsBoolean := false;
+  end;
+end;
+
+procedure TdtmLivroEntradaMercadorias.frpLivroEntradaMercadoriasICMS_IPIGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+  if ParName = 'NOMECONTADOR' then ParValue := ParSistema.NomeContador
+  else if ParName = 'CRCCONTADOR' then ParValue := ParSistema.CRCContador
+  else if ParName = 'RESPONSAVEL1' then ParValue := ParSistema.ResponsavelLivros1
+  else if ParName = 'RESPONSAVEL2' then ParValue := ParSistema.ResponsavelLivros2
+  else if Parname = 'FOLHA_OU_PAGINA' then
+       case ParSistema.LivrosFiscaisFolhaouPagina of
+        0: ParValue := ctFOLHA;
+        1: ParValue := ctPAGINA;
+       end;
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.frpLivroEntradaMercadoriasICMS_IPIBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpLivroEntradaMercadoriasICMS_IPI, view);
+end;
+
+procedure TdtmLivroEntradaMercadorias.ImprimirRelatorio(DataInicial,
+  DataFinal, ParametroFilial, CodigoFiscalInicial,
+  CodigoFiscalFinal: String; ParametroLivro, ParametroPagina,
+  ParametroMaximo: Variant; LivrodeEntrada, CodigosEmitentes,
+  ResumoSintetico, ResumoDiario, LivroEntradas: Boolean; ParametroRelatorio: Integer);
+const
+  CondicaoFilial =
+
+  ' and (np.filial = %s or                                  ' +
+  '      np.filial in (select f.codigo                      ' +
+  '                    from filiais f                       ' +
+  '                    where f.filialconsolidadoradime = %s ' +
+  '                    and (f.sped_pis_cofins or            ' +
+  '                         f.sped_pis_cofins_rb or         ' +
+  '                         f.sped_pis_cofins_rem)))        ';
+
+var i:integer;
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+
+
+
+begin
+  if contribipi then
+    qryCalculosNotaspag_ICMS.Sql.Text := qryCalculos_ICMS_IPI.sql.text
+  else
+    qryCalculosNotaspag_ICMS.Sql.Text := qryCalculos_ICMS.sql.text;
+
+  qryNotasPag.ParamByName('DataInicial').AsString := DataInicial;
+  qryNotasPag.ParamByName('DataFinal').AsString   := DataFinal;
+  if DataInicial='' then
+  begin
+    qryNotasPag.ParamByName('DataInicial').AsString := DataFinal;
+    qryNotasPag.ParamByName('DataFinal').AsString   := DataFinal;
+  end
+  else
+  if DataFinal='' then
+  begin
+    qryNotasPag.ParamByName('DataInicial').AsString := DataInicial;
+    qryNotasPag.ParamByName('DataFinal').AsString   := DataInicial;
+  end;
+  FParametroCabecalho:='DE ' + qryNotasPag.ParamByName('DataInicial').AsString+
+                       ' A ' + qryNotasPag.ParamByName('DataFinal').AsString;
+
+  if ParametroFilial<>'' then
+  begin
+   {
+   qryNotasPag.MacroByName('WhereFiliais').AsString := ' and (np.filial = ' + ParametroFilial + ')';
+   qryCalculosNotaspag_ICMS.MacroByName('WhereFiliais').AsString := ' and (np.filial = ' + ParametroFilial + ')';
+   qryCalculosNotaspag_IPI.MacroByName('WhereFiliais').AsString := ' and (np.filial = ' + ParametroFilial + ')';
+   qryCodigosEmitentes.MacroByName('WhereFiliais').AsString := ' and (np.filial = ' + ParametroFilial + ')';
+   qryResumoNotasPag_ICMS.MacroByName('WhereFiliais').AsString := ' and (np.filial = ' + ParametroFilial + ')';
+   qryResumoNotasPag_IPI.MacroByName('WhereFiliais').AsString := ' and (np.filial = ' + ParametroFilial + ')';
+   qryResumoDiario_ICMS.MacroByName('WhereFiliais').AsString := ' and (np.filial = ' + ParametroFilial + ')';
+   qryResumoDiario_IPI.MacroByName('WhereFiliais').AsString := ' and (np.filial = ' + ParametroFilial + ')';
+   }
+   qryNotasPag.MacroByName('WhereFiliais').AsString := format(CondicaoFilial, [ParametroFilial, ParametroFilial]);
+   qryCalculosNotaspag_ICMS.MacroByName('WhereFiliais').AsString := format(CondicaoFilial, [ParametroFilial, ParametroFilial]);
+   qryCalculosNotaspag_IPI.MacroByName('WhereFiliais').AsString := format(CondicaoFilial, [ParametroFilial, ParametroFilial]);
+   qryCodigosEmitentes.MacroByName('WhereFiliais').AsString := format(CondicaoFilial, [ParametroFilial, ParametroFilial]);
+   qryResumoNotasPag_ICMS.MacroByName('WhereFiliais').AsString := format(CondicaoFilial, [ParametroFilial, ParametroFilial]);
+   qryResumoNotasPag_IPI.MacroByName('WhereFiliais').AsString := format(CondicaoFilial, [ParametroFilial, ParametroFilial]);
+   qryResumoDiario_ICMS.MacroByName('WhereFiliais').AsString := format(CondicaoFilial, [ParametroFilial, ParametroFilial]);
+   qryResumoDiario_IPI.MacroByName('WhereFiliais').AsString := format(CondicaoFilial, [ParametroFilial, ParametroFilial]);
+
+  end
+  else
+  begin
+   qryNotasPag             .MacroByName('WhereFiliais').AsString := '';
+   qryCalculosNotaspag_ICMS.MacroByName('WhereFiliais').AsString := '';
+   qryCalculosNotaspag_IPI .MacroByName('WhereFiliais').AsString := '';
+   qryCodigosEmitentes     .MacroByName('WhereFiliais').AsString := '';
+   qryResumoNotasPag_ICMS  .MacroByName('WhereFiliais').AsString := '';
+   qryResumoNotasPag_IPI   .MacroByName('WhereFiliais').AsString := '';
+   qryResumoDiario_ICMS    .MacroByName('WhereFiliais').AsString := '';
+   qryResumoDiario_IPI     .MacroByName('WhereFiliais').AsString := '';
+  end;
+
+  qryNotasPag.ParamByName('CodigoFiscalInicial').AsString := CodigoFiscalInicial;
+  qryNotasPag.ParamByName('CodigoFiscalFinal').AsString := CodigoFiscalFinal;
+  if CodigoFiscalInicial='' then
+  begin
+    qryNotasPag.ParamByName('CodigoFiscalInicial').AsString := CodigoFiscalFinal;
+    qryNotasPag.ParamByName('CodigoFiscalFinal').AsString := CodigoFiscalFinal;
+  end
+  else
+  if CodigoFiscalFinal='' then
+  begin
+    qryNotasPag.ParamByName('CodigoFiscalInicial').AsString := CodigoFiscalInicial;
+    qryNotasPag.ParamByName('CodigoFiscalFinal').AsString := CodigoFiscalInicial;
+  end
+  else
+  if (qryNotasPag.ParamByName('CodigoFiscalInicial').AsString <>
+      qryCodigosFiscaismenorcodigo.AsString) or
+     (qryNotasPag.ParamByName('CodigoFiscalFinal').AsString <>
+      qryCodigosFiscaismaiorcodigo.AsString) then
+    FParametroCabecalho := FParametroCabecalho+' CÓDIGO FISCAL ENTRE: ' +
+                           qryNotasPag.ParamByName('CodigoFiscalInicial').AsString +
+                           ' E ' + qryNotasPag.ParamByName('CodigoFiscalFinal').AsString;
+
+
+  qryNotasPag             .MacroByName('NaturezasNotas')   .AsString := FNaturezasNotas;
+  qryNotasPag             .MacroByName('NaturezasProdutos').AsString := FNaturezasProdutos;
+  qryCalculosNotaspag_ICMS.MacroByName('NaturezasProdutos').AsString := FNaturezasProdutos;
+  qryCalculosNotaspag_IPI .MacroByName('NaturezasProdutos').AsString := FNaturezasProdutos;
+  qryCodigosEmitentes     .MacroByName('NaturezasNotas').AsString := FNaturezasNotas;
+  qryResumoNotasPag_ICMS  .MacroByName('NaturezasProdutos').AsString := FNaturezasProdutos;
+  qryResumoNotasPag_IPI   .MacroByName('NaturezasProdutos').AsString := FNaturezasProdutos;
+
+  qryResumoDiario_ICMS    .MacroByName('NaturezasProdutos').AsString := FNaturezasProdutos;
+  qryResumoDiario_IPI     .MacroByName('NaturezasProdutos').AsString := FNaturezasProdutos;
+
+  qryResumoDiario_ICMS    .MacroByName('NaturezasNotas').AsString := FNaturezasNotas;
+  qryResumoDiario_IPI     .MacroByName('NaturezasNotas').AsString := FNaturezasNotas;
+
+  if ParametroRelatorio <> 2 then
+  begin
+  begin
+    qryNotasPag             .MacroByName('NOSIMPLES').AsString := '';
+    qryCalculosNotaspag_ICMS.MacroByName('NOSIMPLES').AsString := '';
+    qryCalculosNotaspag_IPI .MacroByName('NOSIMPLES').AsString := '';
+    qryCodigosEmitentes     .MacroByName('NOSIMPLES').AsString := '';
+    qryResumoNotasPag_ICMS  .MacroByName('NOSIMPLES').AsString := '';
+    qryResumoNotasPag_IPI   .MacroByName('NOSIMPLES').AsString := '';
+    qryResumoDiario_ICMS    .MacroByName('NOSIMPLES').AsString := '';
+    qryResumoDiario_IPI     .MacroByName('NOSIMPLES').AsString := '';
+
+    qryNotasPag             .MacroByName('CODIGOSFISCAISNOTAS').AsString := '';
+    qryNotasPag             .MacroByName('CODIGOSFISCAISPRODUTOS').AsString := '';
+    qryCalculosNotaspag_ICMS.MacroByName('CODIGOSFISCAISPRODUTOS').AsString := '';
+    qryCalculosNotaspag_IPI .MacroByName('CODIGOSFISCAISPRODUTOS').AsString := '';
+    qryCodigosEmitentes     .MacroByName('CODIGOSFISCAISNOTAS').AsString := '';
+    qryResumoNotasPag_ICMS  .MacroByName('CODIGOSFISCAISPRODUTOS').AsString := '';
+    qryResumoNotasPag_IPI   .MacroByName('CODIGOSFISCAISPRODUTOS').AsString := '';
+
+    qryResumoDiario_ICMS    .MacroByName('CODIGOSFISCAISPRODUTOS').AsString := '';
+    qryResumoDiario_IPI     .MacroByName('CODIGOSFISCAISPRODUTOS').AsString := '';
+
+    qryResumoDiario_ICMS    .MacroByName('CODIGOSFISCAISNOTAS').AsString := '';
+    qryResumoDiario_IPI     .MacroByName('CODIGOSFISCAISNOTAS').AsString := '';
+
+  end
+  end
+  else
+  begin
+    qryNotasPag             .MacroByName('NOSIMPLES').AsString := 'AND vf.nosimples AND vf.estado = ' + QuotedStr(EstadoFilialBase);
+    qryCalculosNotaspag_ICMS.MacroByName('NOSIMPLES').AsString := 'AND vf.nosimples AND vf.estado = ' + QuotedStr(EstadoFilialBase);
+    qryCalculosNotaspag_IPI .MacroByName('NOSIMPLES').AsString := 'AND vf.nosimples AND vf.estado = ' + QuotedStr(EstadoFilialBase);
+    qryCodigosEmitentes     .MacroByName('NOSIMPLES').AsString := 'AND vf.nosimples AND vf.estado = ' + QuotedStr(EstadoFilialBase);
+    qryResumoNotasPag_ICMS  .MacroByName('NOSIMPLES').AsString := 'AND vf.nosimples AND vf.estado = ' + QuotedStr(EstadoFilialBase);
+    qryResumoNotasPag_IPI   .MacroByName('NOSIMPLES').AsString := 'AND vf.nosimples AND vf.estado = ' + QuotedStr(EstadoFilialBase);
+    qryResumoDiario_ICMS    .MacroByName('NOSIMPLES').AsString := 'AND vf.nosimples AND vf.estado = ' + QuotedStr(EstadoFilialBase);
+    qryResumoDiario_IPI     .MacroByName('NOSIMPLES').AsString := 'AND vf.nosimples AND vf.estado = ' + QuotedStr(EstadoFilialBase);
+
+    qryNotasPag.MacroByName('CODIGOSFISCAISNOTAS').AsString :=   ' and exists (select cnp.codigofiscal '+
+                                                                            ' from calculosnotaspag cnp '+
+                                                                            ' where cnp.codigonota = np.codigo '+
+                                                                              ' and cnp.codigofiscal in (1101,1102,1111,1113)) ';
+
+    qryNotasPag.MacroByName('CODIGOSFISCAISPRODUTOS').AsString := ' and cnp.codigofiscal in (1101,1102,1111,1113)';
+    qryCalculosNotaspag_ICMS.MacroByName('CODIGOSFISCAISPRODUTOS').AsString := ' and cnp.codigofiscal in (1101,1102,1111,1113)';
+
+    qryCalculosNotaspag_IPI .MacroByName('CODIGOSFISCAISPRODUTOS').AsString :=
+      qryCalculosNotaspag_ICMS.MacroByName('CODIGOSFISCAISPRODUTOS').AsString;
+
+    qryCodigosEmitentes     .MacroByName('CODIGOSFISCAISNOTAS').AsString :=
+      qryNotasPag.MacroByName('CODIGOSFISCAISNOTAS').AsString;
+
+    qryResumoNotasPag_ICMS  .MacroByName('CODIGOSFISCAISPRODUTOS').AsString :=
+      qryCalculosNotaspag_ICMS.MacroByName('CODIGOSFISCAISPRODUTOS').AsString;
+
+    qryResumoNotasPag_IPI   .MacroByName('CODIGOSFISCAISPRODUTOS').AsString :=
+      qryCalculosNotaspag_ICMS.MacroByName('CODIGOSFISCAISPRODUTOS').AsString;
+
+    qryResumoDiario_ICMS    .MacroByName('CODIGOSFISCAISPRODUTOS').AsString :=
+      qryCalculosNotaspag_ICMS.MacroByName('CODIGOSFISCAISPRODUTOS').AsString;
+
+    qryResumoDiario_IPI     .MacroByName('CODIGOSFISCAISPRODUTOS').AsString :=
+      qryCalculosNotaspag_ICMS.MacroByName('CODIGOSFISCAISPRODUTOS').AsString;
+
+    qryResumoDiario_ICMS    .MacroByName('CODIGOSFISCAISNOTAS').AsString :=
+      qryNotasPag.MacroByName('CODIGOSFISCAISNOTAS').AsString;
+
+    qryResumoDiario_IPI     .MacroByName('CODIGOSFISCAISNOTAS').AsString :=
+      qryNotasPag.MacroByName('CODIGOSFISCAISNOTAS').AsString;
+
+  end;
+
+  for i:=2 to qryNotasPag.ParamCount-1 do
+  begin
+    qryCalculosNotaspag_ICMS.ParamByName(qryNotasPag.Params[i].Name).Value := qryNotasPag.Params[i].Value;
+    qryCalculosNotaspag_IPI.ParamByName(qryNotasPag.Params[i].Name).Value := qryNotasPag.Params[i].Value;
+    qryCodigosEmitentes.ParamByName(qryNotasPag.Params[i].Name).Value := qryNotasPag.Params[i].Value;
+    qryResumoNotasPag_ICMS.ParamByName(qryNotasPag.Params[i].Name).Value := qryNotasPag.Params[i].Value;
+    qryResumoNotasPag_IPI.ParamByName(qryNotasPag.Params[i].Name).Value := qryNotasPag.Params[i].Value;
+    qryResumoDiario_ICMS.ParamByName(qryNotasPag.Params[i].Name).Value := qryNotasPag.Params[i].Value;
+    qryResumoDiario_IPI.ParamByName(qryNotasPag.Params[i].Name).Value := qryNotasPag.Params[i].Value;
+  end;
+
+  qryNotasPag.ParamByName('ContribICMS').AsBoolean := ContribICMS;
+
+  qryNotasPag.ParamByName('ExisteFiltroNatureza_ou_Codigo').AsBoolean :=
+      (strtoint(CodigoFiscalInicial) <> qryCodigosFiscaismenorcodigo.AsInteger) or
+      (strtoint(CodigoFiscalFinal)   <> qryCodigosFiscaismaiorcodigo.AsInteger) or
+      (FNaturezasNotas<>'');
+
+
+
+  case ParametroRelatorio of
+  0,2: begin
+         if LivroEntradas  then
+         begin
+           ReFazConsulta(qryNotasPag,[],[]);
+           ReFazConsulta(qryCalculosNotaspag_ICMS,[],[]);
+           if contribipi  then
+             ReFazConsulta(qryCalculosNotaspag_IPI,[],[]);
+         end;
+
+         if CodigosEmitentes then
+           RefazConsulta(qryCodigosEmitentes, [], []);
+
+         if ResumoSintetico  then
+         begin
+           RefazConsulta(qryResumoNotasPag_ICMS, [], []);
+           if contribipi then
+             RefazConsulta(qryResumoNotasPag_IPI, [], []);
+         end;
+
+         if ResumoDiario then
+         begin
+           RefazConsulta(qryResumoDiario_ICMS, [], []);
+           if contribipi then
+             RefazConsulta(qryResumoDiario_IPI, [], []);
+         end;
+       end;
+  end;
+
+  AtribuirParametrosBaseRelatorio(qryprocurafiliaiscodigo.asstring);
+  frVariables['Titulo']  := 'LIVRO DE ENTRADA DE MERCADORIAS';
+  frVariables['Livro']:= ParametroLivro;
+  frVariables['Pagina']:=ParametroPagina;
+  frVariables['Maximo']:=ParametroMaximo;
+  frVariables['Outras']:=ParametroCabecalho;
+  frVariables['DataExtensoInicial']:= DataExtenso(strtodate(DataInicial));
+  frVariables['DataExtensoFinal']:= DataExtenso(strtodate(DataFinal));
+  frVariables['DataInicial']:= DataInicial;
+  frVariables['DataFinal']:= DataFinal;
+
+
+  {
+  frpLivroEntradaMercadoriasICMS_IPI.DesignReport;
+  }
+//  frpLivroEntradaMercadorias.DesignReport;
+  {
+  frpCodigosEmitentes.DesignReport;
+  frpResumoNotasPag_ICMS.DesignReport;
+  frpResumoNotasPag_IPI.DesignReport;
+  frpResumoDiario_ICMS.DesignReport;
+  frpResumoDiario_IPI.DesignReport;
+  }
+
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3;
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   with frmPreview do
+   begin
+    case ParametroRelatorio of
+    0,
+    2: begin
+         if LivrodeEntrada then
+         begin
+           if contribipi then
+             frCompositeReport.Reports.Add(frpLivroEntradaMercadoriasICMS_IPI)
+           else
+             frCompositeReport.Reports.Add(frpLivroEntradaMercadorias);
+         end;
+
+         if CodigosEmitentes then
+           frCompositeReport.Reports.Add(frpCodigosEmitentes);
+
+         if ResumoSintetico then
+         begin
+          frCompositeReport.Reports.Add(frpResumoNotasPag_ICMS);
+          if contribipi then
+            frCompositeReport.Reports.Add(frpResumoNotasPag_IPI);
+         end;
+
+         if ResumoDiario then
+         begin
+          frCompositeReport.Reports.Add(frpResumoDiario_ICMS);
+          if contribipi then
+            frCompositeReport.Reports.Add(frpResumoDiario_IPI);
+         end
+       end;
+    1: begin
+        if not Assigned(ImpressaoTermos) then
+          ImpressaoTermos := TdtmImprimeTermos.Create(Self);
+        frCompositeReport.Reports.Add(ImpressaoTermos.frpTermos_R);
+       end;
+    end;
+   end;
+
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+
+   
+   frmPreview.ShowModal;
+
+   if ParametroRelatorio = 2 then
+     if GerarArquivoDCIP then
+       MensagemAviso('Arquivo ' + FParametroArquivoDCIP + ' gerado com sucesso!');
+
+  finally
+   frmPreview.Free;
+   AtribuirParametrosBaseRelatorio;
+  end;
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.frpResumoNotasPag_ICMSBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpResumoNotasPag_ICMS, view);
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.frpResumoNotasPag_IPIBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+    ZebrarLinhaRelatorio(frpResumoNotasPag_IPI, view);
+end;
+
+
+procedure TdtmLivroEntradaMercadorias.frpResumoDiario_ICMSBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpResumoDiario_ICMS, view);
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.frpResumoDiario_IPIBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpResumoNotasPag_IPI, view);
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\log131009.sql') then
+    Listar.loadfromfile('c:\log131009.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\log131009.sql');
+  listar.free;
+end;
+
+procedure TdtmLivroEntradaMercadorias.SetVerificarErros(
+  const Value: Boolean);
+begin
+  fVerificarErros := Value;
+  qryNotasPag.Filtered := value;
+end;
+
+procedure TdtmLivroEntradaMercadorias.qryNotasPagFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  if qryNotasPag.Filtered then
+    Accept := (qryNotasPagvalortotal_icms.AsCurrency <> qryNotasPagvalornota.AsCurrency);
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.qryNotasPagBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryNotasPag.parambyname('SelecaoPelaDatadeEmissao').asBoolean :=
+  TCheckBox(self.owner.FindComponent('ckbSelecaoPelaDatadeEmissao')).checked;
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.qryCalculosNotaspag_ICMSBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryCalculosNotaspag_ICMS.parambyname('SelecaoPelaDatadeEmissao').asBoolean :=
+  TCheckBox(self.owner.FindComponent('ckbSelecaoPelaDatadeEmissao')).checked;
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.qryCalculosNotaspag_IPIBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryCalculosNotaspag_IPI.parambyname('SelecaoPelaDatadeEmissao').asBoolean :=
+  TCheckBox(self.owner.FindComponent('ckbSelecaoPelaDatadeEmissao')).checked;
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.qryCodigosEmitentesBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryCodigosEmitentes.parambyname('SelecaoPelaDatadeEmissao').asBoolean :=
+  TCheckBox(self.owner.FindComponent('ckbSelecaoPelaDatadeEmissao')).checked;
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.qryResumoNotasPag_IPIBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryResumoNotasPag_IPI.parambyname('SelecaoPelaDatadeEmissao').asBoolean :=
+  TCheckBox(self.owner.FindComponent('ckbSelecaoPelaDatadeEmissao')).checked;
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.qryResumoDiario_IPIBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryResumoDiario_IPI.parambyname('SelecaoPelaDatadeEmissao').asBoolean :=
+  TCheckBox(self.owner.FindComponent('ckbSelecaoPelaDatadeEmissao')).checked;
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.qryResumoDiario_ICMSBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryResumoDiario_ICMS.parambyname('SelecaoPelaDatadeEmissao').asBoolean :=
+  TCheckBox(self.owner.FindComponent('ckbSelecaoPelaDatadeEmissao')).checked;
+
+end;
+
+procedure TdtmLivroEntradaMercadorias.qryResumoNotasPag_ICMSBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryResumoNotasPag_ICMS.parambyname('SelecaoPelaDatadeEmissao').asBoolean :=
+  TCheckBox(self.owner.FindComponent('ckbSelecaoPelaDatadeEmissao')).checked;
+
+end;
+
+end.
+
+
+06/3/25 foi retirado o autodimensionaraltura pois estava dando diferença ao transportar e erro no resultado final

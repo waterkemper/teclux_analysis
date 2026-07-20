@@ -1,0 +1,177 @@
+unit fmlogin;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Forms, Controls, StdCtrls,
+  ExtCtrls, DB, {Qete,} 
+
+{$IFDEF MSWINDOWS}
+  Windows,
+{$ENDIF}
+  // Biblio
+  ctconstantes, biblio;
+
+type
+  TfrmLogin = class(TForm)
+    pnlLogin: TPanel;
+    lblUsuario: TLabel;
+    lblSenha: TLabel;
+    edtUsuario: TEdit;
+    edtSenha: TEdit;
+    imgLogo: TImage;
+    btnOk: TButton;
+    btnCancelar: TButton;
+    procedure edtUsuarioKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edtSenhaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure btnOkClick(Sender: TObject);
+    procedure btnCancelarClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  protected
+    function ControlesPreenchidos: Boolean;
+
+    function GetSenha: String;
+    function GetUsuario: String;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property Senha: String read GetSenha;
+    property Usuario: String read GetUsuario;
+    procedure LoginReduzido_;
+  end;
+
+var
+  frmLogin: TfrmLogin;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmLogin }
+
+procedure TfrmLogin.edtUsuarioKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if TeclaEnterOuReturn(Key) then
+    edtSenha.SetFocus
+  else
+  if Key = VK_ESCAPE then
+    ModalResult := mrAbort;
+end;
+
+procedure TfrmLogin.edtSenhaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if TeclaEnterOuReturn(Key) then begin
+    if ControlesPreenchidos then
+      ModalResult := mrOk
+  end else
+  if Key = VK_ESCAPE then
+    ModalResult := mrAbort;
+end;
+
+function TfrmLogin.GetSenha: String;
+begin
+  Result := edtSenha.Text
+end;
+
+function TfrmLogin.GetUsuario: String;
+begin
+  Result := edtUsuario.Text
+end;
+
+function TfrmLogin.ControlesPreenchidos: Boolean;
+begin
+  if Trim(edtUsuario.Text) = '' then begin
+    MensagemAviso(ctUSUARIOLOGINVAZIO);
+    edtUsuario.SetFocus;
+    Result := False
+  end else if Pos(' ', edtUsuario.Text) > 0 then begin
+    MensagemAviso(ctUSUARIOCOMESPACO);
+    Result := False
+  end else if Trim(edtSenha.Text) = '' then begin
+    MensagemAviso(ctSENHALOGINVAZIO);
+    edtSenha.SetFocus;
+    Result := False
+  end else begin
+    edtSenha.Text := StringReplace(edtSenha.Text, ' ', '*', [rfReplaceAll, rfIgnoreCase]);
+    Result := True
+  end
+end;
+
+constructor TfrmLogin.Create(AOwner: TComponent);
+begin
+  inherited;
+  Top  := (Screen.Height - Height) div 2;
+  Left := (Screen.Width - Width) div 2;
+
+end;
+
+procedure TfrmLogin.btnOkClick(Sender: TObject);
+begin
+  if ControlesPreenchidos then
+    ModalResult := mrOk;
+end;
+
+procedure TfrmLogin.btnCancelarClick(Sender: TObject);
+begin
+  ModalResult := mrAbort;
+end;
+
+procedure TfrmLogin.FormShow(Sender: TObject);
+var
+   Pt,PtAnterior : TPoint;
+begin
+ // // // // // QWidget_setActiveWindow(Handle);
+{$IFDEF MSWINDOWS}
+   Application.ProcessMessages;
+   GetCursorPos(PtAnterior);
+   {Get the point in the center of Button 2}
+   Pt.x := edtUsuario.Left + (edtUsuario.Width div 2) ;
+   Pt.y := edtUsuario.Top + (edtUsuario.Height div 2) ;
+  {Convert Pt to screen coordinates and Mickeys}
+   Pt := ClientToScreen(Pt) ;
+   Pt.x := Round(Pt.x * (65535 / Screen.Width)) ;
+   Pt.y := Round(Pt.y * (65535 / Screen.Height)) ;
+
+   {Simulate the mouse move}
+   Mouse_Event(MOUSEEVENTF_ABSOLUTE or
+               MOUSEEVENTF_MOVE,
+               Pt.x, Pt.y, 0, 0) ;
+  {Simulate the left mouse button down}
+   Mouse_Event(MOUSEEVENTF_ABSOLUTE or
+               MOUSEEVENTF_LEFTDOWN,
+               Pt.x, Pt.y, 0, 0) ;;
+  {Simulate the left mouse button up}
+   Mouse_Event(MOUSEEVENTF_ABSOLUTE or
+               MOUSEEVENTF_LEFTUP,
+               Pt.x, Pt.y, 0, 0) ;;
+   SetCursorPos(PtAnterior.X,PtAnterior.Y);
+{$ENDIF}
+
+end;
+
+procedure TfrmLogin.LoginReduzido_;
+begin
+    width := 240;
+    height := 180;
+
+    lblUsuario.Left := 29;
+    lblUsuario.top := 57;
+
+    edtUsuario.left := 78;
+    edtUsuario.Top := 54;
+
+    lblSenha.left := 36;
+    lblSenha.Top := 84;
+
+    edtSenha.Left := 78;
+    edtSenha.Top := 81;
+
+    btnOk.Left := 36;
+    btnOk.Top := 120;
+
+    btnCancelar.Left := 103;
+    btnCancelar.top := 120;
+//    edtUsuario.setfocus;
+
+end;
+
+end.

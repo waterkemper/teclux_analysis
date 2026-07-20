@@ -1,0 +1,428 @@
+unit fmrelatorioduplicatas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  ExtCtrls, Buttons, StdCtrls, ComCtrls, Mask, DBCtrls, Windows, DateUtils,
+  Grids, DBGrids, ActnList,
+  // Componentes
+  cpdbfindcontrols, cpdbtext, cppagecontrol, cpnumero, cpdata, cpdbgrid,
+  // Repositorio
+  fmrelatoriopadrao, fmconsultabasica, fmconsultaporcampo, fmajudabt,
+  // Constantes
+  biblio, ctconstantes,
+  // Terceiros
+  zquery,
+  // Projeto
+  dmrelatorioduplicatas, cpdbradiogroup, DB, ZPgSqlQuery, cpquery, ToolWin;
+
+type
+  TfrmRelatorioDuplicatas = class(TfrmRelatorioPadrao)
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    sbnProcurarFilial: TSpeedButton;
+    dtxFilial: TtecDBText;
+    edfFilial: TtecDbEditFind;
+    tstGrupoFilial: TTabSheet;
+    sbnProcurarGrupoFilial: TSpeedButton;
+    dtxGrupoFilial: TtecDBText;
+    edfGrupoFilial: TtecDbEditFind;
+    gbxBanco: TGroupBox;
+    sbnProcurarBanco: TSpeedButton;
+    edfBanco: TtecDbEditFind;
+    dtxBanco: TtecDBText;
+    rgbTipoRelatorio: TRadioGroup;
+    gbxEvento: TGroupBox;
+    sbnProcurarHistorico: TSpeedButton;
+    edfEvento: TtecDbEditFind;
+    dtxEvento: TtecDBText;
+    rgbPrevisoes: TtecDBRadioGroup;
+    rbnComPrevisao: TtecRadioButton;
+    rbnSemPrevisao: TtecRadioButton;
+    rbnSoPrevisao: TtecRadioButton;
+    rgbResumo: TtecDBRadioGroup;
+    rbnComresumo: TtecRadioButton;
+    rbnSemResumo: TtecRadioButton;
+    rbnSoResumo: TtecRadioButton;
+    pgcFornecedor: TtecPageControl;
+    tstFornecedor: TTabSheet;
+    sbnProcurarFornecedor: TSpeedButton;
+    edfFornecedor: TtecDbEditFind;
+    dtxFornecedor: TtecDBText;
+    tstGrupoFornecedor: TTabSheet;
+    sbnGrupoFornecedor: TSpeedButton;
+    dtxGrupoFornecedor: TtecDBText;
+    edfGrupoFornecedor: TtecDbEditFind;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparGrupoFilial: TCheckBox;
+    ckbAgruparFilial: TCheckBox;
+    ckbAgruparFornecedor: TCheckBox;
+    rgbAutorizadas: TtecDBRadioGroup;
+    ckbSim: TtecRadioButton;
+    ckbNao: TtecRadioButton;
+    ckbAmbos: TtecRadioButton;
+    ckbAgruparData: TCheckBox;
+    gbxTipoPagamento: TGroupBox;
+    sbnProcurarTipoPagamento: TSpeedButton;
+    edfTipoPagamento: TtecDbEditFind;
+    dtxTipoPagamento: TtecDBText;
+    gbxPeriodo: TGroupBox;
+    edtDataInicial: TEditData;
+    edtDataFinal: TEditData;
+    gbxTipoFornecedor: TGroupBox;
+    ckbMontagem: TCheckBox;
+    ckbProduto: TCheckBox;
+    ckbTransporte: TCheckBox;
+    stxRelatorio: TStaticText;
+    lblA: TLabel;
+    stxTipoDe: TStaticText;
+    rgbAdiantamentos: TtecDBRadioGroup;
+    rbnComAdiantamentos: TtecRadioButton;
+    rbnSemAdiantamentos: TtecRadioButton;
+    rbnSoAdiantamentos: TtecRadioButton;
+    procedure sbnProcurarFilialClick(Sender: TObject);
+    procedure sbnProcurarGrupoFilialClick(Sender: TObject);
+    procedure sbnProcurarBancoClick(Sender: TObject);
+    procedure pgcFilialGrupoFilialChange(Sender: TObject);
+    procedure edtDataFinalEnter(Sender: TObject);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure sbnProcurarFornecedorClick(Sender: TObject);
+    procedure sbnProcurarEventoClick(Sender: TObject);
+    procedure pgcFornecedorChange(Sender: TObject);
+    procedure sbnGrupoFornecedorClick(Sender: TObject);
+    procedure rgbTipoRelatorioClick(Sender: TObject);
+    procedure sbnProcurarTipoPagamentoClick(Sender: TObject);
+    procedure FormLoaded(Sender: TObject);
+  protected
+    dtmRelatorioDuplicatas: TdtmRelatorioDuplicatas;
+    procedure internoimpressao; override;
+    function  InternoPesquisar(Titulo: string): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean; Override;
+    function  TabelaDePesquisa: TZdataSet; override;
+    function  ValidarCamposSelecao: Boolean;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmRelatorioDuplicatas: TfrmRelatorioDuplicatas;
+  TipoPesquisa: TtecRelatorioDuplicatas;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmRelatorioChequesEmitidos }
+
+procedure TfrmRelatorioDuplicatas.actHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  with dtmRelatorioDuplicatas do begin
+    case TipoPessoa[1] of
+      'F': tstFornecedor.Caption:= 'Fornecedor';
+      'C': tstFornecedor.Caption:= 'Cliente fornecedor';
+      'L': tstFornecedor.Caption:= 'Filial fornecedor';
+    end;
+  end;
+
+  rgbPrevisoes.    enabled := rgbTipoRelatorio.ItemIndex = 0;
+  rgbAutorizadas.  Enabled := rgbTipoRelatorio.ItemIndex = 0;
+  gbxTipoPagamento.Enabled := rgbTipoRelatorio.ItemIndex = 1;
+
+end;
+
+constructor TfrmRelatorioDuplicatas.Create(AOwner: TComponent);
+begin
+  dtmRelatorioDuplicatas:= TdtmRelatorioDuplicatas.Create(Self);
+  inherited;
+  dtmRelatorioDuplicatas.Abre(ctTabelas);
+  edtDataInicial.Text:= DateToStr(dtmRelatorioDuplicatas.DataServidor);
+  edtDataFinal.  Text:= DateToStr(dtmRelatorioDuplicatas.DataServidor);
+
+  stxRelatorio.Height:= 10;
+  stxTipoDe.   Height:= 10;
+
+  rgbTipoRelatorioClick(nil);
+
+end;
+
+destructor TfrmRelatorioDuplicatas.Destroy;
+begin
+  dtmRelatorioDuplicatas:=nil;
+  inherited;
+  frmRelatorioDuplicatas:= nil;
+end;
+
+procedure TfrmRelatorioDuplicatas.edtDataFinalEnter(Sender: TObject);
+begin
+  inherited;
+  if not dataembranco(edtDataInicial.Text) and edtDataInicial.Criticar(false) then
+    edtDataFinal.Minimo:= DaysBetween(dtmRelatorioDuplicatas.DataServidor,StrToDate(edtDataInicial.Text));
+end;
+
+function TfrmRelatorioDuplicatas.ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean;
+begin
+    with dtmRelatorioDuplicatas do
+       case TipoPesquisa of
+          rdpFILIAIS:           Result:= ExisteFiliais(NomeCampo, Value);
+          rdpGRUPOFILIAIS:      Result:= ExisteGrupoFiliais(NomeCampo, Value);
+          rdpFORNECEDORES:      Result:= ExisteFornecedores(NomeCampo, Value);
+          rdpGRUPOFORNECEDORES: Result:= ExisteGrupoFornecedores(NomeCampo, Value);
+          rdpBANCOS:            Result:= ExisteBanco(NomeCampo, Value);
+          rdpEVENTOS:           Result:= ExisteEvento(NomeCampo, Value);
+          rdpTIPOSPAGAMENTOS:   Result:= ExisteTipoPagamento(NomeCampo, Value);
+         else                   Result:= False;
+      end;
+end;
+
+function TfrmRelatorioDuplicatas.InternoPesquisar(Titulo: string): Integer;
+begin
+  Result := mrNone;
+  if ActiveControl is TtecFindCustom then begin
+    if CtrlOn then begin
+      if ActiveControl = edfFilial then begin
+        TipoPesquisa := rdpFILIAIS;
+        Titulo       := 'Filiais';
+      end
+      else if ActiveControl = edfGrupoFilial then begin
+        TipoPesquisa := rdpGRUPOFILIAIS;
+        Titulo       := 'Grupo Filiais';
+      end
+      else if ActiveControl = edfFornecedor then begin
+        TipoPesquisa := rdpFORNECEDORES;
+        Titulo       := 'Fornecedores';
+      end
+      else if ActiveControl = edfGrupoFornecedor then begin
+        TipoPesquisa := rdpGRUPOFORNECEDORES;
+        Titulo       := 'Grupo Fornecedores';
+      end
+      else if ActiveControl = edfBanco then begin
+        TipoPesquisa := rdpBANCOS;
+        Titulo       := 'Bancos';
+      end
+      else if ActiveControl = edfEvento then begin
+        TipoPesquisa := rdpEVENTOS;
+        Titulo       := 'Eventos';
+      end
+      else if ActiveControl = edfTipoPagamento then begin
+        TipoPesquisa := rdpTIPOSPAGAMENTOS;
+        Titulo       := 'Tipos de Pagamento';
+      end;
+
+      with dtmRelatorioDuplicatas do begin
+        AbreTabelaPesquisa(TipoPesquisa);
+        Result:= inherited InternoPesquisar(Titulo);
+        if Result = mrOK then
+          Selecionar(TipoPesquisa);
+        FechaTabelaPesquisa(TipoPesquisa);
+      end;
+    end;
+  end;
+end;
+
+function TfrmRelatorioDuplicatas.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result:= TfrmConsultaPorCampo.Create(nil);
+  if TipoPesquisa = rdpFORNECEDORES then
+    TfrmConsultaPorCampo(Result).ConsultaInterativa := False
+  else begin
+    TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+    TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= False;
+  end;
+end;
+
+procedure TfrmRelatorioDuplicatas.pgcFilialGrupoFilialChange(Sender: TObject);
+begin
+  inherited;
+  if pgcFilialGrupoFilial.ActivePage = tstFilial then begin
+    edfGrupoFilial.Clear;
+    edfFilial.setFocus;
+  end
+  else begin
+    edfFilial.Clear;
+    edfGrupoFilial.setFocus;
+  end;
+end;
+
+procedure TfrmRelatorioDuplicatas.pgcFornecedorChange(Sender: TObject);
+begin
+  inherited;
+  if pgcFornecedor.ActivePage = tstFornecedor then begin
+    edfGrupoFornecedor.Clear;
+    edfFornecedor.setFocus;
+  end
+  else begin
+    edfFornecedor.Clear;
+    edfGrupoFornecedor.setFocus;
+  end;
+end;
+
+procedure TfrmRelatorioDuplicatas.rgbTipoRelatorioClick(Sender: TObject);
+begin
+  inherited;
+  if rgbTipoRelatorio.ItemIndex = 0 then
+       gbxPeriodo.Caption:= ' VENCIMENTOS '
+  else gbxPeriodo.Caption:= ' PAGAMENTOS ';
+
+  if rgbTipoRelatorio.ItemIndex = 0 then
+  begin
+    rbnSemAdiantamentos.Checked := true;
+    rgbAdiantamentos.enabled := false;
+  end
+  else
+    rgbAdiantamentos.enabled := true;
+end;
+
+
+procedure TfrmRelatorioDuplicatas.sbnProcurarBancoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfBanco.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRelatorioDuplicatas.sbnProcurarFilialClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfFilial.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRelatorioDuplicatas.sbnProcurarFornecedorClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfFornecedor.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRelatorioDuplicatas.sbnProcurarGrupoFilialClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfGrupoFilial.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRelatorioDuplicatas.sbnGrupoFornecedorClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfGrupoFornecedor.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRelatorioDuplicatas.sbnProcurarEventoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfEvento.SetFocus;
+  InternoPesquisar('');
+end;
+
+function TfrmRelatorioDuplicatas.TabelaDePesquisa: TZdataSet;
+begin
+   with dtmRelatorioDuplicatas do
+      case TipoPesquisa of
+         rdpFILIAIS:           Result:= ConsultaFiliais;
+         rdpGRUPOFILIAIS:      Result:= ConsultaGrupoFiliais;
+         rdpFORNECEDORES:      Result:= ConsultarFornecedores;
+         rdpGRUPOFORNECEDORES: Result:= ConsultaGrupoFornecedores;
+         rdpBANCOS:            Result:= ConsultaBancos;
+         rdpEVENTOS:           Result:= ConsultaEventos;
+         rdpTIPOSPAGAMENTOS:   Result:= ConsultaTiposPagamentos;
+         else                  Result:= nil;
+    end;
+end;
+
+function TfrmRelatorioDuplicatas.ValidarCamposSelecao: Boolean;
+begin
+  Result:= ((edtDataInicial.Text <> '') or (edtDataFinal.Text <> ''));
+  if Result then
+    Result:= edtDataInicial.DataValida and edtDataFinal.DataValida;
+  if Result then
+    Result := OperadorTernario((Trim(edfFilial.         Text) <> ''), edfFilial.         Exist, True) and
+              OperadorTernario((Trim(edfGrupoFilial.    Text) <> ''), edfGrupoFilial.    Exist, True) and
+              OperadorTernario((Trim(edfBanco.          Text) <> ''), edfBanco.          Exist, True) and
+              OperadorTernario((Trim(edfEvento.         Text) <> ''), edfEvento.         Exist, True) and
+              OperadorTernario((Trim(edfGrupoFornecedor.Text) <> ''), edfGrupoFornecedor.Exist, True) and
+              OperadorTernario((Trim(edfTipoPagamento.  Text) <> ''), edfTipoPagamento.  Exist, True);
+end;
+
+procedure TfrmRelatorioDuplicatas.internoimpressao;
+var
+  SQLTipoFornecimento: String;
+begin
+   inherited;
+   if ValidarCamposSelecao then
+   with dtmRelatorioDuplicatas do
+   begin
+
+      ParametroCabecalho := '';
+      TipoRelatorio   := rgbTipoRelatorio.ItemIndex;
+      Adiantamentos   := rgbAdiantamentos.ItemIndex;
+      PeriodoInicial  := edtDataInicial.Text;
+      PeriodoFinal    := edtDataFinal.Text;
+      Filial          := edfFilial.Text;
+      Grupo           := edfGrupoFilial.Text;
+      Fornecedor      := edfFornecedor.Text;
+      GrupoFornecedor := edfGrupoFornecedor.Text;
+      Banco           := edfBanco.Text;
+      Previsao        := rgbPrevisoes.ItemIndex;
+      Autorizadas     := rgbAutorizadas.ItemIndex;
+      Evento          := edfEvento.Text;
+      TipoPagamento   := edfTipoPagamento.Text;
+      FOrdenacaoDuplicatas := 'D';
+      AgruparGrupoFilial := ckbAgruparGrupoFilial.Checked;
+      AgruparFilial      := ckbAgruparFilial.Checked;
+      AgruparFornecedor  := ckbAgruparFornecedor.Checked;
+      AgruparData        := ckbAgruparData.Checked;
+      if ckbAgruparFornecedor.Checked then
+        FOrdenacaoDuplicatas:='N';
+      DefineOrdenacao;
+      Resumo:= rgbResumo.ItemIndex;
+
+      SQLTipoFornecimento := '';
+      if ckbMontagem.Checked then
+        SQLTipoFornecimento := SQLTipoFornecimento + '''M'',';
+
+      if ckbProduto.Checked then
+        SQLTipoFornecimento := SQLTipoFornecimento + '''P'',';
+
+      if ckbTransporte.Checked then
+        SQLTipoFornecimento := SQLTipoFornecimento + '''T'',';
+
+      TipoFornecimento := SQLTipoFornecimento;
+
+      if GerarRelatorio then begin
+         MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']));
+         edtDataInicial.SetFocus;
+      end
+      else ImprimirRelatorio;
+    end;
+end;
+
+
+procedure TfrmRelatorioDuplicatas.sbnProcurarTipoPagamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfTipoPagamento.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRelatorioDuplicatas.FormLoaded(Sender: TObject);
+begin
+  inherited;
+  edtDataInicial.SetFocus;
+end;
+
+end.

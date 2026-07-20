@@ -1,0 +1,76 @@
+unit dmcadastroservicoslcp116;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, ctconstantes, biblio, Variants, Forms, ZTransact;
+
+type
+  TdtmCadastroServicosLCP116 = class(TdtmBasico)
+    dsrServicoslcp116: TtecDataSource;
+    qryServicoslcp116: TtecQuery;
+    qryServicoslcp116codigo: TStringField;
+    qryServicoslcp116descricao: TStringField;
+  private
+    { Private declarations }
+  public
+    constructor Create(Aowner: TComponent); override;
+    function ExcluirFalha: Boolean;
+    function GravarServico: Boolean;
+    function IncluirServico: Boolean;
+    procedure AtribuirCodigo(Codigo: String);
+    { Public declarations }
+  end;
+
+var
+  dtmCadastroServicosLCP116: TdtmCadastroServicosLCP116;
+
+implementation
+
+{$R *.dfm}
+
+procedure TdtmCadastroServicosLCP116.AtribuirCodigo(Codigo: String);
+begin
+  qryServicoslcp116.Edit;
+  qryServicoslcp116codigo.AsString := Codigo;
+end;
+
+constructor TdtmCadastroServicosLCP116.Create(Aowner: TComponent);
+begin
+  inherited;
+  qryServicoslcp116.Tag := ctTabelas;
+end;
+
+function TdtmCadastroServicosLCP116.ExcluirFalha: Boolean;
+begin
+  Result := False;
+  if not qryServicoslcp116.IsEmpty then
+    if (MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o ITEM'])) = smbOk) then
+    begin
+       qryServicoslcp116.Delete;
+       Result := Perpetrar([qryServicoslcp116]);
+    end;
+end;
+
+function TdtmCadastroServicosLCP116.GravarServico: Boolean;
+begin
+  result := false;
+  if (qryServicoslcp116.CheckRequiredFields) then
+  begin
+    qryServicoslcp116.Post;
+    result := Perpetrar([qryServicoslcp116]);
+  end;
+end;
+
+function TdtmCadastroServicosLCP116.IncluirServico: Boolean;
+begin
+  Result := True;
+  try
+    qryServicoslcp116.Insert;
+  except
+    Result := False;
+  end;
+end;
+
+end.

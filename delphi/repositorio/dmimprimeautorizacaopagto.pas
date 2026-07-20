@@ -1,0 +1,176 @@
+unit dmimprimeautorizacaopagto;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, fr_dset, fr_dbset, fr_class, fmpreviewpadrao, forms;
+
+type
+  TdtmImprimeAutorizacaoPagto = class(TdtmBasico)
+    frpAutorizacaoPagto: TfrReport;
+    fdsAutorizacaoPagto: TfrDBDataSet;
+    qryDuplicatas: TtecQuery;
+    qryDuplicatasdocumentopag: TIntegerField;
+    qryDuplicatasdatavencto: TDateField;
+    qryDuplicatasvalorvencto: TFloatField;
+    qryDuplicatasvalordesconto: TFloatField;
+    qryDuplicatastipojuros: TStringField;
+    qryDuplicatasjuros: TFloatField;
+    qryDuplicatastipomulta: TStringField;
+    qryDuplicatasmulta: TFloatField;
+    qryDuplicatasnumero: TIntegerField;
+    qryDuplicatasprevisao: TFloatField;
+    qryDuplicatasfornecedor: TIntegerField;
+    qryDuplicatastipofornecedor: TStringField;
+    qryDuplicatasautorizado: TBooleanField;
+    qryDuplicatasselecionar: TBooleanField;
+    qryDuplicatasfilialemissao: TIntegerField;
+    qryDuplicatasdescricaofilialemissao: TStringField;
+    qryDuplicatasrua: TStringField;
+    qryDuplicatasnomebairro: TStringField;
+    qryDuplicatascep: TIntegerField;
+    qryDuplicatasnomecidade: TStringField;
+    qryDuplicatasestado: TStringField;
+    qryDuplicatasemissao: TDateField;
+    qryDuplicatasdatalancto: TDateField;
+    qryDuplicatasvalornota: TFloatField;
+    qryDuplicatasreferencia: TStringField;
+    qryDuplicatasordem: TStringField;
+    qryDuplicatascomplemento: TStringField;
+    qryDuplicatasnome: TStringField;
+    qryDuplicatasdataautorizacaopagto: TDateField;
+    frpRecibo: TfrReport;
+    qryDuplicatasdatapagto: TDateField;
+    qryDuplicatasvalorpagto: TFloatField;
+    qryDuplicatasvalorpagtoextenso: TMemoField;
+    qryDuplicatasobservacao: TStringField;
+    frpReciboporFornecedor: TfrReport;
+    qryDuplicatasvalorpagtoextensototal: TMemoField;
+    frpReciboporFornecedor_Copia: TfrReport;
+    procedure frpAutorizacaoPagtoBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpReciboBeforePrint(Memo: TStringList; View: TfrView);
+    procedure frpReciboporFornecedorBeforePrint(Memo: TStringList;
+      View: TfrView);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure ImprimirAutorizacao(ListadeDuplicatas: String);
+    procedure ImprimirRecibo(ListadeDuplicatas: String);
+    procedure ImprimirReciboporFornecedor(ListadeDuplicatas: String);
+
+
+  end;
+
+var
+  dtmImprimeAutorizacaoPagto: TdtmImprimeAutorizacaoPagto;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmImprimeAutorizacaoPagto }
+
+procedure TdtmImprimeAutorizacaoPagto.ImprimirAutorizacao(ListadeDuplicatas: String);
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  qryduplicatas.MacroByName('ListadeDuplicatas').AsString := ListadeDuplicatas;
+  frVariables['Titulo']:= 'AUTORIZAÇÃO DE PAGAMENTO DE FORNECEDORES';
+//  frpAutorizacaoPagto.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3;
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   frmPreview.frCompositeReport.Reports.Add(frpAutorizacaoPagto);
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+   frmPreview.ShowModal;
+  finally
+   frmPreview.Free;
+  end;
+
+end;
+
+procedure TdtmImprimeAutorizacaoPagto.frpAutorizacaoPagtoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpAutorizacaoPagto, view);
+
+end;
+
+procedure TdtmImprimeAutorizacaoPagto.ImprimirRecibo(
+  ListadeDuplicatas: String);
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  qryduplicatas.MacroByName('ListadeDuplicatas').AsString := ListadeDuplicatas;
+//  frVariables['Titulo']:= 'AUTORIZAÇÃO DE PAGAMENTO DE FORNECEDORES';
+//  frpRecibo.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3;
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   frmPreview.frCompositeReport.Reports.Add(frpRecibo);
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+   frmPreview.ShowModal;
+  finally
+   frmPreview.Free;
+  end;
+end;
+
+procedure TdtmImprimeAutorizacaoPagto.frpReciboBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRecibo, view);
+end;
+
+procedure TdtmImprimeAutorizacaoPagto.ImprimirReciboporFornecedor(
+  ListadeDuplicatas: String);
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+  arquivofast : String;
+begin
+  qryduplicatas.MacroByName('ListadeDuplicatas').AsString := ListadeDuplicatas;
+//  frVariables['Titulo']:= 'AUTORIZAÇÃO DE PAGAMENTO DE FORNECEDORES';
+//  frpReciboporFornecedor.DesignReport;
+
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3;
+
+
+  arquivofast := ExtractFilePath(Application.ExeName) + 'frpReciboporFornecedor.frf';
+
+  if FileExists(arquivofast) then
+    frpReciboporFornecedor.LoadFromFile(arquivofast);
+
+  try
+    Relatorio := frmPreview.frCompositeReport;
+    frmPreview.frCompositeReport.Reports.Clear;
+    frmPreview.frCompositeReport.Reports.Add(frpReciboporFornecedor);
+    Relatorio.Preview := frmPreview.frPreviewPadrao;
+    Relatorio.ShowReport;
+    frmPreview.ShowModal;
+  finally
+    frmPreview.Free;
+  end;
+end;
+
+procedure TdtmImprimeAutorizacaoPagto.frpReciboporFornecedorBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpReciboporFornecedor, view);
+end;
+
+end.

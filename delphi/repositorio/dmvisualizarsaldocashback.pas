@@ -1,0 +1,181 @@
+unit dmvisualizarsaldocashback;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, ctconstantes, ZTransact, biblio;
+
+type
+   TecCondicaoVerificacao = (SeValorMaiorSaldo, SeValorMaiorSaldoFrenteCaixa, SeValorMenorSaldo, seValorDiferenteSaldo);
+type
+  TdtmVisualizarSaldocashback = class(TDtmBasico)
+    dsrcashback_saldos: TtecDataSource;
+    qrycashback_saldos: TtecQuery;
+    qrycashback_saldoscodigo: TIntegerField;
+    qrycashback_saldoscashback: TIntegerField;
+    qrycashback_saldosdata_hora: TDateTimeField;
+    qrycashback_saldosdescricao: TStringField;
+    qrycashback_saldoscliente: TIntegerField;
+    qrycashback_saldostipo_cliente: TStringField;
+    qrycashback_saldosvalor: TFloatField;
+    qrycashback_saldosvalidade: TDateTimeField;
+    qrycashback_saldosstatus: TStringField;
+    qrycashback_saldoscontrato: TStringField;
+    qrycashback_saldosparcela: TIntegerField;
+    qrycashback_saldossaldo: TFloatField;
+    qrycashback_saldosproduto: TLargeintField;
+    qrycashback_saldoscodigo_saldo_origem: TIntegerField;
+    qrycashback_saldoscancelamento: TIntegerField;
+    qrycashback_saldossaldofinal: TFloatField;
+    procedure qrycashback_saldosAfterOpen(DataSet: TDataSet);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    function AbrirDadosCliente(Cliente: Integer; TipoCliente: String): boolean; overload;
+    function AbrirDadosCliente(Cliente: Integer; TipoCliente, Contrato: String): boolean; overload;
+
+
+  end;
+
+  function ValidarCreditocashback(Cliente: integer; TipoCliente: String; ValorSaldoVerificado: TField; TotalDocumento: Currency;
+                               CondicaoVerificacao: TecCondicaoVerificacao; VerificarSeValorSaldoVerificadoZero: Boolean = true;
+                               AtribuirSeSaldoDiscrepante: Boolean = true;
+                               msgAdicional: String = '';
+                               ValorSaldoVerificadoCalculado: Currency = 0): Boolean;
+
+var
+  dtmVisualizarSaldocashback: TdtmVisualizarSaldocashback;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmVisualizarSaldocashback }
+
+function TdtmVisualizarSaldocashback.AbrirDadosCliente(Cliente: Integer;
+  TipoCliente: String): boolean;
+begin
+  ReFazConsultaPorNome(qrycashback_saldos,['cliente','tipocliente'], [Cliente,TipoCliente]);
+  qrycashback_saldos.Last;
+  result := qrycashback_saldossaldofinal.AsCurrency > 0;
+
+end;
+
+function TdtmVisualizarSaldocashback.AbrirDadosCliente(Cliente: Integer;
+  TipoCliente, Contrato: String): boolean;
+
+//const
+//  SQL = 'and (pt.tipo<>''S'' or (pt.contrato<>''%s'' or pt.contrato is null))';
+
+begin
+//  qrycashback_saldos.MacroByName('Filtro').AsString := format(SQL,[contrato]);
+
+  ReFazConsultaPorNome(qrycashback_saldos,['cliente','tipocliente'], [Cliente,TipoCliente]);
+  qrycashback_saldos.Last;
+
+  result := qrycashback_saldossaldofinal.AsCurrency > 0;
+
+end;
+
+constructor TdtmVisualizarSaldocashback.Create(AOwner: TComponent);
+begin
+  inherited;
+  qrycashback_saldos.Tag := cttabelas;
+end;
+
+function ValidarCreditocashback(Cliente: integer; TipoCliente: String; ValorSaldoVerificado: TField; TotalDocumento: Currency;
+                               CondicaoVerificacao: TecCondicaoVerificacao; VerificarSeValorSaldoVerificadoZero: Boolean = true;
+                               AtribuirSeSaldoDiscrepante: Boolean = true;
+                               msgAdicional: String = '';
+                               ValorSaldoVerificadoCalculado: Currency = 0): Boolean;
+begin
+  result := true;
+  if VerificarSeValorSaldoVerificadoZero or
+
+     ((ValorSaldoVerificado<>nil) and (ValorSaldoVerificado.ascurrency <> 0)) or
+
+     (ValorSaldoVerificadoCalculado<>0) then
+
+  begin
+    if not assigned(dtmVisualizarSaldocashback) then
+       dtmVisualizarSaldocashback := TdtmVisualizarSaldocashback.Create(dtmVisualizarSaldocashback);
+
+    dtmVisualizarSaldocashback.AbrirDadosCliente(Cliente,TipoCliente);
+
+    case CondicaoVerificacao of
+
+      SeValorMaiorSaldo :
+      begin
+        if ValorSaldoVerificado.AsCurrency > dtmVisualizarSaldocashback.qrycashback_saldossaldofinal.asCurrency then
+        begin
+           MensagemErro(format(ctVALORCREDITOFORAINTERVALO + chr(13) + msgAdicional,
+             [ValorSaldoVerificado.AsCurrency, dtmVisualizarSaldocashback.qrycashback_saldossaldofinal.asCurrency]));
+           if AtribuirSeSaldoDiscrepante then
+           begin
+             ValorSaldoVerificado.DataSet.edit;
+             ValorSaldoVerificado.AsCurrency := dtmVisualizarSaldocashback.qrycashback_saldossaldofinal.asCurrency;
+           end;
+
+           result := false;
+        end
+        else
+        begin
+          if ValorSaldoVerificado.AsCurrency > TotalDocumento then
+          begin
+            MensagemErro(format(ctVALORCREDITOMAIORPRODUTOS + chr(13) + msgAdicional, [ValorSaldoVerificado.AsCurrency, TotalDocumento]));
+
+            if AtribuirSeSaldoDiscrepante then
+            begin
+              ValorSaldoVerificado.dataset.edit;
+              ValorSaldoVerificado.AsCurrency := TotalDocumento;
+            end;
+
+            result := false;
+          end;
+        end;
+
+      end;
+
+      SeValorMaiorSaldoFrenteCaixa :
+      begin
+
+        if ValorSaldoVerificadoCalculado > dtmVisualizarSaldocashback.qrycashback_saldossaldofinal.asCurrency then
+        begin
+           MensagemErro(format(ctVALORCREDITOFORAINTERVALO + chr(13) + msgAdicional, [ValorSaldoVerificadoCalculado, dtmVisualizarSaldocashback.qrycashback_saldossaldofinal.asCurrency]));
+           if AtribuirSeSaldoDiscrepante then
+             ValorSaldoVerificadoCalculado := dtmVisualizarSaldocashback.qrycashback_saldossaldofinal.asCurrency;
+
+           result := false;
+        end
+        else
+        begin
+          if ValorSaldoVerificadoCalculado > TotalDocumento then
+          begin
+            MensagemErro(format(ctVALORCREDITOMAIORPRODUTOS + chr(13) + msgAdicional, [ValorSaldoVerificado.AsCurrency, TotalDocumento]));
+
+            if AtribuirSeSaldoDiscrepante then
+              ValorSaldoVerificadoCalculado := TotalDocumento;
+
+            result := false;
+          end;
+        end;
+
+      end;
+//      SeValorMenorSaldo
+//      seValorDiferenteSaldo
+    end;
+  end;
+end;
+
+procedure TdtmVisualizarSaldocashback.qrycashback_saldosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  perpetrar([]);
+end;
+
+end.
+

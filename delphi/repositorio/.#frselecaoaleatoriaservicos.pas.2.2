@@ -1,0 +1,226 @@
+unit frselecaoaleatoriaservicos;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
+  Dialogs, frselecaoaleatoria, db, frConsulta, frConsultaCodigo, cpdbfindcontrols, ctconstantes, biblio;
+
+type
+  TfraSelecaoaleatoriaservicos = class(TFrame)
+    fraSelecaoAleatoriaservicos: TfraSelecaoAleatoria;
+    procedure fraSelecaoAleatoriaservicosdbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaservicosdbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure fraSelecaoaleatoriaservicosbnProcuraClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaservicosqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaservicosqrySelecaoAleatoriaNewRecord(
+      DataSet: TDataSet);
+  private
+    { Private declarations }
+    procedure AcionarPesquisaGrade;
+    procedure AtribuirDadosservicos;
+    function GetListaCondicional: String;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    property ListaCondicional: String read GetListaCondicional;
+
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TfraSelecaoaleatoriaservicos }
+
+procedure TfraSelecaoaleatoriaservicos.AcionarPesquisaGrade;
+begin
+  with fraSelecaoAleatoriaservicos do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar('Serviços');
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+constructor TfraSelecaoaleatoriaservicos.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  fraSelecaoAleatoriaservicos.qrySelecaoAleatoria.Sql.Text :=
+     'SELECT  cast(null as char(18)) as Codigo, '+
+            ' cast(null as char(1)) as tipo, '+
+            ' cast(null as varchar(50)) as descricao, '+
+            ' cast(null as varchar(11)) as campo, '+
+            ' cast(null as varchar(20)) as opcomparacao, '+
+            ' cast(null as varchar(2)) as oplogico ';
+
+//  fraSelecaoAleatoriaservicos.qrySelecaoAleatoria.open;
+//  fraSelecaoAleatoriaservicos.qrySelecaoAleatoria.close;
+
+
+  fraSelecaoAleatoriaservicos.PossuiCampoFilial := false;
+
+
+  fraSelecaoAleatoriaservicos.CampoParaLista := 'codigo';
+
+  with fraSelecaoAleatoriaservicos do
+  begin
+
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoria';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 4;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.DataaFieldInterno := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.DataaFieldVisual := 'codigo';
+
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraservicos;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupaFieldinterno := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupaFieldVisual := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.NaoExecutarLookupFound := true;
+
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesservicos;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosservicos;
+    ConsultaSelecaoAleatoria.edfCodigo.ExibirMensagem := false;
+
+  end;
+  fraSelecaoAleatoriaservicos.UtilizarCamparacaoeLogica := true;
+end;
+
+procedure TfraSelecaoaleatoriaservicos.fraSelecaoAleatoriaservicosdbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  if (fraSelecaoAleatoriaservicos.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatoriaservicos.qrySelecaoAleatoria.FieldByName('codigo')) then
+    acionarPesquisaGrade;
+
+end;
+
+procedure TfraSelecaoaleatoriaservicos.fraSelecaoAleatoriaservicosdbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     if (fraSelecaoAleatoriaservicos.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatoriaservicos.qrySelecaoAleatoria.FieldByName('codigo')) then
+                     begin
+                       fraSelecaoAleatoriaservicos.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                       if (Shift = []) or fraSelecaoAleatoriaservicos.ConsultaSelecaoAleatoria.CtrlOn then
+                         AcionarPesquisaGrade
+                     end;    
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if (fraSelecaoAleatoriaservicos.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatoriaservicos.qrySelecaoAleatoria.FieldByName('codigo')) then
+                begin
+                  fraSelecaoAleatoriaservicos.ConsultaSelecaoAleatoria.qryProcuraservicos.close;
+                  fraSelecaoAleatoriaservicos.ConsultaSelecaoAleatoria.qryProcuraservicos.parambyname('codigo').asString := fraSelecaoAleatoriaservicos.qrySelecaoAleatoria.FieldByName('codigo').asString;
+                  fraSelecaoAleatoriaservicos.ConsultaSelecaoAleatoria.qryProcuraservicos.open;
+
+                  fraSelecaoAleatoriaservicos.ConsultaSelecaoAleatoria.edfCodigo.text := fraSelecaoAleatoriaservicos.qrySelecaoAleatoria.FieldByName('codigo').asString;
+                  fraSelecaoAleatoriaservicos.ConsultaSelecaoAleatoria.edfCodigo.exist;
+
+
+                  
+                  if not fraSelecaoAleatoriaservicos.ConsultaSelecaoAleatoria.qryProcuraservicos.IsEmpty then
+                    AtribuirDadosservicos
+                  else
+                  begin
+                    key := 0;
+                    fraSelecaoAleatoriaservicos.dbgSelecaoAleatoria.SelectedIndex := 0;
+                    fraSelecaoAleatoriaservicos.dbgSelecaoAleatoria.SetFocus;
+                  end;
+                end;
+  end;
+
+end;
+
+procedure TfraSelecaoaleatoriaservicos.fraSelecaoaleatoriaservicosbnProcuraClick(
+  Sender: TObject);
+begin
+  AcionarPesquisaGrade;
+
+end;
+
+procedure TfraSelecaoaleatoriaservicos.fraSelecaoAleatoriaservicosqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+begin
+  with fraSelecaoAleatoriaservicos do
+  begin
+    qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'Código';
+    qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('descricao').DisplayLabel := 'Descrição';
+    qrySelecaoAleatoria.FieldByName('descricao').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('opcomparacao').DisplayLabel := 'Comparação';
+    qrySelecaoAleatoria.FieldByName('opcomparacao').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('oplogico').DisplayLabel := 'Lógica';
+    qrySelecaoAleatoria.FieldByName('oplogico').ReadOnly := false;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+  end;
+
+end;
+
+procedure TfraSelecaoaleatoriaservicos.fraSelecaoAleatoriaservicosqrySelecaoAleatoriaNewRecord(
+  DataSet: TDataSet);
+begin
+  with fraSelecaoAleatoriaservicos do
+  begin
+    qrySelecaoAleatoria.FieldByName('campo').asString := 'codigo';
+    qrySelecaoAleatoria.FieldByName('opcomparacao').asString := '= Igual a';
+    qrySelecaoAleatoria.FieldByName('oplogico').asString := 'ou';
+  end;
+end;
+
+procedure TfraSelecaoaleatoriaservicos.AtribuirDadosservicos;
+begin
+  with fraSelecaoAleatoriaservicos do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraservicos.fieldbyname('codigo').AsString;
+
+    qrySelecaoAleatoria.FieldByName('descricao').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraservicos.fieldbyname('descricao').AsString;
+
+    if qrySelecaoAleatoria.FieldByName('campo').asString = '' then
+      qrySelecaoAleatoria.FieldByName('campo').asString := 'codigo';
+
+    if qrySelecaoAleatoria.FieldByName('opcomparacao').asString = '' then
+      qrySelecaoAleatoria.FieldByName('opcomparacao').asString := '= Igual a';
+
+    if qrySelecaoAleatoria.FieldByName('oplogico').asString = '' then
+      qrySelecaoAleatoria.FieldByName('oplogico').asString := 'ou';
+
+    qrySelecaoAleatoria.Post;
+
+  end;
+end;
+
+function TfraSelecaoaleatoriaservicos.GetListaCondicional: String;
+begin
+  result := trocar(fraSelecaoAleatoriaservicos.ListaCondicional, 'codigo', 's.codigo');
+  result := trocar(result, 'descricao','s.descricao');
+end;
+
+end.

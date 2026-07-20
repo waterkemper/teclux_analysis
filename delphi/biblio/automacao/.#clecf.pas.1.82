@@ -1,0 +1,2934 @@
+{********************************************************}
+{                                                        }
+{                                                        }
+{          Classe abstrata para acesso a API de          }
+{                  impressoras fiscais                   }
+{                                                        }
+{                   Ver 1.0 12/03/2003                   }
+{********************************************************}
+
+unit clecf;
+
+interface
+
+uses Classes, SysUtils, idGlobal, Math, inifiles, Forms, ctconstantes,
+     ACBrBase, ACBrECF, ACBrDevice, ACBrECFClass, ACBrEAD, cpQuery, StrUtils;
+
+type
+
+  TTecTipoOperacaoECF = (TAbreCupom, TCancelaCupom, TSubtotalizaCupom, TFechaCupom,
+                         TVendeItem, TCancelaItem,
+                         TCupomVinculado, TNaoFiscalCompleto, TRelatorioGerencial,
+                         TEfetuaPagamento);
+
+  TtecCNF = record
+    descricao: String;
+    tipo: char;  // ENTRADA('+')/SAIDA('-')
+  end;
+
+  TtecFormasPagto = record
+    indice,
+    descricao: String;
+  end;
+
+  TtecTotaisTributados = record
+   base: Double;
+   valor: Double;
+   aliquota: double;
+  end;
+
+  TtecMapaTotais = record
+   maquina: byte;
+   intervensao: byte;
+   data: String;
+   cpfinal: Integer;
+   reducoes: Integer;
+   gt: Double;
+   tacre: Double;
+   tcanc: Double;
+   tdesc: Double;
+   tsubs: Double;
+   tisen: Double;
+   tntrb: Double;
+   ttrib: Array of TtecTotaisTributados
+  end;
+  TtecMapaECF = Array of TtecMapaTotais;
+
+
+  TtecDetalhesReducaoZ = record
+   TipoTotalizadorParcial :string;
+   aliquota : currency;
+   ValorAcumulado: Currency;
+  end;
+
+  TtecReducoesZ = record
+   Numerofabricacao : string;
+   MFadicional        : string;
+   ModeloECF        : string;
+   Numerousuario    : integer;
+   CRZ                : integer;      {Contador de Redução Z relativo à respectiva redução}
+   COO                : integer;      {Contador de Ordem de Operação relativo à respectiva Redução Z}
+   COO_Inicial        : integer;      {COO do primeiro cupom do dia}
+   COO_Final          : integer;      {COO do ultimo cupom do dia}
+   CRO                : integer;      {Contador de Reinício de Operação relativo à respectiva Redução Z}
+   Datamovimento    : tdatetime;    {Data das operações relativas à respectiva Redução Z 08 65 72 D}
+   Dataemissao      : tdatetime;    {Data de emissão da Redução Z}
+   Horaemissao      : tdatetime;    {Hora de emissão da Redução Z 06 81 86 H}
+   VendaBrutaDiaria   : currency;     {Valor acumulado neste totalizador relativo à respectiva Redução Z,}
+   TotalizadorGeral   : Currency;    {Valor acumulado no momento da emissão da Redução Z}
+   ParametroincidenciaISSQN :string; {Parâmetro do ECF para incidência de desconto sobre itens sujeitos ao ISSQN}
+   origeminformacao : String; {Z Normal, ZA Z Anterior, FI Função interna, FA Função Externa}
+   DetalhesReducaoZ   : Array of TtecDetalhesReducaoZ;
+  end;
+
+  TtecMapaBuffer = Array of String;
+
+  TtecTributo = (tbTributado, tbNTributado, tbIsento, tbSubstitui, tbServico);
+
+  TtecTotalizadoresECF = class
+  private
+    FGrandeTotal: String;
+  protected
+    function LerTotalizador(Index: Integer): String; virtual; abstract;
+  public
+
+    property Tributados: String index 1 read LerTotalizador;
+    property Isentos: String index 2 read LerTotalizador;
+    property SemInsidencia: String index 3 read LerTotalizador;
+    property Substitucao: String  index 4 read LerTotalizador;
+    property NaoSujeitosICMS: String index 5 read LerTotalizador;
+    property Sangria: String index 6 read LerTotalizador;
+    property Suprimento: String index 7 read LerTotalizador;
+    property GrandeTotal: String index 8 read LerTotalizador write FGrandeTotal;
+    property Descontos: String index 9 read LerTotalizador;
+    property Cancelamentos: String index 10 read LerTotalizador;
+    property Reducoes: String index 11 read LerTotalizador;
+  end;
+
+  TtecECF = class(TACBrECF)
+//    self : TACBrECF;
+    procedure MsgPoucoPapel(Sender: TObject);
+  private
+    FErro: Boolean;
+    FExibeMensagem: Boolean;
+    FTotalizadores: TtecTotalizadoresECF;
+    FParams: TStringList;
+    FPortaSerial: String;
+    FSerieConfigurada: String;
+    FNumeroConfigurado: String;
+    FMFAdicional: STring;
+    FTipodoECF: String;
+    FNumerodeFabricacaodoECF: String;
+    FMarcadoECF: String;
+    FModelodoECF: String;
+    FVersaodoSBInstalado: String;
+    FDatadaAtualizacaodaversaodoSB: String;
+    FHoradaAtualizacaodaversaodoSB: String;
+    FNumerodeOrdemSequencialdaVersaodoSB: String;
+    FCodigo: String;
+    fDataHoraReducaoZ: TDateTime;
+    fIncidenciaDescontoISSQN: String;
+    ftipo: string;
+    fmarca: string;
+    FSequenciaItem: integer;
+    FArqIniDadosECF: TMemIniFile;
+    FSequenciaFormaPagto: integer;
+    FSequenciaDemaisDoctosECF: integer;
+    FCNIEE: String;
+    fSubModelo: String;
+    function GetMensagem: String;
+    procedure setModelo(Modelo: Integer);
+    procedure TrataErros(E: Exception);
+    function GetMFAdicional: STring;
+    procedure setPortaSerial(const Value: String);
+    function GetIncidenciaDescontoISSQN: String;
+    function GetSequenciaItem: integer;
+    function GetArqIniDadosECF(TipoOperacaoECF: TTecTipoOperacaoECF): TMemIniFile;
+    function GetSequenciaFormaPagto: integer;
+    function GetSequenciaDemaisDoctosECF: integer;
+  protected
+    FMensagem: String;
+    FAliquotas: array of String[5];
+    FFormasPagamento: array of TtecFormasPagto;
+//    FRecebimentosNaoFiscais: array of String[30];
+    function AtualizarStatus(Codigo: Integer): Integer; virtual; abstract;
+    procedure ParamByName(const Name: String; var Value: Char); overload;
+    procedure ParamByName(const Name: String; var Value: PChar); overload;
+    procedure ParamByName(const Name: String; var Value: String); overload;
+    procedure ParamByName(const Name: String; var Value: Integer); overload;
+    function ParamValue(const Name: String): String;
+    function ConverteAliquota(Valor: String): String; virtual;
+    function ConverteFormaPagto(Valor: String; IndInicial: Integer = 0): String; virtual;
+
+    property ArqIniDadosECF[TipoOperacaoECF: TTecTipoOperacaoECF]: TMemIniFile read GetArqIniDadosECF;
+
+    function SalvarDadosCupom(TipoOperacaoECF: TTecTipoOperacaoECF;
+             CGC_CPF: String = ''; Nome: String = '';
+             HeDesconto: Boolean = false; Desc_ou_Acresc: Currency = 0): Boolean;
+
+    function SalvarDadosItemCupom(TipoOperacaoECF: TTecTipoOperacaoECF;
+             codigo: String = ''; descricao: String = ''; unidade: String = '';
+             quantidade: Currency = 0; preco: Currency = 0; desconto: Currency = 0;
+             tributo: String = ''; producaopropria: Boolean = false; NumItemCancelado: Integer = 0): boolean;
+
+    function SalvarDemaisDoctosECF(TipoOperacaoECF: TTecTipoOperacaoECF; NumCupom: Integer=0): boolean;
+
+    function SalvarFormasPagamentoECF(TipoOperacaoECF: TTecTipoOperacaoECF;
+              FormaPagto: String='';  Valor: Currency=0): boolean;
+
+    function SalvarDadosECFLocal: boolean;
+    Function VerificaInconsistenciaCCF: boolean;
+
+
+    property SequenciaItem: integer read GetSequenciaItem write FSequenciaItem;
+    property SequenciaFormaPagto: integer read GetSequenciaFormaPagto write FSequenciaFormaPagto;
+    property SequenciaDemaisDoctosECF: integer read GetSequenciaDemaisDoctosECF write FSequenciaDemaisDoctosECF;
+
+  public
+    vCOORef   : integer;
+    vCOOCancelado : integer;
+    vGravandoCupomVinculado : boolean;
+    vNaoFiscalAberto : boolean;
+    constructor Create(AOwner: TComponent); override; // virtual;
+    destructor Destroy; override;
+
+    function IndiceRecebimentoNaoFiscal(Registrador: String; var Maior: Integer): String;
+
+    Procedure AbreNaoFiscal( CPF_CNPJ: String = ''; Nome: String = '';
+       Endereco: String = '' ) ; virtual;
+
+    Procedure RegistraItemNaoFiscal( CodCNF : String; Valor : Double;
+       Obs : AnsiString = '' ) ; virtual;
+
+
+
+    function  CupomAberto: Boolean; virtual; //abstract;
+    function  RequerReducaoZ: Boolean;
+    function  ImpressoraLivre: Boolean; virtual;
+    function  ImpressoraBloqueada: Boolean; virtual;
+    procedure FinalizarImpressora; virtual; //abstract;
+    procedure IniciarImpressora(Porta: String); virtual;
+//    procedure ProgramaFormasPagto; virtual; abstract;
+    procedure AbrirGaveta; virtual;// abstract;
+//    procedure Avancar; virtual; abstract;
+    procedure IniciarCupom(CGC_CPF, Nome, Endereco: String); virtual;// abstract;
+    procedure CancelarCupom; virtual; //abstract;
+    procedure PagamentoCupom(FormaPagto, Valor: String); virtual; //abstract;
+
+    Procedure PagamentoNaoFiscal( FormaPagto : String; Valor : Double; ImprimeVinculado: boolean = true) ;
+
+    procedure TotalizaCupom(TipoDesconto, Desconto: String); virtual; //abstract;
+    procedure FinalizarCupom(FormaPagto, Total, Mensagem: String); virtual; //abstract;
+    procedure VenderItem(Codigo, Descricao: String; Preco, Quantidade: Currency; Unidade,
+                         Tributo: String; TipoDesconto: Char; Desconto: Currency;
+                         Filial: String; TipoTributo: TtecTributo; producaopropria: Boolean); virtual; //abstract;
+//    procedure AumentarDescricaoItem(descricao: String); virtual; abstract;
+    procedure CancelarItem(Numero: String); virtual; //abstract;
+    procedure IniciarVinculado(FormaPagto, Valor, Cupom: String);  overload;
+    procedure IniciarVinculado(FormaPagto, CodComprovanteNaoFiscal, Valor, Cupom: String);  overload;
+
+    function  ImpressoraConfiguradaIgualConectada(var Numero, Intervencao: String): Boolean; overload;
+    function  ImpressoraConfiguradaIgualConectada: Boolean; overload;
+    procedure ImprimirVinculado(Texto: array of String); virtual; //abstract;
+    procedure CancelarVinculado; virtual; //abstract;
+    procedure FinalizarVinculado; virtual; //abstract;
+//    procedure ImprimirNaoVinculado(Registrador, FormaPagto, Valor, TipoDesconto, Desconto, Msg: String); overload; virtual; abstract;
+    procedure ImprimirNaoFiscal(Registrador, FormaPagto, Valor: String; Obs: String = '');{ overload; }virtual; //abstract;
+    procedure CancelarNaoFiscal;
+    procedure Autenticar; virtual; //abstract;
+
+    procedure LeituraX; virtual; //abstract;
+    procedure ReducaoZ; virtual; //abstract;
+
+    procedure RelatorioGerencial(Texto: array of String; nvias: integer); overload; virtual;  //abstract;
+    procedure RelatorioGerencial(Texto: TStringList); overload; virtual;  //abstract;
+    Procedure AbreRelatorioGerencial(Indice: Integer = 0) overload; virtual;
+
+    procedure FecharRelatorioGerencial; virtual; //abstract;
+    procedure CupomVinculadoTEF(Cupom,FormaPagto:String;Valor:Double;Comprovante:array of String;Vias:Integer); virtual;
+//    procedure ApagaDados; virtual; abstract;
+    function CGC: String; virtual; //abstract;
+    function SerieMaquina: String; virtual; //abstract;
+    function NumeroMaquina: String; virtual; //abstract;
+
+    function Cupom: String; virtual; //abstract;
+    function Intervencao: String; virtual; //abstract;
+    function Data: String; virtual; //abstract;
+    function DataHora: TDateTime;
+//    function DataReducao: String; virtual; abstract;
+    function TotalizadorAcrescimo: String; virtual; //abstract;
+    function TotalizadorDesconto: String; virtual; //abstract;
+//    function CuponsDoDia: String; virtual; abstract;
+    function GerarMapa: TtecMapaECF; virtual; //abstract;
+    function GerarMapaArquivoRetorno: TTecMapaECF; virtual; //abstract;
+    function GerarDadosReducaoZ: TTecReducoesZ;
+    function GerarDadosReducaoZAnterior: TTecReducoesZ;
+    procedure LerAliquotasDaECF; virtual; //abstract;
+    procedure LerFormasPagamento; virtual; //abstract;
+    procedure FechaNaoFiscal; virtual; //abstract;
+    procedure LeituraMemoriaFiscalData(DataInicial, DataFinal: String; Simplificada: Boolean = False); virtual; //abstract;
+    procedure LeituraMemoriaFiscalDataArquivo(DataInicial, DataFinal, Arquivo: String; Simplificada: Boolean = False); virtual;
+    function LeituraMemoriaFiscalSerialDataMFD(DataInicial, DataFinal, FlagLeitura: String):boolean; virtual; abstract;
+//    procedure MapaResumo; virtual; abstract;
+//    procedure RelatorioTipo60Analitico;  virtual; abstract;
+//    procedure RelatorioTipo60Mestre;  virtual; abstract;
+
+    procedure LeituraMemoriaFiscalReducao(ReducaoInicial, ReducaoFinal: String; Simplificada: Boolean = False); virtual; //abstract;
+    procedure LeituraMemoriaFiscalReducaoArquivo(ReducaoInicial, ReducaoFinal, Arquivo: String; Simplificada: Boolean = False); virtual;
+{    function ImprimirCarne(Titulo, ValoresParcelas, Datas: String; QtdeParcelas: Integer;
+                           TextoLivre, NomeCliente, RG_CPF, NumeroCupom: String;
+                           NumeroVias, Assinatura: Integer):Integer; virtual; abstract;}
+    function CodigoBarrasEAN13MFD(Codigo: String): Integer; virtual; //abstract;
+    function NumeroReducoes: String; virtual; //abstract;
+    function TotalizadorCancelamentos :String; virtual; //abstract;
+    function TotalizadorGeral: Double;
+
+    function SubTotal: Double;
+    function TotalPago: Double;
+
+    function AtivarECF(Arquivo, Porta, ECF_ini: String;Iniciando:Boolean=true): Boolean;
+    function VerificarGT(Arquivo: String;Iniciando:Boolean=true): Boolean;
+    procedure CorrigeEstadoDeErro(ReducaoZ: Boolean = True); virtual;
+    procedure EspelhoMFD(DataInicial, DataFinal: TDateTime; NomeArquivo: String); overload; virtual;
+    procedure EspelhoMFD(COOInicial, COOFinal: Integer; NomeArquivo: String); overload; virtual;
+    procedure ArquivoMFD(DataInicial, DataFinal: TDateTime; NomeArquivo: String); overload; virtual;
+    procedure ArquivoMFD(COOInicial, COOFinal: Integer; NomeArquivo: String); overload; virtual;
+    procedure IdentificacaoPAF(ECFs: String);
+    procedure IdentificarPAF;
+    procedure Sangria(Valor: Real; Observacao: String);
+    procedure Suprimento(Valor: Real; Observacao: String);
+    procedure AtualizarTotalizadorGeral(Arquivo: String);
+    property ExibeMensagem: Boolean read FExibeMensagem write FExibeMensagem;
+    property Mensagem: String read GetMensagem;// write FMensagem;
+
+    property Erro: Boolean read FErro write FErro;
+    
+    property Params: TStringList read FParams write FParams;
+    property PortaSerial: String read FPortaSerial write setPortaSerial;
+    property Totalizadores: TtecTotalizadoresECF read FTotalizadores write FTotalizadores;
+    property SerieConfigurada: String read FSerieConfigurada write FSerieConfigurada;
+    property NumeroConfigurado: String read FNumeroConfigurado write FNumeroConfigurado;
+    property MFAdicional: STring read fMFAdicional write FMFAdicional;
+    property CNIEE: String read FCNIEE write FCNIEE;
+    property marca: string read fmarca write fmarca;
+    property tipo: string read ftipo write ftipo;
+    property SubModelo: String read fSubModelo write fSubModelo;
+
+    property ModeloInt : Integer write setModelo;
+    property Codigo: String read FCodigo write FCodigo;
+    property DataHoraReducaoZ: TDateTime read fDataHoraReducaoZ write fDataHoraReducaoZ;
+    property IncidenciaDescontoISSQN: String read GetIncidenciaDescontoISSQN write fIncidenciaDescontoISSQN;
+    procedure AntesCancelaCupom(Sender : TObject);
+    procedure DepoisCancelaCupom(Sender : TObject);
+    procedure DepoisAbreNaoFiscal( const CPF_CNPJ, Nome, Endereco : String );
+
+    function FormadePagamentoConfigurada(Descricao: String): String;
+    procedure OnErrorAbreCupom_(var tratado: Boolean);
+
+
+  end;
+
+  TtecECFClass = class of TtecECF;
+
+  function SuprimirZeros(Txt: String): String;
+  function Preencher(Tamanho: Integer): String; overload;
+  procedure Preencher(Tamanho: Integer; Valor: Char; var Campo: String); overload;
+  procedure Preencher(Tamanho, CasasDecimais: Integer; Valor: Char; var Campo: String); overload;
+  function Split(sPart, sInput: string): TtecMapaBuffer;
+  function ToDouble(Valor: String): Double;
+
+
+const
+  ctECF_DINHEIRO         = 1;
+  ctECF_VISTA            = 2;
+  ctECF_PRAZO            = 3;
+  ctECF_CARTAO           = 4;
+  ctECF_CHEQUE           = 5;
+  ctECF_ENTRADA          = 6;
+  ctCREDITO_TROCA        = 7;
+(*  ctECF_REDECARD         = 4;
+  ctECF_VISA             = 5;
+  ctECF_AMEX             = 6;
+  ctECF_CHEQUE           = 7;
+  ctECF_ENTRADA          = 8;
+*)
+
+
+  ECF_FORMA_PAGTO: Array [1..7] of String = ('Dinheiro',
+                                             'A VISTA' ,
+                                             'A PRAZO',
+                                             'CARTAO',
+                                             'CHEQUE',
+                                             'ENTRADA',
+                                             'CREDITO TROCA');
+
+  ECF_ESTADO: array[TACBrECFEstado] of Integer = (0, (*'Não Inicializada'*)
+                                                  1, (*'Desconhecido'*)
+                                                  2, (*'Livre'*)
+                                                  3, (*'Venda'*)
+                                                  4, (*'Pagamento'*)
+                                                  5, (*'Relatório'*)
+                                                  6, (*'Bloqueada'*)
+                                                  7, (*'Requer Z'*)
+                                                  8, (*'Requer X'*)
+                                                  9);(*'Nao Fiscal'*)
+
+  ECF_FUNCAONAOSUPORTADA = 'Função não suportada pelo modelo de ECF utilizado';
+
+  ECF_CNF : array[1..6] of TtecCNF = ({(descricao:'Parcelas';       tipo:'+'),
+                                      (descricao:'Entrada Transf'; tipo:'+'),
+                                      (descricao:'Saida Transf';   tipo:'-'),
+                                      (descricao:'Devolucoes';     tipo:'-'),
+                                      (descricao:'Duplicatas';     tipo:'-'),
+                                      (descricao:'Depositos';      tipo:'-'),}
+                                      (descricao:'Sangria';        tipo:'-'),
+                                      (descricao:'Suprimento';     tipo:'+'),
+                                      (descricao:'Cheque';         tipo:'V'),
+                                      (descricao:'Cartao';         tipo:'V'),
+                                      (descricao:'R$';             tipo:'V'),
+                                      (descricao:'Reais';         tipo:'V')
+
+                                      );
+  ctLimiteECFs = 50;
+
+var
+  ECFPadrao: TtecECF;
+  SalvarDadosECF: function (ArqIniDadosECF: TMemIniFile): Boolean;
+  SalvarEcfs: function (CodigoECF: Integer; GT: Currency; CRO: Integer = 0): Boolean;
+  ExisteInconsistenciaCCF: function: boolean;
+  AcertaMovimentacoesAposCancelamentoCupom: function (coo: Integer): Boolean;
+  VerificarCondicoesAntesdoCancelamentodoCupom: function (coo: Integer): Boolean;
+  NumCOOInicial__: function (SerieMaquina, NumeroMaquina, crz: String): TtecReducoesZ;
+  qryMeiosdePagamentoECF : TtecQuery;
+
+implementation
+
+Uses
+  biblio, Graphics, clparametrossistema;
+
+{ Funcoes utilitarias }
+
+function SuprimirZeros(Txt: String): String;
+begin
+  Result := StringReplace(Txt,'0',' ',[rfReplaceAll]);
+  Result := TrimLeft(Result);
+  Result := StringReplace(Result,' ','0',[rfReplaceAll]);
+  if Result = '' then
+    Result := '0';
+end;
+
+function Preencher(Tamanho: Integer): String;
+begin
+  Result := StringOfChar(' ', Tamanho);
+end;
+
+procedure Preencher(Tamanho: Integer; Valor: Char; var Campo: String);
+begin
+  if Tamanho <= Length(Campo) then
+    Campo := Copy(Campo, 1, Tamanho)
+  else
+    Campo := Campo + StringOfChar(Valor, ( Tamanho - Length(Campo) ));
+end;
+
+procedure Preencher(Tamanho, CasasDecimais: Integer; Valor: Char; var Campo: String);
+var
+  Ponto: Integer;
+  Inteiro, Decimal: String;
+begin
+  Ponto := Pos(',', Campo);
+  if Ponto > 0 then
+  begin
+    Decimal := Copy(Campo, Pos(',', Campo) + 1, CasasDecimais);
+    if Length(Decimal) > CasasDecimais then
+      Decimal := Copy(Decimal, 1, CasasDecimais);
+    if Length(Decimal) < CasasDecimais then
+      Decimal := Decimal + StringofChar('0', CasasDecimais - Length(Decimal));
+    Inteiro := Copy(Campo, 1, Ponto - 1) ;
+    Inteiro := StringofChar(Valor, Tamanho - (CasasDecimais + Length(Inteiro)) ) + Inteiro;
+  end
+  else
+  begin
+    Decimal := StringOfChar(Valor, CasasDecimais);
+    Inteiro := StringOfChar(Valor, Tamanho - (CasasDecimais + (Length(Campo)))) + Campo;
+  end;
+  Campo := Inteiro + Decimal;
+end;
+
+function Split(sPart, sInput: string): TtecMapaBuffer;
+begin
+  while Pos(sPart, sInput) <> 0 do
+  begin
+    SetLength(Result, Length(Result) + 1);
+    Result[Length(Result) - 1] := Copy(sInput, 0,Pos(sPart, sInput) - 1);
+    Delete(sInput, 1,Pos(sPart, sInput));
+  end;
+  SetLength(Result, Length(Result) + 1);
+  Result[Length(Result) - 1] := sInput;
+end;
+
+function ToDouble(Valor: String): Double;
+var
+  D: String;
+begin
+  D := Copy(Valor, 1, Length(Valor) - 2);
+  D := D + ',' + Copy(Valor, Length(Valor) - 1, 2);
+  Result := StrToFloat(D);
+end;
+
+{ TtecTotalizadoresECF }
+
+{
+function TtecTotalizadoresECF.LerTotalizador(Index: Integer): String;
+begin
+  Result := '0';
+end;
+}
+
+{ TtecECF }
+
+function TtecECF.ConverteAliquota(Valor: String): String;
+var
+  Tributo: String;
+  idx, PosVirg: Integer;
+begin
+  Result := '00';
+  Tributo := '';
+  repeat
+    PosVirg := Pos(',', Valor);
+    Delete(Valor, PosVirg, 1);
+  until PosVirg = 0;
+  for idx := 1 to Length(Valor) do
+    Tributo := Tributo + Valor[idx];
+  if Length(Tributo) = 1 then
+    Tributo := '0' + Tributo;
+  for idx := Length(Tributo)+1 to 4 do
+    Tributo := Tributo + '0';
+  for idx := 0 to High(FAliquotas) do
+    if FAliquotas[idx] = Tributo then begin
+      Result := IntToStr(idx+1);
+      Preencher(2, 0, '0', Result);
+      Break;
+    end
+end;
+
+function TtecECF.ConverteFormaPagto(Valor: String; IndInicial: Integer): String;
+var
+  a: Integer;
+begin
+  Result := '01';
+{  for a := 0 to High(FFormasPagamento) do
+    if UpperCase(FFormasPagamento[a]) = UpperCase(Trim(Valor)) then begin
+      Result := IntToStr(a + IndInicial);
+      Preencher(2, 0, '0', Result);
+      Break;
+    end
+}
+  for a := Low(FFormasPagamento) to High(FFormasPagamento) do
+    if RetiraAcento(UpperCase(trim(FFormasPagamento[a].descricao))) = RetiraAcento(UpperCase(trim(Valor))) then
+    begin
+      Result := FFormasPagamento[a].Indice;
+      Break;
+    end;
+end;
+
+constructor TtecECF.Create(AOwner: TComponent){(AOwner: TComponent)};
+begin
+  inherited;
+  FParams := TStringList.Create;
+//  FTotalizadores := TtecTotalizadoresECF.Create;
+//  if not Assigned(Self) then
+//    Self := TACBrECF.Create(nil);
+  OnMsgPoucoPapel := MsgPoucoPapel;  // DESABILITA A MSG DE POUCO PAPEL
+  FormMsgColor := clBtnFace;
+  MaxLinhasBuffer := 3;
+//  LinhasEntreCupons := 7;
+//  Self.ArqLOG := 'c:\temp\acbrlog.txt';
+  if vLogEcf then
+    Self.ArqLOG := ExtractFilePath(Application.ExeName) + 'log\acbrecf_log.txt';
+
+
+
+end;
+
+destructor TtecECF.Destroy;
+begin
+  FParams.Free;
+  FTotalizadores.Free;
+   inherited;
+end;
+
+procedure TtecECF.setModelo(Modelo: Integer);
+begin
+  inherited Modelo := TACBrECFModelo(Modelo);
+{
+  case Modelo of
+    1: Self.Modelo := ecfBematech;
+    2: Self.Modelo := ecfDaruma;
+    3: Self.Modelo := ecfFiscNET;
+    4: Self.Modelo := ecfMecaf;
+    5: Self.Modelo := ecfSweda;
+    6: Self.Modelo := ecfEpson;
+  end;
+}
+end;
+
+function TtecECF.GetMensagem: String;
+begin
+  Result := FMensagem
+end;
+
+function TtecECF.IndiceRecebimentoNaoFiscal(Registrador: String; var Maior: Integer): String;
+{
+var
+  a: Integer;
+  }
+begin
+  {
+  Result := -1;
+  Maior  := High(FRecebimentosNaoFiscais) + 1;
+  for a := 0 to High(FRecebimentosNaoFiscais) do
+  begin
+    if ANSIUpperCase(Registrador) = FRecebimentosNaoFiscais[a] then
+    begin
+      Result := a + 1;
+      break
+    end;
+  end;
+  }
+
+
+  if Registrador = 'Cartao' then
+    result := AchaCNFDescricao(Registrador, True).Indice
+  else
+  if Registrador = 'Cheque' then
+    result := AchaCNFDescricao(Registrador, True).Indice
+  else
+  begin
+
+    try
+      if Registrador = 'R$' then
+        result := AchaCNFDescricao(Registrador, True).Indice;
+    except
+    end;
+
+    try
+      if result = '' then
+        result := AchaCNFDescricao('Reais', True).Indice;
+    except
+    end;
+  end;  
+
+  if result = '' then
+    MensagemAviso(format('Indice recebimento não fiscal ''%s'' nao encontrado',[Registrador]));
+end;
+
+procedure TtecECF.ParamByName(const Name: String; var Value: PChar);
+begin
+  Value := PChar(ParamValue(Name));
+end;
+
+procedure TtecECF.ParamByName(const Name: String; var Value: Char);
+begin
+  Value := String(ParamValue(Name))[1];
+end;
+
+procedure TtecECF.ParamByName(const Name: String; var Value: String);
+begin
+  Value := ParamValue(Name);
+end;
+
+function TtecECF.ImpressoraConfiguradaIgualConectada: Boolean;
+var
+  SerieCripto,
+  NroCripto: String;
+begin
+  SerieCripto := SerieMaquina;
+  NroCripto   := NumeroMaquina;
+
+  Result := (trim(FNumeroConfigurado) = trim(NroCripto)) and
+            (trim(FSerieConfigurada) = trim(SerieCripto)) and
+            Not ecfpadrao.erro;
+end;
+
+function TtecECF.ImpressoraConfiguradaIgualConectada(var Numero, Intervencao: String): Boolean;
+var
+  NroCripto: String;
+  SerieCripto: String;
+begin
+  SerieCripto := SerieMaquina;
+  NroCripto   := NumeroMaquina;
+  Result := (trim(FNumeroConfigurado) = trim(NroCripto)) and
+            (trim(FSerieConfigurada )= trim(SerieCripto)) and
+            Not ecfpadrao.erro;
+  if Result then begin
+    Numero      := NumeroMaquina;
+    Intervencao := self.Intervencao;
+  end
+end;
+
+procedure TtecECF.IniciarImpressora(Porta: String);
+begin
+//  FPortaSerial := Porta;
+//  Totalizadores := TtecTotalizadoresECF.Create;
+  if Ativo then
+    Desativar;
+//  Self.Modelo := ecfBematech;
+  if Modelo = ecfNenhum then
+    MensagemAviso('sem modelo');
+//  Self.Porta  := Porta;
+
+  if vLogEcf then
+    Self.ArqLOG := ExtractFilePath(Application.ExeName) + 'log\acbrecf_log.txt';
+
+  Ativar;
+end;
+
+procedure TtecECF.ParamByName(const Name: String; var Value: Integer);
+begin
+  Value := StrToInt(ParamValue(Name));
+end;
+
+function TtecECF.ParamValue(const Name: String): String;
+var
+  cnt: Integer;
+  key: String;
+begin
+  Result := '0';
+  for cnt := 0 to FParams.Count - 1 do
+  begin
+    key := Copy(FParams.Strings[cnt], 0, Pos('=', FParams.Strings[cnt]) - 1);
+    if AnsiCompareStr(key, Name) = 0 then
+    begin
+      Result := Copy(FParams.Strings[cnt], Length(key) + 2, Length(FParams.Strings[cnt]));
+      break;
+    end;
+  end;
+end;
+
+procedure TtecECF.FinalizarImpressora;
+begin
+  Desativar;
+end;
+
+function TtecECF.CupomAberto: Boolean;
+begin
+  //Result := ECF_ESTADO[Self.Estado] in [3,4];//Self.estado in [estVenda,estPagamento];
+  Result := Estado in [estVenda,estPagamento];
+  ecfpadrao.erro := False;
+end;
+
+procedure TtecECF.IniciarCupom(CGC_CPF, Nome, Endereco: String);
+var
+  PessoaNumero:String;
+  //vdiv: double;
+begin
+  VerificaInconsistenciaCCF;
+  try
+    self.OnErrorAbreCupom := OnErrorAbreCupom_;
+    {if (CGC_CPF <> '') and (Nome <> '') and (Endereco <> '') then}
+{    if trim(CGC_CPF) = '' then
+      CGC_CPF := ' ';
+    if trim(Nome) = '' then
+      Nome := ' ';
+    if trim(Endereco) = '' then
+      Endereco := ' '; }
+      if (trim(CGC_CPF)<>'') or (trim(Nome)<>'') then
+      begin
+        if trim(CGC_CPF) = '' then
+          PessoaNumero:='99999999999'
+        else
+          PessoaNumero:=CGC_CPF;
+
+        if (lowercase(ECFPadrao.marca)=lowercase('epson')) then
+          AbreCupom(trocar(trocar(trocar(trocar(Trocar(Trocar(PessoaNumero,slinebreak,' '),'.',''),':',''),',',''),'-',''),'  ',' '),
+                    copy(trocar(trocar(trocar(trocar(Trocar(Trocar(Nome,slinebreak,' '),'.',''),':',''),',',''),'-',''),'  ',' '),1,28),
+                    copy(trocar(trocar(trocar(trocar(Trocar(Trocar(Endereco,slinebreak,' '),'.',''),':',''),',',''),'-',''),'  ',' '),1,78))
+        else
+          AbreCupom(PessoaNumero, Nome, Endereco);
+      end
+      else
+        AbreCupom('', '', '');
+
+
+{    else
+      Self.AbreCupom('', '', '');}
+    ecfpadrao.erro := not SalvarDadosCupom(TAbreCupom, somentenumero(CGC_CPF), Nome);
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.CancelarCupom;
+var
+  SalvarInf : Boolean;
+  vNumCupom : integer;
+begin
+  if ImpressoraBloqueada then
+    MensagemErro(ctECFBLOQUEADA)
+  else
+  begin
+
+    try
+      try
+
+        if VerificarCondicoesAntesdoCancelamentodoCupom(strtoint(ECFPadrao.NumCOO)) then
+        begin
+
+          vGravandoCupomVinculado := false;
+          vCOORef := 0;
+          with ArqIniDadosECF[TCancelaCupom] do
+          begin
+            if SectionExists('DemaisDoctosECF') then
+              vCOORef := ReadInteger('DemaisDoctosECF', 'COOREF', 0);
+          end;
+
+          inherited CancelaCupom;
+
+          if vCOORef <> 0 then
+          begin
+            ecfpadrao.erro := not SalvarDemaisDoctosECF(TCancelaCupom, vCOORef);
+            if not ecfpadrao.erro then
+              ecfpadrao.erro := not SalvarDadosECFLocal;
+
+            if not ecfpadrao.erro then
+            begin
+              try
+                vGravandoCupomVinculado := true;
+                ecfpadrao.erro := not SalvarDadosCupom(TCancelaCupom);
+                if not ecfpadrao.erro then
+                  ecfpadrao.erro := not SalvarFormasPagamentoECF(TCancelaCupom);
+
+                if not ecfpadrao.erro then
+                  ecfpadrao.erro := not SalvarDadosECFLocal;
+              finally
+                vGravandoCupomVinculado := false;
+              end;
+            end;
+          end
+          else
+          begin
+            ecfpadrao.erro := not SalvarDadosCupom(TCancelaCupom);
+            if not ecfpadrao.erro then
+              ecfpadrao.erro := not SalvarFormasPagamentoECF(TCancelaCupom);
+
+            if not ecfpadrao.erro then
+              ecfpadrao.erro := not SalvarDadosECFLocal;
+          end;
+
+        end;
+
+      except
+        on E: Exception do TrataErros(E)
+      end;
+
+    finally
+      FreeAndNil(fArqIniDadosECF);
+    end;
+
+  end;
+
+end;
+
+procedure TtecECF.TotalizaCupom(TipoDesconto, Desconto: String);
+begin
+  try
+    SubtotalizaCupom(StrToFloat(Desconto));
+    ecfpadrao.erro := not SalvarDadosCupom(TSubtotalizaCupom, '', '', (StrToFloat(Desconto) < 0), StrToCurr(Desconto));
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.PagamentoCupom(FormaPagto, Valor: String);
+var
+  indice: String;
+begin
+//  indice := ConverteFormaPagto(FormaPagto,0);
+  indice  := AchaFPGDescricao(FormadePagamentoConfigurada(FormaPagto), True).Indice;
+  try
+    EfetuaPagamento(indice,StrToFloat(Valor));
+    ecfpadrao.erro := not SalvarFormasPagamentoECF(TEfetuaPagamento,FormadePagamentoConfigurada(FormaPagto),StrToFloat(Valor));
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.FinalizarCupom(FormaPagto, Total, Mensagem: String);
+begin
+  try
+    FechaCupom(Mensagem + IfThen(Mensagem <> '',
+                            sLineBreak + ParSistema.MensagemPromocionalECF,
+                            ParSistema.MensagemPromocionalECF));
+    ecfpadrao.erro := not SalvarDadosCupom(TFechaCupom);
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.VenderItem(Codigo, Descricao: String; Preco, Quantidade: Currency;
+         Unidade, Tributo: String; TipoDesconto: Char; Desconto: Currency;
+         Filial: String; TipoTributo: TtecTributo; producaopropria: Boolean);
+begin
+  case TipoTributo of
+   tbNTributado: Tributo := 'NN';
+       tbIsento: Tributo := 'II';
+    tbSubstitui: Tributo := 'FF'
+  end;
+
+  try
+    VendeItem(codigo,descricao,tributo,quantidade,preco,desconto,unidade,tipodesconto,'D');
+    ecfpadrao.erro := not SalvarDadosItemCupom(TVendeItem,
+                     codigo,Descricao, unidade,
+                     Quantidade, Preco, desconto,
+                     tributo, producaopropria);
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.CancelarItem(Numero: String);
+begin
+  try
+    CancelaItemVendido(StrToInt(Numero));
+    ecfpadrao.erro := not  SalvarDadosItemCupom(TCancelaItem,'','','',0,0,0,'',false,strtoint(Numero));
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.IniciarVinculado(FormaPagto, Valor, Cupom: String);
+var
+  indice: String;
+begin
+//  indice := ConverteFormaPagto(FormaPagto,0);
+  indice  := AchaFPGDescricao(FormadePagamentoConfigurada(FormaPagto), True).Indice;
+  try
+    MaxLinhasBuffer := 3;
+    AbreCupomVinculado(Cupom,indice,StrToFloat(Valor));
+    ecfpadrao.erro := not SalvarDemaisDoctosECF(TCupomVinculado, strtoint(Cupom));
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+
+procedure TtecECF.IniciarVinculado(FormaPagto, CodComprovanteNaoFiscal, Valor, Cupom: String);
+var
+  indice: String;
+  vcnf: String;
+  vmaior: integer;
+begin
+//  indice := ConverteFormaPagto(FormaPagto,0);
+  indice  := AchaFPGDescricao(FormadePagamentoConfigurada(FormaPagto), True).Indice;
+  vcnf := IndiceRecebimentoNaoFiscal(CodComprovanteNaoFiscal, vmaior);
+  try
+    MaxLinhasBuffer := 3;
+    AbreCupomVinculado(Cupom, indice, vcnf, StrToFloat(Valor));
+
+    ecfpadrao.erro := not SalvarDemaisDoctosECF(TCupomVinculado, strtoint(Cupom));
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.ImprimirVinculado(Texto: array of String);
+var
+  a: Integer;
+begin
+  try
+    for a := 0 to High(Texto) do begin
+      LinhaCupomVinculado(Texto[a]);
+      if ecfpadrao.erro then
+        break
+    end;
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.CancelarVinculado;
+begin
+  FecharRelatorioGerencial
+end;
+
+procedure TtecECF.FinalizarVinculado;
+begin
+  FecharRelatorioGerencial
+end;
+
+procedure TtecECF.Autenticar;
+begin
+  try
+    inherited EnviaComando('ImprimeAutenticacao');
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.LeituraX;
+begin
+  VerificaInconsistenciaCCF;
+  try
+    inherited LeituraX;
+     ecfpadrao.erro := not SalvarDemaisDoctosECF(TRelatorioGerencial);
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.RelatorioGerencial(Texto: array of String; nvias: integer);
+var
+  Relatorio: TStringList;
+  a: Integer;
+  Lin   : Integer ;
+  SL    : TStringList ;
+
+begin
+  VerificaInconsistenciaCCF;
+  MaxLinhasBuffer := 3;
+
+  SL := TStringList.Create;
+  try
+    for Lin:=Low(Texto) to high(Texto) do
+    begin
+      SL.Append(Texto[Lin]);
+      if (((Lin mod 350) = 0) and (lin <> 0)) or (lin = high(Texto)) then
+      begin
+        try
+          inherited RelatorioGerencial(SL, nvias);
+          ecfpadrao.erro := not SalvarDemaisDoctosECF(TRelatorioGerencial);
+        except
+          on E: Exception do TrataErros(E)
+        end;
+        SL.Clear;
+      end ;
+    end;
+  finally
+    SL.Free;
+  end;
+end;
+
+procedure TtecECF.FecharRelatorioGerencial;
+begin
+  try
+    if Estado = estRelatorio then
+      inherited FechaRelatorio;
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.FechaNaoFiscal;
+begin
+  if true {Estado = estNaoFiscal} then
+  begin
+    try
+      inherited FechaNaoFiscal;
+      {
+      ecfpadrao.erro := not SalvarDemaisDoctosECF(TNaoFiscalCompleto);
+      if not ecfpadrao.erro then
+        ecfpadrao.erro := not SalvarFormasPagamentoECF(TNaoFiscalCompleto, 'Dinheiro',valor);
+      if not ecfpadrao.erro then
+      }
+        ecfpadrao.erro := not SalvarDadosECFLocal;
+    except
+      on E: Exception do TrataErros(E)
+    end;
+  end;
+
+  ECFPadrao.vNaoFiscalAberto := false;
+
+end;
+
+function TtecECF.CGC: String;
+begin
+  Result := inherited CNPJ;
+end;
+
+function TtecECF.SerieMaquina: String;
+begin
+  Result := inherited NumSerie;
+end;
+
+function TtecECF.NumeroMaquina: String;
+begin
+  Result := inherited NumECF;
+end;
+
+function TtecECF.Cupom: String;
+begin
+  Result := inherited NumCupom;
+end;
+
+function TtecECF.Intervencao: String;
+begin
+  Result := inherited NumCRO;
+end;
+
+function TtecECF.Data: String;
+begin
+  Result := DateTimeToStr(inherited DataHora);
+end;
+
+function TtecECF.TotalizadorAcrescimo: String;
+begin
+  Result := FloatToStr(inherited TotalAcrescimos)
+end;
+
+function TtecECF.TotalizadorDesconto: String;
+begin
+  Result := FloatToStr(inherited TotalDescontos)
+end;
+
+procedure TtecECF.LerAliquotasDaECF;
+var
+  TotalAliq, idx: Integer;
+begin
+  try
+    inherited;
+    inherited CarregaAliquotas;
+
+    TotalAliq := Aliquotas.Count;
+    if Not ecfpadrao.erro then begin
+      SetLength(FAliquotas, TotalAliq);
+      for idx := 0 to TotalAliq - 1 do
+        FAliquotas[idx] := FloatToStr(Aliquotas[idx].aliquota);
+    end;
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.LerFormasPagamento;
+
+  procedure VerificaFormasPagamento;
+  var
+    Count, total: Integer;
+  begin
+    total := FormasPagamento.Count;
+    SetLength(FFormasPagamento, total);
+    for count := 0 to total - 1 do
+    begin
+      FFormasPagamento[count].indice := FormasPagamento[count].Indice;
+      FFormasPagamento[count].descricao := FormasPagamento[count].Descricao;
+    end;
+  end;
+
+  procedure ProgramaFormasPagto;
+  var
+    a: Integer;
+    Descricao: String;
+  begin
+    inherited CarregaFormasPagamento;
+    for a := Low(ECF_FORMA_PAGTO) to High(ECF_FORMA_PAGTO) do
+    begin
+
+      if AchaFPGDescricao(FormadePagamentoConfigurada(ECF_FORMA_PAGTO[a]), True) = nil then
+      begin
+        Descricao := FormadePagamentoConfigurada(ECF_FORMA_PAGTO[a]);
+        try
+          inherited ProgramaFormaPagamento(Descricao);
+        except
+          ecfpadrao.erro := true;
+          MensagemAviso('Forma de Pagamento: ' + Descricao + ' não programada!');
+          Break;
+        end;
+      end;
+
+    end;
+    VerificaFormasPagamento;
+  end;
+
+  procedure MontaRecebimentosNaoFiscal;
+  var
+    Count, totalNaoFiscal, a: Integer;
+    Descricao: String;
+  begin
+    inherited CarregaComprovantesNaoFiscais;
+    for a := Low(ECF_CNF) to High(ECF_CNF) do
+    begin
+      Descricao := ECF_CNF[a].descricao;
+      try
+        if AchaCNFDescricao(Descricao, True) = nil then
+          inherited ProgramaComprovanteNaoFiscal(Descricao, ECF_CNF[a].tipo);
+      except
+        //MensagemAviso('Comprovante NÃO Fiscal: ' + ECF_CNF[a].descricao + ' não programado!')
+      end;
+    end;
+    totalNaoFiscal := ComprovantesNaoFiscais.Count;
+    {
+    SetLength(FRecebimentosNaoFiscais, totalNaoFiscal);
+    for count := 0 to totalNaoFiscal - 1 do
+      FRecebimentosNaoFiscais[count] := AnsiUpperCase(ComprovantesNaoFiscais[count].Descricao);
+      }
+  end;
+
+
+begin
+  inherited;
+  ProgramaFormasPagto;
+  if Not ecfpadrao.erro then
+    MontaRecebimentosNaoFiscal;
+  ecfpadrao.erro := False;
+end;
+
+procedure TtecECF.LeituraMemoriaFiscalData(DataInicial, DataFinal: String; Simplificada: Boolean);
+begin
+  VerificaInconsistenciaCCF;
+  try
+    inherited LeituraMemoriaFiscal(StrToDate(DataInicial),StrToDate(DataFinal),Simplificada);
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.LeituraMemoriaFiscalReducao(ReducaoInicial,
+  ReducaoFinal: String; Simplificada: Boolean);
+begin
+  VerificaInconsistenciaCCF;
+  try
+    inherited LeituraMemoriaFiscal(StrToInt(ReducaoInicial), StrToInt(ReducaoFinal),Simplificada);
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+function TtecECF.NumeroReducoes: String;
+begin
+  Result := inherited NumCRZ;
+  ecfpadrao.erro := False;
+end;
+
+function TtecECF.TotalizadorCancelamentos: String;
+begin
+  Result := FloatToStr(inherited TotalCancelamentos);
+  ecfpadrao.erro := False;
+end;
+
+procedure TtecECF.ImprimirNaoFiscal(Registrador, FormaPagto,
+  Valor, Obs: String);
+var
+  vRegistrador : string;
+  vFormaPagto : string;
+begin
+  ecfpadrao.erro := false;
+  VerificaInconsistenciaCCF;
+  try
+    vregistrador := registrador;
+    Registrador := AchaCNFDescricao(Registrador).Indice;
+  except
+    ecfpadrao.erro := true;
+    FMensagem := 'identificador CNF '+vRegistrador+' não esta cadastrado'
+  end;
+
+  if not ecfpadrao.erro then
+  begin
+    vformapagto := FormadePagamentoConfigurada(formapagto);
+    try
+      formaPagto  := AchaFPGDescricao(FormadePagamentoConfigurada(FormaPagto), True).Indice;
+    except
+      ecfpadrao.erro := true;
+      FMensagem := 'forma de pagamento '+vFormaPagto+' não esta cadastrada'
+    end;
+  end;
+
+  if not ecfpadrao.erro then
+  begin
+    try
+      NaoFiscalCompleto(Registrador, StrToFloat(Valor), FormadePagamentoConfigurada(FormaPagto), Obs);
+      ecfpadrao.erro := not SalvarDemaisDoctosECF(TNaoFiscalCompleto);
+      if not ecfpadrao.erro then
+        ecfpadrao.erro := not SalvarFormasPagamentoECF(TNaoFiscalCompleto, FormadePagamentoConfigurada(FormaPagto), StrToFloat(valor));
+      if not ecfpadrao.erro then
+        ecfpadrao.erro := not SalvarDadosECFLocal;
+    except
+      on E: Exception do TrataErros(E)
+    end;
+  end;
+end;
+
+function TtecECF.CodigoBarrasEAN13MFD(Codigo: String): Integer;
+begin
+  Result := 0;
+end;
+
+procedure TtecECF.AbrirGaveta;
+begin
+  inherited AbreGaveta;
+  ecfpadrao.erro := False;
+end;
+
+procedure TtecECF.MsgPoucoPapel(Sender: TObject);
+begin
+// DESABILITA A MSG DE POUCO PAPEL
+end;
+
+procedure TtecECF.CorrigeEstadoDeErro(ReducaoZ: Boolean = True);
+begin
+  try
+
+    inherited CorrigeEstadoErro(ReducaoZ);
+    ecfpadrao.erro := False;
+   except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.LeituraMemoriaFiscalDataArquivo(DataInicial, DataFinal,
+  Arquivo: String; Simplificada: Boolean);
+begin
+  VerificaInconsistenciaCCF;
+  try
+    inherited LeituraMemoriaFiscalSerial(StrToDate(DataInicial),StrToDate(DataFinal),
+        Arquivo, Simplificada);
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.LeituraMemoriaFiscalReducaoArquivo(ReducaoInicial,
+  ReducaoFinal, Arquivo: String; Simplificada: Boolean);
+begin
+  VerificaInconsistenciaCCF;
+  try
+    inherited LeituraMemoriaFiscalSerial(StrToInt(ReducaoInicial),StrToInt(ReducaoFinal),
+        Arquivo, Simplificada);
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.EspelhoMFD(DataInicial, DataFinal: TDateTime;
+  NomeArquivo: String);
+begin
+  VerificaInconsistenciaCCF;
+  try
+    if MFD then
+      EspelhoMFD_DLL(DataInicial, DataFinal, NomeArquivo, [docTodos])
+    else
+      MensagemAviso(ECF_FUNCAONAOSUPORTADA);
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.EspelhoMFD(COOInicial, COOFinal: Integer;
+  NomeArquivo: String);
+begin
+  VerificaInconsistenciaCCF;
+  try
+    if MFD then
+      EspelhoMFD_DLL(COOInicial, COOFinal, NomeArquivo, [docTodos])
+    else
+      MensagemAviso(ECF_FUNCAONAOSUPORTADA);
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.ArquivoMFD(DataInicial, DataFinal: TDateTime;
+  NomeArquivo: String);
+begin
+  VerificaInconsistenciaCCF;
+  try
+    if MFD then
+      ArquivoMFD_DLL(DataInicial,DataFinal,NomeArquivo,[docTodos],finMFD)
+    else
+      MensagemAviso(ECF_FUNCAONAOSUPORTADA);
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.ArquivoMFD(COOInicial, COOFinal: Integer;
+  NomeArquivo: String);
+begin
+  VerificaInconsistenciaCCF;
+  try
+    if MFD then
+      ArquivoMFD_DLL(COOInicial,COOFinal,NomeArquivo,[docTodos])
+    else
+      MensagemAviso(ECF_FUNCAONAOSUPORTADA);
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.IdentificacaoPAF(ECFs: String);
+var
+  Col,
+  i: Integer;
+  Relatorio: TStringList;
+  arqECFs: TIniFile;
+  NomeArq, ArqTexto, aMD5 : String;
+  F: TSearchRec;
+  Ret: Integer;
+  ACBrEad : TACBrEad;
+  Arquivos_PAF: array[0..44] of string;
+
+
+begin
+  try
+    Col := Colunas;
+    ACBrEad := TACBrEAD.Create(ACBrEad);
+    Relatorio := TStringList.Create;
+    Arquivos_PAF[0]:='ADMINSISTEMA.BPL';
+	Arquivos_PAF[1]:='AUTOMACAO.BPL';
+	Arquivos_PAF[2]:='BANCOS.BPL';
+	Arquivos_PAF[3]:='BEMAFI32.DLL';
+    Arquivos_PAF[4]:='BEMAMFD.DLL';
+    Arquivos_PAF[5]:='BEMAMFD2.DLL';
+    Arquivos_PAF[6]:='BEMATECH.DLL';
+	Arquivos_PAF[7]:='CADASTROCLIENTES.BPL';
+    Arquivos_PAF[8]:='CADASTROCONTRATOS.BPL';
+	Arquivos_PAF[9]:='CAIXA.BPL';
+	Arquivos_PAF[10]:='COBRANCA.BPL';
+	Arquivos_PAF[11]:='CONFIGURACOESECF.BPL';
+	Arquivos_PAF[12]:='CONSULTAESTOQUE.BPL';
+	Arquivos_PAF[13]:='CONSULTANOTASFISCAISSAIDA.BPL';
+	Arquivos_PAF[14]:='CONTABIL.BPL';
+	Arquivos_PAF[15]:='CONTASARECEBER.BPL';
+	Arquivos_PAF[16]:='CONTASPAGAR.BPL';
+	Arquivos_PAF[17]:='DAO350.DLL';
+    Arquivos_PAF[18]:='DARUMAFRAMEWORK.DLL';
+	Arquivos_PAF[19]:='DLLEECFC.DLL';
+ 	Arquivos_PAF[20]:='DLLG2.DLL';
+  Arquivos_PAF[21]:='DLL_LEITURAMFDBIN.DLL';
+	Arquivos_PAF[22]:='ECF32M.DLL';
+	Arquivos_PAF[23]:='EECF.DLL';
+	Arquivos_PAF[24]:='EECF2.DLL';
+	Arquivos_PAF[25]:='ENTREGA.BPL';
+	Arquivos_PAF[26]:='ESTOQUE.BPL';
+	Arquivos_PAF[27]:='FICHAFINANCEIRA.BPL';
+	Arquivos_PAF[28]:='FINANCEIRO.BPL';
+	Arquivos_PAF[29]:='IMOVEIS.BPL';
+    Arquivos_PAF[30]:='INTERFACEEPSON.DLL';
+	Arquivos_PAF[31]:='INTERLOJAS.BPL';
+    Arquivos_PAF[32]:='LEBIN.DLL';
+	Arquivos_PAF[33]:='LEITURA.DLL';
+    Arquivos_PAF[34]:='LEITURAMFDBIN.DLL';
+	Arquivos_PAF[35]:='LIVROSFISCAIS.BPL';
+	Arquivos_PAF[36]:='MONTAGENS.BPL';
+	Arquivos_PAF[37]:='PRODUCAO.BPL';
+	Arquivos_PAF[38]:='REPOSITORIO.BPL';
+	Arquivos_PAF[39]:='SAC.BPL';
+	Arquivos_PAF[40]:='SWMFD.DLL';
+	Arquivos_PAF[41]:='TECLUX.EXE';
+	Arquivos_PAF[42]:='UNINFE.EXE';
+	Arquivos_PAF[43]:='VENDAS.BPL';
+	Arquivos_PAF[44]:='ZPDLL.DLL';
+
+    try
+      Relatorio.Append(Centralizar('--------IDENTIFICACAO DO PAF-ECF--------' ,Col));
+      Relatorio.Append('N° Laudo:'     + preencheString('UNS0532018'{ParSistema.LaudoPAFECF},              ' ',Col -  9,False));
+      Relatorio.Append('Data Laudo:'     + preencheString(formatDateTime('dd/mm/yyyy',ParSistema.DataLaudoPAFECF),        ' ',Col -  11,False));
+      Relatorio.Append('CNPJ    :'     + preencheString(ParSistema.CNPJDesenvolvedora,       ' ',Col -  9,False));
+      Relatorio.Append('Razão Social:' + preencheString('TECSOFT TECNOLOGIA LTDA'{ParSistema.NomeEmpresaDesenvolvedora},' ',Col - 13,False));
+      Relatorio.Append('Endereço:'     + preencheString('RUA ARTISTA BITTENCOURT, 148'{ParSistema.Endereco1Desenvolvedora},  ' ',Col -  9,False));
+      Relatorio.Append('         '     + preencheString(ParSistema.Endereco2Desenvolvedora,  ' ',Col -  9,False));
+      Relatorio.Append('Telefone:'     + preencheString(ParSistema.TelefoneDesenvolvedora,   ' ',Col -  9,False));
+      Relatorio.Append('Contato :'     + preencheString(ParSistema.ContatoDesenvolvedora,    ' ',Col -  9,False));
+      Relatorio.Append('PAF-ECF :'     + preencheString(ParSistema.NomeComercialSistema,     ' ',Col -  9,False));
+      Relatorio.Append('Versão  :'     + preencheString('3.00',             ' ',Col -  9,False));
+      Relatorio.Append('ER-PAF-ECF  :' + preencheString('02.06',                              ' ',Col -  13,False));
+      Relatorio.Append('Aplicativo Principal:' + preencheString('teclux.exe',                ' ',Col -  21,False));
+
+      Ret := FindFirst(ExtractFilePath(Application.ExeName)+'teclux.exe', faAnyFile, F);
+    try
+      while Ret = 0 do
+      begin
+        if F.Attr and faDirectory <> faDirectory then
+        begin
+          NomeArq := ExtractFilePath(Application.ExeName)+F.Name;
+          if(FileExists(Arquivos_Paf[i])) then
+          begin
+             aMD5    := ACBrEad.MD5FromFile(NomeArq);
+             Relatorio.Append('MD5 : '+preencheString(aMD5,                ' ',Col-8,False));
+          end;
+        end;
+        Ret := FindNext(F);
+      end;
+
+    finally
+      FindClose(F);
+    end;
+
+      Relatorio.Append(Centralizar('--------ARQUIVOS AUXILIARES--------' ,Col));
+
+      for i := 0 to High(Arquivos_PAF) do
+      begin
+        if(FileExists(Arquivos_Paf[i])) then
+        begin
+           aMD5 := ACBrEad.MD5FromFile(Arquivos_PAF[i]);
+           Relatorio.Append(ARQUIVOS_PAF[I] + ': '+preencheString(aMD5,                ' ',Col-21,False));
+        end;
+      end;
+
+
+{      Ret := FindFirst(ExtractFilePath(Application.ExeName)+'Bema*.dll', faAnyFile, F);
+    try
+      while Ret = 0 do
+      begin
+        if F.Attr and faDirectory <> faDirectory then
+        begin
+          NomeArq := ExtractFilePath(Application.ExeName)+F.Name;
+          aMD5    := ACBrEad.MD5FromFile(NomeArq);
+          Relatorio.Append(F.NAME + ': '+preencheString(aMD5,                ' ',Col-21,False));
+        end;
+        Ret := FindNext(F);
+      end;
+
+    finally
+      FindClose(F);
+    end;}
+
+    Relatorio.Append('Arquivo texto contendo lista de arquivos autenticados:');
+    Relatorio.Append('ANEXO_X.txt - MD5:');
+    Relatorio.Append(ParSistema.CodigoMD5);
+
+
+      Relatorio.Append('ECFs Autorizados:');
+
+      arqECFs := TIniFile.Create(ECFs);
+      for i := 1 to ctLimiteECFs do
+      begin
+        if arqECFs.SectionExists(inttostr(i)) then
+          Relatorio.Append('                 ' + Descriptografar(arqECFs.ReadString(inttostr(i),'serie','')));
+      end;
+      arqECFs.Free;
+      RelatorioGerencial(Relatorio);
+    finally
+      Relatorio.Free;
+    end;
+  except
+    on e:Exception do
+      TrataErros(e);
+  end;
+end;
+
+procedure TtecECF.Sangria(Valor: Real; Observacao: String);
+begin
+  try
+    inherited
+    Sangria(Valor,Observacao);
+    ecfpadrao.erro := False;
+    ecfpadrao.erro := not SalvarDemaisDoctosECF(TNaoFiscalCompleto);
+    if not ecfpadrao.erro then
+      ecfpadrao.erro := not SalvarFormasPagamentoECF(TNaoFiscalCompleto, 'Dinheiro',valor);
+    if not ecfpadrao.erro then
+      ecfpadrao.erro := not SalvarDadosECFLocal;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.Suprimento(Valor: Real; Observacao: String);
+begin
+  try
+    inherited Suprimento(Valor,Observacao);
+        ecfpadrao.erro := False;
+    ecfpadrao.erro := not SalvarDemaisDoctosECF(TNaoFiscalCompleto);
+    if not ecfpadrao.erro then
+      ecfpadrao.erro := not SalvarFormasPagamentoECF(TNaoFiscalCompleto, 'Dinheiro',valor);
+    if not ecfpadrao.erro then
+      ecfpadrao.erro := not SalvarDadosECFLocal;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+
+end;
+
+procedure TtecECF.TrataErros(E: Exception);
+begin
+  ecfpadrao.erro := true;
+  ECFPadrao.FMensagem := E.Message;
+end;
+
+procedure TtecECF.CupomVinculadoTEF(Cupom, FormaPagto: String; Valor: Double;
+  Comprovante: array of String; Vias: Integer);
+var
+  Relatorio: TStringList;
+  i:integer;
+begin
+  Relatorio := TStringList.Create;
+  try
+    for i:=Low(Comprovante) to high(Comprovante) do
+      Relatorio.Append(Comprovante[i]);
+    try
+      inherited CupomVinculado(Cupom, Self.AchaFPGDescricao(FormadePagamentoConfigurada(FormaPagto), True).Indice, Valor, Relatorio, Vias);
+      ecfpadrao.erro := not SalvarDemaisDoctosECF(TCupomVinculado, strtoint(Cupom));
+    except
+      on E: Exception do TrataErros(E)
+    end;
+  finally
+    Relatorio.Free;
+  end;
+end;
+
+function TtecECF.ImpressoraLivre: Boolean;
+begin
+  result := estado = estlivre;
+  ecfpadrao.erro := False;
+end;
+
+{
+procedure TtecECF.CancelarNaoFiscal;
+var
+  SalvarInf : Boolean;
+  vNumCupom : integer;
+begin
+  try
+//    if Self.Estado = estNaoFiscal then
+    inherited CancelaNaoFiscal;
+    ecfpadrao.erro := not SalvarDemaisDoctosECF(TCancelaCupom, StrToInt(Cupom)-1);
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+   }
+procedure TtecECF.CancelarNaoFiscal;
+var
+  SalvarInf : Boolean;
+  vNumCupom : integer;
+begin
+{
+   try
+    SalvarInf := Estado = estLivre;
+    ecfpadrao.erro := not SalvarDadosCupom(TCancelaCupom);
+    if not ecfpadrao.erro then
+    begin
+      ecfpadrao.erro := not SalvarFormasPagamentoECF(TCancelaCupom);
+      if not ecfpadrao.erro then
+      begin
+        ecfpadrao.erro := not SalvarDadosECFLocal;
+        if not ecfpadrao.erro then
+        begin
+          vNumCupom := strtoint(Cupom);
+          inherited CancelaNaoFiscal;
+          if SalvarInf then
+          begin
+            ecfpadrao.erro := not SalvarDemaisDoctosECF(TCancelaCupom,vNumCupom);
+            if not ecfpadrao.erro then
+              ecfpadrao.erro := not SalvarDadosECFLocal;
+          end;
+        end
+        else
+          ecfpadrao.erro := True;
+      end;
+    end;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+
+}
+
+  try
+    SalvarInf := Estado = estLivre;
+    ecfpadrao.erro := not SalvarDemaisDoctosECF(TCancelaCupom);
+    if not ecfpadrao.erro then
+    begin
+      ecfpadrao.erro := not SalvarFormasPagamentoECF(TCancelaCupom);
+      if not ecfpadrao.erro then
+      begin
+        ecfpadrao.erro := not SalvarDadosECFLocal;
+        if not ecfpadrao.erro then
+        begin
+          vNumCupom := strtoint(Cupom);
+          inherited CancelaNaoFiscal;
+          if SalvarInf then
+          begin
+            ecfpadrao.erro := not SalvarDemaisDoctosECF(TCancelaCupom,vNumCupom);
+            if not ecfpadrao.erro then
+              ecfpadrao.erro := not SalvarDadosECFLocal;
+          end;
+        end
+        else
+          ecfpadrao.erro := True;
+      end;
+    end;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+
+  ECFPadrao.vNaoFiscalAberto := false;
+
+end;
+
+function TtecECF.GetMFAdicional: STring;
+var
+  Modelo: String;
+  UltimoCaracter: Char;
+begin
+  Modelo := ModeloStr;
+  UltimoCaracter := modelo[length(Modelo)];
+  if isalpha(UltimoCaracter) then
+    Result := UltimoCaracter
+  else
+    Result := ' ';
+end;
+
+
+procedure TtecECF.setPortaSerial(const Value: String);
+begin
+  FPortaSerial := Value;
+  inherited Porta := Value;
+end;
+
+function TtecECF.GerarMapa: TtecMapaECF;
+begin
+  inherited;
+end;
+
+function TtecECF.GerarMapaArquivoRetorno: TTecMapaECF;
+begin
+  inherited;
+end;
+
+function TtecECF.TotalizadorGeral: Double;
+begin
+  Result := inherited GrandeTotal;
+end;
+
+function TtecECF.AtivarECF(Arquivo, Porta, ECF_ini: String;Iniciando:Boolean=true): Boolean;
+var
+  ArqECF: TIniFile;
+  ECF_Serie, ECF_Marca, ECF_Tipo, ECF_MF,
+  ECF_Maquina, ECF_CNIEE, ECF_SubModelo,ECF_MINAS_LEGAL,ECF_CUPOM_MANIA,ECF_PARAIBA_LEGAL,ECF_NOTA_LEGAL_DF{,
+  ECF_GT,
+  ECF_CRO}: String;
+  i,
+  ECF_Modelo: Integer;
+  ProcurarECF: Boolean;
+begin
+  Result := False;
+  if (Porta <> '') then
+  begin
+    if FileExists(Arquivo) then
+    begin
+      if not Assigned(ECFPadrao) then
+        ECFPadrao := TtecECF.Create(nil);
+
+      ArqECF := TIniFile.Create(Arquivo);
+
+      if not ECFPadrao.Ativo then
+      begin
+        if possuisomentenumero(Porta) then
+          ECFPadrao.PortaSerial := 'COM'+Porta
+        else
+          ECFPadrao.PortaSerial := Porta;
+
+        if FVelocidadePorta<>'' then
+          ECFPadrao.Device.Baud:= strtoint(FVelocidadePorta);
+{        else
+          ECFPadrao.Device.Baud:= 9600;}
+      end;
+
+
+      try
+        i := 1;
+        ProcurarECF := ECF_ini = '';
+        repeat
+          ECFPadrao.Codigo := IntToStr(i);
+          if ArqECF.SectionExists(ECFPadrao.Codigo) then
+          begin
+            ECF_Modelo  := ArqECF.ReadInteger(ECFPadrao.Codigo,'modelo' , -1);
+            ECF_Serie   := ArqECF.ReadString(ECFPadrao.Codigo, 'serie'  , '');
+            ECF_Maquina := ArqECF.ReadString(ECFPadrao.Codigo, 'maquina', '');
+            ECF_Marca   := ArqECF.ReadString(ECFPadrao.Codigo, 'marca', '');
+            ECF_Tipo    := ArqECF.ReadString(ECFPadrao.Codigo, 'tipo', '');
+            ECF_MF      := ArqECF.ReadString(ECFPadrao.Codigo, 'MF', '');
+            ECF_CNIEE   := ArqECF.ReadString(ECFPadrao.Codigo, 'CNIEE', '');
+            ECF_SubModelo := ArqECF.ReadString(ECFPadrao.Codigo, 'SubModelo', '');
+            ECF_MINAS_LEGAL :=ArqECF.ReadString(ECFPadrao.Codigo, 'MinasLegal','false');
+            ECF_CUPOM_MANIA :=ArqECF.ReadString(ECFPadrao.Codigo, 'CupomMania','false');
+            ECF_PARAIBA_LEGAL :=ArqECF.ReadString(ECFPadrao.Codigo, 'ParaibaLegal','false');
+            ECF_NOTA_LEGAL_DF :=ArqECF.ReadString(ECFPadrao.Codigo, 'NotaLegalDF','false');
+
+{            ECF_GT      := ArqECF.ReadString(ECF_Codigo, 'gt'     , '');
+            ECF_CRO     := ArqECF.ReadString(ECF_Codigo, 'cro'    , '');
+}
+
+            if (ProcurarECF) or
+               (not ProcurarECF and (ECF_ini = ECFPadrao.Codigo)) then
+            begin
+              try
+                if ECFPadrao.Ativo then
+                  ECFPadrao.Desativar;
+
+                ECFPadrao.ModeloInt := ECF_Modelo;
+                ECFPadrao.ReTentar := False;
+
+                if FVelocidadePorta<>'' then
+                  ECFPadrao.Device.Baud:= strtoint(FVelocidadePorta);
+{                else
+                  ECFPadrao.Device.Baud:= 9600;}
+
+                ECFPadrao.Ativar;
+                ECFPadrao.ReTentar := True;
+                Result := ECF_Serie = Criptografar(ECFPadrao.SerieMaquina);
+                if not Result then
+                begin
+                  ECFPadrao.Desativar;
+                  ProcurarECF := True;
+                end;
+              except
+                if not ProcurarECF then    // CASO DEFINIDO NO INI E NAO ATIVOU
+                  i := 0;                  // VOLTA AO INICIO DO ARQUIVO,
+                ProcurarECF := not Result; // ATIVANDO A PROCURA PELO ECF CONECTADO
+              end;
+            end;
+          end;
+          if (i = ctLimiteECFs) and not ProcurarECF then
+          begin
+            ProcurarECF := not ProcurarECF;
+            i := 0;
+          end;
+          Inc(i);
+        until ((i = ctLimiteECFs) and ProcurarECF) or Result;
+      finally
+        ArqECF.Free;
+      end;
+    end
+    else
+      MensagemAviso('Arquivo de configuração "'+ Arquivo +'" não existe!');
+  end
+  else
+    MensagemAviso('Porta de acesso ao ECF não configurada!');;
+  if Result then
+  begin
+    ECFPadrao.SerieConfigurada  := Descriptografar(ECF_Serie);
+    ECFPadrao.NumeroConfigurado := Descriptografar(ECF_Maquina);
+    ECFPadrao.marca             := Descriptografar(ECF_Marca);
+    ECFPadrao.tipo              := Descriptografar(ECF_Tipo);
+    ECFPadrao.MFAdicional       := Descriptografar(ECF_MF);
+    ECFPadrao.CNIEE             := Descriptografar(ECF_CNIEE);
+    ECFPadrao.SubModelo         := Descriptografar(ECF_SubModelo);
+    ECFPadrao.InfoRodapeCupom.MinasLegal:=ECF_MINAS_LEGAL='547061F4';
+    ECFPadrao.InfoRodapeCupom.CupomMania:=ECF_CUPOM_MANIA='547061F4';
+    ECFPadrao.InfoRodapeCupom.ParaibaLegal:=ECF_PARAIBA_LEGAL='547061F4';
+    ECFPadrao.InfoRodapeCupom.NotaLegalDF.Imprimir:=ECF_NOTA_LEGAL_DF='547061F4';
+    ECFPadrao.OnAntesCancelaCupom := AntesCancelaCupom;
+    ECFPadrao.OnDepoisCancelaCupom := DepoisCancelaCupom;
+    ECFPadrao.OnDepoisAbreNaoFiscal := DepoisAbreNaoFiscal;
+  end
+  else
+  begin
+   if Assigned(ECFPadrao) then
+   begin
+     if Iniciando then
+     begin
+       ECFPadrao.FinalizarImpressora;
+       FreeAndNil(ECFPadrao);
+     end;
+   end;
+   MensagemAviso('Não foi possível ativar o ECF!');
+  end;
+
+  if result then
+  begin
+
+    qryMeiosdePagamentoECF := TtecQuery.Create(nil);
+    qryMeiosdePagamentoECF.Database := parsistema.Database;
+    qryMeiosdePagamentoECF.sql.text := format(' Select mpe.*, mp.descricao as descricaomeiodepagamento '+
+                                              ' from meiosdepagamentoecf mpe '+
+                                              ' join meiosdepagamento mp '+
+                                              ' on mpe.meiodepagamento = mp.codigo '+
+                                              ' where ecf = %s', [ECF_ini]);
+    qryMeiosdePagamentoECF.Open;
+
+  end;
+end;
+
+function TtecECF.VerificarGT(Arquivo: String;Iniciando:Boolean=true): Boolean;
+var
+  ArqECF: TIniFile;
+  gt, gtarq: String;
+  cro, croarq: Integer;
+  teste : string;
+
+begin
+  Result := true;
+
+(*
+//  teste := Criptografar(FloatToStr(150));
+
+  Result := False;
+  ArqECF := TIniFile.Create(Arquivo);
+  try
+    if ArqECF.SectionExists(Codigo) then
+    begin
+      gt := FloatToStr(TotalizadorGeral);
+      gtarq := Descriptografar(ArqECF.ReadString(Codigo, 'gt', '0'));
+      Result := gt = gtarq;  // COMPARA O GT DO ECF COM O DO ARQUIVO
+      if not Result then  // CASO SEJA DIFERENTE
+      begin
+        cro := strToInt(Intervencao);
+        croarq := StrToInt(Descriptografar(ArqECF.ReadString(Codigo, 'cro', '0')));
+        if cro > croarq then
+        begin  // VERIFICA SE HOUVE INCREMENTO DO CRO(INTERVENCAO TECNICA) E ATUALIZA O ARQUIVO
+          ArqECF.WriteString(Codigo, 'gt', Criptografar(FloatToStr(TotalizadorGeral)));
+          ArqECF.WriteString(Codigo, 'cro', Criptografar(FloatToStr(cro)));
+          ArqECF.UpdateFile;
+          Result := True;
+        end;
+      end;
+    end;
+  finally
+    ArqECF.Free
+  end;
+  if not Result and Assigned(ECFPadrao) then
+  begin
+    if Iniciando then
+    begin
+      ECFPadrao.FinalizarImpressora;
+      FreeAndNil(ECFPadrao);
+    end;
+    MensagemAviso('Não foi possível ativar o ECF!' + sLineBreak +
+                  'O valor do GT não confere e não houve incremento do CRO!');
+  end;
+*)
+
+end;
+
+
+function TtecECF.GerarDadosReducaoZ: TTecReducoesZ;
+var
+ i, j: integer;
+ Sequencia : Byte;
+ Indice    : String;
+ Aliquota  : Double;
+ vDataMovimento: TDateTime;
+ vTTecReducoesZ : TTecReducoesZ;
+
+ DadosR: String;
+
+ valiquotaduplicada: boolean;
+
+begin
+  ECFPadrao.DataHoraReducaoZ := ECFPadrao.DataHora;
+
+{  try
+    ECFPadrao.LerTotaisComprovanteNaoFiscal;
+  except
+  end;}
+
+//  DadosR := ECFPadrao.DadosReducaoZ;
+//  try
+    ECFPadrao.LerTotaisAliquota;
+//  except
+//  end;
+
+  with result do
+  begin
+    Numerofabricacao := ECFPadrao.SerieMaquina;
+    MFadicional      := ECFPadrao.MFAdicional;
+    ModeloECF        := ECFPadrao.SubModelo;
+
+    Numerousuario    := StrToInt(ECFPadrao.NumeroMaquina);
+    CRZ              := strtoint(ECFPadrao.numCRZ) + 1;
+    COO              := StrToInt(ECFPadrao.NumCOO) + 1;
+
+
+    if ECFPadrao.DataMovimento <> 0 then
+      vDatamovimento    := ECFPadrao.DataMovimento
+    else
+      vDatamovimento    := ECFPadrao.DataHoraReducaoZ;
+
+    if (trim(EcfPadrao.NumCOOInicial) = '') then
+    begin
+      vTTecReducoesZ := NumCOOInicial__(ECFPadrao.SerieMaquina, ECFPadrao.NumeroMaquina, ECFPadrao.numCRZ);
+      COO_Inicial      := vTTecReducoesZ.COO_Inicial + 1;
+    end
+    else
+      COO_Inicial      := StrToInt(EcfPadrao.NumCOOInicial);
+
+    COO_Final        := StrToInt(ECFPadrao.NumCOO);
+    CRO              := StrToInt(ECFPadrao.NumCRO);
+
+    Datamovimento    := vDataMovimento;
+
+    Dataemissao      := ECFPadrao.DataHoraReducaoZ;
+    Horaemissao      := ECFPadrao.DataHoraReducaoZ;
+    VendaBrutaDiaria := ECFPadrao.VendaBruta;
+    TotalizadorGeral := ECFPadrao.TotalizadorGeral;
+    ParametroincidenciaISSQN := ECFPadrao.IncidenciaDescontoISSQN;
+
+    origeminformacao := 'Z';
+
+    for i:=0 to Aliquotas.Count - 1 do
+    begin
+
+      valiquotaduplicada := false;
+      for j:=0 to Length(DetalhesReducaoZ) -1 do
+      begin
+        if  DetalhesReducaoZ[j].aliquota = aliquotas[i].Aliquota then
+        begin
+           DetalhesReducaoZ[j].ValorAcumulado := DetalhesReducaoZ[j].ValorAcumulado + aliquotas[i].Total;
+           valiquotaduplicada := true;
+        end;
+      end;
+
+      if not valiquotaduplicada then
+      begin
+        SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+
+        if preencheString(SomenteNumero(Aliquotas[i].Indice),'0',2,False) = '00' then
+          DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial :=
+            '01' + Aliquotas[i].Tipo + Trocar(FormatFloat('00.00',Aliquotas[i].Aliquota),',','')
+        else
+          DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial :=
+            preencheString(SomenteNumero(Aliquotas[i].Indice),'0',2,False) + Aliquotas[i].Tipo + Trocar(FormatFloat('00.00',Aliquotas[i].Aliquota),',','');
+
+        DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := aliquotas[i].Aliquota;
+        DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := aliquotas[i].Total;
+      end;
+
+    end;
+
+    // Substituição Tributária – ICMS
+//    try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'F1';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalSubstituicaoTributaria;
+//  except
+//  end;
+
+    // Isento – ICMS
+//  try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'I1';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalIsencao;
+//  except
+//  end;
+
+    // Não-incidência – ICMS
+//  try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'N1';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalNaoTributado;
+//  except
+//  end;
+
+    // Substituição Tributária – ISSQN
+//  try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'FS1';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalSubstituicaoTributariaISSQN;
+//  except
+//  end;
+
+    // Isento – ISSQN
+//  try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'IS1';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalIsencaoISSQN;
+//  except
+//  end;
+
+    // Não-incidência – ISSQN
+//  try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'NS1';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalNaoTributadoISSQN;
+//  except
+//  end;
+
+    //Operações Não Fiscais
+//  try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'OPNF';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalNaoFiscal;
+//  except
+//  end;
+
+    //Desconto – ICMS
+//  try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'DT';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalDescontos;
+//  except
+//  end;
+
+    //Desconto – ISSQN
+//  try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'DS';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalDescontosISSQN;
+//  except
+//  end;
+
+    //Acréscimo – ICMS
+//  try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'AT';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalAcrescimos;
+//  except
+//  end;
+
+    //Acréscimo – ISSQN
+//  try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'AS';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalAcrescimosISSQN;
+//  except
+//  end;
+
+    //Cancelamento – ICMS
+//  try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'Can-T';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalCancelamentos;
+//  except
+//  end;
+
+    //Cancelamento – ISSQN
+//  try
+    SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'Can-S';
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+    DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := ECFPadrao.TotalCancelamentosISSQN;
+//  except
+//  end;
+
+  end;
+end;
+
+procedure TtecECF.ReducaoZ;
+begin
+  VerificaInconsistenciaCCF;
+  try
+    inherited ReducaoZ(DataHoraReducaoZ);
+    ecfpadrao.erro := False;
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.AtualizarTotalizadorGeral(Arquivo: String);
+var
+  ArqECF: TIniFile;
+begin
+  ArqECF := TIniFile.Create(Arquivo);
+  try
+    if ArqECF.SectionExists(Codigo) then
+    begin
+      ArqECF.WriteString(Codigo, 'gt', Criptografar(FloatToStr(TotalizadorGeral)));
+      ArqECF.UpdateFile;
+    end;
+    SalvarECFs(StrToInt(Codigo), TotalizadorGeral);
+  finally
+    ArqECF.Free
+  end;
+end;
+
+procedure TtecECF.IdentificarPAF;
+
+begin
+  {bematech termica nao funcionando - frettalar}
+  if mfd {false} then
+  begin
+//      ecfPadrao.IdentificaPAF('',''); feito soh para zerar mensagem dll daruma
+      ecfPadrao.InfoRodapeCupom.MD5:=ParSistema.CodigoMD5;
+  end;
+end;
+
+function TtecECF.GetIncidenciaDescontoISSQN: String;
+begin
+  fIncidenciaDescontoISSQN := 'N';
+  Result := fIncidenciaDescontoISSQN;
+end;
+
+function TtecECF.ImpressoraBloqueada: Boolean;
+begin
+  Result := Estado = estBloqueada;
+  ecfpadrao.erro := False;
+end;
+
+function TtecECF.RequerReducaoZ: Boolean;
+begin
+  result := Estado = estRequerZ;
+  ecfpadrao.erro := False;
+end;
+
+procedure TtecECF.RelatorioGerencial(Texto: TStringList);
+var
+  Lin   : Integer ;
+  SL    : TStringList ;
+begin
+  VerificaInconsistenciaCCF;
+  MaxLinhasBuffer := 3;
+  try
+    SL := TStringList.Create;
+    for lin := 0 to texto.Count -1 do
+    begin
+      SL.Append(texto[lin]);
+      if (((Lin mod 350) = 0) and (lin <> 0)) or (lin = texto.count -1)  then
+      begin
+        try
+          inherited RelatorioGerencial(SL);
+          ecfpadrao.erro := not SalvarDemaisDoctosECF(TRelatorioGerencial);
+        except
+          on E: Exception do TrataErros(E)
+        end;
+        SL.Clear;
+      end ;
+    end;
+  finally
+    SL.Free;
+  end;
+
+end;
+
+function TtecECF.GerarDadosReducaoZAnterior: TTecReducoesZ;
+var
+ i,j: integer;
+ Sequencia : Byte;
+ Indice    : String;
+ Aliquota  : Double;
+ valiquotaduplicada:Boolean;
+ AIni : TMemIniFile ;
+ AStringList : TStringList ;
+ Resp  : String ;
+
+ V1 : String;
+ vTTecReducoesZ : TTecReducoesZ;
+
+begin
+
+  ECFPadrao.DataHoraReducaoZ := ECFPadrao.DataHora;
+  V1 := ecfpadrao.Data;
+  Resp := ECFPadrao.DadosUltimaReducaoZ ;
+  AStringList := TStringList.Create ;
+  AIni := TMemIniFile.Create( 'DadosUltimaReducaoZ.ini' ) ;
+  try
+    AStringList.Text := Resp;
+    AIni.SetStrings(AStringList);
+
+    with result do
+    begin
+      Numerofabricacao := ECFPadrao.SerieMaquina;
+      MFadicional      := ECFPadrao.MFAdicional;
+      ModeloECF        := ECFPadrao.SubModelo;
+      Numerousuario    := StrToInt(ECFPadrao.NumeroMaquina);
+      CRZ              := AIni.ReadInteger('ECF','NumCRZ', 0);
+      COO              := AIni.ReadInteger('ECF','NumCOO', 0);
+
+      CRO              := AIni.ReadInteger('ECF','NumCRO', 0);
+      Datamovimento    := AIni.ReadDateTime('ECF','DataMovimento', 0);
+
+      vTTecReducoesZ  := NumCOOInicial__(ECFPadrao.SerieMaquina, ECFPadrao.NumeroMaquina, inttostr(CRZ-1));
+
+      COO_Inicial      := vTTecReducoesZ.COO_Inicial + 1;
+      COO_Final        := COO-1;
+
+      Dataemissao      := ECFPadrao.DataHoraReducaoZ;
+      Horaemissao      := ECFPadrao.DataHoraReducaoZ;
+      VendaBrutaDiaria := AIni.ReadFloat('Totalizadores','VendaBruta', 0);
+
+      if AIni.ReadFloat('Totalizadores','GrandeTotal', 0) <> 0 then
+        TotalizadorGeral := AIni.ReadFloat('Totalizadores','GrandeTotal', 0)
+      else
+        TotalizadorGeral := vTTecReducoesZ.TotalizadorGeral + VendaBrutaDiaria; {Anterior mais a venda atual, conforme função incluirreducoeszfaltantes}
+
+      ParametroincidenciaISSQN := ECFPadrao.IncidenciaDescontoISSQN;
+      origeminformacao := 'ZA';
+
+      for i:=0 to Aliquotas.Count - 1 do
+      begin
+        valiquotaduplicada := false;
+        for j:=0 to Length(DetalhesReducaoZ) -1 do
+        begin
+           if  DetalhesReducaoZ[j].aliquota = aliquotas[i].Aliquota then
+           begin
+              DetalhesReducaoZ[j].ValorAcumulado := DetalhesReducaoZ[j].ValorAcumulado + aliquotas[i].Total;
+              valiquotaduplicada := true;
+            end;
+        end;
+
+        if not valiquotaduplicada then
+        begin
+            SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+
+            if preencheString(SomenteNumero(Aliquotas[i].Indice),'0',2,False)='00' then
+                DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial :=
+                '01'+
+                Aliquotas[i].Tipo +
+                Trocar(FormatFloat('00.00',Aliquotas[i].Aliquota),',','')
+             else
+                DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial :=
+                  preencheString(SomenteNumero(Aliquotas[i].Indice),'0',2,False) +
+                  Aliquotas[i].Tipo +
+                  Trocar(FormatFloat('00.00',Aliquotas[i].Aliquota),',','');
+
+             DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota       := aliquotas[i].Aliquota;
+             DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado := AIni.ReadFloat('Aliquotas',DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial, 0);
+
+        end;
+      end;
+
+      // Substituição Tributária – ICMS
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'F1';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := AIni.ReadFloat('OutrasICMS','TotalSubstituicaoTributaria', 0);
+
+      // Isento – ICMS
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'I1';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := AIni.ReadFloat('OutrasICMS','TotalIsencao', 0);
+
+      // Não-incidência – ICMS
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'N1';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := AIni.ReadFloat('OutrasICMS','TotalNaoTributado', 0);
+
+      // Substituição Tributária – ISSQN
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'FS1';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := 0.00;  {não esta presente}
+
+      // Isento – ISSQN
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'IS1';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := 0.00 {não esta presente};
+
+      // Não-incidência – ISSQN
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'NS1';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := 0.00 {não esta presente};
+
+      //Operações Não Fiscais
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'OPNF';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := AIni.ReadFloat('Totalizadores','TotalNaoFiscal', 0);
+
+      //Desconto – ICMS
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'DT';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := AIni.ReadFloat('Totalizadores','TotalDescontos', 0);
+
+      //Desconto – ISSQN
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'DS';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := 0.00 {não esta presente};
+
+      //Acréscimo – ICMS
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'AT';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := AIni.ReadFloat('Totalizadores','TotalAcrescimos', 0);
+
+      //Acréscimo – ISSQN
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'AS';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := 0.00 {não esta presente};
+
+      //Cancelamento – ICMS
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'Can-T';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := AIni.ReadFloat('Totalizadores','TotalCancelamentos', 0);
+
+      //Cancelamento – ISSQN
+      SetLength(DetalhesReducaoZ, Length(DetalhesReducaoZ) + 1);
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].TipoTotalizadorParcial := 'Can-S';
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].aliquota               := 0.00;
+      DetalhesReducaoZ[Length(DetalhesReducaoZ) - 1].ValorAcumulado         := 0.00 {não esta presente};
+
+    end;
+  finally
+   AIni.Free ;
+   AStringList.Free ;
+  end ;
+end;
+
+function TtecECF.SalvarDadosCupom(TipoOperacaoECF: TTecTipoOperacaoECF;
+          CGC_CPF: String = ''; Nome: String = '';
+          HeDesconto: Boolean = false; Desc_ou_Acresc: Currency = 0): Boolean;
+begin
+  try
+    result := false;
+    with ArqIniDadosECF[TipoOperacaoECF] do
+    begin
+      case TipoOperacaoECF of
+        TAbreCupom :
+        begin
+          WriteString  ('CupomFiscal', 'NUM_FAB'      , SerieMaquina);
+  //        WriteString  ('CupomFiscal', 'MF_ADICIONAL' , self.MFAdicional);
+  //        WriteString  ('CupomFiscal', 'MODELO_ECF'   , self.SubModeloECF);
+          WriteString  ('CupomFiscal', 'NUM_USU'      , NumeroMaquina);
+          WriteString  ('CupomFiscal', 'CCF'          , ECFPadrao.NumCCF);
+          WriteString  ('CupomFiscal', 'CRO'          , NumCRO);
+          WriteString  ('CupomFiscal', 'COO'          , Cupom);
+          WriteDateTime('CupomFiscal', 'DT_INI'       , ECFPadrao.DataHora);
+          WriteInteger ('CupomFiscal', 'CRZ'          , IfThen(NumeroReducoes<>'',StrToInt(NumeroReducoes)+1,0));
+          WriteString  ('CupomFiscal', 'NOME_CLI'     , Nome);
+          WriteString  ('CupomFiscal', 'CNPJ_CPF'     , CGC_CPF);
+          WriteString  ('CupomFiscal', 'CANC'         , 'N');
+
+          FSequenciaItem := 0;
+          FSequenciaFormaPagto := 0;
+  //        FSequenciaDemaisDoctosECF := 0;
+          UpdateFile;
+          result := true;
+        end;
+
+        TCancelaCupom :
+        begin
+          WriteString  ('CupomFiscal', 'CANC'         , 'S');
+          UpdateFile;
+          result := true;
+        end;
+
+        TSubtotalizaCupom :
+        begin
+          if Desc_ou_Acresc < 0 then
+            WriteFloat ('CupomFiscal', 'SUB_DOCTO'    , ECFPadrao.Subtotal+abs(Desc_ou_Acresc))
+          else
+            WriteFloat ('CupomFiscal', 'SUB_DOCTO'    , ECFPadrao.Subtotal-Desc_ou_Acresc);
+          WriteFloat   ('CupomFiscal', 'SUB_DESCTO'   , ifthen((Desc_ou_Acresc<0), abs(Desc_ou_Acresc), 0));
+          WriteString  ('CupomFiscal', 'TP_DESCTO'    , 'V');
+          WriteFloat   ('CupomFiscal', 'SUB_ACRES'    , ifthen((Desc_ou_Acresc>0), Desc_ou_Acresc,0));
+          WriteString  ('CupomFiscal', 'TP_ACRES'     , 'V');
+
+          WriteFloat    ('CupomFiscal' , 'VL_TOT'    ,
+              (ReadFloat ('CupomFiscal', 'SUB_DOCTO' , 0) -
+               ReadFloat ('CupomFiscal', 'SUB_DESCTO', 0) +
+               ReadFloat ('CupomFiscal', 'SUB_ACRES' , 0)));
+
+          WriteFloat   ('CupomFiscal', 'VL_CA'   , 0); {não trabalhado com esta funcionalidade}
+          WriteString  ('CupomFiscal', 'ORDEM_DA', 'D'); {não trabalhado com esta funcionalidade}
+          UpdateFile;
+          result := true;
+        end;
+
+        TFechaCupom: result := SalvarDadosECFLocal;
+
+      end;
+    end;
+  except
+    on E: Exception do TrataErros(E);
+  end;
+end;
+
+
+function TtecECF.SalvarDadosItemCupom(TipoOperacaoECF: TTecTipoOperacaoECF;
+               codigo: String = ''; descricao: String = ''; unidade: String = '';
+               quantidade: Currency = 0; preco: Currency = 0; desconto: Currency = 0;
+               tributo: String = ''; producaopropria: Boolean = false;
+               NumItemCancelado: Integer = 0): boolean;
+var
+  teste,
+  trib,
+  indic : string;
+  aliq,salva: Double;
+begin
+  try
+    result := false;
+    with ArqIniDadosECF[TipoOperacaoECF] do
+    begin
+      case TipoOperacaoECF of
+        TVendeItem :
+        begin
+          WriteInteger('ItemCupomFiscal'+inttostr(SequenciaItem),'NUM_ITEM'   , SequenciaItem); // Número do item registrado no documento
+          WriteString ('ItemCupomFiscal'+inttostr(SequenciaItem),'COD_ITEM'   , codigo);        // Código do produto ou serviço registrado no documento
+          WriteString ('ItemCupomFiscal'+inttostr(SequenciaItem),'DESC_ITEM'  , descricao);     // Descrição do produto ou serviço constante no Cupom Fiscal
+          WriteFloat  ('ItemCupomFiscal'+inttostr(SequenciaItem),'QTDE_ITEM'  , quantidade);    // Quantidade comercializada, sem a separação das casas decimais
+          WriteString ('ItemCupomFiscal'+inttostr(SequenciaItem),'UN_MED'     , unidade);       // Unidade de medida
+          WriteFloat  ('ItemCupomFiscal'+inttostr(SequenciaItem),'VL_UNIT'    , preco);         // Valor unitário do produto ou serviço, sem a separação das casas decimais.
+          WriteFloat  ('ItemCupomFiscal'+inttostr(SequenciaItem),'DESCTO_ITEM', desconto);      // Valor  do desconto  incidente sobre o valor do item, com duas casas decimais.
+          WriteFloat  ('ItemCupomFiscal'+inttostr(SequenciaItem),'ACRES_ITEM', 0.00);          // Valor do acréscimo incidente sobre o valor do item, com duas casas decimais.
+          WriteFloat  ('ItemCupomFiscal'+inttostr(SequenciaItem),'VL_TOT_ITEM',
+                                                                      Truncar((quantidade*preco) - desconto,2)); //Valor total líquido do item, com duas casas decimais.
+          {Verificar se o retorno esta de acordo com a tabela reducoeszdetalhes}
+
+          if PossuiNumero(tributo) then
+          begin
+            trib := tributo;    //juvenil
+            indic:= ECFPadrao.AchaICMSAliquota(tributo).Indice;
+            aliq := ECFPadrao.AchaICMSAliquota(trib).Aliquota;
+            salva:=aliq;
+            tipo:=ECFPadrao.AchaICMSAliquota(salva).Tipo;
+            WriteFloat('ItemCupomFiscal'+inttostr(SequenciaItem), 'ALIQ_ICMS', salva);
+            if preencheString(SomenteNumero(indic),'0',2,False) = '00' then
+              WriteString ('ItemCupomFiscal'+inttostr(SequenciaItem),'COD_TOT_PARC' ,
+                       '01' +
+                       tipo +
+                       Trocar(FormatFloat('00.00',aliq),',','')) //Código do totalizador relativo ao produto ou serviço conforme tabela abaixo.
+            else
+              WriteString ('ItemCupomFiscal'+inttostr(SequenciaItem),'COD_TOT_PARC' ,
+                       preencheString(SomenteNumero(indic),'0',2,False) +
+                       tipo +
+                       Trocar(FormatFloat('00.00',aliq),',','')); //Código do totalizador relativo ao produto ou serviço conforme tabela abaixo.
+
+          end
+          else
+          begin
+            WriteFloat('ItemCupomFiscal'+inttostr(SequenciaItem), 'ALIQ_ICMS', 0);
+            WriteString ('ItemCupomFiscal'+inttostr(SequenciaItem),'COD_TOT_PARC' ,
+                     copy(tributo,1,1)+'1')
+          end;
+
+          WriteString ('ItemCupomFiscal'+inttostr(SequenciaItem),'IND_CANC', 'N');
+          WriteFloat  ('ItemCupomFiscal'+inttostr(SequenciaItem),'QTDE_CANC', 0.00); //não utilizada // Quantidade cancelada, no caso de cancelamento parcial de item, sem a separação das casas decimais.
+          WriteFloat  ('ItemCupomFiscal'+inttostr(SequenciaItem),'VL_CANC_ACRES', 0.00); //não utilizada // Valor do cancelamento de acréscimo no item
+          WriteString ('ItemCupomFiscal'+inttostr(SequenciaItem),'IAT', ifthen(ecfpadrao.Arredonda,'A','T')); // Indicador de Arredondamento ou Truncamento relativo à regra de cálculo do valor total líquido do item, sendo “T”  para truncamento ou “A” para arredondamento
+          WriteString ('ItemCupomFiscal'+inttostr(SequenciaItem),'IPPT', ifthen(producaopropria,'P','T')); // Indicador de Produção Própria ou de Terceiro relativo à mercadoria, sendo “P” para mercadoria de produção própria ou “T” para mercadoria produzida por terceiros
+          WriteInteger('ItemCupomFiscal'+inttostr(SequenciaItem),'QTDE_DECIMAL', ECFPadrao.DecimaisQtd ); // Parâmetro de número de casas decimais da quantidade
+          WriteInteger('ItemCupomFiscal'+inttostr(SequenciaItem),'VL_DECIMAL', ECFPadrao.DecimaisPreco ); // Parâmetro de número de casas decimais de valor unitário
+          FSequenciaItem := FSequenciaItem + 1;
+          updatefile;
+          result := true;
+        end;
+
+        TCancelaItem :
+        begin
+          WriteString ('ItemCupomFiscal'+inttostr(NumItemCancelado),'IND_CANC', 'S');
+  //        WriteFloat  ('ItemCupomFiscal'+inttostr(SequenciaItem),'QTDE_CANC', 0.00);
+          UpdateFile;
+          result := true;
+        end;
+
+      end;
+    end;
+  except
+    on E: Exception do TrataErros(E);
+  end;
+end;
+
+function TtecECF.GetSequenciaItem: integer;
+begin
+  Result := FSequenciaItem + 1;
+end;
+
+function TtecECF.GetArqIniDadosECF(TipoOperacaoECF: TTecTipoOperacaoECF): TMemIniFile;
+var
+  vSerieMaquina,
+  vIntervencao,
+  vNumCupom,
+  vNomeArquivo,
+  vNewNomeArquivo : String;
+  vArqini : tStringList;
+begin
+                                  {
+
+  TTecTipoOperacaoECF = (TAbreCupom, TCancelaCupom, TSubtotalizaCupom, TFechaCupom,
+                         TVendeItem, TCancelaItem,
+                         TCupomVinculado, TNaoFiscalCompleto, TRelatorioGerencial,
+                         TEfetuaPagamento);
+                         }
+
+
+  if not assigned(FArqIniDadosECF) or (TipoOperacaoECF = TAbreCupom)  then
+  begin
+
+    vSerieMaquina := SerieMaquina;
+    if vgravandocupomvinculado then
+      vNumCupom := preencheString(inttostr(vCOORef), '0', 6, false)
+    else
+      vNumCupom := Cupom;
+
+    vIntervencao := Intervencao;
+
+    vNomeArquivo := ExtractFilePath(Application.ExeName) + 'PAF-ECF';
+
+    if not DirectoryExists(vNomeArquivo) then
+      if not CreateDir(vNomeArquivo) then
+      raise Exception.Create('Impossível criar o diretório '+vNomeArquivo);
+
+    vNewNomeArquivo := vNomeArquivo+'\'+vSerieMaquina+'_'+vIntervencao+'_'+vNumCupom + '_'+formatdatetime('yyyy-MM-DD hh_mm', now())+'.txt';
+    vNomeArquivo := vNomeArquivo+'\'+vSerieMaquina+'_'+vIntervencao+'_'+vNumCupom+'.txt';
+
+    FArqIniDadosECF := TMemIniFile.Create(vNomeArquivo);
+
+    if FileExists(vNomeArquivo) then
+    begin
+      vArqini := TStringList.Create;
+      vArqini.LoadFromFile(vNomeArquivo);
+
+      if (TipoOperacaoECF = TAbreCupom) then
+      begin
+        vArqini.SaveToFile(vNewNomeArquivo);
+        deletefile(vNomeArquivo);
+        FreeAndNil(fArqIniDadosECF);
+        FArqIniDadosECF := TMemIniFile.Create(vNomeArquivo);
+      end;
+      {
+      else
+        FArqIniDadosECF.SetStrings(vArqini); desnecessario visto que o arquivo ja foi carregado na memoria no TMemIniFile.Create}
+
+      vArqini.Free;
+    end;
+
+
+  end;
+{
+  if FArqIniDadosECF.FileName = '' then
+  begin
+    vSerieMaquina := self.SerieMaquina;
+    vNumCupom := self.Cupom;
+    vArquivoCupomFiscal := vSerieMaquina+'_'+vNumCupom+'.txt';
+    if FileExists(vArquivoCupomFiscal) then
+    begin
+      vArqini := TStringList.Create;
+      vArqini.LoadFromFile(vArquivoCupomFiscal);
+      FArqIniDadosECF.SetStrings(vArqini);
+      vArqini.Free;
+    end;
+  end;
+}
+  Result := FArqIniDadosECF;
+end;
+
+function TtecECF.SalvarDemaisDoctosECF(TipoOperacaoECF: TTecTipoOperacaoECF; NumCupom: Integer=0): boolean;
+var
+  i: integer;
+
+begin
+  try
+    result := false;
+    with ArqIniDadosECF[TipoOperacaoECF] do
+    begin
+      case TipoOperacaoECF of
+        TCupomVinculado :
+        begin
+  //        WriteInteger  ('DemaisDoctosECF'+inttostr(SequenciaDemaisDoctosECF), 'NUM_CONT'     , FSequenciaDemaisDoctosECF);
+          WriteString  ('DemaisDoctosECF', 'NUM_FAB'     , SerieMaquina);    // Nº de fabricação do ECF
+          WriteString  ('DemaisDoctosECF', 'MF_ADICIONAL', MFAdicional);  // Letra indicativa de MF adicional
+          WriteString  ('DemaisDoctosECF', 'MODELO_ECF'  , SubModelo); // Modelo do ECF
+          WriteString  ('DemaisDoctosECF', 'NUM_USU'     , NumeroMaquina); // Nº de ordem do usuário do ECF
+          WriteString  ('DemaisDoctosECF', 'CRO'         , NumCRO);
+          WriteString  ('DemaisDoctosECF', 'COO'         , Cupom);// Nº do COO relativo ao respectivo documento
+          WriteInteger ('DemaisDoctosECF', 'COOREF'      , NumCupom);
+
+          WriteString  ('DemaisDoctosECF', 'GNF'         , NumGNF);// Número do GNF relativo ao respectivo documento, quando houver
+          WriteString  ('DemaisDoctosECF', 'CDC'         , NumCDC);              // Número do CDC relativo ao respectivo documento (vide item 7.6.1.3)
+          WriteString  ('DemaisDoctosECF', 'DENOMINACAO' , 'CC'); // Símbolo  referente à denominação do documento fiscal, conforme tabela abaixo
+          WriteDateTime ('DemaisDoctosECF','DT_FIN'      , ECFPadrao.DataHora); // Data final de emissão (impressa no rodapé do documento)
+          WriteDateTime ('DemaisDoctosECF','HR_FIN'      , ECFPadrao.DataHora); // Hora final de emissão (impressa no rodapé do documento)
+  //        FSequenciaDemaisDoctosECF := FSequenciaDemaisDoctosECF + 1;
+          updatefile;
+          result := SalvarDadosECFLocal;
+        end;
+
+        TNaoFiscalCompleto :
+        begin
+  //        WriteInteger  ('DemaisDoctosECF1', 'NUM_CONT', 1);
+          WriteString  ('DemaisDoctosECF', 'NUM_FAB'     , SerieMaquina);    // Nº de fabricação do ECF
+          WriteString  ('DemaisDoctosECF', 'MF_ADICIONAL', MFAdicional);  // Letra indicativa de MF adicional
+          WriteString  ('DemaisDoctosECF', 'MODELO_ECF'  , SubModelo); // Modelo do ECF
+          WriteString  ('DemaisDoctosECF', 'NUM_USU'     , NumeroMaquina); // Nº de ordem do usuário do ECF
+          WriteString  ('DemaisDoctosECF', 'CRO'         , NumCRO);
+          WriteString  ('DemaisDoctosECF', 'COO'         , Cupom); // Nº do COO relativo ao respectivo documento
+          WriteString  ('DemaisDoctosECF', 'GNF'         , NumGNF); // Número do GNF relativo ao respectivo documento, quando houver
+          WriteString  ('DemaisDoctosECF', 'DENOMINACAO' , 'CN'); // Símbolo  referente à denominação do documento fiscal, conforme tabela abaixo
+          WriteDateTime ('DemaisDoctosECF','DT_FIN'      , ECFPadrao.DataHora); // Data final de emissão (impressa no rodapé do documento)
+          WriteDateTime ('DemaisDoctosECF','HR_FIN'      , ECFPadrao.DataHora); // Hora final de emissão (impressa no rodapé do documento)
+          updatefile;
+          result := true;
+        end;
+
+        TRelatorioGerencial :
+        begin
+  //        WriteInteger  ('DemaisDoctosECF1', 'NUM_CONT', 1);
+          WriteString  ('DemaisDoctosECF', 'NUM_FAB'     , SerieMaquina);    // Nº de fabricação do ECF
+          WriteString  ('DemaisDoctosECF', 'MF_ADICIONAL', MFAdicional);  // Letra indicativa de MF adicional
+          WriteString  ('DemaisDoctosECF', 'MODELO_ECF'  , SubModelo); // Modelo do ECF
+          WriteString  ('DemaisDoctosECF', 'NUM_USU'     , NumeroMaquina); // Nº de ordem do usuário do ECF
+          WriteString  ('DemaisDoctosECF', 'COO'         , Cupom); // Nº do COO relativo ao respectivo documento
+          WriteString  ('DemaisDoctosECF', 'CRO'         , NumCRO);
+          WriteString  ('DemaisDoctosECF', 'GNF'         , NumGNF); // Número do GNF relativo ao respectivo documento, quando houver
+          WriteString  ('DemaisDoctosECF', 'GRG'         , NumGRG); // Número do GRG relativo ao respectivo documento (vide item 7.6.1.2)
+          WriteString  ('DemaisDoctosECF', 'DENOMINACAO' , 'RG'); // Símbolo  referente à denominação do documento fiscal, conforme tabela abaixo
+          WriteDateTime ('DemaisDoctosECF','DT_FIN'      , ECFPadrao.DataHora); // Data final de emissão (impressa no rodapé do documento)
+          WriteDateTime ('DemaisDoctosECF','HR_FIN'      , ECFPadrao.DataHora); // Hora final de emissão (impressa no rodapé do documento)
+          updatefile;
+          result := SalvarDadosECFLocal;
+        end;
+
+        TCancelaCupom :
+        begin
+          {i := 0;
+          while true do
+          begin
+            i := i + 1;
+            if SectionExists('DemaisDoctosECF'+inttostr(i)) then
+              FSequenciaDemaisDoctosECF := i + 1
+            else
+              break;
+          end;
+          }
+  //        WriteInteger  ('DemaisDoctosECF1', 'NUM_CONT', 1);
+          WriteString  ('DemaisDoctosECF', 'NUM_FAB'     , SerieMaquina);    // Nº de fabricação do ECF
+          WriteString  ('DemaisDoctosECF', 'MF_ADICIONAL', MFAdicional);  // Letra indicativa de MF adicional
+          WriteString  ('DemaisDoctosECF', 'MODELO_ECF'  , SubModelo); // Modelo do ECF
+          WriteString  ('DemaisDoctosECF', 'NUM_USU'     , NumeroMaquina); // Nº de ordem do usuário do ECF
+          WriteString  ('DemaisDoctosECF', 'CRO'         , NumCRO);
+          WriteString  ('DemaisDoctosECF', 'COO'         , Cupom); // Nº do COO relativo ao respectivo documento
+          WriteInteger ('DemaisDoctosECF', 'COOREF'      , NumCupom);
+          WriteInteger ('DemaisDoctosECF', 'GNF'         , strtoint(NumGNF)); // Número do GNF relativo ao respectivo documento, quando houver
+  //        WriteInteger ('DemaisDoctosECF', 'GRG'         , strtoint(self.NumGRG)); // Número do GRG relativo ao respectivo documento (vide item 7.6.1.2)
+  //        WriteInteger ('DemaisDoctosECF', 'CDC'         , strtoint(self.NumCDC));              // Número do CDC relativo ao respectivo documento (vide item 7.6.1.3)
+          WriteString  ('DemaisDoctosECF', 'DENOMINACAO' , 'NC'); // Símbolo  referente à denominação do documento fiscal, conforme tabela abaixo
+          WriteDateTime ('DemaisDoctosECF','DT_FIN'      , ECFPadrao.DataHora); // Data final de emissão (impressa no rodapé do documento)
+          WriteDateTime ('DemaisDoctosECF','HR_FIN'      , ECFPadrao.DataHora); // Hora final de emissão (impressa no rodapé do documento)
+          WriteString ('DemaisDoctosECF','CANC'      , 'S');
+
+          updatefile;
+          result := true;
+        end;
+      end;
+    end;
+  except
+    on E: Exception do TrataErros(E);
+  end;
+end;
+
+function TtecECF.SalvarFormasPagamentoECF(
+  TipoOperacaoECF: TTecTipoOperacaoECF; FormaPagto: String='';
+  Valor: Currency=0): boolean;
+var
+ i: integer;
+begin
+  try
+    result := false;
+    with ArqIniDadosECF[TipoOperacaoECF] do
+    begin
+      case TipoOperacaoECF of
+        TEfetuaPagamento :
+        begin
+          WriteInteger ('FormasPagamento'+inttostr(SequenciaFormaPagto), 'NUM_ITEM' , SequenciaFormaPagto);
+          WriteString  ('FormasPagamento'+IntToStr(SequenciaFormaPagto), 'COO' , Cupom);
+          WriteString  ('FormasPagamento'+inttostr(SequenciaFormaPagto), 'CCF' , NumCCF); // Número do Contador de Cupom Fiscal relativo ao respectivo Cupom Fiscal emitido
+          WriteString  ('FormasPagamento'+inttostr(SequenciaFormaPagto), 'MP',  FormadePagamentoConfigurada(FormaPagto));            // Descrição do totalizador parcial de meio de pagamento
+          WriteFloat   ('FormasPagamento'+inttostr(SequenciaFormaPagto), 'VL_PAGTO', Valor);            // Valor do pagamento efetuado, com duas casas decimais
+          WriteString  ('FormasPagamento'+inttostr(SequenciaFormaPagto), 'IND_EST', 'N'); // Informar "S" ou "N", conforme tenha ocorrido ou não, o estorno do pagamento, ou “P” para estorno parcial do pagamento
+          WriteFloat   ('FormasPagamento'+inttostr(SequenciaFormaPagto), 'VL_EST', 0.00);
+          FSequenciaFormaPagto := FSequenciaFormaPagto + 1;
+          updatefile;
+          result := true;
+        end;
+
+        TNaoFiscalCompleto :
+        begin
+          WriteInteger ('FormasPagamento', 'NUM_ITEM' , 1);
+          WriteString  ('FormasPagamento', 'CCO'      , NumCOO); // Número do Contador de Cupom Fiscal relativo ao respectivo Cupom Fiscal emitido
+          WriteString  ('FormasPagamento', 'GNF'      , NumGNF); // Número do Contador Geral Não Fiscal relativo ao respectivo Comprovante Não Fiscal emitido
+          WriteString  ('FormasPagamento', 'MP'       , FormadePagamentoConfigurada(FormaPagto));            // Descrição do totalizador parcial de meio de pagamento
+          WriteFloat   ('FormasPagamento', 'VL_PAGTO' , Valor);            // Valor do pagamento efetuado, com duas casas decimais
+          WriteString  ('FormasPagamento', 'IND_EST'  , 'N'); // Informar "S" ou "N", conforme tenha ocorrido ou não, o estorno do pagamento, ou “P” para estorno parcial do pagamento
+          WriteFloat   ('FormasPagamento', 'VL_EST'   , 0.00);
+          updatefile;
+          result := true;
+        end;
+
+        TCancelaCupom :
+        begin
+          i := 0;
+          while true do
+          begin
+            i := i + 1;
+            if SectionExists('FormasPagamento'+inttostr(i)) then
+            begin
+              WriteString  ('FormasPagamento'+inttostr(i), 'IND_EST', 'S'); // Informar "S" ou "N", conforme tenha ocorrido ou não, o estorno do pagamento, ou “P” para estorno parcial do pagamento
+              WriteFloat   ('FormasPagamento'+inttostr(i), 'VL_EST',
+                 ReadFloat('FormasPagamento'+inttostr(i), 'VL_PAGTO', 0.00));
+            end
+            else
+              break;
+          end;
+          updatefile;
+          result := true;
+        end;
+      end;
+    end;
+  except
+    on E: Exception do TrataErros(E);
+  end;
+end;
+
+function TtecECF.GetSequenciaFormaPagto: integer;
+begin
+  Result := FSequenciaFormaPagto + 1;
+end;
+
+function TtecECF.GetSequenciaDemaisDoctosECF: integer;
+begin
+  Result := FSequenciaDemaisDoctosECF + 1;
+end;
+
+function TtecECF.SalvarDadosECFLocal: Boolean;
+begin
+  result := SalvarDadosECF(fArqIniDadosECF);
+  FreeAndNil(fArqIniDadosECF);
+end;
+
+Function TtecECF.VerificaInconsistenciaCCF: boolean;
+begin
+  result := ExisteInconsistenciaCCF;
+  if result then
+    self.CancelarCupom;
+end;
+
+function TtecECF.DataHora: TDateTime;
+begin
+  Result := inherited DataHora;
+end;
+
+procedure TtecECF.AbreRelatorioGerencial(Indice: Integer);
+begin
+  try
+    MaxLinhasBuffer := 3;
+    inherited AbreRelatorioGerencial;
+    ecfpadrao.erro := not SalvarDemaisDoctosECF(TRelatorioGerencial);
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.PagamentoNaoFiscal(FormaPagto: String; Valor: Double; ImprimeVinculado: Boolean);
+var
+  indice: String;
+begin
+//  indice := ConverteFormaPagto(FormaPagto,0);
+  indice  := AchaFPGDescricao(FormadePagamentoConfigurada(FormaPagto), True).Indice;
+  try
+    EfetuaPagamentoNaoFiscal(indice,Valor,'',ImprimeVinculado);
+    ecfpadrao.erro := not SalvarFormasPagamentoECF(TEfetuaPagamento,FormadePagamentoConfigurada(FormaPagto),Valor);
+{    if not ecfpadrao.erro then
+      ecfpadrao.erro := not SalvarDadosECFLocal;
+}
+  except
+    on E: Exception do TrataErros(E)
+  end;
+
+end;
+
+
+function TtecECF.SubTotal: Double;
+var
+  RetCmd : AnsiString ;
+
+begin
+   if (ecfpadrao.Estado = estNaoFiscal) and
+      (lowercase(ECFPadrao.marca)=lowercase('Daruma')) then
+   begin
+     RetCmd := RetornaInfoECF('47');
+     result :=  RoundTo( StrToFloatDef(RetCmd,0) / 100,-2)
+   end
+   else
+     result := inherited Subtotal ;
+
+end;
+
+procedure TtecECF.AbreNaoFiscal(CPF_CNPJ, Nome, Endereco: String);
+begin
+  ECFPadrao.vNaoFiscalAberto := false;
+  try
+    inherited AbreNaoFiscal(CPF_CNPJ, Nome, Endereco);
+    ecfpadrao.erro := not SalvarDemaisDoctosECF(TNaoFiscalCompleto);
+{    if not ecfpadrao.erro then
+      ecfpadrao.erro := not SalvarDadosECFLocal;}
+  except
+    on E: Exception do TrataErros(E)
+  end;
+end;
+
+procedure TtecECF.RegistraItemNaoFiscal(CodCNF: String; Valor: Double;
+  Obs: AnsiString);
+begin
+  try
+     inherited RegistraItemNaoFiscal(CodCNF, Valor, Obs);
+  except
+    on E: Exception do TrataErros(E)
+  end;
+
+end;
+
+function TtecECF.TotalPago: Double;
+var
+  RetCmd : AnsiString ;
+
+begin
+{
+   if (ecfpadrao.Estado = estNaoFiscal) and
+      (lowercase(ECFPadrao.marca)=lowercase('Epson')) then
+     result := inherited TotalPago ;
+   else
+   }
+     result := inherited TotalPago ;
+
+end;
+
+procedure TtecECF.AntesCancelaCupom(Sender : TObject);
+begin
+  ECFPadrao.vCOOCancelado := strtoint(ECFPadrao.NumCOO);
+end;
+
+procedure TtecECF.DepoisCancelaCupom(Sender: TObject);
+begin
+  AcertaMovimentacoesAposCancelamentoCupom(ECFPadrao.vCOOCancelado);
+end;
+
+function TtecECF.FormadePagamentoConfigurada(Descricao: String): String;
+begin
+  result := Descricao;
+
+  if assigned(qryMeiosdePagamentoECF) then
+    if qryMeiosdePagamentoECF.Active then
+      if qryMeiosdePagamentoECF.recordcount<>0 then
+      begin
+        if qryMeiosdePagamentoECF.locate('descricaomeiodepagamento', Descricao, []) then
+        begin
+          if not qryMeiosdePagamentoECF.FieldByName('descricaoecf').isnull and
+            (trim(qryMeiosdePagamentoECF.FieldByName('descricaoecf').asstring)<>'') then
+            result := qryMeiosdePagamentoECF.FieldByName('descricaoecf').asString;
+        end;
+      end;
+end;
+
+procedure TtecECF.DepoisAbreNaoFiscal( const CPF_CNPJ, Nome, Endereco : String );
+begin
+  ECFPadrao.vNaoFiscalAberto := True;
+end;
+
+procedure TtecECF.OnErrorAbreCupom_(var tratado: Boolean);
+begin
+  tratado := false;
+  ecfpadrao.erro := true;
+end;
+
+end.

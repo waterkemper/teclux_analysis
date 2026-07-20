@@ -1,0 +1,134 @@
+unit dmrelatorioatendimento;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  dmbasico, FR_Class, FR_DSet, FR_DBSet, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, dmtecsoft, ctconstantes, ZTransact;
+
+type
+  TdtmRelatorioAtendimento = class(TdtmBasico)
+    qryAtendimentos: TtecQuery;
+    dsrAtendimentos: TtecDataSource;
+    frDBAtendimentos: TfrDBDataSet;
+    frAtendimentos: TfrReport;
+    qryTiposAtendimentos: TtecQuery;
+    dsrTiposAtendimentos: TtecDataSource;
+    qryConsultaTiposAtendimentos: TtecQuery;
+    dsrConsultaTiposAtendimentos: TtecDataSource;
+    qryConsultaTiposAtendimentosdescricao: TStringField;
+    qryConsultaTiposAtendimentoscodigo: TIntegerField;
+    qryTiposAtendimentoscodigo: TIntegerField;
+    qryTiposAtendimentosdescricao: TStringField;
+    qryAtendimentoTipo: TtecQuery;
+    dsrAtendimentoTipo: TtecDataSource;
+    frAtendimentoTipo: TfrReport;
+    frDBAtendimentoTipo: TfrDBDataSet;
+    qryAtendimentoTipocliente: TIntegerField;
+    qryAtendimentoTiponome: TStringField;
+    qryAtendimentoTipotipo: TMemoField;
+    qryAtendimentoTipodata: TDateField;
+    qryAtendimentoTipolembrar: TDateField;
+    qryAtendimentoTiposemspc: TDateField;
+    qryAtendimentoTiposemaviso: TDateField;
+    qryAtendimentoTipoinformes: TStringField;
+    qryAtendimentoTipocodigo: TIntegerField;
+    qryAtendimentoTipodescricao: TStringField;
+    qryAtendimentoscliente: TIntegerField;
+    qryAtendimentosnome: TStringField;
+    qryAtendimentostipo: TMemoField;
+    qryAtendimentosdata: TDateField;
+    qryAtendimentoslembrar: TDateField;
+    qryAtendimentossemspc: TDateField;
+    qryAtendimentossemaviso: TDateField;
+    qryAtendimentosinformes: TMemoField;
+  protected
+    function GetCodigoTipo      : integer;
+    function GetConsultaTipo    : TtecQuery;
+  public
+    procedure LimpaTipo;
+    procedure Periodo(periodoinicial,periodofinal:string);
+    procedure PreparaTipo(tipo:string);
+    procedure RefazConsultaTipo(codTipo:integer);
+    procedure RefazConsultaTipoAtendimento;
+    function  ConfereTipo():boolean;
+    function  ExisteTipo(campo, codigo: string): boolean;
+    constructor Create(AOwner: TComponent); override;
+    property  CodigoTipo     : integer read GetCodigoTipo;
+    property  ConsultaTipo   : TtecQuery read GetConsultaTipo;
+  end;
+
+{var
+  dtmRelatorioAtendimento: TdtmRelatorioAtendimento;}
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmRelatorioAtendimento }
+
+function TdtmRelatorioAtendimento.ConfereTipo: boolean;
+begin
+  qryAtendimentoTipo.Params[3].AsString := qryTiposAtendimentoscodigo.AsString;
+  result := (qryAtendimentoTipo.Params[3].AsString = '');
+end;
+
+constructor TdtmRelatorioAtendimento.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryAtendimentos.Tag              := ctRelatorioAtendimentos;
+  qryAtendimentoTipo.Tag           := ctRelatorioAtendimentos;
+  qryTiposAtendimentos.Tag         := ctRelatorioAtendimentosTipo;
+  qryConsultaTiposAtendimentos.Tag := ctRelatorioAtendimentosConsultaTipo;
+end;
+
+function TdtmRelatorioAtendimento.ExisteTipo(campo,
+  codigo: string): boolean;
+begin
+  Result := ExisteCodigo(qryConsultaTiposAtendimentos, campo, codigo);
+end;
+
+function TdtmRelatorioAtendimento.GetCodigoTipo: integer;
+begin
+  Result := qryConsultaTiposAtendimentoscodigo.AsInteger
+end;
+
+function TdtmRelatorioAtendimento.GetConsultaTipo: TtecQuery;
+begin
+  Result := qryConsultaTiposAtendimentos
+end;
+
+procedure TdtmRelatorioAtendimento.LimpaTipo;
+begin
+  qryAtendimentoTipo.Params[3].Value.Clear;
+end;
+
+procedure TdtmRelatorioAtendimento.Periodo(periodoinicial,
+  periodofinal: string);
+begin
+  qryAtendimentos.Params[1].AsString:=periodoinicial;
+  qryAtendimentos.Params[2].AsString:=periodofinal;
+  qryAtendimentoTipo.Params[1].AsString:=periodoinicial;
+  qryAtendimentoTipo.Params[2].AsString:=periodofinal;
+end;
+
+procedure TdtmRelatorioAtendimento.PreparaTipo(tipo:string);
+begin
+  qryAtendimentos.Params[0].AsString:=tipo;
+  qryAtendimentoTipo.Params[0].AsString:=tipo;
+  qryTiposAtendimentos.Params[0].AsString:=tipo;
+  qryConsultaTiposAtendimentos.Params[0].AsString:=tipo;
+end;
+
+procedure TdtmRelatorioAtendimento.RefazConsultaTipo(codTipo: integer);
+begin
+  RefazConsulta(qryTiposAtendimentos, [1] ,[codTipo])
+end;
+
+procedure TdtmRelatorioAtendimento.RefazConsultaTipoAtendimento;
+begin
+  refazConsulta(qryAtendimentoTipo, [],[]);
+end;
+
+end.

@@ -1,0 +1,284 @@
+inherited frmExibirJurosDescontos: TfrmExibirJurosDescontos
+  Left = 270
+  Top = 129
+  ActiveControl = edtDiasAtraso1
+  Caption = 'Taxas Juros/Descontos'
+  ClientHeight = 235
+  ClientWidth = 311
+  OnActivate = FormActivate
+  PixelsPerInch = 96
+  TextHeight = 16
+  object pnlExibirJurosDescontos: TPanel
+    Left = 0
+    Top = 0
+    Width = 311
+    Height = 235
+    Align = alClient
+    BevelOuter = bvNone
+    BorderWidth = 3
+    TabOrder = 0
+    object gbxExibirJurosDescontos: TGroupBox
+      Left = 3
+      Top = 3
+      Width = 305
+      Height = 229
+      Align = alClient
+      TabOrder = 0
+      object gbxPagamentosAtraso: TGroupBox
+        Left = 9
+        Top = 3
+        Width = 287
+        Height = 136
+        Caption = 'Pagamentos em atraso'
+        TabOrder = 0
+        object lblDiasAtrasoMulta1: TLabel
+          Left = 7
+          Top = 23
+          Width = 55
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'Acima de'
+        end
+        object lblDiasAtrasoJuros1: TLabel
+          Left = 7
+          Top = 82
+          Width = 55
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'Acima de'
+        end
+        object lblDias3: TLabel
+          Left = 126
+          Top = 23
+          Width = 24
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'dias'
+        end
+        object lblPercentagem2: TLabel
+          Left = 260
+          Top = 23
+          Width = 12
+          Height = 16
+          Alignment = taRightJustify
+          Caption = '%'
+        end
+        object lblPercentagem3: TLabel
+          Left = 260
+          Top = 49
+          Width = 12
+          Height = 16
+          Alignment = taRightJustify
+          Caption = '%'
+        end
+        object lblMultas: TLabel
+          Left = 162
+          Top = 23
+          Width = 32
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'Multa'
+        end
+        object lblPercentagem4: TLabel
+          Left = 260
+          Top = 82
+          Width = 12
+          Height = 16
+          Alignment = taRightJustify
+          Caption = '%'
+        end
+        object lblPercentagem5: TLabel
+          Left = 260
+          Top = 109
+          Width = 12
+          Height = 16
+          Alignment = taRightJustify
+          Caption = '%'
+        end
+        object lblDias5: TLabel
+          Left = 126
+          Top = 82
+          Width = 24
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'dias'
+        end
+        object lblJuros: TLabel
+          Left = 163
+          Top = 49
+          Width = 31
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'Juros'
+        end
+        object lblMultas1: TLabel
+          Left = 162
+          Top = 82
+          Width = 32
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'Multa'
+        end
+        object lblJuros1: TLabel
+          Left = 163
+          Top = 109
+          Width = 31
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'Juros'
+        end
+        object edtDiasAtraso1: TEditNumero
+          Left = 65
+          Top = 19
+          Width = 60
+          Height = 24
+          TabStop = False
+          Color = clBtnFace
+          MaxLength = -1
+          ReadOnly = True
+          TabOrder = 0
+          Mascara = True
+          TipoMascara = tmGERAL
+          NrDecimal = 2
+          Decimais = False
+          Negativo = False
+          Tamanho = 3
+        end
+        object edtDiasAtraso2: TEditNumero
+          Left = 65
+          Top = 78
+          Width = 60
+          Height = 24
+          TabStop = False
+          Color = clBtnFace
+          MaxLength = -1
+          ReadOnly = True
+          TabOrder = 3
+          Mascara = True
+          TipoMascara = tmGERAL
+          NrDecimal = 2
+          Decimais = False
+          Negativo = False
+          Tamanho = 3
+        end
+        object edtPercAtrasoMulta1: TEditNumero
+          Left = 199
+          Top = 19
+          Width = 60
+          Height = 24
+          TabStop = False
+          Color = clBtnFace
+          MaxLength = -1
+          ReadOnly = True
+          TabOrder = 1
+          Mascara = True
+          TipoMascara = tmGERAL
+          NrDecimal = 2
+          Decimais = True
+          Negativo = False
+          Tamanho = 2
+        end
+        object edtPercAtrasoMulta2: TEditNumero
+          Left = 199
+          Top = 78
+          Width = 60
+          Height = 24
+          TabStop = False
+          Color = clBtnFace
+          MaxLength = -1
+          ReadOnly = True
+          TabOrder = 4
+          Mascara = True
+          TipoMascara = tmGERAL
+          NrDecimal = 2
+          Decimais = True
+          Negativo = False
+          Tamanho = 2
+        end
+        object edtPercAtrasoJuros1: TEditNumero
+          Left = 199
+          Top = 45
+          Width = 60
+          Height = 24
+          TabStop = False
+          Color = clBtnFace
+          MaxLength = -1
+          ReadOnly = True
+          TabOrder = 2
+          Mascara = True
+          TipoMascara = tmGERAL
+          NrDecimal = 2
+          Decimais = True
+          Negativo = False
+          Tamanho = 2
+        end
+        object edtPercAtrasoJuros2: TEditNumero
+          Left = 199
+          Top = 105
+          Width = 60
+          Height = 24
+          TabStop = False
+          Color = clBtnFace
+          MaxLength = -1
+          ReadOnly = True
+          TabOrder = 5
+          Mascara = True
+          TipoMascara = tmGERAL
+          NrDecimal = 2
+          Decimais = True
+          Negativo = False
+          Tamanho = 2
+        end
+      end
+      object gbxDesconto: TGroupBox
+        Left = 9
+        Top = 143
+        Width = 287
+        Height = 42
+        TabOrder = 1
+        object lblDescontoPagAntecipado: TLabel
+          Left = 9
+          Top = 12
+          Width = 187
+          Height = 16
+          Alignment = taRightJustify
+          Caption = 'Desconto para pagto antecipado'
+        end
+        object Label1: TLabel
+          Left = 259
+          Top = 12
+          Width = 12
+          Height = 16
+          Alignment = taRightJustify
+          Caption = '%'
+        end
+        object edtDescontoPagAntecipado: TEditNumero
+          Left = 199
+          Top = 8
+          Width = 60
+          Height = 24
+          TabStop = False
+          Color = clBtnFace
+          MaxLength = -1
+          ReadOnly = True
+          TabOrder = 0
+          Mascara = True
+          TipoMascara = tmGERAL
+          NrDecimal = 2
+          Decimais = True
+          Negativo = False
+          Tamanho = 2
+        end
+      end
+      object sbnFechar: TBitBtn
+        Left = 104
+        Top = 193
+        Width = 80
+        Height = 25
+        Caption = '&Fechar'
+        TabOrder = 2
+        OnClick = sbnFecharClick
+      end
+    end
+  end
+end

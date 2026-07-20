@@ -1,0 +1,451 @@
+unit frselecaoaleatorianotas;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, frselecaoaleatoria, DB, frconsultacodigo, cpdbfindcontrols, ctconstantes, biblio,
+  ExtCtrls, StdCtrls, Mask;
+
+type
+  TfraSelecaoAleatorianotas = class(TFrame)
+    fraSelecaoAleatorianotas: TfraSelecaoAleatoria;
+    pnlParametros: TPanel;
+    gbxPesquisaNFe: TGroupBox;
+    edtNFE: TMaskEdit;
+    procedure fraSelecaoAleatorianotasqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatorianotasqrySelecaoAleatoriaNewRecord(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatorianotasdbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatorianotassbnProcuraClick(Sender: TObject);
+    procedure fraSelecaoAleatorianotasdbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edtNFEKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    function GetListaCondicional: String;
+    procedure AtribuirDadosnotas(Found: Boolean);
+    procedure AcionarPesquisaGrade;
+    procedure LocalizarNfe(chv_nfe: String);
+
+
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    property ListaCondicional: String read GetListaCondicional;
+
+  end;
+
+implementation
+
+uses frconsulta;
+
+{$R *.dfm}
+
+procedure TfraSelecaoAleatorianotas.fraSelecaoAleatorianotasqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+begin
+  with fraSelecaoAleatorianotas do
+  begin
+    qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'Código';
+    qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := true;
+
+    qrySelecaoAleatoria.FieldByName('tipo').DisplayLabel := 'T';
+    qrySelecaoAleatoria.FieldByName('tipo').ReadOnly := true;
+
+    qrySelecaoAleatoria.FieldByName('descricao').DisplayLabel := 'Nome do Cliente/Fornecedor';
+    qrySelecaoAleatoria.FieldByName('descricao').ReadOnly := true;
+
+    qrySelecaoAleatoria.FieldByName('serie').DisplayLabel := 'Série';
+    qrySelecaoAleatoria.FieldByName('serie').ReadOnly := true;
+
+    qrySelecaoAleatoria.FieldByName('numeronota').DisplayLabel := 'Número';
+    qrySelecaoAleatoria.FieldByName('numeronota').ReadOnly := true;
+
+    qrySelecaoAleatoria.FieldByName('operacao').DisplayLabel := 'Op';
+    qrySelecaoAleatoria.FieldByName('operacao').ReadOnly := true;
+
+    qrySelecaoAleatoria.FieldByName('chv_nfe').DisplayLabel := 'Chave';
+    qrySelecaoAleatoria.FieldByName('chv_nfe').ReadOnly := true;
+
+    qrySelecaoAleatoria.FieldByName('valornota').DisplayLabel := 'Valor';
+    qrySelecaoAleatoria.FieldByName('chv_nfe').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('opcomparacao').DisplayLabel := 'Comparação';
+    qrySelecaoAleatoria.FieldByName('opcomparacao').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('oplogico').DisplayLabel := 'Lógica';
+    qrySelecaoAleatoria.FieldByName('oplogico').ReadOnly := false;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+  end;
+
+end;
+
+procedure TfraSelecaoAleatorianotas.fraSelecaoAleatorianotasqrySelecaoAleatoriaNewRecord(
+  DataSet: TDataSet);
+begin
+  with fraSelecaoAleatorianotas do
+  begin
+    qrySelecaoAleatoria.FieldByName('campo').asString := 'codigonota';
+    qrySelecaoAleatoria.FieldByName('opcomparacao').asString := '= Igual a';
+    qrySelecaoAleatoria.FieldByName('oplogico').asString := 'ou';
+  end;
+end;
+
+procedure TfraSelecaoAleatorianotas.fraSelecaoAleatorianotasdbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+//  if (fraSelecaoAleatorianotas.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatorianotas.qrySelecaoAleatoria.FieldByName('codigo')) then
+    acionarPesquisaGrade;
+
+end;
+
+procedure TfraSelecaoAleatorianotas.fraSelecaoAleatorianotassbnProcuraClick(
+  Sender: TObject);
+begin
+  AcionarPesquisaGrade;
+
+end;
+
+constructor TfraSelecaoAleatorianotas.Create(AOwner: TComponent);
+begin
+  inherited;
+  fraSelecaoAleatorianotas.pnlAbaixoDireita.visible := true;
+//  fraSelecaoAleatorianotas.PossuiCampoFilial := false;
+  fraSelecaoAleatorianotas.PossuiCamposerie := true;
+  fraSelecaoAleatorianotas.PossuiCamponumeronota := true;
+  fraSelecaoAleatorianotas.PossuiCampooperacao := true;
+  fraSelecaoAleatorianotas.PossuiCampochv_nfe := true;
+  fraSelecaoAleatorianotas.PossuiCampocodigonota := true;
+
+  fraSelecaoAleatorianotas.qrySelecaoAleatoria.Sql.Text :=
+    'SELECT  cast(null as char(18)) as codigo, '+
+    '            cast(null as char(1)) as tipo, '+
+    '            cast(null as varchar(50)) as descricao, '+
+    '            cast(null as varchar(3)) as serie, '+
+    '            cast(null as integer) as numeronota, '+
+    '            cast(null as char(1)) as operacao, '+
+    '            cast(null as varchar(44)) as chv_nfe, '+
+    '            cast(null as numeric(11,2)) as valornota, '+
+    '            cast(null as integer) as codigonota, '+
+    '            cast(null as varchar(35)) as campo, '+
+    '            cast(null as varchar(20)) as opcomparacao, '+
+    '            cast(null as varchar(2)) as oplogico ';
+
+
+
+  fraSelecaoAleatorianotas.CampoParaLista := 'codigo';
+  fraSelecaoAleatorianotas.CampoParaLista2 := 'tipo';
+  fraSelecaoAleatorianotas.CampoParaLista3 := 'serie';
+  fraSelecaoAleatorianotas.CampoParaLista4 := 'numeronota';
+
+  fraSelecaoAleatorianotas.Campo_chv_nfe := 'chv_nfe';
+  fraSelecaoAleatorianotas.Campo_codigonota := 'codigonota';
+//  fraSelecaoAleatorianotas.Campo_valor := 'valor';
+
+
+  with fraSelecaoAleatorianotas do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatorianotasentrada';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 4;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigonota';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraNotasPag;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.NaoExecutarLookupFound := true;
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesNotasPag;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosnotas;
+//    ConsultaSelecaoAleatoria.Tiponotas := 'C';
+    ConsultaSelecaoAleatoria.edfCodigo.ExibirMensagem := false;
+  end;
+
+  fraSelecaoAleatorianotas.UtilizarCamparacaoeLogica := true;
+
+
+end;
+
+function TfraSelecaoAleatorianotas.GetListaCondicional: String;
+
+var
+ vCampo: String;
+
+  function Conjuncao: String;
+  begin
+    result := '';
+    if fraSelecaoAleatorianotas.qryselecaoaleatoria.recno <> fraSelecaoAleatorianotas.qryselecaoaleatoria.recordcount then
+    begin
+      if  fraSelecaoAleatorianotas.qryselecaoaleatoria.fieldbyname('oplogico').asstring = 'e' then result := 'and'
+      else result := 'or';
+    end;
+  end;
+
+begin
+
+  result := '';
+
+  with fraSelecaoAleatorianotas do
+  begin
+    if qryselecaoaleatoria.active then
+    begin
+
+      qryselecaoaleatoria.first;
+      while not qryselecaoaleatoria.eof do
+      begin
+        vCampo := qryselecaoaleatoria.fieldbyname('campo').asstring;
+
+        if qryselecaoaleatoria.fieldbyname('campo').asstring =  'fornecedor' then
+          vCampo := 'codigo'
+        else
+        if qryselecaoaleatoria.fieldbyname('campo').asstring =  'tipofornecedor' then
+          vCampo := 'tipo'
+        else
+        if qryselecaoaleatoria.fieldbyname('campo').asstring =  'numero' then
+           vCampo := 'numeronota';
+
+        if vcampo = '[fornecedor, tipo, serie, numero]' then
+        begin
+
+          if qryselecaoaleatoria.fieldbyname('codigo').isnull or
+             qryselecaoaleatoria.fieldbyname('tipo').isnull or
+             qryselecaoaleatoria.fieldbyname('serie').isnull or
+             qryselecaoaleatoria.fieldbyname('numeronota').isnull  then
+          begin
+            dbgSelecaoAleatoria.SetFocus;
+            MensagemErro('A expressão lógica esta incorreta. O contúdo dos campos ''[fornecedor, tipo, serie, numero]'' estão incompletos.');
+            abort;
+          end
+          else
+          begin
+          {incompleto...não implementado}
+            result := result + '(' +
+
+                    'codigo' + ' ' + operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) + ' ' +
+                    quotedstr(qryselecaoaleatoria.fieldbyname(qryselecaoaleatoria.fieldbyname('campo').asstring).asstring) + ') ' +
+
+                    Conjuncao + ' ';
+            qryselecaoaleatoria.next;
+          end;
+
+        end
+        else
+        begin
+          if qryselecaoaleatoria.fieldbyname(vCampo).isnull then
+          begin
+            dbgSelecaoAleatoria.SetFocus;
+            vCampo := qryselecaoaleatoria.fieldbyname('campo').asString;
+            if vCampo <>  'codigonota' then
+              dbgSelecaoAleatoria.SelectedIndex := dbgSelecaoAleatoria.ColumnByName(vCampo).Index;
+            MensagemErro('A expressão lógica esta incorreta. O contúdo do campo '+quotedstr(qryselecaoaleatoria.fieldbyname('campo').asstring)+ ' está vazio.');
+            abort;
+          end
+          else
+          begin
+            if vCampo = 'valornota' then
+              result := result +
+
+                      ' '+qryselecaoaleatoria.fieldbyname('campo').asstring + ' ' + operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) + ' ' +
+                      trocar(quotedstr(qryselecaoaleatoria.fieldbyname(qryselecaoaleatoria.fieldbyname('campo').asstring).asstring),',','.') + ' ' +
+
+                      Conjuncao + ' '
+            else
+              result := result +
+
+                      ' '+qryselecaoaleatoria.fieldbyname('campo').asstring + ' ' + operador(qryselecaoaleatoria.fieldbyname('opcomparacao').asstring) + ' ' +
+                      quotedstr(qryselecaoaleatoria.fieldbyname(qryselecaoaleatoria.fieldbyname('campo').asstring).asstring) + ' ' +
+
+                      Conjuncao + ' ';
+
+            qryselecaoaleatoria.next;
+          end;
+        end;
+
+      end;
+    end;
+  end;
+
+  result := trocar(result, ' codigonota ', 'np.codigo');
+  result := trocar(result, ' codigo ','np.fornecedor');
+  result := trocar(result, ' tipo ','np.tipofornecedor');
+  result := trocar(result, ' serie ','np.serie');
+  result := trocar(result, ' numeronota ','np.numero');
+  result := trocar(result, ' descricao ','vf.nome');
+  result := trocar(result, ' valornota ','np.valornota');
+end;
+
+procedure TfraSelecaoAleatorianotas.AtribuirDadosnotas(Found: Boolean);
+begin
+  with fraSelecaoAleatorianotas,
+       fraSelecaoAleatorianotas.ConsultaSelecaoAleatoria do
+  begin
+    if not qrySelecaoAleatoria.active then
+    begin
+      qrySelecaoAleatoria.open;
+      qrySelecaoAleatoria.delete;
+      qrySelecaoAleatoria.delete;
+    end;
+
+    qrySelecaoAleatoria.cancel;
+    if not qryselecaoaleatoria.locate('codigonota',qryProcuraNotasPag.fieldbyname('codigo').asInteger, []) then
+    begin
+      qrySelecaoAleatoria.append;
+
+      qrySelecaoAleatoria.fieldByName('codigo').asInteger :=
+        qryProcuraNotasPag.fieldbyname('fornecedor').asInteger;
+
+      qrySelecaoAleatoria.fieldByName('tipo').asString :=
+        qryProcuraNotasPag.fieldbyname('tipofornecedor').asString;
+
+      qrySelecaoAleatoria.fieldByName('descricao').asString :=
+        qryProcuraNotasPag.fieldbyname('razao').asString;
+
+      qrySelecaoAleatoria.fieldByName('serie').asString :=
+        qryProcuraNotasPag.fieldbyname('serie').asString;
+
+      qrySelecaoAleatoria.fieldByName('numeronota').asInteger :=
+        qryProcuraNotasPag.fieldbyname('numero').asInteger;
+
+      qrySelecaoAleatoria.fieldByName('operacao').asString := 'E';
+
+      qrySelecaoAleatoria.fieldByName('chv_nfe').asString :=
+        qryProcuraNotasPag.fieldbyname('chv_nfe').asString;
+
+      qrySelecaoAleatoria.fieldByName('codigonota').asInteger :=
+        qryProcuraNotasPag.fieldbyname('codigo').asInteger;
+
+      qrySelecaoAleatoria.fieldByName('valornota').asCurrency :=
+        qryProcuraNotasPag.fieldbyname('valornota').asCurrency;
+
+      qrySelecaoAleatoria.Post;
+
+    end;
+  end;
+end;
+
+procedure TfraSelecaoAleatorianotas.AcionarPesquisaGrade;
+begin
+  with fraSelecaoAleatorianotas do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar('Notas de Entrada');
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+procedure TfraSelecaoAleatorianotas.fraSelecaoAleatorianotasdbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+//                     if (fraSelecaoAleatorianotas.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatorianotas.qrySelecaoAleatoria.FieldByName('codigo')) then
+                     begin
+                       fraSelecaoAleatorianotas.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+//                       if (Shift = []) or fraSelecaoAleatorianotas.ConsultaSelecaoAleatoria.CtrlOn then
+                         AcionarPesquisaGrade
+                     end;
+                   end;
+    end;
+  end;
+  (*
+  else
+  case Key of
+    VK_Return:  //if (fraSelecaoAleatorianotas.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatorianotas.qrySelecaoAleatoria.FieldByName('codigo')) then
+                begin
+                  fraSelecaoAleatorianotas.ConsultaSelecaoAleatoria.edfCodigo.text := fraSelecaoAleatorianotas.qrySelecaoAleatoria.FieldByName('codigonota').asString;
+                  fraSelecaoAleatorianotas.ConsultaSelecaoAleatoria.edfCodigo.exist;
+                  if not fraSelecaoAleatorianotas.ConsultaSelecaoAleatoria.qryProcuraNotasPag.IsEmpty then
+                    AtribuirDadosnotas
+                  else
+                  begin
+                    key := 0;
+                    fraSelecaoAleatorianotas.dbgSelecaoAleatoria.SelectedIndex := 0;
+                    fraSelecaoAleatorianotas.dbgSelecaoAleatoria.SetFocus;
+                  end;
+                end;
+  end;
+  *)
+
+end;
+
+procedure TfraSelecaoAleatorianotas.edtNFEKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if key = vk_return then
+    if somentenumero(edtNFE.Text)<>'' then
+    begin
+      LocalizarNfe(somentenumero(edtNFE.Text));
+      fraSelecaoAleatorianotas.dbgSelecaoAleatoria.SelectedIndex := 6;
+      edtNFE.setfocus;
+      edtNFE.selectall;
+    end;
+
+end;
+
+procedure TfraSelecaoAleatorianotas.LocalizarNfe(chv_nfe: String);
+//  LerNotasCuponsIncluidos(true);
+var
+  vSerie, vNumeroNFE: String;
+
+begin
+  with fraSelecaoAleatorianotas,
+       fraSelecaoAleatorianotas.ConsultaSelecaoAleatoria do
+  begin
+      if not qrySelecaoAleatoria.active or not qrySelecaoAleatoria.Locate('chv_nfe', chv_nfe, []) then
+      begin
+        qryProcuraNotasPag.parambyname('fornecedor').value := null;
+        qryProcuraNotasPag.parambyname('tipofornecedor').value := null;
+        qryProcuraNotasPag.parambyname('serie').value :=null;
+        qryProcuraNotasPag.parambyname('numero').value := null;
+
+        qryProcuraNotasPag.parambyname('chv_nfe').asString := chv_nfe;
+        qryProcuraNotasPag.close;
+        qryProcuraNotasPag.open;
+
+        if not qryProcuraNotasPag.IsEmpty then
+        begin
+
+          vSerie     := copy(chv_nfe,23,3);
+          vNumeroNFE := copy(chv_nfe,26,9);
+
+          (*
+          if (MensagemConfirmacao(
+                format('A NFe não esta contida nesta lista. Deseja adicioná-la? ' +chr(13) +
+                       'Fornecedor: ''%s'' ' + chr(13) +
+                       'Série: ''%s'' '+ chr(13) +
+                       'Número: %s ',
+                       [qryProcuraNotasPag.fieldbyname('fornecedor').asString + '-' +
+                        qryProcuraNotasPag.fieldbyname('tipofornecedor').asString+ ' '+
+                        qryProcuraNotasPag.fieldbyname('razao').asString,
+                        vSerie,vNumeroNFE]
+
+                         )) =  smbOK) then
+          begin
+
+  //          qrySelecaoAleatoria.Append;
+          *)
+            AtribuirDadosnotas(true);
+
+  //        end;
+        end
+        else
+          MensagemAviso(ctNOTANAOENCONTRADA);
+      end;
+
+  end;
+
+end;
+
+end.

@@ -1,0 +1,118 @@
+unit fmvisualizarlog;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmnavcontroles, DB, ZQuery, ZPgSqlQuery, cpquery, cpdatasource,
+  Grids, DBGrids, cpdbgrid, biblio, dmtecsoft, AdvObj, BaseGrid, AdvGrid,
+  DBAdvGrid, ctconstantes, clparametrossistema;
+
+type
+  Tfrmvisualizarlog = class(TfrmNavControles)
+    dsrvisualizarlog: TtecDataSource;
+    qryvisualizarlog: TtecQuery;
+    dbgvisualizarlog: TDBAdvGrid;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+  end;
+
+var
+  frmvisualizarlog: Tfrmvisualizarlog;
+  AcionarTelavisualizarlog: procedure (Owner: TComponent;
+       NomedaTabela: String;
+       Chaves: array of String;
+       Valores: array of Variant;
+       Ordenacao: String);
+
+
+implementation
+
+{$R *.dfm}
+
+
+procedure AcionarTelavisualizarlog_(Owner: TComponent;
+       NomedaTabela: String;
+       Chaves: array of String;
+       Valores: array of Variant;
+       Ordenacao: String);
+var
+ a: integer;
+ vCondicao : String;
+begin
+  if High(Chaves) <> High(Valores) then
+    raise Exception.Create('Parâmetros "Chaves" e "Valores" estão com tamanhos diferentes.')
+  else
+  begin
+    frmvisualizarlog := Tfrmvisualizarlog.create(Owner);
+    frmvisualizarlog.qryvisualizarlog.macrobyname('Tabela').asString := NomedaTabela;
+
+
+    for a := 0 to High(Chaves) do
+    begin
+      vCondicao := vCondicao + Chaves[a] + ' = ' + Valores[a];
+      if a <> High(Chaves) then
+        vCondicao := vCondicao + ' and ';
+    end;
+    frmvisualizarlog.qryvisualizarlog.macrobyname('Condicao').asString := vCondicao;
+    if ordenacao<>'' then
+      frmvisualizarlog.qryvisualizarlog.macrobyname('Ordenacao').asString := Ordenacao
+    else
+      frmvisualizarlog.qryvisualizarlog.macrobyname('Ordenacao').asString := ' trigger_changed, trigger_id';
+
+    frmvisualizarlog.qryvisualizarlog.close;
+    frmvisualizarlog.qryvisualizarlog.open;
+
+    if frmvisualizarlog.qryvisualizarlog.isempty then
+      MensagemAviso('Log não encontrada.')
+    else
+    begin
+      frmvisualizarlog.qryvisualizarlog.fieldbyname('trigger_tuple_1').visible := false;
+      frmvisualizarlog.qryvisualizarlog.fieldbyname('trigger_mode_1').visible := false;
+      frmvisualizarlog.qryvisualizarlog.fieldbyname('trigger_changed_1').visible := false;
+      frmvisualizarlog.qryvisualizarlog.fieldbyname('trigger_user_1').visible := false;
+      frmvisualizarlog.qryvisualizarlog.fieldbyname('trigger_id_1').visible := false;
+
+      frmvisualizarlog.dbgvisualizarlog.AutoSize := false;
+      frmvisualizarlog.dbgvisualizarlog.AutoSize := true;
+      
+      frmvisualizarlog.dbgvisualizarlog.ColumnByFieldName['trigger_tuple_1'].Width := 0;
+      frmvisualizarlog.dbgvisualizarlog.ColumnByfieldname['trigger_mode_1'].Width := 0;
+      frmvisualizarlog.dbgvisualizarlog.ColumnByfieldname['trigger_changed_1'].Width := 0;
+      frmvisualizarlog.dbgvisualizarlog.ColumnByfieldname['trigger_user_1'].Width := 0;
+      frmvisualizarlog.dbgvisualizarlog.ColumnByfieldname['trigger_id_1'].Width := 0;
+
+
+      frmvisualizarlog.showmodal;
+    end;
+
+    frmvisualizarlog.free;
+
+  end;
+end;
+
+
+{ Tfrmvisualizarlog }
+
+constructor Tfrmvisualizarlog.Create(AOwner: TComponent);
+begin
+  inherited;
+  dbgvisualizarlog.Bands.PrimaryColor := TColor(strtoint(parsistema.CorZebradoRelatorio));
+  dbgvisualizarlog.ActiveRowColor := TColor(strtoint(parsistema.CorZebradoRelatorio));
+end;
+
+destructor Tfrmvisualizarlog.Destroy;
+begin
+  frmvisualizarlog := nil;
+  inherited;
+end;
+
+initialization
+   AcionarTelavisualizarlog :=  AcionarTelavisualizarlog_;
+
+end.

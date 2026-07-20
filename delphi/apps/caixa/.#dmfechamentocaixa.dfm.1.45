@@ -1,0 +1,1806 @@
+inherited dtmfechamentocaixa: Tdtmfechamentocaixa
+  Left = 385
+  Top = 209
+  Height = 528
+  Width = 790
+  object qryCaixas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT codigo, '
+      '               nome, '
+      '               dataaberturacaixa, '
+      '               datafechamentocaixa,'
+      '               (dataaberturacaixa > datafechamentocaixa) and'
+      '               (dataaberturacaixa = current_date) as caixaaberto'
+      'FROM usuarios'
+      'WHERE codigo=:codigo')
+    RequestLive = False
+    Left = 85
+    Top = 124
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryCaixascodigo: TIntegerField
+      DisplayLabel = 'Código'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryCaixasnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryCaixasdataaberturacaixa: TDateField
+      Alignment = taCenter
+      FieldName = 'dataaberturacaixa'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryCaixasdatafechamentocaixa: TDateField
+      Alignment = taCenter
+      FieldName = 'datafechamentocaixa'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryCaixascaixaaberto: TBooleanField
+      FieldName = 'caixaaberto'
+    end
+  end
+  object dsrCaixas: TtecDataSource
+    DataSet = qryCaixas
+    Left = 85
+    Top = 172
+  end
+  object qryConsultaCaixas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT nome, codigo'
+      'FROM usuarios'
+      'ORDER BY UPPER(TO_ASCII(nome,''LATIN1''))')
+    RequestLive = False
+    Left = 249
+    Top = 61
+    object qryConsultaCaixasnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+    object qryConsultaCaixascodigo: TIntegerField
+      DisplayLabel = 'Código'
+      FieldName = 'codigo'
+      Required = True
+    end
+  end
+  object qryAutenticacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WHEREBASE'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WHERETIPO'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'OUTROSFILTROS'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT a.numero,'
+      '       a.data,'
+      '       a.filial,'
+      '       a.caixa,'
+      '       case when a.tipo=''S'' then'
+      
+        '         (select u.nome from usuarios u where a.transferencia=u.' +
+        'codigo)'
+      '       else'
+      '         (select u.nome from usuarios u where a.caixa=u.codigo)'
+      '       end as nomecaixa,'
+      '       a.autenticacao,'
+      '       a.banco,'
+      '       b.nome as nomebanco, '
+      '       a.cheque,'
+      '       c.vencto as venctocheque,'
+      '       a.contrato,'
+      '       coalesce(ct.tipocliente, c.tipocliente) as tipocliente,'
+      '       coalesce(ct.cliente, c.cliente) as cliente,'
+      '       a.datadocumento,'
+      '       a.evento,'
+      '       e.descricao as descricaoevento,'
+      '       a.historico,'
+      '       a.hora,'
+      '       a.motivo,'
+      '       m.descricao as descricaomotivo,'
+      '       a.nota,'
+      '       a.parametros,'
+      '       a.contratoparcela,'
+      '       a.parcela,'
+      '       dp.fornecedor,'
+      '       dp.tipofornecedor, '
+      '       a.saldo,'
+      '       a.situacao,'
+      '       a.tipo,'
+      '       a.transferencia,'
+      '       a.entradapendente,'
+      '       a.confirmacao,'
+      '       a.valor,'
+      
+        '       coalesce(a.valorvenctoparcela, p.valorvencto) as valorven' +
+        'ctoparcela,'
+      '       a.documentopag,'
+      '       a.numeroduplicata,'
+      '       a.venctoduplicata,'
+      '       a.cliente as clientedev,'
+      '       a.tipocliente as tipoclientedev,'
+      
+        '       (select coalesce(vf.razao,vf.nome) as nome from vforneced' +
+        'ores vf where vf.codigo = a.cliente and vf.tipo = a.tipocliente)' +
+        ' as nomeclientedev'
+      
+        'FROM (((((((autenticacoes a LEFT JOIN bancos b ON a.banco=b.codi' +
+        'go)                                    '
+      
+        '                                              LEFT JOIN motivos ' +
+        'm ON a.motivo=m.codigo)'
+      
+        '                                              LEFT JOIN contrato' +
+        's ct ON coalesce(a.contratoparcela,a.contrato)=ct.numero)'
+      
+        '                                              LEFT JOIN parcelas' +
+        ' p on a.contratoparcela=p.contrato and a.parcela=p.numero)'
+      
+        '                                              LEFT JOIN (cheques' +
+        ' c LEFT JOIN vfornecedores vf on c.cliente=vf.codigo and c.tipoc' +
+        'liente=vf.tipo)'
+      
+        '                                                                ' +
+        '                             ON a.cheque=c.numero)'
+      
+        '                                              LEFT JOIN eventos ' +
+        'e ON a.evento=e.codigo)'
+      
+        '                                              LEFT JOIN document' +
+        'ospag dp on a.documentopag=dp.numero)'
+      'WHERE (a.caixa = :caixa) and'
+      '      (a.data  = :data) and (a.filial = :filialbase)'
+      '%WHEREBASE'
+      '%WHERETIPO'
+      '%OUTROSFILTROS'
+      'order by data, hora, coalesce(a.autenticacao,a.numero) '
+      ''
+      '')
+    RequestLive = False
+    Left = 250
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'caixa'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end>
+    object qryAutenticacoesnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAutenticacoesfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoescaixa: TIntegerField
+      FieldName = 'caixa'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesautenticacao: TIntegerField
+      FieldName = 'autenticacao'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesbanco: TIntegerField
+      FieldName = 'banco'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoescheque: TStringField
+      FieldName = 'cheque'
+      Size = 30
+    end
+    object qryAutenticacoescontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryAutenticacoesdatadocumento: TDateField
+      Alignment = taCenter
+      FieldName = 'datadocumento'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAutenticacoesevento: TIntegerField
+      FieldName = 'evento'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoeshistorico: TIntegerField
+      FieldName = 'historico'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoeshora: TTimeField
+      FieldName = 'hora'
+    end
+    object qryAutenticacoesmotivo: TIntegerField
+      FieldName = 'motivo'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesnota: TIntegerField
+      FieldName = 'nota'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesparametros: TStringField
+      FieldName = 'parametros'
+      Size = 300
+    end
+    object qryAutenticacoescontratoparcela: TStringField
+      FieldName = 'contratoparcela'
+    end
+    object qryAutenticacoesparcela: TIntegerField
+      FieldName = 'parcela'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoessaldo: TFloatField
+      FieldName = 'saldo'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryAutenticacoessituacao: TBooleanField
+      FieldName = 'situacao'
+    end
+    object qryAutenticacoestipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryAutenticacoestransferencia: TIntegerField
+      FieldName = 'transferencia'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesentradapendente: TBooleanField
+      FieldName = 'entradapendente'
+    end
+    object qryAutenticacoesconfirmacao: TBooleanField
+      FieldName = 'confirmacao'
+    end
+    object qryAutenticacoesvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryAutenticacoesnomebanco: TStringField
+      FieldName = 'nomebanco'
+      Size = 50
+    end
+    object qryAutenticacoestipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryAutenticacoescliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesdescricaomotivo: TStringField
+      FieldName = 'descricaomotivo'
+      Size = 30
+    end
+    object qryAutenticacoesvalorvenctoparcela: TFloatField
+      FieldName = 'valorvenctoparcela'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryAutenticacoesvenctocheque: TDateField
+      Alignment = taCenter
+      FieldName = 'venctocheque'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAutenticacoesdescricaoevento: TStringField
+      FieldName = 'descricaoevento'
+      Size = 50
+    end
+    object qryAutenticacoesnomecaixa: TStringField
+      FieldName = 'nomecaixa'
+      Size = 50
+    end
+    object qryAutenticacoesfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoestipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Size = 1
+    end
+    object qryAutenticacoesnumeroduplicata: TIntegerField
+      FieldName = 'numeroduplicata'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesdocumentopag: TIntegerField
+      FieldName = 'documentopag'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesvenctoduplicata: TDateField
+      Alignment = taCenter
+      FieldName = 'venctoduplicata'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAutenticacoesclientedev: TIntegerField
+      FieldName = 'clientedev'
+    end
+    object qryAutenticacoestipoclientedev: TStringField
+      FieldName = 'tipoclientedev'
+      Size = 1
+    end
+    object qryAutenticacoesnomeclientedev: TStringField
+      FieldName = 'nomeclientedev'
+      Size = 50
+    end
+  end
+  object qryTotalizacoesCaixa: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryTotalizacoesCaixaCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select Sum(SaldoAnterior) as SaldoAnterior,'
+      '       Sum(Juros) as Juros,'
+      '       Sum(Descontos) as Descontos,'
+      '       Sum(Devolucoes) as Devolucoes,'
+      '       Sum(ChequeAVista) as ChequeAVista,'
+      '       Sum(ChequePre) as ChequePre,'
+      '       Sum(ChequeNaoIdentificado) as ChequeNaoIdentificado,'
+      '       Sum(DocEntrada) as DocEntrada,'
+      '       Sum(DocSaida) as DocSaida,'
+      '       Sum(Deposito) as Deposito,'
+      '       Sum(TransEntrada) as TransEntrada,'
+      '       Sum(TransSaida) as TransSaida,'
+      '       Sum(Cancelamento) as Cancelamento,'
+      '       Sum(Perdas) as Perdas,'
+      '       Sum(Prestacoes) as Prestacoes,'
+      '       Sum(AjustSldDevTroca) as AjustSldDevTroca,'
+      '       Sum(ResgateCheque) as ResgateCheque,'
+      '       Sum(Duplicatas) as DuplicatasFornecedores,'
+      '       sum(Cartao) as Cartao,'
+      '       sum(pix) as pix,'
+      '       Sum(SaldoAtual) as SaldoAtual,'
+      '       Sum(DevolucoesSaldo) as DevolucoesSaldo'
+      ''
+      'from ('
+      '/*saldo */'
+      ''
+      'select 0 as SaldoAnterior,'
+      
+        '         0 as Juros, 0 as Descontos, 0 as Devolucoes, 0 as Chequ' +
+        'eAVista,'
+      
+        '         0 as ChequePre, 0 as ChequeNaoIdentificado,  0 as DocEn' +
+        'trada, 0 as DocSaida, 0 as Deposito,'
+      
+        '         0 as TransEntrada, 0 as TransSaida,0 as Cancelamento, 0' +
+        ' as Perdas,'
+      '         0 as Prestacoes, 0 as AjustSldDevTroca,'
+      
+        '         0 as ResgateCheque, 0 as Duplicatas, 0 as Cartao, 0 as ' +
+        'pix,'
+      '         0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM autenticacoes a'
+      'WHERE a.numero = 0'
+      ''
+      'union'
+      ''
+      '/*saldo */'
+      'select a.saldo as SaldoAnterior,'
+      
+        '       0 as Juros, 0 as Descontos, 0 as Devolucoes, 0 as ChequeA' +
+        'Vista,'
+      
+        '       0 as ChequePre, 0 as ChequeNaoIdentificado,  0 as DocEntr' +
+        'ada, 0 as DocSaida, 0 as Deposito,'
+      
+        '       0 as TransEntrada, 0 as TransSaida,0 as Cancelamento, 0 a' +
+        's Perdas,'
+      '       0 as Prestacoes, 0 as AjustSldDevTroca,'
+      
+        '       0 as ResgateCheque, 0 as Duplicatas, 0 as Cartao, 0 as pi' +
+        'x,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM autenticacoes a'
+      'WHERE a.numero = (SELECT a1.numero'
+      '                  FROM autenticacoes a1'
+      '                  where (a1.caixa = :caixa)'
+      '                  and (a1.data < :data)'
+      '                  and (a1.filial = :filialbase)'
+      
+        '                  ORDER BY data_hora_tz(a1.data,a1.hora) DESC,a1' +
+        '.numero  DESC LIMIT 1'
+      '                  )'
+      'union'
+      ''
+      '/*Juros */'
+      'SELECT 0 as SaldoAnterior,'
+      
+        '       COALESCE(SUM(/*p.valorpagto*/a.valor-coalesce(a.valorvenc' +
+        'toparcela,p.valorvencto)),0) as Juros,'
+      
+        '       0 as Descontos, 0 as Devolucoes, 0 as ChequeAVista, 0 as ' +
+        'ChequePre, 0 as ChequeNaoIdentificado, '
+      
+        '       0 as DocEntrada, 0 as DocSaida, 0 as Deposito, 0 as Trans' +
+        'Entrada,'
+      '       0 as TransSaida,0 as Cancelamento, 0 as Perdas,'
+      '       0 as Prestacoes, 0 as AjustSldDevTroca,'
+      
+        '       0 as ResgateCheque, 0 as Duplicatas, 0 as Cartao, 0 as pi' +
+        'x,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM parcelas p, autenticacoes a'
+      'WHERE (p.numero=a.parcela)           AND'
+      '             (p.contrato=a.contratoparcela) AND'
+      
+        '             (/*p.valorpagto*/a.valor>coalesce(a.valorvenctoparc' +
+        'ela,p.valorvencto))   AND'
+      '             (a.tipo in (''P'',''F'')) and'
+      '             (a.caixa = :caixa) and'
+      '             (a.data = :data) and (a.filial=:filialbase) and'
+      '             Not Exists (select a1.numero'
+      '                              from autenticacoes a1'
+      '                              where a.numero = a1.autenticacao)'
+      'union'
+      ''
+      '/*Descontos */'
+      'SELECT 0 as SaldoAnterior, 0 as Juros,'
+      
+        '       COALESCE(SUM(coalesce(a.valorvenctoparcela,p.valorvencto)' +
+        '- a.valor /*p.valorpagto*/),0) as Descontos,'
+      
+        '       0 as Devolucoes, 0 as ChequeAVista, 0 as ChequePre, 0 as ' +
+        'ChequeNaoIdentificado,  0 as DocEntrada,'
+      
+        '       0 as DocSaida, 0 as Deposito, 0 as TransEntrada, 0 as Tra' +
+        'nsSaida,'
+      
+        '       0 as Cancelamento, 0 as Perdas, 0 as Prestacoes, 0 as Aju' +
+        'stSldDevTroca,'
+      '       0 as ResgateCheque,'
+      '       0 as Duplicatas, 0 as Cartao, 0 as pix, 0 as SaldoAtual,'
+      '       0 as DevolucoesSaldo'
+      'FROM parcelas p, autenticacoes a'
+      'WHERE (p.numero=a.parcela)           AND'
+      '      (p.contrato=a.contratoparcela) AND'
+      
+        '      (coalesce(a.valorvenctoparcela,p.valorvencto)>/*p.valorpag' +
+        'to*/a.valor)   AND'
+      '      (a.tipo in (''P'',''F'')) and'
+      '      (a.caixa = :caixa) and (a.filial=:filialbase) and'
+      '      (a.data = :data)  and'
+      '             Not Exists (select a1.numero'
+      '                              from autenticacoes a1'
+      '                              where a.numero = a1.autenticacao)'
+      'union'
+      '/*Devolucoes */'
+      'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos,'
+      '       COALESCE(SUM(a.valor),0) as Devolucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada, 0 as DocSaida,'
+      
+        '       0 as Deposito, 0 as TransEntrada, 0 as TransSaida,0 as Ca' +
+        'ncelamento,'
+      '       0 as Perdas, 0 as Prestacoes, 0 as AjustSldDevTroca,'
+      '       0 as ResgateCheque, 0 as Duplicatas,'
+      
+        '       0 as Cartao, 0 as pix, 0 as SaldoAtual, 0 as DevolucoesSa' +
+        'ldo'
+      'FROM autenticacoes a'
+      'WHERE (a.tipo = ''N'') and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      'union'
+      '/*DevolucoesSaldo*/'
+      'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos,'
+      
+        '       0 as Devolucoes, 0 as ChequeAVista, 0 as ChequePre, 0 as ' +
+        'ChequeNaoIdentificado,  0 as DocEntrada,'
+      
+        '       0 as DocSaida, 0 as Deposito, 0 as TransEntrada, 0 as Tra' +
+        'nsSaida,'
+      
+        '       0 as Cancelamento, 0 as Perdas, 0 as Prestacoes, 0 as Aju' +
+        'stSldDevTroca,'
+      '       0 as ResgateCheque,'
+      '       0 as Duplicatas, 0 as Cartao, 0 as pix, 0 as SaldoAtual,'
+      '       COALESCE(SUM(a.valor),0) as DevolucoesSaldo'
+      'FROM autenticacoes a'
+      'WHERE (a.tipo = ''A'') and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      '/*Cheque a vista */'
+      'union'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      '       COALESCE(SUM(a.valor),0) as ChequeAVista,'
+      
+        '       0 as ChequePre, 0 as ChequeNaoIdentificado,  0 as DocEntr' +
+        'ada, 0 as DocSaida, 0 as Deposito,'
+      
+        '       0 as TransEntrada, 0 as TransSaida, 0 as Cancelamento, 0 ' +
+        'as Perdas,'
+      '       0 as Prestacoes, 0 as AjustSldDevTroca,'
+      
+        '       0 as ResgateCheque, 0 as Duplicatas, 0 as Cartao, 0 as pi' +
+        'x,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM autenticacoes a, cheques c'
+      'WHERE (a.cheque = c.numero) AND'
+      '      (a.tipo = ''H'')        AND'
+      '      (c.data >= c.vencto) and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      'union'
+      '/*Cheque pre-datado */'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      '       0 as ChequeAVista,'
+      
+        '       COALESCE(SUM(a.valor),0) as ChequePre, 0 as ChequeNaoIden' +
+        'tificado,'
+      
+        '       0 as DocEntrada, 0 as DocSaida, 0 as Deposito, 0 as Trans' +
+        'Entrada,'
+      '       0 as TransSaida,0 as Cancelamento, 0 as Perdas,'
+      '       0 as Prestacoes, 0 as AjustSldDevTroca,'
+      
+        '       0 as ResgateCheque, 0 as Duplicatas, 0 as Cartao, 0 as pi' +
+        'x,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM autenticacoes a, cheques c'
+      'WHERE (a.cheque = c.numero) AND'
+      '      (a.tipo = ''H'')        AND'
+      '      (c.data < c.vencto) and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      'union'
+      '/*Cheque não-identificado */'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as  ChequePre, COALESCE(SUM(a.valor)' +
+        ',0) as ChequeNaoIdentificado,'
+      
+        '       0 as DocEntrada, 0 as DocSaida, 0 as Deposito, 0 as Trans' +
+        'Entrada,'
+      '       0 as TransSaida,0 as Cancelamento, 0 as Perdas,'
+      '       0 as Prestacoes, 0 as AjustSldDevTroca,'
+      
+        '       0 as ResgateCheque, 0 as Duplicatas, 0 as Cartao, 0 as pi' +
+        'x,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM autenticacoes a'
+      'WHERE (a.tipo = ''H'')        AND'
+      '      (a.cheque is null) and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      'union'
+      '/*Documento de entradas */'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,'
+      
+        '       COALESCE(SUM(a.valor),0) as DocEntrada, 0 as DocSaida, 0 ' +
+        'as Deposito,'
+      
+        '       0 as TransEntrada, 0 as TransSaida, 0 as Cancelamento, 0 ' +
+        'as Perdas,'
+      '       0 as Prestacoes, 0 as AjustSldDevTroca,'
+      
+        '       0 as ResgateCheque, 0 as Duplicatas, 0 as Cartao, 0 as pi' +
+        'x,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM autenticacoes a, eventos e'
+      'WHERE (a.evento=e.codigo) AND'
+      '       a.saldo > coalesce((select saldo'
+      '                          from autenticacoes a1'
+      
+        '                          where (data_hora_tz(a1.data,a1.hora) <' +
+        ' data_hora_tz(a.data,a.hora))'
+      '                          and a.caixa=a1.caixa'
+      '                          and a.filial=a1.filial'
+      '                          and a1.data <= a.data'
+      
+        '                          order by a1.data desc, a1.hora desc li' +
+        'mit 1),0) and'
+      '      (a.tipo = ''D'') and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      'union'
+      '/*Documento de saidas */'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada,'
+      '       COALESCE(SUM(a.valor),0) as DocSaida,'
+      
+        '       0 as Deposito, 0 as TransEntrada, 0 as TransSaida,0 as Ca' +
+        'ncelamento,'
+      '       0 as Perdas, 0 as Prestacoes, 0 as AjustSldDevTroca,'
+      '       0 as ResgateCheque, 0 as Duplicatas,'
+      
+        '       0 as Cartao, 0 as pix, 0 as SaldoAtual, 0 as DevolucoesSa' +
+        'ldo'
+      'FROM autenticacoes a, eventos e'
+      'WHERE (a.evento = e.codigo) AND'
+      '      a.saldo < coalesce((select saldo'
+      '                          from autenticacoes a1'
+      
+        '                          where (data_hora_tz(a1.data,a1.hora) <' +
+        ' data_hora_tz(a.data,a.hora))'
+      '                          and a.caixa=a1.caixa'
+      '                          and a.filial=a1.filial'
+      '                          and a1.data <= a.data'
+      
+        '                          order by a1.data desc, a1.hora desc li' +
+        'mit 1),0) and'
+      '      (a.tipo = ''D'') and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      'union'
+      '/*Deposito */'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista,0 as ChequePre, 0 as ChequeNaoIdentific' +
+        'ado,  0 as DocEntrada, 0 as DocSaida,'
+      '       COALESCE(SUM(a.valor),0) as Deposito,'
+      
+        '       0 as TransEntrada, 0 as TransSaida, 0 as Cancelamento, 0 ' +
+        'as Perdas,'
+      '       0 as Prestacoes, 0 as AjustSldDevTroca,'
+      
+        '       0 as ResgateCheque, 0 as Duplicatas, 0 as Cartao, 0 as pi' +
+        'x,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM autenticacoes a'
+      'WHERE (a.tipo = ''B'') and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      'union'
+      '/*Transferencias de entrada */'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada, 0 as DocSaida,'
+      '       0 as Deposito,'
+      '       COALESCE(SUM(a.valor),0) as TransEntrada,'
+      '       0 as TransSaida,0 as Cancelamento, 0 as Perdas,'
+      '       0 as Prestacoes, 0 as AjustSldDevTroca,'
+      
+        '       0 as ResgateCheque, 0 as Duplicatas, 0 as Cartao, 0 as pi' +
+        'x,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM autenticacoes a'
+      'WHERE (a.tipo = ''E'') and (a.filial=:filialbase) and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data)'
+      'union'
+      '/*Transferencias de saida */'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada, 0 as DocSaida,'
+      '       0 as Deposito, 0 as TransEntrada,'
+      '       COALESCE(SUM(a.valor),0) as TransSaida,'
+      
+        '       0 as Cancelamento, 0 as Perdas, 0 as Prestacoes, 0 as Aju' +
+        'stSldDevTroca,'
+      '       0 as ResgateCheque,'
+      '       0 as Duplicatas, 0 as Cartao, 0 as pix, 0 as SaldoAtual,'
+      '       0 as DevolucoesSaldo'
+      'FROM autenticacoes a'
+      'WHERE (a.tipo = ''S'') and'
+      '      (a.confirmacao = ''t'') and'
+      '      (a.caixa = :caixa) and (a.filial=:filialbase) and'
+      '      (a.data = :data)'
+      'union'
+      '/*Numero de cancelamento */'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada, 0 as DocSaida,'
+      '       0 as Deposito, 0 as TransEntrada, 0 as TransSaida,'
+      '       COALESCE(int4(count(*)),0) as Cancelamento,'
+      '       0 as Perdas, 0 as Prestacoes, 0 as AjustSldDevTroca,'
+      '       0 as ResgateCheque, 0 as Duplicatas,'
+      
+        '       0 as Cartao, 0 as pix, 0 as SaldoAtual, 0 as DevolucoesSa' +
+        'ldo'
+      'FROM autenticacoes a'
+      'WHERE (a.tipo = ''C'') and'
+      '      (a.caixa = :caixa) and (a.filial=:filialbase) and'
+      '      (a.data = :data)'
+      'union'
+      '/*Perdas */'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada, 0 as DocSaida,'
+      
+        '       0 as Deposito, 0 as TransEntrada, 0 as TransSaida,0 as Ca' +
+        'ncelamento,'
+      '       COALESCE(SUM(a.valor),0) as Perdas,'
+      '       0 as Prestacoes, 0 as AjustSldDevTroca,'
+      
+        '       0 as ResgateCheque, 0 as Duplicatas, 0 as Cartao, 0 as pi' +
+        'x,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM autenticacoes a'
+      'WHERE (a.tipo = ''J'') and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      'union'
+      '/*Prestacoes */'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada, 0 as DocSaida,'
+      
+        '       0 as Deposito, 0 as TransEntrada, 0 as TransSaida,0 as Ca' +
+        'ncelamento,'
+      '       0 as Perdas,'
+      
+        '       COALESCE(SUM(a.valor),0) as Prestacoes, 0 as AjustSldDevT' +
+        'roca,'
+      
+        '       0 as ResgateCheque, 0 as Duplicatas, 0 as Cartao, 0 as pi' +
+        'x,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM autenticacoes a'
+      'WHERE (a.tipo in (''P'',''F'')) and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      'union'
+      '/*Ajuste de Saldo Troca/Devolução  */'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada, 0 as DocSaida,'
+      
+        '       0 as Deposito, 0 as TransEntrada, 0 as TransSaida,0 as Ca' +
+        'ncelamento,'
+      '       0 as Perdas,'
+      
+        '       0 as Prestacoes, COALESCE(SUM(a.valor),0) as AjustSldDevT' +
+        'roca,'
+      
+        '       0 as ResgateCheque, 0 as Duplicatas, 0 as Cartao, 0 as pi' +
+        'x,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM autenticacoes a'
+      'WHERE (a.tipo in (''U'')) and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      'union'
+      '/*Resgate de cheques */'
+      
+        'SELECT 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada, 0 as DocSaida,'
+      
+        '       0 as Deposito, 0 as TransEntrada, 0 as TransSaida,0 as Ca' +
+        'ncelamento,'
+      '       0 as Perdas, 0 as Prestacoes, 0 as AjustSldDevTroca,'
+      '       COALESCE(SUM(a.valor),0) as ResgateCheque,'
+      '       0 as Duplicatas, 0 as Cartao, 0 as pix, 0 as SaldoAtual,'
+      '       0 as DevolucoesSaldo'
+      'FROM autenticacoes a'
+      'WHERE (a.tipo = ''R'') and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      'union'
+      '/*Duplicatas fornecedores */'
+      
+        'select 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada, 0 as DocSaida,'
+      
+        '       0 as Deposito, 0 as TransEntrada, 0 as TransSaida,0 as Ca' +
+        'ncelamento,'
+      '       0 as Perdas, 0 as Prestacoes, 0 as AjustSldDevTroca,'
+      '       0 as ResgateCheque,'
+      '       COALESCE(SUM(a.valor),0) as Duplicatas,'
+      
+        '       0 as Cartao, 0 as pix, 0 as SaldoAtual, 0 as DevolucoesSa' +
+        'ldo'
+      'FROM autenticacoes a'
+      'WHERE (a.tipo = ''G'') and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      'union'
+      ''
+      '/*Cartoes de Credito/Debito */'
+      
+        'select 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada, 0 as DocSaida,'
+      
+        '       0 as Deposito, 0 as TransEntrada, 0 as TransSaida,0 as Ca' +
+        'ncelamento,'
+      '       0 as Perdas, 0 as Prestacoes, 0 as AjustSldDevTroca,'
+      '       0 as ResgateCheque, 0 as Duplicatas,'
+      '       COALESCE(SUM(r.valorlancto),0) as Cartao, 0 as pix,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM recebimentos r,tiposrecebimentos tr'
+      'WHERE'
+      'r.transacao in (select a.transacao'
+      '                from autenticacoes a'
+      '                where (a.tipo = ''T'') and'
+      '                (a.caixa = :caixa) and'
+      '                 (a.data = :data) and'
+      '                 (a.filial=:filialbase)'
+      '                 and Not Exists (select a1.numero'
+      '                                 from autenticacoes a1'
+      
+        '                                 where a.numero = a1.autenticaca' +
+        'o)'
+      '                 )'
+      '     and tr.codigo=r.tiporecebimento'
+      '     and tr.tiporecebimento in (''C'',''B'')'
+      ''
+      'union'
+      ''
+      '/* pix */'
+      ''
+      
+        'select 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada, 0 as DocSaida,'
+      
+        '       0 as Deposito, 0 as TransEntrada, 0 as TransSaida,0 as Ca' +
+        'ncelamento,'
+      '       0 as Perdas, 0 as Prestacoes, 0 as AjustSldDevTroca,'
+      '       0 as ResgateCheque, 0 as Duplicatas,'
+      '       0 as Cartao,'
+      '       COALESCE(SUM(r.valorlancto),0) as pix,'
+      '       0 as SaldoAtual, 0 as DevolucoesSaldo'
+      'FROM recebimentos r,tiposrecebimentos tr'
+      'WHERE'
+      'r.transacao in ('
+      '        select a.transacao from'
+      '        autenticacoes a'
+      '        where (a.tipo = ''T'') and'
+      '      (a.caixa = :caixa) and'
+      '      (a.data = :data) and (a.filial=:filialbase) and'
+      '      Not Exists (select a1.numero'
+      '                  from autenticacoes a1'
+      '                  where a.numero = a1.autenticacao)'
+      '      )'
+      '      and tr.codigo=r.tiporecebimento'
+      '      and tr.tiporecebimento = ''P'''
+      ' '
+      'union'
+      ''
+      
+        'select 0 as SaldoAnterior, 0 as Juros, 0 as Descontos, 0 as Devo' +
+        'lucoes,'
+      
+        '       0 as ChequeAVista, 0 as ChequePre, 0 as ChequeNaoIdentifi' +
+        'cado,  0 as DocEntrada, 0 as DocSaida,'
+      
+        '       0 as Deposito, 0 as TransEntrada, 0 as TransSaida,0 as Ca' +
+        'ncelamento,'
+      '       0 as Perdas, 0 as Prestacoes, 0 as AjustSldDevTroca,'
+      '       0 as ResgateCheque, 0 as Duplicatas,'
+      
+        '       0 as Cartao, 0 as pix, a.saldo as SaldoAtual, 0 as Devolu' +
+        'coesSaldo'
+      'FROM autenticacoes a'
+      'WHERE a.numero = (SELECT max(a1.numero)'
+      '                  FROM autenticacoes a1'
+      '                  WHERE ((a1.caixa = :caixa) and'
+      '                                (a1.data = :data) and'
+      '                                (0 < (select Count(*)'
+      '                                        FROM autenticacoes a2'
+      
+        '                                       WHERE (a2.caixa = :caixa)' +
+        ' and'
+      
+        '                                                    (a2.data = :' +
+        'data)'
+      '                                )     )'
+      '                        ) or ('
+      '                               (a1.caixa = :caixa) and'
+      '                               (a1.data < :data) and'
+      '                               (0 = (select Count(*)'
+      '                                       FROM autenticacoes a2'
+      
+        '                                      WHERE (a2.caixa = :caixa) ' +
+        'and'
+      
+        '                                                   (a2.data = :d' +
+        'ata)'
+      '                                      )'
+      '                               )'
+      '                        )'
+      '                 ) and (a.filial=:filialbase)'
+      ') as Totalizacoes')
+    RequestLive = False
+    Left = 85
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'caixa'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end>
+    object qryTotalizacoesCaixaSaldoAnterior: TFloatField
+      FieldName = 'saldoanterior'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixajuros: TFloatField
+      FieldName = 'juros'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixadescontos: TFloatField
+      FieldName = 'descontos'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixadevolucoes: TFloatField
+      FieldName = 'devolucoes'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixadevolucoessaldo: TFloatField
+      FieldName = 'devolucoessaldo'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixachequeavista: TFloatField
+      FieldName = 'chequeavista'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixachequepre: TFloatField
+      FieldName = 'chequepre'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixachequenaoidentificado: TFloatField
+      FieldName = 'chequenaoidentificado'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixadocentrada: TFloatField
+      FieldName = 'docentrada'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixadocsaida: TFloatField
+      FieldName = 'docsaida'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixadeposito: TFloatField
+      FieldName = 'deposito'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixatransentrada: TFloatField
+      FieldName = 'transentrada'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixatranssaida: TFloatField
+      FieldName = 'transsaida'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixacancelamento: TLargeintField
+      FieldName = 'cancelamento'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixaperdas: TFloatField
+      FieldName = 'perdas'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixaprestacoes: TFloatField
+      FieldName = 'prestacoes'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixaresgatecheque: TFloatField
+      FieldName = 'resgatecheque'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixasaldoatual: TFloatField
+      FieldName = 'saldoatual'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixaduplicatasfornecedores: TFloatField
+      FieldName = 'duplicatasfornecedores'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixacartao: TFloatField
+      FieldName = 'cartao'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixapix: TFloatField
+      FieldName = 'pix'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryTotalizacoesCaixaTotal_Entradas: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'Total_Entradas'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+      Calculated = True
+    end
+    object qryTotalizacoesCaixaTotal_Saidas: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'Total_Saidas'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+      Calculated = True
+    end
+    object qryTotalizacoesCaixaSaldo_Atual: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'Saldo_Atual'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+      Calculated = True
+    end
+    object qryTotalizacoesCaixaAjustSldDevTroca: TCurrencyField
+      FieldName = 'AjustSldDevTroca'
+      DisplayFormat = '0.00'
+    end
+  end
+  object dsrTotalizacoesCaixa: TtecDataSource
+    DataSet = qryTotalizacoesCaixa
+    Left = 85
+    Top = 68
+  end
+  object qryTransferenciaNaoConfirmada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select autenticacoes.numero,'
+      '         autenticacoes.caixa,'
+      
+        '         (select usuarios.nome from usuarios where usuarios.codi' +
+        'go = autenticacoes.caixa) as nomecaixa,'
+      '/*         autenticacoes.filial,'
+      '         autenticacoes.data,'
+      '         autenticacoes.hora,'
+      '         autenticacoes.valor,'
+      '         autenticacoes.transferencia, */'
+      
+        '         (select usuarios.nome from usuarios where usuarios.codi' +
+        'go = autenticacoes.transferencia) as nometransferencia'
+      'from autenticacoes'
+      'where (autenticacoes.tipo = ''S'') and'
+      '         (autenticacoes.entradapendente = true) and'
+      '         (autenticacoes.confirmacao is null) and'
+      '         (autenticacoes.caixa = :caixaatual)')
+    RequestLive = False
+    Left = 248
+    Top = 165
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'caixaatual'
+        ParamType = ptUnknown
+      end>
+    object qryTransferenciaNaoConfirmadanumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryTransferenciaNaoConfirmadacaixa: TIntegerField
+      FieldName = 'caixa'
+    end
+    object qryTransferenciaNaoConfirmadanomecaixa: TStringField
+      FieldName = 'nomecaixa'
+      Size = 50
+    end
+    object qryTransferenciaNaoConfirmadanometransferencia: TStringField
+      FieldName = 'nometransferencia'
+      Size = 50
+    end
+  end
+  object qryResumoVendas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT  ct.filialvenda,'
+      '             f.nome as nomefilialvenda,'
+      
+        '             sum(coalesce(a.valorvenctoparcela,p.valorvencto)) a' +
+        's valorvenctoparcela,'
+      
+        '             sum(case when a.valor > coalesce(a.valorvenctoparce' +
+        'la,p.valorvencto) then a.valor - coalesce(a.valorvenctoparcela,p' +
+        '.valorvencto) else 0 end) as juros,'
+      
+        '             sum(case when a.valor < coalesce(a.valorvenctoparce' +
+        'la,p.valorvencto) then a.valor - coalesce(a.valorvenctoparcela,p' +
+        '.valorvencto) else 0 end) as descontos'
+      ''
+      
+        'FROM ((autenticacoes a JOIN (contratos ct left join filiais f ON' +
+        ' ct.filialvenda = f.codigo)'
+      
+        '                                                             ON ' +
+        'a.contratoparcela=ct.numero)'
+      
+        '                                   JOIN parcelas p on a.contrato' +
+        'parcela=p.contrato and a.parcela=p.numero)'
+      'WHERE (a.caixa = :caixa) and'
+      '            (a.data  = :data) and (a.filial = :filialbase) and'
+      '            (a.tipo  in (%tipo)) and'
+      '            (Not Exists (SELECT a1.autenticacao'
+      '                         FROM autenticacoes a1'
+      '                         WHERE a1.autenticacao=a.numero)) '
+      'group by ct.filialvenda, f.nome')
+    RequestLive = False
+    Left = 250
+    Top = 120
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'caixa'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end>
+    object qryResumoVendasfilialvenda: TIntegerField
+      FieldName = 'filialvenda'
+    end
+    object qryResumoVendasvalorvenctoparcela: TFloatField
+      FieldName = 'valorvenctoparcela'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryResumoVendasjuros: TFloatField
+      FieldName = 'juros'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryResumoVendasdescontos: TFloatField
+      FieldName = 'descontos'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryResumoVendasnomefilialvenda: TStringField
+      FieldName = 'nomefilialvenda'
+      Size = 40
+    end
+  end
+  object qryRenegociado: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryRenegociadoAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT a.numero, '
+      '            a.valor,'
+      
+        '            coalesce(a.valorvenctoparcela,p.valorvencto) as valo' +
+        'rvencto,'
+      '            ct.primogenito,'
+      '            a.parcela'
+      ''
+      
+        'FROM ((autenticacoes a JOIN contratos ct ON a.contratoparcela = ' +
+        'ct.numero)'
+      
+        '                                   JOIN parcelas p ON a.contrato' +
+        'parcela = p.contrato and a.parcela = p.numero)'
+      'WHERE (a.caixa = :caixa) and'
+      '            (a.data  = :data) and (a.filial =:filialbase) and'
+      '            a.tipo  in (%tipo) and '
+      '            ct.primogenito is not null'
+      '')
+    RequestLive = False
+    Left = 250
+    Top = 230
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'caixa'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end>
+    object qryRenegociadonumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryRenegociadovalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryRenegociadovalorvencto: TFloatField
+      FieldName = 'valorvencto'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryRenegociadoprimogenito: TStringField
+      FieldName = 'primogenito'
+    end
+    object qryRenegociadoparcela: TIntegerField
+      FieldName = 'parcela'
+    end
+  end
+  object qryOrigem: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT p.valorpagto,'
+      '            p.valorvencto'
+      'FROM parcelas p '
+      'WHERE p.contrato = :primogenito and'
+      '            p.origempagto = :parcela  ')
+    RequestLive = False
+    Left = 88
+    Top = 219
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'primogenito'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'parcela'
+        ParamType = ptUnknown
+      end>
+    object qryOrigemvalorpagto: TFloatField
+      FieldName = 'valorpagto'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryOrigemvalorvencto: TFloatField
+      FieldName = 'valorvencto'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+  end
+  object report1: TfrReport
+    Dataset = frDBDataSet1
+    InitialZoom = pzDefault
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    RebuildPrinter = False
+    Left = 88
+    Top = 270
+    ReportForm = {
+      19000000B101000019FFFF00000A0050444643726561746F7200FFFFFFFFFF00
+      000000340800009A0B0000000000000000000000000000000000000000040000
+      0000FFFF0000000000000000000500506167653100030400466F726D00FEFFFF
+      FFDC000000780000007C0100002C010000040000000200E50000000C00446164
+      6F734D657374726531000201000000001C000000F50200000F00000030000500
+      01000000000000000000FFFFFF1F000000000C00667244424461746153657431
+      00000000000000FFFF000000000002000000010000000000000001000000C800
+      0000140000000100000000000000007F01000005004D656D6F310002001C0000
+      001C000000D40200000E0000000000000001000000000000000000FFFFFF1F2C
+      020000000000010016005B63647352656C61746F72696F2E22546578746F225D
+      00000000FFFF00000000000200000001000000000B00436F7572696572204E65
+      770008000000000000000000000000000000020000000000FFFFFF0000000002
+      00000000000000FEFEFF000000000000000000000000FC000000000000000000
+      000000000000005800B73C7345EE81E3400D856C1FD20FE640}
+  end
+  object frDBDataSet1: TfrDBDataSet
+    DataSet = cdsRelatorio
+    Left = 85
+    Top = 320
+  end
+  object cdsRelatorio: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast(null as varchar(1000)) as texto')
+    RequestLive = True
+    Left = 88
+    Top = 368
+    object cdsRelatoriotexto: TStringField
+      FieldName = 'texto'
+      Size = 512
+    end
+  end
+  object qryEventos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryEventosAfterOpen
+    AfterInsert = qryEventosAfterInsert
+    BeforePost = qryEventosBeforePost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select a.numero,'
+      '       a.evento,'
+      '       e.descricao,'
+      '       a.parametros,'
+      '       a.valor,'
+      '       false as alterado,'
+      '       e.tipomovimentacao'
+      'from autenticacoes a join eventos e on a.evento = e.codigo'
+      'WHERE (a.caixa = :caixa) '
+      '       and  (a.data  = :data) '
+      '       and (a.filial = :filialbase)'
+      '       and not a.cancelada'
+      '       and e.tipomovimentacao in (''E'',''S'')'
+      'order by a.evento'
+      '')
+    RequestLive = True
+    Left = 248
+    Top = 288
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'caixa'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end>
+    object qryEventosevento: TIntegerField
+      DisplayLabel = 'EVENTO'
+      FieldName = 'evento'
+      DisplayFormat = '0'
+    end
+    object qryEventosdescricao: TStringField
+      DisplayLabel = 'DESCRIÇÃO'
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryEventosparametros: TStringField
+      DisplayLabel = 'PARÂMETROS'
+      FieldName = 'parametros'
+      Size = 300
+    end
+    object qryEventosvalor: TFloatField
+      DisplayLabel = 'VALOR'
+      FieldName = 'valor'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryEventosalterado: TBooleanField
+      FieldName = 'alterado'
+    end
+    object qryEventosnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryEventostipomovimentacao: TStringField
+      FieldName = 'tipomovimentacao'
+      Size = 1
+    end
+  end
+  object dsrEventos: TtecDataSource
+    DataSet = qryEventos
+    Left = 280
+    Top = 296
+  end
+  object qryUpdateAutenticacoesEventos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update autenticacoes set evento = :evento, '
+      
+        '                                         parametros = :parametro' +
+        's,'
+      '                                        alterandoevento = true'
+      'where numero = :numero'
+      '')
+    RequestLive = True
+    Left = 248
+    Top = 336
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'evento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'parametros'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryRecebimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'tipo=tipo'
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select r.tiporecebimento,'
+      '       tr.descricao as descricaotiporecebimento,'
+      '       sum(r.valorlancto) as valorlancto,'
+      '       tr.tiporecebimento as tipo'
+      ''
+      'from recebimentos r'
+      '     join tiposrecebimentos tr'
+      '     on r.tiporecebimento = tr.codigo'
+      ''
+      'where r.tiporecebimento = tr.codigo'
+      ' and cast(r.datalancto as date)= :data'
+      ' and r.filial = :filial'
+      ' and r.situacao = ''N'''
+      ' and exists (select a.caixa, a.data, a.filial'
+      '              from autenticacoes a'
+      '              where a.filial = :filial'
+      '                and a.caixa = :caixa'
+      '                and a.data = :data'
+      '                and a.transacao = r.transacao'
+      '              limit 1)'
+      '              '
+      'group by r.tiporecebimento, tr.descricao, tr.tiporecebimento'
+      'order by r.tiporecebimento, tr.descricao')
+    RequestLive = False
+    Left = 248
+    Top = 392
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'caixa'
+        ParamType = ptUnknown
+      end>
+    object qryRecebimentostiporecebimento: TIntegerField
+      FieldName = 'tiporecebimento'
+    end
+    object qryRecebimentosdescricaotiporecebimento: TStringField
+      DisplayLabel = 'TIPO DE RECEBIMENTO'
+      FieldName = 'descricaotiporecebimento'
+      Size = 100
+    end
+    object qryRecebimentosvalorlancto: TFloatField
+      DisplayLabel = 'VALOR'
+      FieldName = 'valorlancto'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryRecebimentostipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+  end
+  object dsrRecebimentos: TtecDataSource
+    DataSet = qryRecebimentos
+    Left = 288
+    Top = 408
+  end
+  object qryTiposRecebimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select '
+      '       sum(r.valorlancto) as valorlancto,'
+      '       tr.tiporecebimento as tipo,        '
+      
+        '       case when tr.tiporecebimento = ''B'' then Cast(''Cartão de D' +
+        'ébito'' as varchar(50))'
+      
+        '            when tr.tiporecebimento = ''C'' then Cast(''Cartão de C' +
+        'rédito'' as varchar(50))'
+      
+        '            when tr.tiporecebimento = ''D'' then Cast(''Dinheiro'' a' +
+        's varchar(50))'
+      
+        '            when tr.tiporecebimento = ''H'' then Cast(''Cheque'' as ' +
+        'varchar(50))'
+      
+        '            when tr.tiporecebimento = ''T'' then Cast(''Crédito de ' +
+        'Troca'' as varchar(50))'
+      
+        '            when tr.tiporecebimento = ''P'' then Cast(''Pix'' as var' +
+        'char(50))'
+      ''
+      '       end as descricaotipo          '
+      ''
+      'from recebimentos r'
+      '     join tiposrecebimentos tr'
+      '     on r.tiporecebimento = tr.codigo'
+      ''
+      'where r.tiporecebimento = tr.codigo'
+      ' and cast(r.datalancto as date)= :data'
+      ' and r.filial = :filial'
+      ' and r.situacao = ''N'''
+      ' and exists (select a.caixa, a.data, a.filial'
+      '              from autenticacoes a'
+      '              where a.filial = :filial'
+      '                and a.caixa = :caixa'
+      '                and a.data = :data'
+      '                and a.transacao = r.transacao'
+      '              limit 1)'
+      ''
+      'group by tr.tiporecebimento'
+      'order by tr.tiporecebimento')
+    RequestLive = False
+    Left = 416
+    Top = 304
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'caixa'
+        ParamType = ptUnknown
+      end>
+    object qryTiposRecebimentosvalorlancto: TFloatField
+      FieldName = 'valorlancto'
+    end
+    object qryTiposRecebimentostipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryTiposRecebimentosdescricaotipo: TStringField
+      FieldName = 'descricaotipo'
+      Size = 50
+    end
+  end
+  object dsrTiposRecebimentos: TtecDataSource
+    DataSet = qryTiposRecebimentos
+    Left = 448
+    Top = 320
+  end
+end

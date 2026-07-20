@@ -1,0 +1,1848 @@
+unit dmspc;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, CheckLst, clparametrossistema, biblio,
+  fmpreviewpadrao,
+
+    // Terceiros
+  ZQuery, ZPgSqlQuery,
+    // Componentes
+  cpdatasource, cpquery,
+    // TecSoft
+  ctconstantes, FR_DSet, FR_DBSet, FR_Class, FR_Desgn, ZTransact, StrUtils;
+
+const
+  NumeroSPC   = 1;
+  Selecionado = 2;
+
+type
+  Tdtmspc = class(TdtmBasico)
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientestipoorig: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryProcuraClientes: TtecQuery;
+    qryProcuraClientescodigo: TIntegerField;
+    qryProcuraClientesnome: TStringField;
+    qryProcuraClientestipo: TStringField;
+    dsrProcuraClientes: TtecDataSource;
+    qrySPC: TtecQuery;
+    dsrSPC: TtecDataSource;
+    qryIniciarGravacao: TtecQuery;
+    qryFinalizarGravacao: TtecQuery;
+    qryDesfazerGravacao: TtecQuery;
+    qrySPCnumero: TIntegerField;
+    qrySPCcliente: TIntegerField;
+    qrySPCtipocliente: TStringField;
+    qrySPCmarcar: TBooleanField;
+    qrySPCvalor: TFloatField;
+    qrySPCRemessa: TtecQuery;
+    dsrSPCRemessa: TtecDataSource;
+    dsrParcelasSPC: TtecDataSource;
+    qryParcelasSPC: TtecQuery;
+    qryParcelasSPCcontratoparcela: TStringField;
+    qryParcelasSPCdatavencto: TDateField;
+    qryParcelasSPCvalorvencto: TFloatField;
+    qryParcelasSPCobsoleta: TBooleanField;
+    qrySPCNBloqueada: TStringField;
+    qrySPCobsoleta: TBooleanField;
+    qryParcelasSPCcausa: TIntegerField;
+    qryParcelasSPCnomecausa: TStringField;
+    qryParcelasSPCdatapagto: TDateField;
+    qryParcelasSPCparcelaorigem: TStringField;
+    qryParcelasSPCparcela: TIntegerField;
+    qryVoltaSPCClientedaParcelaCarta: TtecQuery;
+    qryApagaParcelaCarta: TtecQuery;
+    qryRemessa: TtecQuery;
+    qryRegistroSPC: TtecQuery;
+    qryRegistroSPCcodigo: TIntegerField;
+    qryRegistroSPCspcregistro: TIntegerField;
+    qryRegistroSPCspcremessa: TIntegerField;
+    qryRegistroSPCspcretorno: TIntegerField;
+    qrySPCavalista: TIntegerField;
+    qryProcuraRemessaSPC: TtecQuery;
+    qryGerarRemessa: TtecQuery;
+    qrySPCOcorrencia: TtecQuery;
+    qrySPCOcorrenciasemspc: TDateField;
+    qrySPCRemessaDados: TtecQuery;
+    dsrSPCRemessaDados: TtecDataSource;
+    qrySPCRemessaoperacao: TStringField;
+    qrySPCRemessaremessa: TIntegerField;
+    qrySPCRemessarejeitada: TBooleanField;
+    qrySPCnomecliente: TStringField;
+    qrySPCnomeavalista: TStringField;
+    qrySPCbloqueada: TStringField;
+    qrySPCRemessaDadosSituacao: TStringField;
+    qrySPCRemessaDadosnome: TStringField;
+    qrySPCRemessaDadosnascto: TDateField;
+    qrySPCRemessaDadosnaturalcidade: TIntegerField;
+    qrySPCRemessaDadosnaturalestado: TStringField;
+    qrySPCRemessaDadosnomenaturalcidade: TStringField;
+    qrySPCRemessaDadoscivil: TStringField;
+    qrySPCRemessaDadossexo: TStringField;
+    qrySPCRemessaDadospessoatipo: TStringField;
+    qrySPCRemessaDadospessoanumero: TStringField;
+    qrySPCRemessaDadosdocumento: TStringField;
+    qrySPCRemessaDadosidestado: TStringField;
+    qrySPCRemessaDadosrua: TStringField;
+    qrySPCRemessaDadosbairro: TIntegerField;
+    qrySPCRemessaDadosnomebairro: TStringField;
+    qrySPCRemessaDadoscep: TIntegerField;
+    qrySPCRemessaDadosestado: TStringField;
+    qrySPCRemessaDadoscidade: TIntegerField;
+    qrySPCRemessaDadosnomecidade: TStringField;
+    qrySPCRemessaDadosconjuge: TStringField;
+    qrySPCRemessaDadosconnascto: TDateField;
+    qrySPCRemessaDadosmae: TStringField;
+    qrySPCRemessaDadospai: TStringField;
+    qrySPCRemessaDadosdataempresa: TDateTimeField;
+    qrySPCRemessaDadosdataspc: TDateTimeField;
+    qrySPCRemessaDadosvalordebito: TFloatField;
+    qrySPCRemessaDadosdatacompra: TDateField;
+    qrySPCRemessaDadosdatavencto: TDateField;
+    qryGerarSPCRetirada: TtecQuery;
+    qryGerarSPCRetiradaDados_Clientes: TtecQuery;
+    qryGerarSPCRetiradaDados_Avalistas: TtecQuery;
+    qrySPCcarta: TIntegerField;
+    qryVoltaSPCAvalistadaParcelaCarta: TtecQuery;
+    qryApagaSPCRemessaNaoEnviada: TtecQuery;
+    qryProcuraRemessaSPCnumero: TIntegerField;
+    qryProcuraRemessaSPCdataenvio: TDateTimeField;
+    qryInsereParcelasClientesemParcelasCartas: TtecQuery;
+    qryInsereParcelasAvalistasemParcelasCartas: TtecQuery;
+    qryRetiraSPCClientedaParcela: TtecQuery;
+    qryRetiraSPCAvalistadaParcela: TtecQuery;
+    dsrRemessa: TtecDataSource;
+    qryRemessaarquivo: TStringField;
+    qryGerarArquivoRemessaDetalhe: TtecQuery;
+    qryAtualizarRemessa_Clientes: TtecQuery;
+    qryAtualizarRemessa_Avalistas: TtecQuery;
+    qrySPCverificado: TBooleanField;
+    qryGerarArquivoRemessaDetalhecpf_cliente: TStringField;
+    qryGerarArquivoRemessaDetalherg_cliente: TStringField;
+    qryGerarArquivoRemessaDetalheufrg_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhenome_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhenascto_cliente: TDateField;
+    qryGerarArquivoRemessaDetalhenaturalcidade_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhenaturalestado_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhesexo_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhepai_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhemae_cliente: TStringField;
+    qryGerarArquivoRemessaDetalheestadocivil_cliente: TStringField;
+    qryGerarArquivoRemessaDetalheconjuge_cliente: TStringField;
+    qryGerarArquivoRemessaDetalheconnascto_cliente: TDateField;
+    qryGerarArquivoRemessaDetalherua_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhebairro_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhecep_cliente: TIntegerField;
+    qryGerarArquivoRemessaDetalhecidade_cliente: TStringField;
+    qryGerarArquivoRemessaDetalheestado_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhedatacompra: TDateField;
+    qryGerarArquivoRemessaDetalhedatavencto: TDateField;
+    qryGerarArquivoRemessaDetalhecpf_avalista: TStringField;
+    qryGerarArquivoRemessaDetalherg_avalista: TStringField;
+    qryGerarArquivoRemessaDetalheufrg_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhenome_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhenascto_avalista: TDateField;
+    qryGerarArquivoRemessaDetalhenaturalcidade_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhenaturalestado_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhesexo_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhepai_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhemae_avalista: TStringField;
+    qryGerarArquivoRemessaDetalheestadocivil_avalista: TStringField;
+    qryGerarArquivoRemessaDetalheconjuge_avalista: TStringField;
+    qryGerarArquivoRemessaDetalheconnascto_avalista: TDateField;
+    qryGerarArquivoRemessaDetalherua_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhebairro_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhecep_avalista: TIntegerField;
+    qryGerarArquivoRemessaDetalhecidade_avalista: TStringField;
+    qryGerarArquivoRemessaDetalheestado_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhespc: TIntegerField;
+    qryGerarArquivoRemessaDetalheoperacao: TStringField;
+    qryGerarArquivoRemessaDetalheremessa: TIntegerField;
+    qryGerarArquivoRemessaDetalhevalordebito: TFloatField;
+    qrySPCRemessadataenvio: TDateTimeField;
+    qrySPCRemessaDadoscarta: TIntegerField;
+    qrySPCRemessaDadoscartanumero: TIntegerField;
+    qryRemessaspc_codigoinformante: TStringField;
+    qryRemessaspc_remetente: TStringField;
+    qryRemessaspc_dasp_remetente: TStringField;
+    qryRemessaspc_destinatario: TStringField;
+    qryRemessaspc_dasp_destinatario: TStringField;
+    qryRemessaspc_operador: TStringField;
+    qryRemessanumero: TIntegerField;
+    qryProcuraRemessaSPCusuario: TIntegerField;
+    qryProcuraRemessaSPCfilialremetente: TIntegerField;
+    qryRemessacodigo: TIntegerField;
+    qrySPCdatainclusao: TDateField;
+    qrySPCdataexclusao: TDateField;
+    qrySPCregistradospc: TBooleanField;
+    qryInserirAtendimento: TtecQuery;
+    qryApagarAtendimentos: TtecQuery;
+    qryAtualizaSPC: TtecQuery;
+    qryAtualizarSPCRemessaNaoEnviada: TtecQuery;
+    fdsRemessa_F: TfrDBDataSet;
+    qryGerarArquivoRemessaDetalhecargo_cliente: TStringField;
+    qryGerarArquivoRemessaDetalheempresa_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhecargo_avalista: TStringField;
+    qryGerarArquivoRemessaDetalheempresa_avalista: TStringField;
+    qryGerarArquivoRemessaDetalheassociada: TStringField;
+    qryGerarArquivoRemessaDetalhespc_destinatario: TStringField;
+    qryGerarArquivoRemessaDetalhefoneddd_cliente: TIntegerField;
+    qryGerarArquivoRemessaDetalhefonenumero_cliente: TIntegerField;
+    qryGerarArquivoRemessaDetalhefoneddd_avalista: TIntegerField;
+    qryGerarArquivoRemessaDetalhefonenumero_avalista: TIntegerField;
+    qryFiliais: TtecQuery;
+    qryFiliaisnome: TStringField;
+    qryFiliaiscodigo: TIntegerField;
+    qryGrupoFiliais: TtecQuery;
+    qryGrupoFiliaisdescricao: TStringField;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryReverSPCBloqueados: TtecQuery;
+    qrySPCtipoatendimento: TIntegerField;
+    qryAtualizarSPCRemessaDadosNaoEnviada: TtecQuery;
+    qryGerarSPC: TtecQuery;
+    qryGerarSPCRemessaDados: TtecQuery;
+    qryGerarSPCRemessa: TtecQuery;
+    qryAtualizarParcelas: TtecQuery;
+    qryIncluirSPCRemessaDados: TtecQuery;
+    qryGerarSPCRemessaDadosoperacao: TStringField;
+    qryGerarSPCRemessaDadosremessa: TIntegerField;
+    qryGerarSPCRemessaDadoscartacliente: TIntegerField;
+    qryGerarSPCRemessaDadoscartanumerocliente: TIntegerField;
+    qryGerarSPCRemessaDadosdataempresa: TDateTimeField;
+    qryGerarSPCRemessaDadosnome: TStringField;
+    qryGerarSPCRemessaDadosnascto: TDateField;
+    qryGerarSPCRemessaDadosnaturalcidade: TIntegerField;
+    qryGerarSPCRemessaDadosnaturalestado: TStringField;
+    qryGerarSPCRemessaDadoscivil: TStringField;
+    qryGerarSPCRemessaDadossexo: TStringField;
+    qryGerarSPCRemessaDadospessoatipo: TStringField;
+    qryGerarSPCRemessaDadospessoanumero: TStringField;
+    qryGerarSPCRemessaDadosvinscricaoestadual: TStringField;
+    qryGerarSPCRemessaDadosidestado: TStringField;
+    qryGerarSPCRemessaDadosrua: TStringField;
+    qryGerarSPCRemessaDadosbairro: TIntegerField;
+    qryGerarSPCRemessaDadoscep: TIntegerField;
+    qryGerarSPCRemessaDadosestado: TStringField;
+    qryGerarSPCRemessaDadoscidade: TIntegerField;
+    qryGerarSPCRemessaDadosconjuge: TStringField;
+    qryGerarSPCRemessaDadosconnascto: TDateField;
+    qryGerarSPCRemessaDadosmae: TStringField;
+    qryGerarSPCRemessaDadospai: TStringField;
+    qryGerarSPCRemessaDadoscargo: TStringField;
+    qryGerarSPCRemessaDadosempresa: TStringField;
+    qryGerarSPCRemessaDadosfoneddd: TIntegerField;
+    qryGerarSPCRemessaDadosfonenumero: TIntegerField;
+    frpRemessaCarta_F: TfrReport;
+    frpRemessaCarta_J: TfrReport;
+    qryGerarArquivoRemessaDetalhe_J: TtecQuery;
+    fdsRemessa_J: TfrDBDataSet;
+    frpRemessa_F: TfrReport;
+    frpRemessa_J: TfrReport;
+    qryGerarSPCCliente: TtecQuery;
+    qrySPCRemessatipo: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jspc: TIntegerField;
+    qryGerarArquivoRemessaDetalhe_Joperacao: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jremessa: TIntegerField;
+    qryGerarArquivoRemessaDetalhe_Jcpf_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jrg_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jufrg_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jnome_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jnascto_cliente: TDateField;
+    qryGerarArquivoRemessaDetalhe_Jcargo_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jempresa_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jnaturalcidade_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jnaturalestado_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jsexo_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jpai_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jmae_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jestadocivil_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jconjuge_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jconnascto_cliente: TDateField;
+    qryGerarArquivoRemessaDetalhe_Jrua_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jbairro_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jcep_cliente: TIntegerField;
+    qryGerarArquivoRemessaDetalhe_Jcidade_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jestado_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jdatacompra: TDateField;
+    qryGerarArquivoRemessaDetalhe_Jvalordebito: TFloatField;
+    qryGerarArquivoRemessaDetalhe_Jdatavencto: TDateField;
+    qryGerarArquivoRemessaDetalhe_Jassociada: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jspc_destinatario: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jfoneddd_cliente: TIntegerField;
+    qryGerarArquivoRemessaDetalhe_Jfonenumero_cliente: TIntegerField;
+    qryGerarArquivoRemessaDetalhe_Jspc_a: TIntegerField;
+    qryGerarArquivoRemessaDetalhe_Joperacao_a: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jremessa_a: TIntegerField;
+    qryGerarArquivoRemessaDetalhe_Jcpf_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jrg_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jufrg_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jnome_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jnascto_avalista: TDateField;
+    qryGerarArquivoRemessaDetalhe_Jcargo_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jempresa_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jnaturalcidade_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jnaturalestado_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jsexo_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jpai_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jmae_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jestadocivil_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jconjuge_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jconnascto_avalista: TDateField;
+    qryGerarArquivoRemessaDetalhe_Jrua_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jbairro_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jcep_avalista: TIntegerField;
+    qryGerarArquivoRemessaDetalhe_Jcidade_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jestado_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jfoneddd_avalista: TIntegerField;
+    qryGerarArquivoRemessaDetalhe_Jfonenumero_avalista: TIntegerField;
+    qryspcparcelas: TtecQuery;
+    qryspcparcelascontrato: TStringField;
+    qryspcparcelasdata: TDateField;
+    qryspcparcelasvalor: TFloatField;
+    fdsspcparcelas: TfrDBDataSet;
+    qryspcNotasCupons: TtecQuery;
+    qryspcNotasCuponsnota: TIntegerField;
+    qryspcNotasCuponscupom: TIntegerField;
+    fdsspcNotasCupons: TfrDBDataSet;
+    qrySPCRemessaDadosnumero_rua: TIntegerField;
+    qrySPCRemessaDadoscomplemento: TStringField;
+    qryErros: TtecQuery;
+    qryGerarSPCRemessaDadosspc: TIntegerField;
+    qryGerarSPCRemessaDadoscomplemento: TStringField;
+    qryGerarSPCRemessaDadosnumero: TIntegerField;
+    qryGerarArquivoRemessaDetalhenumerorua_cliente: TIntegerField;
+    qryGerarArquivoRemessaDetalhecomplementoendereco_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhenumerorua_avalista: TIntegerField;
+    qryGerarArquivoRemessaDetalhecomplementoendereco_avalista: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jnumerorua_cliente: TIntegerField;
+    qryGerarArquivoRemessaDetalhe_Jcomplementoendereco_cliente: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jnumerorua_avalista: TIntegerField;
+    qryGerarArquivoRemessaDetalhe_Jcomplementoendereco_avalista: TStringField;
+    qryGerarArquivoRemessaDetalherua_cliente_c: TStringField;
+    qryGerarArquivoRemessaDetalherua_avalista_c: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jrua_cliente_c: TStringField;
+    qryGerarArquivoRemessaDetalhe_Jrua_avalista_c: TStringField;
+    procedure qrySPCAfterScroll(DataSet: TDataSet);
+    procedure qrySPCCalcFields(DataSet: TDataSet);
+    procedure qrySPCmarcarChange(Sender: TField);
+    procedure qryParcelasSPCCalcFields(DataSet: TDataSet);
+    procedure qrySPCRemessaAfterScroll(DataSet: TDataSet);
+    procedure qrySPCRemessaDadosCalcFields(DataSet: TDataSet);
+    procedure qryRemessaCalcFields(DataSet: TDataSet);
+    procedure qrySPCRemessaDadosAfterOpen(DataSet: TDataSet);
+    procedure frpRemessaBeforePrint(Memo: TStringList; View: TfrView);
+    procedure frpRemessaCartaBeforePrint(Memo: TStringList; View: TfrView);
+    procedure frpRemessaCarta_FGetValue(const ParName: String;
+      var ParValue: Variant);
+    procedure frpRemessaCarta_FBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpRemessaCarta_JBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpRemessa_FBeforePrint(Memo: TStringList; View: TfrView);
+    procedure frpRemessa_JBeforePrint(Memo: TStringList; View: TfrView);
+    procedure qrySPCRemessatipoChange(Sender: TField);
+    procedure qrySPCRemessaAfterEdit(DataSet: TDataSet);
+    procedure qryGerarArquivoRemessaDetalheAfterScroll(DataSet: TDataSet);
+    procedure qryGerarArquivoRemessaDetalhe_JAfterScroll(
+      DataSet: TDataSet);
+    procedure qryspcparcelasAfterScroll(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryGerarArquivoRemessaDetalheCalcFields(DataSet: TDataSet);
+    procedure qryGerarArquivoRemessaDetalhe_JCalcFields(DataSet: TDataSet);
+//    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  protected
+    RegistroSPCSelecionadas: array [1..2] of TStringList;
+  private
+    Arq: TextFile;
+{    ArquivoRemessa: TStringList;}
+    FListaFiliais: TStringList;
+    FListaGruposFiliais: TStringList;
+    FDataHoraGravacao: String;
+    FFilialRemetente: String;
+    FClienteSPC: String;
+    FFiliais: String;
+    FGrupoFiliais: String;
+    FReenviarRejeitados: Boolean;
+    FTipoeAvalista: Boolean;
+    FOperacaoSPC: integer;
+    FRegistradoSPC: boolean;
+    FRegistradoEmpresa: boolean;
+    FTipoDataInclusao: boolean;
+    FTipoDataExclusao: boolean;
+    FDataInicial: String;
+    FDataFinal: String;
+    FSituacaoIncluidos: Boolean;
+    FLimiteAviso: String;
+    FsituacaoExcluidos: Boolean;
+    function GetConsultaClientes: TZDataSet;
+    function GetTotalRegistros: Integer;
+    function GetTipoPessoa: String;
+    function GetParcelaObsoleta: Boolean;
+    function GetTabelaRegistroSPC: TZDataSet;
+    function GetParcelaVerificado: Boolean;
+    procedure SetDataFinal(const Value: String);
+    function GetSPCDataExclusao: String;
+    function GetListaFiliais: TStrings;
+    function GetListaGruposFiliais: TStrings;
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure Selecionar(TipoPesquisa: TipoProcuraSPC);
+    procedure AbreConsultaCliente;
+    function ExisteCliente(NomeCampo: String; Value: Variant): Boolean;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TipoProcuraSPC);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TipoProcuraSPC);
+    property ConsultaClientes: TZDataSet read GetConsultaClientes;
+    property DataHoraGravacao: String read FDataHoraGravacao write FDataHoraGravacao;
+    property ReenviarRejeitados: Boolean read FReenviarRejeitados write FReenviarRejeitados;
+    property FilialRemetente: String read FFilialRemetente write FFilialRemetente;
+    property ClienteSPC: String read FClienteSPC write FClienteSPC;
+    property LimiteAviso: String read FLimiteAviso write FLimiteAviso;
+    procedure MontarFiltroFiliais(Usar: TCheckListBox);
+    procedure MontarFiltroGrupoFiliais(Usar: TCheckListBox);
+    property Filiais: String read FFiliais write FFiliais;
+    property GrupoFiliais: String read FGrupoFiliais write FGrupoFiliais;
+    function GerarSPC: Boolean;
+    function GerarRetiradaSPC(RetiradaForcada: Boolean): Boolean;
+    function GerarConsultaSPC: Boolean;
+    procedure MarcarSPCSelecionadas(Marcando, Todos: Boolean);
+    property TotalRegistros: Integer read GetTotalRegistros;
+    property  TipoPessoa: String read GetTipoPessoa;
+    function RetirarClientedoSPC: Boolean;
+    function CancelarRetiradaClientedoSPC: Boolean;
+    property ParcelaObsoleta: Boolean read GetParcelaObsoleta;
+    property ParcelaVerificado: Boolean read GetParcelaVerificado;
+    property SPCDataExclusao: String read GetSPCDataExclusao;
+    property TabelaRegistroSPC: TZDataSet read GetTabelaRegistroSPC;
+    property TipoeAvalista: Boolean read FTipoeAvalista write FTipoeAvalista;
+    procedure CancelarGravacao;
+    function ListaNumeroSPC: String;
+    function ListaNumeroSPCNaoMarcados: String;
+    procedure OrdernarListaNumeroSPC;
+    property OperacaoSPC: integer read FOperacaoSPC write FOperacaoSPC;
+    function RefazNumeroRemessa(GerarUltimaEnviada: Boolean): Boolean;
+    function GerarRemessaSPC: boolean;
+    procedure ComporHeaderArquivoRemessa;
+    procedure ComporDetalheArquivoRemessa(var I:integer; Tabela: TtecQuery);
+
+    property RegistradoSPC: boolean read FRegistradoSPC write FRegistradoSPC;
+    property RegistradoEmpresa: boolean read FRegistradoEmpresa write FRegistradoEmpresa;
+    property TipoDataInclusao: boolean read FTipoDataInclusao write FTipoDataInclusao;
+    property TipoDataExclusao: boolean read FTipoDataExclusao write FTipoDataExclusao;
+    property DataInicial: String read FDataInicial write FDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    property SituacaoIncluidos: Boolean read FsituacaoIncluidos write FSituacaoIncluidos;
+    property SituacaoExcluidos: Boolean read FsituacaoExcluidos write FSituacaoExcluidos;
+    procedure ImprimirRelatorio;
+    property ListaFiliais: TStrings read GetListaFiliais;
+    property ListaGruposFiliais: TStrings read GetListaGruposFiliais;
+    procedure CorrigirErros;
+  end;
+
+var
+  dtmspc: Tdtmspc;
+
+implementation
+uses dmtecsoft;
+
+const
+  FiltroClienteSPC  = ' AND  ct.cliente = %s AND ct.tipocliente = %s ';
+  FiltroConfirmacao = ' and cc.confirmacao is not null ';
+  FiltroConfirmacaoRD = ' and confirmacao is not null ';
+  FiltroConfirmacao_Enviada = ' and CURRENT_DATE >= (%s + cast(%s as integer)) ';
+  FiltroDevolucao = ' and cc.voltou is null ';
+  FiltroDevolucaoRD = ' and voltou is null ';
+  FiltroFilial      = ' AND ( contratos.filialvenda IN (%s)) ';
+  FiltroGrupoFilial = ' AND ( contratos.filialvenda IN (SELECT filial '+
+                                         'FROM filiaisgruposfiliais fgf '+
+                                         'WHERE fgf.grupo IN (%s))) ';
+  FiltroFilialRD      = ' AND ( filialvenda IN (%s)) ';
+  FiltroGrupoFilialRD = ' AND ( filialvenda IN (SELECT filial '+
+                                         'FROM filiaisgruposfiliais fgf '+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+
+{$R *.dfm}
+
+{ Tdtmspc }
+
+procedure Tdtmspc.AbreConsultaCliente;
+begin
+ ExisteCliente('nome', '0')
+end;
+
+procedure Tdtmspc.AbreTabelaPesquisa(TipoPesquisa: TipoProcuraSPC);
+begin
+  case TipoPesquisa of
+    spcClientes : AbreConsultaCliente;
+    spcFilialRegistorSPC : Abre(ctFilialRegistroSPC);
+  end;
+end;
+
+constructor Tdtmspc.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryFiliais.tag:= ctTabelas;
+  qryGrupoFiliais.tag:= ctTabelas;
+  qryProcuraClientes.Tag   := ctTabelas;
+  qryRegistroSPC.Tag := ctFilialRegistroSPC;
+  qryConsultaClientes.Tag := ctPesquisaClientes;
+  qryProcuraClientes.Params[1].AsString := 'C';
+  TipoeAvalista := false;
+  RegistroSPCSelecionadas[NumeroSPC] := TStringList.Create;
+  RegistroSPCSelecionadas[Selecionado] := TStringList.Create;
+
+end;
+
+function Tdtmspc.ExisteCliente(NomeCampo: String; Value: Variant): Boolean;
+const
+  SQL = 'Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  qryConsultaClientes.Sql[24] := Format(SQL, [NomeCampo, ANSIUpperCase(Value), '%']);
+  qryConsultaClientes.Open;
+  Result := qryConsultaClientes.RecordCount > 0
+end;
+
+procedure Tdtmspc.FechaTabelaPesquisa(TipoPesquisa: TipoProcuraSPC);
+begin
+  case TipoPesquisa of
+    spcClientes : Fecha(ctPesquisaClientes);
+    spcFilialRegistorSPC : Fecha(ctFilialRegistroSPC);
+  end;
+end;
+
+function Tdtmspc.GerarConsultaSPC: Boolean;
+var
+ STRSQL : String;
+Const
+ WhereSPC = 'Where %s';
+ WhereSPCFililavenda =
+ ' and (exists (select p.spccliente '+
+              'from parcelas p join contratos on p.contrato = contratos.numero '+
+              'where p.spccliente = spc.numero and '+
+                    ' contratos.filialvenda in (%s)) '+
+       ' or exists (select p.spcavalista '+
+              'from parcelas p join contratos on p.contrato = contratos.numero  '+
+              'where p.spcavalista = spc.numero and '+
+                    ' contratos.filialvenda in (%s)) '+
+       ' or exists (select pc.spc '+
+              'from (parcelascartas pc join (parcelas p join contratos on p.contrato = contratos.numero) '+
+                                                      ' on pc.contratoparcela = p.contrato and '+
+                                                      ' pc.parcela = p.numero) '+
+              'where pc.spc = spc.numero and '+
+                    ' contratos.filialvenda in (%s)) )';
+
+ FiltroGrupoFilial = 'SELECT filial '+
+                      'FROM filiaisgruposfiliais fgf '+
+                      'WHERE fgf.grupo IN (%s) ';
+
+
+begin
+  STRSQL := '';
+  case OperacaoSPC of
+  0: begin  // GerarInscricaoSPC
+      STRSQL := ' exists (select remessa '+
+                          'from spcremessa '+
+                          'where spc=spc.numero and '+
+                                'operacao = cast(''I'' as varchar) and '+
+                                'remessa = %s) and '+
+            ' not exists (select remessa '+
+                          'from spcremessa '+
+                          'where spc=spc.numero and '+
+                                'operacao = cast(''E'' as varchar) and '+
+                                'remessa = %s)';
+      qrySPC.Params[0].AsBoolean := True;
+      qrySPC.Sql[28] := format(WhereSPC, [format(STRSQL,[qryRemessanumero.asstring,
+                                                         qryRemessanumero.asstring])]);
+      qrySPC.Sql[30] := '';
+     end;
+  1: begin  //GerarRetiradaSPC;
+      STRSQL := ' exists (select remessa '+
+                          'from spcremessa '+
+                          'where spc=spc.numero and '+
+                                'operacao = cast(''E'' as varchar) and '+
+                                'remessa = %s)';
+       qrySPC.Params[0].AsBoolean := True;
+       qrySPC.Sql[28] := format(WhereSPC, [format(STRSQL,[qryRemessanumero.asstring])]);
+       qrySPC.Sql[30] := 'where spc.obsoleta';
+     end;
+  2: begin  //GerarRetiradaForcadaSPC ;
+       STRSQL := ' spc.datainclusao is not null and spc.dataexclusao is null and spc.registradospc '+
+                 'and c.cliente = %s and c.tipocliente = %s';
+       qrySPC.Params[0].AsBoolean := True;
+       qrySPC.Sql[28] := format(WhereSPC, [format(STRSQL,[ClienteSPC,quotedstr(qryProcuraClientestipo.AsString)])]);
+       qrySPC.Sql[30] := 'where not spc.obsoleta';
+     end;
+  3: begin // CancelarRetiradaForcadaSPC;
+       STRSQL := ' c.cliente = %s and c.tipocliente = %s and '+
+                 ' spc.datainclusao is not null and '+
+                 ' spc.dataexclusao is not null and '+
+                 ' exists (select ultimaremessadados.operacao '+
+                         ' from (select srd.dataspc, srd.operacao, srd.carta, srd.cartanumero '+
+                               ' from spcremessadados srd '+
+                               ' where srd.spc = spc.numero '+
+                               ' order by remessa desc, operacao limit 1 '+
+                               ' ) as ultimaremessadados '+
+                         ' where ultimaremessadados.dataspc is null and '+
+                               ' ultimaremessadados.Operacao = cast(''E'' as varchar) and '+
+                               ' exists (select pc.spc '+
+                                       ' from parcelascartas pc '+
+                                       ' where pc.carta=ultimaremessadados.carta and '+
+                                             ' pc.cartanumero = ultimaremessadados.cartanumero and '+
+                                             ' pc.causa=4)'+
+                          ')';
+       qrySPC.Params[0].AsBoolean := false;
+       qrySPC.Sql[28] := format(WhereSPC, [format(STRSQL,[ClienteSPC,quotedstr(qryProcuraClientestipo.AsString)])]);
+       qrySPC.Sql[30] := '';
+     end;
+  4: begin //GerarRemessaSPC;
+      STRSQL := ' spc.numero in ((select spcremessa.spc '+
+                                'from (select spc, '+
+                                            ' count(*) as nspc '+
+                                      'from spcremessa '+
+                                      'where remessa = ' + qryRemessanumero.AsString +
+                                      ' group by spc '+
+                                     ') as spcremessa '+
+                                     'where spcremessa.nspc=1 and '+
+                                          ' exists (select srd.remessa '+
+                                                  ' from (spcremessadados srd join cartasclientes cc '+
+                                                       ' on srd.carta = cc.carta and '+
+                                                          ' srd.cartanumero = cc.numero) '+
+                                                  ' where srd.spc = spcremessa.spc and '+
+                                                        ' srd.remessa = ' + qryRemessanumero.AsString +
+                                                        ' and not cc.eavalista)) union all '+
+		      ' ( '+
+		      ' select distinct p.spcavalista '+
+		      ' from '+
+                      ' ( '+
+		      '  select spcremessa.spc '+
+                      '  from (select spc, count(*) as nspc '+
+                      '          from spcremessa '+
+                      '         where remessa = '+ qryRemessanumero.AsString +
+                      '        group by spc '+
+                      '       ) as spcremessa '+
+                      ' where spcremessa.nspc=1 '+
+		      '   and exists (select srd.remessa '+
+                      '               from (spcremessadados srd join cartasclientes cc on srd.carta = cc.carta and '+
+                      '                                                                   srd.cartanumero = cc.numero) '+
+                      '               where srd.spc = spcremessa.spc '+
+		      '		       and srd.remessa = '+ qryRemessanumero.AsString +
+                      '                 and not cc.eavalista) '+
+                      '  ) as cliente_spc join parcelas p on cliente_spc.spc = p.spccliente '+
+		      '	where p.spcavalista is not null '+
+		      ' ) '+
+		      ' union all '+
+		      ' ( '+
+		      '  select sr1.spc '+
+                      '  from spcremessa sr1 '+
+		      '	where sr1.remessa = '+ qryRemessanumero.AsString +
+		      '	  and sr1.operacao = ''E'' '+
+		      '	  and not exists (select sr2.spc '+
+		      '	                   from spcremessa sr2 '+
+		      '			  where sr2.remessa = '+ qryRemessanumero.AsString +
+		      '			    and sr2.operacao = ''I'') '+
+		      ' ) union all '+
+                      ' select distinct pc.spc '+
+                      ' from '+
+                      ' ( '+
+		      '  select pc.contratoparcela, pc.parcela '+
+                      '  from (select spc, count(*) as nspc '+
+                      '          from spcremessa '+
+                      '         where remessa = '+ qryRemessanumero.AsString +
+                      '        group by spc '+
+                      '       ) as spcremessa join parcelascartas pc on spcremessa.spc = pc.spc '+
+                      ' where spcremessa.nspc=1 '+
+		      '   and exists (select srd.remessa '+
+                      '               from (spcremessadados srd join cartasclientes cc on srd.carta = cc.carta and '+
+                      '                                                                   srd.cartanumero = cc.numero) '+
+                      '               where srd.spc = spcremessa.spc '+
+		      '		       and srd.remessa = '+ qryRemessanumero.AsString +
+                      '                 and not cc.eavalista) '+
+                      '  ) as clientes_spc join parcelascartas pc join cartasclientes cc on pc.carta = cc.carta and '+
+                      '                                                                     pc.cartanumero = cc.numero '+
+                      '                                             on pc.contratoparcela=clientes_spc.contratoparcela and '+
+                      '                                              pc.parcela = clientes_spc.parcela '+
+                      '  where cc.eavalista '+
+                      ') and not spc.aguardando and coalesce(spc.bloqueada,'''')=''''';
+      qryspc.Params[0].AsBoolean := false;
+      qrySPC.Sql[28] := format(WhereSPC, [STRSQL]);
+      qrySPC.Sql[30] := '';
+     end;
+  6: begin //GerarConsulta;
+       if TipoDataInclusao and TipoDataExclusao then
+          STRSQL := '(spc.datainclusao between (:dataInicial) and (:DataFinal) or '+
+                    ' spc.dataexclusao between (:dataInicial) and (:DataFinal)) '
+       else
+       if TipoDataInclusao and not TipoDataExclusao then
+          STRSQL := '(spc.datainclusao between (:dataInicial) and (:DataFinal)) '
+       else
+       if not TipoDataInclusao and TipoDataExclusao then
+          STRSQL := '(spc.dataexclusao between (:dataInicial) and (:DataFinal)) ';
+
+       if RegistradoSPC and not RegistradoEmpresa then
+          STRSQL := STRSQL + ' and spc.registradospc '
+       else
+       if not RegistradoSPC and RegistradoEmpresa then
+          STRSQL := STRSQL + ' and not spc.registradospc ';
+
+       if SituacaoIncluidos then
+          STRSQL := STRSQL + ' and spc.dataexclusao is null';
+
+       if SituacaoExcluidos then
+          STRSQL := STRSQL + ' and spc.dataexclusao is not null';
+
+       if (ClienteSPC<>'') then
+          STRSQL := STRSQL + ' and ((c.cliente = :cliente and c.tipocliente = :tipocliente) or '+
+                                   '(c.avalista = :cliente and ''C''= :tipocliente))';
+
+          ;
+
+       qrySPC.Sql[28] := format(WhereSPC, [STRSQL]);
+
+       qrySPC.ParamByName('VerificarPagto').AsBoolean := false;
+       qrySPC.ParamByName('DataInicial').AsString := DataInicial;
+       qrySPC.ParamByName('DataFinal').AsString := DataFinal;
+
+       if (ClienteSPC<>'') then
+       begin
+        qrySPC.ParamByName('cliente').AsString := ClienteSPC;
+        qrySPC.ParamByName('tipocliente').AsString := qryProcuraClientestipo.AsString;
+       end;
+       qrySPC.Sql[30] := '';
+     end;
+  end;
+
+  FQtdeMarcados := 0;
+
+  if (FFiliais<>'') then
+    qrySPC.Sql[28] := qrySpc.Sql[28]+
+     format(WhereSPCFililavenda,[FFiliais, FFiliais, FFiliais])
+  else
+   if (FGrupoFiliais<>'') then
+    qrySPC.Sql[28] := qrySpc.Sql[28]+
+     format(WhereSPCFililavenda,
+      [format(FiltroGrupoFilial, [FGrupoFiliais]),
+       format(FiltroGrupoFilial, [FGrupoFiliais]),
+       format(FiltroGrupoFilial, [FGrupoFiliais])]);
+
+  qryspc.AfterScroll := nil;
+  ReFazConsulta(qryspc,[],[]);
+  qrySPC.AfterScroll := qrySPCAfterScroll;
+  qrySPCAfterScroll(qryspc);
+  RegistroSPCSelecionadas[NumeroSPC].Clear;
+  RegistroSPCSelecionadas[Selecionado].Clear;
+  result := not qryspc.isempty;
+  if not result then
+  begin
+   qrySPCRemessa.Close;
+   qrySPCRemessaDados.Close;
+   qryParcelasSPC.Close;
+  end;
+end;
+
+
+function Tdtmspc.GerarSPC: Boolean;
+var
+ NumeroSPC, CartaCliente, CartaNumeroCliente, i:integer;
+begin
+
+ CorrigirErros;
+
+ if ParSistema.InscreveSPCClienteCartaDevolvida then
+ begin
+  qryGerarSPC.MacroByName('InscreveSPCClienteCartaDevolvida').AsString := '';
+  qryGerarSPCRemessaDados.MacroByName('InscreveSPCClienteCartaDevolvida').AsString := '';
+ end
+ else
+ begin
+  qryGerarSPC.MacroByName('InscreveSPCClienteCartaDevolvida').AsString := FiltroDevolucao;
+  qryGerarSPCRemessaDados.MacroByName('InscreveSPCClienteCartaDevolvida').AsString := FiltroDevolucaoRD;
+ end;
+
+ if ParSistema.ConfirmaRecebimentoAvisoSPC then
+ begin
+  qrygerarspc.MacroByName('FiltroConfirmacao').AsString := FiltroConfirmacao;
+  qryGerarSPC.MacroByName('ConfirmaRecebimentoAvisoSPC').AsString := Format(FiltroConfirmacao_Enviada,['cc.confirmacao',inttostr(ParSistema.DiasEntradaSPC)]);
+  qryGerarSPCRemessaDados.MacroByName('FiltroConfirmacao').AsString := FiltroConfirmacaoRD;
+  qryGerarSPCRemessaDados.MacroByName('ConfirmaRecebimentoAvisoSPC').AsString := Format(FiltroConfirmacao_Enviada,['confirmacao',inttostr(ParSistema.DiasEntradaSPC)]);
+ end
+ else
+ begin
+  qrygerarspc.MacroByName('FiltroConfirmacao').AsString := '';
+  qryGerarSPC.MacroByName('ConfirmaRecebimentoAvisoSPC').AsString := Format(FiltroConfirmacao_Enviada,['cast(cc.enviada as date)',inttostr(ParSistema.DiasEntradaSPC)]);
+  qryGerarSPCRemessaDados.MacroByName('FiltroConfirmacao').AsString := '';
+  qryGerarSPCRemessaDados.MacroByName('ConfirmaRecebimentoAvisoSPC').AsString := Format(FiltroConfirmacao_Enviada,['cast(enviada as date)',inttostr(ParSistema.DiasEntradaSPC)]);
+ end;
+
+ qryGerarSPC.ParamByName('ndiasNovaInscricao').Asinteger := ParSistema.DiasNovaInscricaoSPC;
+
+ qryGerarSPCRemessa.ParamByName('remessa').Asstring := qryRemessanumero.AsString;
+
+ qryGerarSPCRemessaDados.ParamByName('datahoragravacao').Asstring := DataHoraGravacao;
+ qryGerarSPCRemessaDados.ParamByName('remessa').Asstring := qryRemessanumero.AsString;
+
+ qryAtualizarParcelas.ParamByName('remessa').Asstring := qryRemessanumero.AsString;
+
+ qryAtualizarSPCRemessaNaoEnviada.ParamByName('remessa').Asstring := qryRemessanumero.AsString;
+ qryAtualizarSPCRemessaDadosNaoEnviada.ParamByName('remessa').Asstring := qryRemessanumero.AsString;
+
+ if (Filiais<>'') then
+ begin
+   qrygerarspc.MacroByName('WhereFilialVenda').AsString := Format(FiltroFilial,[FFiliais]);
+   qryGerarSPCRemessaDados.MacroByName('WhereFilialVenda').AsString := Format(FiltroFilialRD,[FFiliais]);
+   qryAtualizarSPCRemessaNaoEnviada.sql[35] := Format(FiltroFilial,[FFiliais]);
+   qryAtualizarSPCRemessaDadosNaoEnviada.sql[35] := Format(FiltroFilial,[FFiliais]);
+ end
+ else
+ if (FGrupoFiliais<>'') then
+ begin
+   qrygerarspc.MacroByName('WhereFilialVenda').AsString := Format(FiltroGrupoFilial,[FGrupoFiliais]);
+   qryGerarSPCRemessaDados.MacroByName('WhereFilialVenda').AsString := Format(FiltroGrupoFilialRD,[FGrupoFiliais]);
+   qryAtualizarSPCRemessaNaoEnviada.sql[35] := Format(FiltroGrupoFilial,[FGrupoFiliais]);
+   qryAtualizarSPCRemessaDadosNaoEnviada.sql[35] := Format(FiltroGrupoFilial,[FGrupoFiliais]);
+ end
+ else
+ begin
+   qrygerarspc.MacroByName('WhereFilialVenda').AsString := '';
+   qryGerarSPCRemessaDados.MacroByName('WhereFilialVenda').AsString := '';
+   qryAtualizarSPCRemessaNaoEnviada.sql[35] := '';
+   qryAtualizarSPCRemessaDadosNaoEnviada.sql[35] := '';
+ end;
+
+ if not ParSistema.RegistraAvalistaNoSPC then
+ begin
+   for i:= 34 to 49 do
+     qryGerarSPC.sql[i]:='';
+   for i:= 65 to 126 do
+     qryGerarSPCRemessaDados.Sql[i]:='';
+ end;
+
+ qryIniciarGravacao.Open;
+ try
+  qryGerarSPC.ExecSql;
+  qryGerarSPCRemessa.ExecSql;
+  qryGerarSPCRemessaDados.Close;
+  qryGerarSPCRemessaDados.open;
+  qryGerarSPCRemessaDados.First;
+  NumeroSPC := 0;
+  CartaCliente := 0;
+  CartaNumeroCliente := 0;
+  while not qryGerarSPCRemessaDados.Eof do
+  begin
+    if NumeroSPC <> qryGerarSPCRemessaDadosspc.AsInteger then
+    begin
+       if (CartaCliente = 0) or
+          (Cartacliente <> qryGerarSPCRemessaDadoscartacliente.AsInteger) then
+       begin
+         if (CartaNumeroCliente=0) or
+            (CartaNumeroCliente <> qryGerarSPCRemessaDadoscartanumerocliente.AsInteger) or
+            ((CartaCliente <> 0) and (CartaCliente <> qryGerarSPCRemessaDadoscartacliente.AsInteger)) then
+         begin
+           NumeroSPC := qryGerarSPCRemessaDadosspc.AsInteger;
+           Cartacliente := qryGerarSPCRemessaDadoscartacliente.AsInteger;
+           CartaNumerocliente := qryGerarSPCRemessaDadoscartanumerocliente.AsInteger;
+           for i := 0 to (qryGerarSPCRemessaDados.FieldCount-1) do
+            if qryGerarSPCRemessaDados.Fields[i].IsNull then
+              qryIncluirSPCRemessaDados.params[i].value := qryGerarSPCRemessaDados.Fields[i].Value
+            else
+            if qryGerarSPCRemessaDados.Fields[i].DataType in [ftdatetime, ftdate, ftstring] then
+              qryIncluirSPCRemessaDados.params[i].asstring := qryGerarSPCRemessaDados.Fields[i].asstring
+            else
+              if (qryGerarSPCRemessaDados.Fields[i].AsInteger<>0) then
+                qryIncluirSPCRemessaDados.params[i].AsInteger := qryGerarSPCRemessaDados.Fields[i].AsInteger;
+           qryIncluirSPCRemessaDados.ExecSql;
+         end
+         else
+           CartaNumeroCliente := 0;
+       end;
+    end
+    else
+      CartaCliente := 0;
+
+    qryGerarSPCRemessaDados.Next;
+
+  end;
+  qryAtualizarParcelas.ExecSql;
+  qryAtualizarSPCRemessaNaoEnviada.ExecSql;
+  qryAtualizarSPCRemessaDadosNaoEnviada.ExecSql;
+  qryReverSPCBloqueados.ExecSql;
+
+  qryFinalizarGravacao.Open;
+ except
+  qryDesfazerGravacao.Open;
+  qryDesfazerGravacao.close;
+  MensagemAviso(ctERROPROCESSAMENTO);
+ end;
+ qryIniciarGravacao.close;
+ qryFinalizarGravacao.close;
+
+ result := (qryGerarSPC.RowsAffected<>0) or
+           (qryGerarSPCRemessa.RowsAffected<>0) or
+           (qryAtualizarSPCRemessaNaoEnviada.RowsAffected<>0);
+
+end;
+
+function Tdtmspc.GetConsultaClientes: TZDataSet;
+begin
+ result := qryConsultaClientes
+end;
+
+
+procedure Tdtmspc.MarcarSPCSelecionadas(Marcando, Todos: Boolean);
+begin
+ qryspc.AfterScroll := nil;
+ MarcarRegistros(qryspc,
+                qryspcmarcar,
+                qryspcValor,
+                Marcando,
+                Todos);
+ qryspc.AfterScroll := qryspcafterScroll;
+end;
+
+procedure Tdtmspc.MontarFiltroFiliais(Usar: TCheckListBox);
+var
+  STRFiliais: String;
+  TodasFiliais: Boolean;
+  cnt: Integer;
+begin
+  TodasFiliais := True;
+  STRFiliais := '';
+  for cnt := 0 to FListaFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRFiliais := STRFiliais + '''' + IntToStr(Integer(FListaFiliais.Objects[cnt])) + ''','
+    else
+      TodasFiliais := False;
+
+  STRFiliais := Copy(STRFiliais, 0, Length(STrFiliais) - 1);
+  Filiais := STRFiliais;
+  if Trim(STRFiliais) <> '' then
+    if TodasFiliais then
+      Filiais := '';
+end;
+
+procedure Tdtmspc.MontarFiltroGrupoFiliais(Usar: TCheckListBox);
+var
+  STRGruposFiliais: String;
+  TodosGrupos: Boolean;
+  cnt: Integer;
+begin
+  STRGruposFiliais := '';
+  TodosGrupos := True;
+  for cnt := 0 to FListaGruposFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRGruposFiliais := STRGruposFiliais + '''' + IntToStr(Integer(FListaGruposFiliais.Objects[cnt])) + ''','
+    else
+      TodosGrupos := False;
+
+  STRGruposFiliais := Copy(STRGruposFiliais, 0, Length(STrGruposFiliais) - 1);
+  GrupoFiliais:=STRGruposFiliais;
+  if Trim(STRGruposFiliais) <> '' then
+   if TodosGrupos then
+    GrupoFiliais:='';
+end;
+
+procedure Tdtmspc.Selecionar(TipoPesquisa: TipoProcuraSPC);
+begin
+  case TipoPesquisa of
+    spcClientes : RefazConsulta(qryProcuraClientes,[0,1],[qryConsultaClientescodigo.AsVariant,
+                                                          qryConsultaClientestipo.AsVariant]);
+  end;
+end;
+
+procedure Tdtmspc.qrySPCAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qrySPCRemessa,[0],[qrySPCnumero.AsVariant]);
+end;
+
+function Tdtmspc.GetTotalRegistros: Integer;
+begin
+result := qrySPC.RecordCount;
+end;
+
+procedure Tdtmspc.qrySPCCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  if (qrySPCbloqueada.AsString<>'') then
+    qrySPCNbloqueada.AsString := ANSIUpperCase(ctBLOQUEADA)
+  else qrySPCNbloqueada.AsString :='';
+
+end;
+
+function Tdtmspc.GetTipoPessoa: String;
+begin
+  Result:= '';
+  if Assigned(qryspcRemessa) then begin
+    if qrySPCRemessaDadospessoatipo.AsString <> '' then
+         Result:= qrySPCRemessaDadospessoatipo.AsString
+    else Result:= '';
+  end;
+end;
+
+procedure Tdtmspc.qrySPCmarcarChange(Sender: TField);
+var
+ index : integer;
+begin
+  inherited;
+  if not qrySPC.IsEmpty then
+  begin
+   if qrySPCmarcar.AsBoolean then
+   begin
+     RegistroSPCSelecionadas[NumeroSPC].add(qrySPCnumero.AsString);
+     case OperacaoSPC of
+     2: if not qrySPCobsoleta.AsBoolean then
+          RegistroSPCSelecionadas[Selecionado].add('S')
+        else
+          RegistroSPCSelecionadas[Selecionado].add('N');
+
+     3: if not qrySPCverificado.AsBoolean then
+          RegistroSPCSelecionadas[Selecionado].add('S')
+        else
+          RegistroSPCSelecionadas[Selecionado].add('N');
+
+     4: RegistroSPCSelecionadas[Selecionado].add('S');
+     end;
+   end
+   else
+   begin
+    index := RegistroSPCSelecionadas[NumeroSPC].IndexOf(qrySPCNumero.asstring);
+    RegistroSPCSelecionadas[Selecionado].Strings[index] := 'N';
+//    RegistroSPCSelecionadas[NumeroSPC].Delete(index);
+//    RegistroSPCSelecionadas[Selecionado].Delete(index);
+   end;
+  end;
+end;
+
+procedure Tdtmspc.qryParcelasSPCCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  case qryParcelasSPCcausa.AsInteger of
+    1: qryParcelasSPCnomecausa.AsString := ctNOVACARTA;
+    2: begin
+        if (qryParcelasSPCdatapagto.AsDateTime = date()) then
+         qryParcelasSPCnomecausa.AsString := ctQUITACAO+'*'
+        else
+         qryParcelasSPCnomecausa.AsString := ctQUITACAO;
+       end;
+    3: qryParcelasSPCnomecausa.AsString := ctRENEGOCIACAO;
+    4: qryParcelasSPCnomecausa.AsString := ctAUTORIAZACAO;
+  end
+
+end;
+
+Function Tdtmspc.RetirarClientedoSPC: Boolean;
+var
+ RegistroAtual: TBookmark;
+begin
+
+  qryInsereParcelasClientesemParcelasCartas.Sql[10]:='where spccliente in ('+ListaNumeroSPC+')';
+  qryInsereParcelasAvalistasemParcelasCartas.Sql[10]:='where spcavalista in ('+ListaNumeroSPC+')';
+  qryRetiraSPCClientedaParcela.Sql[3]:='where spccliente in ('+ListaNumeroSPC+')';
+  qryRetiraSPCAvalistadaParcela.Sql[3]:='where spcavalista in ('+ListaNumeroSPC+')';
+  qryInsereParcelasClientesemParcelasCartas.ExecSql;
+  qryInsereParcelasAvalistasemParcelasCartas.ExecSql;
+  qryRetiraSPCClientedaParcela.ExecSql;
+  qryRetiraSPCAvalistadaParcela.ExecSql;
+
+  qryInserirAtendimento.ParamByName('cliente').Asstring := ClienteSPC;
+  qryInserirAtendimento.ParamByName('tipocliente').AsString := qryProcuraClientestipo.AsString;
+  qryInserirAtendimento.ParamByName('data').AsDatetime := now();
+  qryInserirAtendimento.ParamByName('tipo').AsString := 'C';
+  qryInserirAtendimento.ParamByName('informes').AsString :=
+  'FORCAR EXCLUSAO DO SPC - Numero: '+qrySPCnumero.AsString+' Registrado em: '+qrySPCdatainclusao.AsString;
+  qryInserirAtendimento.ParamByName('lembrar').AsString := LimiteAviso;
+  qryInserirAtendimento.ParamByName('semaviso').AsString := LimiteAviso;
+  qryInserirAtendimento.ParamByName('semspc').AsString := LimiteAviso;
+  qryInserirAtendimento.ParamByName('concluido').AsBoolean := false;
+  qryInserirAtendimento.ParamByName('usuario').Asinteger := CodigoUsuario;
+  qryInserirAtendimento.ParamByName('tipoatendimento').AsInteger := 1;
+  qryInserirAtendimento.ExecSql;
+
+  result := Perpetrar([qryInserirAtendimento,
+                       qryInsereParcelasClientesemParcelasCartas,
+                       qryInsereParcelasAvalistasemParcelasCartas,
+                       qryRetiraSPCClientedaParcela,
+                       qryRetiraSPCAvalistadaParcela]);
+  if result then
+   result := GerarRetiradaSPC(true);
+
+  if result then
+  begin
+    RegistroAtual := qrySPC.GetBookmark;
+    qryspc.DisableControls;
+    qryParcelasSPC.DisableControls;
+    qrySPC.First;
+    while not qrySPC.Eof do
+    begin
+     if qrySPCmarcar.AsBoolean and
+        not qrySPCobsoleta.AsBoolean then
+     begin
+      qrySPC.Edit;
+      qrySPCobsoleta.AsBoolean := true;
+      qrySPC.Post;
+      MarcarSPCSelecionadas(false, False);
+     end;
+     qrySPC.Next;
+    end;
+    qrySPC.GotoBookmark(RegistroAtual);
+    qryspc.FreeBookmark(RegistroAtual);
+    qryspc.enableControls;
+    qryParcelasSPC.enableControls;
+  end;
+end;
+
+function Tdtmspc.GetParcelaObsoleta: Boolean;
+begin
+ result := qrySPCobsoleta.AsBoolean;
+end;
+
+function Tdtmspc.CancelarRetiradaClientedoSPC: Boolean;
+var
+ RegistroAtual: TBookmark;
+begin
+   qryVoltaSPCClientedaParcelaCarta.Sql[16] := 'pc.spc in ('+ListaNumeroSPC+')';
+   qryVoltaSPCAvalistadaParcelaCarta.Sql[16] := 'pc.spc in ('+ListaNumeroSPC+')';
+   qryApagaParcelaCarta.Sql[1] := 'where spc in ('+ListaNumeroSPC+') and ';
+   qryApagaSPCRemessaNaoEnviada.Sql[1] := 'Where spc in ('+ListaNumeroSPC+') and operacao=''E'' and remessa = '+qryRemessanumero.AsString;
+
+   qryVoltaSPCClientedaParcelaCarta.ExecSql;
+   qryVoltaSPCAvalistadaParcelaCarta.ExecSql;
+   qryApagaParcelaCarta.ExecSql;
+   qryApagaSPCRemessaNaoEnviada.ExecSql;
+
+   qryApagarAtendimentos.ParamByName('cliente').AsString := ClienteSPC;
+   qryApagarAtendimentos.ParamByName('tipocliente').AsString := qryProcuraClientestipo.AsString;
+   qryApagarAtendimentos.ParamByName('informes').AsString :=
+   'FORCAR EXCLUSAO DO SPC - Numero: '+qrySPCnumero.AsString+' Registrado em: '+qrySPCdatainclusao.AsString;
+   qryApagarAtendimentos.ExecSql;
+
+   result := Perpetrar([qryApagarAtendimentos,
+                        qryVoltaSPCClientedaParcelaCarta,
+                        qryVoltaSPCAvalistadaParcelaCarta,
+                        qryApagaParcelaCarta,
+                        qryApagaSPCRemessaNaoEnviada]);
+
+   if result then
+   begin
+     RegistroAtual := qrySPC.GetBookmark;
+     qryspc.DisableControls;
+     qryParcelasSPC.DisableControls;
+     qrySPC.First;
+     while not qrySPC.Eof do
+     begin
+      if (qrySPCmarcar.AsBoolean) and
+         (not qrySPCverificado.AsBoolean) then
+      begin
+        qrySPC.Edit;
+        qrySPCobsoleta.AsBoolean := false;
+        qrySPCverificado.AsBoolean := true;
+        qrySPC.Post;
+        MarcarSPCSelecionadas(false, False);
+       end;
+       qrySPC.Next;
+      end;
+      qrySPC.GotoBookmark(RegistroAtual);
+      qryspc.FreeBookmark(RegistroAtual);
+      qryspc.enableControls;
+      qryParcelasSPC.enableControls;
+   end;
+end;
+
+function Tdtmspc.GetTabelaRegistroSPC: TZDataSet;
+begin
+ result := qryRegistroSPC;
+end;
+
+procedure Tdtmspc.qrySPCRemessaAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  TipoeAvalista := qrySPCRemessatipo.AsString='A';
+  refazConsulta(qrySPCRemessaDados, [0,1,2,3],
+       [qrySPCnumero.AsVariant, qrySPCRemessaremessa.AsVariant,
+        qrySPCRemessaoperacao.AsVariant, TipoeAvalista]);
+
+end;
+
+procedure Tdtmspc.qrySPCRemessaDadosCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qrySPCRemessaDadosSituacao.AsString := '';
+
+  if (pos('1',qryspcbloqueada.AsString)<>0) then
+    qrySPCRemessaDadosSituacao.AsString := ctENDERECOINCOMPLETO;
+
+  if (pos('2',qryspcbloqueada.AsString)<>0) then
+  begin
+   if (qrySPCRemessaDadosSituacao.AsString<>'') then
+     qrySPCRemessaDadosSituacao.AsString := qrySPCRemessaDadosSituacao.AsString+', '+ctCARTADEVOLVIDA
+   else qrySPCRemessaDadosSituacao.AsString := ctCARTADEVOLVIDA;
+  end;
+
+  if (pos('3',qryspcbloqueada.AsString)<>0) then
+  begin
+   ReFazConsulta(qryspcOcorrencia,[0,1,2,3], [qrySPCRemessaDadosdataempresa.AsVariant,
+                                            qrySPCcliente.AsVariant,
+                                            qrySPCtipocliente.AsVariant,
+                                            qrySPCavalista.AsVariant]);
+   if (qrySPCRemessaDadosSituacao.AsString<>'') then
+    qryspcRemessaDadosSituacao.AsString := qryspcRemessaDadosSituacao.AsString+', '+format(ctSEMSPCATE, [FormatDateTime('dd/mm/yy', qrySPCOcorrenciasemspc.AsDateTime)])
+   else
+    qryspcRemessaDadosSituacao.AsString := format(ctSEMSPCATE, [FormatDateTime('dd/mm/yy', qrySPCOcorrenciasemspc.AsDateTime)]);
+  end;
+
+end;
+
+procedure Tdtmspc.CancelarGravacao;
+begin
+  CancelarAtualizacoes([qryGerarSPC,
+                        qryGerarSPCRemessa,
+                        qryGerarSPCRemessaDados,
+                        qryAtualizarParcelas]);
+end;
+
+
+function Tdtmspc.GerarRetiradaSPC(RetiradaForcada: Boolean): Boolean;
+begin
+
+ CorrigirErros;
+
+ qryGerarSPCRetirada.ParamByName('remessa').Asstring := qryRemessanumero.AsString;
+ qryGerarSPCRetiradaDados_Clientes.ParamByName('remessa').Asstring := qryRemessanumero.AsString;
+ qryGerarSPCRetiradaDados_Avalistas.ParamByName('remessa').Asstring := qryRemessanumero.AsString;
+ qryGerarSPCRetiradaDados_Clientes.ParamByName('datahoragravacao').Asstring := DataHoraGravacao;
+ qryGerarSPCRetiradaDados_Avalistas.ParamByName('datahoragravacao').Asstring := DataHoraGravacao;
+
+ if RetiradaForcada then
+ begin
+  qryGerarSPCRetirada.sql[16]:='and spc.numero in ('+ListaNumeroSPC+')';
+  qryGerarSPCRetiradaDados_Clientes.sql[53]:='and sr.spc in ('+ListaNumeroSPC+')';
+  qryGerarSPCRetiradaDados_Avalistas.sql[53]:='and sr.spc in ('+ListaNumeroSPC+')';
+ end
+ else
+ begin
+  qryGerarSPCRetirada.sql[16]:='';
+  qryGerarSPCRetiradaDados_Clientes.sql[53]:='';
+  qryGerarSPCRetiradaDados_Avalistas.sql[53]:='';
+ end;
+
+ if (FFiliais<>'') then
+   qryGerarSPCRetirada.Sql[15] := Format(FiltroFilial,[Filiais])
+ else
+  if (FGrupoFiliais<>'') then
+   qryGerarSPCRetirada.Sql[15] := Format(FiltroGrupoFilial,[FGrupoFiliais])
+ else
+   qryGerarSPCRetirada.Sql[15] := '';
+
+ qryIniciarGravacao.Open;
+ try
+  qryGerarSPCRetirada.ExecSql;
+  qryGerarSPCRetiradaDados_Clientes.ExecSql;
+  qryGerarSPCRetiradaDados_Avalistas.ExecSql;
+  qryFinalizarGravacao.Open;
+ except
+  qryDesfazerGravacao.Open;
+  qryDesfazerGravacao.close;
+  MensagemAviso(ctERROPROCESSAMENTO);
+ end;
+ qryIniciarGravacao.close;
+ qryFinalizarGravacao.close;
+
+ result := (qryGerarSPCRetirada.RowsAffected<>0);
+end;
+
+function Tdtmspc.GetParcelaVerificado: Boolean;
+begin
+ result := qrySPCVerificado.AsBoolean;
+end;
+
+function Tdtmspc.ListaNumeroSPC: String;
+var
+SPC : Integer;
+ListaSPC : String;
+begin
+ ListaSPC := '';
+ OrdernarListaNumeroSPC;
+ SPC := 0;
+ While (SPC <= (RegistroSPCSelecionadas[NumeroSPC].Count-1)) do
+ begin
+  if (RegistroSPCSelecionadas[Selecionado].Strings[SPC]='S') then
+   ListaSPC := ListaSPC+RegistroSPCSelecionadas[NumeroSPC].Strings[SPC]+',';
+  SPC := SPC + 1;
+ end;
+ if (ListaSPC<>'') then
+  ListaSPC := Copy(ListaSPC, 0, Length(ListaSPC) - 1);
+ result := ListaSPC;
+end;
+
+procedure Tdtmspc.OrdernarListaNumeroSPC;
+var
+  A, B : integer;
+begin
+  for A := 1 to RegistroSPCSelecionadas[NumeroSPC].Count - 1 do begin
+    B := A;
+    While strtoint(RegistroSPCSelecionadas[NumeroSPC].Strings[B])<
+          strtoint(RegistroSPCSelecionadas[NumeroSPC].Strings[B-1]) do
+    begin
+      RegistroSPCSelecionadas[NumeroSPC].Move(B,B-1);
+      RegistroSPCSelecionadas[Selecionado].Move(B,B-1);
+      if B=1 then
+        break
+      else
+        B := B-1;
+    end;
+  end;
+end;
+
+function Tdtmspc.RefazNumeroRemessa(GerarUltimaEnviada: Boolean): Boolean;
+begin
+  if GerarUltimaEnviada then
+    qryRemessa.sql[11] := 'dataenvio is not null'
+  else qryRemessa.sql[11] := 'dataenvio is null';
+
+  if ParSistema.ControleSPCCentralizado then
+  begin
+   qryRemessa.sql[12]:='';
+   qryRemessa.Sql[18]:='';
+  end
+  else
+   qryremessa.ParamByName('filialbase').asinteger := FilialBase;
+
+  ReFazConsulta(qryRemessa,[],[]);
+
+  result := not qryRemessa.IsEmpty;
+  if result then
+  begin
+    ReFazConsulta(qryProcuraRemessaSPC,[0],[qryRemessanumero.AsVariant]);
+    if qryProcuraRemessaSPC.IsEmpty then
+    begin
+      qryGerarRemessa.Params[0].AsString  := qryRemessanumero.AsString;
+      qryGerarRemessa.Params[1].Asinteger := codigousuario;
+      qryGerarRemessa.Params[2].Asinteger := qryRemessacodigo.AsInteger;
+      qryGerarRemessa.ExecSql;
+      perpetrar([qryGerarRemessa]);
+    end;
+  end;
+end;
+
+procedure Tdtmspc.qryRemessaCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryRemessaarquivo.AsString := trocar(format('%8s',[qryremessaspc_codigoinformante.asstring]),' ','0')+'.'+
+                                trocar(format('%7s',[qryremessanumero.asstring]),' ','0')+'.REM';
+end;
+
+function Tdtmspc.GerarRemessaSPC: boolean;
+var
+   i: integer;
+   datahoragravacao : TDateTime;
+begin
+   datahoragravacao := now();
+
+   qryAtualizarRemessa_Clientes.Sql[55] := 'and srdc.spc in ('+ListaNumeroSPC+')';
+   qryAtualizarRemessa_Clientes.Params[0].asdatetime := DataHoraGravacao;
+   qryAtualizarRemessa_Clientes.Params[1].asinteger:= qryRemessanumero.AsVariant;
+   qryAtualizarRemessa_Clientes.ExecSql;
+
+   qryAtualizarRemessa_Avalistas.Sql[55] := 'and srdc.spc in ('+ListaNumeroSPC+')';
+   qryAtualizarRemessa_Avalistas.Params[0].asdatetime := DataHoraGravacao;
+   qryAtualizarRemessa_Avalistas.Params[1].asinteger:= qryRemessanumero.AsVariant;
+   qryAtualizarRemessa_Avalistas.ExecSql;
+
+   if (ListaNumeroSPCNaoMarcados<>'') then
+   begin
+     qryAtualizaSPC.Sql[1] := 'where numero in ('+ListaNumeroSPCNaoMarcados+')';
+     qryAtualizaSPC.ExecSql;
+   end;
+
+   ReFazConsulta(qryProcuraRemessaSPC,[0], [qryRemessanumero.AsVariant]);
+
+   if not qryProcuraRemessaSPC.IsEmpty then
+   begin
+    qryProcuraRemessaSPC.Edit;
+    qryProcuraRemessaSPCusuario.AsInteger := CodigoUsuario;
+    qryProcuraRemessaSPCfilialremetente.AsInteger := qryRemessacodigo.AsInteger;
+    qryProcuraRemessaSPCdataenvio.AsDateTime := now();
+    qryProcuraRemessaSPC.Post;
+   end;
+
+   Perpetrar([qryAtualizarRemessa_Clientes,
+              qryAtualizarRemessa_Avalistas,
+              qryAtualizaSPC,
+              qryprocuraRemessaSPC]);
+
+   qryGerarArquivoRemessaDetalhe.MacroByName('ListaSPCSelecionados_srdc').AsString := 'and srdc.spc in ('+ListaNumeroSPC+')';
+   qryGerarArquivoRemessaDetalhe.MacroByName('ListaSPCSelecionados').AsString := 'and srdv.spc in ('+ListaNumeroSPC+')';
+   qryGerarArquivoRemessaDetalhe_J.MacroByName('ListaSPCSelecionados_srdc').AsString := 'and srdc.spc in ('+ListaNumeroSPC+')';
+   qryGerarArquivoRemessaDetalhe_J.MacroByName('ListaSPCSelecionados').AsString := 'and srdv.spc in ('+ListaNumeroSPC+')';
+
+   qryGerarArquivoRemessaDetalhe.Params[0].asinteger := qryRemessanumero.AsVariant;
+   qryGerarArquivoRemessaDetalhe_J.Params[0].asinteger := qryRemessanumero.AsVariant;
+
+   qryGerarArquivoRemessaDetalhe.AfterScroll := nil;
+   qryGerarArquivoRemessaDetalhe_J.AfterScroll := nil;
+   qryGerarArquivoRemessaDetalhe.close;
+   qryGerarArquivoRemessaDetalhe.open;
+   qryGerarArquivoRemessaDetalhe_J.close;
+   qryGerarArquivoRemessaDetalhe_J.open;
+   try
+     AssignFile(Arq, qryRemessaarquivo.AsString);
+     Rewrite(Arq);
+
+
+     ComporHeaderArquivoRemessa;
+     ComporDetalheArquivoRemessa(I, qryGerarArquivoRemessaDetalhe);
+     ComporDetalheArquivoRemessa(I, qryGerarArquivoRemessaDetalhe_J);
+
+     qryGerarArquivoRemessaDetalhe.AfterScroll := qryGerarArquivoRemessaDetalheAfterScroll;
+     qryGerarArquivoRemessaDetalhe_J.afterScroll := qryGerarArquivoRemessaDetalhe_JAfterScroll;
+
+   except
+     on E:EFCreateError do
+       MensagemErro(E.Message);
+   end;
+
+   closefile(arq);
+{   ArquivoRemessa.SaveToFile(qryRemessaarquivo.AsString);}
+
+   qrySPCAfterScroll(qryspc);
+   result := true;
+end;
+
+procedure Tdtmspc.ComporHeaderArquivoRemessa;
+var
+ linha : String;
+begin
+ linha := '0';
+ linha := linha + 'REMESSA';
+ linha := linha + format('%7.7d',[qryRemessanumero.Asinteger]);
+ linha := linha + FormatDateTime('ddmmyyyy', date());
+ linha := linha + format('%-40.40s',[qryRemessaspc_destinatario.asstring]);
+ linha := linha + format('%-8.8s',[qryRemessaspc_dasp_destinatario.asstring]);
+ linha := linha + format('%-40.40s',[qryRemessaspc_remetente.asstring]);
+ linha := linha + format('%-8.8s',[qryRemessaspc_dasp_remetente.asstring]);
+ linha := linha + format('%-8.8s', [qryRemessaspc_operador.asstring]);
+ linha := linha + FormatDateTime('ddmmyyyy', date());
+ linha := linha + FormatDateTime('ddmmyyyy', date());
+ linha := linha + format('%680s', ['']);
+ linha := linha + '0000000';
+ linha := linha + format('%50s',['']);
+
+{$IFDEF LINUX}
+ Writeln(Arq, linha+#13);
+{$ELSE }
+ Writeln(Arq, linha);
+{$ENDIF}
+
+{ ArquivoRemessa.Add(linha);}
+end;
+
+procedure Tdtmspc.SetDataFinal(const Value: String);
+begin
+  FDataFinal := Value;
+  if (FDataFinal = '') then
+   FDataFinal := FDataInicial
+  else
+   if (FDataInicial = '') then
+    FDataInicial := FDataFinal;
+end;
+
+procedure Tdtmspc.qrySPCRemessaDadosAfterOpen(DataSet: TDataSet);
+const
+ SQL_ParcelasClientes = 'p.cartacliente = :carta and p.cartanumerocliente = :cartanumero';
+ SQL_ParcelasAvalistas = 'p.cartaavalista = :carta and p.cartanumeroavalista = :cartanumero';
+begin
+  inherited;
+  if not TipoeAvalista then
+   qryParcelasSPC.Sql[27] := SQL_ParcelasClientes
+  else
+   qryParcelasSPC.Sql[27] := SQL_ParcelasAvalistas;
+
+  ReFazConsulta(qryParcelasSPC,[0,1],
+    [qrySPCRemessaDadoscarta.AsVariant,
+    qrySPCRemessaDadoscartanumero.AsVariant ]);
+
+end;
+
+function Tdtmspc.GetSPCDataExclusao: String;
+begin
+ result := qrySPCdataexclusao.AsString;
+end;
+
+function Tdtmspc.ListaNumeroSPCNaoMarcados: String;
+var
+SPC : Integer;
+ListaSPC : String;
+begin
+ ListaSPC := '';
+ OrdernarListaNumeroSPC;
+ SPC := 0;
+ While (SPC <= (RegistroSPCSelecionadas[NumeroSPC].Count-1)) do
+ begin
+  if (RegistroSPCSelecionadas[Selecionado].Strings[SPC]='N') then
+   ListaSPC := ListaSPC+RegistroSPCSelecionadas[NumeroSPC].Strings[SPC]+',';
+  SPC := SPC + 1;
+ end;
+ if (ListaSPC<>'') then
+  ListaSPC := Copy(ListaSPC, 0, Length(ListaSPC) - 1);
+ result := ListaSPC;
+end;
+
+procedure Tdtmspc.ImprimirRelatorio;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+{  frpRemessaCarta_F.DesignReport;
+  frpRemessaCarta_J.DesignReport;
+  frpRemessa_F.DesignReport;
+  frpRemessa_J.DesignReport;}
+
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3;
+  try
+//   frpRemessa_F.DesignReport;
+//   frpRemessa_J.DesignReport;
+
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   frmPreview.frCompositeReport.Reports.Add(frpRemessaCarta_F);
+   if ParSistema.InscreverPessoaJuridicaSPC then
+     frmPreview.frCompositeReport.Reports.Add(frpRemessaCarta_J);
+
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+   frmPreview.ShowModal;
+
+   frmPreview.frCompositeReport.Reports.Clear;
+   frmPreview.frCompositeReport.Reports.Add(frpRemessa_F);
+
+   if ParSistema.InscreverPessoaJuridicaSPC then
+     frmPreview.frCompositeReport.Reports.Add(frpRemessa_J);
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+   frmPreview.ShowModal;
+  finally
+   frmPreview.Free
+  end;
+end;
+
+function Tdtmspc.GetListaFiliais: TStrings;
+begin
+  FListaFiliais:= TStringList.Create;
+  qryFiliais.First;
+  while not qryFiliais.Eof do
+  begin
+    FListaFiliais.AddObject(qryFiliaisnome.AsString, Pointer(qryFiliaiscodigo.AsInteger));
+    qryFiliais.Next;
+  end;
+  Result := FListaFiliais;
+
+end;
+
+function Tdtmspc.GetListaGruposFiliais: TStrings;
+begin
+  FListaGruposFiliais:= TStringList.Create;
+  qryGrupoFiliais.First;
+  while not qryGrupoFiliais.Eof do
+  begin
+    FListaGruposFiliais.AddObject(qryGrupoFiliaisdescricao.AsString, Pointer(qryGrupoFiliaiscodigo.AsInteger));
+    qryGrupoFiliais.Next;
+  end;
+  Result := FListaGruposFiliais;
+end;
+
+procedure Tdtmspc.frpRemessaBeforePrint(Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') then
+   if FileExists(LogotipoFilialBase) then
+    try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+end;
+
+procedure Tdtmspc.frpRemessaCartaBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+end;
+
+{
+procedure Tdtmspc.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('/tmp/log.txt') then
+    Listar.loadfromfile('/tmp/log.txt');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('/tmp/log.txt');
+  listar.free;
+end;
+}
+
+procedure Tdtmspc.ComporDetalheArquivoRemessa(var I: integer;
+  Tabela: TtecQuery);
+var
+ linha : String;
+begin
+ Tabela.First;
+ while not Tabela.Eof do
+ begin
+   I := I+1;
+   linha := linha + '1';
+   linha := linha + Tabela.fieldbyname('operacao').AsString;
+   linha := linha + format('%30s',['']);  // area reservada
+   linha := linha + format('%-14.14s',[Tabela.fieldbyname('cpf_cliente').AsString]);
+   linha := linha + format('%-13.13s',[Tabela.fieldbyname('rg_cliente').asstring]);
+   linha := linha + format('%-2.2s',[Tabela.fieldbyname('ufrg_cliente').asstring]);
+   linha := linha + format('%14s',['']);  // documento adicional
+   linha := linha + format('%4s',['']);  // tipo documento adicional
+   linha := linha + format('%-40.40s', [Tabela.fieldbyname('nome_cliente').asstring]);
+   linha := linha + FormatDateTime('ddmmyyyy',Tabela.fieldbyname('nascto_cliente').AsDateTime);
+   linha := linha + format('%-20.20s', [Tabela.fieldbyname('naturalcidade_cliente').asstring]);
+   linha := linha + format('%-2.2s',[Tabela.fieldbyname('naturalestado_cliente').asstring]);
+   linha := linha + Tabela.fieldbyname('sexo_cliente').AsString;
+   linha := linha + format('%-40.40s', [Tabela.fieldbyname('pai_cliente').AsString]);
+   linha := linha + format('%-40.40s', [Tabela.fieldbyname('mae_cliente').AsString]);
+   if Tabela.fieldbyname('estadocivil_cliente').AsString='O' then
+    linha := linha + 'C'
+   else
+    linha := linha + Tabela.fieldbyname('estadocivil_cliente').AsString;
+   linha := linha + format('%-40.40s', [Tabela.fieldbyname('conjuge_cliente').asstring]);
+   if (Tabela.fieldbyname('connascto_cliente').asstring<>'') then
+     linha := linha + FormatDateTime('ddmmyyyy',Tabela.fieldbyname('connascto_cliente').AsDateTime)
+   else
+     linha := linha + '        ';
+   linha := linha + format('%-50.50s', [
+
+       trim(Tabela.fieldbyname('rua_cliente').asstring) +
+
+       ifthen(Tabela.fieldbyname('numerorua_cliente').asstring<>'', ', ' +
+              Tabela.fieldbyname('numerorua_cliente').asstring,'') +
+
+       ifthen(Tabela.fieldbyname('complementoendereco_cliente').asstring<>'', ' ' +
+              Tabela.fieldbyname('complementoendereco_cliente').asstring,'') ]);
+
+   linha := linha + format('%-20.20s', [Tabela.fieldbyname('bairro_cliente').asstring]);
+   linha := linha + format('%8.8d', [Tabela.fieldbyname('cep_cliente').asinteger]);
+   linha := linha + format('%-20.20s', [Tabela.fieldbyname('cidade_cliente').asstring]);
+   linha := linha + format('%-2.2s',[Tabela.fieldbyname('estado_cliente').AsString]);
+   if (Tabela.fieldbyname('cpf_avalista').AsString<>'') or
+      (Tabela.fieldbyname('rg_avalista').asstring<>'') then
+   begin
+     linha := linha + format('%-14.14s',[Tabela.fieldbyname('cpf_avalista').AsString]);
+     linha := linha + format('%-13.13s',[Tabela.fieldbyname('rg_avalista').asstring]);
+     linha := linha + format('%-2.2s',[Tabela.fieldbyname('ufrg_avalista').asstring]);
+     linha := linha + format('%14s',['']);  // documento adicional
+     linha := linha + format('%4s',['']);  // tipo documento adicional
+     linha := linha + format('%-40.40s', [Tabela.fieldbyname('nome_avalista').asstring]);
+     linha := linha + FormatDateTime('ddmmyyyy',Tabela.fieldbyname('nascto_avalista').AsDateTime);
+     linha := linha + format('%-20.20s', [Tabela.fieldbyname('naturalcidade_avalista').asstring]);
+     linha := linha + format('%-2.2s', [Tabela.fieldbyname('naturalestado_avalista').asstring]);
+     linha := linha + Tabela.fieldbyname('sexo_avalista').AsString;
+     linha := linha + format('%-40.40s', [Tabela.fieldbyname('pai_avalista').AsString]);
+     linha := linha + format('%-40.40s', [Tabela.fieldbyname('mae_avalista').AsString]);
+     if Tabela.fieldbyname('estadocivil_avalista').AsString='O' then
+      linha := linha + 'C'
+     else
+      linha := linha + Tabela.fieldbyname('estadocivil_avalista').AsString;
+     linha := linha + format('%-40.40s', [Tabela.fieldbyname('conjuge_avalista').asstring]);
+     if (Tabela.fieldbyname('connascto_avalista').Asstring<>'') then
+      linha := linha + FormatDateTime('ddmmyyyy',Tabela.fieldbyname('connascto_avalista').AsDateTime)
+     else linha := linha + '        ';
+
+     linha := linha + format('%-50.50s', [
+
+         trim(Tabela.fieldbyname('rua_avalista').asstring) +
+
+         ifthen(Tabela.fieldbyname('numerorua_avalista').asstring<>'', ', ' +
+                Tabela.fieldbyname('numerorua_avalista').asstring,'') +
+
+         ifthen(Tabela.fieldbyname('complementoendereco_avalista').asstring<>'', ' ' +
+                Tabela.fieldbyname('complementoendereco_avalista').asstring,'') ]);
+
+     linha := linha + format('%-20.20s', [Tabela.fieldbyname('bairro_avalista').asstring]);
+     linha := linha + format('%8.8d', [Tabela.fieldbyname('cep_avalista').asinteger]);
+     linha := linha + format('%-20.20s', [Tabela.fieldbyname('cidade_avalista').asstring]);
+     linha := linha + format('%-2.2s', [Tabela.fieldbyname('estado_avalista').AsString]);
+   end
+   else
+    linha := linha + format('%347s',['']);
+   linha := linha + FormatDateTime('ddmmyyyy',Tabela.fieldbyname('datacompra').AsDateTime);
+   linha := linha + Format('%-16.16s',[Tabela.fieldbyname('spc').Asstring]);
+   linha := linha + '    '; // constante tamanho 4 *erro layout
+   linha := linha + '    '; // moeda tamanho 4
+   linha := linha + format('%14.14d',[round(Tabela.fieldbyname('valordebito').ascurrency*100)]);
+   linha := linha + '  '; // constante tamanho 2
+   linha := linha + qryRemessaspc_codigoinformante.AsString; // codigo informante ?
+   linha := linha + FormatDateTime('ddmmyyyy', date());
+   linha := linha + FormatDateTime('ddmmyyyy', Tabela.fieldbyname('datavencto').AsDateTime);
+   linha := linha + '00000000';  // SOCIO INTERCAMBIO ?
+   linha := linha + format('%16s',['']);  // NOME SOCIO INTERCAMBIO ?
+   linha := linha + ' '; // constante tamanho 1
+   linha := linha + format('%7.7d',[I]);
+
+  {$IFDEF LINUX}
+   Writeln(Arq, linha+#13);
+  {$ELSE }
+   Writeln(Arq, linha);
+  {$ENDIF}
+
+{   ArquivoRemessa.Add(linha);}
+
+   Tabela.Next;
+
+ end;
+end;
+
+procedure Tdtmspc.frpRemessaCarta_FGetValue(const ParName: String;
+  var ParValue: Variant);
+begin
+  inherited;
+  ParValue := ParametroRelatorio(ParName);
+end;
+
+procedure Tdtmspc.frpRemessaCarta_FBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRemessaCarta_F, View);
+end;
+
+procedure Tdtmspc.frpRemessaCarta_JBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRemessaCarta_J, View);
+end;
+
+procedure Tdtmspc.frpRemessa_FBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRemessa_F, View);
+end;
+
+procedure Tdtmspc.frpRemessa_JBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRemessa_J, View);
+end;
+
+procedure Tdtmspc.qrySPCRemessatipoChange(Sender: TField);
+begin
+  inherited;
+  qrySPCRemessaAfterScroll(qrySPCRemessa);
+end;
+
+procedure Tdtmspc.qrySPCRemessaAfterEdit(DataSet: TDataSet);
+begin
+  inherited;
+  qrySPCRemessa.Post;
+end;
+
+procedure Tdtmspc.qryGerarArquivoRemessaDetalheAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryspcparcelas,[0],[qryGerarArquivoRemessaDetalhespc.AsVariant]);
+end;
+
+procedure Tdtmspc.qryGerarArquivoRemessaDetalhe_JAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryspcparcelas,[0],[qryGerarArquivoRemessaDetalhe_Jspc.AsVariant]);
+end;
+
+procedure Tdtmspc.qryspcparcelasAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryspcnotascupons,[0],[qryspcparcelascontrato.AsVariant]);
+end;
+
+procedure Tdtmspc.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\logspc.sql') then
+    Listar.loadfromfile('c:\logspc.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\logspc.sql');
+  listar.free;
+end;
+
+procedure Tdtmspc.CorrigirErros;
+begin
+  qryErros.ExecSql;
+  Perpetrar([dtmspc.qryerros]);
+end;
+
+procedure Tdtmspc.qryGerarArquivoRemessaDetalheCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryGerarArquivoRemessaDetalherua_cliente_c.AsString :=
+    qryGerarArquivoRemessaDetalherua_cliente.AsString +
+
+     ifthen(qryGerarArquivoRemessaDetalhenumerorua_cliente.AsString<>'', ', ' +
+            qryGerarArquivoRemessaDetalhenumerorua_cliente.AsString,'') +
+
+     ifthen(qryGerarArquivoRemessaDetalhecomplementoendereco_cliente.AsString<>'', ' ' +
+            qryGerarArquivoRemessaDetalhecomplementoendereco_cliente.AsString,'');
+
+  qryGerarArquivoRemessaDetalherua_avalista_c.AsString :=
+    qryGerarArquivoRemessaDetalherua_avalista.AsString +
+
+     ifthen(qryGerarArquivoRemessaDetalhenumerorua_avalista.AsString<>'', ', ' +
+            qryGerarArquivoRemessaDetalhenumerorua_avalista.AsString,'') +
+
+     ifthen(qryGerarArquivoRemessaDetalhecomplementoendereco_avalista.AsString<>'', ' ' +
+            qryGerarArquivoRemessaDetalhecomplementoendereco_avalista.AsString,'');
+            
+end;
+
+procedure Tdtmspc.qryGerarArquivoRemessaDetalhe_JCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryGerarArquivoRemessaDetalhe_Jrua_cliente_c.AsString :=
+    qryGerarArquivoRemessaDetalhe_Jrua_cliente.AsString +
+
+     ifthen(qryGerarArquivoRemessaDetalhe_Jnumerorua_cliente.AsString<>'', ', ' +
+            qryGerarArquivoRemessaDetalhe_Jnumerorua_cliente.AsString,'') +
+
+     ifthen(qryGerarArquivoRemessaDetalhe_Jcomplementoendereco_cliente.AsString<>'', ' ' +
+            qryGerarArquivoRemessaDetalhe_Jcomplementoendereco_cliente.AsString,'');
+
+  qryGerarArquivoRemessaDetalhe_Jrua_avalista_c.AsString :=
+    qryGerarArquivoRemessaDetalhe_Jrua_avalista.AsString +
+
+     ifthen(qryGerarArquivoRemessaDetalhe_Jnumerorua_avalista.AsString<>'', ', ' +
+            qryGerarArquivoRemessaDetalhe_Jnumerorua_avalista.AsString,'') +
+
+     ifthen(qryGerarArquivoRemessaDetalhe_Jcomplementoendereco_avalista.AsString<>'', ' ' +
+            qryGerarArquivoRemessaDetalhe_Jcomplementoendereco_avalista.AsString,'');
+
+end;
+
+end.
+
+
+
+

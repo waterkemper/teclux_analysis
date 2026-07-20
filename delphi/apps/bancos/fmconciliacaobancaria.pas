@@ -1,0 +1,621 @@
+unit fmconciliacaobancaria;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmajudabt, ComCtrls, Buttons, ExtCtrls, cpdata, DB,
+  Mask, cpdbfindcontrols, DBCtrls, cpdbtext, cpnumero, Grids, DBGrids,
+  cpdbgrid, cppagecontrol,   ctconstantes, fmconsultabasica, fmconsultaporcampo,
+  ZQuery, cpdbmemo, cpdbdata, Biblio, clParametrosSistema, DateUtils,
+  fmcadastropadrao, {Qete,} frlercontacorrentesaldo, fmalterardata
+  {$IFDEF MSWINDOWS}
+  ,Windows, ToolWin
+  {$ENDIF};
+
+type
+  TfrmConciliacaoBancaria = class(TfrmCadastroPadrao)
+    gbxParametros: TGroupBox;
+    dbgSelecionados: TtecDBGrid;
+    gbxAnterior: TGroupBox;
+    dtxSaldoAnterior: TtecDBText;
+    gbxLancamentos: TGroupBox;
+    gbxLegenda: TGroupBox;
+    lblP: TLabel;
+    Label1: TLabel;
+    lblReceber: TLabel;
+    Label3: TLabel;
+    gbxConciliar: TGroupBox;
+    gbxAteData: TGroupBox;
+    edtDataFinal: TEditData;
+    gbxDeData: TGroupBox;
+    edtDataInicial: TEditData;
+    fraLerContaCorrenteSaldo1: TfraLerContaCorrenteSaldo;
+    gbxOrdenacao: TGroupBox;
+    ckbNoDocto: TCheckBox;
+    ckbValor: TCheckBox;
+    lblSelecionarMovto: TLabel;
+    sbnAlterarDatas: TSpeedButton;
+    ckbSelecionarTodos: TCheckBox;
+    dbgMovtosBancosEventos: TtecDBGrid;
+    gbxObservacoes: TGroupBox;
+    mmoObservacoes: TtecDBMemo;
+    gbxEventos: TGroupBox;
+    sbnExibirOcultarEventos: TSpeedButton;
+    procedure FormLoaded(Sender: TObject);
+    procedure edtDataInicialExit(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure edtDataFinalExit(Sender: TObject);
+    procedure ExibirMovtosConciliacao;
+    procedure dbgSelecionadosDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgSelecionadosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure fraLerContaCorrenteSaldo1sbnProcurarContaClick(
+      Sender: TObject);
+     procedure ExibirSaldoLancado(Sender: TObject);
+     procedure ExibirSaldoAnterior;
+    procedure fraLerContaCorrenteSaldo1edfContaFound(Found: Boolean);
+    procedure ckbNoDoctoClick(Sender: TObject);
+    procedure ckbValorClick(Sender: TObject);
+    procedure dbgSelecionadosCellClick(Column: TColumn);
+    procedure sbnAlterarDatasClick(Sender: TObject);
+    procedure ckbSelecionarTodosClick(Sender: TObject);
+    procedure sbnExibirOcultarEventosClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    { Private declarations }
+
+  protected
+     function  TabelaDePesquisa: TZDataSet; override;
+{     function  InternoExcluir: Boolean; override;}
+     function  InternoGravar: Boolean; Override;
+     function  InternoIncluir: Boolean; override;
+     function  InternoPesquisar(Titulo:String): Integer; override;
+     function  JanelaPesquisa: TfrmConsultaBasica; override;
+     function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+     function  ValidarCamposSelecao: Boolean;
+     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+     {$IFDEF MSWINDOWS}
+     function  EstadoCtrl:  Boolean;
+     function  EstadoShift: Boolean;
+    {$ENDIF}
+
+  public
+    { Public declarations }
+     constructor Create(AOwner: TComponent); Override;
+     destructor  Destroy; override;
+
+  end;
+
+var frmConciliacaoBancaria: TfrmConciliacaoBancaria;
+    TipoPesquisa: TtecConciliacao;
+    Marcado: Boolean = True;
+    DoubleClick: Boolean;
+    Pos: TBookmark;
+    RegIni, RegFim : integer;
+implementation
+
+{$R *.dfm}
+
+Uses dmmovtosbancos, dmconciliacaobancaria, fmmovtosbancos, fmprincipalbasico,
+  dmbasico, fmnavcontroles;
+{ TfrmConciliacaoBancaria }
+
+constructor TfrmConciliacaoBancaria.Create(AOwner: TComponent);
+var Dia: Integer;
+begin
+  dtmConciliacaoBancaria:= TdtmConciliacaoBancaria.Create(Self);
+  inherited;
+  DataSet:= dtmConciliacaoBancaria.qryMovtosBancos;
+
+                          {Até o 3º dia  do mês,  sugerimos o 1º}
+                          {dia do mês anterior como DataInicial,}
+                          {senão, o do mês atual                }
+  Dia:= StrToInt(Copy(DateToStr(DataLocal),1,2));
+  if Dia <= 3
+  then edtDataInicial.Text:= DateToStr(PrimeiroDiaMesPassado(1))
+  else edtDataInicial.Text:= DateToStr(PrimeiroDiaMesPassado(0));
+
+  if StrToDate(edtDataInicial.Text) < ParSistema.BancoDataInicial
+  then edtDataInicial.Text:= DateToStr(ParSistema.BancoDataInicial);
+
+  edtDataInicial.Minimo:= DaysBetween(DataLocal, ParSistema.BancoDataInicial);
+  edtDataInicial.Maximo:= DaysBetween(ParSistema.BancoDataFinal, DataLocal);
+
+                                   {Hoje é sugerido para DataFinal}
+   edtDataFinal.Text:= DateToStr(DataLocal);
+   if StrToDate(edtDataInicial.Text) > ParSistema.BancoDataFinal
+   then edtDataInicial.Text:= DateToStr(ParSistema.BancoDataFinal);
+   edtDataFinal.Minimo:= edtDataInicial.Minimo;
+   edtDataFinal.Maximo:= edtDataInicial.Maximo;
+   dtmConciliacaoBancaria.OnExibirSaldo:= ExibirSaldoLancado;
+   sbnAlterarDatas.Enabled:= False;
+end;
+
+
+destructor TfrmConciliacaoBancaria.Destroy;
+begin
+  inherited;
+end;
+
+
+function TfrmConciliacaoBancaria.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoPesquisa of
+    ccbCONTAS:  Result:= dtmConciliacaoBancaria.ExisteConta (NomeCampo, Value);
+//    ccbEVENTOS: Result:= dtmConciliacao.ExisteEvento(NomeCampo, Value);
+    ccbMOVTOS: Result:= dtmConciliacaoBancaria.ExisteMovto(NomeCampo, Value);
+    else        Result:= False;
+  end;
+end;
+
+function TfrmConciliacaoBancaria.InternoPesquisar(Titulo: String): Integer;
+begin
+   Result:= mrOK;
+   if CtrlOn then
+   begin
+           if ActiveControl = fraLerContaCorrenteSaldo1.edfConta         then TipoPesquisa:= ccbCONTAS
+//    else if ActiveControl = edfCodigoEventos then TipoPesquisa:= ccbEVENTOS
+                                               else TipoPesquisa:= ccbNENHUM;
+   end
+   else If dtmConciliacaoBancaria.ContaEstaDefinida
+        then TipoPesquisa:= ccbMOVTOS
+        else begin
+           TipoPesquisa:= ccbNENHUM;
+           MensagemAviso('Não há conta definida!');
+        end;
+
+   if TipoPesquisa <> ccbNENHUM then begin
+      dtmConciliacaoBancaria.AbrirTabelas(TipoPesquisa);
+      Result:= inherited InternoPesquisar(Titulo);
+      if Result = mrOK then begin
+        dtmConciliacaoBancaria.Selecionar(TipoPesquisa);
+        if (TipoPesquisa = ccbCONTAS) then
+          fraLerContaCorrenteSaldo1.edfConta.Exist;
+     end;
+      dtmConciliacaoBancaria.FecharTabelas(TipoPesquisa);
+   end;
+end;
+
+
+
+
+function TfrmConciliacaoBancaria.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False
+end;
+
+
+function TfrmConciliacaoBancaria.TabelaDePesquisa: TZDataSet;
+begin
+   case TipoPesquisa of
+      ccbCONTAS:  Result:= dtmConciliacaoBancaria.TabelaConsultaContas;
+//    ccbEVENTOS: Result:= dtmConciliacao.TabelaConsultaEventos;
+      ccbMOVTOS:  Result:= dtmConciliacaoBancaria.TabelaConsultaMovtos;
+      else        Result:= nil;
+   end;
+end;
+
+procedure TfrmConciliacaoBancaria.FormLoaded(Sender: TObject);
+begin
+  inherited;
+  fraLerContaCorrenteSaldo1.edfConta.SetFocus;
+end;
+
+procedure TfrmConciliacaoBancaria.edtDataInicialExit(Sender: TObject);
+begin
+   inherited;
+   with dtmConciliacaoBancaria do begin
+      if qryProcuraContas.RecordCount > 0 then begin
+         qryMovtosBancos.ParamByName('Conta').      AsString  := qryProcuraContasConta.AsString;
+         qryMovtosBancos.ParamByName('DataInicial').AsDateTime:= StrToDate(edtDataInicial.Text);
+         qryMovtosBancos.ParamByName('DataFinal').  AsDateTime:= StrToDate(edtDataInicial.Text);
+
+         ExibirSaldoAnterior;
+      end;
+   end;
+end;
+
+
+
+procedure TfrmConciliacaoBancaria.sbnGerarClick(Sender: TObject);
+begin
+   inherited;
+   ExibirMovtosConciliacao;
+end;
+
+function TfrmConciliacaoBancaria.ValidarCamposSelecao: Boolean;
+begin
+  Result:= dtmConciliacaoBancaria.ContaEstaDefinida and
+           edtDataInicial.DataValida and
+           edtDataFinal.  DataValida and
+
+          (StrToDate(edtDataInicial.Text) <= StrToDate(edtDataFinal.Text)) and
+          (StrToDate(edtDataInicial.Text) >= ParSistema.BancoDataInicial)  and
+          (StrToDate(edtDataFinal.  Text) <= ParSistema.BancoDataFinal)
+end;
+
+procedure TfrmConciliacaoBancaria.edtDataFinalExit(Sender: TObject);
+begin
+   inherited;
+   ExibirMovtosConciliacao;
+end;
+
+procedure TfrmConciliacaoBancaria.ExibirMovtosConciliacao;
+begin
+   if ValidarCamposSelecao then with dtmConciliacaoBancaria do begin
+      DataInicial:= edtDataInicial.Text;
+      DataFinal  := edtDataFinal.Text;
+
+      qryMovtosBancos.ParamByName('Conta').      AsString  := qryProcuraContasConta.AsString;
+      qryMovtosBancos.ParamByName('DataInicial').AsDateTime:= StrToDate(edtDataInicial.Text);
+      qryMovtosBancos.ParamByName('DataFinal').  AsDateTime:= StrToDate(edtDataFinal.  Text);
+
+      if SelecionarMovtosBancos then
+      begin
+        dbgSelecionados.SetFocus;
+        sbnAlterarDatas.Enabled:= True;
+      end
+      else begin
+         MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']));
+         edtDataInicial.SetFocus
+      end;
+   end;
+
+end;
+
+procedure TfrmConciliacaoBancaria.dbgSelecionadosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  with dtmConciliacaoBancaria do begin
+     case column.Index of
+        4: if qryMovtosBancosTipo.AsString = 'E'
+           then TDBGrid(Sender).Canvas.Font.Color:= clBlue
+           else TDBGrid(Sender).Canvas.Font.Color:= clBlack;
+
+        5:      if qryMovtosBancosOrigem.AsString = 'R'   then TDBGrid(Sender).Canvas.Font.Color:= clGreen
+           else if (qryMovtosBancosOrigem.AsString = 'P') or
+                   (qryMovtosBancosOrigem.AsString = 'A') then TDBGrid(Sender).Canvas.Font.Color:= clRed
+                                                          else TDBGrid(Sender).Canvas.Font.Color:= clBlack;
+        7: if qryMovtosBancosSaldo.AsCurrency < 0
+           then TDBGrid(Sender).Canvas.Font.Color:= clRed
+           else TDBGrid(Sender).Canvas.Font.Color:= clBlack;
+     end;
+     TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+  if not (gdFocused in State) then
+  begin
+    if dbgSelecionados.DataSource.DataSet.FieldByName('selecionado').AsBoolean then  begin
+      TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmConciliacaoBancaria.dbgSelecionadosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+var Selecionar: boolean;
+begin
+  inherited;
+  if ((Shift = [ssCtrl]) and (TeclaEnterOuReturn(Key))) then
+  begin
+   dtmConciliacaoBancaria.SelecionarMovtosGrid(False,False);
+   dbgSelecionados.SetFocus;
+  end
+  else If (TeclaEnterOuReturn(Key)) then
+  begin
+   InternoGravar;
+   dbgSelecionados.SetFocus;
+  end
+  else if (Key = VK_F2) then
+    sbnAlterarDatasClick(Sender);
+
+  Selecionar:= False
+
+end;
+
+function TfrmConciliacaoBancaria.InternoGravar: Boolean;
+var Frm: TForm;
+begin
+   Result:= inherited InternoGravar;
+   if Result then begin
+      if dtmConciliacaoBancaria.GravarMovtosBancos then begin
+         Frm:= TfrmMovtosBancos.Referencia;
+         if Assigned(Frm) and (dtmMovtosBancos.       qryProcuraContasConta.AsString =
+                               dtmConciliacaoBancaria.qryProcuraContasConta.AsString)
+         then TfrmMovtosBancos(Frm).AtualizarSaldoDaConciliacao;
+      end;
+   end;
+end;
+
+
+function TfrmConciliacaoBancaria.InternoIncluir: Boolean;
+begin
+   TfrmPrincipalBasico(Application.MainForm).
+            MostrarFormRegistrado([dtmConciliacaoBancaria.qryProcuraContasConta.   AsInteger,
+                                   dtmConciliacaoBancaria.qryMovtosBancosData.     AsVariant,
+                                   dtmConciliacaoBancaria.qryMovtosBancosSequencia.AsVariant],
+                                                                    'TfrmMovtosBancos', True);
+end;
+
+
+procedure TfrmConciliacaoBancaria.ExibirSaldoAnterior;
+begin
+   with dtmConciliacaoBancaria do begin
+      qryLanctoAnterior.ParamByName('Conta').AsString:= qryProcuraContasConta.AsString;
+      qryLanctoAnterior.ParamByName('Data').AsDateTime   := SomarDia(StrToDate(edtDataInicial.Text),-1,'S');
+      AcessarSaldoAnterior;
+      gbxAnterior.Caption:= 'EM ' + qryLanctoAnteriorData.AsString;
+   end;
+
+end;
+
+procedure TfrmConciliacaoBancaria.ExibirSaldoLancado(Sender: TObject);
+begin
+   with dtmConciliacaoBancaria do begin
+      if qryProcuraContasSaldoLancado.AsCurrency < 0
+      then fraLerContaCorrenteSaldo1.dtxSaldo.Font.Color:= clRed
+      else fraLerContaCorrenteSaldo1.dtxSaldo.Font.Color:= clBlack;
+
+      qryUltimoLancto.ParamByName('Conta').AsString:= qryProcuraContasConta.AsString;
+      UltimaDataLancamento;
+      fraLerContaCorrenteSaldo1.gbxSaldo.Caption:= 'SALDO LANÇADO ATÉ ' + qryUltimoLanctoData.AsString;
+
+      ExibirSaldoAnterior;
+      gbxAnterior.Caption:= 'EM ' + qryLanctoAnteriorData.AsString;
+   end;
+
+end;
+
+
+procedure TfrmConciliacaoBancaria.fraLerContaCorrenteSaldo1sbnProcurarContaClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(fraLerContaCorrenteSaldo1.edfConta, ctCONTAS);
+end;
+
+procedure TfrmConciliacaoBancaria.fraLerContaCorrenteSaldo1edfContaFound(
+  Found: Boolean);
+begin
+  inherited;
+  if Found then
+  begin
+    edtDataInicial.SetFocus;
+    edtDataInicial.SelectAll;
+  end
+  else
+  begin
+    fraLerContaCorrenteSaldo1.edfConta.SetFocus;
+    fraLerContaCorrenteSaldo1.edfConta.SelectAll;
+    dtmConciliacaoBancaria.TabelaMovtosBancos.Close;
+  end;
+end;
+
+procedure TfrmConciliacaoBancaria.ckbNoDoctoClick(Sender: TObject);
+begin
+  inherited;
+  ckbValor.OnClick := nil;
+  if ckbNoDocto.Checked then
+    ckbValor.Checked := False;
+  dtmConciliacaoBancaria.OrdenarporDocumento := ckbNoDocto.Checked;
+  ckbValor.OnClick := ckbValorClick;
+end;
+
+procedure TfrmConciliacaoBancaria.ckbValorClick(Sender: TObject);
+begin
+  inherited;
+  ckbNoDocto.OnClick := nil;
+  if ckbValor.Checked then
+    ckbNoDocto.Checked := False;
+  dtmConciliacaoBancaria.OrdenarporValor := ckbValor.Checked;
+  ckbNoDocto.OnClick := ckbNoDoctoClick;
+end;
+
+procedure TfrmConciliacaoBancaria.dbgSelecionadosCellClick(Column: TColumn);
+var
+  a : Integer;
+begin
+  inherited;
+  {$IFDEF MSWINDOWS}
+  if EstadoCtrl then
+  begin
+    try
+      Marcado:= True;
+      dtmConciliacaoBancaria.Ajustar:= true;
+      dtmConciliacaoBancaria.SelecionarMovtosGrid(False,False);
+    finally
+      dtmConciliacaoBancaria.Ajustar:= False;
+    end;
+  end
+  else if EstadoShift then
+  begin
+    Marcado:= not Marcado;
+    if Marcado = False then
+    begin
+      try
+        RegIni:= dtmConciliacaoBancaria.qryMovtosBancos.RecNo;
+        Pos:= dtmConciliacaoBancaria.qryMovtosBancos.GetBookMark;
+        dtmConciliacaoBancaria.Ajustar:= true;
+        dtmConciliacaoBancaria.SelecionarMovtosGrid(False,False);
+      finally
+        dtmConciliacaoBancaria.Ajustar:= False;
+      end;
+    end
+    else
+    begin
+      RegFim:=  dtmConciliacaoBancaria.qryMovtosBancos.RecNo;
+      with dtmConciliacaoBancaria do
+      begin
+        Pos:= qryMovtosBancos.GetBookmark;
+        if RegIni < RegFim then
+        begin
+          for a := RegIni to RegFim do
+          begin
+            qryMovtosBancos.RecNo:= a;
+            SelecionarSempreMovtosGrid(qryMovtosBancos,True);
+          end;
+        end
+        else
+        begin
+          for a := RegIni downto RegFim do
+          begin
+            qryMovtosBancos.RecNo:= a;
+            SelecionarSempreMovtosGrid(qryMovtosBancos,True);
+          end;
+        end;
+        qryMovtosBancos.GotoBookmark(Pos);
+        qryMovtosBancos.FreeBookmark(Pos);
+        Pos:= nil;
+      end;
+    end;
+  end
+  else
+  begin
+    RegIni:= dtmConciliacaoBancaria.qryMovtosBancos.RecNo;
+    if Marcado then
+      dtmConciliacaoBancaria.SelecionarTodosMovtos(False);
+    Marcado:= False;
+  end;
+  {$ENDIF}
+end;
+
+{$IFDEF MSWINDOWS}
+function TfrmConciliacaoBancaria.EstadoCtrl: Boolean;
+var
+   Estado : TKeyboardState;
+begin
+   GetKeyboardState(Estado) ;
+   Result := ((Estado[vk_CONTROL] and 128) <> 0) ;
+end;
+{$ENDIF}
+
+{$IFDEF MSWINDOWS}
+function TfrmConciliacaoBancaria.EstadoShift: Boolean;
+var
+   Estado : TKeyboardState;
+begin
+   GetKeyboardState(Estado) ;
+   Result := ((Estado[vk_Shift] and 128) <> 0) ;
+end;
+{$ENDIF}
+
+procedure TfrmConciliacaoBancaria.sbnAlterarDatasClick(Sender: TObject);
+var DataAlterada: String;
+    Confirmado: Boolean;
+begin
+  inherited;
+  Confirmado:= False;
+  if dtmConciliacaoBancaria.Selecionados > 0 then
+  begin
+    frmalterardata := Tfrmalterardata.Create(frmalterardata);
+    with frmalterardata do
+    begin
+      try
+        edtdata.Minimo := DaysBetween(date,ParSistema.BancoDataInicial);
+        edtdata.Maximo := DaysBetween(date,ParSistema.BancoDataFinal);
+        edtdata.MensagemPadronizada := dtmConciliacaoBancaria.MensagemForaIntervalo;
+
+        if ShowModal = mrOk then
+        begin
+          DataAlterada:= edtData.text;
+          Confirmado:= True;
+        end;
+      finally
+        Free;
+      end;
+    end;
+
+    if Confirmado then
+    begin
+      with dtmConciliacaoBancaria do
+      begin
+        Ajustar:= true;
+        GuardarRegistroAtual(qryMovtosBancos,True);
+        qryMovtosBancos.First;
+        while not qryMovtosBancos.Eof do
+        begin
+          if qryMovtosBancosSelecionado.AsBoolean then
+          begin
+            qryMovtosBancos.Edit;
+            qryMovtosBancosCompensacao.AsDateTime:= strtodate(DataAlterada);
+            qryMovtosBancos.Post;
+          end;
+          qryMovtosBancos.Next;
+        end;
+        VoltarRegistroAtual(qryMovtosBancos);
+        Ajustar:= False;
+        InternoGravar;
+        dbgSelecionados.SetFocus;
+      end;
+    end;
+  end
+  else
+  MensagemAviso(format(ctNENHUMREGISTROSELECIONADO,['movimento']));
+end;
+
+procedure TfrmConciliacaoBancaria.ckbSelecionarTodosClick(Sender: TObject);
+begin
+  inherited;
+  dtmConciliacaoBancaria.SelecionarTodosMovtos(ckbSelecionarTodos.Checked);
+end;
+
+procedure TfrmConciliacaoBancaria.sbnExibirOcultarEventosClick(
+  Sender: TObject);
+begin
+  inherited;
+  if sbnExibirOcultarEventos.Caption = 'Exibir &Eventos' then
+  begin
+    sbnExibirOcultarEventos.Caption := 'Ocultar &Eventos';
+    dtmConciliacaoBancaria.ExibindoEventos := true;
+
+    dbgSelecionados.Height := 177;
+    gbxEventos.visible := true;
+    dbgMovtosBancosEventos.visible := true;
+    gbxObservacoes.visible := true;
+
+    dtmConciliacaoBancaria.qryMovtosBancosAfterScroll(dtmConciliacaoBancaria.qryMovtosBancos);
+
+  end
+  else
+  begin
+    sbnExibirOcultarEventos.Caption := 'Exibir &Eventos';
+    dtmConciliacaoBancaria.ExibindoEventos := false;
+
+    dbgSelecionados.Height := 338;
+    gbxEventos.visible := false;
+    dbgMovtosBancosEventos.visible := false;
+    gbxObservacoes.visible := false;
+
+  end;
+
+end;
+
+procedure TfrmConciliacaoBancaria.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if (Shift = [ssCtrl]) and (key = VK_E) then
+      sbnExibirOcultarEventosClick(self);
+end;
+
+procedure TfrmConciliacaoBancaria.FormKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+//  if (Shift = [ssCtrl]) and (key = VK_E) then
+//      sbnExibirOcultarEventosClick(self);
+
+end;
+
+end.
+

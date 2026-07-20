@@ -1,0 +1,161 @@
+unit frmultiplaselecaoaleatoria;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
+  Dialogs, ComCtrls, cppagecontrol, frselecaoaleatoria,
+  frselecaoaleatoriaitemdeprodutos, ExtCtrls, frselecaoaleatoriaprodutos,
+  frselecaoaleatoriagruposprodutos, frselecaoaleatoriaclassesprodutos,
+  frselecaoaleatoriamarcasprodutos, frselecaoaleatoriapromocoes,
+  frselecaoaleatoriacsosn, frselecaoaleatoriacst,
+  frselecaoaleatorialistaspadronizadas, frselecaoaleatoriamodelosprodutos,
+  clparametrossistema, frselecaoaleatorialocalizacaoestoque,
+  frselecaoaleatoriamarketplace, frselecaoaleatoriaespecificacoesmodelos, biblio,
+  frselecaoaleatorialotes, frselecaoaleatoriaatributos,
+  frselecaoaleatoriaservicos;
+
+type
+  TfraMultiplaSelecaoAleatoria = class(TFrame)
+    pgcMultiplaSelecaoAleatoria: TtecPageControl;
+    tstItemdeProduto: TTabSheet;
+    tstProduto: TTabSheet;
+    Timer1: TTimer;
+    fraSelecaoAleatoriaItemdeProdutos: TfraSelecaoAleatoriaItemdeProdutos;
+    fraSelecaoAleatoriaprodutos: TfraSelecaoAleatoriaprodutos;
+    tstSelecaoAleatoriaGrupoProduto: TTabSheet;
+    fraSelecaoaleatoriagruposprodutos: TfraSelecaoaleatoriagruposprodutos;
+    tstSelecaoAleatoriaClasseProduto: TTabSheet;
+    fraSelecaoaleatoriaclassesprodutos: TfraSelecaoaleatoriaclassesprodutos;
+    tstSelecaoAleatoriaMarcaProduto: TTabSheet;
+    fraSelecaoAleatoriamarcasProdutos: TfraSelecaoAleatoriamarcasProdutos;
+    tstSelecaoAleatoriaPromocoes: TTabSheet;
+    fraSelecaoaleatoriapromocoes: TfraSelecaoaleatoriapromocoes;
+    tstCSOSN: TTabSheet;
+    tstCST: TTabSheet;
+    fraSelecaoAleatoriacst: TfraSelecaoAleatoriacst;
+    fraSelecaoAleatoriacsosn: TfraSelecaoAleatoriacsosn;
+    tstListaPadronizada: TTabSheet;
+    fraSelecaoaleatorialistaspadronizadas: TfraSelecaoaleatorialistaspadronizadas;
+    tstSelecaoAleatoriamodelosProduto: TTabSheet;
+    fraSelecaoAleatoriamodelosProdutos1: TfraSelecaoAleatoriamodelosProdutos;
+    tstSelecaoAleatoriaLocalizacoesEstoques: TTabSheet;
+    fraSelecaoaleatorialocalizacaoestoque1: TfraSelecaoaleatorialocalizacaoestoque;
+    tstSelecaoAleatoriaMarketPlace: TTabSheet;
+    fraSelecaoaleatoriamarketplace1: TfraSelecaoaleatoriamarketplace;
+    tstSelecaoAleatoriaespecificacoesmodelos: TTabSheet;
+    fraSelecaoAleatoriaespecificacoesmodelos1: TfraSelecaoAleatoriaespecificacoesmodelos;
+    tstSelecaoAleatoriaLotes: TTabSheet;
+    fraSelecaoAleatorialotes1: TfraSelecaoAleatorialotes;
+    tstAtributos: TTabSheet;
+    fraSelecaoAleatoriaatributos1: TfraSelecaoAleatoriaatributos;
+    tstSelecaoAleatoriaServicos: TTabSheet;
+    fraSelecaoaleatoriaservicos1: TfraSelecaoaleatoriaservicos;
+    procedure Timer1Timer(Sender: TObject);
+    procedure fraSelecaoAleatoriaItemdeProdutosbnProcuraClick(
+      Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    function ExisteParametroSetado: boolean;
+    function CondicoesSQL: String;
+  end;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfraMultiplaSelecaoAleatoria.Timer1Timer(Sender: TObject);
+begin
+  tstItemdeProduto.Highlighted := (fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.qryselecaoaleatoria.recordcount <> 0);
+  tstProduto.Highlighted := (fraSelecaoAleatoriaprodutos.fraSelecaoAleatoriaProduto.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaGrupoProduto.Highlighted := (fraSelecaoaleatoriagruposprodutos.fraSelecaoAleatoriaGrupoProduto.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaClasseProduto.Highlighted := (fraSelecaoaleatoriaclassesprodutos.fraSelecaoAleatoriaClasseProduto.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaMarcaProduto.Highlighted := (fraSelecaoAleatoriamarcasProdutos.fraSelecaoAleatoriamarcasProduto.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriamodelosProduto.Highlighted := (fraSelecaoAleatoriamodelosProdutos1.fraSelecaoAleatoriaModelosProduto.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaespecificacoesmodelos.Highlighted := (fraSelecaoAleatoriaespecificacoesmodelos1.fraSelecaoAleatoriaespecificacoesmodelos.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaPromocoes.Highlighted := (fraSelecaoaleatoriapromocoes.fraSelecaoAleatoriapromocoes.qryselecaoaleatoria.recordcount <> 0);
+  tstCST.Highlighted := (fraSelecaoaleatoriacst.fraSelecaoAleatoriacst.qryselecaoaleatoria.recordcount <> 0);
+  tstCSOSN.Highlighted := (fraSelecaoaleatoriacsosn.fraSelecaoAleatoriacsosn.qryselecaoaleatoria.recordcount <> 0);
+  tstListaPadronizada.Highlighted := (fraSelecaoaleatorialistaspadronizadas.fraSelecaoaleatorialistaspadronizadas.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaLocalizacoesEstoques.Highlighted := (fraSelecaoaleatorialocalizacaoestoque1.fraSelecaoAleatoriaLocalizacaoEstoque.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaLotes.Highlighted := (fraSelecaoAleatorialotes1.fraSelecaoAleatorialotes.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaMarketPlace.Highlighted := (fraSelecaoaleatoriamarketplace1.fraSelecaoAleatoriamarketplace.qryselecaoaleatoria.recordcount <> 0);
+  tstAtributos.Highlighted := (fraSelecaoAleatoriaatributos1.fraSelecaoAleatoriaatributos.qryselecaoaleatoria.recordcount <> 0);
+  tstSelecaoAleatoriaServicos.Highlighted := (fraSelecaoaleatoriaservicos1.fraSelecaoAleatoriaservicos.qryselecaoaleatoria.recordcount <> 0);
+
+end;
+
+constructor TfraMultiplaSelecaoAleatoria.Create(AOwner: TComponent);
+begin
+  inherited;
+  tstSelecaoAleatoriamodelosProduto.tabvisible := ParSistema.LiberarVisualizacaodeModelosProdutos and
+                                                  (AOwner.ClassName = 'TfrmConsultaEstoque');
+
+  tstSelecaoAleatoriaespecificacoesmodelos.tabvisible := ParSistema.LiberarVisualizacaodeModelosProdutos and
+                                                  (AOwner.ClassName = 'TfrmConsultaEstoque');
+
+  tstSelecaoAleatoriaLocalizacoesEstoques.tabvisible := (AOwner.ClassName = 'TfrmConsultaEstoque');
+
+  tstSelecaoAleatoriaMarketPlace.tabvisible := (AOwner.ClassName = 'TfrmManutencaoPreco') or
+                                               (AOwner.ClassName = 'TfrmRelatorioEstoque');
+
+  tstSelecaoAleatoriaServicos.tabvisible := (AOwner.ClassName = 'TfrmRelatorioProdutosporClienteeVendedor');
+
+
+end;
+
+function TfraMultiplaSelecaoAleatoria.ExisteParametroSetado: boolean;
+begin
+  result := (fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoAleatoriaprodutos.fraSelecaoAleatoriaProduto.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoaleatoriagruposprodutos.fraSelecaoAleatoriaGrupoProduto.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoaleatoriaclassesprodutos.fraSelecaoAleatoriaClasseProduto.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoAleatoriamarcasProdutos.fraSelecaoAleatoriamarcasProduto.qryselecaoaleatoria.recordcount <> 0) or
+
+            (fraSelecaoaleatoriapromocoes.fraSelecaoAleatoriapromocoes.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoaleatoriacst.fraSelecaoAleatoriacst.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoaleatoriacsosn.fraSelecaoAleatoriacsosn.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoaleatorialistaspadronizadas.fraSelecaoaleatorialistaspadronizadas.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoAleatoriamodelosProdutos1.fraSelecaoAleatoriaModelosProduto.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoaleatorialocalizacaoestoque1.fraSelecaoAleatoriaLocalizacaoEstoque.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoaleatoriamarketplace1.fraSelecaoAleatoriamarketplace.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoAleatoriaespecificacoesmodelos1.fraSelecaoAleatoriaespecificacoesmodelos.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoAleatorialotes1.fraSelecaoAleatorialotes.qryselecaoaleatoria.recordcount <> 0) or
+            (fraSelecaoAleatoriaatributos1.fraSelecaoAleatoriaatributos.qryselecaoaleatoria.recordcount <> 0) or
+
+            (fraSelecaoaleatoriaservicos1.fraSelecaoAleatoriaservicos.qryselecaoaleatoria.recordcount <> 0);
+end;
+
+function TfraMultiplaSelecaoAleatoria.CondicoesSQL: String;
+begin
+  result := MontarListaString(' and ',
+                             [fraSelecaoAleatoriaItemdeProdutos.ListaCondicional,
+                              fraSelecaoAleatoriaprodutos.ListaCondicional,
+                              fraSelecaoaleatoriagruposprodutos.ListaCondicional,
+                              fraSelecaoaleatoriaclassesprodutos.ListaCondicional,
+                              fraSelecaoAleatoriamarcasProdutos.ListaCondicional,
+                              fraSelecaoaleatoriapromocoes.ListaCondicional,
+                              fraSelecaoaleatoriacst.ListaCondicional,
+                              fraSelecaoaleatoriacsosn.ListaCondicional,
+                              fraSelecaoaleatorialistaspadronizadas.ListaCondicional,
+                              fraSelecaoAleatoriamodelosProdutos1.ListaCondicional,
+                              fraSelecaoaleatorialocalizacaoestoque1.ListaCondicional,
+                              fraSelecaoaleatoriamarketplace1.ListaCondicional,
+                              fraSelecaoAleatoriaespecificacoesmodelos1.ListaCondicional,
+                              fraSelecaoAleatorialotes1.ListaCondicional,
+                              fraSelecaoAleatoriaatributos1.ListaCondicional,
+                              fraSelecaoaleatoriaservicos1.ListaCondicional]);
+end;
+
+procedure TfraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutosbnProcuraClick(
+  Sender: TObject);
+begin
+  fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProdutosbnProcuraClick(
+  Sender);
+
+end;
+
+end.

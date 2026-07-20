@@ -1,0 +1,461 @@
+unit cltefdedicado;
+
+interface
+
+uses
+  SysUtils, DateUtils, ctconstantes, biblio, bbtefdedicado;
+
+const
+
+  ctCODOK                              =  0;
+
+  // Codigos do parametro Funcao para o mÚtodo FuncaoInterativo
+
+  ctFIFormaPagamento                    =   0;
+  ctFITelemarketing                     = 100;
+  ctFITransacoesGerenciais              = 110;
+  ctFIComunicacaoTef                    = 111;
+  ctFIMenuReImpressao                   = 112;
+  ctFIReImpressaoEspecifico             = 113;
+  ctFIReImpressaoUltimoComprovante      = 114;
+  ctFIPreAutorizacao                    = 115;
+  ctFICapturaPreAutorizacao             = 116;
+  ctFICancelamentoNormal                = 200;
+  ctFICancelamentoTelemarketing         = 201;
+  ctFICancelamentoPreAutorizacao        = 202;
+  ctFICancelamentoCapturaPreAutorizacao = 203;
+  ctFIRecargaPrePago                    = 300;
+
+type
+  TtecTEFDedicado = class
+  private
+    FServerIP: String;              
+    FCodigoErro: Integer;
+    FCupomFiscal: String;
+    FLoja: String;
+    FOnCabecalhoMenu: TtecProcParametroString;
+    FOnConfirmacao: TtecFuncaoBoolParametroString;
+    FOnOpcoesMenu: TtecFuncaoBoolParVStringInt;
+    FValor: String;
+    FDataFiscal: String;
+    FOperador: String;
+    FHorario: String;
+    FOnMensagemOperador: TtecProcParametroString;
+    FOnCancelamento: TtecFuncaoBoolean;
+    FNSU: String;
+    FOnAutorizacao: TtecFuncaoBoolean;
+    procedure setServerIP(const Value: String);
+    function  getMensagemErro: String;
+    function getErro: Boolean;
+  protected
+    function ContinuaFuncaoInterativa(Comando: Integer): Boolean;
+    function IniciaFuncaoInterativa(Comando: Integer; Valor, CuponFiscal, DataFiscal, Horario, Operador, ParamAdic: String): Boolean;
+  public
+    procedure setMensagemPermanentePinPad(const Value: String);
+    function ConfigurarTef: Boolean;
+    function ExistePinPad: Boolean;
+    function ExecutarOperacao(Op: Integer): Boolean;
+    procedure FinalizaTransacaoInterativo(Confirma: Smallint);
+    class function MsgErro(CodErro: Integer): String;
+    class function Terminal(Str: String): Integer; overload;
+    class function Terminal: String; overload;
+    property CodigoErro: Integer read FCodigoErro;
+    property CupomFiscal: String read FCupomFiscal write FCupomFiscal;
+    property DataFiscal: String read FDataFiscal write FDataFiscal;
+    property Erro: Boolean read getErro;
+    property Horario: String read FHorario write FHorario;
+    property Loja: String read FLoja write FLoja;
+    property MensagemErro: String read getMensagemErro;
+    property MensagemPermanentePinPad: String write setMensagemPermanentePinPad;
+    property NSU: String read FNSU;
+    property OnAutorizacao: TtecFuncaoBoolean read FOnAutorizacao write FOnAutorizacao;
+    property OnCabecalhoMenu: TtecProcParametroString read FOnCabecalhoMenu write FOnCabecalhoMenu;
+    property OnCancelamento: TtecFuncaoBoolean read FOnCancelamento write FOnCancelamento;
+    property OnConfirmacao: TtecFuncaoBoolParametroString read FOnConfirmacao write FOnConfirmacao;
+    property OnMensagemOperador: TtecProcParametroString read FOnMensagemOperador write FOnMensagemOperador;
+    property OnOpcoesMenu: TtecFuncaoBoolParVStringInt read FOnOpcoesMenu write FOnOpcoesMenu;
+    property Operador: String read FOperador write FOperador;
+    property ServerIP: String read FServerIP write setServerIP;
+    property Valor: String read FValor write FValor;
+  end;
+
+implementation
+
+Uses
+  //CLX
+  Forms,
+  //Biblio
+  clecf;
+
+{ TtecTEFDedicado }
+
+const
+
+  ctOK                       = 'Operacao Ok';
+  ctERROENDIPINVAL           = 'Endereco Ip invalido ou nao resolvido';
+  ctERROCODLOJAINVAL         = 'Codigo da loja invalido';
+  ctERROCODTERMINVAL         = 'Codigo do terminal invalido';
+  ctERROINICIALIZACAO        = 'Erro na inicializacao do Tcp/Ip';
+  ctERROFALTAMEMORIA         = 'Falta de memoria';
+  ctERROLIBNAOENCONTRADA     = 'Nao encontrou a CliSiTef ou esta com problemas.';
+  ctERROPINPADINEXISTENTE    = 'Nao existe um PinPad conectado ao micro.';
+  ctERROLIBPINPADINEXISTENTE = 'Biblioteca de acesso ao PinPad nao encontrada.';
+  ctERROTERMIALINVALIDO      = 'Identificacao do terminal no PinPad nao é valido.';
+  ctERROTERMINALRESERVADO    = 'Identificacao do terminalé reservado ao uso do TEF.';
+
+  ctCODERROENDIPINVAL                  =  1;
+  ctCODERROCODLOJAINVAL                =  2;
+  ctCODERROCODTERMINVAL                =  3;
+  ctCODERROINICIALIZACAO               =  6;
+  ctCODERROFALTAMEMORIA                =  7;
+  ctCODERROLIBNAOENCONTRADA            =  8;
+  ctCODERROPINPADINEXISTENTE           =  9;
+  ctCODERROLIBPINPADINEXISTENTE        = 10;
+  ctCODERROTERMIALINVALIDO             = 11;
+  ctCODERROTERMINALRESERVADO           = 12;
+
+var
+  FTerminal: String;
+
+function TtecTEFDedicado.ConfigurarTef: Boolean;
+var
+  Loj,
+  Ter,
+  IP: PChar;
+begin
+  Loj := PChar(Loja);
+  Ter := PChar(FTerminal);
+  IP  := PChar(ServerIP);
+  FCodigoErro := ConfiguraIntSiTefInterativo(IP,Loj,Ter,0);
+  Result := FCodigoErro = 0;
+  if Result then begin
+    Result := IniciaFuncaoInterativa(ctFIComunicacaoTef, '0,00','','','','','');
+    if Result then begin
+      Result := ContinuaFuncaoInterativa(ctFIComunicacaoTef);
+      if Result then
+        FinalizaTransacaoInterativo(1)
+      else
+        FinalizaTransacaoInterativo(0)
+    end
+  end
+end;
+
+function TtecTEFDedicado.ContinuaFuncaoInterativa(Comando: Integer): Boolean;
+var
+  Sts,
+  Opcao: integer;
+  Continua: Integer;
+  ProximoComando,
+  TipoCampo: Integer;
+  TamanhoMinimo: Smallint;
+  TamanhoMaximo: Smallint;
+  Buffer, BufVinc: array of String;//[0..20000] of char;
+  OpcoesMenu: Array of String;
+  ErroVinculado: Boolean;
+
+  procedure MontaOpcoes;
+  var
+    Posicao: Integer;
+    Str,
+    Opcao: String;
+  begin
+    OpcoesMenu := nil;
+    Str := Buffer[0];//StrPas(Buffer);
+    Posicao := Pos(';', Str);
+    while Posicao > 0 do begin
+      Opcao := Copy(Str, 3, Posicao-3);
+      Delete(Str, 1, Posicao);
+      SetLength(OpcoesMenu, High(OpcoesMenu) + 2);
+      OpcoesMenu[High(OpcoesMenu)] := Opcao;
+      Posicao := Pos(';', Str);
+    end
+  end;
+
+  procedure InterpretaComando(Vinculado: Boolean; QtdadeVias: Integer);
+  var
+    Str: String;
+    Sair: Boolean;
+
+  begin
+    case (ProximoComando) of
+       0: case TipoCampo of
+            133: FNSU := Buffer[0];//StrPas(Buffer);
+            122: begin
+                   if ErroVinculado or Not Vinculado then begin
+                     Str := BufVinc[0];
+                     Str := Str + Buffer[0];
+                     repeat
+                       ECFPadrao.RelatorioGerencial(Str, 1);
+                       if ECFPadrao.Erro then begin
+                         Sair := biblio.MensagemConfirmacao(ECFPadrao.Mensagem + #13#10 + ctTEFIMPRIMIRNOVAMENTE) <> smbOK;
+                         if Sair then begin
+                           Continua := -1;
+                           if (Comando = ctFIReImpressaoEspecifico) or (Comando = ctFIReImpressaoUltimoComprovante) then
+                             MensagemAviso(ctTEFIMPNAOCONCLUIDA)
+                           else
+                             MensagemAviso(ctTEFTRANSNAOEFETUADA);
+                         end
+                       end else
+                         Sair := True
+                     until Sair;
+                   end else begin
+                     ECFPadrao.ImprimirVinculado(Buffer);
+                     if ECFPadrao.Erro then begin
+                       Str := BufVinc[0];
+                       Str := Str + Buffer[0];
+                       Sair := False;
+                       repeat
+                         if ECFPadrao.Erro then
+                           Sair := biblio.MensagemConfirmacao(ECFPadrao.Mensagem + #13#10 + ctTEFIMPRIMIRNOVAMENTE) <> smbOK
+                         else
+                           break;
+                         if Sair then begin
+                           if (Comando = ctFIReImpressaoEspecifico) or (Comando = ctFIReImpressaoUltimoComprovante) then
+                             MensagemAviso(ctTEFIMPNAOCONCLUIDA)
+                           else
+                             MensagemAviso(ctTEFTRANSNAOEFETUADA);
+                           Continua := -1;
+                         end else
+                           ECFPadrao.RelatorioGerencial(Str, 1);
+                       until Sair;
+                     end else
+                       ECFPadrao.FinalizarVinculado;
+                   end
+                 end;
+            121: begin
+                   Move(Buffer, BufVinc, 20000);
+                   if Vinculado then begin
+                     ErroVinculado := False;
+                     ECFPadrao.IniciarVinculado('CARTAO', Valor, CupomFiscal);
+                     if Not ECFPadrao.Erro then
+                       ECFPadrao.ImprimirVinculado(BufVinc);
+                     if ECFPadrao.Erro then
+                       if biblio.MensagemConfirmacao(ECFPadrao.Mensagem + #13#10 + ctTEFIMPRIMIRNOVAMENTE) = smbOK then
+                         ErroVinculado := True
+                       else begin
+                         Continua := -1;
+                         if (Comando = ctFIReImpressaoEspecifico) or (Comando = ctFIReImpressaoUltimoComprovante) then
+                           MensagemAviso(ctTEFIMPNAOCONCLUIDA)
+                         else
+                          MensagemAviso(ctTEFTRANSNAOEFETUADA);
+                       end
+                   end else if QtdadeVias = 1 then begin
+                     Str := Buffer[0];
+                     repeat
+                       ECFPadrao.RelatorioGerencial(Str, 1);
+                       if ECFPadrao.Erro then begin
+                         Sair := biblio.MensagemConfirmacao(ECFPadrao.Mensagem + #13#10 + ctTEFIMPRIMIRNOVAMENTE) <> smbOK;
+                         if Sair then begin
+                           Continua := -1;
+                           if (Comando = ctFIReImpressaoEspecifico) or (Comando = ctFIReImpressaoUltimoComprovante) then
+                             MensagemAviso(ctTEFIMPNAOCONCLUIDA)
+                           else
+                             MensagemAviso(ctTEFTRANSNAOEFETUADA);
+                         end
+                       end else
+                         Sair := True
+                     until Sair;
+                   end
+                 end;
+          end;
+       1: if Assigned(OnMensagemOperador) then
+            OnMensagemOperador(Buffer[0]);
+       3: if Assigned(OnMensagemOperador) then
+            OnMensagemOperador(Buffer[0]);
+       4: if Assigned(OnCabecalhoMenu) then
+            OnCabecalhoMenu(Buffer[0]);
+      20: if MensagemConfirmacao(Buffer[0]) = smbOK then
+            Buffer[0] := '0'
+          else
+            Buffer[0] := '1';
+          {if Assigned(OnConfirmacao) then begin
+            Str := StrPas(Buffer);
+            if OnConfirmacao(Str, TamanhoMinimo, TamanhoMaximo) then
+              Continua:= 0
+            else
+              Continua:= -1;
+          end;}
+      21: if Assigned(OnOpcoesMenu) then begin
+            MontaOpcoes;
+            if OnOpcoesMenu(OpcoesMenu, Opcao) then begin
+              StrPCopy (@Buffer[0], IntToStr(Opcao));
+              Continua:= 0;
+            end else
+              Continua:= -1;
+          end;
+      22: if Assigned(OnMensagemOperador) then
+            OnMensagemOperador(Buffer[0]);
+      23: if Assigned(OnCancelamento) then
+            if onCancelamento then
+              Continua := -1;
+      30,
+      34: if Assigned(OnConfirmacao) then begin
+            Str := Buffer[0];//StrPas(Buffer[0]);
+            if TipoCampo = 500 then
+              if Assigned(OnAutorizacao) and Not OnAutorizacao then
+                Continua := -1
+              else
+                Continua := 0
+             else if OnConfirmacao(Str, TamanhoMinimo, TamanhoMaximo) then begin
+              Continua:= 0;
+              if TipoCampo = 505 then
+                if Length(Str) = 1 then
+                  Str := '0' + Str;
+              StrPCopy(@Buffer[0], Str);
+            end else
+              Continua:= -1;
+          end
+      end;
+  end;
+begin
+  ProximoComando := 0;
+  TipoCampo      := 0;
+  TamanhoMinimo  := 0;
+  TamanhoMaximo  := 0;
+  Continua       := 0;
+  repeat
+    Application.ProcessMessages;
+    Sts:= ContinuaFuncaoSiTefInterativo (@ProximoComando, @TipoCampo, @TamanhoMinimo,
+                                         @TamanhoMaximo, @Buffer[0], sizeof (Buffer),
+                                         Continua);
+    if Sts = 10000 then begin
+      Case Comando of
+        ctFIFormaPagamento:                    InterpretaComando(True, 2);
+        ctFITelemarketing:                     InterpretaComando(True, 2);
+        ctFITransacoesGerenciais:              InterpretaComando(False, 2);
+        ctFIComunicacaoTef:                    Buffer[0] := '0';
+        ctFIMenuReImpressao:                   InterpretaComando(False, 1);
+        ctFIReImpressaoEspecifico:             InterpretaComando(False, 1);
+        ctFIReImpressaoUltimoComprovante:      InterpretaComando(False, 1);
+        ctFIPreAutorizacao:                    InterpretaComando(True, 2);
+        ctFICapturaPreAutorizacao:             ;
+        ctFICancelamentoNormal:                InterpretaComando(False, 2);
+        ctFICancelamentoTelemarketing:         InterpretaComando(False, 2);
+        ctFICancelamentoPreAutorizacao:        InterpretaComando(False, 2);
+        ctFICancelamentoCapturaPreAutorizacao: InterpretaComando(False, 2);
+        ctFIRecargaPrePago:                    ;
+     end;
+    end;
+  until Sts <> 10000;
+  Result := Sts = ctCODOK;
+end;
+
+function TtecTEFDedicado.ExecutarOperacao(Op: Integer): Boolean;
+begin
+  Result := ExistePinPad;
+  if Result then begin
+    Result := IniciaFuncaoInterativa(OP, Valor, CupomFiscal, DataFiscal, Horario, Operador, '');
+    if Result then begin
+      Result := ContinuaFuncaoInterativa(OP);
+      if Result then
+        FinalizaTransacaoInterativo(1)
+      else
+        FinalizaTransacaoInterativo(0)
+    end
+  end
+end;
+
+function TtecTEFDedicado.ExistePinPad: Boolean;
+var
+  Res: Integer;
+begin
+  Res := VerificaPresencaPinPad;
+  if Res = 1 then
+    FCodigoErro := ctCODOK
+  else if Res = 0 then
+    FCodigoErro := ctCODERROPINPADINEXISTENTE
+  else
+    FCodigoErro := ctCODERROLIBPINPADINEXISTENTE;
+  Result := FCodigoErro = ctCODOK;
+end;
+
+procedure TtecTEFDedicado.FinalizaTransacaoInterativo(Confirma: Smallint);
+begin
+  FinalizaTransacaoSiTefInterativo(Confirma, PChar(CupomFiscal), PChar(DataFiscal), PChar(Horario));
+end;
+
+function TtecTEFDedicado.getErro: Boolean;
+begin
+  Result := CodigoErro <> ctCODOK;
+end;
+
+function TtecTEFDedicado.getMensagemErro: String;
+begin
+  case FCodigoErro of
+    ctCODOK:                       Result := ctOK;
+    ctCODERROENDIPINVAL:           Result := ctERROENDIPINVAL;
+    ctCODERROCODLOJAINVAL:         Result := ctERROCODLOJAINVAL;
+    ctCODERROCODTERMINVAL:         Result := ctERROCODTERMINVAL;
+    ctCODERROINICIALIZACAO:        Result := ctERROINICIALIZACAO;
+    ctCODERROFALTAMEMORIA:         Result := ctERROFALTAMEMORIA;
+    ctCODERROLIBNAOENCONTRADA:     Result := ctERROLIBNAOENCONTRADA;
+    ctCODERROPINPADINEXISTENTE:    Result := ctERROPINPADINEXISTENTE;
+    ctCODERROLIBPINPADINEXISTENTE: Result := ctERROLIBPINPADINEXISTENTE;
+    ctCODERROTERMIALINVALIDO:      Result := ctERROTERMIALINVALIDO;
+    ctCODERROTERMINALRESERVADO:    Result := ctERROTERMINALRESERVADO;
+  end;
+end;
+
+function TtecTEFDedicado.IniciaFuncaoInterativa(Comando: Integer; Valor, CuponFiscal, DataFiscal, Horario,
+  Operador, ParamAdic: String): Boolean;
+var
+ Cod: Integer;
+begin
+  Cod := IniciaFuncaoSiTefInterativo(Comando,PChar(Valor),PChar(CuponFiscal),PChar(DataFiscal),PChar(Horario),PChar(Operador),PChar(ParamAdic));
+  Result := Cod = 10000;
+end;
+
+class function TtecTEFDedicado.MsgErro(CodErro: Integer): String;
+begin
+  case CodErro of
+    ctCODOK:                       Result := ctOK;
+    ctCODERROENDIPINVAL:           Result := ctERROENDIPINVAL;
+    ctCODERROCODLOJAINVAL:         Result := ctERROCODLOJAINVAL;
+    ctCODERROCODTERMINVAL:         Result := ctERROCODTERMINVAL;
+    ctCODERROINICIALIZACAO:        Result := ctERROINICIALIZACAO;
+    ctCODERROFALTAMEMORIA:         Result := ctERROFALTAMEMORIA;
+    ctCODERROLIBNAOENCONTRADA:     Result := ctERROLIBNAOENCONTRADA;
+    ctCODERROPINPADINEXISTENTE:    Result := ctERROPINPADINEXISTENTE;
+    ctCODERROLIBPINPADINEXISTENTE: Result := ctERROLIBPINPADINEXISTENTE;
+    ctCODERROTERMIALINVALIDO:      Result := ctERROTERMIALINVALIDO;
+    ctCODERROTERMINALRESERVADO:    Result := ctERROTERMINALRESERVADO;
+  end;
+end;
+
+procedure TtecTEFDedicado.setMensagemPermanentePinPad(const Value: String);
+begin
+  FCodigoErro := EscreveMensagemPermanentePinPad(PChar(Value));
+end;
+
+procedure TtecTEFDedicado.setServerIP(const Value: String);
+begin
+  FServerIP := Value;
+end;
+
+class function TtecTEFDedicado.Terminal(Str: String): Integer;
+var
+  Nro: Integer;
+begin
+  if Length(Str) <> 8 then
+    Result := ctCODERROTERMIALINVALIDO
+  else
+    try
+      Nro := StrToInt(Copy(Str, 3, 6));
+      if (899 < Nro) and (Nro < 1000) then
+        Result := ctCODERROTERMINALRESERVADO
+      else begin
+        FTerminal := Str;
+        Result := ctCODOK
+      end
+    except
+      Result := ctCODERROTERMIALINVALIDO
+    end;
+end;
+
+class function TtecTEFDedicado.Terminal: String;
+begin
+  Result := FTerminal
+end;
+
+end.
+

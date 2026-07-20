@@ -1,0 +1,368 @@
+unit fmprocessosjudiciaisreinf;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmcadastropadrao, ComCtrls, Buttons, ToolWin, ExtCtrls, StdCtrls,
+  Mask, cpdbfindcontrols, dmprocessosjudiciaisreinf, AdvCombo,
+  AdvDBComboBox, ctconstantes, biblio, AdvEdit, DBAdvEd, AdvSmoothEdit,
+  AdvSmoothEditButton, AdvSmoothDatePicker, DBAdvSmoothDatePicker, advlued,
+  dbadvle, clisted, DBMaplistCombobox, Lucombo, dblucomb, AdvMemo,
+  DBAdvMemo, AdvEdBtn, DBPlannerDatePicker, DBDateTimePicker,
+  DBEditDateTimePicker, DBDateTimePicker2, cpdbmesano, AdvMEdBtn,
+  PlannerMaskDatePicker, PlannerDBMaskDatePicker, Grids, AdvObj, BaseGrid,
+  AdvGrid, DBAdvGrid, AsgLinks, ccedlink, frmctrllink, frconsulta,
+  frconsultacodigo, DBCtrls, cpdbmemo, AsgFindDialog, frconsultacontabil,
+  frconsultacodigocontabil;
+
+type
+  TfrmProcessosJudiciaisReinf = class(TfrmCadastroPadrao)
+    gbxNumero: TGroupBox;
+    gbxTipoProcesso: TGroupBox;
+    dbmTipoProcesso: TDBMaplistCombobox;
+    gbxnrproc: TGroupBox;
+    gbxindautoria: TGroupBox;
+    dmbindautoria: TDBMaplistCombobox;
+    gbxObservacoes: TGroupBox;
+    gbxinivalid: TGroupBox;
+    edtnrproc: TDBAdvEdit;
+    gbxfimvalid: TGroupBox;
+    edtinivalid: TDBEditmesano;
+    edtfimvalid: TDBEditmesano;
+    DBAdvEdit1: TDBAdvEdit;
+    dbgSuspensaoExibilidadeTributos: TDBAdvGrid;
+    FormControlEditLink1: TFormControlEditLink;
+    fraConsultaUFVara: TfraConsultaCodigo;
+    fraConsultaCidadesVara: TfraConsultaCodigo;
+    pnlOpcoesSuspensaoExibilidadeTributos: TPanel;
+    sbnIncluirProduto: TSpeedButton;
+    sbnExcluirProduto: TSpeedButton;
+    mmoObservacoesSuspensaoExibilidadeTributos: TtecDBMemo;
+    DBAdvEdit2: TDBAdvEdit;
+    DBAdvEdit3: TDBAdvEdit;
+    shCopiar: TShape;
+    lblCopiar: TLabel;
+    pgcProcessosJudiciais: TPageControl;
+    tstCadastroReinf: TTabSheet;
+    tstEnvioReinfs: TTabSheet;
+    pnlBarraReinf: TPanel;
+    Bevel1: TBevel;
+    gbxSuspensaoExibilidadeTributos: TGroupBox;
+    gbxEnvio_Processos: TGroupBox;
+    gbxEnvio_SuspensaoExibilidadeTributos: TGroupBox;
+    dbgEnvio_Processos: TDBAdvGrid;
+    dbgEnvio_SuspensaoExibilidadeTributos: TDBAdvGrid;
+    fraConsultaProcessoJudicialReinf: TfraConsultaCodigoContabil;
+    procedure FormControlEditLink1SetEditorFocus(Sender: TObject;
+      Grid: TAdvStringGrid; AControl: TWinControl);
+    procedure dbgSuspensaoExibilidadeTributosGetEditorType(Sender: TObject; ACol, ARow: Integer;
+      var AEditor: TEditorType);
+    procedure mmoObservacoesProcessoJudicialReinfKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure edfNumeroEnter(Sender: TObject);
+    procedure dbgSuspensaoExibilidadeTributosCanAddRow(Sender: TObject;
+      var CanAdd: Boolean);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure dbgSuspensaoExibilidadeTributosDrawCell(Sender: TObject;
+      ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
+    procedure dbgSuspensaoExibilidadeTributosGetCellColor(Sender: TObject;
+      ARow, ACol: Integer; AState: TGridDrawState; ABrush: TBrush;
+      AFont: TFont);
+    procedure pgcProcessosJudiciaisChange(Sender: TObject);
+    procedure dbgEnvio_SuspensaoExibilidadeTributosGetCellColor(
+      Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState;
+      ABrush: TBrush; AFont: TFont);
+    procedure fraConsultaCodigoContabil1edfCodigoKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure fraConsultaProcessoJudicialReinfedfCodigoKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure sbnProcurarClick(Sender: TObject);
+  private
+    { Private declarations }
+     procedure CondicoesdaConsultaCidadesVara;
+     procedure AtribuirDadosConsultaCidadesVara(Found: Boolean);
+  protected
+    function  InternoIncluir: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    procedure AlterarEstadoBotoes; override;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+  end;
+
+var
+  frmProcessosJudiciaisReinf: TfrmProcessosJudiciaisReinf;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmProcessosJudiciaisReinf }
+
+procedure TfrmProcessosJudiciaisReinf.AlterarEstadoBotoes;
+begin
+  inherited;
+  if sbnExcluir.Enabled then
+    sbnExcluir.enabled := dtmProcessosJudiciaisReinf.qryProcessoJudicialReinfdatahoraexclusao.IsNull;
+end;
+
+constructor TfrmProcessosJudiciaisReinf.Create(AOwner: TComponent);
+begin
+  dtmProcessosJudiciaisReinf := TdtmProcessosJudiciaisReinf.Create(Self);
+  inherited;
+  DataSet:= dtmProcessosJudiciaisReinf.qryProcessoJudicialReinf;
+
+  fraConsultaUFVara.TipoPesquisa := pesEstados;
+  fraConsultaCidadesVara.TipoPesquisa := pesCIDADESIBGE;
+  fraConsultaCidadesVara.CondicoesdaConsulta := CondicoesdaConsultaCidadesVara;
+  fraConsultaCidadesVara.OnFound := AtribuirDadosConsultaCidadesVara;
+
+  fraConsultaProcessoJudicialReinf.TipoPesquisa := pesProcessoJudicialReinf; 
+
+//  edfNumero.setfocus;
+
+end;
+
+destructor TfrmProcessosJudiciaisReinf.Destroy;
+begin
+  dtmProcessosJudiciaisReinf := nil;
+  inherited;
+  frmProcessosJudiciaisReinf := Nil;
+end;
+
+function TfrmProcessosJudiciaisReinf.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if result then
+    dtmProcessosJudiciaisReinf.ExcluirProcessoJudicialReinf
+end;
+
+function TfrmProcessosJudiciaisReinf.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if result then
+  begin
+    result := dtmProcessosJudiciaisReinf.GravarProcessoJudicialReinf;
+
+  end;
+end;
+
+function TfrmProcessosJudiciaisReinf.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then
+    if not CtrlOn then
+    begin
+//      edfNumero.SetFocus;
+      dtmProcessosJudiciaisReinf.IncluirProcessoJudicialReinf;
+//      edfNumeroFound(true);
+//      flkFornecedor.SetFocus;
+//      pgcValores.ActivePage := tstValores;
+    end;
+end;
+
+
+procedure TfrmProcessosJudiciaisReinf.FormControlEditLink1SetEditorFocus(
+  Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+begin
+  inherited;
+  if (AControl = fraConsultaUFVara)  then
+  begin
+    fraConsultaUFVara.edfcodigo.SetFocus;
+    FormControlEditLink1.OnSetEditorFocus := nil;
+  end
+  else
+  if (Acontrol = fraConsultaCidadesVara) then
+  begin
+    fraConsultaCidadesVara.edfCodigo.SetFocus;
+    FormControlEditLink1.OnSetEditorFocus := nil;
+  end;
+end;
+
+procedure TfrmProcessosJudiciaisReinf.dbgSuspensaoExibilidadeTributosGetEditorType(
+  Sender: TObject; ACol, ARow: Integer; var AEditor: TEditorType);
+begin
+  inherited;
+  case acol of
+    5 : begin
+          if FormControlEditLink1.Control <> fraConsultaUFVara then
+             FormControlEditLink1.OnSetEditorFocus := FormControlEditLink1SetEditorFocus;
+
+
+          FormControlEditLink1.Control := fraConsultaUFVara;
+          FormControlEditLink1.Control.TabStop := false;
+
+          dbgSuspensaoExibilidadeTributos.EditLink := FormControlEditLink1;
+
+        end;
+    6 : begin
+          if FormControlEditLink1.Control <> fraConsultaCidadesVara then
+            FormControlEditLink1.OnSetEditorFocus := FormControlEditLink1SetEditorFocus;
+
+          FormControlEditLink1.Control := fraConsultaCidadesVara;
+          FormControlEditLink1.Control.TabStop := false;
+
+          dbgSuspensaoExibilidadeTributos.EditLink := FormControlEditLink1;
+
+        end;
+
+    else
+       FormControlEditLink1.Control :=  nil;
+  end;
+
+  if (acol in [5,6]) then
+    aEditor := edCustom;
+
+end;
+
+procedure TfrmProcessosJudiciaisReinf.CondicoesdaConsultaCidadesVara;
+begin
+  fraConsultaCidadesVara.qryProcuraCidades.ParamByName('estado').asString :=
+    fraConsultaUFVara.qryProcuraEstados.fieldbyname('codigo').AsString;
+
+  fraConsultaCidadesVara.qryProcuraCidades.MacroByName('SQL').AsString := ' and c.codigoibge is not null ';
+
+  fraConsultaCidadesVara.qryConsultaCidades.ParamByName('estado').asString :=
+    fraConsultaUFVara.qryProcuraEstados.fieldbyname('codigo').AsString;
+
+  fraConsultaCidadesVara.qryConsultaCidades.MacroByName('SQL').AsString := ' and cidades.codigoibge is not null ';
+
+
+end;
+
+procedure TfrmProcessosJudiciaisReinf.mmoObservacoesProcessoJudicialReinfKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmProcessosJudiciaisReinf.edfNumeroEnter(Sender: TObject);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmProcessosJudiciaisReinf.AtribuirDadosConsultaCidadesVara(Found: Boolean);
+begin
+  dtmProcessosJudiciaisReinf.qrySuspensaoExibilidadeTributosnomecidade.AsString :=
+  fraConsultaCidadesVara.qryProcuraCidades.fieldbyname('nome').AsString;
+end;
+
+procedure TfrmProcessosJudiciaisReinf.dbgSuspensaoExibilidadeTributosCanAddRow(
+  Sender: TObject; var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := dtmProcessosJudiciaisReinf.qrySuspensaoExibilidadeTributos.CheckRequiredFields;
+end;
+
+procedure TfrmProcessosJudiciaisReinf.sbnIncluirProdutoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmProcessosJudiciaisReinf.qrySuspensaoExibilidadeTributos.Append;
+  dbgSuspensaoExibilidadeTributos.Col := 1;
+end;
+
+procedure TfrmProcessosJudiciaisReinf.sbnExcluirProdutoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmProcessosJudiciaisReinf.ExcluirSuspensaoExibilidadeTributos
+end;
+
+procedure TfrmProcessosJudiciaisReinf.dbgSuspensaoExibilidadeTributosDrawCell(
+  Sender: TObject; ACol, ARow: Integer; Rect: TRect;
+  State: TGridDrawState);
+begin
+  inherited;
+  (*
+  if (ACol = 0) and (ARow > 0)  and not dtmProcessosJudiciaisReinf.qrySuspensaoExibilidadeTributosdatahoraexclusao.IsNull then
+  begin
+    TDBAdvGrid(Sender).CellProperties[Acol, Arow].BrushColor := clRed;
+    TDBAdvGrid(Sender).Canvas.Brush.Color := clRed;
+    TDBAdvGrid(Sender).Canvas.FillRect(Rect);
+    TDBAdvGrid(Sender).Canvas.TextOut(Rect.Left, Rect.Top, TDBAdvGrid(Sender).Cells[ACol,ARow]);
+  end;
+  *)
+end;
+
+procedure TfrmProcessosJudiciaisReinf.dbgSuspensaoExibilidadeTributosGetCellColor(
+  Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState;
+  ABrush: TBrush; AFont: TFont);
+begin
+  inherited;
+  if Arow > 0 then
+    if Acol = 0 then
+    begin
+      if TDBAdvGrid(Sender).cells[dbgSuspensaoExibilidadeTributos.ColumnByFieldName['datahoraexclusao'].Index, ARow] <> '' then
+        ABrush.Color := clRed
+      else
+        ABrush.Color := clWindow;
+    end;
+end;
+
+procedure TfrmProcessosJudiciaisReinf.pgcProcessosJudiciaisChange(
+  Sender: TObject);
+begin
+  inherited;
+  if pgcProcessosJudiciais.ActivePage = tstEnvioReinfs then
+    dtmProcessosJudiciaisReinf.AbrirTabelasEnvios
+
+end;
+
+procedure TfrmProcessosJudiciaisReinf.dbgEnvio_SuspensaoExibilidadeTributosGetCellColor(
+  Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState;
+  ABrush: TBrush; AFont: TFont);
+begin
+  inherited;
+  if Arow > 0 then
+    if Acol = 0 then
+    begin
+      if TDBAdvGrid(Sender).cells[dbgEnvio_SuspensaoExibilidadeTributos.ColumnByFieldName['datahoraexclusao'].Index, ARow] <> '' then
+        ABrush.Color := clRed
+      else
+        ABrush.Color := clWindow;
+    end;
+
+end;
+
+procedure TfrmProcessosJudiciaisReinf.fraConsultaCodigoContabil1edfCodigoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+        {
+  if key = vk_F9 then
+    fraConsultaProcessoJudicialReinf.InternoPesquisar('Consulta Processos Judiciais - Reinf');
+    }
+
+end;
+
+procedure TfrmProcessosJudiciaisReinf.fraConsultaProcessoJudicialReinfedfCodigoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_f9 then
+  begin
+    Shift := [ssCtrl];
+    fraConsultaProcessoJudicialReinf.edfCodigoKeyDown(Sender, Key, Shift);
+  end;
+
+end;
+
+procedure TfrmProcessosJudiciaisReinf.sbnProcurarClick(Sender: TObject);
+ var
+  vTecla : Word;
+begin
+  inherited;
+  vTecla := vk_f9;
+  fraConsultaProcessoJudicialReinf.edfCodigoKeyDown(Sender, vTecla, [ssCtrl]);
+end;
+
+end.

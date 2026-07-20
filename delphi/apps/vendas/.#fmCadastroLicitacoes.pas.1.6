@@ -1,0 +1,521 @@
+unit fmCadastroLicitacoes;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmcadastropadrao, ComCtrls, Buttons, ToolWin, ExtCtrls,
+  StdCtrls, frconsulta, frconsultacodigo, ctconstantes, AdvEdit, AdvEdBtn,
+  PlannerDatePicker, PlannerDBDatePicker, cpdbtext, Mask, DBCtrls, cptexto,
+  AdvMemo, DBAdvMemo, Grids, AdvObj, BaseGrid, AdvGrid, DBAdvGrid,
+  frmctrllink, biblio, cpdbfindcontrols, db, GradientLabel, AdvPageControl,
+  DBGrids, cpdbgrid, fmPrincipalBasico, fmVendasAnteriores;
+
+type
+  TfrmCadastroLicitacoes = class(TfrmCadastroPadrao)
+    fraConsultaLicitacoes: TfraConsultaCodigo;
+    lblNumeroLicitacao: TLabel;
+    lblCodigoCliente: TLabel;
+    fraConsultaCliente: TfraConsultaCodigo;
+    lblVendedor: TLabel;
+    fraConsultaVendedor: TfraConsultaCodigo;
+    lblDatadaVenda: TLabel;
+    PlannerDBDatePickerDatadaVenda: TPlannerDBDatePicker;
+    lblVigencia: TLabel;
+    PlannerDBDatePickerVigencia: TPlannerDBDatePicker;
+    DBEditProposta: TDBEditTexto;
+    lblProposta: TLabel;
+    lblValorTotal: TLabel;
+    dtxValorTotal: TtecDBText;
+    gbxObservacoes: TGroupBox;
+    DBAdvMemo1: TDBAdvMemo;
+    DBAdvGridProdutosLicitacoes: TDBAdvGrid;
+    GroupBox3: TGroupBox;
+    sbnExcluirLicitacoesProdutos: TSpeedButton;
+    sbnIncluirLicitacoesProdutos: TSpeedButton;
+    pnlEdicaoDados: TPanel;
+    fraConsulta_: TfraConsultaCodigo;
+    FormControlEditLink1: TFormControlEditLink;
+    GradientLabelPesquisaCampo: TGradientLabel;
+    sbnContrato: TSpeedButton;
+    gbxValores: TGroupBox;
+    Label1: TLabel;
+    dtxValorEntregue: TtecDBText;
+    Label2: TLabel;
+    dtxValorPendente: TtecDBText;
+    Label3: TLabel;
+    dtxValorEntregar: TtecDBText;
+    Timer1: TTimer;
+    AdvPageControlLicitacoes: TAdvPageControl;
+    tstProdutos: TAdvTabSheet;
+    tstContratos_Notas: TAdvTabSheet;
+    gbxNotaseCuponsFiscais: TGroupBox;
+    dbgNotaseCuponsFiscais: TtecDBGrid;
+    GroupBox1: TGroupBox;
+    sbnAbrirContrato: TSpeedButton;
+    gbxNotasdeDevolucao: TGroupBox;
+    GroupBox7: TGroupBox;
+    StaticText1: TStaticText;
+    dbgNotasdeDevolucao: TtecDBGrid;
+    GroupBox2: TGroupBox;
+    sbnAbrirContratoDevolucao: TSpeedButton;
+    Label4: TLabel;
+    dtxOrcados: TtecDBText;
+    Label5: TLabel;
+    dtxReservado: TtecDBText;
+    Label6: TLabel;
+    dtxFaturado: TtecDBText;
+    Label7: TLabel;
+    dtxDevolvido: TtecDBText;
+    sbnImprimirContrato: TSpeedButton;
+    sbnCopiarProdutos: TSpeedButton;
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure DBAdvGridProdutosLicitacoesGetEditorType(Sender: TObject;
+      ACol, ARow: Integer; var AEditor: TEditorType);
+    procedure sbnIncluirLicitacoesProdutosClick(Sender: TObject);
+    procedure DBAdvGridProdutosLicitacoesKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure sbnExcluirLicitacoesProdutosClick(Sender: TObject);
+    procedure FormControlEditLink1SetEditorFocus(Sender: TObject;
+      Grid: TAdvStringGrid; AControl: TWinControl);
+    procedure Timer1Timer(Sender: TObject);
+    procedure sbnContratoClick(Sender: TObject);
+    procedure AdvPageControlLicitacoesChange(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure sbnAbrirContratoClick(Sender: TObject);
+    procedure sbnAbrirContratoDevolucaoClick(Sender: TObject);
+    procedure sbnImprimirContratoClick(Sender: TObject);
+    procedure DBAdvGridProdutosLicitacoesSelectCell(Sender: TObject; ACol,
+      ARow: Integer; var CanSelect: Boolean);
+    procedure sbnCopiarProdutosClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure AtribuirDadosprodutoLicitacoes;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+    procedure AtribuirDadosLicitacoes;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure ReFazConsulta(Numeros: Array of String);
+  end;
+
+var
+  frmCadastroLicitacoes: TfrmCadastroLicitacoes;
+
+implementation
+
+uses dmCadastroLicitacoes;
+
+{$R *.dfm}
+
+{ TfrmCadastroLicitacoes }
+
+constructor TfrmCadastroLicitacoes.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  dtmCadastroLicitacoes := tdtmCadastroLicitacoes.create(self);
+
+  dataset := dtmCadastroLicitacoes.qryLicitacoes;
+
+  fraConsultaLicitacoes.tipopesquisa := pesLICITACOES;
+  fraConsultaLicitacoes.OnFound := AtribuirDadosLicitacoes;
+  fraConsultaVendedor.tipopesquisa := pesVENDEDORES;
+  fraConsultaCliente.TipoCliente:= 'C';
+  fraConsultaCliente.TIPOPESQUISA := pesCLIENTES;
+
+  dtxValorTotal.alignment := taRightJustify;
+  dtxValorEntregue.alignment := taRightJustify;
+  dtxValorPendente.alignment := taRightJustify;
+
+  dtxOrcados.alignment := taRightJustify;
+  dtxReservado.alignment := taRightJustify;
+  dtxFaturado.alignment := taRightJustify;
+
+  dtxDevolvido.alignment := taRightJustify;
+  dtxValorEntregar.alignment := taRightJustify;
+  dtxValorTotal.alignment := taRightJustify;
+
+  AdvPageControlLicitacoes.activepage := tstProdutos;
+  AdvPageControlLicitacoes.activepageindex := 0;
+
+
+end;
+
+destructor TfrmCadastroLicitacoes.Destroy;
+begin
+
+  inherited;
+end;
+
+function TfrmCadastroLicitacoes.InternoExcluir: Boolean;
+begin
+  inherited internoExcluir;
+  AdvPageControlLicitacoes.activepage := tstProdutos;
+  if MensagemConfirmacao('Confirma a exclusão desta licitação?')=smbOk then
+    dtmCadastroLicitacoes.ExcluirLicitacao;
+end;
+
+function TfrmCadastroLicitacoes.InternoGravar: Boolean;
+begin
+  inherited Internogravar;
+  AdvPageControlLicitacoes.activepage := tstProdutos;
+  dtmCadastroLicitacoes.GravarLicitacoes;
+end;
+
+function TfrmCadastroLicitacoes.InternoIncluir: Boolean;
+begin
+  inherited InternoIncluir;
+  AdvPageControlLicitacoes.activepage := tstProdutos;
+  dtmCadastroLicitacoes.qryLicitacoes.Append;
+  if (dtmCadastroLicitacoes.qryLicitacoes.state = dsinsert) then
+    dtmCadastroLicitacoes.qryLicitacoesnumero.asinteger := dtmCadastroLicitacoes.qrylicitacoes_proximonumero.asinteger;
+//    fraConsultaLicitacoes.edfCodigo.Text := dtmCadastroLicitacoes.qrylicitacoes_proximonumero.asString;
+
+  fraConsultaVendedor.edfCodigo.setfocus;
+
+end;
+
+procedure TfrmCadastroLicitacoes.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+ if (dtmCadastroLicitacoes.qryProdutosLicitacoes.state in [dsinsert,dsedit])
+     and ((ActiveControl.Parent.Name = 'fraConsulta_') {or
+          (ActiveControl.Name = 'DBAdvGridProdutosLicitacoes')})
+     and (key = vk_escape) then
+  begin
+     dtmCadastroLicitacoes.qryProdutosLicitacoes.cancel;
+     DBAdvGridProdutosLicitacoes.hideInplaceEdit;
+  end
+  else
+  begin
+
+    inherited;
+
+    if (key = vk_f9) and (Shift = []) then
+      fraConsultaLicitacoes.InternoPesquisar('Licitacoess')
+    else
+    if (key = vk_f8) and (Shift = []) and sbnContrato.enabled then
+       sbnContratoClick(sbnContrato)
+    else
+    if (key = vk_f7) and (Shift = []) and sbnImprimirContrato.enabled then
+       sbnImprimirContratoClick(sbnImprimirContrato);
+
+  end;
+end;
+
+procedure TfrmCadastroLicitacoes.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  fraConsultaLicitacoes.InternoPesquisar('Licitacoess');
+end;
+
+procedure TfrmCadastroLicitacoes.DBAdvGridProdutosLicitacoesGetEditorType(
+  Sender: TObject; ACol, ARow: Integer; var AEditor: TEditorType);
+begin
+  inherited;
+  fraConsulta_.visible := false;
+
+  if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'produtovisual') then
+  begin
+    With fraConsulta_ do
+    begin
+      fraConsulta_.Width := TDBAdvGrid(Sender).Columns[Acol].Width;
+      fraConsulta_.edfcodigo.Width := fraConsulta_.Width-23;
+      fraConsulta_.sbnprocura.left := fraConsulta_.edfcodigo.Width;
+
+      fraConsulta_.edfCodigo.Operacao := opATRIBUICAO;
+      fraConsulta_.edfCodigo.MaxLength := 18;
+
+      fraConsulta_.edfCodigo.DataaFieldInterno := '';
+      fraConsulta_.edfCodigo.DataaFieldVisual := '';
+      fraConsulta_.edfCodigo.DataField := '';
+
+      fraConsulta_.edfCodigo.DataSource := dtmCadastroLicitacoes.dsrProdutosLicitacoes;
+      fraConsulta_.edfCodigo.DataaFieldInterno := 'produto';
+      fraConsulta_.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+      fraConsulta_.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+
+      fraConsulta_.edfCodigo.LookupaFieldinterno := '';
+      fraConsulta_.edfCodigo.LookupaFieldvisual := '';
+      fraConsulta_.edfCodigo.LookupQueryParameter := '';
+      fraConsulta_.edfCodigo.LookupField := '';
+
+      fraConsulta_.edfCodigo.LookupSource := fraConsulta_.dsrProcuraItemProdutos;
+      fraConsulta_.edfCodigo.LookupaFieldinterno := 'codigo';
+      fraConsulta_.edfCodigo.LookupaFieldvisual := 'produtovisual';
+      fraConsulta_.edfCodigo.LookupQueryParameter := 'produtovisual';
+      fraConsulta_.edfCodigo.LookupField := 'produtovisual';
+
+      fraConsulta_.OnFound := AtribuirDadosprodutoLicitacoes;
+      TipoPesquisa := pesITEMPRODUTOS;
+
+      fraConsulta_.edfCodigo.text := dtmCadastroLicitacoes.dsrProdutosLicitacoes.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+      fraConsulta_.edfCodigo.exist;
+    end;
+    fraConsulta_.visible := true;
+
+  end;
+
+end;
+
+procedure TfrmCadastroLicitacoes.AtribuirDadosprodutoLicitacoes;
+begin
+
+  if DBAdvGridProdutosLicitacoes.GetDistinctValues(1, DBAdvGridProdutosLicitacoes.row, true ).indexof(fraConsulta_.qryProcuraItemProdutosprodutovisual.asString)<>-1 then
+  begin
+    MensagemAviso('Produto já cadastrado!');
+    dtmCadastroLicitacoes.qryProdutosLicitacoes.cancel;
+  end
+  else
+  begin
+
+    dtmCadastroLicitacoes.qryProdutosLicitacoesdescricaoproduto.asString :=
+       fraConsulta_.qryProcuraItemProdutosdescricao.asString;
+
+    dtmCadastroLicitacoes.qryProdutosLicitacoesproduto.asString :=
+       fraConsulta_.qryProcuraItemProdutosproduto.asString;
+  end;
+
+end;
+
+procedure TfrmCadastroLicitacoes.sbnIncluirLicitacoesProdutosClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not dtmCadastroLicitacoes.qryLicitacoes.isempty then
+  begin
+    dtmCadastroLicitacoes.qryProdutosLicitacoes.last;
+    DBAdvGridProdutosLicitacoes.setfocus;
+    DBAdvGridProdutosLicitacoes.col := 1;
+    if dtmCadastroLicitacoes.qryProdutosLicitacoes.isempty then
+      dtmCadastroLicitacoes.qryProdutosLicitacoes.edit
+    else
+      dtmCadastroLicitacoes.qryProdutosLicitacoes.append;
+
+    DBAdvGridProdutosLicitacoes.ShowInplaceEdit;
+//    fraConsulta_.sbnProcuraClick(sender);
+  end;
+
+end;
+
+procedure TfrmCadastroLicitacoes.DBAdvGridProdutosLicitacoesKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+
+  if (key = VK_F9) and (Shift = [ssCtrl]) then
+  begin
+    if (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'produtovisual') then
+    begin
+      DBAdvGridProdutosLicitacoes.Col := 1;
+      DBAdvGridProdutosLicitacoes.ShowInplaceEdit;
+      fraConsulta_.sbnProcuraClick(sender)
+    end;
+  end
+  else
+  if (key = VK_F2) and (Shift = [ssCtrl]) then
+    sbnIncluirLicitacoesProdutosClick(nil)
+  else
+  if (key = VK_F3) and (Shift = [ssCtrl]) then
+  begin
+    DBAdvGridProdutosLicitacoes.Col := 1;
+    dtmCadastroLicitacoes.qryProdutosLicitacoes.edit;
+    DBAdvGridProdutosLicitacoes.ShowInplaceEdit;
+  end
+  else
+  if (key = VK_DELETE) and (Shift = [ssCtrl]) then
+    dtmCadastroLicitacoes.ExcluirLicitacoesProdutos;
+
+    (*
+  else
+  if (key = VK_ESCAPE) then
+  begin
+    if (dtmCadastroLicitacoes.qryProdutosLicitacoes.state in [dsinsert,dsedit]) then
+    begin
+      key := 0;
+{      DBAdvGridProdutosLicitacoes.hideInplaceEdit;
+      dtmCadastroLicitacoes.qryProdutosLicitacoes.cancel;}
+    end;
+  end;
+  *)
+
+
+
+
+
+end;
+
+procedure TfrmCadastroLicitacoes.sbnExcluirLicitacoesProdutosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroLicitacoes.ExcluirLicitacoesProdutos;
+end;
+
+procedure TfrmCadastroLicitacoes.FormControlEditLink1SetEditorFocus(
+  Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+begin
+  inherited;
+  if fraConsulta_.visible then
+    fraConsulta_.edfcodigo.setfocus;
+
+end;
+
+procedure TfrmCadastroLicitacoes.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  sbnContrato.enabled := (dtmCadastroLicitacoes.qryLicitacoesvalorentregar.asFloat <> 0) and
+                         (dtmCadastroLicitacoes.qryLicitacoes.state = dsBrowse);
+
+  sbnImprimirContrato.enabled := (dtmCadastroLicitacoes.qryLicitacoes.state = dsBrowse) and
+                                 (dtmCadastroLicitacoes.qryProdutosLicitacoes.recordcount <> 0);
+
+  sbnCopiarProdutos.enabled := sbnImprimirContrato.enabled;
+
+
+end;
+
+procedure TfrmCadastroLicitacoes.sbnContratoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroLicitacoes.gerarcontrato;
+  fraConsultaLicitacoes.edfCodigo.exist;
+
+end;
+
+procedure TfrmCadastroLicitacoes.AdvPageControlLicitacoesChange(
+  Sender: TObject);
+begin
+  inherited;
+  if  AdvPageControlLicitacoes.activepage = tstContratos_Notas then
+    dtmCadastroLicitacoes.AbrirContratosNotaseCuponsdaLicitacao;
+end;
+
+procedure TfrmCadastroLicitacoes.FormCreate(Sender: TObject);
+begin
+  inherited;
+  AdvPageControlLicitacoes.activepage := tstProdutos;
+  AdvPageControlLicitacoes.activepageindex := 0;
+  self.activecontrol := fraConsultaLicitacoes.edfCodigo;
+end;
+
+procedure TfrmCadastroLicitacoes.sbnAbrirContratoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroLicitacoes.qryContratosNotaseCuponsdaLicitacaocontrato.asString<>'' then
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(
+      ['Abrir', dtmCadastroLicitacoes.qryContratosNotaseCuponsdaLicitacaocontrato.asInteger],
+      'TfrmCadastroContratos', True)
+end;
+
+procedure TfrmCadastroLicitacoes.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+  if Value[0] = 'Abrir' then
+  begin
+    if ((dtmCadastroLicitacoes.qryLicitacoes.recordcount = 0) and
+        (Value[1]<>0)) or
+       ((dtmCadastroLicitacoes.qryLicitacoes.recordcount > 0) and
+        (Value[1]<>0) and
+        (Value[1]<> dtmCadastroLicitacoes.qryLicitacoesnumero.asinteger) and
+        (MensagemConfirmacao('Abrir a Licitação '+inttostr(Value[1])) = smbOK)) then
+    begin
+      if (dtmCadastroLicitacoes.qryLicitacoes.state in [dsedit, dsinsert]) then
+        dtmCadastroLicitacoes.qryLicitacoes.cancel;
+
+      fraConsultaLicitacoes.edfCodigo.setfocus;
+      {
+      dtmCadastroLicitacoes.qryLicitacoes.parambyname('numero').asinteger := Value[1];
+      dtmCadastroLicitacoes.qryLicitacoes.close;
+      dtmCadastroLicitacoes.qryLicitacoes.open;
+      }
+
+      fraConsultaLicitacoes.edfCodigo.text := inttostr(Value[1]);
+      fraConsultaLicitacoes.edfCodigo.Modified := True;
+      fraConsultaLicitacoes.edfCodigo.ForeignFound := stFound;
+      fraConsultaLicitacoes.edfCodigo.exist;
+
+
+    end;
+  end;
+  {
+  else
+  if Value[0] = 'Incluir' then
+  begin
+    if (dtmCadastroPedidos.qryPedidos.recordcount > 0) then
+    begin
+      if (dtmCadastroPedidos.qryPedidos.state in [dsedit, dsinsert]) then
+        if MensagemConfirmacao('O pedido está sendo editaddo, incluir o pedido ') = smbOK then
+           dtmCadastroPedidos.qryPedidos.cancel;
+    end;
+    frmCadastroPedidos := self;
+    internoincluir;
+  end
+  }
+
+end;
+
+procedure TfrmCadastroLicitacoes.AtribuirDadosLicitacoes;
+begin
+  AdvPageControlLicitacoes.activepage := tstProdutos;
+//  fraConsultaLicitacoes.edfcodigo.text := fraConsultaLicitacoes.qryProcuraLicitacoesnumero.asString;
+//  fraConsultaLicitacoes.edfcodigo.exist;
+
+end;
+
+procedure TfrmCadastroLicitacoes.sbnAbrirContratoDevolucaoClick(
+  Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroLicitacoes.qryContratosNotasDevolucoesdaLicitacaoContrato.asString<>'' then
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(
+      ['Abrir', dtmCadastroLicitacoes.qryContratosNotasDevolucoesdaLicitacaocontrato.asInteger],
+      'TfrmCadastroContratos', True)
+
+end;
+
+procedure TfrmCadastroLicitacoes.ReFazConsulta(Numeros: array of String);
+var
+  a: Integer;
+begin
+  for a := 0 to High(Numeros) do
+    if Numeros[a] = dtmCadastroLicitacoes.qryLicitacoesnumero.asString then
+      fraConsultaLicitacoes.edfCodigo.exist;
+end;
+
+procedure TfrmCadastroLicitacoes.sbnImprimirContratoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroLicitacoes.ImprimirContrato;
+end;
+
+procedure TfrmCadastroLicitacoes.DBAdvGridProdutosLicitacoesSelectCell(
+  Sender: TObject; ACol, ARow: Integer; var CanSelect: Boolean);
+begin
+  inherited;
+  if (TDBAdvGrid(Sender).Columns[ACol].FieldName = 'produtovisual') then
+    GradientLabelPesquisaCampo.Caption := 'Ctrl + F9 - Pesquisar'
+  else
+    GradientLabelPesquisaCampo.Caption := '';
+
+end;
+
+procedure TfrmCadastroLicitacoes.sbnCopiarProdutosClick(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVendasAnteriores(self, dtmCadastroLicitacoes.qryLicitacoescliente.asString,
+    'C',
+    dtmCadastroLicitacoes.qryProdutosLicitacoesproduto.asstring);
+
+
+end;
+
+end.

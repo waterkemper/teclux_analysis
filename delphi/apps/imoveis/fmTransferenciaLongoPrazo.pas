@@ -1,0 +1,199 @@
+unit fmTransferenciaLongoPrazo;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls, cpnumero, fmnavcontroles, dmbasico,
+  dateutils, fmajudabt, ComCtrls, Buttons, ToolWin, biblio, DB, ZQuery,
+  ZPgSqlQuery, cpquery, AdvSmoothProgressBar, ctconstantes, dmtecsoft,
+  frxClass, frxDBSet, Grids, DBGrids, cpdbgrid, cpdatasource, clparametrossistema;
+
+type
+  TfrmTransferenciaLongoPrazo = class(TfrmAjudaBt)
+    rgpTransferenciaLongoPrazo: TRadioGroup;
+    gbxExercicio: TGroupBox;
+    edtExercicio: TEditNumero;
+    sbnGerar: TSpeedButton;
+    AdvSmoothProgressBar1: TAdvSmoothProgressBar;
+    qryTransferirLongoParaCurtoPrazo: TtecQuery;
+    qryDesfazerTransferenciasLongoPrazo: TtecQuery;
+    sbnImprimir: TSpeedButton;
+    qryTransferenciaLongoParaCurtoPrazo: TtecQuery;
+    frxDBTransferenciaLongoParaCurtoPrazo: TfrxDBDataset;
+    frxDBTransferenciaLongoParaCurtoPrazo_: TfrxDBDataset;
+    qryTransferenciaLongoParaCurtoPrazocontrato: TLargeintField;
+    qryTransferenciaLongoParaCurtoPrazovalor: TFloatField;
+    qryTransferenciaLongoParaCurtoPrazocodigocliente: TIntegerField;
+    qryTransferenciaLongoParaCurtoPrazonomecliente: TStringField;
+    frxTransferenciaLongoParaCurtoPrazo: TfrxReport;
+    StaticText1: TStaticText;
+    procedure FormCreate(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure qryTransferirLongoParaCurtoPrazoProgress(Sender: TObject;
+      Stage: TZProgressStage; Proc: TZProgressProc; Position, Max: Integer;
+      var Cancel: Boolean);
+    procedure qryDesfazerTransferenciasLongoPrazoProgress(Sender: TObject;
+      Stage: TZProgressStage; Proc: TZProgressProc; Position, Max: Integer;
+      var Cancel: Boolean);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure frxTransferenciaLongoParaCurtoPrazoGetValue(
+      const VarName: String; var Value: Variant);
+  private
+    { Private declarations }
+    dtmBasico : TdtmBasico;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure ImprimirRelatorio;
+
+  public
+    { Public declarations }
+  end;
+
+var
+  frmTransferenciaLongoPrazo: TfrmTransferenciaLongoPrazo;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmTransferenciaLongoPrazo.FormCreate(Sender: TObject);
+begin
+  inherited;
+  dtmBasico := tdtmBasico.create(nil);
+  if (monthof(dtmBasico.DataServidor) > 10) then
+    edtExercicio.text := inttostr(yearof(dtmBasico.DataServidor))
+  else
+    edtExercicio.text := inttostr(yearof(dtmBasico.DataServidor) - 1);
+end;
+
+procedure TfrmTransferenciaLongoPrazo.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+
+    if (key = VK_F7) then
+    begin
+      if sbnImprimir.Enabled then
+        sbnImprimirClick(nil);
+    end
+    else
+    if (key = VK_F8) then
+    begin
+      if sbnGerar.Enabled then
+        sbnGerarClick(nil);
+    end;
+
+  end;
+
+end;
+
+procedure TfrmTransferenciaLongoPrazo.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  if edtExercicio.Text <> '' then
+  begin
+
+    case rgpTransferenciaLongoPrazo.ItemIndex of
+    0: begin
+         if mensagemConfirmacao('Efetuar as transferências do Longo Prazo?') = smbOk then
+         begin
+           AdvSmoothProgressBar1.Position := 5;
+           qryTransferirLongoParaCurtoPrazo.close;
+           qryTransferirLongoParaCurtoPrazo.ParamByName('exercicio').asString := edtExercicio.text;
+           qryTransferirLongoParaCurtoPrazo.open;
+//           qryTranferirLongoParaCurtoPrazo.execsql;
+           AdvSmoothProgressBar1.Position := 0;
+         end;
+       end;
+
+    1: begin
+         if mensagemConfirmacao('Desfazer as transferências do Longo Prazo?') = smbOk then
+         begin
+           AdvSmoothProgressBar1.Position := 5;
+           qryDesfazerTransferenciasLongoPrazo.close;
+           qryDesfazerTransferenciasLongoPrazo.ParamByName('exercicio').asString := edtExercicio.text;
+           qryDesfazerTransferenciasLongoPrazo.open;
+           AdvSmoothProgressBar1.Position := 0;
+         end;
+       end;
+    end;
+  end;
+
+end;
+
+procedure TfrmTransferenciaLongoPrazo.qryTransferirLongoParaCurtoPrazoProgress(
+  Sender: TObject; Stage: TZProgressStage; Proc: TZProgressProc; Position,
+  Max: Integer; var Cancel: Boolean);
+begin
+  inherited;
+  if position <> 0 then
+    AdvSmoothProgressBar1.Position := AdvSmoothProgressBar1.Position + (100 / position);
+end;
+
+procedure TfrmTransferenciaLongoPrazo.qryDesfazerTransferenciasLongoPrazoProgress(
+  Sender: TObject; Stage: TZProgressStage; Proc: TZProgressProc; Position,
+  Max: Integer; var Cancel: Boolean);
+begin
+  inherited;
+  if position <> 0 then
+    AdvSmoothProgressBar1.Position := AdvSmoothProgressBar1.Position + (100 / position);
+end;
+
+procedure TfrmTransferenciaLongoPrazo.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  ImprimirRelatorio;
+end;
+
+procedure TfrmTransferenciaLongoPrazo.ImprimirRelatorio;
+var
+  PV: TfrxComponent;
+  vAGrupar, vOutras : String;
+begin
+
+  qryTransferenciaLongoParaCurtoPrazo.ParamByName('data').asString := edtExercicio.Text+'-12-31';
+  qryTransferenciaLongoParaCurtoPrazo.close;
+  qryTransferenciaLongoParaCurtoPrazo.open;
+
+  if (qryTransferenciaLongoParaCurtoPrazo.recordcount = 0) then
+    mensagemaviso('Nenhuma informação foi encontrada')
+  else
+  begin
+    frxTransferenciaLongoParaCurtoPrazo.Variables['TITULO'] := 'TRANSFERÊNCIA DOS VALORES DE LONGO PARA CURTO PRAZO EM ' + '31/12/'+edtExercicio.Text;
+    frxTransferenciaLongoParaCurtoPrazo.Variables['DATASITUACAO'] := '31/12/'+edtExercicio.Text;
+
+    if FileExists(LogotipoFilialBase) then
+    begin
+      PV := frxTransferenciaLongoParaCurtoPrazo.FindObject('fpvLogo');
+      if (PV is TfrxPictureView) then
+        TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+    end;
+
+//   frxTransferenciaLongoParaCurtoPrazo.DesignReport(true,true);
+    frxTransferenciaLongoParaCurtoPrazo.ShowReport(true);
+
+  end;
+
+end;
+
+procedure TfrmTransferenciaLongoPrazo.frxTransferenciaLongoParaCurtoPrazoGetValue(
+  const VarName: String; var Value: Variant);
+begin
+  inherited;
+  if VarName = 'TITULO' then
+    Value :=  'TRANSFERÊNCIA DOS VALORES DE LONGO PARA CURTO PRAZO EM ' + '31/12/'+edtExercicio.Text
+  else if VarName = 'RAZAOFILIALBASE' then
+    Value := fRazaoFilialBase
+  else if VarName = 'ENDERECO_BAIRRO' then
+    Value :=  fRuaFilialBase+ ' - '+fBairroFilialBase
+  else if VarName = 'CEP_CIDADE_UF' then
+    Value :=  FormatarCEP(fCEPFilialBase)+'  '+fCidadeFilialBase+ '  '+ fEstadoFilialBase
+  else if VarName = 'CordoZebrado' then
+    Value :=  strtoint(parsistema.CorZebradoRelatorio)
+  else if VarName = 'DATASITUACAO' then
+    Value :=  '31/12/'+edtExercicio.Text;
+end;
+
+end.

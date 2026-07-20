@@ -1,0 +1,982 @@
+unit dmrelatoriocontasareceberportipoderecebimento;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, dmtecsoft, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, fr_dset, fr_dbset, fr_class, Biblio, fmpreviewpadrao,
+  ZTransact, clparametrossistema, variants;
+
+type
+  Tdtmrelatoriocontasareceberportipoderecebimento = class(TdtmBasico)
+    qryRecebimentos: TtecQuery;
+    dsrRecebimentos: TtecDataSource;
+    frpRecebimentosPISCOFINS: TfrReport;
+    fdsRecebimentos: TfrDBDataSet;
+    qryRecebimentoscontrato: TStringField;
+    qryRecebimentosnumeroparcela: TIntegerField;
+    qryRecebimentosparcelaorigem: TStringField;
+    qryRecebimentoscliente: TIntegerField;
+    qryRecebimentosnomecliente: TStringField;
+    qryRecebimentosfilial: TIntegerField;
+    qryRecebimentosnomefilialemissao: TStringField;
+    qryRecebimentoscodigotiporecebimento: TIntegerField;
+    qryRecebimentosdescricaotiporecebimento: TStringField;
+    qryRecebimentosdatavencto: TDateField;
+    qryRecebimentosvalorvencto: TFloatField;
+    qryRecebimentosnumerocheque: TStringField;
+    qryRecebimentosvendedor: TIntegerField;
+    qryRecebimentosnomevendedor: TStringField;
+    qryRecebimentostipocliente: TStringField;
+    qryRecebimentosjuros: TFloatField;
+    qryRecebimentosTotalDevido: TCurrencyField;
+    qryRecebimentospdesagio: TFloatField;
+    qryRecebimentosvalordesagio: TFloatField;
+    qryRecebimentosvalorlancto: TFloatField;
+    qryRecebimentosconfirmado: TBooleanField;
+    frpRecebimentosResumo: TfrReport;
+    frpRecebimentos: TfrReport;
+    frpRecebimentosResumoPISCOFINS: TfrReport;
+    qryRecebimentosformaderecebimento: TStringField;
+    qryRecebimentosdescricaoformaderecebimento: TStringField;
+    qryRecebimentosagrupadorformaderecebimento: TStringField;
+    qryRecebimentosfaturamento: TDateField;
+    procedure frpRecebimentosPISCOFINSBeforePrint(Memo: TStringList; View: TfrView);
+    procedure qryRecebimentosCalcFields(DataSet: TDataSet);
+    procedure frpRecebimentosPISCOFINSGetValue(const ParName: String;
+      var ParValue: Variant);
+    procedure frpRecebimentosResumoPISCOFINSBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpRecebimentosBeforePrint(Memo: TStringList; View: TfrView);
+    procedure frpRecebimentosResumoBeforePrint(Memo: TStringList;
+      View: TfrView);
+  private
+    FAgruparFilial: Boolean;
+    FAgruparCliente: Boolean;
+    FAgruparData: Boolean;
+    FResumo: Integer;
+    FPeriodoFinalVencto: String;
+    FPeriodoInicialVencto: String;
+    FParametroCabecalho: String;
+    FTipoCliente: String;
+    FFilial: String;
+    FAgruparVendedor: Boolean;
+    FAgruparTipodeRecebimento: Boolean;
+    FTipodeRecebimento: String;
+    FPeriodoInicialEmissao: String;
+    FPeriodoFinalEmissao: String;
+    FChequesAvulsos: Boolean;
+    FRecebidos: boolean;
+    FFormasdeRecebimento: String;
+    FaReceber: boolean;
+    FPeriodoInicialRecebimento: String;
+    FPeriodoFinalRecebimento: String;
+    faReceber_e_ou_Recebido: integer;
+    fVisualizarValoresPISeCOFINS: boolean;
+    fListadeCargosExceto: Boolean;
+    fListadeCargos: String;
+    FAgruparFormadeRecebimento: Boolean;
+    FAgruparDataEmissao: Boolean;
+
+    procedure SetAgruparData(const Value: Boolean);
+    procedure SetBanco(const Value: String);
+    procedure SetFilial(const Value: String);
+    procedure SetGrupoFiliais(const Value: String);
+    procedure SetPeriodoFinalVencto(const Value: String);
+    procedure SetPeriodoInicialVencto(const Value: String);
+    procedure SetResumo(const Value: Integer);
+    procedure SetCliente(const Value: String);
+    procedure SetTipoCliente(const Value: String);
+    procedure SetVendedor(const Value: String);
+    procedure SetTipodeRecebimento(const Value: String);
+    procedure SetPeriodoFinalEmissao(const Value: String);
+    procedure SetPeriodoInicialEmissao(const Value: String);
+    procedure SetChequesAvulsos(const Value: Boolean);
+    procedure SetFormasdeRecebimento(const Value: String);
+    procedure SetPeriodoFinalRecebimento(const Value: String);
+    procedure SetPeriodoInicialRecebimento(const Value: String);
+    function JuncaoVenctosRecebimentos: String;
+    procedure setParametroCabecalho(const Value: String);
+    procedure setVisualizarValoresPISeCOFINS(const Value: boolean);
+    procedure SetAgruparDataEmissao(const Value: Boolean);
+    { Private declarations }
+  public
+    { Public declarations }
+    FOrdenacao: String;
+    property Filial            : String read  FFilial             write SetFilial;
+    property TipodeRecebimento : String read FTipodeRecebimento write SetTipodeRecebimento;
+    property GrupoFiliais      : String write SetGrupoFiliais;
+    property PeriodoInicialVencto    : String read  FPeriodoInicialVencto     write SetPeriodoInicialVencto;
+    property PeriodoFinalVencto      : String read  FPeriodoFinalVencto       write SetPeriodoFinalVencto;
+
+    property PeriodoInicialRecebimento    : String read  FPeriodoInicialRecebimento     write SetPeriodoInicialRecebimento;
+    property PeriodoFinalRecebimento      : String read  FPeriodoFinalRecebimento       write SetPeriodoFinalRecebimento;
+
+    property ChequesAvulsos : Boolean read FChequesAvulsos write SetChequesAvulsos;
+
+    property PeriodoInicialEmissao    : String read  FPeriodoInicialEmissao     write SetPeriodoInicialEmissao;
+    property PeriodoFinalEmissao      : String read  FPeriodoFinalEmissao       write SetPeriodoFinalEmissao;
+
+
+    property Banco             : String write SetBanco;
+    property Cliente           : String write SetCliente;
+    property Vendedor          : String write SetVendedor;
+    property TipoCliente       : String read  FTipoCliente        write SetTipoCliente;
+    property Resumo            : Integer read  FResumo             write SetResumo;
+    property AgruparFilial     : Boolean read  FAgruparFilial      write FAgruparFilial;
+    property AgruparVendedor   : Boolean read  FAgruparVendedor    write FAgruparVendedor;
+    property AgruparCliente    : Boolean read  FAgruparCliente     write FAgruparCliente;
+
+    property AgruparFormadeRecebimento: Boolean read FAgruparFormadeRecebimento  write FAgruparFormadeRecebimento;
+
+    property AgruparTipodeRecebimento: Boolean read FAgruparTipodeRecebimento  write FAgruparTipodeRecebimento;
+    property FormasdeRecebimento : String read FFormasdeRecebimento write SetFormasdeRecebimento;
+    property Recebidos: boolean read FRecebidos write FRecebidos;
+    property aReceber: boolean read FaReceber write FaReceber;
+    property aReceber_e_ou_Recebido: integer read faReceber_e_ou_Recebido write faReceber_e_ou_Recebido;
+
+    property AgruparDataEmissao       : Boolean read  FAgruparDataEmissao        write SetAgruparDataEmissao;
+    property AgruparData       : Boolean read  FAgruparData        write SetAgruparData;
+
+    property ParametroCabecalho: String  read  fParametroCabecalho write setParametroCabecalho;
+    procedure DefineOrdenacao(OrdenarPor: String);
+
+    function  GerarRelatorio: Boolean;
+    procedure ImprimirRelatorio;
+    procedure MontaIntervaloPeriodoRecebimento;
+    procedure MontaIntervaloPeriodoVencimento;
+
+    procedure MontaIntervaloPeriodoEmissao;
+    property VisualizarValoresPISeCOFINS: boolean read fVisualizarValoresPISeCOFINS write setVisualizarValoresPISeCOFINS;
+    property ListadeCargos: String read fListadeCargos write fListadeCargos;
+    property ListadeCargosExceto: Boolean read fListadeCargosExceto write fListadeCargosExceto;
+
+
+  end;
+
+var
+  dtmrelatoriocontasareceberportipoderecebimento: Tdtmrelatoriocontasareceberportipoderecebimento;
+
+implementation
+
+{$R *.dfm}
+
+{ Tdtmrelatoriocontasareceberportipoderecebimento }
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.DefineOrdenacao(ordenarPor: String);
+var
+Ordenacao : String;
+begin
+  Ordenacao:='';
+
+  if FAgruparFilial then
+    Ordenacao:=Ordenacao + ', nomefilialemissao, filial';
+
+  if FAgruparVendedor then
+    Ordenacao:=Ordenacao + ', nomevendedor, vendedor';
+
+  if FAgruparCliente then
+    Ordenacao:=Ordenacao + ', nomecliente, cliente, tipocliente';
+
+  if FAgruparFormadeRecebimento then
+    Ordenacao:=Ordenacao + ', agrupadorformaderecebimento, descricaoformaderecebimento, formaderecebimento';
+
+  if FAgruparTipodeRecebimento then
+  begin
+    Ordenacao:=Ordenacao + ', agrupadorformaderecebimento, descricaoformaderecebimento, formaderecebimento';
+    Ordenacao:=Ordenacao + ', descricaotiporecebimento, codigotiporecebimento';
+  end;
+
+
+  if FAgruparDataEmissao then
+    Ordenacao:=Ordenacao + ', faturamento';
+
+  if FAgruparData then
+    Ordenacao:=Ordenacao + ', datavencto';
+
+  if Ordenacao<>'' then
+  begin
+    Ordenacao := Ordenacao + ', '+OrdenarPor + ', contrato, parcelaorigem, numeroparcela' ;
+    qryRecebimentos.MacroByName('Ordenacao').AsString:='Order by '+copy(Ordenacao,2,length(Ordenacao)-1);
+  end
+  else
+  begin
+    Ordenacao := OrdenarPor + ', contrato, parcelaorigem, numeroparcela';
+    qryRecebimentos.MacroByName('Ordenacao').AsString:='Order by '+Ordenacao;
+  end;
+end;
+
+function Tdtmrelatoriocontasareceberportipoderecebimento.GerarRelatorio: Boolean;
+begin
+  if aReceber and Recebidos then
+  begin
+    qryRecebimentos.MacroByName('confirmados').AsString := '';
+    qryRecebimentos.MacroByName('confirmados_nao_recebimentos').AsString:='';
+  end
+  else
+  if aReceber then
+  begin
+    qryRecebimentos.MacroByName('confirmados').AsString := 'and not r.confirmado ';
+    qryRecebimentos.MacroByName('confirmados_nao_recebimentos').AsString:=' and true ';
+  end
+  else
+  if Recebidos then
+  begin
+    qryRecebimentos.MacroByName('confirmados').AsString := 'and r.confirmado ';
+    qryRecebimentos.MacroByName('confirmados_nao_recebimentos').AsString:=' and false ';
+  end;
+
+  if ListadeCargos<>'' then
+  begin
+    if ListadeCargosExceto then
+    begin
+      qryRecebimentos.MacroByName('ListadeCargosContratos').asString :=
+        'and coalesce((select true from clientes cl where cl.codigo = ct.cliente and ct.tipocliente = ''C'' and cl.empcargo not in (' + ListadeCargos + ')),true)';
+      qryRecebimentos.MacroByName('ListadeCargosDadosFiscais').asString :=
+        'and coalesce((select true from clientes cl where cl.codigo = df.cliente and df.tipocliente = ''C'' and cl.empcargo not in (' + ListadeCargos + ')),true)';
+      qryRecebimentos.MacroByName('ListadeCargosCheques').asString :=
+        'and coalesce((select true from clientes cl where cl.codigo = ch.cliente and ch.tipocliente = ''C'' and cl.empcargo not in (' + ListadeCargos + ')),true)';
+
+      ParametroCabecalho := 'EXCETO LISTA DE CARGOS: '+ListadeCargos;
+    end
+    else
+    begin
+      qryRecebimentos.MacroByName('ListadeCargosContratos').asString :=
+        'and coalesce((select true from clientes cl where cl.codigo = ct.cliente and ct.tipocliente = ''C'' and cl.empcargo in (' + ListadeCargos + ')),false)';
+      qryRecebimentos.MacroByName('ListadeCargosDadosFiscais').asString :=
+        'and coalesce((select true from clientes cl where cl.codigo = df.cliente and df.tipocliente = ''C'' and cl.empcargo in (' + ListadeCargos + ')),false)';
+      qryRecebimentos.MacroByName('ListadeCargosCheques').asString :=
+        'and coalesce((select true from clientes cl where cl.codigo = ch.cliente and ch.tipocliente = ''C'' and cl.empcargo in (' + ListadeCargos + ')),false)';
+
+      ParametroCabecalho := 'LISTA DE CARGOS: '+ListadeCargos;
+    end;
+  end
+  else
+  begin
+    qryRecebimentos.MacroByName('ListadeCargosContratos').asString := '';
+    qryRecebimentos.MacroByName('ListadeCargosDadosFiscais').asString := '';
+    qryRecebimentos.MacroByName('ListadeCargosCheques').asString := '';
+  end;
+
+  qryRecebimentos.parambyname('ClienteUsaContrato').AsBoolean := parsistema.ClienteUsaContrato;
+
+  RefazConsulta(qryRecebimentos,[],[]);
+  Result:= qryRecebimentos.IsEmpty;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.ImprimirRelatorio;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+
+  AtribuirParametrosBaseRelatorio;
+
+  frVariables['AgruparFilial'] := FAgruparFilial;
+  frVariables['AgruparCliente'] := FAgruparCliente;
+  frVariables['AgruparVendedor'] := FAgruparVendedor;
+  frVariables['AgruparFormadeRecebimento'] := FAgruparFormadeRecebimento;
+  frVariables['AgruparTipodeRecebimento'] := FAgruparTipodeRecebimento;
+  frVariables['AgruparDataEmissao']        := FAgruparDataEmissao;
+  frVariables['AgruparData']        := FAgruparData;
+  frVariables['Outras']             := ParametroCabecalho;
+//  frVariables['ClienteUsaContrato']             := Parsistema.ClienteUsaContrato;
+
+  frpRecebimentos.Pages[0].PrintToPrevPage := False;
+  frpRecebimentosResumo.Pages[0].PrintToPrevPage := False;
+
+//frpRecebimentos.DesignReport;
+
+  if VisualizarValoresPISeCOFINS then
+    ImprimirRelatoriofast(null, null, MPadrao, Resumo, [frpRecebimentosPISCOFINS, frpRecebimentosResumoPISCOFINS], false, self)
+  else
+    ImprimirRelatoriofast(null, null, MPadrao, Resumo, [frpRecebimentos, frpRecebimentosResumo], false, self)
+
+
+  (*
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3; //125%
+//  frpRecebimentos.DesignReport;
+  try
+    Relatorio := frmPreview.frCompositeReport;
+    with frmPreview do
+    begin
+      frVariables['Titulo']:= 'CONTAS A RECEBER';
+      case Resumo of
+      0: begin
+           frCompositeReport.Reports.Add(frpRecebimentos);
+           frCompositeReport.Reports.Add(frpRecebimentosResumo);
+         end;
+      1: frCompositeReport.Reports.Add(frpRecebimentos);
+      2: frCompositeReport.Reports.Add(frpRecebimentosResumo);
+      end;
+    end;
+    Relatorio.Preview := frmPreview.frPreviewPadrao;
+    Relatorio.DoublePass:=True;
+    Relatorio.ShowReport;
+    frmPreview.ShowModal;
+  finally
+    frmPreview.Free
+  end;
+  *)
+
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.MontaIntervaloPeriodoVencimento;
+begin
+  if (recebidos and aReceber) or Recebidos then
+  begin
+    if not DataEmBranco(FPeriodoInicialVencto) then
+    begin
+
+      if DataEmBranco(FPeriodoFinalVencto) then
+      begin
+
+       qryRecebimentos.macrobyname('SQLContratoDataVencto').asstring :=
+         ' and ( p.datavencto >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialVencto)));
+
+       qryRecebimentos.macrobyname('SQLRecebimentosDataVencto').asstring :=
+         ' and ( r.datavencto >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialVencto)));
+
+       qryRecebimentos.macrobyname('SQLChequesDataVencto').asstring :=
+         ' and ( ch.vencto >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialVencto)));
+
+       ParametroCabecalho := 'VENCIMENTOS A PARTIR DE : '+FPeriodoInicialVencto;
+      end
+      else
+      begin
+       qryRecebimentos.macrobyname('SQLContratoDataVencto').asstring :=
+         ' and ( p.datavencto between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialVencto))) +
+         ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalVencto)));
+
+       qryRecebimentos.macrobyname('SQLRecebimentosDataVencto').asstring :=
+         ' and ( r.datavencto between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialVencto))) +
+         ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalVencto)));
+
+       qryRecebimentos.macrobyname('SQLChequesDataVencto').asstring :=
+         ' and ( ch.vencto between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialVencto))) +
+         ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalVencto)));
+
+       ParametroCabecalho := 'VENCIMENTOS ENTRE: '+FPeriodoInicialVencto+' E '+FPeriodoFinalVencto;
+      end;
+    end
+    else begin
+      if not DataEmBranco(FPeriodoFinalVencto) then
+      begin
+        qryRecebimentos.macrobyname('SQLContratoDataVencto').asstring :=
+          ' and ( p.datavencto <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalVencto)));
+
+        qryRecebimentos.macrobyname('SQLRecebimentosDataVencto').asstring :=
+          ' and ( r.datavencto <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalVencto)));
+
+        qryRecebimentos.macrobyname('SQLChequesDataVencto').asstring :=
+          ' and ( ch.vencto <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalVencto)));
+
+        ParametroCabecalho := 'VENCIMENTOS ATÉ: '+FPeriodoFinalVencto;
+      end
+      else
+      begin
+        {
+        if not DataEmBranco(FPeriodoInicialRecebimento) or not DataEmBranco(FPeriodoFinalRecebimento) then
+        begin
+          qryRecebimentos.MacroByName('SQLContratoDataVencto').AsString:= '(';
+          qryRecebimentos.MacroByName('SQLRecebimentosDataVencto').AsString:= '(';
+          qryRecebimentos.MacroByName('SQLChequesDataVencto').AsString:= '(';
+        end
+        else
+        begin
+        }
+          qryRecebimentos.MacroByName('SQLContratoDataVencto').AsString:= '';
+          qryRecebimentos.MacroByName('SQLRecebimentosDataVencto').AsString:= '';
+          qryRecebimentos.MacroByName('SQLChequesDataVencto').AsString:= '';
+        {
+        end;
+        }
+        ParametroCabecalho := 'TODOS VENCIMENTOS ';
+      end;
+    end;
+
+  end
+  else
+  if aReceber then
+  begin
+    if not DataEmBranco(FPeriodoInicialVencto) then
+    begin
+      if DataEmBranco(FPeriodoFinalVencto) then
+      begin
+
+       qryRecebimentos.macrobyname('SQLContratoDataVencto').asstring :=
+         ' and p.datavencto >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialVencto)));
+
+       qryRecebimentos.macrobyname('SQLRecebimentosDataVencto').asstring :=
+         ' and r.datavencto >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialVencto)));
+
+       qryRecebimentos.macrobyname('SQLChequesDataVencto').asstring :=
+         ' and ch.vencto >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialVencto)));
+
+       ParametroCabecalho := 'VENCIMENTOS A PARTIR DE : '+FPeriodoInicialVencto;
+      end
+      else
+      begin
+       qryRecebimentos.macrobyname('SQLContratoDataVencto').asstring :=
+         ' and p.datavencto between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialVencto))) +
+         ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalVencto)));
+
+       qryRecebimentos.macrobyname('SQLRecebimentosDataVencto').asstring :=
+         ' and r.datavencto between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialVencto))) +
+         ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalVencto)));
+
+       qryRecebimentos.macrobyname('SQLChequesDataVencto').asstring :=
+         ' and ch.vencto between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialVencto))) +
+         ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalVencto)));
+
+       ParametroCabecalho:='VENCIMENTOS ENTRE: '+FPeriodoInicialVencto+' E '+FPeriodoFinalVencto;
+      end;
+    end
+    else begin
+      if not DataEmBranco(FPeriodoFinalVencto) then
+      begin
+        qryRecebimentos.macrobyname('SQLContratoDataVencto').asstring :=
+          ' and p.datavencto <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalVencto)));
+
+        qryRecebimentos.macrobyname('SQLRecebimentosDataVencto').asstring :=
+          ' and r.datavencto <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalVencto)));
+
+        qryRecebimentos.macrobyname('SQLChequesDataVencto').asstring :=
+          ' and ch.vencto <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalVencto)));
+
+        ParametroCabecalho := 'VENCIMENTOS ATÉ: '+FPeriodoFinalVencto;
+      end
+      else
+      begin
+        qryRecebimentos.MacroByName('SQLContratoDataVencto').AsString:= '';
+        qryRecebimentos.MacroByName('SQLRecebimentosDataVencto').AsString:= '';
+        qryRecebimentos.MacroByName('SQLChequesDataVencto').AsString:= '';
+
+        ParametroCabecalho := 'TODOS VENCIMENTOS ';
+      end;
+    end;
+  end;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetAgruparData(const Value: Boolean);
+begin
+  FAgruparData := Value;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetBanco(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+//    FParametroCabecalho:=FParametroCabecalho+' BANCO: ' + qryRecebimentosnomebanco.AsString;
+    qryRecebimentos.MacroByName('Banco').AsString:= 'and (p.contaboleto in (Select co.conta from contas co where co.banco = ' + Value + '))';
+  end
+  else qryRecebimentos.MacroByName('Banco').AsString:= '';
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetCliente(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+    qryRecebimentos.MacroByName('Cliente_Contrato').AsString:= 'and ((ct.cliente = ' + Value + ')'+
+                                                       'and (ct.tipocliente = ' + quotedstr(FTipoCliente) + '))';
+
+    qryRecebimentos.MacroByName('Cliente_DadoFiscal').AsString:= 'and ((df.cliente = ' + Value + ')'+
+                                                       'and (df.tipocliente = ' + quotedstr(FTipoCliente) + '))';
+
+    qryRecebimentos.MacroByName('Cliente_ChequesAvulsos').AsString:= 'and ((ch.cliente = ' + Value + ')'+
+                                                       'and (ch.tipocliente = ' + quotedstr(FTipoCliente) + '))';
+  end
+  else
+  begin
+    qryRecebimentos.MacroByName('Cliente_Contrato').AsString:= '';
+    qryRecebimentos.MacroByName('Cliente_DadoFiscal').AsString:= '';
+    qryRecebimentos.MacroByName('Cliente_ChequesAvulsos').AsString:= '';
+  end;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetFilial(const Value: String);
+begin
+  FFilial := Value;
+  if (Value <> '') then
+  begin
+    qryRecebimentos.MacroByName('Filial_Contrato').AsString:= 'and ct.filialvenda in (' + Value + ')';
+    qryRecebimentos.MacroByName('Filial_DadoFiscal').AsString:= 'and df.filialvenda in (' + Value + ')';
+    qryRecebimentos.MacroByName('Filial_ChequesAvulsos').AsString:= 'and ch.filial in (' + Value + ')';
+    ParametroCabecalho := 'FILIAL: ' + Value;
+  end
+  else
+  begin
+    qryRecebimentos.MacroByName('Filial_Contrato').AsString:= '';
+    qryRecebimentos.MacroByName('Filial_DadoFiscal').AsString:= '';
+    qryRecebimentos.MacroByName('Filial_ChequesAvulsos').AsString:= '';
+  end;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetGrupoFiliais(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+   qryRecebimentos.MacroByName('GrupoFilial').AsString:= 'and (c.filialvenda in (Select filial From filiaisgruposfiliais Where grupo = ' + Value + '))';
+   ParametroCabecalho:= 'GRUPO DE FILIAL: ' + Value;
+  end
+  else qryRecebimentos.MacroByName('GrupoFilial').AsString:= '';
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetPeriodoFinalVencto(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FPeriodoFinalVencto := Value
+  else FPeriodoFinalVencto := '';
+//  MontaIntervaloPeriodoVencimento;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetPeriodoInicialVencto(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FPeriodoInicialVencto := Value
+  else FPeriodoInicialVencto := '';
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetResumo(const Value: Integer);
+begin
+  if FResumo <> Value Then
+    FResumo:= Value;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetTipoCliente(const Value: String);
+begin
+  if FTipoCliente <> Value then
+    FTipoCliente:= VAlue;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.frpRecebimentosPISCOFINSBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRecebimentosPISCOFINS,View);
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetVendedor(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+    qryRecebimentos.MacroByName('Vendedor_Contrato').AsString:= 'and (ct.vendedor = ' + Value + ')';
+    qryRecebimentos.MacroByName('Vendedor_DadoFiscal').AsString:= 'and (df.vendedor = ' + Value + ')';
+    qryRecebimentos.MacroByName('Vendedor_ChequesAvulsos').AsString:= 'and false';
+  end
+  else
+  begin
+    qryRecebimentos.MacroByName('Vendedor_Contrato').AsString:= '';
+    qryRecebimentos.MacroByName('Vendedor_DadoFiscal').AsString:= '';
+    qryRecebimentos.MacroByName('Vendedor_ChequesAvulsos').AsString:= '';
+  end;
+
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetTipodeRecebimento(
+  const Value: String);
+begin
+  FTipodeRecebimento := Value;
+  if (Value <> '') then
+  begin
+   qryRecebimentos.MacroByName('TipoRecebimento_Parcelas').AsString:= 'and p.tiporecebimento in (' + Value + ')';
+   qryRecebimentos.MacroByName('TipoRecebimento_Recebimentos').AsString:= 'and r.tiporecebimento in (' + Value + ')';
+   ParametroCabecalho := 'TIPO DE RECBIMENTO: ' + Value;
+  end
+  else
+  begin
+    qryRecebimentos.MacroByName('TipoRecebimento_Parcelas').AsString:= '';
+    qryRecebimentos.MacroByName('TipoRecebimento_Recebimentos').AsString:= '';
+  end;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.qryRecebimentosCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not qryRecebimentosconfirmado.AsBoolean then
+    qryRecebimentosTotalDevido.AsCurrency := (qryRecebimentosvalorlancto.AsCurrency +
+                                              qryRecebimentosjuros.AsCurrency) -
+                                             qryRecebimentosvalordesagio.AsCurrency
+  else
+    qryRecebimentosTotalDevido.AsCurrency := 0;
+
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetPeriodoFinalEmissao(
+  const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FPeriodoFinalEmissao := Value
+  else FPeriodoFinalEmissao := '';
+  MontaIntervaloPeriodoEmissao;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetPeriodoInicialEmissao(
+  const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FPeriodoInicialEmissao := Value
+  else FPeriodoInicialEmissao := '';
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.MontaIntervaloPeriodoEmissao;
+begin
+
+  if not DataEmBranco(FPeriodoInicialEmissao) then
+  begin
+    if DataEmBranco(FPeriodoFinalEmissao) then
+    begin
+
+     qryRecebimentos.macrobyname('SQLContratoDataEmissao').asstring :=
+       ' and ct.faturamento >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialEmissao)));
+
+     qryRecebimentos.macrobyname('SQLRecebimentosDataEmissao').asstring :=
+       ' and cast(case when tr.diasuteis=0 then ct.faturamento else r.datalancto end as date) >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialEmissao)));
+
+     qryRecebimentos.macrobyname('SQLDadosFiscaisDataEmissao').asstring :=
+       ' and df.data >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialEmissao)));
+
+     qryRecebimentos.macrobyname('SQLChequesDataEmissao').asstring :=
+       ' and ch.data >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialEmissao)));
+
+     ParametroCabecalho := 'EMISSÃO A PARTIR DE : '+FPeriodoInicialEmissao;
+    end
+    else
+    begin
+     qryRecebimentos.macrobyname('SQLContratoDataEmissao').asstring :=
+       ' and ct.faturamento between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialEmissao))) +
+       ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalEmissao)));
+
+     qryRecebimentos.macrobyname('SQLRecebimentosDataEmissao').asstring :=
+       ' and cast(case  when tr.diasuteis=0 then ct.faturamento else r.datalancto end as date) between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialEmissao))) +
+       ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalEmissao)));
+
+     qryRecebimentos.macrobyname('SQLDadosFiscaisDataEmissao').asstring :=
+       ' and df.data between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialEmissao))) +
+       ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalEmissao)));
+
+     qryRecebimentos.macrobyname('SQLChequesDataEmissao').asstring :=
+       ' and ch.data between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialEmissao))) +
+       ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalEmissao)));
+
+     ParametroCabecalho := 'EMISSÃO ENTRE: '+FPeriodoInicialEmissao+' E '+FPeriodoFinalEmissao;
+    end;
+  end
+  else begin
+    if not DataEmBranco(FPeriodoFinalEmissao) then
+    begin
+      qryRecebimentos.macrobyname('SQLContratoDataEmissao').asstring :=
+        ' and ct.faturamento <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalEmissao)));
+
+      qryRecebimentos.macrobyname('SQLRecebimentosDataEmissao').asstring :=
+        ' and cast(case when tr.diasuteis=0 then ct.faturamento else r.datalancto end as date) <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalEmissao)));
+
+     qryRecebimentos.macrobyname('SQLDadosFiscaisDataEmissao').asstring :=
+        ' and df.data <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalEmissao)));
+
+      qryRecebimentos.macrobyname('SQLChequesDataEmissao').asstring :=
+        ' and ch.data <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalEmissao)));
+
+      ParametroCabecalho := 'EMISSÃO ATÉ: '+FPeriodoFinalEmissao;
+    end
+    else
+    begin
+      qryRecebimentos.MacroByName('SQLContratoDataEmissao').AsString    := '';
+      qryRecebimentos.MacroByName('SQLRecebimentosDataEmissao').AsString    := '';
+     qryRecebimentos.macrobyname('SQLDadosFiscaisDataEmissao').asstring := '';
+      qryRecebimentos.MacroByName('SQLChequesDataEmissao').AsString     := '';
+
+      ParametroCabecalho := 'TODAS EMISSÕES ';
+    end;
+  end;
+
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetChequesAvulsos(
+  const Value: Boolean);
+begin
+  FChequesAvulsos := Value;
+
+  if FTipodeRecebimento<>'' then
+    qryRecebimentos.parambyname('SelecionouChequesAvulsos').asboolean := Value
+  else
+    qryRecebimentos.parambyname('SelecionouChequesAvulsos').asboolean := true;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.frpRecebimentosPISCOFINSGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+  if ParName = 'ClienteUsaContrato' then
+    ParValue := ParSistema.ClienteUsaContrato;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetFormasdeRecebimento(
+  const Value: String);
+begin
+  FFormasdeRecebimento := Value;
+
+  if (FFormasdeRecebimento = '') or (FFormasdeRecebimento = 'DHBC') then
+  begin
+    qryRecebimentos.MacroByName('FormadeRecebimentoemDinheiro').AsString := '';
+    qryRecebimentos.MacroByName('FormadeRecebimento').AsString := '';
+    qryRecebimentos.MacroByName('FormadeRecebimentoemCheque').AsString := '';
+  end
+  else
+  begin
+    if pos('D',FFormasdeRecebimento)<>0 then
+      qryRecebimentos.MacroByName('FormadeRecebimentoemDinheiro').AsString := ''
+    else
+      qryRecebimentos.MacroByName('FormadeRecebimentoemDinheiro').AsString := 'and false';
+
+    if pos('H',FFormasdeRecebimento)<>0 then
+      qryRecebimentos.MacroByName('FormadeRecebimentoemCheque').AsString := ''
+    else
+      qryRecebimentos.MacroByName('FormadeRecebimentoemCheque').AsString := 'and false';
+
+    qryRecebimentos.MacroByName('FormadeRecebimento').AsString := 'and position(tr.tiporecebimento in '+quotedstr(FFormasdeRecebimento )+')<>0';
+
+  end;
+
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetPeriodoFinalRecebimento(
+  const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FPeriodoFinalRecebimento := Value
+  else FPeriodoFinalRecebimento := '';
+//  MontaIntervaloPeriodoRecebimento;
+
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetPeriodoInicialRecebimento(
+  const Value: String);
+begin
+
+  if not DataEmBranco(Value) then
+       FPeriodoInicialRecebimento := Value
+  else FPeriodoInicialRecebimento := '';
+
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.MontaIntervaloPeriodoRecebimento;
+begin
+  if not recebidos then
+  begin
+    qryRecebimentos.MacroByName('SQLContratoDataRecebimento').AsString:= '';
+    qryRecebimentos.MacroByName('SQLRecebimentosDataRecebimento').AsString:= '';
+    qryRecebimentos.MacroByName('SQLChequesDataRecebimento').AsString:= '';
+  end
+  else
+  begin
+    if (recebidos and aReceber) or recebidos then
+    begin
+
+      if not DataEmBranco(FPeriodoInicialRecebimento) then
+      begin
+        if DataEmBranco(FPeriodoFinalRecebimento) then
+        begin
+
+         qryRecebimentos.macrobyname('SQLContratoDataRecebimento').asstring :=
+           JuncaoVenctosRecebimentos + ' p.datapagto >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialRecebimento)));
+
+         qryRecebimentos.macrobyname('SQLRecebimentosDataRecebimento').asstring :=
+           JuncaoVenctosRecebimentos + ' r.data_confirmacao >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialRecebimento)));
+
+         qryRecebimentos.macrobyname('SQLChequesDataRecebimento').asstring :=
+           JuncaoVenctosRecebimentos + ' ch.vencto >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialRecebimento)));
+
+         ParametroCabecalho := 'RECEBIMENHTOS A PARTIR DE : '+FPeriodoInicialRecebimento;
+        end
+        else
+        begin
+         qryRecebimentos.macrobyname('SQLContratoDataRecebimento').asstring :=
+           JuncaoVenctosRecebimentos + ' p.datapagto between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialRecebimento))) +
+           ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalRecebimento)));
+
+         qryRecebimentos.macrobyname('SQLRecebimentosDataRecebimento').asstring :=
+           JuncaoVenctosRecebimentos + ' r.data_confirmacao between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialRecebimento))) +
+           ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalRecebimento)));
+
+         qryRecebimentos.macrobyname('SQLChequesDataRecebimento').asstring :=
+           JuncaoVenctosRecebimentos + ' ch.vencto between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialRecebimento))) +
+           ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalRecebimento)));
+
+         ParametroCabecalho := 'RECEBIMENTOS ENTRE: '+FPeriodoInicialRecebimento+' E '+FPeriodoFinalRecebimento;
+        end;
+      end
+      else begin
+        if not DataEmBranco(FPeriodoFinalRecebimento) then
+        begin
+          qryRecebimentos.macrobyname('SQLContratoDataRecebimento').asstring :=
+            JuncaoVenctosRecebimentos +' p.datapagto <= ' + quotedstr(FormatDateTime('yyyy-mm-dd', StrToDateTime(FPeriodoFinalRecebimento)));
+
+          qryRecebimentos.macrobyname('SQLRecebimentosDataRecebimento').asstring :=
+            JuncaoVenctosRecebimentos +' r.data_confirmacao <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalRecebimento)));
+
+          qryRecebimentos.macrobyname('SQLChequesDataRecebimento').asstring :=
+            JuncaoVenctosRecebimentos +' ch.vencto <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalRecebimento)));
+
+          ParametroCabecalho := 'RECEBIMENTOS ATÉ: '+FPeriodoFinalRecebimento;
+        end
+        else
+        begin
+
+          {
+          if not DataEmBranco(FPeriodoInicialVencto) or not DataEmBranco(FPeriodoFinalVencto) then
+          begin
+            qryRecebimentos.MacroByName('SQLContratoDataRecebimento').AsString:= ')';
+            qryRecebimentos.MacroByName('SQLRecebimentosDataRecebimento').AsString:= ')';
+            qryRecebimentos.MacroByName('SQLChequesDataRecebimento').AsString:= ')';
+          end
+          else
+          begin
+          }
+            qryRecebimentos.MacroByName('SQLContratoDataRecebimento').AsString:= '';
+            qryRecebimentos.MacroByName('SQLRecebimentosDataRecebimento').AsString:= '';
+            qryRecebimentos.MacroByName('SQLChequesDataRecebimento').AsString:= '';
+          {end;}
+
+          ParametroCabecalho := 'TODOS RECEBIMENTOS ';
+        end;
+      end;
+
+      if not DataEmBranco(FPeriodoInicialVencto) or not DataEmBranco(FPeriodoFinalVencto) then
+      begin
+        qryRecebimentos.MacroByName('SQLContratoDataRecebimento').AsString := qryRecebimentos.MacroByName('SQLContratoDataRecebimento').AsString + ')';
+
+        qryRecebimentos.MacroByName('SQLRecebimentosDataRecebimento').AsString := qryRecebimentos.MacroByName('SQLRecebimentosDataRecebimento').AsString + ')';
+        qryRecebimentos.MacroByName('SQLChequesDataRecebimento').AsString := qryRecebimentos.MacroByName('SQLChequesDataRecebimento').AsString + ')';
+      end
+    end;
+
+    {
+    else
+    begin
+      if not DataEmBranco(FPeriodoInicialRecebimento) then
+      begin
+        if DataEmBranco(FPeriodoFinalRecebimento) then
+        begin
+
+         qryRecebimentos.macrobyname('SQLContratoDataRecebimento').asstring :=
+           ' and p.datapagto >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialRecebimento)));
+
+         qryRecebimentos.macrobyname('SQLRecebimentosDataRecebimento').asstring :=
+           ' and r.data_confirmacao >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialRecebimento)));
+
+         qryRecebimentos.macrobyname('SQLChequesDataRecebimento').asstring :=
+           ' and ch.vencto >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialRecebimento)));
+
+         FParametroCabecalho:=FParametroCabecalho+' RECEBIMENHTOS A PARTIR DE : '+FPeriodoInicialRecebimento;
+        end
+        else
+        begin
+         qryRecebimentos.macrobyname('SQLContratoDataRecebimento').asstring :=
+           ' and p.datapagto between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialRecebimento))) +
+           ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalRecebimento)));
+
+         qryRecebimentos.macrobyname('SQLRecebimentosDataRecebimento').asstring :=
+           ' and r.data_confirmacao between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialRecebimento))) +
+           ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalRecebimento)));
+
+         qryRecebimentos.macrobyname('SQLChequesDataRecebimento').asstring :=
+           ' and ch.vencto between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoInicialRecebimento))) +
+           ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalRecebimento)));
+
+         FParametroCabecalho:=FParametroCabecalho+' RECEBIMENTOS ENTRE: '+FPeriodoInicialRecebimento+' E '+FPeriodoFinalRecebimento;
+        end;
+      end
+      else begin
+        if not DataEmBranco(FPeriodoFinalRecebimento) then
+        begin
+          qryRecebimentos.macrobyname('SQLContratoDataRecebimento').asstring :=
+            ' and p.datapagto <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalRecebimento)));
+
+          qryRecebimentos.macrobyname('SQLRecebimentosDataRecebimento').asstring :=
+            ' and r.data_confirmacao <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalRecebimento)));
+
+          qryRecebimentos.macrobyname('SQLChequesDataRecebimento').asstring :=
+            ' and ch.vencto <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(FPeriodoFinalRecebimento)));
+
+          FParametroCabecalho:=FParametroCabecalho+' RECEBIMENTOS ATÉ: '+FPeriodoFinalRecebimento;
+        end
+        else
+        begin
+          qryRecebimentos.MacroByName('SQLContratoDataRecebimento').AsString:= '';
+          qryRecebimentos.MacroByName('SQLRecebimentosDataRecebimento').AsString:= '';
+          qryRecebimentos.MacroByName('SQLChequesDataRecebimento').AsString:= '';
+
+          FParametroCabecalho:=FParametroCabecalho+' TODOS RECEBIMENTOS ';
+        end;
+      end;
+    end;
+    }
+  end;
+
+end;
+
+function Tdtmrelatoriocontasareceberportipoderecebimento.JuncaoVenctosRecebimentos: String;
+begin
+  if (aReceber_e_ou_Recebido = 0)  then
+    result := ' and '
+  else
+  begin
+    if (DataEmBranco(FPeriodoInicialVencto) and DataEmBranco(FPeriodoFinalVencto)) then
+      result := ' and '
+    else
+      result := ' or ';
+  end;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.setParametroCabecalho(
+  const Value: String);
+begin
+  if Value = '' then
+    FParametroCabecalho := Value
+  else
+  begin
+    if fparametroCabecalho <> '' then
+      FParametroCabecalho := FParametroCabecalho + ' - ' + value
+    else
+      FParametroCabecalho := value;
+  end
+
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.frpRecebimentosResumoPISCOFINSBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRecebimentosResumoPISCOFINS,View);
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.frpRecebimentosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRecebimentos,View);
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.frpRecebimentosResumoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRecebimentosPISCOFINS,View);
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.setVisualizarValoresPISeCOFINS(
+  const Value: boolean);
+begin
+  fVisualizarValoresPISeCOFINS := Value;
+end;
+
+procedure Tdtmrelatoriocontasareceberportipoderecebimento.SetAgruparDataEmissao(
+  const Value: Boolean);
+begin
+  FAgruparDataEmissao := Value;
+end;
+
+end.

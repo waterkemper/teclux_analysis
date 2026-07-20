@@ -1,0 +1,1909 @@
+unit fmcontaspagar;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, Windows,
+  dmcontaspagar, Mask, cpdbfindcontrols, DBCtrls, cpdbtext, cpdbdata,
+  ctconstantes, clusuario, cpdbmemo, cptexto, cpnumero, biblio, DateUtils,
+  // Repositorio
+  fmajudabt, fmconsultabasica, fmconsultaporcampo, ZQuery, cpdata, Grids,
+  DBGrids, cpdbgrid, ActnList, cpeditioncontrolvalidation, dmtecsoft, DB,
+  ZPgSqlQuery, cpquery, clparametrossistema, fmprincipalbasico,
+  fmcalcularduplicatas, variants,
+  dmlancamentocontabilidade, frlancamentocontabilidade, frconsulta,
+  frconsultacodigo, frconsultacontabil, frconsultacodigocontabil, ToolWin,
+  cpdbradiogroup, cpcpfcnpj, AdvObj, BaseGrid, AdvGrid,
+  DBAdvGrid, AsgLinks, AdvEdit, AdvMoneyEdit, DBAdvMoneyEdit, DBAdvEd,
+  advlued, dbadvle, frmctrllink, AdvDBLookupComboBox, AdvCombo,
+  AdvDBComboBox, fmcadastroduplicatascontaspagar, AdvSmoothProgressBar,
+  fmvisualizarlog, ACBrPIXCD, TypInfo;
+
+type
+  TfrmContasPagar = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    ecvDocumentosPagar: TtecEditionControlValidation;
+    gbxIdentificacao: TGroupBox;
+    gbxNumero: TGroupBox;
+    edfNumero: TtecDbEditFind;
+    gbxEmissao: TGroupBox;
+    edtDataEmissao: TDBEditData;
+    gbxFornecedor: TGroupBox;
+    flkFornecedor: TtecDBFindLookup;
+    sbnFornecedor: TSpeedButton;
+    dtxFornecedor: TtecDBText;
+    gbxSerieNumero: TGroupBox;
+    edtSerieNumero: TDBEditTexto;
+    gbxPedido: TGroupBox;
+    dtxPedido: TtecDBText;
+    gbxFilial: TGroupBox;
+    flkFilial: TtecDBFindLookup;
+    sbnFilial: TSpeedButton;
+    dtxFilial: TtecDBText;
+    gbxEvento: TGroupBox;
+    gbxReferencia: TGroupBox;
+    mmoReferencia: TtecDBMemo;
+    gbxValorBruto: TGroupBox;
+    edtValor: TDBEditNumero;
+    gbxValorLiquido: TGroupBox;
+    dtxValorLiquido: TtecDBText;
+    ckbPrevisao: TDBCheckBox;
+    gbxLancamento: TGroupBox;
+    edtDataLancamento: TDBEditData;
+    pgcDocumentos: TPageControl;
+    tstDuplicatas: TTabSheet;
+    sbnAlterarDuplicatas: TSpeedButton;
+    sbnExcluirDuplicatas: TSpeedButton;
+    sbnIncluirDuplicatas: TSpeedButton;
+    dbgDuplicatas: TtecDBGrid;
+    gbxObservacao: TGroupBox;
+    mmoObservacaoDuplicata: TtecDBMemo;
+    gbxVencimento: TGroupBox;
+    gbxPagamento: TGroupBox;
+    tstContabilidade: TTabSheet;
+    sbnGerarDuplicatas: TSpeedButton;
+    pgcValores: TPageControl;
+    tstValores: TTabSheet;
+    tstOrigem: TTabSheet;
+    gbxImpostosRetidos: TGroupBox;
+    lblIR: TLabel;
+    lblINSS: TLabel;
+    lblISS: TLabel;
+    lblCofins: TLabel;
+    lblPis: TLabel;
+    edtIR: TDBEditNumero;
+    edtINSS: TDBEditNumero;
+    edtISS: TDBEditNumero;
+    edtPIS: TDBEditNumero;
+    edtCofins: TDBEditNumero;
+    edtCSLL: TDBEditNumero;
+    lblCSLL: TLabel;
+    gbxDoctoOrigem: TGroupBox;
+    dtxDocumentopagOrigem: TtecDBText;
+    dtxDataVenctoOrigem: TtecDBText;
+    dtxNumeroOrigem: TtecDBText;
+    fraLancamentoContabilidade: TfraLancamentoContabilidade;
+    ckbAdministrador: TDBCheckBox;
+    sbnPesquisarFornecedorParaISS: TSpeedButton;
+    gbxFatoGerador: TGroupBox;
+    dtxFatoGerador: TtecDBText;
+    pnlIRRF: TPanel;
+    Bevel1: TBevel;
+    pnlINSS: TPanel;
+    pnlPIS: TPanel;
+    pnlISSQN: TPanel;
+    pnlCOFINS: TPanel;
+    pnlCSLL: TPanel;
+    pnlPIS_COFINS_CSLL: TPanel;
+    lblPIS_CSLL: TLabel;
+    edtPIS_COFINS_CSLL: TDBEditNumero;
+    lbl_COFINS: TLabel;
+    GroupBox1: TGroupBox;
+    Bevel2: TBevel;
+    GroupBox2: TGroupBox;
+    dtxSerieNota: TtecDBText;
+    GroupBox3: TGroupBox;
+    GroupBox4: TGroupBox;
+    pgcControle: TPageControl;
+    tstContaPagar: TTabSheet;
+    tstAdiantamento: TTabSheet;
+    gbxTipoPagto: TGroupBox;
+    sbnProcurarTipoPagto: TSpeedButton;
+    flkTipoPagto: TtecDBFindLookup;
+    dtxTipoPagto: TtecDBText;
+    gbxConta: TGroupBox;
+    sbnProcurarConta: TSpeedButton;
+    dtxDigito: TtecDBText;
+    Label1: TLabel;
+    flkConta: TtecDBFindLookup;
+    gbxCheque: TGroupBox;
+    edtCheque: TDBEditNumero;
+    gbxSiglaBanco: TGroupBox;
+    dtxSigla: TtecDBText;
+    gbxNomeAgencia: TGroupBox;
+    dtxNomeAgencia: TtecDBText;
+    Bevel3: TBevel;
+    pnlConta: TPanel;
+    gbxAdiantamentoFornecedor: TGroupBox;
+    sbnAdiantamento: TSpeedButton;
+    sbnImprimir: TSpeedButton;
+    tstImpostosPISCOFINS: TTabSheet;
+    gbxPIS: TGroupBox;
+    GroupBox6: TGroupBox;
+    DBEditNumero2: TDBEditNumero;
+    GroupBox7: TGroupBox;
+    DBEditNumero3: TDBEditNumero;
+    GroupBox8: TGroupBox;
+    DBEditNumero4: TDBEditNumero;
+    gbxPISCST: TGroupBox;
+    fraConsultaTributacaopis: TfraConsultaCodigo;
+    gbxCOFINS: TGroupBox;
+    GroupBox11: TGroupBox;
+    DBEditNumero7: TDBEditNumero;
+    GroupBox12: TGroupBox;
+    DBEditNumero8: TDBEditNumero;
+    GroupBox13: TGroupBox;
+    DBEditNumero9: TDBEditNumero;
+    GroupBox16: TGroupBox;
+    fraConsultaTributacaoCOFINS: TfraConsultaCodigo;
+    gbxF100_15: TGroupBox;
+    fraConsultaNaturezaBase: TfraConsultaCodigo;
+    sbnGerarTotalPIS: TSpeedButton;
+    sbnGerarTotalCOFINS: TSpeedButton;
+    ckbRegimeCaixa: TDBCheckBox;
+    stxdeCaixa: TStaticText;
+    tstReinf: TTabSheet;
+    rgbtpInscEstab: TtecDBRadioGroup;
+    rbnCNPJtpInscEstab: TtecRadioButton;
+    rbnCNOtpInscEstab: TtecRadioButton;
+    GBXcnpJDeclarante: TGroupBox;
+    DBEditCPFCNPJcnpJDeclarante: TDBEditTexto;
+    pgcIndObra: TPageControl;
+    tstIndObra_0: TTabSheet;
+    tstIndObra_1: TTabSheet;
+    tstIndObra_2: TTabSheet;
+    rgbindObra: TtecDBRadioGroup;
+    rbnIndObra_0: TtecRadioButton;
+    rbnIndObra_1: TtecRadioButton;
+    rbnIndObra_2: TtecRadioButton;
+    fraConsultaCNOPrestador: TfraConsultaCodigoContabil;
+    gbxCNOPrestador: TGroupBox;
+    GroupBox5: TGroupBox;
+    fraConsultaCNODeclarante: TfraConsultaCodigoContabil;
+    dbgReinf_2010_infoTpServ: TDBAdvGrid;
+    pnlOpcoesSuspensaoExibilidadeTributos: TPanel;
+    sbnIncluirReinf_2010_infoTpServ: TSpeedButton;
+    sbnExcluirReinf_2010_infoTpServ: TSpeedButton;
+    gbxCnpjPrestador: TGroupBox;
+    DBEditCPFCNPJCnpjPrestador: TDBEditCPFCNPJ;
+    pgcReinf: TPageControl;
+    tstReinf2010: TTabSheet;
+    pgcReinf2010: TPageControl;
+    tstCadastroReinf2010: TTabSheet;
+    tstEnvioItensReinf2010: TTabSheet;
+    tstReinf2040: TTabSheet;
+    DBAdvEdit2: TDBAdvEdit;
+    DBAdvEdit1: TDBAdvEdit;
+    pnlTopReinf2010: TPanel;
+    pnlReinf_2010: TPanel;
+    sbnExcluirReinf_2010: TSpeedButton;
+    dbgEnvioReinf_2010: TDBAdvGrid;
+    dbgEnvioReinf_2010_infoTpServ: TDBAdvGrid;
+    gbxcnpjAssocDesp: TGroupBox;
+    edtcnpjAssocDesp: TDBEditCPFCNPJ;
+    DBAdvEdit3: TDBAdvEdit;
+    DBAdvEdit4: TDBAdvEdit;
+    dbgReinf_2040_infoRecurso: TDBAdvGrid;
+    Panel2: TPanel;
+    sbnIncluirReinf_2040_infoRecurso: TSpeedButton;
+    sbnExcluirReinf_2040_infoRecurso: TSpeedButton;
+    pnlReinf_2040: TPanel;
+    sbnExcluirReinf_2040: TSpeedButton;
+    pgcReinf2040: TPageControl;
+    tstCadastroReinf2040: TTabSheet;
+    tsttstEnvioReinf2040: TTabSheet;
+    dbgEnvioReinf_2040_recursosRep: TDBAdvGrid;
+    dbgEnvioReinf_2040_infoRecurso: TDBAdvGrid;
+    pgcItensReinf2010: TPageControl;
+    tstServcosReinf2010: TTabSheet;
+    tstProcessosReinf2010_: TTabSheet;
+    gbxinfoProcRetPr: TGroupBox;
+    dbgfornecedor_infoProcRetPr: TDBAdvGrid;
+    pnlfornecedor_infoProcRetPr: TPanel;
+    btnExcluirfornecedor_infoProcRetPr: TSpeedButton;
+    btnGerarfornecedor_infoProcRetPr: TSpeedButton;
+    gbxinfoProcRetAd: TGroupBox;
+    dbgfornecedor_infoProcRetPrAd: TDBAdvGrid;
+    pnlfornecedor_infoProcRetPrAd: TPanel;
+    btnExcluirfornecedor_infoProcRetPrAd: TSpeedButton;
+    btnGerarfornecedor_infoProcRetAd: TSpeedButton;
+    pgcEnvioItensReinf2010: TPageControl;
+    tstEnvioServcosReinf2010: TTabSheet;
+    tstEnvioProcessosReinf2010: TTabSheet;
+    GroupBox9: TGroupBox;
+    DBAdvGrid1: TDBAdvGrid;
+    GroupBox10: TGroupBox;
+    DBAdvGrid2: TDBAdvGrid;
+    pgcItensReinf2040: TPageControl;
+    tstRepasseReinf2040: TTabSheet;
+    tstProcessoReinf2040: TTabSheet;
+    GroupBox14: TGroupBox;
+    dbgReinf_2040_infoProc: TDBAdvGrid;
+    Panel1: TPanel;
+    sbnExcluirReinf_2040_infoProc: TSpeedButton;
+    sbgGerarReinf_2040_infoProc: TSpeedButton;
+    pgcItensEnvioReinf2040: TPageControl;
+    tstRepasseEnvioReinf2040: TTabSheet;
+    tstProcessoEnvioReinf2040: TTabSheet;
+    GroupBox15: TGroupBox;
+    dbgEnvioReinf_2040_infoProc: TDBAdvGrid;
+    GroupBox17: TGroupBox;
+    edtcomplementodaDuplicata: TDBEditTexto;
+    TabSheet1: TTabSheet;
+    gbxPeriodoReferencia: TGroupBox;
+    edtPeriodoReferencia: TDBEditData;
+    Label2: TLabel;
+    Label3: TLabel;
+    AdvSmoothProgressBar1: TAdvSmoothProgressBar;
+    fraConsultaEvento: TfraConsultaCodigoContabil;
+    sbnLogClientes: TSpeedButton;
+    SpeedButton1: TSpeedButton;
+    sbnImprimirRecibo: TSpeedButton;
+    procedure sbnFilialClick(Sender: TObject);
+    procedure sbnFornecedorClick(Sender: TObject);
+    procedure sbnIncluirDuplicatasClick(Sender: TObject);
+    procedure sbnExcluirDuplicatasClick(Sender: TObject);
+    procedure dbgDuplicatasDblClick(Sender: TObject);
+    procedure dbgDuplicatasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure sbnAlterarDuplicatasClick(Sender: TObject);
+    procedure edtVencimentoEnter(Sender: TObject);
+    procedure edfNumeroFound(Found: Boolean);
+    procedure edtValorMultaKeyDown(Sender: TObject; var Key: Word;Shift: TShiftState);
+    procedure sbnGerarDuplicatasClick(Sender: TObject);
+    procedure ckbPrevisaoClick(Sender: TObject);
+    procedure fraLancamentoContabilidadesbnIncluirLancamentoClick(Sender: TObject);
+    procedure dbgDuplicatasDrawColumnCell(Sender: TObject;const Rect: TRect; DataCol: Integer; Column: TColumn;State: TGridDrawState);
+    procedure mmoObservacaoDuplicataExit(Sender: TObject);
+    procedure edtDataEmissaoExit(Sender: TObject);
+    procedure edtISSEnter(Sender: TObject);
+    procedure edtISSExit(Sender: TObject);
+    procedure sbnPesquisarFornecedorParaISSClick(Sender: TObject);
+    procedure edtISSKeyDown(Sender: TObject; var Key: Word;Shift: TShiftState);
+    procedure pgcDocumentosChange(Sender: TObject);
+    procedure edtPISExit(Sender: TObject);
+    procedure edtCofinsExit(Sender: TObject);
+    procedure edtCSLLExit(Sender: TObject);
+    procedure edtPIS_COFINS_CSLLExit(Sender: TObject);
+    procedure sbnAdiantamentoClick(Sender: TObject);
+    procedure sbnProcurarTipoPagtoClick(Sender: TObject);
+    procedure sbnProcurarContaClick(Sender: TObject);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure fraLancamentoContabilidadesbnGerarLancamentoClick(
+      Sender: TObject);
+    procedure fraLancamentoContabilidadesbnGerarLancamentosContabeisRegimedeCaixaClick(
+      Sender: TObject);
+    procedure sbnGerarTotalPISClick(Sender: TObject);
+    procedure sbnGerarTotalCOFINSClick(Sender: TObject);
+    procedure stxdeCaixaClick(Sender: TObject);
+    procedure rbnCNPJtpInscEstabClick(Sender: TObject);
+    procedure rbnCNOtpInscEstabClick(Sender: TObject);
+    procedure rbnIndObra_0Click(Sender: TObject);
+    procedure rbnIndObra_1Click(Sender: TObject);
+    procedure rbnIndObra_2Click(Sender: TObject);
+    procedure dbgReinf_2010_infoTpServFooterCalc(Sender: TObject; ACol,
+      ARow: Integer; var Value: String);
+    procedure dbgReinf_2010_infoTpServGetFloatFormat(Sender: TObject; ACol,
+      ARow: Integer; var IsFloat: Boolean; var FloatFormat: String);
+    procedure sbnIncluirReinf_2010_infoTpServClick(Sender: TObject);
+    procedure sbnExcluirReinf_2010_infoTpServClick(Sender: TObject);
+    procedure dbgReinf_2010_infoTpServCanAddRow(Sender: TObject;
+      var CanAdd: Boolean);
+    procedure dbgReinf_2010_infoTpServCellValidate(Sender: TObject; ACol,
+      ARow: Integer; var Value: String; var Valid: Boolean);
+    procedure sbnExcluirReinf_2010Click(Sender: TObject);
+    procedure dbgReinf_2040_infoRecursoCanAddRow(Sender: TObject;
+      var CanAdd: Boolean);
+    procedure dbgReinf_2040_infoRecursoCellValidate(Sender: TObject; ACol,
+      ARow: Integer; var Value: String; var Valid: Boolean);
+    procedure dbgReinf_2040_infoRecursoFooterCalc(Sender: TObject; ACol,
+      ARow: Integer; var Value: String);
+    procedure sbnIncluirReinf_2040_infoRecursoClick(Sender: TObject);
+    procedure sbnExcluirReinf_2040_infoRecursoClick(Sender: TObject);
+    procedure sbnExcluirReinf_2040Click(Sender: TObject);
+    procedure dbgEnvioReinf_2040_infoRecursoFooterCalc(Sender: TObject;
+      ACol, ARow: Integer; var Value: String);
+    procedure btnExcluirfornecedor_infoProcRetPrClick(Sender: TObject);
+    procedure btnExcluirfornecedor_infoProcRetPrAdClick(Sender: TObject);
+    procedure btnGerarfornecedor_infoProcRetPrClick(Sender: TObject);
+    procedure btnGerarfornecedor_infoProcRetAdClick(Sender: TObject);
+    procedure sbnExcluirReinf_2040_infoProcClick(Sender: TObject);
+    procedure sbgGerarReinf_2040_infoProcClick(Sender: TObject);
+    procedure flkFornecedorEnter(Sender: TObject);
+    procedure flkFornecedorExit(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure sbnLogClientesClick(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+  private
+    fdtmContasPagar: TdtmContasPagar;
+    ffrmCadastroDuplicatasContasPagar: tfrmCadastroDuplicatasContasPagar;
+    function GetfrmCadastroDuplicatasContasPagar: tfrmCadastroDuplicatasContasPagar;
+  protected
+    FPago: Boolean;
+    ConsultaFornecedor: TfraConsultaCodigo;
+    ValorISSQN: String;
+
+    procedure LimparCampos;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  AcionarCadastroDuplicatas(Operacao: TtecTipoOperacaoDuplicatas): Boolean;
+
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+
+    function  InternoIncluir: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    procedure VenctosImpostosRetidosEntradasAfterOpen(Sender: TObject);
+    procedure PesquisarFornecedorParaISS;
+    procedure BloquearValores(Bloquear: Boolean);
+    procedure AfterOpenDocumentosPag(Sender: TObject);
+
+    procedure CondicoesConsultaFornecedorISS;
+    procedure AtribuirCodigoFornecedorParaISS;
+    procedure AlterarEstadoBotoes; override;
+
+  private
+    procedure ExibirMensagemPadronizadaDataEmissao;
+    procedure ExibirMensagemPadronizadaDataLancto;
+    procedure ControlarEdicaoPISCOFINSCSLL;
+    procedure CondicoesdaConsultaMaoObraFornecedor;
+    procedure CondicoesdaConsultaMaoObraFiliais;
+    procedure Definir_dbgReinf_2010_infoTpServ_FloatingFooter;
+    procedure CondicoesdaConsultaEvento;
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function NumeroDocumentoPag: integer;
+    procedure ReabrirDocumentoPag;
+    procedure BloquearImpostosRetidos;
+    procedure DesBloquearImpostosRetidos;
+
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+
+    property dtmContasPagar: TdtmContasPagar read fdtmContasPagar write fdtmContasPagar;
+    property frmCadastroDuplicatasContasPagar: tfrmCadastroDuplicatasContasPagar read GetfrmCadastroDuplicatasContasPagar write ffrmCadastroDuplicatasContasPagar;
+
+  end;
+
+var
+  frmContasPagar: TfrmContasPagar;
+  TipoPesquisa: TtecQuitacaoDuplicatas;
+  ControleAtivo: TWinControl;
+
+
+implementation
+
+uses fmnavcontroles, dmbasico;
+
+{$R *.dfm}
+
+{ TfrmContasPagar }
+
+constructor TfrmContasPagar.Create(AOwner: TComponent);
+begin
+
+  self.dtmContasPagar := TdtmContasPagar.Create(self);
+  dtmContasPagar := self.dtmContasPagar;
+  inherited create(AOwner);
+  
+  DataSet:= dtmContasPagar.TabelaDocumentosPag;
+  tstContabilidade.TabVisible := ParSistema.GerarContabilidade;
+  TipoPesquisa := dupNENHUM;
+  pgcDocumentos.ActivePageIndex := 0;
+  dtmContasPagar.VenctosImpostosRetidosEntradasAfterOpen :=
+     VenctosImpostosRetidosEntradasAfterOpen;
+  VenctosImpostosRetidosEntradasAfterOpen(dtmContasPagar.qryVenctosImpostosRetidosEntradas);
+
+  ConsultaFornecedor := TfraConsultaCodigo.Create(self);
+  ConsultaFornecedor.Name := 'ConsultaFornecedor';
+  ConsultaFornecedor.TipoCliente := 'F';
+  ConsultaFornecedor.Tipovfornecedor := 'F';
+  ConsultaFornecedor.AbrirTabelaProcura := false;
+  ConsultaFornecedor.ConsultarTodos := true;
+  ConsultaFornecedor.TipoPesquisa := pesFORNECEDORES;
+  ConsultaFornecedor.CondicoesdaConsulta := CondicoesConsultaFornecedorISS;
+  ConsultaFornecedor.OnFound := AtribuirCodigoFornecedorParaISS;
+
+  BloquearValores(ParSistema.GeracaoAutomaticadoImpostoRetido);
+
+  edtDataEmissao.Minimo := DaysBetween(DataLocal,ParSistema.DataContabil)-1;
+  edtDataLancamento.Minimo := DaysBetween(DataLocal,ParSistema.DataContabil)-1;
+
+  edtDataEmissao.MensagemPadronizada := ExibirMensagemPadronizadaDataEmissao;
+  edtDataLancamento.MensagemPadronizada := ExibirMensagemPadronizadaDataLancto;
+  ckbAdministrador.Visible:= (UsuarioLogin.Administrador or UsuarioLogin.Suporte);
+
+  dtmContasPagar.AfterOpenDocumentosPag := AfterOpenDocumentosPag;
+
+
+  with fraLancamentoContabilidade do
+  begin
+    VaLorICMS                := dtmContasPagar.RetornaZero;
+    ValorIPI                 := dtmContasPagar.RetornaZero;
+    ValordaNota              := dtmContasPagar.GetValordaNota;
+    ValordosProdutos         := dtmContasPagar.RetornaZero;
+    ValorAcrescimo           := dtmContasPagar.RetornaZero;
+    ValorFrete               := dtmContasPagar.RetornaZero;
+    ValorSeguro              := dtmContasPagar.RetornaZero;
+    ValorDespesasAcessorias  := dtmContasPagar.RetornaZero;
+    ValorCustodaMercadoria   := dtmContasPagar.RetornaZero;
+    ValorICMSSubstituicao    := dtmContasPagar.RetornaZero;
+    ValorcofinsRetido        := dtmContasPagar.GetCofinsRetido;
+    ValorcsllRetido          := dtmContasPagar.GetCSLLRetido;
+    ValorinssRetido          := dtmContasPagar.GetINSSRetido;
+    ValorirRetido            := dtmContasPagar.GetIRRetido;
+    ValorissRetido           := dtmContasPagar.GetISSRetido;
+    ValorpisRetido           := dtmContasPagar.GetPISRetido;
+    ValorPISCOFINSCSLLRetido := dtmContasPagar.GetPISCOFINSCSLLRetido;
+    ValorDescontos           := dtmContasPagar.RetornaZero;
+    ValorReceitasDespesasFinanceiras := dtmContasPagar.RetornaZero;
+    DataDocumento            := dtmContasPagar.GetDataDocumento;
+    CodigoNatureza           := dtmContasPagar.RetornaInteiro;
+    DebitoFornecedor         := dtmContasPagar.getDebitoFornecedor;
+    FornecedorParaISS        := dtmContasPagar.getFornecedorParaISS;
+    CreditoFornecedor        := dtmContasPagar.getCreditoFornecedor;
+    SomenteLeituraContabilidade := dtmContasPagar.getSomenteLeituraContabilidade;
+    GerarDuplicatas          := dtmContasPagar.GetGerarDocumentoPag;
+    DescricaoHistorico       := dtmContasPagar.getdescricaohistorico;
+    FilialDocumento          := dtmContasPagar.GetFilialDocumento;
+    CodigoDocumento          := dtmContasPagar.GetCodigoDocumento;
+    NumeroNotaFiscal         := dtmContasPagar.RetornaInteiro;
+    ContaDebitarouCreditar   := dtmContasPagar.GetContaCreditar;
+    HistoricoDebitarouCreditar := dtmContasPagar.GetHistoricoDebitar;
+    ContaDebitar             := dtmContasPagar.GetContaDebitar;
+    HistoricoPadrao          := dtmContasPagar.GetHistoricoPadrao;
+    Origem                   := dtmContasPagar.GetOrigem;
+    OrigemFormulario         := dtmContasPagar.GetOrigemFormulario;
+    AtribuirContaDocumento   := dtmContasPagar.AtribuirContaCreditoDocumentoPag;
+    EditarDocumento          := dtmContasPagar.EditarDocumento;
+    NomeOrigemFormulario     := self.name;
+    DocumentoPossuiOrigem    := dtmContasPagar.GetDocumentoPossuiOrigem;
+    evento                   := dtmContasPagar.getEvento;
+    BloquearImpostosRetidos  := self.BloquearImpostosRetidos;
+    DesBloquearImpostosRetidos  := self.DesBloquearImpostosRetidos;
+
+  end;
+
+  sbnPesquisarFornecedorParaISS.Visible := false;
+
+
+  fraConsultaTributacaopis.TipoPesquisa := pesTRIBUTOSPIS;
+  fraConsultaTributacaoCOFINS.TipoPesquisa := pesTRIBUTOSCOFINS;
+  fraConsultaNaturezaBase.TipoPesquisa := pesNATBCCRED;
+  fraConsultaCNOPrestador.TipoPesquisa := pesMaoObraFornecedor;
+  fraConsultaCNODeclarante.TipoPesquisa := pesMaoObraFilial;
+
+
+  fraConsultaCNOPrestador.CondicoesdaConsulta := CondicoesdaConsultaMaoObraFornecedor;
+  fraConsultaCNODeclarante.CondicoesdaConsulta := CondicoesdaConsultaMaoObraFiliais;
+
+  fraConsultaEvento.TipoPesquisa := pesEVENTO;
+  fraConsultaEvento.CondicoesdaConsulta := CondicoesdaConsultaEvento;
+
+
+  ActiveControl := edfNumero;
+
+
+//  Definir_dbgReinf_2010_infoTpServ_FloatingFooter;
+//  DBEditCPFCNPJCnpjPrestador.Tipo := 'F';
+//  DBEditCPFCNPJcnpJDeclarante.Tipo := 'F';
+
+
+end;
+
+
+function TfrmContasPagar.AcionarCadastroDuplicatas(Operacao: TtecTipoOperacaoDuplicatas): Boolean;
+var
+  Usuario: TtecUsuarios;
+begin
+
+  Result:= (dtmContasPagar.DuplicataAutorizada or (Operacao <> topPAGAMENTO));
+  if not Result and (Operacao = topPAGAMENTO) then begin
+    Usuario:= TtecUsuarios.Create(dtmTecSoft. Database);
+    try
+      if UsuarioLogin.Pagamento then
+           Usuario:= dtmContasPagar.ObterAutorizacao(taSENHA)
+      else
+         Usuario:= dtmContasPagar.ObterAutorizacao(taLOGIN, ctAUTORIZACAOPAGAMENTO, ctAUTORIZADO);
+
+      if Assigned(Usuario) and Usuario.Pagamento then
+        Result:= True
+      else
+        MensagemAviso(format(ctUSUARIONAOAUTORIZADO,['autorizar o pagamento de duplicatas.']));
+    finally
+      Usuario.Free;
+    end;
+  end;
+
+  if Result then
+  begin
+    dtmContasPagar.qryDuplicatasAfterScroll(nil);
+
+//    if not Assigned (frmCadastroDuplicatasContasPagar) then
+//      frmCadastroDuplicatasContasPagar:= TfrmCadastroDuplicatasContasPagar.Create(self);
+
+    if edtDataEmissao.DataValida then
+      frmcadastroduplicatascontaspagar.edtDataVencto.Minimo :=
+          DaysBetween(Date, strtodate(edtDataEmissao.text));
+
+    if ParSistema.DataContabil > dtmContasPagar.qryDocumentosPagemissao.AsDateTime then
+      frmcadastroduplicatascontaspagar.edtDataPagto.Minimo := DaysBetween(DataLocal,ParSistema.DataContabil)-1
+    else
+      frmcadastroduplicatascontaspagar.edtDataPagto.Minimo := DaysBetween(Date, dtmContasPagar.qryDocumentosPagemissao.AsDateTime);
+
+    frmCadastroDuplicatasContasPagar.SetDataModulo(dtmContasPagar);
+
+    frmCadastroDuplicatasContasPagar.DataSet := dtmContasPagar.TabelaDuplicatas;
+//    frmCadastroDuplicatasContasPagar.Operacao:= Operacao;
+    dtmContasPagar.Operacao := Operacao;
+
+    frmcadastroduplicatascontaspagar.flkFilialPagto.Exist;
+    frmcadastroduplicatascontaspagar.flkConta.Exist;
+//    frmcadastroduplicatascontaspagar.fraConsultaCreditar.edfCodigo.Exist;
+    frmcadastroduplicatascontaspagar.flkTipoPagto.Exist;
+
+    if parsistema.GerarContabilidade then
+      frmcadastroduplicatascontaspagar.AfterScrollDuplicatas(self);
+
+    frmCadastroDuplicatasContasPagar.ShowModal;
+
+    dtmContasPagar.AfterScrollDuplicatas := nil;
+
+    freeandnil(ffrmCadastroDuplicatasContasPagar);
+
+    dbgDuplicatas.SetFocus;
+
+  end;
+
+end;
+
+procedure TfrmContasPagar.actHabilitarUpdate(Sender: TObject);
+begin
+   with dtmContasPagar do
+   begin
+     sbnImprimir.Enabled := ExisteDuplicatasemAberto and not (qryDocumentosPag.State in [dsinsert, dsedit]);
+     sbnImprimirRecibo.Enabled := ExisteQuitacao and not (qryDocumentosPag.State in [dsinsert, dsedit]);
+
+     sbnExcluir. Enabled := (UsuarioLogin.AlterarDadosContabeis or
+                                       UsuarioLogin.Pagamento) and
+                                      (dtmContasPagar.qryDocumentosPagdocumentopagorigem.AsInteger=0);
+     sbnGerarDuplicatas.Enabled := PermiteGerarDuplicata;
+     sbnExcluirDuplicatas.Enabled  := PermiteExcluirDuplicata;
+     sbnIncluirDuplicatas.Enabled  := (UsuarioLogin.AlterarDadosContabeis or UsuarioLogin.Pagamento);
+     sbnAlterarDuplicatas.Enabled  := PermiteAlterarPagamento;
+{
+     fraLancamentoContabilidade.sbnGerarLancamento.Enabled    := PermiteAlterarContabilidade;
+     fraLancamentoContabilidade.sbnExcluirLancamento.enabled  := PermiteAlterarContabilidade;
+     fraLancamentoContabilidade.sbnIncluirLancamento.Enabled  := PermiteAlterarContabilidade;
+}
+     if gbxFornecedor.Enabled then
+        case TipoPessoa[1] of
+          'F': gbxFornecedor.Caption:= 'FORNECEDOR';
+          'C': gbxFornecedor.Caption:= 'FORNECEDOR (CLIENTE)';
+          'L': gbxFornecedor.Caption:= 'FORNECEDOR (FILIAL)';
+        end;
+{      if ExisteNota then
+        gbxSerieNumero.Caption := 'SÉRIE e Nº DA NOTA'
+      else gbxSerieNumero.Caption := 'DOCTO DE ORIGEM';
+}
+      if (qryDocumentosPagdocumentopagorigem.AsInteger <> 0) then
+        pgcValores.ActivePage := tstOrigem
+      else
+        if pgcvalores.ActivePage <> tstValores then
+          pgcValores.ActivePage := tstValores;
+
+     ckbPrevisao.Visible := not AdiantamentoFornecedor;
+     tstImpostosPISCOFINS.TabVisible := not ExisteNota;
+
+     tstReinf.TabVisible := {qryProcurarFornecedoresmaodeobra.asboolean;} FALSE;
+
+   end;
+
+
+end;
+
+
+procedure TfrmContasPagar.dbgDuplicatasDblClick(Sender: TObject);
+begin
+  inherited;
+//  if sbnIncluirDuplicatas.Enabled then
+  if dtmContasPagar.qryDuplicatas.RecordCount = 0 then
+    AcionarCadastroDuplicatas(topINSERIR)
+  else
+    AcionarCadastroDuplicatas(topEDITAR);
+end;
+
+procedure TfrmContasPagar.dbgDuplicatasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if (Shift = [ssCtrl]) then
+    case key of
+      TeclaEditarRegistro : if dtmContasPagar.qryDuplicatas.IsEmpty then
+                              AcionarCadastroDuplicatas(topINSERIR)
+                            else
+                              AcionarCadastroDuplicatas(topEDITAR);
+
+      TeclaInserirRegistro: if sbnIncluirDuplicatas.Enabled then
+                               AcionarCadastroDuplicatas(topINSERIR);
+    end;
+end;
+
+destructor TfrmContasPagar.Destroy;
+begin
+//  dtmContasPagar := nil;
+  inherited;
+  frmContasPagar := Nil;
+end;
+
+procedure TfrmContasPagar.edtVencimentoEnter(Sender: TObject);
+begin
+  inherited;
+//with dtmContasPagar do GG
+//  edtVencimento.Minimo:= DaysBetween(DataServidor,StrToDate(edtDataEmissao.Text));
+end;
+
+function TfrmContasPagar.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmContasPagar do begin
+    case TipoPesquisa of
+     dupDOCUMENTOSPAG: Result:= ExisteDocumentosPag(NomeCampo, Value);
+           dupFILIAIS: Result:= ExisteFiliais(NomeCampo, Value);
+      dupFORNECEDORES: Result:= ExisteFornecedores(NomeCampo, Value);
+            dupEVENTO: Result:= ExisteEventos(NomeCampo, Value);
+      else             Result:= False
+    end;
+  end
+end;
+
+function TfrmContasPagar.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+    begin
+      dtmContasPagar.ExcluirContasPagar;
+    end;
+  end;
+end;
+
+function TfrmContasPagar.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if result then
+     result := fraLancamentoContabilidade.VerificarLancamentosContabeis;
+
+  if Result then
+  begin
+    if not dtmContasPagar.fRefazerPagamento then
+      dtmContasPagar.RefazerPagamento;
+
+    dtmContasPagar.GravarContasPagar(topEDITAR);
+
+    if (parsistema.GerarContabilidade or
+       (ParSistema.InicioIntegracaoBancos > StrToDateTime('01/01/1980'))) and
+       (fViaLote_ or dtmContasPagar.fRefazerPagamento) then
+    begin
+
+//      if not Assigned(frmCadastroDuplicatasContasPagar) then
+//      begin
+//        frmCadastroDuplicatasContasPagar := TfrmCadastroDuplicatasContasPagar.Create(self);
+        frmCadastroDuplicatasContasPagar.SetDataModulo(dtmContasPagar);
+//      end;
+
+      dtmContasPagar.ExibirMensagemDesconto := false;
+
+      if dtmContasPagar.fRefazerPagamento then
+      begin
+        frmCadastroDuplicatasContasPagar.ckbRefazerPagamento.Checked := true;
+        dtmContasPagar.qryDuplicatas.First;
+        while not dtmContasPagar.qryDuplicatas.Eof do
+        begin
+          if not dtmContasPagar.qryDuplicatasdatapagto.IsNull then
+          begin
+            CtrlOn := false;
+            frmCadastroDuplicatasContasPagar.SetDataModulo(dtmContasPagar);
+            frmCadastroDuplicatasContasPagar.DataSet := dtmContasPagar.TabelaDuplicatas;
+//            frmCadastroDuplicatasContasPagar.Operacao:= topCANCELAR;
+            dtmContasPagar.Operacao := topCANCELAR;
+            frmcadastroduplicatascontaspagar.flkFilialPagto.Exist;
+            frmcadastroduplicatascontaspagar.flkConta.Exist;
+            frmcadastroduplicatascontaspagar.flkTipoPagto.Exist;
+            frmcadastroduplicatascontaspagar.AfterScrollDuplicatas(self);
+            frmCadastroDuplicatasContasPagar.InternoExcluir;
+            dtmContasPagar.AfterScrollDuplicatas := nil;
+          end;
+          dtmContasPagar.qryDuplicatas.next;
+        end;
+        frmCadastroDuplicatasContasPagar.ckbRefazerPagamento.Checked := false;
+        dtmContasPagar.RefazerPagamento := false;
+
+      end
+      else
+      begin
+        dtmContasPagar.qryDuplicatas.First;
+        while not dtmContasPagar.qryDuplicatas.Eof do
+        begin
+          if not dtmContasPagar.qryDuplicatasdatapagto.IsNull then
+          begin
+            frmCadastroDuplicatasContasPagar.SetDataModulo(dtmContasPagar);
+            frmCadastroDuplicatasContasPagar.DataSet := dtmContasPagar.TabelaDuplicatas;
+//            frmCadastroDuplicatasContasPagar.Operacao:= topPAGAMENTO;
+            dtmContasPagar.Operacao:= topPAGAMENTO;
+
+            frmcadastroduplicatascontaspagar.flkFilialPagto.Exist;
+            frmcadastroduplicatascontaspagar.flkConta.Exist;
+            frmcadastroduplicatascontaspagar.flkTipoPagto.Exist;
+            frmcadastroduplicatascontaspagar.AfterScrollDuplicatas(self);
+            frmCadastroDuplicatasContasPagar.InternoGravar;
+            dtmContasPagar.AfterScrollDuplicatas := nil;
+          end;
+          dtmContasPagar.qryDuplicatas.next;
+        end;
+      end;
+
+      freeandnil(ffrmCadastroDuplicatasContasPagar);
+//      frmCadastroDuplicatasContasPagar.Free;
+      dtmContasPagar.ExibirMensagemDesconto := true;
+
+
+    end;
+
+  end;
+
+  if not result then
+  begin
+    if pgcDocumentos.ActivePage = tstContabilidade then
+       ActiveControl:= fraLancamentoContabilidade.dbgContabilidade
+  end
+  else
+  begin
+   //colocado aqui temporiariamente para resolver o bug de que quando cadastra novo documento e ja quita a duplicata
+   //a duplicata nao fica paga mas os movtosbancos ficam gravados.
+//    dtmContasPagar.ReFazConsulta(dtmContasPagar.qryDocumentosPag,[0],[dtmContasPagar.qryDocumentosPagnumero.AsInteger]);
+    pgcDocumentos.ActivePage:= tstValores;
+    if tstContabilidade.TabVisible then
+      fraLancamentoContabilidade.atualizarDescricaoHistorico;
+  end;
+end;
+
+function TfrmContasPagar.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then
+    if not CtrlOn then
+    begin
+      edfNumero.SetFocus;
+      dtmContasPagar.IncluirContasPagar;
+      dtmContasPagar.AdiantamentoFornecedor := false;
+      edfNumeroFound(true);
+      flkFornecedor.SetFocus;
+      pgcValores.ActivePage := tstValores;
+    end;
+end;
+
+function TfrmContasPagar.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result:= mrNone;
+  with dtmContasPagar do
+  begin
+    if CtrlOn then
+    begin
+      if ActiveControl is TtecFindCustom then
+      begin
+        if (ActiveControl = flkFilial) and PermiteAlterarDocumento and not ExisteNota then begin
+          TipoPesquisa:= dupFILIAIS;
+          Titulo      := 'Filiais';
+        end
+        else if (ActiveControl = flkFornecedor) and PermiteAlterarDocumento and not ExisteNota then begin
+          TipoPesquisa:= dupFORNECEDORES;
+          Titulo      := 'Fornecedores';
+        end
+        else if (ActiveControl = fraConsultaEvento.edfcodigo)  and PermiteAlterarEvento then
+          fraConsultaEvento.InternoPesquisar('Eventos')
+        else if (ActiveControl = flkTipoPagto) and not flkTipoPagto.ReadOnly then begin
+          TipoPesquisa := dupTIPOPAGTODOCUMENTOSPAG;
+          Titulo       := 'Tipos pagamentos';
+        end
+        else if (ActiveControl = flkConta) and not flkConta.ReadOnly then begin
+          TipoPesquisa := dupCONTADOCUMENTOSPAG;
+          Titulo       := 'Bancos';
+        end
+        else
+          TipoPesquisa:= dupNENHUM;
+      end;
+    end
+    else begin
+      TipoPesquisa:= dupDOCUMENTOSPAG;
+      Titulo      := 'Documentos Contas Pagar';
+    end;
+
+    if (TipoPesquisa <> dupNENHUM) then
+    begin
+      AbrirTabelasConsulta(TipoPesquisa);
+      Result:= inherited InternoPesquisar(Titulo);
+      if Result = mrOk then
+        Selecionar(TipoPesquisa);
+
+      FecharTabelasConsulta(TipoPesquisa);
+      TipoPesquisa := dupNENHUM;
+
+      if (TipoPesquisa = dupDOCUMENTOSPAG) and (Result = mrOk) then
+        edfNumeroFound(true);
+
+    end;
+  end;
+  CtrlOn:= false;
+end;
+
+function TfrmContasPagar.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result:= TfrmConsultaPorCampo.Create(nil);
+  if TipoPesquisa in [dupDOCUMENTOSPAG, dupFORNECEDORES] then
+       TfrmConsultaPorCampo(Result).ConsultaInterativa := False
+  else begin
+    TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+    TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= False;
+  end;
+end;
+
+procedure TfrmContasPagar.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    VK_P     : if (Shift = [ssCtrl]) and sbnAlterarDuplicatas.Enabled then sbnAlterarDuplicatas.Click;
+    VK_Escape: LimparCampos;
+    VK_G     : begin
+                  if (Shift = [ssCtrl]) then
+                  begin
+                      if pgcDocumentos.ActivePage = tstDuplicatas then
+                      begin
+                        if pgcControle.ActivePage = tstContaPagar then
+                          if sbnGerarDuplicatas.Enabled then
+                            sbnGerarDuplicatas.Click;
+                      end
+                      else
+                      if pgcDocumentos.ActivePage = tstContabilidade then
+                         if fraLancamentoContabilidade.sbnGerarLancamento.Enabled then
+                           fraLancamentoContabilidade.sbnGerarLancamento.Click;
+                  end;
+                end;
+
+    VK_R     : begin
+                  if (Shift = [ssCtrl]) then
+                  begin
+                    if pgcDocumentos.ActivePage = tstContabilidade then
+                       if fraLancamentoContabilidade.sbnGerarLancamentosContabeisRegimedeCaixa.Enabled then
+                         fraLancamentoContabilidade.sbnGerarLancamentosContabeisRegimedeCaixa.Click;
+                  end;
+                end;
+                
+    VK_F7    : begin
+                  if sbnAdiantamento.Enabled then
+                    sbnAdiantamentoClick(nil);
+                end;
+  end;
+end;
+
+procedure TfrmContasPagar.LimparCampos;
+begin
+//  edtNrParcelas.Clear;
+//  edtVencimento.Clear;
+//  edtIntervalo.Clear;
+//  edtValorJuros.Clear;
+//  edtValorMulta.Clear;
+  dtmContasPagar.EdicaoCampos(False);
+  fraconsultaevento.edfcodigo.Exist;
+end;
+
+procedure TfrmContasPagar.sbnExcluirDuplicatasClick(Sender: TObject);
+begin
+  inherited;
+  dtmContasPagar.ExcluirDuplicatas;
+end;
+
+procedure TfrmContasPagar.sbnAlterarDuplicatasClick(Sender: TObject);
+begin
+  inherited;
+  if dtmContasPagar.qryDuplicatasduplicatapaga.AsBoolean then
+    AcionarCadastroDuplicatas(topCANCELAR)
+  else
+    AcionarCadastroDuplicatas(topPAGAMENTO);
+end;
+
+procedure TfrmContasPagar.sbnFilialClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  flkFilial.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmContasPagar.sbnFornecedorClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  flkFornecedor.SetFocus;
+  InternoPesquisar('');
+end;
+
+
+procedure TfrmContasPagar.sbnIncluirDuplicatasClick(Sender: TObject);
+begin
+  inherited;
+  AcionarCadastroDuplicatas(topINSERIR);
+end;
+
+function TfrmContasPagar.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmContasPagar do begin
+    case TipoPesquisa of
+         dupDOCUMENTOSPAG: Result:= ConsultarDocumentosPag;
+               dupFILIAIS: Result:= ConsultarFiliais;
+          dupFORNECEDORES: Result:= ConsultarFornecedores;
+                dupEVENTO: Result:= ConsultarEventos;
+             dupCONTADOCUMENTOSPAG: Result:= ConsultarContaPagto;
+         dupTIPOPAGTODOCUMENTOSPAG: Result:= ConsultarTiposPagamento;
+    else
+      Result:= nil;
+    end;
+  end
+end;
+
+procedure TfrmContasPagar.edfNumeroFound(Found: Boolean);
+begin
+  inherited;
+  if found then
+  begin
+    edtDataLancamento.Minimo := dtmContasPagar.NDiasLimiteLancto;
+    fraconsultaevento.edfcodigo.Exist;
+    if dtmContasPagar.IncluindoDocumentoPag then
+      edtDataEmissao.Minimo    := ParSistema.DiasNotaRetroativa
+    else
+    begin
+      edtDataEmissao.Minimo := DaysBetween(dtmContasPagar.DataServidor,
+         (dtmContasPagar.qryDocumentosPagemissao.AsDateTime -
+          ParSistema.DiasNotaRetroativa));
+    end;
+
+    if dtmContasPagar.qryDocumentosPagdocumentopagorigem.AsInteger <> 0 then
+      pgcValores.ActivePageindex := 1
+    else pgcValores.ActivePageindex := 0;
+
+    if ParSistema.GerarContabilidade then
+      tstContabilidade.TabVisible := not dtmContasPagar.qryDocumentosPagprevisao.AsBoolean {and
+                                         (dtmContasPagar.qryDocumentosPagdocumentopagorigem.AsInteger = 0)};
+
+//    edfNumero.SetControls.Items[13].Destroy;
+{    CollItem := TtecControlsCollection(edfNumero.NoSetControls.clear);
+    CollItem.Control := pgcValores;}
+//    VenctosImpostosRetidosEntradasAfterOpen(self);
+    if not dtmContasPagar.AdiantamentoFornecedor then
+    begin
+      ControlarEdicaoPISCOFINSCSLL;
+      pgcControle.ActivePage := tstContaPagar;
+      tstDuplicatas.Caption := ' &1 - Duplicatas';
+    end
+    else
+    begin
+      BloquearValores(true);
+      pgcControle.ActivePage := tstAdiantamento;
+      tstDuplicatas.Caption := ' &1 - Adiantamento';      
+    end;
+
+
+  end;
+end;
+
+
+procedure TfrmContasPagar.edtValorMultaKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    VK_Return:
+   begin
+    if tstContabilidade.TabVisible then
+       pgcDocumentos.ActivePage := tstContabilidade;
+    dbgDuplicatas.SetFocus;
+    Key:= 0;
+   end;
+  end;
+end;
+
+procedure TfrmContasPagar.sbnGerarDuplicatasClick(Sender: TObject);
+begin
+  inherited;
+  frmCalcularDuplicatas:= Tfrmcalcularduplicatas.Create(frmCalcularDuplicatas);
+
+  frmCalcularDuplicatas.edtVencimento.Minimo := DaysBetween(Date,
+              dtmContasPagar.qryDocumentosPagemissao.AsDateTime);
+  frmCalcularDuplicatas.DataEmissao := strtodate(edtDataemissao.text);
+  frmCalcularDuplicatas.edtVencimento.MensagemPadronizada := frmCalcularDuplicatas.ExibirMensagemPadronizada;
+  frmCalcularDuplicatas.ShowModal;
+  if frmCalcularDuplicatas.ModalResult = mrOK then
+    dtmContasPagar.GerarParcelas(frmCalcularDuplicatas.NrParcelas,
+                               frmCalcularDuplicatas.Vencimento,
+                               frmCalcularDuplicatas.Intervalo,
+                               frmCalcularDuplicatas.TipoJuros,
+                               frmCalcularDuplicatas.TipoMulta,
+                               frmCalcularDuplicatas.Juros,
+                               frmCalcularDuplicatas.Multa);
+   frmCalcularDuplicatas.free;
+   dbgDuplicatas.SetFocus;
+end;
+
+
+procedure TfrmContasPagar.ckbPrevisaoClick(Sender: TObject);
+begin
+  inherited;
+  if ParSistema.GerarContabilidade then
+    tstContabilidade.TabVisible := not ckbPrevisao.Checked;
+end;
+
+function TfrmContasPagar.NumeroDocumentoPag: integer;
+begin
+  result := dtmContasPagar.qryDocumentosPagNumero.AsInteger;
+end;
+
+procedure TfrmContasPagar.ReabrirDocumentoPag;
+begin
+  dtmContasPagar.ReabrirDocumentoPag;
+end;
+
+procedure TfrmContasPagar.VenctosImpostosRetidosEntradasAfterOpen(Sender: TObject);
+var
+  vLancamentosFiliais: TtecLancamentosContasEntradas;
+begin
+  BloquearValores(true);
+  with dtmContasPagar do
+  if not AdiantamentoFornecedor then
+  begin
+    for vLancamentosFiliais := lceCOFINSretida to lcePIS_COFINS_CSLL do
+    begin
+      if qryVenctosImpostosRetidosEntradas.Locate('Descricao', FilialContasEntradas[vLancamentosFiliais],[]) then
+      begin
+        case vLancamentosFiliais of
+          lceCOFINSretida : begin
+                              pgcValores.Enabled := true;
+                              gbxImpostosRetidos.Enabled := true;
+                              lblCofins.Enabled := true;
+                              edtCofins.Enabled := lblCofins.Enabled;
+                            end;
+          lceCSLLretida   : begin
+                              pgcValores.Enabled := true;
+                              gbxImpostosRetidos.Enabled := true;
+                              lblCSLL  .Enabled := true;
+                              edtCSLL  .Enabled := lblcsll.Enabled;
+                            end;
+          lceINSSRetido   : begin
+                              pgcValores.Enabled := true;
+                              gbxImpostosRetidos.Enabled := true;
+                              lblINSS  .Enabled := true;
+                              edtINSS  .Enabled := lblINSS.Enabled;
+                            end;
+          lceIRRetido     : begin
+                              pgcValores.Enabled := true;
+                              gbxImpostosRetidos.Enabled := true;
+                              lblIR    .Enabled := true;
+                              edtIR    .Enabled := lblir.Enabled;
+                            end;
+          lceISSRetido    : begin
+                              pgcValores.Enabled := true;
+                              gbxImpostosRetidos.Enabled := true;
+                              lblISS   .Enabled := true;
+                              edtISS   .Enabled := lbliss.Enabled;
+                              if (dtmContasPagar.qryVenctosImpostosRetidosEntradasfornecedor.AsInteger = 0) and
+                                 edtISS.Enabled and not dtmContasPagar.qryDocumentosPagissretido.ReadOnly then
+                                sbnPesquisarFornecedorParaISS.Visible := true
+                              else
+                                sbnPesquisarFornecedorParaISS.Visible := false;
+                            end;
+          lcePISRetido    : begin
+                              pgcValores.Enabled := true;
+                              gbxImpostosRetidos.Enabled := true;
+                              lblPis   .Enabled := true;
+                              edtPIS   .Enabled := lblpis.enabled;
+                            end;
+
+          lcePIS_COFINS_CSLL : begin
+                                pgcValores.Enabled := true;
+                                gbxImpostosRetidos.Enabled := true;
+                                lblPIS_CSLL   .Enabled := true;
+                                lbl_COFINS.Enabled := true;
+                                edtPIS_COFINS_CSLL   .Enabled := lblPIS_CSLL.enabled;
+                              end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmContasPagar.BloquearValores(Bloquear: Boolean);
+begin
+  pgcValores.Enabled := not Bloquear;
+
+  gbxImpostosRetidos.Enabled := not Bloquear;
+
+  lblCofins.Enabled := not bloquear;
+  edtCofins.Enabled := lblCofins.Enabled;
+
+  lblCSLL  .Enabled := not bloquear;
+  edtCSLL  .Enabled := lblcsll.Enabled;
+
+  lblINSS  .Enabled := not bloquear;
+  edtINSS  .Enabled := lblINSS.Enabled;
+
+  lblIR    .Enabled := not bloquear;
+  edtIR    .Enabled := lblir.Enabled;
+
+  lblISS   .Enabled := not bloquear;
+  edtISS   .Enabled := lbliss.Enabled;
+
+  lblPis   .Enabled := not bloquear;
+  edtPIS   .Enabled := lblpis.enabled;
+
+  lblPIS_CSLL .Enabled := not bloquear;
+  lbl_COFINS  .Enabled := not bloquear;
+  edtPIS_COFINS_CSLL   .Enabled := lblPIS_CSLL.enabled;
+
+end;
+
+procedure TfrmContasPagar.AfterOpenDocumentosPag(Sender: TObject);
+begin
+  if tstContabilidade.tabvisible then
+  begin
+    with fraLancamentoContabilidade do
+    begin
+      OrigemFormulario         := dtmContasPagar.GetOrigemFormulario;
+      if dtmContasPagar.ExisteNota then
+        AbrirLancamentos('E', dtmContasPagar.qryExisteNotacodigo.AsInteger, false)
+      else
+      begin
+      {
+        if dtmContasPagar.qryDocumentosPagadiantamento.AsBoolean then
+          AbrirLancamentos('A', CodigoDocumento, true)
+        else}
+          AbrirLancamentos('D', CodigoDocumento, {dtmContasPagar.IncluindoDocumentoPag} true);
+      end
+    end;
+  end;
+
+  Definir_dbgReinf_2010_infoTpServ_FloatingFooter;
+
+  if dtmContasPagar.qryDocumentosPagadiantamento.asBoolean then
+    pgcControle.activepage := tstAdiantamento
+  else
+    pgcControle.activepage := tstContaPagar;
+
+end;
+
+procedure TfrmContasPagar.fraLancamentoContabilidadesbnIncluirLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraLancamentoContabilidade.sbnIncluirLancamentoClick(Sender);
+
+end;
+
+procedure TfrmContasPagar.dbgDuplicatasDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dtmContasPagar.qryDuplicatasobservacao.asstring='' then
+    dbgDuplicatas.Canvas.Font.Style := []
+  else
+    dbgDuplicatas.Canvas.Font.Style := [fsBold];
+
+  //TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  dbgDuplicatas.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+end;
+
+procedure TfrmContasPagar.mmoObservacaoDuplicataExit(Sender: TObject);
+begin
+  inherited;
+  dtmContasPagar.GravarObservacaoDuplicatas;
+end;
+
+procedure TfrmContasPagar.ExibirMensagemPadronizadaDataEmissao;
+begin
+  if dtmContasPagar.IncluindoDocumentoPag then
+    if strtodate(edtDataEmissao.Text) < DataLocal - edtDataEmissao.Minimo then
+      MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['de emissão',
+                       edtDataEmissao.Text, 'retroativa',
+                       datetostr(DataLocal - edtDataEmissao.Minimo)]))
+  else
+    if strtodate(edtDataEmissao.Text) < DataLocal - DaysBetween(dtmContasPagar.DataServidor,
+                                           (dtmContasPagar.qryDocumentosPagemissao.AsDateTime -
+                                             ParSistema.DiasNotaRetroativa)) then
+      MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['de emissão',
+                       edtDataEmissao.Text, 'retroativa',
+                       DataLocal - DaysBetween(dtmContasPagar.DataServidor,
+                                             (dtmContasPagar.qryDocumentosPagemissao.AsDateTime -
+                                             ParSistema.DiasNotaRetroativa) )]));
+end;
+
+procedure TfrmContasPagar.ExibirMensagemPadronizadaDataLancto;
+begin
+  if strtodate(edtDataLancamento.Text) <= ParSistema.DataContabil then
+    MensagemAviso(format(ctDATACONTABILMAIORDATALANCTO, ['de lançamento',
+                     edtDataLancamento.Text, 'contábil', ParSistema.DataContabilstring]))
+  else
+  if strtodate(edtDataLancamento.Text) < strtodate(edtDataEmissao.Text) then
+    MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['de lançamento',
+                     edtDataLancamento.Text, 'emissão', edtDataEmissao.Text]));
+
+end;
+
+procedure TfrmContasPagar.edtDataEmissaoExit(Sender: TObject);
+var
+ NDias : Integer;
+begin
+  inherited;
+  edtDataLancamento.Minimo := dtmContasPagar.NDiasLimiteData(edtDataEmissao.Text);
+end;
+
+procedure TfrmContasPagar.PesquisarFornecedorParaISS;
+begin
+  ConsultaFornecedor.CtrlOn := true;
+  ConsultaFornecedor.InternoPesquisar(ctFORNECEDORES);
+  ConsultaFornecedor.CtrlOn := false;
+  edtISS.SetFocus;
+  edtiss.SelectAll;
+end;
+
+procedure TfrmContasPagar.CondicoesConsultaFornecedorISS;
+begin
+  ConsultaFornecedor.qryConsultaClientes.MacroByName('CondicaodaConsulta').AsString :=
+   'and (select f.fornecedorparaiss from fornecedores f where f.codigo = v.codigo and v.tipo=''F'')';
+end;
+
+procedure TfrmContasPagar.edtISSEnter(Sender: TObject);
+begin
+  inherited;
+  ValorISSQN := edtISS.Text;
+end;
+
+procedure TfrmContasPagar.edtISSExit(Sender: TObject);
+begin
+  inherited;
+  if sbnPesquisarFornecedorParaISS.Visible then
+    if dtmContasPagar.qryDocumentosPag.State in [dsEdit, dsInsert] then
+      if ((ValorISSQN <> edtISS.Text) or
+          (dtmContasPagar.qryDocumentosPagfornecedorparaiss.IsNull)) and
+         (dtmContasPagar.qryDocumentosPagissretido.AsCurrency<>0) then
+        PesquisarFornecedorParaISS;
+end;
+
+procedure TfrmContasPagar.sbnPesquisarFornecedorParaISSClick(
+  Sender: TObject);
+begin
+  inherited;
+  edtISS.SetFocus;
+  PesquisarFornecedorParaISS;
+end;
+
+procedure TfrmContasPagar.AtribuirCodigoFornecedorParaISS;
+begin
+  dtmContasPagar.FornecedorParaISS := ConsultaFornecedor.qryProcuraClientecodigo.AsInteger;
+end;
+
+procedure TfrmContasPagar.edtISSKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if sbnPesquisarFornecedorParaISS.Visible then
+    if CtrlOn then
+      if key = VK_F9 then
+        if sbnPesquisarFornecedorParaISS.Visible then
+          PesquisarFornecedorParaISS;
+end;
+
+procedure TfrmContasPagar.pgcDocumentosChange(Sender: TObject);
+begin
+  inherited;
+  if pgcDocumentos.ActivePage = tstContabilidade then
+    with fraLancamentoContabilidade do
+    begin
+      OrigemFormulario         := dtmContasPagar.GetOrigemFormulario;
+      if not ExisteLancamentosContabeis {or (OrigemFormulario='A')} then
+        GerarLancamentosContabeis;
+    end;
+end;
+
+procedure TfrmContasPagar.edtPISExit(Sender: TObject);
+begin
+  inherited;
+  ControlarEdicaoPISCOFINSCSLL;
+end;
+
+procedure TfrmContasPagar.ControlarEdicaoPISCOFINSCSLL;
+begin
+  if ParSistema.GeracaoAutomaticadoImpostoRetido then
+  begin
+    if lblPis.Enabled      then edtPIS.Enabled             := true;
+    if lblCofins.Enabled   then edtCofins.Enabled          := true;
+    if lblCSLL.Enabled     then edtCSLL.Enabled            := true;
+    if lblPIS_CSLL.Enabled then edtPIS_COFINS_CSLL.Enabled := true;
+
+    with dtmContasPagar do
+    begin
+      if ((qryDocumentosPagpisretido.AsCurrency<>0) or
+          (qryDocumentosPagcofinsretido.AsCurrency<>0) or
+          (qryDocumentosPagcsllretido.AsCurrency<>0)) then
+        edtPIS_COFINS_CSLL.Enabled := FALSE
+      else
+      begin
+        if (qryDocumentosPagpiscofinscsllretido.AsCurrency<>0) then
+        begin
+          edtPIS.Enabled    := false;
+          edtCofins.Enabled := false;
+          edtCSLL.Enabled   := false;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmContasPagar.edtCofinsExit(Sender: TObject);
+begin
+  inherited;
+  ControlarEdicaoPISCOFINSCSLL;
+end;
+
+procedure TfrmContasPagar.edtCSLLExit(Sender: TObject);
+begin
+  inherited;
+  ControlarEdicaoPISCOFINSCSLL;
+end;
+
+procedure TfrmContasPagar.edtPIS_COFINS_CSLLExit(Sender: TObject);
+begin
+  inherited;
+  ControlarEdicaoPISCOFINSCSLL;
+end;
+
+procedure TfrmContasPagar.sbnAdiantamentoClick(Sender: TObject);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    dtmContasPagar.IncluirAdiantamento;
+    edfNumeroFound(true);
+    flkFornecedor.SetFocus;
+    BloquearValores(true);
+    pgcControle.ActivePage := tstAdiantamento;
+    tstDuplicatas.Caption := ' &1 -  Adiantamento';
+  end;
+end;
+
+procedure TfrmContasPagar.AlterarEstadoBotoes;
+begin
+  inherited;
+  sbnAdiantamento.Enabled := sbnIncluir.Enabled;
+end;
+
+procedure TfrmContasPagar.sbnProcurarTipoPagtoClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkTipoPagto, 'TIPO DE PAGAMENTO');
+end;
+
+procedure TfrmContasPagar.sbnProcurarContaClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkconta,ctCONTAS);
+end;
+
+procedure TfrmContasPagar.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  dtmContasPagar.ImprimirRecibo;
+end;
+
+procedure TfrmContasPagar.fraLancamentoContabilidadesbnGerarLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraLancamentoContabilidade.sbnGerarLancamentoClick(Sender);
+
+end;
+
+procedure TfrmContasPagar.fraLancamentoContabilidadesbnGerarLancamentosContabeisRegimedeCaixaClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraLancamentoContabilidade.sbnGerarLancamentosContabeisRegimedeCaixaClick(
+  Sender);
+
+end;
+
+procedure TfrmContasPagar.BloquearImpostosRetidos;
+begin
+  gbxImpostosRetidos.enabled := false;
+end;
+
+procedure TfrmContasPagar.DesBloquearImpostosRetidos;
+begin
+  gbxImpostosRetidos.enabled := true;
+end;
+
+
+procedure TfrmContasPagar.sbnGerarTotalPISClick(Sender: TObject);
+begin
+  inherited;
+  dtmContasPagar.dsrDocumentosPagDataChange(self, dtmContasPagar.qryDocumentosPagpisbasecalculo);
+end;
+
+procedure TfrmContasPagar.sbnGerarTotalCOFINSClick(Sender: TObject);
+begin
+  inherited;
+  dtmContasPagar.dsrDocumentosPagDataChange(self, dtmContasPagar.qryDocumentosPagcofinsbasecalculo);
+end;
+
+procedure TfrmContasPagar.stxdeCaixaClick(Sender: TObject);
+begin
+  inherited;
+  dtmContasPagar.EditarDocumento;
+  dtmContasPagar.qryDocumentosPagregimedecaixa.AsBoolean := not dtmContasPagar.qryDocumentosPagregimedecaixa.AsBoolean;
+//  TDBCheckBox(ckbRegimeCaixa).Checked := not ckbRegimeCaixa.Checked;
+end;
+
+procedure TfrmContasPagar.rbnCNPJtpInscEstabClick(Sender: TObject);
+begin
+
+  inherited;
+
+  rbnIndObra_0.Enabled := true;
+  rbnIndObra_0.Checked := true;
+  rbnIndObra_1.Enabled := false;
+  rbnIndObra_2.Enabled := false;
+
+end;
+
+procedure TfrmContasPagar.rbnCNOtpInscEstabClick(Sender: TObject);
+begin
+  inherited;
+
+  
+  if not (rbnIndObra_1.checked or
+          rbnIndObra_2.checked) then
+    rbnIndObra_1.checked := true;
+
+  rbnIndObra_0.Enabled := false;
+  rbnIndObra_1.Enabled := true;
+  rbnIndObra_2.Enabled := true;
+
+
+end;
+
+procedure TfrmContasPagar.rbnIndObra_0Click(Sender: TObject);
+begin
+  inherited;
+  tstIndObra_0.TabVisible := true;
+  tstIndObra_1.TabVisible := false;
+  tstIndObra_2.TabVisible := false;
+
+  pgcIndObra.ActivePage := tstIndObra_0;
+
+  if not rbnCNPJtpInscEstab.Checked then
+    rbnCNPJtpInscEstab.Checked := true
+
+end;
+
+procedure TfrmContasPagar.rbnIndObra_1Click(Sender: TObject);
+begin
+  inherited;
+  tstIndObra_0.TabVisible := false;
+  tstIndObra_1.TabVisible := true;
+  tstIndObra_2.TabVisible := false;
+
+  pgcIndObra.ActivePage := tstIndObra_1;
+
+  if not rbnCNOtpInscEstab.Checked then
+    rbnCNOtpInscEstab.Checked := true;
+
+  if fraConsultaCNOPrestador.dsrProcuraMaoObraFornecedor.DataSet.RecordCount = 0 then
+    if fraConsultaCNOPrestador.edfCodigo.text <> '' then
+    begin
+      fraConsultaCNOPrestador.edfCodigo.Clear;
+      dtmContasPagar.qryReinf_2010nrinscestab_1.clear;
+    end;
+
+end;
+
+procedure TfrmContasPagar.rbnIndObra_2Click(Sender: TObject);
+begin
+  inherited;
+  tstIndObra_0.TabVisible := false;
+  tstIndObra_1.TabVisible := false;
+  tstIndObra_2.TabVisible := true;
+
+  pgcIndObra.ActivePage := tstIndObra_2;
+
+  if not rbnCNOtpInscEstab.Checked then
+    rbnCNOtpInscEstab.Checked := true;
+
+  if fraConsultaCNODeclarante.dsrProcuraMaoObraFilial.DataSet.RecordCount = 0 then
+    if fraConsultaCNODeclarante.edfCodigo.text <> '' then
+    begin
+      fraConsultaCNODeclarante.edfCodigo.Clear;
+      dtmContasPagar.qryReinf_2010nrinscestab_2.clear;
+    end;
+
+
+end;
+
+procedure TfrmContasPagar.CondicoesdaConsultaMaoObraFornecedor;
+begin
+  fraConsultaCNOPrestador.qryProcuraMaoObraFornecedor.ParamByName('fornecedor').asinteger := dtmContasPagar.qryDocumentosPagfornecedor.AsInteger;
+  fraConsultaCNOPrestador.qryProcuraMaoObraFornecedor.ParamByName('tipofornecedor').asString := dtmContasPagar.qryDocumentosPagtipofornecedor.AsString;
+
+  fraConsultaCNOPrestador.qryConsultaMaoObraFornecedor.ParamByName('fornecedor').asinteger := dtmContasPagar.qryDocumentosPagfornecedor.AsInteger;
+  fraConsultaCNOPrestador.qryConsultaMaoObraFornecedor.ParamByName('tipofornecedor').asString := dtmContasPagar.qryDocumentosPagtipofornecedor.AsString;
+
+end;
+
+procedure TfrmContasPagar.CondicoesdaConsultaMaoObraFiliais;
+begin
+  fraConsultaCNODeclarante.qryProcuraMaoObraFilial.ParamByName('filial').asinteger := dtmContasPagar.qryDocumentosPagfilialemissao.AsInteger;
+  fraConsultaCNODeclarante.qryConsultaMaoObraFilial.ParamByName('filial').asinteger := dtmContasPagar.qryDocumentosPagfilialemissao.AsInteger;
+end;
+
+procedure TfrmContasPagar.dbgReinf_2010_infoTpServFooterCalc(
+  Sender: TObject; ACol, ARow: Integer; var Value: String);
+begin
+  inherited;
+  if Acol = 1 then
+    Value := 'TOTAL'
+end;
+
+procedure TfrmContasPagar.dbgReinf_2010_infoTpServGetFloatFormat(
+  Sender: TObject; ACol, ARow: Integer; var IsFloat: Boolean;
+  var FloatFormat: String);
+begin
+  inherited;
+//  if acol = 2 then
+//    IsFloat := true;
+//  FloatFormat := '%.2f';
+
+end;
+
+procedure TfrmContasPagar.sbnIncluirReinf_2010_infoTpServClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgReinf_2010_infoTpServ.DataSource.DataSet.Append;
+end;
+
+procedure TfrmContasPagar.sbnExcluirReinf_2010_infoTpServClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgReinf_2010_infoTpServ.DataSource.DataSet.Delete;
+end;
+
+procedure TfrmContasPagar.dbgReinf_2010_infoTpServCanAddRow(
+  Sender: TObject; var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := dtmContasPagar.qryReinf_2010_infoTpServ.CheckRequiredFields;
+end;
+
+procedure TfrmContasPagar.dbgReinf_2010_infoTpServCellValidate(
+  Sender: TObject; ACol, ARow: Integer; var Value: String;
+  var Valid: Boolean);
+begin
+  inherited;
+//  UpdateSums;
+  dbgReinf_2010_infoTpServ.Refresh;
+  dbgReinf_2010_infoTpServ.FloatingFooter.Invalidate;
+
+end;
+
+procedure TfrmContasPagar.Definir_dbgReinf_2010_infoTpServ_FloatingFooter;
+begin
+//  dbgReinf_2010_infoTpServ.FloatingFooter.EnableCalculation := false;
+
+  dbgReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[0] := acCount;
+  dbgReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[1] := acCUSTOM;
+  dbgReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[2] := acSum;
+  dbgReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[3] := acSum;
+  dbgReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[4] := acSum;
+  dbgReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[5] := acSum;
+  dbgReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[6] := acSum;
+  dbgReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[7] := acSum;
+  dbgReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[8] := acSum;
+  dbgReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[9] := acSum;
+  dbgReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[10] := acSum;
+
+//  AdvStringGrid1.FloatingFooter.ColumnCalc[2] := acAvg;
+//  AdvStringGrid1.FloatingFooter.ColumnCalc[3] := acMin;
+//  AdvStringGrid1.FloatingFooter.ColumnCalc[4] := acMax;
+//  AdvStringGrid1.RandomFill(False, 100);
+  dbgReinf_2010_infoTpServ.AutoNumberRow(0);
+  dbgReinf_2010_infoTpServ.AutoNumberCol(0);
+//  dbgReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[1]
+
+
+  dbgReinf_2010_infoTpServ.Bands.PrimaryColor := TColor(strtoint(parsistema.CorZebradoRelatorio));
+
+  dbgReinf_2010_infoTpServ.Refresh;
+  dbgReinf_2010_infoTpServ.FloatingFooter.Invalidate;
+
+   dbgReinf_2010_infoTpServ.MergeCells(1,0,1,2);
+//   dbgReinf_2010_infoTpServ.Cells[1,0] := ' Descrição '+chr(13)+' do Serviço ';
+   dbgReinf_2010_infoTpServ.Cells[1,1] := ' Descrição '+chr(13)+' do Serviço ';
+//   dbgReinf_2010_infoTpServ.Alignments[1,1]:=taCenter;
+   dbgReinf_2010_infoTpServ.Alignments[1,2]:=taCenter;
+
+   dbgReinf_2010_infoTpServ.MergeCells(2,0,9,1);
+   dbgReinf_2010_infoTpServ.Cells[2,0] := 'TOTAIS';
+   dbgReinf_2010_infoTpServ.Alignments[2,0]:=taCenter;
+
+//   dbgReinf_2010_infoTpServ.FloatingFooter.EnableCalculation :=  true;
+
+
+
+  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[0] := acCount;
+  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[1] := acCUSTOM;
+  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[2] := acSum;
+  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[3] := acSum;
+  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[4] := acSum;
+  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[5] := acSum;
+  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[6] := acSum;
+  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[7] := acSum;
+  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[8] := acSum;
+  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[9] := acSum;
+  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[10] := acSum;
+
+//  AdvStringGrid1.FloatingFooter.ColumnCalc[2] := acAvg;
+//  AdvStringGrid1.FloatingFooter.ColumnCalc[3] := acMin;
+//  AdvStringGrid1.FloatingFooter.ColumnCalc[4] := acMax;
+//  AdvStringGrid1.RandomFill(False, 100);
+  dbgEnvioReinf_2010_infoTpServ.AutoNumberRow(0);
+  dbgEnvioReinf_2010_infoTpServ.AutoNumberCol(0);
+//  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.ColumnCalc[1]
+
+
+  dbgEnvioReinf_2010_infoTpServ.Bands.PrimaryColor := TColor(strtoint(parsistema.CorZebradoRelatorio));
+  dbgEnvioReinf_2010.Bands.PrimaryColor := TColor(strtoint(parsistema.CorZebradoRelatorio));
+
+  dbgEnvioReinf_2010_infoTpServ.Refresh;
+  dbgEnvioReinf_2010_infoTpServ.FloatingFooter.Invalidate;
+
+   dbgEnvioReinf_2010_infoTpServ.MergeCells(1,0,1,2);
+//   dbgEnvioReinf_2010_infoTpServ.Cells[1,0] := ' Descrição '+chr(13)+' do Serviço ';
+   dbgEnvioReinf_2010_infoTpServ.Cells[1,1] := ' Descrição '+chr(13)+' do Serviço ';
+//   dbgEnvioReinf_2010_infoTpServ.Alignments[1,1]:=taCenter;
+   dbgEnvioReinf_2010_infoTpServ.Alignments[1,2]:=taCenter;
+
+   dbgEnvioReinf_2010_infoTpServ.MergeCells(2,0,9,1);
+   dbgEnvioReinf_2010_infoTpServ.Cells[2,0] := 'TOTAIS';
+   dbgEnvioReinf_2010_infoTpServ.Alignments[2,0]:=taCenter;
+
+   dbgReinf_2040_infoRecurso.FloatingFooter.ColumnCalc[0] := acCount;
+   dbgReinf_2040_infoRecurso.FloatingFooter.ColumnCalc[1] := acCUSTOM;
+   dbgReinf_2040_infoRecurso.FloatingFooter.ColumnCalc[2] := acNONE;
+   dbgReinf_2040_infoRecurso.FloatingFooter.ColumnCalc[3] := acSum;
+   dbgReinf_2040_infoRecurso.FloatingFooter.ColumnCalc[4] := acSum;
+
+   dbgReinf_2040_infoRecurso.AutoNumberRow(0);
+   dbgReinf_2040_infoRecurso.AutoNumberCol(0);
+
+   dbgReinf_2040_infoRecurso.Bands.PrimaryColor := TColor(strtoint(parsistema.CorZebradoRelatorio));
+
+   dbgReinf_2040_infoRecurso.Refresh;
+   dbgReinf_2040_infoRecurso.FloatingFooter.Invalidate;
+
+
+   dbgEnvioReinf_2040_infoRecurso.FloatingFooter.ColumnCalc[0] := acCount;
+   dbgEnvioReinf_2040_infoRecurso.FloatingFooter.ColumnCalc[1] := acCUSTOM;
+   dbgEnvioReinf_2040_infoRecurso.FloatingFooter.ColumnCalc[2] := acNONE;
+   dbgEnvioReinf_2040_infoRecurso.FloatingFooter.ColumnCalc[3] := acSum;
+   dbgEnvioReinf_2040_infoRecurso.FloatingFooter.ColumnCalc[4] := acSum;
+
+   dbgEnvioReinf_2040_infoRecurso.AutoNumberRow(0);
+   dbgEnvioReinf_2040_infoRecurso.AutoNumberCol(0);
+
+   dbgEnvioReinf_2040_infoRecurso.Bands.PrimaryColor := TColor(strtoint(parsistema.CorZebradoRelatorio));
+
+   dbgEnvioReinf_2040_infoRecurso.Refresh;
+   dbgEnvioReinf_2040_infoRecurso.FloatingFooter.Invalidate;
+
+
+
+end;
+
+procedure TfrmContasPagar.sbnExcluirReinf_2010Click(Sender: TObject);
+begin
+  inherited;
+  dtmContasPagar.ExcluirReinf2010;
+end;
+
+procedure TfrmContasPagar.dbgReinf_2040_infoRecursoCanAddRow(
+  Sender: TObject; var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := dtmContasPagar.qryReinf_2040_infoRecurso.CheckRequiredFields;
+end;
+
+procedure TfrmContasPagar.dbgReinf_2040_infoRecursoCellValidate(
+  Sender: TObject; ACol, ARow: Integer; var Value: String;
+  var Valid: Boolean);
+begin
+  inherited;
+  dbgReinf_2040_infoRecurso.Refresh;
+  dbgReinf_2040_infoRecurso.FloatingFooter.Invalidate;
+
+end;
+
+procedure TfrmContasPagar.dbgReinf_2040_infoRecursoFooterCalc(
+  Sender: TObject; ACol, ARow: Integer; var Value: String);
+begin
+  inherited;
+  if Acol = 1 then
+    Value := 'TOTAL'
+
+end;
+
+procedure TfrmContasPagar.sbnIncluirReinf_2040_infoRecursoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgReinf_2040_infoRecurso.DataSource.DataSet.Append;
+end;
+
+procedure TfrmContasPagar.sbnExcluirReinf_2040_infoRecursoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgReinf_2040_infoRecurso.DataSource.DataSet.Delete;
+end;
+
+procedure TfrmContasPagar.sbnExcluirReinf_2040Click(Sender: TObject);
+begin
+  inherited;
+  dtmContasPagar.ExcluirReinf2040;
+end;
+
+procedure TfrmContasPagar.dbgEnvioReinf_2040_infoRecursoFooterCalc(
+  Sender: TObject; ACol, ARow: Integer; var Value: String);
+begin
+  inherited;
+  if Acol = 1 then
+    Value := 'TOTAL'
+
+end;
+
+procedure TfrmContasPagar.btnExcluirfornecedor_infoProcRetPrClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgfornecedor_infoProcRetPr.datasource.dataset.delete;
+end;
+
+procedure TfrmContasPagar.btnExcluirfornecedor_infoProcRetPrAdClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgfornecedor_infoProcRetPrAd.datasource.dataset.Delete;
+end;
+
+procedure TfrmContasPagar.btnGerarfornecedor_infoProcRetPrClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContasPagar.Gerarfornecedor_infoProcRetPr;
+end;
+
+procedure TfrmContasPagar.btnGerarfornecedor_infoProcRetAdClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContasPagar.Gerarfornecedor_infoProcRetAd;
+end;
+
+procedure TfrmContasPagar.sbnExcluirReinf_2040_infoProcClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgReinf_2040_infoProc.datasource.dataset.delete;
+end;
+
+procedure TfrmContasPagar.sbgGerarReinf_2040_infoProcClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContasPagar.Gerarfornecedor_infoProc;
+end;
+
+procedure TfrmContasPagar.flkFornecedorEnter(Sender: TObject);
+begin
+  inherited;
+  CodClienteAnt := dtmContasPagar.qryDocumentosPagfornecedor.AsInteger;
+  TipoClienteAnt := dtmContasPagar.qryDocumentosPagtipofornecedor.AsString;
+end;
+
+procedure TfrmContasPagar.flkFornecedorExit(Sender: TObject);
+begin
+  inherited;
+
+  if ((CodClienteAnt <> dtmContasPagar.qryDocumentosPagfornecedor.AsInteger) or
+      (TipoClienteAnt <> dtmContasPagar.qryDocumentosPagtipofornecedor.AsString)) or
+
+      ((CodClienteAnt=0) and (TipoclienteAnt='') and
+       (dtmContasPagar.qryDocumentosPagfornecedor.AsInteger<>0) and
+       (dtmContasPagar.qryDocumentosPagtipofornecedor.AsString<>'')) then
+  begin
+    dtmContasPagar.ExibirFicha(ClassName);
+    flkFornecedor.setfocus;
+    flkFornecedor.SelectAll;
+  end;
+
+end;
+
+procedure TfrmContasPagar.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+
+  if Length(Value) > 0 then
+      dtmContasPagar.AbrirDocumentoPag(value[0]);
+
+end;
+
+procedure TfrmContasPagar.FormCreate(Sender: TObject);
+begin
+  inherited;
+  RemoveDataModule(dtmContasPagar);
+end;
+
+function TfrmContasPagar.GetfrmCadastroDuplicatasContasPagar: tfrmCadastroDuplicatasContasPagar;
+begin
+  if not assigned(ffrmCadastroDuplicatasContasPagar) then
+    ffrmCadastroDuplicatasContasPagar  := TfrmCadastroDuplicatasContasPagar.Create(self);
+
+  Result := ffrmCadastroDuplicatasContasPagar;
+end;
+
+procedure TfrmContasPagar.CondicoesdaConsultaEvento;
+begin
+  fraConsultaEvento.qryConsultaEventos.MacroByName('condicoes').asString :=
+    ' and e.tipo = ''A'' and e.TipoMovimentacao = ''S'' and e.Inativo IS NULL ';
+
+  fraConsultaEvento.qryProcuraEventos.MacroByName('condicoes').asString :=
+    ' and ((e.tipo = ''A'' and e.TipoMovimentacao = ''S'' and e.Inativo IS NULL) or e.codigo = :codigo) ';
+
+
+end;
+
+procedure TfrmContasPagar.sbnLogClientesClick(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarLog(self, 'documentospag_log', ['numero'], [dtmcontaspagar.qrydocumentospagnumero.asString], '');
+end;
+
+procedure TfrmContasPagar.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarLog(self, 'duplicatas_log', ['documentopag','numero','datavencto'],
+                [dtmcontaspagar.qrydocumentospagnumero.asString,
+                 dtmcontaspagar.qryduplicatasnumero.asString,
+                 quotedstr(dtmcontaspagar.qryduplicatasdatavencto.asString)], '');
+end;
+
+end.

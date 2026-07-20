@@ -1,0 +1,274 @@
+unit frdocumentoscontatos;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
+  Dialogs, DB, ZQuery, ZPgSqlQuery, cpquery, cpdatasource, StdCtrls,
+  DBCtrls, cpdbmemo, Mask, cpdbtext, Grids, DBGrids, cpdbgrid, dmtecsoft, frConsulta, frConsultaCodigo,
+  ctconstantes, cpdbfindcontrols, Buttons, ExtCtrls, biblio, ComCtrls,
+  ActnList, dmbasico;
+
+type
+  TfraDocumentosContatos = class(TFrame)
+    dbgContatos: TtecDBGrid;
+    GroupBox2: TGroupBox;
+    dtxcargo: TtecDBText;
+    gbxObservacoes: TGroupBox;
+    mmoObservacoes: TtecDBMemo;
+    gbxCargos: TGroupBox;
+    dsrContatos: TtecDataSource;
+    qryContatos: TtecQuery;
+    qryContatosdocumento: TStringField;
+    qryContatostipodocumento: TIntegerField;
+    qryContatoscliente: TIntegerField;
+    qryContatostipocliente: TStringField;
+    qryContatosnomecliente: TStringField;
+    qryContatosfoneddd: TIntegerField;
+    qryContatosfonenumero: TIntegerField;
+    qryContatosfoneramal: TStringField;
+    qryContatosemail: TStringField;
+    qryContatosobservacoes: TStringField;
+    qryContatosdescricaocargo: TStringField;
+    pnlBotoes: TPanel;
+    sbnIncluirContato: TSpeedButton;
+    sbnExcluirContato: TSpeedButton;
+    sbnSalvarContato: TSpeedButton;
+    StatusBar1: TStatusBar;
+    actHabilitar: TActionList;
+    actAbilitar: TAction;
+    sbnAbilitar: TSpeedButton;
+    qryContatosorcamento: TIntegerField;
+    Splitter1: TSplitter;
+    pnlLeft: TPanel;
+    procedure dbgContatosDblClick(Sender: TObject);
+    procedure dbgContatosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirContatoClick(Sender: TObject);
+    procedure sbnExcluirContatoClick(Sender: TObject);
+    procedure sbnSalvarContatoClick(Sender: TObject);
+    procedure actAbilitarUpdate(Sender: TObject);
+    procedure qryContatosAfterCancel(DataSet: TDataSet);
+    procedure qryContatosAfterDelete(DataSet: TDataSet);
+    procedure qryContatosAfterPost(DataSet: TDataSet);
+    procedure qryContatosNewRecord(DataSet: TDataSet);
+    procedure FrameConstrainedResize(Sender: TObject; var MinWidth,
+      MinHeight, MaxWidth, MaxHeight: Integer);
+    procedure FrameEnter(Sender: TObject);
+  protected
+
+    dmbasico : TdtmBasico;
+    
+  private
+    { Private declarations }
+    fraConsultaClientes : TfraConsultaCodigo;
+    FDocumento: TTecVariantRetorno;
+    fTtecProcedure: TtecProcedure;
+    FTipoDocumento: TTecStringRetorno;
+    procedure AtribuirDadosClientes;
+    procedure AcionarPesquisaClientes;
+  public
+    { Public declarations }
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+
+    property Documento: TTecVariantRetorno read FDocumento write FDocumento;
+    property TipoDocumento: TTecStringRetorno read FTipoDocumento write FTipoDocumento;
+
+    function GetTabelaContatos: TZDataSet;
+    property TabelaContatos: TZDataSet read GetTabelaContatos;
+    property EditarFormulario: TtecProcedure read fTtecProcedure write fTtecProcedure;
+    procedure AbrirTabelaContatos(Reabrir : boolean = false);
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TFrame1 }
+
+procedure TfraDocumentosContatos.AcionarPesquisaClientes;
+begin
+  dbgContatos.SetFocus;
+  fraConsultaClientes.CtrlOn := True;
+  fraConsultaClientes.InternoPesquisar(ctCLIENTES);
+  dbgContatos.SetFocus;
+  dbgContatos.SelectedIndex :=  0;
+end;
+
+procedure TfraDocumentosContatos.AtribuirDadosClientes;
+begin
+  qryContatos.Edit;
+  qryContatos.FieldByName('cliente').AsString := fraConsultaClientes.qryProcuraClientecodigo.AsString;
+  qryContatos.FieldByName('tipocliente').AsString := fraConsultaClientes.qryProcuraClientetipo.AsString;
+  qryContatos.FieldByName('nomecliente').AsString := fraConsultaClientes.qryProcuraClientenome.AsString;
+  qryContatos.FieldByName('foneddd').AsString := fraConsultaClientes.qryProcuraClientefoneddd.AsString;
+  qryContatos.FieldByName('fonenumero').AsString := fraConsultaClientes.qryProcuraClientefonenumero.AsString;
+  qryContatos.FieldByName('foneramal').AsString := fraConsultaClientes.qryProcuraClientefoneramal.AsString;
+  qryContatos.FieldByName('email').AsString := fraConsultaClientes.qryProcuraClienteemail.AsString;
+  qryContatos.FieldByName('descricaocargo').AsString := fraConsultaClientes.qryProcuraClientedescricaocargo.AsString;
+
+  qryContatos.Post;
+end;
+
+constructor TfraDocumentosContatos.Create(Aowner: Tcomponent);
+begin
+  inherited;
+  fraConsultaClientes := TfraConsultaCodigo.Create(self);
+  fraConsultaClientes.Name := 'fraConsultaClientes';
+  fraConsultaClientes.edfCodigo.MaxLength := 4;
+  fraConsultaClientes.edfCodigo.DataSource := dsrContatos;
+  fraConsultaClientes.edfCodigo.DataField := 'cliente';
+  fraConsultaClientes.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaClientes.edfCodigo.LookupSource := fraConsultaClientes.dsrProcuraCliente;
+  fraConsultaClientes.edfCodigo.LookupQueryParameter := 'Codigo';
+  fraConsultaClientes.edfCodigo.LookupField := 'Codigo';
+  fraConsultaClientes.AbrirTabelaProcura := false;
+//    fraConsultaClientes.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+  fraConsultaClientes.TipoPesquisa := pesCLIENTES;
+  fraConsultaClientes.OnFound := AtribuirDadosClientes;
+  fraConsultaClientes.TipoCliente := 'C';
+end;
+
+destructor TfraDocumentosContatos.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TfraDocumentosContatos.dbgContatosDblClick(Sender: TObject);
+begin
+  AcionarPesquisaClientes;
+
+end;
+
+procedure TfraDocumentosContatos.dbgContatosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                    fraConsultaClientes.CtrlOn := Shift = [ssCtrl];
+                    if (Shift = []) or fraConsultaClientes.CtrlOn then
+                      AcionarPesquisaClientes
+                  end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if dbgContatos.SelectedIndex = 0  then
+               begin
+                 fraConsultaClientes.edfCodigo.DoExit;
+                 if not fraConsultaClientes.qryProcuraCliente.IsEmpty then
+                    AtribuirDadosClientes
+                 else
+                 begin
+                   key := 0;
+                   dbgContatos.SelectedIndex := 0;
+                   dbgContatos.SetFocus;
+                 end;
+               end;
+  end;
+  inherited;
+end;
+
+procedure TfraDocumentosContatos.sbnIncluirContatoClick(Sender: TObject);
+begin
+  qryContatos.append;
+  dbgContatos.SelectedField := qryContatoscliente;
+  dbgContatos.setfocus;
+
+end;
+
+procedure TfraDocumentosContatos.sbnExcluirContatoClick(Sender: TObject);
+begin
+  if qryContatos.isempty then
+  begin
+    if (qryContatos.state in [dsinsert, dsedit]) then
+      qryContatos.cancel
+  end
+  else
+  if MensagemConfirmacao('Confirma a exclusão deste contato?') = smbOk then
+    qryContatos.delete;
+end;
+
+procedure TfraDocumentosContatos.sbnSalvarContatoClick(Sender: TObject);
+begin
+  if qryContatos.CheckRequiredFields then
+      qryContatos.post;
+end;
+
+procedure TfraDocumentosContatos.AbrirTabelaContatos(Reabrir: boolean);
+begin
+  if assigned(documento) and assigned(TipoDocumento) then
+  begin
+    if (tipodocumento = '2') AND (documento<>NULL) then
+    begin
+      if (qryContatos.parambyname('documento').asString <> vartostr(documento)) or
+         (qryContatos.parambyname('tipodocumento').asString <> Tipodocumento) or
+         Reabrir then
+      begin
+        qryContatos.parambyname('documento').asString := vartostr(Documento);
+        qryContatos.parambyname('tipodocumento').asString := TipoDocumento;
+        qryContatos.close;
+        qryContatos.open;
+      end;
+    end;
+  end;
+end;
+
+function TfraDocumentosContatos.GetTabelaContatos: TZDataSet;
+begin
+  result := qryContatos;
+end;
+
+procedure TfraDocumentosContatos.actAbilitarUpdate(Sender: TObject);
+begin
+   sbnIncluirContato.enabled := not (qryContatos.state in [dsedit, dsinsert]);
+   sbnExcluirContato.enabled := not qryContatos.isempty;
+   sbnSalvarContato.enabled := (qryContatos.state in [dsedit, dsinsert]);
+end;
+
+procedure TfraDocumentosContatos.qryContatosAfterCancel(DataSet: TDataSet);
+begin
+  if assigned(EditarFormulario) then
+    EditarFormulario;
+end;
+
+procedure TfraDocumentosContatos.qryContatosAfterDelete(DataSet: TDataSet);
+begin
+  if assigned(EditarFormulario) then
+    EditarFormulario;
+end;
+
+procedure TfraDocumentosContatos.qryContatosAfterPost(DataSet: TDataSet);
+begin
+  if assigned(EditarFormulario) then
+    EditarFormulario;
+
+end;
+
+procedure TfraDocumentosContatos.qryContatosNewRecord(DataSet: TDataSet);
+begin
+  if (TipoDocumento = '2') then
+  begin
+    qryContatosdocumento.asVariant := documento;
+    qryContatosOrcamento.asinteger := documento;
+    qryContatostipodocumento.asString := TipoDocumento;
+  end;
+end;
+
+procedure TfraDocumentosContatos.FrameConstrainedResize(Sender: TObject;
+  var MinWidth, MinHeight, MaxWidth, MaxHeight: Integer);
+begin
+  AbrirTabelaContatos;
+end;
+
+procedure TfraDocumentosContatos.FrameEnter(Sender: TObject);
+begin
+  AbrirTabelaContatos;
+end;
+
+end.

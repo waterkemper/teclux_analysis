@@ -1,0 +1,3068 @@
+unit dmgerarremessas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, cpdatasource,
+  biblio,ctConstantes, FR_DSet, FR_DBSet, FR_Class,
+  clparametrossistema,
+  Variants, DateUtils, CheckLst,cltextprinter, FR_Desgn, dmimprimeboleto,
+  clusuario, fmpreviewpadrao, ACBrBase, ACBrBoleto, ACBrUtil,
+  ZTransact, DBClient, Provider;
+
+
+type
+  TdtmGerarRemessas = class(TdtmBasico)
+    qryFiliais: TtecQuery;
+    qryFiliaiscodigo: TIntegerField;
+    qryFiliaisNome: TStringField;
+    dsrFiliais: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisNome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryClientes: TtecQuery;
+    dsrClientes: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesNome: TStringField;
+    qryConsultaClientesPessoaNumero: TStringField;
+    qryConsultaClientesNomecidade: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientestipocliente: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryParcelas: TtecQuery;
+    dsrParcelas: TtecDataSource;
+    qryFiliaisinscricaoestadual: TStringField;
+    qryAtualizarParcelas: TtecQuery;
+    qryFiliaiscnpj: TStringField;
+    qryContas: TtecQuery;
+    qryContasBanco: TIntegerField;
+    qryContasAgencia: TIntegerField;
+    qryContasConta: TIntegerField;
+    qryContasDigito: TStringField;
+    qryContasSigla: TStringField;
+    qryContasNome: TStringField;
+    dsrContas: TtecDataSource;
+    qryConsultaContas: TtecQuery;
+    qryConsultaContasSigla: TStringField;
+    qryConsultaContasNome: TStringField;
+    qryConsultaContasConta: TIntegerField;
+    qryConsultaContasDigito: TStringField;
+    qryConsultaContasTitular: TStringField;
+    qryConsultaContasAgencia: TIntegerField;
+    qryConsultaContasBanco: TIntegerField;
+    qryParcelasContrato: TStringField;
+    qryParcelasNumero: TIntegerField;
+    qryParcelasDataVencto: TDateField;
+    qryParcelasValorVencto: TFloatField;
+    qryParcelasContaBoleto: TIntegerField;
+    qryParcelasRemessa: TStringField;
+    qryParcelasSelecionar: TBooleanField;
+    qryParcelasCliente: TIntegerField;
+    qryParcelasEstado: TStringField;
+    qryParcelasNome: TStringField;
+    qryParcelasFilial: TIntegerField;
+    qryParcelasFaturamento: TDateField;
+    qryParcelasPessoaTipo: TStringField;
+    qryParcelasNomeBairro: TStringField;
+    qryParcelasNomeCidade: TStringField;
+    qryParcelasdocumento: TStringField;
+    qryParcelasRua: TStringField;
+    qryParcelasCEP: TIntegerField;
+    qryParcelasNomeFilial: TStringField;
+    qryParcelasCNPJFilial: TStringField;
+    qryClientesNome: TStringField;
+    qryClientesCodigo: TIntegerField;
+    qryClientesTipo: TStringField;
+    qryClientesPessoaNumero: TStringField;
+    qryClientesTipoCliente: TStringField;
+    qryClientesEstado: TStringField;
+    qryClientesNomeCidade: TStringField;
+    qryContasSequencial: TIntegerField;
+    fdsParcelas: TfrDBDataSet;
+    qryParcelasCNPJformatado: TStringField;
+    qryContasCarteira: TStringField;
+    qryParcelasNrDocumento: TIntegerField;
+    frpEspelhoRemessa: TfrReport;
+    qryContasCedente: TStringField;
+    qryContaslocalpagamento: TStringField;
+    qryContasInstrucoesBoleto: TStringField;
+    qryContasUsoDoBanco: TStringField;
+    qryParcelasNossoNumero: TStringField;
+    qryParcelaspercentualdesconto: TFloatField;
+    qryParcelasdiasatraso1: TStringField;
+    qryParcelasPercentualMoraJuros: TFloatField;
+    qryParcelasQtdeNotasFiscais: TLargeintField;
+    qryParcelasValorDesconto: TFloatField;
+    qryParcelasDataDesconto: TDateField;
+    qryParcelasDataMoraJuros: TDateField;
+    qryParcelasValorMoraJuros: TFloatField;
+    qryParcelasNumerodocumento: TStringField;
+    qryParcelasEndNumero: TIntegerField;
+    qryParcelasEndComplemento: TStringField;
+    qryParcelasNotaFiscal: TIntegerField;
+    qryContasDigitoAgencia: TStringField;
+    qryContasbancoreferencia: TStringField;
+    qryContasagenciareferencia: TIntegerField;
+    qryContasCNPJAgenciaReferencia: TStringField;
+    qryContasCedenteNome: TStringField;
+    qryContasCodigoSingular: TLargeintField;
+    qryContasCodigoTransmissao: TStringField;
+    qryParcelasCNPJouCPF: TStringField;
+    qryParcelasPercentualMoraMulta: TFloatField;
+    qryContasIncluirInstrucoesArquivoBanco: TBooleanField;
+    qryContasNrViasBoleto: TIntegerField;
+    qryContasPadraoCNAB: TStringField;
+    qryContasVariacao_Carteira: TStringField;
+    qryContasEspecieDocto: TStringField;
+    qryContasCodigoProtesto: TStringField;
+    qryContasNrDiasProtesto: TIntegerField;
+    qryContasconvenio: TLargeintField;
+    qryParcelassituacao: TStringField;
+    qryParcelasnomesituacao: TStringField;
+    qryParcelasrenegociado: TStringField;
+    qryContasdataultimaremessa: TDateField;
+    qryContasndiasbaixaautomatica: TIntegerField;
+    qryContascodigomora: TStringField;
+    qryParcelasdigverificadornossonumero: TStringField;
+    ACBrBoleto1: TACBrBoleto;
+    qryContasreiniciarsequencialnovadata: TBooleanField;
+    qryContastipocobranca: TIntegerField;
+    qryParcelaspermitirimpressaodoboleto: TBooleanField;
+    qryParcelasplano: TIntegerField;
+    qryParcelasconta: TIntegerField;
+    qryParcelasContasAgrupadas: TtecQuery;
+    qryParcelasContasAgrupadasconta: TIntegerField;
+    dsrParcelasContasAgrupadas: TtecDataSource;
+    qryParcelasContasAgrupadasfilial: TIntegerField;
+    qryParcelasContasAgrupadasqtdemarcadas: TIntegerField;
+    qryContasfilial: TIntegerField;
+//    qryContasndiasbaixaautomatica: TIntegerField;
+    procedure DataModuleDestroy(Sender: TObject);
+    procedure qryParcelasFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure frpEspelhoRemessa_BeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpEspelhoRemessaBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryParcelasCalcFields(DataSet: TDataSet);
+    procedure qryContasAfterOpen(DataSet: TDataSet);
+    procedure dsrParcelasDataChange(Sender: TObject; Field: TField);
+  private
+    fSituacao: String;
+    fIntegracao_Nexxera: Boolean;
+    fIncluirSimplesFaturamento: Boolean;
+    fIncluirFaturados: Boolean;
+    function getNrDocumentoEmpresa: String;
+    procedure SetListaCondicionalPlanoRecebimento(const Value: String);
+    procedure SetListaCondicionalTipoRecebimento(const Value: String);
+    procedure SetSituacao(const Value: String);
+    procedure SetIntegracao_Nexxera(const Value: Boolean);
+
+  protected
+    FFiliais          : String;
+    FClientes         : String;
+    FDataVenctoInicial: String;
+    FDataVenctoFinal  : String;
+    FDataVendaInicial : String;
+    FDataVendaFinal   : String;
+    FNotaInicial      : String;
+    FNotaFinal        : String;
+    FDiaMes           : String;
+    FNumero           : String;
+    FJaGerados        : Boolean;
+    FAutorizacao      : String;
+    FCarteira         : String;
+    FConvenio         : String;
+    FVariacao         : String;
+
+    Function  GetConsultarFiliais:  TTecQuery;
+    Function  GetConsultarClientes: TTecQuery;
+    Function  GetConsultarContas:   TTecQuery;
+    Function  GetCodigoCliente: integer;
+
+  public
+    ModoIntermitente : Boolean;
+    constructor Create(AOwner: TComponent); Override;
+    procedure Selecionar(TipoPesquisa: TtecGerarRemessas);
+    procedure AbreTabelaConsulta(TipoPesquisa: TtecGerarRemessas);
+    procedure FechaTabelaConsulta(TipoPesquisa: TtecGerarRemessas);
+
+    Function  ExisteFiliais (NomeCampo, Codigo: string): Boolean;
+    Function  ExisteClientes(NomeCampo, Codigo: String): Boolean;
+    Function  ExisteContas  (NomeCampo, Codigo: String): boolean;
+
+    function GetQtdeLidas: Integer;
+    function GetTotalLidas: Real;
+
+    property ConsultarFiliais:  TTecQuery read GetConsultarFiliais;
+    property ConsultarClientes: TTecQuery read GetConsultarClientes;
+    property ConsultarContas:   TTecQuery read GetConsultarContas;
+    property CodigoCliente:     integer   read GetCodigoCliente;
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+    procedure SetFiliais(const Value: string);
+    procedure SetClientes(const Value: string);
+    procedure SetDataVenctoInicial(const Value: String);
+    procedure SetDataVenctoFinal(const Value: String);
+    procedure SetDataVendaInicial(const Value: String);
+    procedure SetDataVendaFinal(const Value: String);
+    procedure SetNotaInicial(const Value: String);
+    procedure SetNotaFinal(const Value: String);
+    procedure SetDiaMes(const Value: String);
+    procedure SetNumero(const Value: String);
+    procedure SetJaGerados(const Value: Boolean);
+    procedure SetAutorizacao(const Value: String);
+    procedure SetCarteira(const Value: String);
+    procedure SetConvenio(const Value: String);
+    procedure SetVariacao(const Value: String);
+
+{-- ITAU --}
+//    procedure GerarArquivoItau(NomeArquivo: String);
+
+{-- HSBC --}
+    procedure GerarArquivoHSBC(NomeArquivo: String);
+    Procedure GravarHeaderHSBC  (Var Arq);
+    procedure GravarDetalhesHSBC(Var Arq);
+    Procedure GravarTraillerHSBC(Var Arq);
+
+{-- BRADESCO --}
+//    procedure GerarArquivoBradesco(NomeArquivo: String);
+//    Procedure GravarHeaderBRADESCO  (Var Arq);
+//    procedure GravarDetalhesBRADESCO(Var Arq);
+//    Procedure GravarTraillerBRADESCO(Var Arq);
+
+(*
+//------ Bando do Brasil -------------------------------
+    procedure GerarArquivoBBrasil(NomeArquivo: String);
+    Procedure GravarHeaderBBrasil(Var Arq);
+    Procedure GravarHeaderLoteBBrasil(Var Arq);
+    procedure GravarDetalhesSegmento_P_BBrasil(Var Arq);
+    procedure GravarDetalhesSegmento_Q_BBrasil(Var Arq);
+    Procedure GravarTraillerLoteBBrasil(Var Arq);
+    Procedure GravarTraillerBBrasil(Var Arq);
+
+
+//-- SANTADNER BANESPA -----------------------------------
+    procedure GerarArquivoACBrCNAB240(NomeArquivo: String);
+    procedure GerarArquivoACBrCNAB400(NomeArquivo: String);
+*)
+    procedure MarcarRegistrosSelecionados(Marcando, Todos: Boolean);
+    procedure GerarArquivoACBrCNAB(c240ou400:   TACBrLayoutRemessa;
+                                   NomeArquivo: string);
+
+    //---------------------------------------------------------------
+    procedure MoveStr(Campo: string;  var PraOnde;  Tamanho: integer);
+    procedure MoveNro(Numero: Currency;  Var PraOnde; Size: Integer);
+    Procedure MoveVal(Numero: Currency;  Var PraOnde;  Size: Integer);
+    function  TiraPonto(vValStr: String): String;
+    procedure MoveCrLf(Campo: String;  Var PraOnde;  Size:  Integer);
+    function  AbrirParcelas: Boolean;
+    procedure AtualizarParcelas;
+
+    property Filiais:  string write SetFiliais;
+    property ListaCondicionalPlanoRecebimento: String write SetListaCondicionalPlanoRecebimento;
+    property ListaCondicionalTipoRecebimento: String write SetListaCondicionalTipoRecebimento;
+
+    property Clientes: string write SetClientes;
+    property DataVenctoInicial: string write SetDataVenctoInicial;
+    property DataVenctoFinal: string write SetDataVenctoFinal;
+    property DataVendaInicial: string write SetDataVendaInicial;
+    property DataVendaFinal: string write SetDataVendaFinal;
+    property NotaInicial: string write SetNotaInicial;
+    property NotaFinal: string write SetNotaFinal;
+    property DiaMes: String read FDiaMes write SetDiaMes;
+    property Numero: String read FNumero write SetNumero;
+    property JaGerados: Boolean read FJaGerados write SetJaGerados;
+    property Autorizacao: String read FAutorizacao write SetAutorizacao;
+    property Carteira: String read FCarteira write SetCarteira;
+    property Convenio: String read FConvenio write SetConvenio;
+    property Variacao: String read FVariacao write SetVariacao;
+    property QtdeLidas: Integer read GetQtdeLidas;
+    property TotalLidas: Real read GetTotalLidas;
+    procedure ImprimirEspelhoRemessa;
+
+    property NrDocumentoEmpresa: String read getNrDocumentoEmpresa;
+
+//  property Variacao: String read FVariacao write FVariacao;
+//  property Convenio: String read FConvenio write FConvenio;
+
+    procedure ImprimirBoleto;
+    function ObterListaContratosParcelas: String;
+    property Situacao: String read fSituacao write SetSituacao;
+    property Integracao_Nexxera: Boolean read fIntegracao_Nexxera write SetIntegracao_Nexxera;
+    property IncluirFaturados: Boolean read fIncluirFaturados write fIncluirFaturados;
+    property IncluirSimplesFaturamento: Boolean read fIncluirSimplesFaturamento write fIncluirSimplesFaturamento;
+
+
+
+  end;
+
+Const
+  CrLf              = #13 + #10;
+  CrLf01            = #13 + #10 + #26;
+
+{-- HSBC --}
+Type  T_HeaderHSBC = Record
+        H_TipoRegistro      :Array[001..001] of Char;  { 0        }
+        H_TipoArquivo       :Array[002..002] of Char;  { 1        }
+        H_LiteralArquivo    :Array[003..009] of Char;  { REMESSA  }
+        H_CodigoServico     :Array[010..011] of Char;  { 01       }
+        H_LiteralServico    :Array[012..026] of Char;  { COBRANCA }
+        H_Zero              :Array[027..027] of Char;  { 0        }
+        H_AgenciaCliente    :Array[028..031] of Char;  { AGENCIA DO CLIENTE }
+        H_SubConta          :Array[032..033] of Char;  { 55       }
+        H_ContaCorrente     :Array[034..044] of Char;  { Ver nota explicativa 1 - CONTA CORRENTE DO CLIENTE }
+        H_Banco1            :Array[045..046] of Char;  { USO DO BANCO }
+        H_NomeCliente       :Array[047..076] of Char;  { RAZAO SOCIAL }
+        H_CodigoBanco       :Array[077..079] of Char;  { 399      }
+        H_NomeBanco         :Array[080..094] of Char;  { HSBC     }
+        H_DataGravacao      :Array[095..100] of Char;  { DATA DA GRAVACAO DO ARQUIVO - DD/MM/AA}
+        H_DensidadeGravacao :Array[101..105] of Char;  { 01600    }
+        H_LiteralDensidade  :Array[106..108] of Char;  { BPT      }
+        H_Banco2            :Array[109..110] of Char;  { USO DO BANCO }
+        H_SiglaLayout       :Array[111..117] of Char;  { LANCV08  }
+        H_Banco3            :Array[118..218] of Char;  { USO DO BANCO }
+        H_Banco4            :Array[219..394] of Char;  { USO DO BANCO }
+        H_Sequencial        :Array[395..400] of Char;  { 000001   }
+        H_CrLf              :Array[401..402] of Char;
+      End;
+
+Type  T_DetalheHSBC = Record
+        D_TipoRegistro       :Array[001..001] of Char;   { 1            }
+        D_CodigoInscricao    :Array[002..003] of Char;   { Ver nota explicativa 2 }
+        D_CPF_CNPJ           :Array[004..017] of Char;   { CPF ou CNPJ  }
+        D_Zero               :Array[018..018] of Char;   { 0            }
+        D_AgenciaCedente     :Array[019..022] of Char;   { Codigo da agencia onde o cliente tem conta }
+        D_SubConta           :Array[023..024] of Char;   { 55           }
+        D_ContaCorrente      :Array[025..035] of Char;   { Ver nota explicativa 1 }
+        D_Brancos1           :Array[036..037] of Char;   { Uso do banco }
+        D_Participante       :Array[038..062] of Char;   {              }
+        D_NossoNumero        :Array[063..073] of Char;   { Ver nota explicativa 3 }
+        D_DataLimiteDescto2  :Array[074..079] of Char;   { Ver nota explicativa 4 - DDMMAA }
+        D_ValorDesconto2     :Array[080..090] of Char;   { R$ (Real) zeros … esquerda }
+        D_DataLimiteDescto3  :Array[091..096] of Char;   { Ver nota explicativa 4 - DDMMAA }
+        D_ValorDesconto3     :Array[097..107] of Char;   { R$ (Real) zeros … esquerda }
+        D_TipoCarteira       :Array[108..108] of Char;   { Ver nota explicativa 5 - Tipo de Cobran‡a}
+        D_CodigoOcorrencia   :Array[109..110] of Char;   { Ver nota explicativa 6 }
+        D_SeuNumero          :Array[111..120] of Char;   {              }
+        D_DataVencto         :Array[121..126] of Char;   { Ver nota explicativa 7 - Data vencto do titulo - DDMMAA }
+        D_ValorTitulo        :Array[127..139] of Char;   {              }
+        D_BancoCobrador      :Array[140..142] of Char;   { 399          }
+        D_AgenciaDepositaria :Array[143..147] of Char;   { Preencher com zeros - Agencia encarregada da cobran‡a }
+        D_Especie            :Array[148..149] of Char;   { Ver nota explicativa 8 }
+        D_Aceite             :Array[150..150] of Char;   { A=ACEITO / N=NAO ACEITO }
+        D_DataEmissao        :Array[151..156] of Char;   { Data da emissÆo do t¡tulo - DDMMAA }
+        D_Instrucao01        :Array[157..158] of Char;   { Ver nota explicativa 9 }
+        D_Instrucao02        :Array[159..160] of Char;   { Ver nota explicativa 9 }
+        D_JurosMoraDia       :Array[161..173] of Char;   { Ver nota explicativa 10 - Juros a ser cobrado por dia }
+        D_DataLimiteDescto   :Array[174..179] of Char;   { Ver nota explicativa 4  - DDMMAA }
+        D_ValorDescto        :Array[180..192] of Char;   { Apenas Moeda Real }
+        D_ValorIOF           :Array[193..205] of Char;   { Valor do Iof a ser recolhido pelo banco }
+        D_ValorAbatimento    :Array[206..218] of Char;   { Ver nota explicativa 9 }
+        D_TipoInscrSacado    :Array[219..220] of Char;   { Ver nota explicativa 2 }
+        D_CPF_CNPJ_Sacado    :Array[221..234] of Char;   {            }
+        D_NomeSacado         :Array[235..274] of Char;   {            }
+        D_EnderecoSacado     :Array[275..312] of Char;   {            }
+        D_InstrucaoNaoRecbto :Array[313..314] of Char;   { Brancos ou num‚rico se utilizada - ver nota 9 }
+        D_BairroSacado       :Array[315..326] of Char;   {            }
+        D_CepSacado          :Array[327..331] of Char;   {            }
+        D_SufixoCepSacado    :Array[332..334] of Char;   {            }
+        D_CidadePagtoSacado  :Array[335..349] of Char;   {            }
+        D_EstadoSacado       :Array[350..351] of Char;   {            }
+        D_AvalistaOuSacador  :Array[352..390] of Char;   {            }
+        D_TipoBloqueto       :Array[391..391] of Char;   { Ver nota explicativa 16 }
+        D_PrazoProtesto      :Array[392..393] of Char;   { Branco ou numerico se utilizada }
+        D_TipoMoeda          :Array[394..394] of Char;   { Ver nota explicativa 11 }
+        D_Sequencial         :Array[395..400] of Char;   {            }
+        D_CrLf               :Array[401..402] of Char;
+      End;
+
+Type  T_TrailerHSBC = Record
+        T_TipoRegistro      :Array[001..001] of Char;  { 9        }
+        T_Banco1            :Array[002..200] of Char;  { Branco   }
+        T_Banco2            :Array[201..394] of Char;  { Branco   }
+        T_Sequencial        :Array[395..400] of Char;  {          }
+        T_CrLf              :Array[401..402] of Char;
+      End;
+
+
+{-- BRADESCO --} {-- MACROMAQ --}
+Type  T_HeaderBradesco = Record
+        H_TipoRegistro      :Array[001..001] of Char;  { 0        }
+        H_IdentArquivo      :Array[002..002] of Char;  { 1        }
+        H_LiteralRemessa    :Array[003..009] of Char;  { REMESSA  }
+        H_CodigoServico     :Array[010..011] of Char;  { 01       }
+        H_LiteralServico    :Array[012..026] of Char;  { COBRANCA }
+        H_CodigoEmpresa     :Array[027..046] of Char;  {Fonecido pelo Bradesco}
+        H_NomeEmpresa       :Array[047..076] of Char;  { Nome da Empresa}
+        H_NumeroBradesco    :Array[077..079] of Char;  { 237      }
+        H_NomeBanco         :Array[080..094] of Char;  { BRADESCO }
+        H_DataGravacao      :Array[095..100] of Char;  { DDMMAA   }
+        H_Brancos01         :Array[101..108] of Char;  { BRANCOS  }
+        H_IdentSistema      :Array[109..110] of Char;  { MX       }
+        H_NumeroRemessa     :Array[111..117] of Char;  { Sequencial }
+        H_Brancos02         :Array[118..366] of Char;  { BRANCOS  }
+        H_IdentDesconto     :Array[367..370] of Char;  { DESC     }
+        H_NrAutorizacao     :Array[371..374] of Char;  { Aleatório}
+        H_CodigoAgencia     :Array[375..379] of Char;  { Codigo Agencia }
+        H_ContaCorrente     :Array[380..386] of Char;  { Conta Corrente }
+        H_DigitoContaCorr   :Array[387..387] of Char;  { Digito da Conta Corrente }
+        H_Brancos03         :Array[388..394] of Char;  { BRANCOS  }
+        H_SequencialReg     :Array[395..400] of Char;  { 000001   }
+        H_CrLf              :Array[401..402] of Char;
+      End;
+
+Type  T_DetalheBradesco = Record
+        D_TipoRegistro            :Array[001..001] of Char;   { 1            }
+        D_TipoInscricao           :Array[002..003] of Char;   { Ver nota explicativa 2 }
+        D_NumeroInscricao         :Array[004..017] of Char;   { Conforme item acima }
+        D_IndentEmpresa           :Array[018..037] of Char;   { Ver Obs 4           }
+        D_ControleDoParticipante  :Array[038..062] of Char;   { Uso da Empresa - foi gravado os Contrato}
+        D_Zeros01                 :Array[063..070] of Char;   { 00000000       }
+        D_IdentTitulo             :Array[071..082] of Char;   { Nosso Numero - obs 5 - Preencher com Zeros}
+        D_Zeros02                 :Array[083..092] of Char;   { 000000000000 }
+        D_IdentOperacao           :Array[093..108] of Char;   { BRANCOS      }
+        D_IdentOcorrencia         :Array[109..110] of Char;   { 01           }
+        D_NrDuplicata             :Array[111..120] of Char;   { Seu Numero  - foi gravado as ParcelaS }
+        D_DataVencto              :Array[121..126] of Char;   { Data Vencto DDMMAA}
+        D_ValorTitulo             :Array[127..139] of Char;   { Ver obs 7    }
+        D_Brancos1                :Array[140..147] of Char;   { BRANCOS      }
+        D_EspecieTitulo           :Array[148..149] of Char;   { 01 Ver obs 3 - Tipo de Cobran‡a}
+        D_Brancos02               :Array[150..150] of Char;   { BRANCOS   }
+        D_Zeros03                 :Array[151..218] of Char;   { ZEROS     }
+        D_TipoInscricaoSacado     :Array[219..220] of Char;   { Ver obs 1 }
+        D_NrInscricao             :Array[221..234] of Char;   { Ver obs 2 }
+        D_NomeSacado              :Array[235..274] of Char;   { Razao Social }
+        D_EnderecoSacado          :Array[275..314] of Char;   { Endereco  }
+        D_Brancos03               :Array[315..326] of Char;   { BRANCOS   }
+        D_CepSacado               :Array[327..331] of Char;   { Cep       }
+        D_SulfixoCep              :Array[332..334] of Char;   { Sulfixo do Cep }
+        D_Brancos04               :Array[335..394] of Char;   { BRANCOS   }
+        D_SequencialReg           :Array[395..400] of Char;   { Sequencial}
+        D_CrLf                    :Array[401..402] of Char;
+      End;
+
+Type  T_TraillerBradesco = Record
+        T_TipoRegistro            :Array[001..001] of Char; { 9          }
+        T_Brancos01               :Array[002..394] of Char; { BRANCOS    }
+        T_SequencialReg           :Array[395..400] of Char; { Sequencial }
+        T_CrLf                    :Array[401..402] of Char;
+      End;
+
+(*
+//====== BANCO DO BRASIL (MACROMAQ) =====================================================================================
+Type  T_HeaderBBrasil = Record
+        H_CODIGO_BANCO_COMPENSACAO :Array[001..003] of Char; {003}  {preencher com 001}
+        H_LOTE_DE_SERVICO          :Array[004..007] of Char; {004}  {preencher com 0000}
+        H_REGISTRO_HEADER_ARQUIVO  :Array[008..008] of Char; {001}  {preencher com 0}
+        H_USO_FEBRABAN             :Array[009..017] of Char; {009}  {Brancos}
+        H_TIPO_INSCRICAO_EMPRESA   :Array[018..018] of Char; {001}  {1-CPF 2-CGC}
+        H_NR_INSCRICAO_EMPRESA     :Array[019..032] of Char; {014}  {14- Cgc ou Cpf}
+        H_CODIGO_CONVENIO_BANCO    :Array[033..052] of Char; {020}  {obs:6/7}
+        H_AGENCIA_MANTENEDORA_CONTA:Array[053..057] of Char; {005}  {Obs 6/8}
+        H_DIGITO_VERIF_AGENCIA     :Array[058..058] of Char; {001}  {Obs 6/8}
+        H_Numero_CONTA_CORRENTE    :Array[059..070] of Char; {012}  {Obs 6/8}
+        H_DIGITO_VERIF_CONTA       :Array[071..071] of Char; {001}  {Obs 6/8}
+        H_DIGITOVERIF_AG_CONTA     :Array[072..072] of Char; {001}  {preencher com brancos}
+        H_Nome_EMPRESA             :Array[073..102] of Char; {030}
+        H_Nome_BANCO               :Array[103..132] of Char; {030}
+        H_USO_FEBRABAN1            :Array[133..142] of Char; {010}  {Brancos}
+        H_CODIGO_REMESSA_RETORNO   :Array[143..143] of Char; {001}  {1-REM / 2-RET}
+        H_DATA_GERACAO_ARQUIVO     :Array[144..151] of Char; {008}  {DDMMAAA}
+        H_HORA_GERACAO_ARQUIVO     :Array[152..157] of Char; {006}  {HHMMSS}
+        H_NR_SEQUENCIAL_ARQUIVO    :Array[158..163] of Char; {006}  {Obs 17 Incrementar a cada Header}
+        H_NR_VERSAO_LAYOUT_ARQUIVO :Array[164..166] of Char; {003}  {Obs 9 - preencher com 030}
+        H_DENSIDADE_GRAVACAO       :Array[167..171] of Char; {005}  {00000}
+        H_USO_ESERVADO_BANCO       :Array[172..191] of Char; {020}  {Brancos}
+        H_USO_RESERVADO_EMPRESA    :Array[192..211] of Char; {020}  {Brancos}
+        H_USO_FEBRABAN2            :Array[212..222] of Char; {011}  {Brancos}
+        H_IDENT_COBRANCA_EMPAPEL   :Array[223..225] of Char; {003}  {CSP}
+        H_USO_DAS_VANS             :Array[226..228] of Char; {003}  {000}
+        H_TIPO_DE_SERVICO          :Array[229..230] of Char; {002}  {Obs 52 - 02 Cobrança Sem Papel}
+        H_CODIGOS_DAS_OCORRENCIAS  :Array[231..240] of Char; {010}  {obs 53 - Codigo Ocorrências}
+        H_CrLf                     :Array[241..242] of Char;
+      End;
+
+Type  T_HeaderLoteBBrasil = Record
+        HL_CODIGO_BANCO_COMPENSACAO :Array[001..003] of Char; {003} {001}
+        HL_LOTE_DE_SERVICO          :Array[004..007] of Char; {004} {Obs 1 - 0001}
+        HL_REGISTRO_HEADERDE_LOTE   :Array[008..008] of Char; {001} {Obs 2 - 1}
+        HL_TIPO_OPERACAO            :Array[009..009] of Char; {001} {preencher com "C"-Credito}
+        HL_TIPO_SERVICO             :Array[010..011] of Char; {002} {obs 4  - preencher com 01}
+        HL_FORMA_DE_LANCAMENTO      :Array[012..013] of Char; {002} {Obs 39 -preencher com 00}
+        HL_NR_VERSAO_LAYOUT_LOTE    :Array[014..016] of Char; {003} {obs: 45 - preencher com  020}
+        HL_USO_FEBRABAN             :Array[017..017] of Char; {001} {Brancos}
+        HL_TIPO_INSCRICAO_EMPRESA   :Array[018..018] of Char; {001} {Obs 6 - 1=Cpf 2=Cgc}
+        HL_NR_INSCRICAO_EMPRESA     :Array[019..033] of Char; {015} {Obs 6- Inscrição da Empresa}
+        HL_CODIGO_CONVENIO_BANCO    :Array[034..053] of Char; {020} {Obs 6/7}
+        HL_AGENCIA_MANTENEDORA_CONTA:Array[054..058] of Char; {005} {Obs 6/8}
+        HL_DIGITO_AGENCIA           :Array[059..059] of Char; {001} {Obs 6/8}
+        HL_NR_CONTA_CORRENTE        :Array[060..071] of Char; {012} {Obs 6/8}
+        HL_DIGITO_CONTA             :Array[072..072] of Char; {001} {obs 6/8}
+        HL_DIGITO_VERIF_AG_CONTA    :Array[073..073] of Char; {001} {Obs 6/8 preencher com brancos}
+        HL_Nome_EMPRESA             :Array[074..103] of Char; {030} {Nome do sacado}
+        HL_MENSAGEM1                :Array[104..143] of Char; {040} {Obs 19 preencher com brancos}
+        HL_MENSAGEM2                :Array[144..183] of Char; {040} {Obs 19 preencher com brancos}
+        HL_NR_REMESSA_RETORNO       :Array[184..191] of Char; {008} {Obs 19 preencher com zeros}
+        HL_DATA_GRAVACAO_REM_RET    :Array[192..199] of Char; {008} {DDMMAAAA}
+        HL_DATA_CREDITO             :Array[200..207] of Char; {008} {DDMMAAA}
+        HL_USO_FEBRABAN1            :Array[208..240] of Char; {008} {Brancos}
+        HL_CrLf                     :Array[241..242] of Char;
+      End;
+
+Type  T_DetalheSegmento_P_BBrasil = Record
+        DP_CODIGO_BANCO_COMPENSACAO     :Array[001..003] of Char;  {003} {preencher com 0001}
+        DP_LOTE_DE_SERVICO              :Array[004..007] of Char;  {004} {Obs 4  preencher com 0001}
+        DP_REGISTRO_DETALHE             :Array[008..008] of Char;  {001} {Obs 2  preencher com 3}
+        DP_NR_SEQUENCIAL_REG_LOTE       :Array[009..013] of Char;  {005} {Obs 10}
+        DP_COD_SEGMENTO                 :Array[014..014] of Char;  {001} {Obs 11 colocar P}
+        DP_USO_FEBRABAN                 :Array[015..015] of Char;  {001} {preencher com Brancos}
+        DP_CODIGO_MOVIMENTO             :Array[016..017] of Char;  {002} {obs: preencher com 20}
+        DP_AGENCIA_MANTENEDORA_CONTA    :Array[018..022] of Char;  {005} {Obs:8}
+        DP_DIGITOAGENCIA                :Array[023..023] of Char;  {001} {Obs:8}
+        DP_NR_CONTA_CORRENTE            :Array[024..035] of Char;  {012} {Obs 8}
+        DP_DIGITO_VERIF_CONTA           :Array[036..036] of Char;  {001} {Obs 8}
+        DP_DIGITO_VERIF_AG_CONTA        :Array[037..037] of Char;  {001} {Obs 8 preencher com brancos}
+        DP_IDENT_TITULO_NO_BANCO        :Array[038..057] of Char;  {020} {Obs 21}
+        DP_CODIGO_CARTEIRA              :Array[058..058] of Char;  {001} {Obs 22}
+        DP_FORMA_CADAS_TITULO           :Array[059..059] of Char;  {001} {obs 1-Com Cadastro / 2-Sem Cadastro}
+        DP_TIPO_DOCUMENTO               :Array[060..060] of Char;  {001} {1-Tracidional / 2-Escritural}
+        DP_IDENT_EMISSAO_BLOQUETO       :Array[061..061] of Char;  {001} {Obs 23}
+        DP_IDENT_DISTRIBUICAO           :Array[062..062] of Char;  {001} {1-Banco / 2-Cliente}
+        DP_NR_DUPLICATA                 :Array[063..077] of Char;  {015} {Obs 24}
+        DP_DATA_VENCTO_TITULO           :Array[078..085] of Char;  {008} {DDMMAAA Obs 48}
+        DP_VALOR_NOMINAL_TITULO         :Array[086..100] of Char;  {013.2}
+        DP_AGENCIA_ENCARREGADA_COBRANCA :Array[101..105] of Char;  {005} { Obs 49}
+        DP_DIGITOAGENCIA1               :Array[106..106] of Char;  {001} {Obs 49}
+        DP_ESPECIE_TITULO               :Array[107..108] of Char;  {002} {Obs 25}
+        DP_IDENT_TITULO_ACEITO          :Array[109..109] of Char;  {001} {A-Aceito / N-Não aceito}
+        DP_DATA_EMISSAO_TITULO          :Array[110..117] of Char;  {008} { DDMMAAAA}
+        DP_CODIGO_JUROS_MORA            :Array[118..118] of Char;  {001} {Obs 26}
+        DP_DATA_JUROS_MORA              :Array[119..126] of Char;  {008} {DDMMAAAA Obs 27}
+        DP_JUROS_MORA_POR_DIA_TAXA      :Array[127..141] of Char;  {013.2} {Obs 2}
+        DP_CODIGO_DESCONTO1             :Array[142..142] of Char;  {001} {Obs 28}
+        DP_DATA_DESCONTO1               :Array[143..150] of Char;  {008} {DDMMAAA}
+        DP_VALOR_PERC_CONCEDIDO         :Array[151..165] of Char;  {013.2}
+        DP_VALOR_IOF_A_SER_RECOLHIDO    :Array[166..180] of Char;  {013.2}
+        DP_VALOR_ABATIMENTO             :Array[181..195] of Char;  {013.2}
+        DP_IDENT_TIT_NA_EMPRESA         :Array[196..220] of Char;  {025}
+        DP_CODIGO_PARA_PROTESTO         :Array[221..221] of Char;  {001} {1-Dias Corridos / 2-Dias ùteis / 3-Não Protestar}
+        DP_NR_DIAS_PARA_PROTESTO        :Array[222..223] of Char;  {002}
+        DP_CODIGO_BAIXA_DEVOLUCAO       :Array[224..224] of Char;  {001} {1-BAIXAR/DEVOLVER  / 2-NAO BAIXAR/NAO DEVOLVER!}
+        DP_NR_DIAS_PARA_BAIXA_DEVOL     :Array[225..227] of Char;  {003} {Obs 2 - Dias Corridos}
+        DP_CODIGO_MOEDA                 :Array[228..229] of Char;  {002} {Obs 29}
+        DP_NR_CONTR_OPERACAO_CRED       :Array[230..239] of Char;  {010}
+        DP_USO_FEBRABAN1                :Array[240..240] of Char;  {001} { Brancos}
+        DP_CrLf                         :Array[241..242] of Char;
+      End;
+
+Type  T_DeltalheSegmento_Q_BBrasil = Record
+        DQ_CODIGO_BANCO_COMPENSACAO   :Array[001..003] of Char;  {003} {001}
+        DQ_LOTE_DE_SERVICO            :Array[004..007] of Char;  {004} {Obs 1  preencher com 0001}
+        DQ_REGISTRO_DETALHE           :Array[008..008] of Char;  {001} {Obs 2  prrencher com 3}
+        DQ_NR_SEQUENCIAL_LOTE         :Array[009..013] of Char;  {005} {Obs 10}
+        DQ_COD_SEGMENTOR              :Array[014..014] of Char;  {001} {Obs 11 preencher com Q}
+        DQ_USO_FEBRABAN               :Array[015..015] of Char;  {001} {Brancos}
+        DQ_CODIGO_MOVIMENTO           :Array[016..017] of Char;  {002} {obs: 20}
+        DQ_TIPO_INSCRICAO             :Array[018..018] of Char;  {001} {Obs:30}
+        DQ_NR_INSCRICAO               :Array[019..033] of Char;  {015} {Obs:30}
+        DQ_Nome                       :Array[034..073] of Char;  {040}
+        DQ_ENDERECO                   :Array[074..113] of Char;  {040}
+        DQ_Bairro                     :Array[114..128] of Char;  {015}
+        DQ_CEP                        :Array[129..133] of Char;  {005}
+        DQ_SUFIXO_CEP                 :Array[134..136] of Char;  {003}
+        DQ_CIDADE                     :Array[137..151] of Char;  {015}
+        DQ_ESTADO                     :Array[152..153] of Char;  {002}
+        DQ_TIPO_INSCRICAO1            :Array[154..154] of Char;  {001} {Obs 30}
+        DQ_NR_INSCRICAO1              :Array[155..169] of Char;  {015} {oBS 30}
+        DQ_Nome_SACADOR_AVALISTA      :Array[170..209] of Char;  {040} {obs 31}
+        DQ_COD_BCO_COMPENSACAO        :Array[210..212] of Char;  {003} {oBS 32}
+        DQ_NOSSO_Numero               :Array[213..232] of Char;  {020} {obs 32}
+        DQ_USO_FEBRABAN1              :Array[233..240] of Char;  {008} {Brancos}
+        DQ_CrLf                       :Array[241..242] of Char;
+      End;
+
+Type  T_TraillerLoteBBrasil = Record
+        TL_CODIGO_BANCO_COMPENSACAO  :Array[001..003] of Char;  {003) {preencher com 0001}
+        TL_LOTE_DE_SERVICO           :Array[004..007] of Char;  {004) {obs 1} 
+        TL_REGISTRO_TRAIILERE_LOTE   :Array[008..008] of Char;  {001) {Obs 2 colocar 5}
+        TL_USO_FEBRABAN              :Array[009..017] of Char;  {009) {Brancos}
+        TL_QTDE_REG_DO_LOTE          :Array[018..023] of Char;  {006) {BS 38}
+        TL_QTDE_TIT_EM_COBRANCA      :Array[024..029] of Char;  {006) {Obs 41}
+        TL_VALOR_TOT_TIT_EM_CARTEIRA :Array[030..046] of Char;  {015.2) {OBS 41}
+        TL_QTDE_TIT_EM_COBRANCA1     :Array[047..052] of Char;  {006) {BS 41}
+        TL_VALOR_TOT_TIT_CARTEIRAS   :Array[053..069] of Char;  {015.2) {BS 41}
+        TL_QTDE_TIT_COBRANCA         :Array[070..075] of Char;  {006) {BS 41}
+        TL_VALOR_TOT_TIT_CARTEIRAS1  :Array[076..092] of Char;  {015,2) {BS 41}
+        TL_QTDE_TIT_COBRANCA1        :Array[093..098] of Char;  {006) {BS 41}
+        TL_VALOR_TOT_TIT_CARTEIRAS2  :Array[099..115] of Char;  {015.2) {BS 41}
+        TL_Numero_AVISO_LANCAMENTO   :Array[116..123] of Char;  {008) {BS 41}
+        TL_USO_FEBRABAN1             :Array[124..240] of Char;  {117) {Brancos}
+        TL_CrLf                      :Array[241..242] of Char;
+      End;
+
+Type  T_TraillerBBrasil = Record
+        T_CODIGO_BANCO_COMPENSACAO  :Array[001..003] of Char;  {003}  {preencher com 0001}
+        T_LOTE_DE_SERVICO           :Array[004..007] of Char;  {004}  {preencher com 9999}
+        T_REGISTRO_TRAIILER_LOTE    :Array[008..008] of Char;  {001}  {Obs 2 preencher com 9}
+        T_USO_FEBRABAN              :Array[009..017] of Char;  {009}  {preenncher com Brancos}
+        T_QTDE_LOTES_NO_ARQUIVO     :Array[018..023] of Char;  {006}  {Tipos 1}
+        T_QTDE_REG_NO_ARQUIVO       :Array[024..029] of Char;  {006}  {Tipos 0+1+3+5+9}
+        T_QTDE_CONTAS_CONC_LOTE     :Array[030..035] of Char;  {006}  {Num. reg. tipos: 1 -oper-E}
+        T_USU_FEBRABAN1             :Array[036..240] of Char;  {010}  {preencher com brancos}
+        T_CrLf                      :Array[241..242] of Char;  {250}  {preencher com brancos}
+      End;
+*)
+//======================================================================================================================
+var
+  dtmGerarRemessas: TdtmGerarRemessas;
+
+{-- BRADESCO --}
+  HeaderBradesco:   T_HeaderBradesco;
+  DetalhesBradesco: T_DetalheBradesco;
+  TraillerBradesco: T_TraillerBradesco;
+
+(*
+//------------ Banco do Brasil ----------------------
+  HeaderBBrasil:             T_HeaderBBrasil;
+  HeaderLoteBBrasil:         T_HeaderLoteBBrasil;
+  DetalheSegmento_P_BBrasil: T_DetalheSegmento_P_BBrasil;
+  DetalheSegmento_Q_BBrasil: T_DeltalheSegmento_Q_BBrasil;
+  TraillerLoteBBrasil:       T_TraillerLoteBBrasil;
+  TraillerBBrasil:           T_TraillerBBrasil;
+*)
+//----------------------------------------------------
+  Arq: File;  //---TextFile;
+  Seq: Integer;
+
+implementation
+
+uses dmtecsoft,Math;
+
+{$R *.dfm}
+
+
+
+procedure TdtmGerarRemessas.SetDiaMes(const Value: String);
+begin
+  FDiaMes := Value;
+  if FDiaMes = '' then begin
+     MensagemAviso(ctDIAMESBRANCO);
+     Exit;
+  end;
+end;
+
+procedure TdtmGerarRemessas.SetNumero(const Value: String);
+begin
+  FNumero:= Value;
+  if FNumero = '' then begin
+     MensagemAviso(ctNumeroSequencialBranco);
+     Exit;
+  end;
+end;
+
+procedure TdtmGerarRemessas.SetAutorizacao(const Value: String);
+begin
+   if qryContasBanco.AsInteger = 237 then begin   {-- BRADESCO --}
+      FAutorizacao:= Value;
+      {if FAutorizacao = '' then begin
+         MensagemAviso(ctAUTORIZACAOBRANCO);
+         Exit;
+      end;}
+   end;
+end;
+
+procedure TdtmGerarRemessas.SetCarteira(const Value: String);
+begin
+   if qryContasBanco.AsInteger = 1 then begin   {-- BANCO DO BRASIL --}
+      FCarteira:= Value;
+      {if FCarteira = '' then begin
+         MensagemAviso(ctCARTEIRACONVENIONAOCADASTRADO);
+         Exit;
+      end}
+   end;
+end;
+
+
+procedure TdtmGerarRemessas.SetConvenio(const Value: String);
+begin
+  if qryContasBanco.AsInteger = 1 then begin   {-- BANCO DO BRASIL --}
+     FConvenio:= Value;
+     {if FConvenio = '' then begin
+        MensagemAviso(ctCARTEIRAEMBRANCO);
+        Exit;
+     end}
+  end;
+end;
+
+procedure TdtmGerarRemessas.SetVariacao(const Value: String);
+begin
+  if qryContasBanco.AsInteger = 1 then begin    {-- BANCO DO BRASIL --}
+     FVariacao := Value;
+     {if FVariacao = '' then begin
+        MensagemAviso(ctCARTEIRACONVENIONAOCADASTRADO);
+        Exit;
+     end}
+  end;
+end;
+
+
+procedure TdtmGerarRemessas.SetJaGerados(const Value: Boolean);
+begin
+  FJaGerados := Value;
+  if FJaGerados then
+     qryParcelas.MacroByName('Gerados').Clear //  := 'and ((p.remessa is null) or (p.remessa is not null))'
+  else
+     qryParcelas.MacroByName('Gerados').AsString  := 'and p.remessa is null' ;
+end;
+
+procedure TdtmGerarRemessas.AbreTabelaConsulta(TipoPesquisa: TtecGerarRemessas);
+begin
+  case TipoPesquisa of
+    grsFILIAIS  : Abre(ctConsultaFiliais);
+    grsCLIENTES : begin
+                     qryConsultaClientes.MacroByName('ClausulaWHERE').AsString:= 'WHERE False';
+                     Abre(ctConsultaClientes);
+                  end;
+    grsCONTAS:    Abre(ctConsultaContas);
+  end;
+end;
+
+constructor TdtmGerarRemessas.Create(AOwner: TComponent);
+begin
+  inherited;
+//  qryFiliais.Params[0].AsInteger := FilialBase;
+  qryFiliais. Tag:= ctTabelas;
+  qryClientes.Tag:= ctTabelas;
+  qryContas.  Tag:= ctTabelas;
+
+  qryConsultaFiliais. Tag:= ctConsultaFiliais;
+  qryConsultaClientes.Tag:= ctConsultaClientes;
+  qryConsultaContas.  Tag:= ctConsultaContas;
+
+  qryClientes.Params[0].AsInteger:= 0;
+  qryClientes.Params[1].AsString := 'C';
+
+//  ACBrBoleto1 := TACBrBoleto.Create(Self);
+end;
+
+Function TdtmGerarRemessas.ExisteFiliais(NomeCampo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais,NomeCampo,Codigo);
+end;
+
+Function TdtmGerarRemessas.ExisteClientes(NomeCampo, Codigo: String): boolean;
+const
+  SQL = 'Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  if NomeCampo = 'Nomecidade' then
+    NomeCampo:= 'c.Nome'
+  else if NomeCampo = 'tipocliente' then
+    NomeCampo:= 'vf.tipo'
+  else
+    NomeCampo:= 'vf.' + NomeCampo;
+
+  qryConsultaClientes.MacroByName('ClausulaWHERE').AsString:= Format(SQL, [NomeCampo, Codigo, '%']);
+  qryConsultaClientes.close;
+  qryConsultaClientes.Open;
+  Result := Not qryConsultaClientes.IsEmpty;
+end;
+
+Function TdtmGerarRemessas.ExisteContas(NomeCampo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaContas,NomeCampo,Codigo);
+end;
+
+procedure TdtmGerarRemessas.FechaTabelaConsulta(TipoPesquisa: TtecGerarRemessas);
+begin
+   case TipoPesquisa of
+      grsFILIAIS:  Fecha(ctConsultaFiliais);
+      grsCLIENTES: Fecha(ctConsultaClientes);
+      grsCONTAS:   Fecha(ctConsultaContas);
+   end;
+end;
+
+Function TdtmGerarRemessas.GetConsultarFiliais: TTecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+Function TdtmGerarRemessas.GetConsultarClientes: TTecQuery;
+begin
+  Result:= qryConsultaClientes;
+end;
+
+Function TdtmGerarRemessas.GetConsultarContas: TTecQuery;
+begin
+  Result:= qryConsultaContas;
+end;
+
+
+procedure TdtmGerarRemessas.Selecionar(TipoPesquisa: TtecGerarRemessas);
+begin
+   case TipoPesquisa of
+      grsFILIAIS:  RefazConsulta(qryFiliais,  [0], [qryConsultaFiliaisCodigo. AsInteger]);
+      grsCLIENTES: RefazConsulta(qryClientes, [0,1], [qryConsultaClientesCodigo.AsInteger, qryConsultaClientestipo.AsString]);
+      grsCONTAS:   RefazConsulta(qryContas,   [0], [qryConsultaContasConta.   AsInteger]);
+   end;
+end;
+
+Function TdtmGerarRemessas.GetCodigoCliente: integer;
+begin
+  Result := qryClientesCodigo.AsInteger;
+end;
+
+
+procedure TdtmGerarRemessas.SetFiliais(const Value: string);
+begin
+  if (Value <> '') then
+    qryParcelas.MacroByName('Filial').AsString  := 'and (f.codigo = ' + Value + ')'
+  else
+    qryParcelas.MacroByName('Filial').AsString  := '';
+end;
+
+procedure TdtmGerarRemessas.SetClientes(const Value: string);
+begin
+  if (Value <> '') then
+    qryParcelas.MacroByName('Cliente').AsString := 'and (ct.cliente = ' + Value + ')'
+  else
+    qryParcelas.MacroByName('Cliente').AsString  := '';
+end;
+
+procedure TdtmGerarRemessas.SetDataVenctoInicial(const Value: string);
+begin
+  FDataVenctoInicial := Value;
+  qryParcelas.ParamByName('venctoinicial').AsString := FDataVenctoInicial;
+end;
+
+procedure TdtmGerarRemessas.SetDataVenctoFinal(const Value: string);
+begin
+  FDataVenctoFinal := Value;
+  qryParcelas.ParamByName('venctofinal').AsString := FDataVenctoFinal;
+
+  if (FDataVenctoInicial <> '') and (FDataVenctoFinal <> '')  then
+    qryParcelas.MacroByName('DataVencto').AsString := 'and p.datavencto between :venctoinicial and :venctofinal'
+  else
+  if (FDataVenctoInicial <> '') and (FDataVenctoFinal = '')  then
+    qryParcelas.MacroByName('DataVencto').AsString := 'and p.datavencto >= :venctoinicial'
+  else
+  if (FDataVenctoInicial = '') and (FDataVenctoFinal <> '')  then
+    qryParcelas.MacroByName('DataVencto').AsString := 'and p.datavencto <= :venctofinal'
+  else
+    qryParcelas.MacroByName('DataVencto').AsString := '';
+
+end;
+
+procedure TdtmGerarRemessas.SetDataVendaInicial(const Value: String);
+begin
+  FDataVendaInicial := Value;
+end;
+
+procedure TdtmGerarRemessas.SetDataVendaFinal(const Value: String);
+begin
+  FDataVendaFinal := Value;
+  if (FDataVendaInicial <> '') and (FDataVendaFinal <> '')  then
+     {
+     qryParcelas.MacroByName('DataVenda').AsString := format('and case when ct.situacao in (''F'',''N'',''P'') then ct.faturamento between (%s) and (%s)' +
+                                                             '         when ct.situacao in (''O'',''R'')  then ct.data between (%s) and (%s) end',
+                                                       [quotedstr(FDataVendaInicial),
+                                                        quotedstr(FDataVendaFinal),
+                                                        quotedstr(FDataVendaInicial),
+                                                        quotedstr(FDataVendaFinal)])
+     }
+
+     qryParcelas.MacroByName('DataVenda').AsString := format(' and DataDocumentoRemessa(ct.numero) between %s and %s ',
+                                                       [quotedstr(FDataVendaInicial),
+                                                        quotedstr(FDataVendaFinal)])
+
+
+  else
+  if (FDataVendaInicial <> '') and (FDataVendaFinal = '')  then
+     {
+     qryParcelas.MacroByName('DataVenda').AsString := format('and case when ct.situacao in (''F'',''N'',''P'') then ct.faturamento >= %s ' +
+                                                             '         when ct.situacao in (''O'',''R'')  then ct.data >= %s end',
+                                                       [quotedstr(FDataVendaInicial),
+                                                        quotedstr(FDataVendaInicial)])
+     }
+
+     qryParcelas.MacroByName('DataVenda').AsString := format(' and DataDocumentoRemessa(ct.numero) >= %s ',
+                                                       [quotedstr(FDataVendaInicial)])
+
+
+
+  else
+  if (FDataVendaInicial = '') and (FDataVendaFinal <> '')  then
+     qryParcelas.MacroByName('DataVenda').AsString := format('and DataDocumentoRemessa(ct.numero) <= %s ',
+                                                       [quotedstr(FDataVendaFinal)])
+  else
+     qryParcelas.MacroByName('DataVenda').AsString := '';
+end;
+
+procedure TdtmGerarRemessas.SetNotaInicial(const Value: String);
+const
+ SQL = 'and ct.Numero in (select df.Contrato '+
+                         ' from dadosfiscais df '+
+                         ' where df.situacao = ''N'' and '+
+                              ' df.Numero in (select n.dadofiscal as notafiscal '+
+                                            ' from notas n '+
+                                            ' where n.Numero between (:NotaInicial) and (:NotaFinal)) '+
+                         ' order by df.Contrato)';
+begin
+  FNotaInicial := Value;
+  if (FNotaInicial <> '') and (FNotaFinal <> '') then begin
+     qryParcelas.MacroByName('NotaFiscal').AsString := SQL;
+     qryParcelas.ParamByName('notainicial').AsString := FNotaInicial;
+     qryParcelas.ParamByName('notafinal').AsString   := FNotaFinal;
+  end else
+      qryParcelas.MacroByName('NotaFiscal').AsString := '';
+end;
+
+procedure TdtmGerarRemessas.SetNotaFinal(const Value: String);
+const
+   SQL = 'and ct.Numero in (select df.Contrato from dadosfiscais df ' +
+              'where df.situacao = ''N'' and '  +
+                  'df.Numero in (select n.dadofiscal ' +
+                       'from notas n ' +
+                         ' where n.Numero between (:notaInicial) and (:notaFinal)) '+
+                                  'order by df.Contrato) ';
+begin
+   FNotaFinal := Value;
+   if (FNotaInicial <> '') and (FNotaFinal <> '') then begin
+      qryParcelas.MacroByName('NotaFiscal').AsString := SQL;
+      qryParcelas.ParamByName('notainicial').AsString := FNotaInicial;
+      qryParcelas.ParamByName('notafinal').AsString   := FNotaFinal;
+   end else
+      qryParcelas.MacroByName('NotaFiscal').AsString := '';
+end;
+
+
+//------ Funcao tirar ponto dos valores -------------------------------
+Function TdtmGerarRemessas.TiraPonto(vValStr: String): String;
+Var  I: Integer;
+begin
+  Result := '';
+  for I := 1 to Length(vValStr) do begin
+    if (Copy(vValStr,I,1) = '.') or (Copy(vValStr,I,1) = ',') then
+       Result := Result + ''
+    else
+       Result := Result + Copy(vValStr,I,1);
+  end;
+end;
+
+procedure TdtmGerarRemessas.MoveStr(Campo: string; var PraOnde; Tamanho: integer);
+begin
+   Campo:= CenDirEsq(ANSIUpperCase(RetiraAcento(Campo)),Tamanho,' ','E');
+   Move(Campo[1],PraOnde,Tamanho);
+End; {MoveStr}
+
+
+procedure TdtmGerarRemessas.MoveCrLf(Campo: String;  Var PraOnde;  Size:  Integer);
+begin
+  Move(CrLf, PraOnde, Size);
+End; {MoveCrlf}
+
+
+Procedure TdtmGerarRemessas.MoveNro(Numero: Currency;  Var PraOnde;  Size: Integer);
+Var Campo: String;
+Begin
+  Campo := FloatToStr(Numero);
+  While Length(Campo) < Size do
+        Campo:= '0'+ Campo;
+
+  Move(Campo[1],PraOnde,Size);
+End; {MoveNro}
+
+Procedure TdtmGerarRemessas.MoveVal(Numero: Currency;  Var PraOnde;  Size: Integer);
+Var Campo: String;
+Begin
+   Campo := TIRAPONTO(FormatFloat('00000000000.00', Numero));
+   While Length(Campo) < Size do
+         Campo:= '0'+Campo;
+
+   Move(Campo[1], PraOnde, Size);
+End; {MoveVal}
+
+
+{-- BRADESCO --}
+(*
+procedure TdtmGerarRemessas.GerarArquivoBradesco(NomeArquivo: String);
+{$IFDEF MSWINDOWS}
+var {CBrBoleto1: TACBrBoleto;}
+  titulo: TACBrTitulo;
+  Gerou: Boolean;
+  NomeArq: String;
+  TotalVencimentos : Currency;
+{$ENDIF}
+begin
+{$IFDEF MSWINDOWS}
+  Gerou := False;
+  NomeArq := Copy(NomeArquivo, Length(NomeArquivo) - 11 ,8);
+  GuardarRegistroAtual(qryParcelas,true);
+  TotalVencimentos := 0;
+  try
+//  ACBrBoleto1 := TACBrBoleto.Create(Self);
+    qryParcelas.First;
+    while not qryParcelas.Eof do
+    begin
+      if qryParcelasSelecionar.AsBoolean then
+      begin
+        TotalVencimentos := TotalVencimentos + qryParcelasValorVencto.AsCurrency;
+        Titulo := ACBrBoleto1.CriarTituloNaLista;
+        with Titulo do
+        begin
+          with ACBrBoleto.Banco do
+          begin
+            Numero := qryContasBanco.AsInteger;
+            TipoCobranca:=cobBradesco;
+          end;
+
+//          LocalPagamento1:= qryContaslocalpagamento.AsString; ggboleto
+          Vencimento     := qryParcelasDataVencto.AsDateTime;
+          DataDocumento  := qryParcelasFaturamento.AsDateTime;
+          NumeroDocumento:= qryParcelasNumeroDocumento.AsString;
+          SeuNumero      := qryParcelasNumeroDocumento.AsString;
+          ValorDocumento := qryParcelasValorVencto.AsFloat;
+          EspecieDoc     := '01';
+          Aceite         := atNao;
+          DataProcessamento := DataServidor;
+          if(qryContasCodigoSingular.AsString<>'') then
+            NossoNumero  := '2' + qryContasagenciareferencia.AsString + qryParcelasNossoNumero.AsString
+          else
+            NossoNumero    := qryParcelasNossoNumero.AsString;
+          UsoBanco       := qryContasUsoDoBanco.AsString;
+          Carteira       := qryContasCarteira.AsString;
+          Mensagem.Text  := qryContasInstrucoesBoleto.AsString;
+
+          DataDesconto   := qryParcelasDataDesconto.AsDateTime;
+          ValorDesconto  := qryParcelasValorDesconto.AsCurrency;
+          DataMoraJuros  := qryParcelasDataMoraJuros.AsDateTime;
+          ValorMoraJuros := qryParcelasValorMoraJuros.AsCurrency;
+
+          with ACBrBoleto.Cedente do begin
+            CodigoCedente := qryContasCedente.AsString;
+
+            if(qryContasCedenteNome.AsString<>'') then
+              Nome:=qryContasCedenteNome.AsString
+            else
+              Nome          := qryParcelasNomeFilial.AsString;
+
+            Agencia       := qryContasAgencia.AsString;
+{            AgenciaDigito := '0';}
+            if(qryContasDigitoAgencia.AsString<>'') then
+              AgenciaDigito := qryContasDigitoAgencia.AsString
+            else
+              AgenciaDigito := Modulo11(qryContasAgencia.AsString);
+
+            Conta         := qryContasConta.AsString;
+            ContaDigito   := qryContasDigito.AsString;
+
+
+      //        Modalidade    := '';
+            Convenio      := qryContasconvenio.AsString;
+//            TipoBoleto    := tbCliEmite; ggboleto
+//            TipoInscricao := tiPessoaJuridica; ggboletro
+            if(qryContasCNPJAgenciaReferencia.AsString<>'') then
+              CNPJCPF := qryContasCNPJAgenciaReferencia.AsString
+            else
+              CNPJCPF       := qryParcelasCNPJFilial.AsString;
+          end;
+
+          with Sacado do
+          begin
+            if qryParcelasPessoaTipo.AsString = 'F' then
+              Pessoa := pFisica
+            else
+              Pessoa := pJuridica;
+            NomeSacado := qryParcelasNome.AsString;
+            CNPJCPF    := qryParcelasCNPJouCPF.AsString;
+            Logradouro := qryParcelasRua.AsString;
+            Numero     := qryParcelasEndNumero.AsString;
+            Complemento:= qryParcelasEndComplemento.AsString;
+            Bairro     := qryParcelasNomeBairro.AsString;
+            Cidade     := qryParcelasNomeCidade.AsString;
+            UF         := qryParcelasEstado.AsString;
+            CEP        := FStr(qryParcelasCEP.AsInteger,$81);
+          end;
+          ACBrBoleto.ImprimirMensagemPadrao:= False;
+          ACBrBoleto.AdicionarMensagensPadroes(Titulo,Mensagem);
+
+          qryParcelas.Edit;
+          qryParcelasRemessa.AsString := NomeArq;
+          qryParcelasContaBoleto.AsString := qryContasConta.AsString;
+          qryParcelasdigverificadornossonumero.asString := ACBrBoleto1.Banco.CalcularDigitoVerificador(titulo);
+          qryParcelas.Post;
+        end;
+      end;
+      qryParcelas.Next;
+    end;
+
+    ACBrBoleto1.LayoutRemessa := c400;
+    ACBrBoleto1.NomeArqRemessa := NomeArq+'.REM';
+//    ACBrBoleto1.DirArqRemessa := Copy(NomeArquivo,0,Length(NomeArquivo) - 12);
+    ACBrBoleto1.DirArqRemessa := ExtractFilePath(NomeArquivo);
+    ACBrBoleto1.DirArqRemessa := copy(ACBrBoleto1.DirArqRemessa, 1, length(ACBrBoleto1.DirArqRemessa)-1);
+    ACBrBoleto1.GerarRemessa(qryContasSequencial.AsInteger {, TotalVencimentos ggboleto});
+    Gerou := True;
+  finally
+    VoltarRegistroAtual(qryParcelas);
+    ACBrBoleto1.ListadeBoletos.Clear;
+//    FreeAndNil(ACBrBoleto1);
+  end;
+  if Gerou then
+  begin
+    qryContas.Edit;
+    qryContasSequencial.AsInteger:= qryContasSequencial.AsInteger + 1;
+    qryContasdataultimaremessa.asdatetime := dataservidor;
+    qryContas.Post;
+    Perpetrar([qryParcelas,qryContas]);
+    MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[NomeArquivo]));
+  end
+  else
+  begin
+    Rollback([qryParcelas,qryContas]);
+    MensagemAviso(format(ctARQUIVOERRO,['de geração']));
+  end;
+{$ENDIF}
+end;
+*)
+
+(*
+
+{-------------------------------------------- Padrão SANTANDER BANESPA --}
+procedure TdtmGerarRemessas.GerarArquivoACBrCNAB240(NomeArquivo: String);
+var ACBrBoleto1:      TACBrBoleto;
+    Titulo:           TACBrTitulo;
+    Gerou:            Boolean;
+    NomeArq:          String;
+    TotalVencimentos: Currency;
+begin
+   Gerou  := False;
+   NomeArq:= Copy(NomeArquivo, Length(NomeArquivo) - 11 ,8);
+   GuardarRegistroAtual(qryParcelas, true);
+   TotalVencimentos := 0;
+
+   try
+       ACBrBoleto1 := TACBrBoleto.Create(Self);
+       qryParcelas.First;
+       while not qryParcelas.Eof do begin
+          if qryParcelasSelecionar.AsBoolean then begin
+             TotalVencimentos := TotalVencimentos + qryParcelasValorVencto.AsCurrency;
+             Titulo := ACBrBoleto1.CriarTituloNaLista;
+             with Titulo do begin
+                with ACBrBoleto.Banco do begin
+                   Numero      := qryContasBanco.AsInteger;
+                   TipoCobranca:= cobBancoDoBrasil;
+                end;
+
+                EspecieDoc       := '01'; // 01 = Duplicata
+                                          // 02 = Nota Promissória
+                                          // 03 = Apólice / Nota de Seguro
+                                          // 05 = Recibo
+                                          // 06 = Duplicata de Serviço
+                                          // 07 = Letra de Câmbio
+                Aceite           := atNao;
+                DataProcessamento:= DataServidor;
+
+                Vencimento     := qryParcelasDataVencto.         AsDateTime;
+                DataDocumento  := qryParcelasFaturamento.        AsDateTime;
+                NumeroDocumento:= qryParcelasNumeroDocumento.    AsString;
+                SeuNumero      := qryParcelasNumeroDocumento.    AsString;
+                ValorDocumento := qryParcelasValorVencto.        AsFloat;
+                NossoNumero    := qryParcelasNossoNumero.        AsString;
+                UsoBanco       := qryContasUsoDoBanco.           AsString;
+                Carteira       := qryContasCarteira.             AsString;   // 1 = Eletrônica com Registro
+                                                                             // 3 = Caucionada Eletrônica
+                                                                             // 4 = Cobrança sem Registro
+                                                                             // 5 = Rápida com Resgistro (Bloquete emitido pelo cliente)
+                                                                             // 6 = Caucionada Rápida
+                                                                             // 7 = Descontada Eletrônica
+                DataDesconto   := qryParcelasDataDesconto.       AsDateTime;
+                ValorDesconto  := qryParcelasValorDesconto.      AsCurrency;
+                DataMoraJuros  := qryParcelasDataMoraJuros.      AsDateTime;
+                ValorMoraJuros := qryParcelasValorMoraJuros.     AsCurrency;
+                PercentualMulta:= qryParcelasPercentualMoraMulta.AsCurrency;
+
+                if qryContasIncluirInstrucoesArquivoBanco.AsBoolean
+                then Mensagem.Text:= Trocar(
+                                     Trocar(qryContasInstrucoesBoleto.AsString, '<fjurosdiasreais>', 'R$ ' + FormatFloat('###,##0.00',ValorMoraJuros)),
+                                                                                '<fmultareais>',     'R$ ' + FormatFloat('###,##0.00',(PercentualMulta/100.0) * ValorDocumento));
+
+
+                with ACBrBoleto.Cedente do begin
+                   CodigoTransmissao:= qryContasCodigoTransmissao.AsString;
+
+                   CodigoCedente := qryContasCedente.AsString;
+                   if qryContasCedenteNome.AsString <> ''
+                   then Nome:= qryContasCedenteNome.AsString
+                   else Nome:= qryParcelasNomeFilial.AsString;
+
+                   Agencia:= qryContasAgencia.AsString;
+                   if qryContasDigitoAgencia.AsString <> ''
+                   then AgenciaDigito:= qryContasDigitoAgencia.AsString
+                   else AgenciaDigito:= Modulo11(qryContasAgencia.AsString);
+
+                   Conta      := qryContasConta.   AsString;
+                   ContaDigito:= qryContasDigito.  AsString;
+                   Convenio   := qryContasconvenio.AsString;
+
+                   if qryContasCNPJAgenciaReferencia.AsString <> ''
+                   then CNPJCPF:= qryContasCNPJAgenciaReferencia.AsString
+                   else CNPJCPF:= qryParcelasCNPJFilial.         AsString;
+                end;
+
+                with Sacado do begin
+                   if qryParcelasPessoaTipo.AsString = 'F'
+                   then Pessoa := pFisica
+                   else Pessoa := pJuridica;
+                   CNPJCPF    := qryParcelasCNPJouCPF.     AsString;
+                   NomeSacado := qryParcelasNome.          AsString;
+                   Logradouro := qryParcelasRua.           AsString;
+                   Numero     := qryParcelasEndNumero.     AsString;
+                   Complemento:= qryParcelasEndComplemento.AsString;
+                   Bairro     := qryParcelasNomeBairro.    AsString;
+                   Cidade     := qryParcelasNomeCidade.    AsString;
+                   UF         := qryParcelasEstado.        AsString;
+                   CEP        := FStr(qryParcelasCEP.AsInteger,$81);
+                end;
+                ACBrBoleto.ImprimirMensagemPadrao:= false;
+                ACBrBoleto.AdicionarMensagensPadroes(Titulo, Mensagem);
+
+                qryParcelas.Edit;
+                qryParcelasRemessa.    AsString:= NomeArq;
+                qryParcelasContaBoleto.AsString:= qryContasConta.AsString;
+                qryParcelas.Post;
+             end;
+          end;
+          qryParcelas.Next;
+       end;
+
+       ACBrBoleto1.LayoutRemessa := c400;
+       ACBrBoleto1.NomeArqRemessa:= NomeArq+'.REM';
+       ACBrBoleto1.DirArqRemessa := Copy(NomeArquivo,0,Length(NomeArquivo) - 12);
+       ACBrBoleto1.GerarRemessa(qryContasSequencial.AsInteger + 1{, TotalVencimentos ggboleto});
+       Gerou := True;
+   finally
+       VoltarRegistroAtual(qryParcelas);
+       FreeAndNil(ACBrBoleto1);
+   end;
+
+   if Gerou then begin
+      qryContas.Edit;
+      qryContasSequencial.AsInteger:= qryContasSequencial.AsInteger + 1;
+      qryContas.Post;
+      Perpetrar([qryParcelas,qryContas]);
+      MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[NomeArquivo]));
+   end
+   else begin
+      Rollback([qryParcelas,qryContas]);
+      MensagemAviso(format(ctARQUIVOERRO,['de geração']));
+   end;
+end; {GerarArquivoACBrCNAB240}
+
+{-------------------------------------------- SANTANDER BANESPA --}
+procedure TdtmGerarRemessas.GerarArquivoACBrCNAB400(NomeArquivo: String);
+var ACBrBoleto1:      TACBrBoleto;
+    Titulo:           TACBrTitulo;
+    Gerou:            Boolean;
+    NomeArq:          String;
+    TotalVencimentos: Currency;
+begin
+   Gerou  := False;
+   NomeArq:= Copy(NomeArquivo, Length(NomeArquivo) - 11 ,8);
+   GuardarRegistroAtual(qryParcelas, true);
+   TotalVencimentos := 0;
+
+   try
+       ACBrBoleto1 := TACBrBoleto.Create(Self);
+       qryParcelas.First;
+       while not qryParcelas.Eof do begin
+          if qryParcelasSelecionar.AsBoolean then begin
+             TotalVencimentos := TotalVencimentos + qryParcelasValorVencto.AsCurrency;
+             Titulo := ACBrBoleto1.CriarTituloNaLista;
+             with Titulo do begin
+                with ACBrBoleto.Banco do begin
+                   Numero      := qryContasBanco.AsInteger;
+                   TipoCobranca:= cobSantander;
+                end;
+
+                EspecieDoc       := '01'; // 01 = Duplicata
+                                          // 02 = Nota Promissória
+                                          // 03 = Apólice / Nota de Seguro
+                                          // 05 = Recibo
+                                          // 06 = Duplicata de Serviço
+                                          // 07 = Letra de Câmbio
+                Aceite           := atNao;
+                DataProcessamento:= DataServidor;
+
+                Vencimento     := qryParcelasDataVencto.         AsDateTime;
+                DataDocumento  := qryParcelasFaturamento.        AsDateTime;
+                NumeroDocumento:= qryParcelasNumeroDocumento.    AsString;
+                SeuNumero      := qryParcelasNumeroDocumento.    AsString;
+                ValorDocumento := qryParcelasValorVencto.        AsFloat;
+                NossoNumero    := qryParcelasNossoNumero.        AsString;
+                UsoBanco       := qryContasUsoDoBanco.           AsString;
+                Carteira       := qryContasCarteira.             AsString;   // 1 = Eletrônica com Registro
+                                                                             // 3 = Caucionada Eletrônica
+                                                                             // 4 = Cobrança sem Registro
+                                                                             // 5 = Rápida com Resgistro (Bloquete emitido pelo cliente)
+                                                                             // 6 = Caucionada Rápida
+                                                                             // 7 = Descontada Eletrônica
+                DataDesconto   := qryParcelasDataDesconto.       AsDateTime;
+                ValorDesconto  := qryParcelasValorDesconto.      AsCurrency;
+                DataMoraJuros  := qryParcelasDataMoraJuros.      AsDateTime;
+                ValorMoraJuros := qryParcelasValorMoraJuros.     AsCurrency;
+                PercentualMulta:= qryParcelasPercentualMoraMulta.AsCurrency;
+
+                if qryContasIncluirInstrucoesArquivoBanco.AsBoolean
+                then Mensagem.Text:= Trocar(
+                                     Trocar(qryContasInstrucoesBoleto.AsString, '<fjurosdiasreais>', 'R$ ' + FormatFloat('###,##0.00',ValorMoraJuros)),
+                                                                                '<fmultareais>',     'R$ ' + FormatFloat('###,##0.00',(PercentualMulta/100.0) * ValorDocumento));
+
+
+                with ACBrBoleto.Cedente do begin
+                   CodigoTransmissao:= qryContasCodigoTransmissao.AsString;
+
+                   CodigoCedente := qryContasCedente.AsString;
+                   if qryContasCedenteNome.AsString <> ''
+                   then Nome:= qryContasCedenteNome.AsString
+                   else Nome:= qryParcelasNomeFilial.AsString;
+
+                   Agencia:= qryContasAgencia.AsString;
+                   if qryContasDigitoAgencia.AsString <> ''
+                   then AgenciaDigito:= qryContasDigitoAgencia.AsString
+                   else AgenciaDigito:= Modulo11(qryContasAgencia.AsString);
+
+                   Conta      := qryContasConta.   AsString;
+                   ContaDigito:= qryContasDigito.  AsString;
+                   Convenio   := qryContasconvenio.AsString;
+
+                   if qryContasCNPJAgenciaReferencia.AsString <> ''
+                   then CNPJCPF:= qryContasCNPJAgenciaReferencia.AsString
+                   else CNPJCPF:= qryParcelasCNPJFilial.         AsString;
+                end;
+
+                with Sacado do begin
+                   if qryParcelasPessoaTipo.AsString = 'F'
+                   then Pessoa := pFisica
+                   else Pessoa := pJuridica;
+                   CNPJCPF    := qryParcelasCNPJouCPF.     AsString;
+                   NomeSacado := qryParcelasNome.          AsString;
+                   Logradouro := qryParcelasRua.           AsString;
+                   Numero     := qryParcelasEndNumero.     AsString;
+                   Complemento:= qryParcelasEndComplemento.AsString;
+                   Bairro     := qryParcelasNomeBairro.    AsString;
+                   Cidade     := qryParcelasNomeCidade.    AsString;
+                   UF         := qryParcelasEstado.        AsString;
+                   CEP        := FStr(qryParcelasCEP.AsInteger,$81);
+                end;
+                ACBrBoleto.ImprimirMensagemPadrao:= false;
+                ACBrBoleto.AdicionarMensagensPadroes(Titulo, Mensagem);
+
+                qryParcelas.Edit;
+                qryParcelasRemessa.    AsString:= NomeArq;
+                qryParcelasContaBoleto.AsString:= qryContasConta.AsString;
+                qryParcelas.Post;
+             end;
+          end;
+          qryParcelas.Next;
+       end;
+
+       ACBrBoleto1.LayoutRemessa := c400;
+       ACBrBoleto1.NomeArqRemessa:= NomeArq+'.REM';
+       ACBrBoleto1.DirArqRemessa := Copy(NomeArquivo,0,Length(NomeArquivo) - 12);
+       ACBrBoleto1.GerarRemessa(qryContasSequencial.AsInteger + 1{, TotalVencimentos ggboleto});
+       Gerou := True;
+   finally
+       VoltarRegistroAtual(qryParcelas);
+       FreeAndNil(ACBrBoleto1);
+   end;
+
+   if Gerou then begin
+      qryContas.Edit;
+      qryContasSequencial.AsInteger:= qryContasSequencial.AsInteger + 1;
+      qryContas.Post;
+      Perpetrar([qryParcelas,qryContas]);
+      MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[NomeArquivo]));
+   end
+   else begin
+      Rollback([qryParcelas,qryContas]);
+      MensagemAviso(format(ctARQUIVOERRO,['de geração']));
+   end;
+end; {GerarArquivoACBrCNAB400}
+*)
+
+{--------------------------------------------------------------------- Padrão CNAB240 ou CNAB400 --}
+procedure TdtmGerarRemessas.GerarArquivoACBrCNAB(c240ou400:   TACBrLayoutRemessa;
+                                                 NomeArquivo: string);
+var {ACBrBoleto1:      TACBrBoleto;}
+    Titulo:           TACBrTitulo;
+    Gerou:            Boolean;
+    NomeArq:          String;
+    TotalVencimentos: Currency;
+    StrGeral: string;
+
+begin
+   if qrycontas.state = dsedit then
+     perpetrar([qrycontas]);
+
+
+   Gerou  := False;
+//   NomeArq:= Copy(NomeArquivo, Length(NomeArquivo) - 11, 8);
+   NomeArq:= ChangeFileExt(ExtractFileName(NomeArquivo), EmptyStr);
+   GuardarRegistroAtual(qryParcelas, true);
+   TotalVencimentos := 0;
+
+   try
+//       ACBrBoleto1 := TACBrBoleto.Create(Self);
+       qryParcelas.First;
+       while not qryParcelas.Eof do begin
+          if qryParcelasSelecionar.AsBoolean then begin
+             TotalVencimentos := TotalVencimentos + qryParcelasValorVencto.AsCurrency;
+             Titulo := ACBrBoleto1.CriarTituloNaLista;
+             with Titulo do begin
+                with ACBrBoleto.Banco do begin
+                   case qryContasBanco.AsInteger of
+                      001:               TipoCobranca := cobBancoDoBrasil;
+                      033, 008, 353:     TipoCobranca := cobSantander;
+                      104:
+                      begin
+                        TipoCobranca   := cobCaixaEconomica;
+                        LayoutVersaoArquivo := 107;
+                        LayoutVersaoLote := 67;
+                      end;
+                      237, 087: TipoCobranca   := cobBradesco;
+                      341     : TipoCobranca   := cobItau;
+ 	              041,056 : TipoCobranca   := cobBanrisul;
+                      748     : TipoCobranca   := cobSicred;
+                      756     : TipoCobranca   := cobBancoob;
+                      085     : TipoCobranca   := cobBancoCECRED;
+//                    104:           TipoCobranca:= cobCaixaEconomica;  {Aparentemente, este modelo}
+//                                                                      {está desatualizado        }
+                   end;
+                end;
+
+                with ACBrBoleto.Cedente do
+                begin
+                   CodigoTransmissao := qryContasCodigoTransmissao.AsString;
+
+                   CodigoCedente := qryContasCedente.AsString;
+                   if qryContasCedenteNome.AsString <> ''
+                   then Nome:= qryContasCedenteNome.AsString
+                   else Nome:= qryParcelasNomeFilial.AsString;
+
+                   Agencia:= qryContasAgencia.AsString;
+                   if qryContasDigitoAgencia.AsString <> ''
+                   then AgenciaDigito:= qryContasDigitoAgencia.AsString
+                   else AgenciaDigito:= Modulo11(qryContasAgencia.AsString);
+
+                   UsoBanco   := qryContasUsoDoBanco.       AsString;
+                   Conta      := qryContasConta.            AsString;
+                   ContaDigito:= qryContasDigito.           AsString;
+                   Convenio   := qryContasconvenio.         AsString;
+                   Carteira   := qryContasCarteira.         AsString;
+                   TipoCarteira:= tctRegistrada;
+                   Modalidade := qryContasVariacao_Carteira.AsString;
+
+                   if qryContasCNPJAgenciaReferencia.AsString <> ''
+                   then CNPJCPF:= qryContasCNPJAgenciaReferencia.AsString
+                   else CNPJCPF:= qryParcelasCNPJFilial.         AsString;
+                   ACBrBoleto.Cedente.CaracTitulo := TACBrCaracTitulo(qryContastipocobranca.asinteger-1);
+                   Titulo.CaracTitulo := TACBrCaracTitulo(qryContastipocobranca.asinteger-1);
+                end;
+
+
+                if (qryContasBanco.AsInteger = 341) and  (qryContasEspecieDocto.AsString = '02') then // Itau
+                  EspecieDoc:= 'DM'
+                else
+                  EspecieDoc:= qryContasEspecieDocto.AsString;
+
+                if (qryContasCodigoProtesto.AsString = '1') or            // Protestar dias corridos
+                   (qryContasCodigoProtesto.AsString = '2')               // Protestar dias úteis
+                then
+                begin
+                  Instrucao1 := qryContasCodigoProtesto.AsString;
+                  DataProtesto:= SomarDia(qryParcelasDataVencto.AsDateTime, qryContasNrDiasProtesto.AsInteger, 'N');
+                end
+                else DataProtesto:= 0;                                              // Não protestar
+
+                Aceite           := atNao;
+                DataProcessamento:= DataServidor;
+
+                Vencimento     := qryParcelasDataVencto.     AsDateTime;
+                DataDocumento  := qryParcelasFaturamento.    AsDateTime;
+                NumeroDocumento:= qryParcelasNumeroDocumento.AsString;
+                SeuNumero      := qryParcelasNumeroDocumento.AsString;
+                ValorDocumento := qryParcelasValorVencto.    AsFloat;
+                DataDesconto   := qryParcelasDataDesconto.       AsDateTime;
+                ValorDesconto  := qryParcelasValorDesconto.      AsCurrency;
+                DataMoraJuros  := qryParcelasDataMoraJuros.      AsDateTime;
+
+                if(qryContasBanco.AsInteger=341) then
+                  DataMulta:=DataMoraJuros;
+{
+                if ACBrBoleto.Banco.TipoCobranca = cobSantander then
+                begin }
+                  if qryContascodigomora.asString = '2' then //taxa mensal
+                  begin
+                    CodigoMora := '2';
+                    ValorMoraJuros := qryParcelasPercentualMoraJuros.Ascurrency;
+
+                    CodigoMoraJuros := cjTaxaMensal;
+//                    (cjValorDia, cjTaxaMensal, cjIsento, cjValorMensal, cjTaxaDiaria)
+
+                  end
+                  else
+                  begin
+                    if qryContascodigomora.asString <> '' then
+                      CodigoMora := qryContascodigomora.asString
+                    else
+                      CodigoMora := '1'; //diária
+
+                    ValorMoraJuros := qryParcelasValorMoraJuros.AsCurrency;
+
+                    if qryContascodigomora.asString = '1' then
+                      CodigoMoraJuros := cjValorDia
+                    else
+                    if qryContascodigomora.asString = '3' then
+                      CodigoMoraJuros := cjIsento
+                    else
+                    if qryContascodigomora.asString = '4' then
+                      CodigoMoraJuros := cjValorMensal
+                    else
+                    if qryContascodigomora.asString = '5' then
+                      CodigoMoraJuros := cjTaxaDiaria;
+
+                  end;
+{
+                end
+                else
+                  ValorMoraJuros := qryParcelasValorMoraJuros.AsCurrency;
+
+}
+
+                PercentualMulta:= qryParcelasPercentualMoraMulta.AsCurrency;
+                DataBaixa      := qryParcelasDataVencto.asdatetime + qryContasndiasbaixaautomatica.asinteger;
+                If (qryContasndiasbaixaautomatica.AsInteger>0) then
+                begin;
+                  Instrucao2:='1';
+                end;
+
+                StrGeral:= qryParcelasNossoNumero.AsString;
+                if Titulo.ACBrBoleto.Banco.TipoCobranca = cobBancoDoBrasil then
+                  NossoNumero:= Copy(qryParcelasNossoNumero.AsString,2,10)  {Ignora-se o 1º zero}
+                else
+                if ((Titulo.ACBrBoleto.Banco.TipoCobranca=cobItau) or
+                    (Titulo.ACBrBoleto.Banco.TipoCobranca=cobBanrisul))then
+                  NossoNumero:= Copy(qryParcelasNossoNumero.AsString,4,10)  {Ignora-se os 3 primeiros zeros, itau tam maximo=8}
+                else
+                if (Titulo.ACBrBoleto.Banco.TipoCobranca=cobSicred) then
+                begin
+                  {
+                  if length(inttostr(qryParcelasNossoNumero.asinteger))>5 then
+                     raise Exception.Create( ACBrStr('Nosso número ultrapassando a 5 caracteres ' +
+                                                     'para este banco!') )
+                  else
+                  }
+                    NossoNumero:= Copy(qryParcelasNossoNumero.AsString,7,5);  {Ignora-se os 3 primeiros zeros, tam maximo=5}
+                end
+                else
+                  NossoNumero:= qryParcelasNossoNumero.     AsString;
+
+                StrGeral:= Titulo.NossoNumero;
+
+
+                if qryContasIncluirInstrucoesArquivoBanco.AsBoolean
+                then Mensagem.Text:= Trocar(
+                                     Trocar(qryContasInstrucoesBoleto.AsString, '<fjurosdiasreais>', 'R$ ' + FormatFloat('###,##0.00',ValorMoraJuros)),
+                                                                                '<fmultareais>',     'R$ ' + FormatFloat('###,##0.00',(PercentualMulta/100.0) * ValorDocumento));
+
+                with Sacado do
+                begin
+                  if qryParcelasPessoaTipo.AsString = 'F'
+                  then Pessoa := pFisica
+                  else Pessoa := pJuridica;
+                  CNPJCPF    := qryParcelasCNPJouCPF.     AsString;
+                  NomeSacado := RetiraAcento(qryParcelasNome.          AsString);
+                  Logradouro := RetiraAcento(qryParcelasRua.           AsString);
+                  Numero     := RetiraAcento(qryParcelasEndNumero.     AsString);
+                  Complemento:= RetiraAcento(qryParcelasEndComplemento.AsString);
+                  Bairro     := RetiraAcento(qryParcelasNomeBairro.    AsString);
+                  Cidade     := RetiraAcento(qryParcelasNomeCidade.AsString);
+                  UF         := qryParcelasEstado.        AsString;
+                  CEP        := FStr(qryParcelasCEP.AsInteger,$81);
+                end;
+
+                if qryContasbancoreferencia.AsString = '087' then
+                  Mensagem.Text := preencheString(qryParcelasNomeBairro.AsString, ' ', 20, true) +
+                                   preencheString(qryParcelasNomeCidade.AsString, ' ', 38, true) +
+                                   qryParcelasEstado.AsString
+                else
+                begin
+                  if qryContasIncluirInstrucoesArquivoBanco.AsBoolean then
+                  begin
+                    Mensagem.Text := Trocar(
+                                     Trocar(qryContasInstrucoesBoleto.AsString, '<fjurosdiasreais>', 'R$ ' + FormatFloat('###,##0.00',ValorMoraJuros)),
+                                                                              '<fmultareais>',     'R$ ' + FormatFloat('###,##0.00',(PercentualMulta/100.0) * ValorDocumento));
+                    ACBrBoleto.ImprimirMensagemPadrao:= false;
+                    ACBrBoleto.AdicionarMensagensPadroes(Titulo, Mensagem);
+                  end
+                  else
+                  begin
+                    ACBrBoleto.ImprimirMensagemPadrao:= true;
+                    ACBrBoleto.AdicionarMensagensPadroes(Titulo, Mensagem);
+                  end;
+                end;
+
+                qryParcelas.Edit;
+                qryParcelasRemessa.    AsString := NomeArq;
+                qryParcelasContaBoleto.AsString := qryContasConta.AsString;
+                qryParcelasdigverificadornossonumero.asString := ACBrBoleto.Banco.CalcularDigitoVerificador(titulo);
+                qryParcelas.Post;
+             end;
+//           break; {teste fazer somente uma}
+          end;
+          qryParcelas.Next;
+       end;
+
+       ACBrBoleto1.LayoutRemessa := c240ou400;
+
+       if qryContasBanco.AsInteger <> 748 then {Sicredit}
+         ACBrBoleto1.NomeArqRemessa:= NomeArq + '.REM';
+
+       ACBrBoleto1.DirArqRemessa := ExtractFilePath(NomeArquivo);
+       ACBrBoleto1.DirArqRemessa := copy(ACBrBoleto1.DirArqRemessa, 1, length(ACBrBoleto1.DirArqRemessa)-1);
+
+       ACBrBoleto1.GerarRemessa(qryContasSequencial.AsInteger);
+       Gerou := True;
+   finally
+       VoltarRegistroAtual(qryParcelas);
+       ACBrBoleto1.ListadeBoletos.Clear;
+//       FreeAndNil(ACBrBoleto1);
+   end;
+
+   if Gerou then begin
+      qryContas.Edit;
+      qryContasSequencial.AsInteger:= qryContasSequencial.AsInteger + 1;
+      qryContasdataultimaremessa.asdatetime := dataservidor;
+      qryContas.Post;
+      Perpetrar([qryParcelas,qryContas]);
+
+      if not ModoIntermitente then
+        MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[NomeArquivo]));
+
+   end
+   else begin
+      Rollback([qryParcelas,qryContas]);
+      MensagemAviso(format(ctARQUIVOERRO,['de geração']));
+   end;
+end; {GerarArquivoACBrCNAB}
+
+
+
+{var NomeArq: String; FlagMarcado: Boolean;
+//  I: Integer;
+begin}
+(***********************************************************
+ for I := 1 to Length(NomeArquivo) do begin
+    {$IFDEF LINUX}
+      if NomeArquivo[I] = '\' then begin
+         Delete(NomeArquivo, I, 1);
+         Insert('/',NomeArquivo,I);
+     end;
+    {$ELSE }
+      if NomeArquivo[I] = '/' then begin
+         Delete(NomeArquivo, I, 1);
+         Insert('\',NomeArquivo,I);
+    {$ENDIF }
+  end;
+*************************************************************)
+
+{  try
+    AssignFile(Arq,NomeArquivo);
+    Rewrite(Arq,SizeOf(T_HeaderBradesco));
+    GravarHeaderBRADESCO(Arq);
+    Seq := 0;      FlagMarcado := False;
+    NomeArq := Copy(NomeArquivo, Length(NomeArquivo) - 11 ,8);
+
+    qryParcelas.DisableControls;
+    qryParcelas.First;
+    while not qryParcelas.Eof do begin
+      if qryParcelasSelecionar.AsBoolean then begin
+         GravarDetalhesBRADESCO(Arq);
+         FlagMarcado := True;
+
+         qryParcelas.Edit;
+         qryParcelasRemessa.AsString := NomeArq;
+         qryParcelasContaBoleto.AsString := qryContasConta.AsString;
+         qryParcelas.Post;
+
+         qryAtualizarParcelas.ParamByName('Remessa').    Value:= NomeArq;
+         qryAtualizarParcelas.ParamByName('ContaBoleto').Value:= qryContasConta.AsString;
+         qryAtualizarParcelas.ParamByName('Contrato').   Value:= qryParcelasContrato.AsString;
+         qryAtualizarParcelas.ParamByName('Numero').     Value:= qryParcelasNumero.AsString;
+         qryAtualizarParcelas.ExecSql;
+      end;
+      qryParcelas.Next;
+    end;
+
+    if FlagMarcado = False then begin
+       MensagemAviso('Não foi selecionada nenhuma Parcela');
+       Exit;
+    end;
+
+   GravarTraillerBRADESCO(Arq);
+   if qryContasBanco.AsInteger = 237 then begin
+      qryContas.Edit;
+      qryContasSequencial.AsInteger:= qryContasSequencial.AsInteger + 1;
+      qryContas.Post;
+   end;
+  except
+    on E:EFCreateError do
+      MensagemErro(E.Message);
+  end;
+  Close(Arq);
+  Perpetrar([qryAtualizarParcelas, qryContas]);
+  qryParcelas.EnableControls;
+
+//  qryParcelas.Close;
+  MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[NomeArquivo]));
+end;                                                          }
+
+(*
+Procedure TdtmGerarRemessas.GravarHeaderBRADESCO(Var Arq);
+Var Arquivo: File Absolute Arq;
+    Ano, Mes, Dia: Word;
+    DatAStr, NomeFil, AgenciaStr: String;
+    NrRemessa, AgenciaInt: Integer;
+    HeaderBradesco: T_HeaderBradesco;
+Begin
+  with HeaderBradesco do begin
+    DecodeDate(Now, Ano, Mes, Dia);
+    DataStr := Format('%.2d',[Dia]) + Format('%.2d',[Mes]) + Copy(Format('%.2d',[Ano]),3,2);
+    NomeFil := qryParcelasNomeFilial.AsString;
+    NrRemessa := qryContasSequencial.AsInteger + 1;
+
+    AgenciaStr := IntToStr(qryContasAgencia.AsInteger);
+    AgenciaStr := Copy(AgenciaStr,1,4);
+    AgenciaInt := StrToInt(AgenciaStr);
+
+    FillChar(HeaderBradesco,SizeOf(HeaderBradesco),'0');
+    MoveNro(0,                    H_TipoRegistro,     SizeOf(H_TipoRegistro));
+    MoveNro(1,                    H_IdentArquivo,     SizeOf(H_IdentArquivo));
+    MoveStr('REMESSA',            H_LiteralRemessa,   SizeOf(H_LiteralRemessa));
+    MoveNro(1,                    H_CodigoServico,    SizeOf(H_CodigoServico));
+    MoveStr('COBRANCA',           H_LiteralServico,   SizeOf(H_LiteralServico));
+    MoveNro(583923,               H_CodigoEmpresa,    SizeOf(H_CodigoEmpresa)); // ver com banco
+    MoveStr(RazaoFilialBase,      H_NomeEmpresa,      SizeOf(H_NomeEmpresa));
+    MoveNro(237,                  H_NumeroBradesco,   SizeOf(H_NumeroBradesco));
+    MoveStr('BRADESCO',           H_NomeBanco,        SizeOf(H_NomeBanco));
+    MoveStr(DataStr,              H_DataGravacao,     SizeOf(H_DataGravacao));
+    MoveStr('',                   H_Brancos01,        SizeOf(H_Brancos01));
+    MoveStr('MX',                 H_IdentSistema,     SizeOf(H_IdentSistema));
+    MoveNro(NrRemessa,            H_NumeroRemessa,    SizeOf(H_NumeroRemessa)); // ver com banco
+    MoveStr('',                   H_Brancos02,        SizeOf(H_Brancos02 ));
+    MoveStr('DESC',               H_IdentDesconto,    SizeOf(H_IdentDesconto ));
+    MoveNro(StrToInt(Autorizacao),H_NrAutorizacao,    SizeOf(H_NrAutorizacao));  // cada remessa é um Numero dado pelo gerente (digitado pelo usuario)
+    MoveNro(AgenciaInt,           H_CodigoAgencia,    SizeOf(H_CodigoAgencia));
+    MoveNro(qryContasConta.AsInteger,                 H_ContaCorrente,    SizeOf(H_ContaCorrente));
+    MoveStr(qryContasDigito.AsString,                 H_DigitoContaCorr,  SizeOf(H_DigitoContaCorr));
+    MoveStr('',                   H_Brancos03,        SizeOf(H_Brancos03));
+    MoveNro(1,                    H_SequencialReg,    SizeOf(H_SequencialReg));
+    MoveCrLf(CrLf,                H_CrLf,             SizeOf(H_CrLf));
+    BlockWrite(Arquivo,HeaderBradesco,1);
+  end;
+End;
+*)
+
+
+(*
+Procedure TdtmGerarRemessas.GravarDetalhesBRADESCO(Var Arq);
+Var Arquivo:  File Absolute Arq;
+    DetalhesBradesco: T_DetalheBradesco;
+    NumInsc:  Integer;           CepInt:        Integer;
+    CepStr: String[8];           Empr :    String;            AnoStr: String;
+    DataVenctoStr: String;       Ano, Mes, Dia: Word;
+    AgenciaStr: String;          AgenciaInt: Integer;
+Begin
+  with DetalhesBradesco  do begin
+     if qryFiliaisINSCRICAOESTADUAL.AsString <> '' then NumInsc := 1
+                                                   else NumInsc := 98;
+
+     AgenciaStr := IntToStr(qryContasAgencia.AsInteger);
+     AgenciaStr := Copy(AgenciaStr,1,4);
+     AgenciaInt := StrToInt(AgenciaStr);
+
+     Empr:='0000070'+Format('%.5d',[AgenciaInt])+
+                                    Format('%.7d',[qryContasConta.AsInteger]) +
+                                    Format('%.1d',[qryContasDigito.AsInteger]);
+
+     DecodeDate(qryParcelasDATAVENCTO.AsDateTime,Ano, Mes, Dia);
+     AnoStr := IntToStr(Ano);
+     AnoStr := Copy(AnoStr,3,2);
+     Ano    := StrToInt(AnoStr);
+     DataVenctoStr := Format('%.2d',[Dia]) + Format('%.2d',[Mes]) + Format('%.2d',[Ano]);
+
+     FillChar(DetalhesBradesco,SizeOf(DetalhesBradesco),'0');
+     MoveNro(1,                            D_TipoRegistro,           SizeOf(D_TipoRegistro));
+     MoveNro(NumInsc,                      D_TipoInscricao,          SizeOf(D_TipoInscricao));
+     MoveStr(qryFiliaisCnpj.AsString,     D_NumeroInscricao,        SizeOf(D_NumeroInscricao));
+     MoveStr(Empr,                         D_IndentEmpresa,          SizeOf(D_IndentEmpresa));
+     MoveStr(NrDocumentoEmpresa,           D_ControleDoParticipante, SizeOf(D_ControleDoParticipante));
+     MoveNro(0,                            D_Zeros01,                SizeOf(D_Zeros01));
+     MoveNro(0,                            D_IdentTitulo,            SizeOf(D_IdentTitulo));
+     MoveNro(0,                            D_Zeros02,                SizeOf(D_Zeros02));
+     MoveStr('',                           D_IdentOperacao,          SizeOf(D_IdentOperacao));
+     MoveNro(1,                            D_IdentOcorrencia,        SizeOf(D_IdentOcorrencia));
+     MoveStr(FormatStringOut(qryParcelasNumero.AsString,'R','0',3),
+                                           D_NrDuplicata,            SizeOf(D_NrDuplicata));
+     MoveStr(DataVenctoStr,                D_DataVencto,             SizeOf(D_DataVencto));
+     MoveVal(qryParcelasVALORVENCTO.Value, D_ValorTitulo,            SizeOf(D_ValorTitulo));
+     MoveStr('',                           D_Brancos1,               SizeOf(D_Brancos1));
+     MoveNro(1,                            D_EspecieTitulo,          SizeOf(D_EspecieTitulo));
+     MoveStr('',                           D_Brancos02,              SizeOf(D_Brancos02));
+     MoveNro(0,                            D_Zeros03,                SizeOf(D_Zeros03));
+
+     if qryParcelasPessoaTipo.AsString = 'F' then
+        NumInsc := 1
+     else
+        if qryParcelasPessoaTipo.AsString = 'J' then
+           NumInsc := 2
+        else
+           NumInsc := 98;
+
+     MoveNro(NumInsc,                         D_TipoInscricaoSacado,    SizeOf(D_TipoInscricaoSacado));
+     MoveStr(qryParcelasCNPJouCPF.AsString,D_NrInscricao,            SizeOf(D_NrInscricao));
+     MoveStr(qryParcelasNome.AsString,        D_NomeSacado,             SizeOf(D_NomeSacado));
+     MoveStr(qryParcelasRua.AsString,         D_EnderecoSacado,         SizeOf(D_EnderecoSacado));
+     MoveStr('',                              D_Brancos03,              SizeOf(D_Brancos03));
+
+
+     if qryParcelasCEP.AsInteger = 0 then begin
+        MoveNro(0,                               D_CepSacado,              SizeOf(D_CepSacado));
+        MoveNro(0,                               D_SulfixoCep,             SizeOf(D_SulfixoCep));
+     end
+     else begin
+        CepStr := IntToStr(qryParcelasCEP.AsInteger);
+        CepStr := Copy(CepStr,1,5);
+        CepInt := StrToInt(CepStr);
+        CepStr := Format('%.5d',[CepInt]);
+        MoveStr(CepStr,                          D_CepSacado,              SizeOf(D_CepSacado));
+        CepStr := IntToStr(qryParcelasCEP.AsInteger);
+        CepStr := Copy(CepStr,6,3);
+        if CepStr <> '' then begin
+           CepInt := StrToInt(CepStr);
+           CepStr := Format('%.3d',[CepInt]);
+           MoveStr(CepStr,                    D_SulfixoCep,             SizeOf(D_SulfixoCep));
+        end else
+           MoveNro(0,                         D_SulfixoCep,             SizeOf(D_SulfixoCep));
+     end;
+
+     MoveStr('',                              D_Brancos04,              SizeOf(D_Brancos04));
+
+     if Seq = 0 then
+        Seq := 1;
+
+     Inc(Seq);
+     MoveNro(Seq,                          D_SequencialReg,             SizeOf(D_SequencialReg));
+     MoveCrLf(CrLf,                        D_CrLf,                      SizeOf(D_CrLf));
+     BlockWrite(Arquivo,DetalhesBradesco,1);
+   end;
+End; {GravarDetalhesBradesco}
+*)
+
+(*
+
+Procedure TdtmGerarRemessas.GravarTraillerBRADESCO(Var Arq);
+Var Arquivo: File Absolute Arq;
+    TraillerBradesco: T_TraillerBradesco;
+Begin
+  with TraillerBradesco do begin
+    FillChar(TraillerBradesco,SizeOf(TraillerBradesco),'0');
+    MoveNro(9,             T_TipoRegistro,   SizeOf(T_TipoRegistro));
+    MoveStr('',            T_Brancos01,      SizeOf(T_Brancos01));
+    Inc(Seq);
+    MoveNro(Seq,           T_SequencialReg,  SizeOf(T_SequencialReg));
+    MoveCrLf(CrLf01,       T_CrLf,           SizeOf(T_CrLf));
+    BlockWrite(Arquivo,TraillerBradesco,1);
+  end;
+End;
+*)
+
+(*
+
+//======================== GERAR REMESSA BANCO DO BRASIL ========================================
+procedure TdtmGerarRemessas.GerarArquivoBBrasil(NomeArquivo: String);
+var //I: Integetr;
+    NomeArq: String;  FlagMarcado: Boolean;
+begin
+  try
+    AssignFile(Arq,NomeArquivo);
+    Rewrite(Arq,SizeOf(T_HeaderBBrasil));
+    GravarHeaderBBrasil(Arq);
+    GravarHeaderLoteBBrasil(Arq);
+    NomeArq := Copy(NomeArquivo, Length(NomeArquivo) - 11 ,8);
+    qryParcelas.DisableControls;
+
+    Seq := 0;    FlagMarcado := False;
+    qryParcelas.DisableControls;
+    qryParcelas.First;
+    while not qryParcelas.Eof do begin
+      if qryParcelasSelecionar.AsBoolean then begin
+         GravarDetalhesSegmento_P_BBrasil(Arq);
+         GravarDetalhesSegmento_Q_BBrasil(Arq);
+         FlagMarcado := True;
+
+         qryParcelas.Edit;
+         qryParcelasRemessa.AsString := NomeArq;
+         qryParcelasContaBoleto.AsString := qryContasConta.AsString;
+         qryParcelas.Post;
+
+         qryAtualizarParcelas.ParamByName('Remessa').    Value:= NomeArq;
+         qryAtualizarParcelas.ParamByName('ContaBoleto').Value:= qryContasConta.AsString;
+         qryAtualizarParcelas.ParamByName('Contrato').   Value:= qryParcelasContrato.AsString;
+         qryAtualizarParcelas.ParamByName('Numero').     Value:= qryParcelasNumero.AsString;
+         qryAtualizarParcelas.ExecSql;
+
+      end;
+      qryParcelas.Next;
+    end;
+    qryParcelas.EnableControls;
+
+    if FlagMarcado = False then begin
+       MensagemAviso('Não foi marcada nenhuma Parcela');
+       Exit;
+    end;
+
+    GravarTraillerLoteBBrasil(Arq);
+    GravarTraillerBBrasil(Arq);
+
+   qryContas.Edit;
+   qryContasSequencial.AsInteger := qryContasSequencial.AsInteger + 1;
+   qryContas.Post;
+   except
+    on E:EFCreateError do
+      MensagemErro(E.Message);
+  end;
+  Close(Arq);
+  Perpetrar([qryAtualizarParcelas, qryContas]);
+  qryParcelas.EnableControls;
+//  qryParcelas.Close;
+  MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[NomeArquivo]));
+end;
+
+Procedure TdtmGerarRemessas.GravarHeaderBBrasil(Var Arq);
+Var Arquivo: File Absolute Arq;
+    Ano, Mes, Dia, Hora, Min, Seg, MSeg: Word;
+    DataStr, NomeFil, HoraStr: String;
+    NrSeq, AgenciaInt: Integer;
+    AgenciaStr, DigAgeStr, Cnpj: String;
+    ContaStr, DigContaStr: String;
+Begin
+  with HeaderBBrasil do begin
+    NomeFil := qryParcelasNomeFilial.AsString;
+    NrSeq := qryContasSequencial.AsInteger + 1;
+    DecodeDate(Now, Ano, Mes, Dia);
+    DataStr := Format('%.2d',[Dia]) + Format('%.2d',[Mes]) + Format('%2.d',[Ano]);
+    DecodeTime(Time, Hora, Min, Seg,Mseg);
+    HoraStr:=  Format('%2.2d',[Hora]) + Format('%2.2d',[Min]) + Format('%2.2d',[Seg]);
+    Cnpj := qryFiliaisCnpj.AsString;
+    AgenciaStr := Format('%.5d', [qryContasAgencia.AsInteger]);
+    DigAgeStr  := Copy(AgenciaStr,5,1);
+    AgenciaStr := Copy(AgenciaStr,1,4);
+    AgenciaInt := StrToInt(AgenciaStr);
+    ContaStr   := Format('%.12d', [qryContasConta.AsInteger]);
+    DigContaStr:= qryContasDigito.AsString;
+
+    FillChar(HeaderBBrasil,SizeOf(HeaderBBrasil),'0');
+    MoveNro(1,                      H_CODIGO_BANCO_COMPENSACAO,         SizeOf(H_CODIGO_BANCO_COMPENSACAO));
+    MoveNro(0,                      H_LOTE_DE_SERVICO,                  SizeOf(H_LOTE_DE_SERVICO));
+    MoveNro(0,                      H_REGISTRO_HEADER_ARQUIVO,          SizeOf(H_REGISTRO_HEADER_ARQUIVO));
+    MoveStr('',                     H_USO_FEBRABAN,                     SizeOf(H_USO_FEBRABAN));
+    MoveNro(2,                      H_TIPO_INSCRICAO_EMPRESA,           SizeOf(H_TIPO_INSCRICAO_EMPRESA));
+    MoveStr(Cnpj,                   H_NR_INSCRICAO_EMPRESA, SizeOf( H_NR_INSCRICAO_EMPRESA ));
+    MoveStr('',                     H_CODIGO_CONVENIO_BANCO ,           SizeOf(H_CODIGO_CONVENIO_BANCO));
+    MoveNro(AgenciaInt,             H_AGENCIA_MANTENEDORA_CONTA,        SizeOf(H_AGENCIA_MANTENEDORA_CONTA));
+    MoveStr(DigAgeStr,              H_DIGITO_VERIF_AGENCIA,             SizeOf(H_DIGITO_VERIF_AGENCIA));
+    MoveStr(ContaStr,               H_Numero_CONTA_CORRENTE,            SizeOf(H_Numero_CONTA_CORRENTE));
+    MoveStr(DigContaStr,            H_DIGITO_VERIF_CONTA,               SizeOf(H_DIGITO_VERIF_CONTA));
+    MoveStr('',                     H_DIGITOVERIF_AG_CONTA,             SizeOf(H_DIGITOVERIF_AG_CONTA));
+    MoveStr(qryFiliaisNome.AsString,H_Nome_EMPRESA,                     SizeOf(H_Nome_EMPRESA));
+    MoveStr('BANCO DO BRASIL S/A',  H_Nome_BANCO,                       SizeOf(H_Nome_BANCO));
+    MoveStr('',                     H_USO_FEBRABAN1,                     SizeOf(H_USO_FEBRABAN1));
+    MoveNro(1,                      H_CODIGO_REMESSA_RETORNO,           SizeOf(H_CODIGO_REMESSA_RETORNO));
+    MoveNro(StrToInt(DataStr),      H_DATA_GERACAO_ARQUIVO,             SizeOf(H_DATA_GERACAO_ARQUIVO));
+    MoveNro(StrToInt(HoraStr),      H_HORA_GERACAO_ARQUIVO ,            SizeOf(H_HORA_GERACAO_ARQUIVO ));
+    MoveNro(NrSeq,                  H_NR_SEQUENCIAL_ARQUIVO,            SizeOf(H_NR_SEQUENCIAL_ARQUIVO));
+    MoveStr('030',                  H_NR_VERSAO_LAYOUT_ARQUIVO,         SizeOf(H_NR_VERSAO_LAYOUT_ARQUIVO));
+    MoveNro(0,                      H_DENSIDADE_GRAVACAO,               SizeOf(H_DENSIDADE_GRAVACAO));
+    MoveStr('',                     H_USO_ESERVADO_BANCO,               SizeOf(H_USO_ESERVADO_BANCO));
+    MoveStr('',                     H_USO_RESERVADO_EMPRESA,            SizeOf(H_USO_RESERVADO_EMPRESA));
+    MoveStr('',                     H_USO_FEBRABAN2,                    SizeOf(H_USO_FEBRABAN2));
+    MoveStr('CSP',                  H_IDENT_COBRANCA_EMPAPEL,           SizeOf(H_IDENT_COBRANCA_EMPAPEL));
+    MoveNro(0,                      H_USO_DAS_VANS,                     SizeOf(H_USO_DAS_VANS));
+    MoveNro(2,                      H_TIPO_DE_SERVICO ,                 SizeOf(H_TIPO_DE_SERVICO ));
+    MoveStr('',                     H_CODIGOS_DAS_OCORRENCIAS,          SizeOf(H_CODIGOS_DAS_OCORRENCIAS));
+    MoveCrLf(CrLf,                  H_CrLf,                             SizeOf(H_CrLf));
+    BlockWrite(Arquivo,HeaderBBrasil,1);
+  end;
+End; {GravarHeaderBBrasil}
+
+
+Procedure TdtmGerarRemessas.GravarHeaderLoteBBrasil(Var Arq);
+Var Arquivo: File Absolute Arq;
+    Ano, Mes, Dia: Word;
+    DataStr, NomeFil: String;
+    AgenciaInt, ConInt, CarInt, VarInt: Integer;
+    AgenciaStr, DigAgeStr, Cnpj, ConStr: String;
+    ContaStr, DigContaStr, CarStr, VarStr: String;
+Begin
+  with HeaderLoteBBrasil do begin
+    Cnpj := '0' + qryFiliaisCnpj.AsString;
+    AgenciaStr := Format('%.5d', [qryContasAgencia.AsInteger]);
+    DigAgeStr  := Copy(AgenciaStr,5,1);
+    AgenciaStr := Copy(AgenciaStr,1,4);
+    AgenciaInt := StrToInt(AgenciaStr);
+    ContaStr   := Format('%.12d', [qryContasConta.AsInteger]);
+    DigContaStr:= qryContasDigito.AsString;
+    NomeFil := qryParcelasNomeFilial.AsString;
+    DecodeDate(Now, Ano, Mes, Dia);
+    DataStr  := Format('%.2d',[Dia]) + Format('%.2d',[Mes]) + Format('%2.d',[Ano]);
+
+    CarInt  := StrToInt(Carteira);
+    CarStr  := Format('%.2d', [CarInt]);
+    VarInt  := StrToInt(Variacao);
+    VarStr  := Format('%.3d', [VarInt]);
+    ConInt  := StrToInt(Convenio);
+    ConStr  := Format('%.9d', [ConInt]) + '0014' + CarStr + VarStr + '  ';
+
+    FillChar(HeaderLoteBBrasil,SizeOf(HeaderLoteBBrasil),'0');
+    MoveNro(1,                      HL_CODIGO_BANCO_COMPENSACAO,        SizeOf(HL_CODIGO_BANCO_COMPENSACAO));
+    MoveNro(1,                      HL_LOTE_DE_SERVICO,                 SizeOf(HL_LOTE_DE_SERVICO));
+    MoveNro(1,                      HL_REGISTRO_HEADERDE_LOTE,          SizeOf(HL_REGISTRO_HEADERDE_LOTE));
+    MoveStr('R',                    HL_TIPO_OPERACAO,                   SizeOf(HL_TIPO_OPERACAO));
+    MoveNro(1,                      HL_TIPO_SERVICO,                    SizeOf(HL_TIPO_SERVICO));
+    MoveNro(0,                      HL_FORMA_DE_LANCAMENTO,             SizeOf(HL_FORMA_DE_LANCAMENTO));
+    MoveStr('020',                  HL_NR_VERSAO_LAYOUT_LOTE,           SizeOf(HL_NR_VERSAO_LAYOUT_LOTE));
+    MoveStr('',                     HL_USO_FEBRABAN,                    SizeOf(HL_USO_FEBRABAN));
+    MoveNro(2,                      HL_TIPO_INSCRICAO_EMPRESA,          SizeOf(HL_TIPO_INSCRICAO_EMPRESA));
+    MoveStr(Cnpj,                   HL_NR_INSCRICAO_EMPRESA,            SizeOf(HL_NR_INSCRICAO_EMPRESA));
+    MoveStr(ConStr,                 HL_CODIGO_CONVENIO_BANCO,           SizeOf(HL_CODIGO_CONVENIO_BANCO));
+    MoveNro(AgenciaInt,             HL_AGENCIA_MANTENEDORA_CONTA,       SizeOf(HL_AGENCIA_MANTENEDORA_CONTA));
+    MoveStr(DigAgeStr,              HL_DIGITO_AGENCIA,                  SizeOf(HL_DIGITO_AGENCIA));
+    MoveStr(ContaStr,               HL_NR_CONTA_CORRENTE,               SizeOf(HL_NR_CONTA_CORRENTE));
+    MoveStr(DigContaStr,            HL_DIGITO_CONTA,                    SizeOf(HL_DIGITO_CONTA));
+    MoveStr('',                     HL_DIGITO_VERIF_AG_CONTA,           SizeOf(HL_DIGITO_VERIF_AG_CONTA));
+    MoveStr(NomeFil,                HL_Nome_EMPRESA,                    SizeOf(HL_Nome_EMPRESA));
+    MoveStr('',                     HL_MENSAGEM1,                       SizeOf(HL_MENSAGEM1));
+    MoveStr('',                     HL_MENSAGEM2,                       SizeOf(HL_MENSAGEM2));
+    MoveNro(0,                      HL_NR_REMESSA_RETORNO,              SizeOf(HL_NR_REMESSA_RETORNO));
+    MoveStr(DataStr,                HL_DATA_GRAVACAO_REM_RET,           SizeOf(HL_DATA_GRAVACAO_REM_RET));
+    MoveNro(0,                      HL_DATA_CREDITO,                    SizeOf(HL_DATA_CREDITO));
+    MoveStr('',                     HL_USO_FEBRABAN1,                   SizeOf(HL_USO_FEBRABAN1));
+    MoveCrLf(CrLf,                  HL_CrLf,                            SizeOf(HL_CrLf));
+    BlockWrite(Arquivo,HeaderLoteBBrasil,1);
+  end;
+End; {GravarHeaderLoteBBrasil}
+
+
+Procedure TdtmGerarRemessas.GravarDetalhesSegmento_P_BBrasil(Var Arq);
+Var Arquivo:  File Absolute Arq;
+    AgenciaInt: Integer;
+    AgenciaStr, DigAgeStr: String;
+    ContaStr, DigContaStr: String;
+    DataEmissaoStr, DataVenctoStr: String;
+    Ano, Mes, Dia: Word;
+Begin
+  with DetalheSegmento_P_BBrasil  do begin
+     Inc(Seq);
+     FillChar(DetalheSegmento_P_BBrasil,SizeOf(DetalheSegmento_P_BBrasil),'0');
+     MoveNro(1,                            DP_CODIGO_BANCO_COMPENSACAO,    SizeOf(DP_CODIGO_BANCO_COMPENSACAO));
+     MoveNro(1,                            DP_LOTE_DE_SERVICO,             SizeOf(DP_LOTE_DE_SERVICO));
+     MoveNro(3,                            DP_REGISTRO_DETALHE ,           SizeOf(DP_REGISTRO_DETALHE));
+     MoveNro(Seq,                          DP_NR_SEQUENCIAL_REG_LOTE,      SizeOf(DP_NR_SEQUENCIAL_REG_LOTE));
+     MoveStr('P',                          DP_COD_SEGMENTO,                SizeOf(DP_COD_SEGMENTO));
+     MoveStr('',                           DP_USO_FEBRABAN,                SizeOf(DP_USO_FEBRABAN));
+     MoveNro(1,                            DP_CODIGO_MOVIMENTO,           SizeOf(DP_CODIGO_MOVIMENTO ));
+
+
+     AgenciaStr := Format('%.5d', [qryContasAgencia.AsInteger]);
+     DigAgeStr  := Copy(AgenciaStr,5,1);
+     AgenciaStr := Copy(AgenciaStr,1,4);
+     AgenciaInt := StrToInt(AgenciaStr);
+
+     MoveNro(AgenciaInt,                   DP_AGENCIA_MANTENEDORA_CONTA,   SizeOf(DP_AGENCIA_MANTENEDORA_CONTA));
+     MoveStr(DigAgeStr,                    DP_DIGITOAGENCIA,               SizeOf(DP_DIGITOAGENCIA));
+
+     ContaStr   := Format('%.12d', [qryContasConta.AsInteger]);
+     DigContaStr:= qryContasDigito.AsString;
+     MoveStr(ContaSTr,                     DP_NR_CONTA_CORRENTE,           SizeOf(DP_NR_CONTA_CORRENTE));
+     MoveStr(DigContaStr,                  DP_DIGITO_VERIF_CONTA,          SizeOf(DP_DIGITO_VERIF_CONTA));
+
+     MoveStr('',                           DP_DIGITO_VERIF_AG_CONTA,       SizeOf(DP_DIGITO_VERIF_AG_CONTA));
+     MoveStr('000000000000',               DP_IDENT_TITULO_NO_BANCO,       SizeOf(DP_IDENT_TITULO_NO_BANCO));
+     MoveNro(4,                            DP_CODIGO_CARTEIRA,             SizeOf(DP_CODIGO_CARTEIRA));
+     MoveNro(1,                            DP_FORMA_CADAS_TITULO,          SizeOf(DP_FORMA_CADAS_TITULO));
+     MoveNro(1,                            DP_TIPO_DOCUMENTO,              SizeOf(DP_TIPO_DOCUMENTO));
+     MoveNro(1,                            DP_IDENT_EMISSAO_BLOQUETO,      SizeOf(DP_IDENT_EMISSAO_BLOQUETO ));
+     MoveNro(1,                            DP_IDENT_DISTRIBUICAO,          SizeOf(DP_IDENT_DISTRIBUICAO));
+     MoveStr(FormatStringOut(qryParcelasNumero.AsString,'R','0',3), DP_NR_DUPLICATA,       SizeOf(DP_NR_DUPLICATA));
+
+     DecodeDate(qryParcelasDATAVENCTO.AsDateTime,Ano, Mes, Dia);
+     DataVenctoStr := Format('%.2d',[Dia]) + Format('%.2d',[Mes]) + Format('%.4d',[Ano]);
+
+     MoveStr(DataVenctoStr,                DP_DATA_VENCTO_TITULO,          SizeOf(DP_DATA_VENCTO_TITULO));
+     MoveVal(qryParcelasVALORVENCTO.Value, DP_VALOR_NOMINAL_TITULO,SizeOf(DP_VALOR_NOMINAL_TITULO));
+     MoveNro(0,                            DP_AGENCIA_ENCARREGADA_COBRANCA,SizeOf(DP_AGENCIA_ENCARREGADA_COBRANCA));
+     MoveNro(0,                            DP_DIGITOAGENCIA1,              SizeOf(DP_DIGITOAGENCIA1));
+     MoveNro(0,                            DP_ESPECIE_TITULO,              SizeOf(DP_ESPECIE_TITULO));
+     MoveStr('N',                          DP_IDENT_TITULO_ACEITO,         SizeOf(DP_IDENT_TITULO_ACEITO));
+
+     DecodeDate(Now,Ano, Mes, Dia);
+     DataEmissaoStr := Format('%.2d',[Dia]) + Format('%.2d',[Mes]) + Format('%.4d',[Ano]);
+
+     MoveStr(DataEmissaoStr,              DP_DATA_EMISSAO_TITULO,        SizeOf(DP_DATA_EMISSAO_TITULO));
+     MoveNro(3,                           DP_CODIGO_JUROS_MORA,          SizeOf(DP_CODIGO_JUROS_MORA));
+     MoveNro(0,                           DP_DATA_JUROS_MORA,            SizeOf(DP_DATA_JUROS_MORA));
+     MoveNro(0,                           DP_JUROS_MORA_POR_DIA_TAXA,    SizeOf(DP_JUROS_MORA_POR_DIA_TAXA));
+     MoveNro(0,                           DP_CODIGO_DESCONTO1,           SizeOf(DP_CODIGO_DESCONTO1));
+     MoveNro(0,                           DP_DATA_DESCONTO1,             SizeOf(DP_DATA_DESCONTO1));
+     MoveNro(0,                           DP_VALOR_PERC_CONCEDIDO,       SizeOf(DP_VALOR_PERC_CONCEDIDO));
+     MoveNro(0,                           DP_VALOR_IOF_A_SER_RECOLHIDO,  SizeOf(DP_VALOR_IOF_A_SER_RECOLHIDO));
+     MoveNro(0,                           DP_VALOR_ABATIMENTO,           SizeOf(DP_VALOR_ABATIMENTO));
+     MoveStr(NrDocumentoEmpresa,          DP_IDENT_TIT_NA_EMPRESA,       SizeOf(DP_IDENT_TIT_NA_EMPRESA));
+     MoveNro(0,                           DP_CODIGO_PARA_PROTESTO,       SizeOf(DP_CODIGO_PARA_PROTESTO));
+     MoveNro(0,                           DP_NR_DIAS_PARA_PROTESTO,      SizeOf(DP_NR_DIAS_PARA_PROTESTO));
+     MoveNro(2,                           DP_CODIGO_BAIXA_DEVOLUCAO,     SizeOf(DP_CODIGO_BAIXA_DEVOLUCAO));
+     MoveNro(0,                           DP_NR_DIAS_PARA_BAIXA_DEVOL,   SizeOf(DP_NR_DIAS_PARA_BAIXA_DEVOL));
+     MoveNro(9,                           DP_CODIGO_MOEDA,               SizeOf(DP_CODIGO_MOEDA));
+     MoveStr('',                          DP_NR_CONTR_OPERACAO_CRED,     SizeOf(DP_NR_CONTR_OPERACAO_CRED));
+     MoveStr('',                          DP_USO_FEBRABAN1,              SizeOf(DP_USO_FEBRABAN1));
+     MoveCrLf(CrLf,                       DP_CrLf,                       SizeOf(DP_CrLf));
+     BlockWrite(Arquivo,DetalheSegmento_P_BBrasil,1);
+   end;
+End; {GravarDetalhesSegmento_P_BBrasil}
+
+Procedure TdtmGerarRemessas.GravarDetalhesSegmento_Q_BBrasil(Var Arq);
+Var Arquivo:  File Absolute Arq;
+    NumInsc, CepInt: Integer;
+    InscStr, CepStr: String;
+begin
+  with DetalheSegmento_Q_BBrasil  do begin
+     FillChar(DetalheSegmento_Q_BBrasil,SizeOf(DetalheSegmento_Q_BBrasil),'0');
+     MoveNro(1,                            DQ_CODIGO_BANCO_COMPENSACAO,    SizeOf(DQ_CODIGO_BANCO_COMPENSACAO));
+     MoveNro(1,                            DQ_LOTE_DE_SERVICO,             SizeOf(DQ_LOTE_DE_SERVICO));
+     MoveNro(3,                            DQ_REGISTRO_DETALHE,            SizeOf(DQ_REGISTRO_DETALHE));
+     Inc(Seq);
+     MoveNro(Seq,                          DQ_NR_SEQUENCIAL_LOTE,          SizeOf(DQ_NR_SEQUENCIAL_LOTE));
+     MoveStr('Q',                          DQ_COD_SEGMENTOR,               SizeOf(DQ_COD_SEGMENTOR));
+     MoveStr('',                           DQ_USO_FEBRABAN,                SizeOf(DQ_USO_FEBRABAN));
+     MoveNro(1,                            DQ_CODIGO_MOVIMENTO,            SizeOf(DQ_CODIGO_MOVIMENTO));
+
+     if qryParcelasPessoaTipo.AsString = 'F' then
+        NumInsc := 1
+     else
+        if qryParcelasPessoaTipo.AsString = 'J' then
+           NumInsc := 2
+        else
+           NumInsc := 9;
+
+     MoveNro(NumInsc,                      DQ_TIPO_INSCRICAO,    SizeOf(DQ_TIPO_INSCRICAO));
+
+     if qryParcelasCNPJouCPF.AsString = '' then
+        InscStr := '000000000000000'
+     else
+        InscStr := '0' + qryParcelasCNPJouCPF.AsString;
+
+     MoveStr(InscStr,                       DQ_NR_INSCRICAO,   SizeOf(DQ_NR_INSCRICAO));
+     MoveStr(qryParcelasNome.AsString,      DQ_Nome,           SizeOf(DQ_Nome));
+     MoveStr(qryParcelasRua.AsString,       DQ_ENDERECO,       SizeOf(DQ_ENDERECO));
+     MoveStr(qryParcelasNomeBairro.AsString,DQ_Bairro,         SizeOf(DQ_Bairro));
+
+     if qryParcelasCEP.AsInteger = 0 then begin
+        MoveNro(0, DQ_CEP,        SizeOf(DQ_CEP));
+        MoveNro(0, DQ_SUFIXO_CEP, SizeOf(DQ_SUFIXO_CEP));
+     end
+     else begin
+        CepStr := FStr(qryParcelasCEP.AsInteger,$81);
+        CepStr := Copy(CepStr,1,5);
+        CepInt := StrToInt(CepStr);
+        CepStr := Format('%.5d',[CepInt]);
+        MoveStr(CepStr,                    DQ_CEP,      SizeOf(DQ_CEP));
+        CepStr := FStr(qryParcelasCEP.AsInteger,$81);
+        CepStr := Copy(CepStr,6,3);
+        if CepStr <> '' then begin
+           CepInt := StrToInt(CepStr);
+           CepStr := Format('%.3d',[CepInt]);
+           MoveStr(CepStr,                  DQ_SUFIXO_CEP,  SizeOf(DQ_SUFIXO_CEP));
+        end else
+           MoveNro(0,                       DQ_SUFIXO_CEP,   SizeOf(DQ_SUFIXO_CEP));
+     end;
+
+     MoveStr(qryParcelasNomeCidade. AsString, DQ_CIDADE,                SizeOf(DQ_CIDADE));
+     MoveStr(qryParcelasEstado.     AsString, DQ_ESTADO,                SizeOf(DQ_ESTADO));
+     MoveNro(0,                               DQ_TIPO_INSCRICAO1,       SizeOf(DQ_TIPO_INSCRICAO1));
+     MoveNro(0,                               DQ_NR_INSCRICAO1,         SizeOf(DQ_NR_INSCRICAO1));
+     MoveStr('',                              DQ_Nome_SACADOR_AVALISTA, SizeOf(DQ_Nome_SACADOR_AVALISTA));
+     MoveNro(0,                               DQ_COD_BCO_COMPENSACAO,   SizeOf(DQ_COD_BCO_COMPENSACAO));
+     MoveStr(qryParcelasNossoNumero.AsString, DQ_NOSSO_Numero,          SizeOf(DQ_NOSSO_Numero));
+     MoveStr('',                              DQ_USO_FEBRABAN1,         SizeOf(DQ_USO_FEBRABAN1));
+     MoveCrLf(CrLf,                           DQ_CrLf,                  SizeOf(DQ_CrLf));
+     BlockWrite(Arquivo,DetalheSegmento_Q_BBrasil,1);
+   end;
+End; {GravarDetalhesSegmento_Q_BBrasil}
+
+//---- Trailler do Lote -------------
+Procedure TdtmGerarRemessas.GravarTraillerLoteBBrasil(Var Arq);
+Var Arquivo: File Absolute Arq;
+Begin
+  with TraillerLoteBBrasil do begin
+    FillChar(TraillerLoteBBrasil, SizeOf(TraillerLoteBBrasil),'0');
+    MoveNro(1,            TL_CODIGO_BANCO_COMPENSACAO,   SizeOf(TL_CODIGO_BANCO_COMPENSACAO));
+    MoveNro(1,            TL_LOTE_DE_SERVICO,            SizeOf(TL_LOTE_DE_SERVICO));
+    MoveNro(5,            TL_REGISTRO_TRAIILERE_LOTE,    SizeOf(TL_REGISTRO_TRAIILERE_LOTE));
+    MoveStr('',           TL_USO_FEBRABAN,               SizeOf(TL_USO_FEBRABAN));
+    Inc(Seq);  Inc(Seq);
+    MoveNro(Seq,          TL_QTDE_REG_DO_LOTE,           SizeOf(TL_QTDE_REG_DO_LOTE));
+    MoveNro(0,            TL_QTDE_TIT_EM_COBRANCA,       SizeOf(TL_QTDE_TIT_EM_COBRANCA));
+    MoveNro(0,            TL_VALOR_TOT_TIT_EM_CARTEIRA,  SizeOf(TL_VALOR_TOT_TIT_EM_CARTEIRA));
+    MoveNro(0,            TL_QTDE_TIT_EM_COBRANCA1,      SizeOf(TL_QTDE_TIT_EM_COBRANCA1));
+    MoveNro(0,            TL_VALOR_TOT_TIT_CARTEIRAS,    SizeOf(TL_VALOR_TOT_TIT_CARTEIRAS));
+    MoveNro(0,            TL_QTDE_TIT_COBRANCA,          SizeOf(TL_QTDE_TIT_COBRANCA));
+    MoveNro(0,            TL_VALOR_TOT_TIT_CARTEIRAS1,   SizeOf(TL_VALOR_TOT_TIT_CARTEIRAS1));
+    MoveNro(0,            TL_QTDE_TIT_COBRANCA1,         SizeOf(TL_QTDE_TIT_COBRANCA1));
+    MoveNro(0,            TL_VALOR_TOT_TIT_CARTEIRAS2,   SizeOf(TL_VALOR_TOT_TIT_CARTEIRAS2));
+    MoveStr('',           TL_Numero_AVISO_LANCAMENTO,    SizeOf(TL_Numero_AVISO_LANCAMENTO));
+    MoveStr('',           TL_USO_FEBRABAN1,              SizeOf(TL_USO_FEBRABAN1));
+    MoveCrLf(CrLf,        TL_CrLf,                       SizeOf(TL_CrLf));
+    BlockWrite(Arquivo,TraillerLoteBBrasil,1);
+  end; {GravarTraillerLoteBBrasil(Arq);}
+End;
+
+//---- Trailler do Arquivo -------------
+Procedure TdtmGerarRemessas.GravarTraillerBBrasil(Var Arq);
+Var Arquivo: File Absolute Arq;
+Begin
+  with TraillerBBrasil do begin
+    FillChar(TraillerBBrasil, SizeOf(TraillerBBrasil),'0');
+    MoveNro(1,            T_CODIGO_BANCO_COMPENSACAO,   SizeOf(T_CODIGO_BANCO_COMPENSACAO));
+    MoveStr('9999',       T_LOTE_DE_SERVICO,            SizeOf(T_LOTE_DE_SERVICO));
+    MoveNro(9,            T_REGISTRO_TRAIILER_LOTE,     SizeOf(T_REGISTRO_TRAIILER_LOTE));
+    MoveStr('',           T_USO_FEBRABAN,               SizeOf(T_USO_FEBRABAN));
+    MoveNro(1,            T_QTDE_LOTES_NO_ARQUIVO,      SizeOf(T_QTDE_LOTES_NO_ARQUIVO));
+    Inc(Seq);  Inc(Seq);
+    MoveNro(Seq,          T_QTDE_REG_NO_ARQUIVO,        SizeOf(T_QTDE_REG_NO_ARQUIVO));
+    MoveNro(0,            T_QTDE_CONTAS_CONC_LOTE,      SizeOf(T_QTDE_CONTAS_CONC_LOTE));
+    MoveStr('',           T_USU_FEBRABAN1,              SizeOf(T_USU_FEBRABAN1));
+    MoveCrLf(CrLf,        T_CrLf,                       SizeOf(T_CrLf));
+    BlockWrite(Arquivo,TraillerBBrasil,1);
+  end; {GravarTraillerLoteBBrasil(Arq);}
+End;
+
+//======================== END GERAR REMESSAS BANCO DO BRASIL ====================================
+*)
+
+Function TdtmGerarRemessas.AbrirParcelas: Boolean;
+begin
+  result := true;
+  qryParcelas.DisableControls;
+  try
+    ReFazConsulta(qryParcelas,[],[]);
+  except
+    on E: Exception do
+    begin
+      result := false;
+      if (pos('more than one row', E.Message)<>0) and Integracao_Nexxera then
+        MensagemAviso('Erro de configuração em ''Bancos''. Existem mais de uma conta para uma mesma filial marcada para integração Nexxera')
+      else
+        ShowMessage(E.Message);
+    end;
+  end;
+
+  if result then
+  begin
+    Result := not qryParcelas.IsEmpty;
+    qryParcelas.EnableControls;
+
+    qryParcelasContasAgrupadas.params := qryParcelas.params;
+    qryParcelasContasAgrupadas.macros := qryParcelas.macros;
+    qryParcelasContasAgrupadas.close;
+    qryParcelasContasAgrupadas.open;
+  end;
+
+end;
+
+procedure TdtmGerarRemessas.DataModuleDestroy(Sender: TObject);
+begin
+  inherited;
+  qryContas.Close;
+end;
+
+procedure TdtmGerarRemessas.MarcarRegistrosSelecionados(Marcando, Todos: Boolean);
+begin
+  MarcarRegistros(qryParcelas,
+                  qryParcelasSelecionar,
+                  qryParcelasValorVencto,
+                  Marcando,
+                  Todos, 4, false);
+end;
+
+
+function TdtmGerarRemessas.GetQtdeLidas: Integer;
+begin
+   Result:= qryParcelas.RecordCount;
+end;
+
+function TdtmGerarRemessas.GetTotalLidas: Real;
+begin
+   Result:= TotalizarValores[qryParcelas, qryParcelasValorVencto, nil];
+end;
+
+procedure TdtmGerarRemessas.MarcarSelecionados(Marcando, Todos: Boolean);
+var Pos: TBookmark;
+    I  : Integer;
+
+    procedure AtualizarValores;
+    begin
+       if qryParcelasSelecionar.AsBoolean then begin
+          FQtdeMarcados  := FQtdeMarcados  + 1;
+          FTotalMarcados := FTotalMarcados + qryParcelasValorVencto.AsCurrency;
+       end
+       else begin
+          FQtdeMarcados  := FQtdeMarcados  - 1;
+          FTotalMarcados := FTotalMarcados - qryParcelasValorVencto.AsCurrency;
+       end;
+    end;
+
+begin
+   with qryParcelas do
+      if not IsEmpty
+      then if not Todos then begin
+              Edit;
+              qryParcelasSelecionar.AsBoolean:= not qryParcelasSelecionar.AsBoolean;
+              Post;
+              AtualizarValores;
+           end
+           else begin
+              Pos:= GetBookmark;
+              try
+                 DisableControls;
+                 First;
+                 for I:= 1 to RecordCount do begin
+                     Edit;
+                     if Marcando then begin
+                        if not qryParcelasSelecionar.AsBoolean then begin
+                           qryParcelasSelecionar.AsBoolean := True;
+                           AtualizarValores;
+                        end
+                     end
+                     else begin
+                        if qryParcelasSelecionar.AsBoolean then begin
+                           qryParcelasSelecionar.AsBoolean:= False;
+                           AtualizarValores;
+                        end;
+                     end;
+                     Post;
+                     Next;
+                 end;
+              finally
+                 GotoBookmark(Pos);
+                 FreeBookmark(Pos);
+                 EnableControls;
+              end;
+           end;
+end;
+
+
+procedure TdtmGerarRemessas.AtualizarParcelas;
+var
+  Flag : Boolean;
+begin
+  Flag := False;
+  qryParcelas.DisableControls;
+  qryParcelas.First;
+  while not qryParcelas.Eof do begin
+    if qryParcelasSelecionar.AsBoolean then begin
+      Flag := True;
+
+      qryParcelas.Edit;
+      qryParcelasContaBoleto.AsString := qryContasConta.AsString;
+      qryParcelas.Post;
+{
+      qryAtualizarParcelas.ParamByName('contaboleto').AsInteger := qryContasConta.AsInteger;
+      qryAtualizarParcelas.ParamByName('Contrato').AsString     := qryParcelasContrato.AsString;
+      qryAtualizarParcelas.ParamByName('Numero').AsInteger      := qryParcelasNumero.AsInteger;
+      qryAtualizarParcelas.ExecSql;
+}
+    end;
+    qryParcelas.Next;
+  end;
+  qryParcelas.EnableControls;
+
+  if not Flag then begin
+    MensagemAviso('Não foi selecionada nenhuma Parcela.');
+    Exit;
+  end
+  else
+  begin
+   Perpetrar([qryParcelas]);
+   MensagemAviso('Parcelas gravadas com sucesso.');
+  end;
+//  qryParcelas.Close;
+end;
+
+procedure TdtmGerarRemessas.GerarArquivoHSBC(NomeArquivo: String);
+var NomeArq: String; FlagMarcado: Boolean;
+//  I: Integer;
+begin
+(***********************************************************
+ for I := 1 to Length(NomeArquivo) do begin
+    {$IFDEF LINUX}
+      if NomeArquivo[I] = '\' then begin
+         Delete(NomeArquivo, I, 1);
+         Insert('/',NomeArquivo,I);
+     end;
+    {$ELSE }
+      if NomeArquivo[I] = '/' then begin
+         Delete(NomeArquivo, I, 1);
+         Insert('\',NomeArquivo,I);
+    {$ENDIF }
+  end;
+*************************************************************)
+  try
+    AssignFile(Arq,NomeArquivo);
+    Rewrite(Arq,SizeOf(T_HeaderHSBC));
+    GravarHeaderHSBC(Arq);
+    Seq := 0;      FlagMarcado := False;
+    NomeArq := Copy(NomeArquivo, Length(NomeArquivo) - 11 ,8);
+
+    qryParcelas.DisableControls;
+    qryParcelas.First;
+    while not qryParcelas.Eof do begin
+      if qryParcelasSelecionar.AsBoolean then begin
+
+         GravarDetalhesHSBC(Arq);
+         FlagMarcado := True;
+
+         qryParcelas.Edit;
+         qryParcelasRemessa.AsString := NomeArq;
+         qryParcelasContaBoleto.AsString := qryContasConta.AsString;
+         qryParcelas.Post;
+
+         qryAtualizarParcelas.ParamByName('Remessa').    Value:= NomeArq;
+         qryAtualizarParcelas.ParamByName('ContaBoleto').Value:= qryContasConta.AsString;
+         qryAtualizarParcelas.ParamByName('Contrato').   Value:= qryParcelasContrato.AsString;
+         qryAtualizarParcelas.ParamByName('Numero').     Value:= qryParcelasNumero.AsString;
+         qryAtualizarParcelas.ExecSql;
+      end;
+      qryParcelas.Next;
+    end;
+
+    if FlagMarcado = False then begin
+       MensagemAviso('Não foi selecionada nenhuma Parcela');
+       Exit;
+    end;
+
+   GravarTraillerHSBC(Arq);
+   if qryContasBanco.AsInteger = 237 then begin
+      qryContas.Edit;
+      qryContasSequencial.AsInteger:= qryContasSequencial.AsInteger;
+      qryContasdataultimaremessa.asdatetime := dataservidor;
+      qryContas.Post;
+   end;
+  except
+    on E:EFCreateError do
+      MensagemErro(E.Message);
+  end;
+  Close(Arq);
+
+  Perpetrar([qryAtualizarParcelas,qryContas]);
+  qryParcelas.EnableControls;
+
+//  qryParcelas.Close;
+  MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[NomeArquivo]));
+end;
+
+procedure TdtmGerarRemessas.GravarHeaderHSBC(var Arq);
+Var Arquivo: File Absolute Arq;
+    Ano, Mes, Dia: Word;
+    DatAStr, NomeFil, AgenciaStr: String;
+    NrRemessa, AgenciaInt: Integer;
+    HeaderHSBC: T_HeaderHSBC;
+    ContaStr: String;
+Begin
+  with HeaderHSBC do begin
+    DecodeDate(Now, Ano, Mes, Dia);
+    DataStr := Format('%.2d',[Dia]) + Format('%.2d',[Mes]) + Copy(Format('%.2d',[Ano]),3,2);
+    NomeFil := qryParcelasNomeFilial.AsString;
+    NrRemessa := qryContasSequencial.AsInteger;
+
+    AgenciaStr := IntToStr(qryContasAgencia.AsInteger);
+    AgenciaStr := preencheString(AgenciaStr,'0',4,false);
+    AgenciaInt := StrToInt(AgenciaStr);
+
+    ContaStr   := IntToStr(qryContasConta.AsInteger);
+    ContaStr   := preencheString(ContaStr,'0',6,false);
+
+    FillChar(HeaderHSBC,SizeOf(HeaderHSBC),'0');
+    MoveStr('0',             H_TipoRegistro,     SizeOf(H_TipoRegistro));
+    MoveStr('1',             H_TipoArquivo,      SizeOf(H_TipoArquivo));
+    MoveStr('REMESSA',       H_LiteralArquivo,   SizeOf(H_LiteralArquivo));
+    MoveStr('01',            H_CodigoServico,    SizeOf(H_CodigoServico));
+    MoveStr('COBRANCA',      H_LiteralServico,   SizeOf(H_LiteralServico));
+    MoveStr('0',             H_Zero,             SizeOf(H_Zero));
+    MoveStr(AgenciaStr,      H_AgenciaCliente,   SizeOf(H_AgenciaCliente));
+    MoveStr('55',            H_SubConta,         SizeOf(H_SubConta));
+    MoveStr(AgenciaStr+ContaStr+qryContasDigito.AsString,
+                             H_ContaCorrente,    SizeOf(H_ContaCorrente));
+    MoveStr('  ',            H_Banco1,           SizeOf(H_Banco1));
+    MoveStr(RazaoFilialBase, H_NomeCliente,      SizeOf(H_NomeCliente));
+    MoveStr('399',           H_CodigoBanco,      SizeOf(H_CodigoBanco));
+    MoveStr('HSBC',          H_NomeBanco,        SizeOf(H_NomeBanco));
+    MoveStr(DataStr,
+                             H_DataGravacao,     SizeOf(H_DataGravacao));
+    MoveStr('01600',         H_DensidadeGravacao,SizeOf(H_DensidadeGravacao));
+    MoveStr('BPT',           H_LiteralDensidade, SizeOf(H_LiteralDensidade));
+    MoveStr('  ',            H_Banco2,           SizeOf(H_Banco2));
+    MoveStr('LANCV08',       H_SiglaLayout,      SizeOf(H_SiglaLayout));
+    MoveStr('',              H_Banco3,           SizeOf(H_Banco3));
+    MoveStr('',              H_Banco4,           SizeOf(H_Banco4));
+    MoveStr('000001',        H_Sequencial,       SizeOf(H_Sequencial));
+    MoveCrLf(CrLf,                H_CrLf,             SizeOf(H_CrLf));
+    BlockWrite(Arquivo,HeaderHSBC,1);
+
+  end;
+End;
+
+procedure TdtmGerarRemessas.GravarDetalhesHSBC(var Arq);
+Var Arquivo:  File Absolute Arq;
+    DetalhesHSBC: T_DetalheHSBC;
+    NumInsc:  Integer;           CepInt:        Integer;
+    CepStr: String[8];           Empr :    String;            AnoStr: String;
+    DataVenctoStr: String;       Ano, Mes, Dia: Word;
+    Participante: String;        AgenciaStr: String;          AgenciaInt: Integer;
+    CodInsc: String;             ContaStr:   String;
+Begin
+  with DetalhesHSBC  do begin
+     if qryFiliaisINSCRICAOESTADUAL.AsString <> '' then NumInsc := 1
+                                                   else NumInsc := 98;
+
+     AgenciaStr := IntToStr(qryContasAgencia.AsInteger);
+     AgenciaStr := preencheString(AgenciaStr,'0',4,false);
+     AgenciaInt := StrToInt(AgenciaStr);
+
+     ContaStr   := IntToStr(qryContasConta.AsInteger);
+     ContaStr   := preencheString(ContaStr,'0',6,false);
+
+     Empr:='0000070'+Format('%.5d',[AgenciaInt])+
+                                    Format('%.7d',[qryContasConta.AsInteger]) +
+                                    qryContasDigito.AsString;
+
+     DecodeDate(qryParcelasDATAVENCTO.AsDateTime,Ano, Mes, Dia);
+     AnoStr := IntToStr(Ano);
+     AnoStr := Copy(AnoStr,3,2);
+     Ano    := StrToInt(AnoStr);
+     DataVenctoStr := Format('%.2d',[Dia]) + Format('%.2d',[Mes]) + Format('%.2d',[Ano]);
+
+     FillChar(DetalhesHSBC,SizeOf(DetalhesHSBC),'0');
+
+     MoveStr('1',                     D_TipoRegistro,     SizeOf(D_TipoRegistro));
+     MoveNro(NumInsc,                 D_CodigoInscricao,  SizeOf(D_CodigoInscricao));
+     MoveStr(qryFiliaisCnpj.AsString, D_CPF_CNPJ,         SizeOf(D_CPF_CNPJ));
+     MoveStr('0',                     D_Zero,             SizeOf(D_Zero));
+     MoveStr(AgenciaStr,              D_AgenciaCedente,   SizeOf(D_AgenciaCedente));
+     MoveStr('55',                    D_SubConta,         SizeOf(D_SubConta));
+     MoveStr(AgenciaStr+ContaStr+qryContasDigito.AsString,
+                                      D_ContaCorrente,    SizeOf(D_ContaCorrente));
+     MoveStr('  ',          D_Brancos1,         SizeOf(D_Brancos1));
+     MoveStr('',            D_Participante,     SizeOf(D_Participante));
+     MoveStr('00000000000', D_NossoNumero,      SizeOf(D_NossoNumero));
+     MoveStr('000000',      D_DataLimiteDescto2,SizeOf(D_DataLimiteDescto2));
+     MoveStr('00000000000', D_ValorDesconto2,   SizeOf(D_ValorDesconto2));
+     MoveStr('000000',      D_DataLimiteDescto3,SizeOf(D_DataLimiteDescto3));
+     MoveStr('00000000000', D_ValorDesconto3,   SizeOf(D_ValorDesconto3));
+     MoveStr('1',           D_TipoCarteira,     SizeOf(D_TipoCarteira));
+     MoveStr('01',          D_CodigoOcorrencia, SizeOf(D_CodigoOcorrencia));
+
+     MoveStr(NrDocumentoEmpresa,  D_SeuNumero,       SizeOf(D_SeuNumero));
+
+     MoveStr(DataVenctoStr,
+                              D_DataVencto,     SizeOf(D_DataVencto));
+     MoveVal(qryParcelasVALORVENCTO.Value, D_ValorTitulo,    SizeOf(D_ValorTitulo));
+     MoveStr('399',           D_BancoCobrador,  SizeOf(D_BancoCobrador));
+     MoveStr('00000',         D_AgenciaDepositaria,SizeOf(D_AgenciaDepositaria));
+     MoveStr('09',            D_Especie,        SizeOf(D_Especie));
+     MoveStr('N',             D_Aceite,         SizeOf(D_Aceite));
+     MoveStr(FormatDateTime('DDMMYY',qryParcelasFaturamento.AsDateTime),
+                              D_DataEmissao,    SizeOf(D_DataEmissao));
+     MoveStr('00',            D_Instrucao01,    SizeOf(D_Instrucao01));
+     MoveStr('00',            D_Instrucao02,    SizeOf(D_Instrucao02));
+     MoveStr('0000000000000' ,D_JurosMoraDia,   SizeOf(D_JurosMoraDia));
+     MoveStr('000000',        D_DataLimiteDescto,SizeOf(D_DataLimiteDescto));
+     MoveStr('0000000000000', D_ValorDescto,    SizeOf(D_ValorDescto));
+     MoveStr('0000000000000', D_ValorIOF,       SizeOf(D_ValorIOF));
+     MoveStr('0000000000000', D_ValorAbatimento,SizeOf(D_ValorAbatimento));
+
+     if qryParcelasPessoaTipo.AsString = 'J' then
+        CodInsc :=  '02'               {cnpj}
+     Else
+        If qryParcelasPessoaTipo.AsString = 'F' then
+           CodInsc := '01'             {cpf}
+        Else CodInsc := '99';          {outros}
+
+     MoveStr(CodInsc,       D_TipoInscrSacado,SizeOf(D_TipoInscrSacado));
+     MoveStr(qryParcelasCNPJouCPF.AsString,          D_CPF_CNPJ_Sacado,  SizeOf(D_CPF_CNPJ_Sacado));
+
+     MoveStr(qryParcelasNome.AsString,        D_NomeSacado,             SizeOf(D_NomeSacado));
+     MoveStr(qryParcelasRua.AsString,         D_EnderecoSacado,         SizeOf(D_EnderecoSacado));
+     MoveStr('',               D_InstrucaoNaoRecbto, SizeOf(D_InstrucaoNaoRecbto));
+     MoveStr(qryParcelasNomeBairro.AsString,           D_BairroSacado,   SizeOf(D_BairroSacado));
+
+     if qryParcelasCEP.AsInteger = 0 then begin
+        MoveNro(0, D_CepSacado,       SizeOf(D_CepSacado));
+        MoveNro(0, D_SufixoCepSacado, SizeOf(D_SufixoCepSacado));
+     end
+     else begin
+        CepStr := FStr(qryParcelasCEP.AsInteger,$81);
+        CepStr := Copy(CepStr,1,5);
+        CepInt := StrToInt(CepStr);
+        CepStr := Format('%.5d',[CepInt]);
+        MoveStr(CepStr,                          D_CepSacado,              SizeOf(D_CepSacado));
+        CepStr := FStr(qryParcelasCEP.AsInteger,$81);
+        CepStr := Copy(CepStr,6,3);
+        if CepStr <> '' then begin
+           CepInt := StrToInt(CepStr);
+           CepStr := Format('%.3d',[CepInt]);
+           MoveStr(CepStr,                    D_SufixoCepSacado,             SizeOf(D_SufixoCepSacado));
+        end else
+           MoveNro(0,                         D_SufixoCepSacado,             SizeOf(D_SufixoCepSacado));
+     end;
+
+     MoveStr(qryParcelasNomeCidade.AsString,  D_CidadePagtoSacado, SizeOf(D_CidadePagtoSacado));
+
+     MoveStr(qryParcelasEstado.AsString,           D_EstadoSacado,       SizeOf(D_EstadoSacado));
+     MoveStr('',               D_AvalistaOUSacador,  SizeOf(D_AvalistaOUSacador));
+     MoveStr('E',              D_TipoBloqueto,       SizeOf(D_TipoBloqueto));
+     MoveStr('',               D_PrazoProtesto,      SizeOf(D_PrazoProtesto));
+     MoveStr('9',              D_TipoMoeda,          SizeOf(D_TipoMoeda));
+
+     if Seq = 0 then
+        Seq := 1;
+
+     Inc(Seq);
+     MoveNro(Seq,                          D_Sequencial,             SizeOf(D_Sequencial));
+     MoveCrLf(CrLf,                        D_CrLf,                      SizeOf(D_CrLf));
+
+     BlockWrite(Arquivo,DetalhesHSBC,1);
+   end;
+End; {GravarDetalhesBradesco}
+
+procedure TdtmGerarRemessas.GravarTraillerHSBC(var Arq);
+Var Arquivo: File Absolute Arq;
+    TraillerHSBC: T_TrailerHSBC;
+Begin
+  with TraillerHSBC do begin
+      FillChar(TraillerHSBC,SizeOf(TraillerHSBC),'0');
+      MoveStr('9',           T_TipoRegistro,   SizeOf(T_TipoRegistro));
+      MoveStr('',            T_Banco1,          SizeOf(T_Banco1));
+      MoveStr('',            T_Banco2,          SizeOf(T_Banco2));
+      Inc(Seq);
+      MoveNro(Seq,       T_Sequencial,  SizeOf(T_Sequencial));
+      MoveStr(CrLf,          T_CrLf,        SizeOf(T_CrLf));
+      BlockWrite(Arquivo,TraillerHSBC,1);
+  end;
+End;
+
+
+
+
+procedure TdtmGerarRemessas.ImprimirEspelhoRemessa;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+  CabecalhoDatas: String;
+begin
+ qryParcelas.Filter := 'selecionar';
+ qryParcelas.Filtered := true;
+ frVariables['RAZAOFILIALBASE']  := NomeFilialBase;
+ frVariables['ENDERECO_Bairro']   := RuaFilialBase+ ' - '+BairroFilialBase;
+ frVariables['CEP_CIDADE_UF']:= FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase;
+ frVariables['titulo'] := 'REMESSA DE DUPLICATAS'+sLineBreak+
+                          qryContasSigla.AsString+' - '+
+                          qryContasNome.AsString+' - C/C '+
+                          qryContasConta.AsString+'-'+qryContasDigito.AsString;
+ frVariables['ClienteUsaContrato'] := ParSistema.ClienteUsaContrato;
+// frpEspelhoRemessa.DesignReport;
+ frmPreview := TfrmPreviewPadrao.create(self);
+ try
+  Relatorio := frmPreview.frCompositeReport;
+  with frmPreview do
+  begin
+   frCompositeReport.Reports.Clear;
+   frCompositeReport.Reports.Add(frpEspelhoRemessa);
+  end;
+  Relatorio.Preview := frmPreview.frPreviewPadrao;
+  Relatorio.ShowReport;
+  frmPreview.ShowModal;
+
+ finally
+
+  frmPreview.Free;
+  qryParcelas.Filtered := false;
+
+ end;
+
+end;
+
+procedure TdtmGerarRemessas.qryParcelasFilterRecord(DataSet: TDataSet;
+  var Accept: Boolean);
+begin
+  inherited;
+  accept := qryParcelasSelecionar.AsBoolean;
+end;
+
+procedure TdtmGerarRemessas.frpEspelhoRemessa_BeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpEspelhoRemessa,view);
+end;
+
+function TdtmGerarRemessas.getNrDocumentoEmpresa: String;
+begin
+  if ParSistema.ClienteUsaContrato then
+    result := qryParcelasContrato.AsString +  FormatStringOut(qryParcelasNumero.AsString,'R','0',3)
+  else
+    result := qryParcelasnrdocumento.AsString + FormatStringOut(qryParcelasNumero.AsString,'R','0',3);
+end;
+
+procedure TdtmGerarRemessas.frpEspelhoRemessaBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpEspelhoRemessa,view);
+end;
+
+(*
+procedure TdtmGerarRemessas.GerarArquivoItau(NomeArquivo: String);
+{$IFDEF MSWINDOWS}
+var
+ { ACBrBoleto1: TACBrBoleto;}
+  titulo: TACBrTitulo;
+  Gerou: Boolean;
+  NomeArq: String;
+  TotalVencimentos : Currency;
+{$ENDIF}
+begin
+{$IFDEF MSWINDOWS}
+  Gerou := False;
+  NomeArq := Copy(NomeArquivo, Length(NomeArquivo) - 11 ,8);
+  GuardarRegistroAtual(qryParcelas,true);
+  TotalVencimentos := 0;
+  try
+//    ACBrBoleto1 := TACBrBoleto.Create(Self);
+    qryParcelas.First;
+    while not qryParcelas.Eof do
+    begin
+      if qryParcelasSelecionar.AsBoolean then
+      begin
+        TotalVencimentos := TotalVencimentos + qryParcelasValorVencto.AsCurrency;
+        Titulo := ACBrBoleto1.CriarTituloNaLista;
+        with Titulo do
+        begin
+          with ACBrBoleto.Banco do
+          begin
+            Numero := qryContasBanco.AsInteger;
+          end;
+
+//          LocalPagamento1:= qryContaslocalpagamento.AsString; ggboleto
+          Vencimento     := qryParcelasDataVencto.AsDateTime;
+          DataDocumento  := qryParcelasFaturamento.AsDateTime;
+          NumeroDocumento:= qryParcelasNumeroDocumento.AsString;
+          SeuNumero      := qryParcelasNumeroDocumento.AsString;
+          ValorDocumento := qryParcelasValorVencto.AsFloat;
+          EspecieDoc     := '01';
+          Aceite         := atNao;
+          DataProcessamento := DataServidor;
+          NossoNumero    :=  Copy(qryParcelasNossoNumero.AsString,1,length(qryParcelasnossonumero.AsString)-1);
+          UsoBanco       := qryContasUsoDoBanco.AsString;
+          Carteira       := qryContasCarteira.AsString;
+          Mensagem.Text  := qryContasInstrucoesBoleto.AsString;
+
+          DataDesconto   := qryParcelasDataDesconto.AsDateTime;
+          ValorDesconto  := qryParcelasValorDesconto.AsCurrency;
+          DataMoraJuros  := qryParcelasDataMoraJuros.AsDateTime;
+          ValorMoraJuros := qryParcelasValorMoraJuros.AsCurrency;
+
+          with ACBrBoleto.Cedente do
+          begin
+            CodigoCedente := qryContasCedente.AsString;
+            Nome          := qryParcelasNomeFilial.AsString;
+            Agencia       := qryContasAgencia.AsString;
+{            AgenciaDigito := '0';}
+            AgenciaDigito := Modulo11(qryContasAgencia.AsString);
+            Conta         := qryContasConta.AsString;
+            ContaDigito   := qryContasDigito.AsString;
+      //        Modalidade    := '';
+            Convenio      := qryContasconvenio.AsString;
+//            TipoBoleto    := tbCliEmite; ggboleto
+//            TipoInscricao := tiPessoaJuridica; ggboletro
+            CNPJCPF       := qryParcelasCNPJFilial.AsString;
+          end;
+
+          with Sacado do begin
+            if qryParcelasPessoaTipo.AsString = 'F'
+            then Pessoa := pFisica
+            else Pessoa := pJuridica;
+
+            NomeSacado := qryParcelasNome.AsString;
+            CNPJCPF    := qryParcelasCNPJouCPF.AsString;
+            Logradouro := qryParcelasRua.AsString;
+            Numero     := qryParcelasEndNumero.AsString;
+            Complemento:= qryParcelasEndComplemento.AsString;
+            Bairro     := qryParcelasNomeBairro.AsString;
+            Cidade     := qryParcelasNomeCidade.AsString;
+            UF         := qryParcelasEstado.AsString;
+            CEP        := FStr(qryParcelasCEP.AsInteger,$81);
+          end;
+          ACBrBoleto.ImprimirMensagemPadrao:= false;
+          ACBrBoleto.AdicionarMensagensPadroes(Titulo,Mensagem);
+
+          qryParcelas.Edit;
+          qryParcelasRemessa.AsString := NomeArq;
+          qryParcelasContaBoleto.AsString := qryContasConta.AsString;
+          qryParcelasdigverificadornossonumero.asString := ACBrBoleto1.Banco.CalcularDigitoVerificador(titulo);
+          qryParcelas.Post;
+        end;
+      end;
+      qryParcelas.Next;
+    end;
+    ACBrBoleto1.LayoutRemessa := c400;
+    ACBrBoleto1.NomeArqRemessa := NomeArquivo;
+    ACBrBoleto1.GerarRemessa(qryContasSequencial.AsInteger {, TotalVencimentos ggboleto});
+    Gerou := True;
+  finally
+    VoltarRegistroAtual(qryParcelas);
+    ACBrBoleto1.ListadeBoletos.Clear;
+//    FreeAndNil(ACBrBoleto1);
+  end;
+  if Gerou then
+  begin
+    qryContas.Edit;
+    qryContasSequencial.AsInteger:= qryContasSequencial.AsInteger + 1;
+    qryContasdataultimaremessa.asdatetime := dataservidor;
+    qryContas.Post;
+    Perpetrar([qryParcelas,qryContas]);
+    MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[NomeArquivo]));
+  end
+  else
+  begin
+    Rollback([qryParcelas,qryContas]);
+    MensagemAviso(format(ctARQUIVOERRO,['de geração']));
+  end;
+{$ENDIF}
+end;
+*)
+
+
+procedure TdtmGerarRemessas.qryParcelasCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  if qryParcelaspercentualdesconto.Ascurrency<>0 then
+  begin
+    qryParcelasValorDesconto.AsCurrency := ((qryParcelasValorVencto.AsCurrency *
+                                             qryParcelaspercentualdesconto.Ascurrency)/100)/30;
+    qryParcelasDataDesconto.AsDateTime := qryParcelasdatavencto.AsDateTime - 1;
+  end
+  else
+  begin
+    qryParcelasValorDesconto.AsCurrency := 0.00;
+    qryParcelasDataDesconto.Clear;
+  end;
+
+  if qryParcelasPercentualMoraJuros.AsCurrency<>0 then
+  begin
+    if qryParcelasdiasatraso1.AsString<>'' then
+      qryParcelasDataMoraJuros.AsDateTime := qryParcelasdatavencto.AsDateTime + strtoint(qryParcelasdiasatraso1.AsString)
+    else
+      qryParcelasDataMoraJuros.AsDateTime := qryParcelasdatavencto.AsDateTime + 1;
+    qryParcelasValorMoraJuros.AsCurrency := ((qryParcelasValorVencto.AsCurrency *
+                                             qryParcelasPercentualMoraJuros.Ascurrency)/100)/30
+  end
+  else
+  begin
+    qryParcelasDataMoraJuros.Clear;
+    qryParcelasValorMoraJuros.AsCurrency := 0.00;
+  end;
+
+  if (qryParcelasQtdeNotasFiscais.AsInteger = 1) or not ParSistema.ClienteUsaContrato
+  then qryParcelasNumeroDocumento.AsString:= 'NF ' + qryParcelasNotaFiscal.AsString + '/'
+                                                   + qryParcelasNumero.    AsString
+
+  else qryParcelasNumeroDocumento.AsString:= 'CT ' + qryParcelasContrato.  AsString + '/'
+                                                   + qryParcelasNumero.    AsString;
+
+end;
+
+procedure TdtmGerarRemessas.ImprimirBoleto;
+var dtmImprimeBoleto: TdtmImprimeBoleto;
+begin
+  dtmImprimeBoleto:= TdtmImprimeBoleto.Create(Self);
+  try
+      dtmImprimeBoleto.ImprimirBoletoContrato(ObterListaContratosParcelas, qryContasConta.AsInteger);
+  finally
+      dtmImprimeBoleto.Free;
+  end
+end;
+
+
+
+function TdtmGerarRemessas.ObterListaContratosParcelas: string;
+var Lista:    string;
+    Contrato: string;
+    Parcelas: string;
+    v_Parcelaspermitirimpressaodoboleto : Boolean;
+begin
+   Lista   := '';
+   Contrato:= '';
+   Parcelas:= '';
+
+   GuardarRegistroAtual(qryParcelas,true);
+   qryParcelas.First;
+   while not qryParcelas.Eof do
+   begin
+      if qryParcelasSelecionar.AsBoolean then
+      begin
+         Contrato:= qryParcelasContrato.AsString;
+         Parcelas:= Parcelas + qryParcelasNumero.AsString + ',';
+         v_Parcelaspermitirimpressaodoboleto := qryParcelaspermitirimpressaodoboleto.asBoolean;
+      end;
+      qryParcelas.Next;
+
+      if (Contrato <> '') and (Parcelas <> '')
+      then if (qryParcelasContrato.AsString <> Contrato) or (qryParcelas.eof) then
+           begin
+              Delete(Parcelas, Length(Parcelas ), 1);
+
+              if not v_Parcelaspermitirimpressaodoboleto then
+              begin
+                MensagemAviso(format('Existe uma restrição no plano do contrato %s que não permite a impressão do boleto.'+chr(13)+
+                              'Veja a opção "Permitir Impressão do Boleto" em Cadastro, Tabelas, Plano de Pagamentos, Código %s.',
+                              [qryParcelasContrato.asString, qryParcelasPlano.asSTring]));
+
+              end
+              else
+              begin
+
+                if Lista <> ''
+                then Lista:= Lista + ' or ';
+
+                Lista   := Lista + ' (p.Contrato = ''' + Contrato
+                                 + ''' AND p.Numero IN (' + Parcelas + ' ))' + #13;
+              end;
+
+              Contrato:= '';
+              Parcelas:= '';
+           end;
+   end;
+
+   if Lista = ''
+   then Lista:= '(p.Contrato = 0 AND p.Numero = 0)'
+   else Lista:= '(' + Lista + ')';
+
+   VoltarRegistroAtual(qryParcelas);
+   Result:= Lista;
+end;
+
+procedure TdtmGerarRemessas.SetListaCondicionalPlanoRecebimento(
+  const Value: String);
+begin
+  if Value <> '' then
+    qryParcelas.MacroByName('planorecebimento').asString := ' and ('+Value+')'
+  else
+    qryParcelas.MacroByName('planorecebimento').asString := '';
+end;
+
+procedure TdtmGerarRemessas.SetListaCondicionalTipoRecebimento(
+  const Value: String);
+begin
+  if Value <> '' then
+    qryParcelas.MacroByName('tiporecebimento').asString := ' and p.tiporecebimento in  ( select tr.codigo ' +
+                                                                                       ' from tiposrecebimentos tr where '+Value+')'
+  else
+    qryParcelas.MacroByName('tiporecebimento').asString := '';
+end;
+
+procedure TdtmGerarRemessas.SetSituacao(const Value: String);
+var
+  SQLSituacao: String;
+const
+  CondicaoSimplesFaturamento =
+ ' case when ct.situacao = ''F'' then                                  ' +
+ '    coalesce((select true                                            ' +
+ '              from dadosfiscais df                                   ' +
+ '              where df.contrato = coalesce(ct.primogenito,ct.numero) ' +
+ '                and df.situacao = ''N''                              ' +
+ '                and mod(df.codigofiscal,1000) = 922 limit 1), false) ' +
+ ' else true end ';
+
+begin
+  fSituacao := Value;
+
+
+  SQLSituacao := ' and ct.situacao in (' + Value;
+
+  if Copy(SQLSituacao,length(SQLSituacao),1) = ',' then
+    SQLSituacao := Copy(SQLSituacao,1,length(SQLSituacao)-1) + ') ';
+
+  if IncluirSimplesFaturamento and not IncluirFaturados then
+    SQLSituacao := SQLSituacao + ' and ' + CondicaoSimplesFaturamento
+  else
+  if not IncluirSimplesFaturamento and IncluirFaturados then
+    SQLSituacao := SQLSituacao + ' and not ' + CondicaoSimplesFaturamento;
+
+  qryParcelas.MacroByName('SituacaoContrato').asString := SQLSituacao;
+end;
+
+procedure TdtmGerarRemessas.qryContasAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if qryContas.recordcount<> 0 then
+    if (qryContasreiniciarsequencialnovadata.AsBoolean and (qryContasdataultimaremessa.asDatetime <> dataServidor)) or (qryContasSequencial.asinteger = 0) then
+    begin
+      qryContas.edit;
+      qryContasSequencial.asinteger := 1;
+      qryContas.post;
+      perpetrar([qryContas]);
+    end;
+end;
+
+procedure TdtmGerarRemessas.SetIntegracao_Nexxera(const Value: Boolean);
+begin
+  fIntegracao_Nexxera := Value;
+  qryParcelas.parambyname('Integracao_Nexxera').asBoolean := value;
+  qryParcelas.parambyname('conta').asinteger := qryContasConta.asinteger;
+
+
+end;
+
+procedure TdtmGerarRemessas.dsrParcelasDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if Field = qryParcelasSelecionar then
+  begin
+    if qryParcelasContasAgrupadas.locate('conta;filial',
+       VarArrayOf([qryParcelasconta.asString, qryParcelasFilial.asString]), []) then
+    begin
+      qryParcelasContasAgrupadas.edit;
+      if field.asBoolean then
+        qryParcelasContasAgrupadasqtdemarcadas.asinteger := qryParcelasContasAgrupadasqtdemarcadas.asinteger + 1
+      else
+        qryParcelasContasAgrupadasqtdemarcadas.asinteger := qryParcelasContasAgrupadasqtdemarcadas.asinteger - 1;
+      qryParcelasContasAgrupadas.post;  
+    end;
+  end;
+end;
+
+end.

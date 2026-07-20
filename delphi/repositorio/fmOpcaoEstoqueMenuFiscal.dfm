@@ -1,0 +1,230 @@
+inherited frmOpcaoEstoqueMenuFiscal: TfrmOpcaoEstoqueMenuFiscal
+  Left = 482
+  Top = 174
+  ActiveControl = rbnOpcaoEstoque
+  BorderIcons = [biSystemMenu, biMinimize]
+  Caption = 'Selecione a op'#231#227'o do estoque'
+  ClientHeight = 261
+  ClientWidth = 679
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  KeyPreview = False
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object rbnOpcaoEstoque: TRadioGroup
+    Left = 0
+    Top = 0
+    Width = 137
+    Height = 73
+    Caption = 'OP'#199#195'O DO ESTOQUE'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ItemIndex = 0
+    Items.Strings = (
+      '&TOTAL'
+      '&PARCIAL')
+    ParentFont = False
+    TabOrder = 0
+    OnClick = rbnOpcaoEstoqueClick
+  end
+  object gbxContasdoEstoqueParcial: TGroupBox
+    Left = 139
+    Top = 0
+    Width = 512
+    Height = 257
+    Caption = 'CONTAS DO ESTOQUE PARCIAL'
+    Enabled = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 1
+    inline fraSelecaoAleatoriaEstoqueMenuFiscal: TfraSelecaoAleatoria
+      Left = 2
+      Top = 16
+      Width = 508
+      Height = 239
+      HorzScrollBar.Range = 26
+      Align = alClient
+      AutoScroll = False
+      TabOrder = 0
+      inherited dbgSelecaoAleatoria: TtecDBGrid
+        Left = 8
+        Width = 473
+        Height = 239
+        Align = alNone
+        OnDblClick = fraSelecaoAleatoria1dbgSelecaoAleatoriaDblClick
+        OnKeyDown = fraSelecaoAleatoriaEstoqueMenuFiscaldbgSelecaoAleatoriaKeyDown
+        CanDelete = True
+      end
+      inherited pnlLabels: TPanel
+        Left = 477
+        Height = 239
+        inherited sbnProcura: TSpeedButton
+          Left = 1
+          OnClick = fraSelecaoAleatoriaEstoqueMenuFiscalsbnProcuraClick
+        end
+        inherited sbnExcluir: TSpeedButton
+          Left = 1
+        end
+        inherited sbnExcluirTodos: TSpeedButton
+          Left = 1
+        end
+        inherited sbnIncluirItem: TSpeedButton
+          Left = 1
+          OnClick = fraSelecaoAleatoriaEstoqueMenuFiscalsbnIncluirItemClick
+        end
+      end
+      inherited qrySelecaoAleatoria: TtecQuery
+        AfterOpen = fraSelecaoAleatoria1qrySelecaoAleatoriaAfterOpen
+        Sql.Strings = (
+          'SELECT  Codigo as produto,'
+          '                codigovisual as produtovisual,'
+          '         descricao'
+          'FROM produtos'
+          'WHERE false')
+      end
+    end
+  end
+  object bbnOK: TBitBtn
+    Left = 10
+    Top = 164
+    Width = 80
+    Height = 25
+    Caption = '&OK'
+    Default = True
+    TabOrder = 2
+    TabStop = False
+    OnClick = bbnOKClick
+    Glyph.Data = {
+      DE010000424DDE01000000000000760000002800000024000000120000000100
+      0400000000006801000000000000000000001000000000000000000000000000
+      80000080000000808000800000008000800080800000C0C0C000808080000000
+      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+      3333333333333333333333330000333333333333333333333333F33333333333
+      00003333344333333333333333388F3333333333000033334224333333333333
+      338338F3333333330000333422224333333333333833338F3333333300003342
+      222224333333333383333338F3333333000034222A22224333333338F338F333
+      8F33333300003222A3A2224333333338F3838F338F33333300003A2A333A2224
+      33333338F83338F338F33333000033A33333A222433333338333338F338F3333
+      0000333333333A222433333333333338F338F33300003333333333A222433333
+      333333338F338F33000033333333333A222433333333333338F338F300003333
+      33333333A222433333333333338F338F00003333333333333A22433333333333
+      3338F38F000033333333333333A223333333333333338F830000333333333333
+      333A333333333333333338330000333333333333333333333333333333333333
+      0000}
+    NumGlyphs = 2
+  end
+  object bbnCancelar: TBitBtn
+    Left = 9
+    Top = 196
+    Width = 80
+    Height = 25
+    Caption = '&Cancelar'
+    TabOrder = 3
+    TabStop = False
+    Kind = bkCancel
+  end
+  object gbxFaixas: TGroupBox
+    Left = 5
+    Top = 81
+    Width = 132
+    Height = 73
+    Caption = 'PER'#205'ODOs'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+    object lblDe: TLabel
+      Left = 8
+      Top = 23
+      Width = 14
+      Height = 15
+      Caption = 'de'
+    end
+    object lblAte: TLabel
+      Left = 8
+      Top = 47
+      Width = 17
+      Height = 15
+      Caption = 'at'#233
+    end
+    object pnlCupons: TPanel
+      Left = 34
+      Top = 15
+      Width = 86
+      Height = 53
+      BevelOuter = bvNone
+      TabOrder = 1
+      object edtCupomInicial: TEditNumero
+        Left = 2
+        Top = 2
+        Width = 80
+        Height = 23
+        MaxLength = -1
+        TabOrder = 0
+        Mascara = True
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 0
+        Decimais = False
+        Negativo = False
+        Tamanho = 9
+      end
+      object edtCupomFinal: TEditNumero
+        Left = 2
+        Top = 27
+        Width = 80
+        Height = 23
+        MaxLength = -1
+        TabOrder = 1
+        Mascara = True
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 0
+        Decimais = False
+        Negativo = False
+        Tamanho = 9
+      end
+    end
+    object pnlDatas: TPanel
+      Left = 34
+      Top = 15
+      Width = 86
+      Height = 53
+      BevelOuter = bvNone
+      TabOrder = 0
+      object edtPeriodoInicial: TEditData
+        Left = 2
+        Top = 2
+        Width = 80
+        Height = 23
+        TabOrder = 0
+        Minimo = 37353
+        Maximo = 0
+      end
+      object edtPeriodoFinal: TEditData
+        Left = 2
+        Top = 27
+        Width = 80
+        Height = 23
+        TabOrder = 1
+        Minimo = 37353
+        Maximo = 0
+      end
+    end
+  end
+end

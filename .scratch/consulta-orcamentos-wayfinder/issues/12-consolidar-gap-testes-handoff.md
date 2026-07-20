@@ -1,0 +1,9 @@
+# Consolidar gap, testes e handoff
+
+Type: task
+Status: open
+Blocked by: 09, 10, 11
+
+## Question
+
+Qual é a matriz final Delphi–Laravel, quais critérios e testes provam filtros, estado, resultados, detalhes, operações, parâmetros e Autorizações, e quais dúvidas precisam ser resolvidas antes do `/speckit.specify`?

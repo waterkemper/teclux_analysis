@@ -1,0 +1,201 @@
+unit fmprincipalbasico;
+
+interface
+
+uses
+  // CLX
+  SysUtils, Classes, {Qete,} Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, ComCtrls,
+  // Repositorio
+  dmbasico, fmajuda, messages, biblio, clusuario, dmtecsoft, fmpreviewpadrao,
+  Windows, ClipBrd;
+
+type
+  TfrmPrincipalBasico = class(TfrmAjuda)
+    stbPrincipal: TStatusBar;
+    procedure FormResize(Sender: TObject);
+    procedure FormShortCut(var Msg: TWMKey; var Handled: Boolean);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+  protected
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  
+  private
+
+    BitmapOriginal: TBitmap;
+    function NomeUsuario: String;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure MostrarFormRegistrado(Value: Array of Variant; NomeForm: String; Modal: Boolean; Origem: String = ''); virtual;
+  end;
+
+var
+  LigarDesligarLog: procedure;
+
+implementation
+
+{$R *.dfm}
+
+Uses
+  //Biblio
+  ctconstantes, fmfichafinanceira;
+
+{ TfrmPrincipalBasico }
+
+constructor TfrmPrincipalBasico.Create(AOwner: TComponent);
+begin
+  inherited;
+  if dmbasico.ComUsuario then
+    stbPrincipal.SimpleText := NomeUsuario;
+  Self.Color:= clWhite;
+  {
+  BitmapOriginal := TBitmap.Create;
+  BitmapOriginal.Assign(Bitmap);
+  Bitmap.Canvas.StretchDraw(Rect(0, 0, ClientWidth-1, ClientHeight-20), Bitmap);
+  }
+end;
+
+destructor TfrmPrincipalBasico.Destroy;
+begin
+  {BitmapOriginal.Free;}
+  inherited;
+end;
+
+procedure TfrmPrincipalBasico.FormResize(Sender: TObject);
+begin
+  inherited;
+  {
+  if Assigned(BitmapOriginal) then
+    Bitmap.Canvas.StretchDraw(Rect(0, 0, ClientWidth-1, ClientHeight-20), BitmapOriginal);
+    }
+end;
+
+procedure TfrmPrincipalBasico.MostrarFormRegistrado(Value: Array of Variant; NomeForm: String; Modal: Boolean; Origem: String = '');
+begin
+  if NomeForm = 'TfrmFichaFinanceira' then
+    if not Assigned(frmFichaFinanceira) then
+      frmFichaFinanceira:= TfrmFichaFinanceira.Create(nil)
+    else
+      frmFichaFinanceira.enabled := true;
+
+end;
+
+function TfrmPrincipalBasico.NomeUsuario: String;
+begin
+  Result := '   ' + ctNOMEUSUARIO + IntToStr(UsuarioLogin.CodigoUsuario) + ' - ' + UsuarioLogin.NomeUsuario
+end;
+
+procedure TfrmPrincipalBasico.FormShortCut(var Msg: TWMKey;
+  var Handled: Boolean);
+var
+  UsuarioAut: TtecUsuarios;
+
+begin
+  inherited;
+  if Msg.CharCode = VK_L then
+  begin
+    if logctrlon and logshifton and logAltOn then
+    begin
+      Handled := true; // isto indica q vc vai usar o evento
+      vLogHabilitado := not vLogHabilitado;
+      if vLogHabilitado then
+      begin
+        UsuarioAut := tdtmBasico.ObterAutorizacao(taLOGIN, 'Você pressionou as teclas Ctrl+Alt+Shift+L.'+chr(13)+
+                                                           'Para habilitar o log digite usuario e senha'+chr(13)+
+                                                           'Para desabilitar o LOG pressione as teclas Ctrl+Alt+Shift+L novamente.', '', '');
+        vLogHabilitado := Assigned(UsuarioAut);
+        if not vLogHabilitado then
+          MensagemAviso('Usuário ou senha incorreto.');
+      end
+      else
+        MensagemAviso('Você pressionou as teclas Ctrl+Alt+Shift+L e desabilitou o log!');
+
+      LigarDesligarLog;
+      logCtrlOn := false;
+      logShiftOn := false;
+      logAltOn := false;
+    end;
+  end
+  else
+  if Msg.CharCode = 17 then
+  begin
+    logCtrlOn := true;
+    logShiftOn := false;
+    logAltOn := false;
+  end
+  else
+  if Msg.CharCode = 16 then
+  begin
+    logShiftOn := true;
+    logAltOn := false;
+  end
+  else
+  if Msg.CharCode = 18 then
+    logAltOn := true;
+
+end;
+
+procedure TfrmPrincipalBasico.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+
+  {
+var
+  cnt: Integer;
+  v_frmPreviewPadrao : TfrmPreviewPadrao;
+  vFormtemp : String;
+  vcountScreen : integer;
+  }
+begin
+  inherited;
+
+{
+  for cnt := ComponentCount-1 downto 0 do
+    if Components[cnt] is TfrmPreviewPadrao then
+    begin
+      v_frmPreviewPadrao := TfrmPreviewPadrao(Components[cnt]);
+      v_frmPreviewPadrao.ModalResult := mrOK;
+    end;
+}
+
+//  FecharRelatoriosQForms;
+  {
+  vcountscreen :=  qforms.Screen.FormCount;
+  for cnt := 0 to vcountscreen - 1 do
+  begin
+    vFormTemp := Screen.Forms[cnt].classname;
+    if (pos('TfrmPreviewPadrao', vFormTemp)<>0) then
+    begin
+      v_frmPreviewPadrao := TfrmPreviewPadrao(Screen.Forms[cnt]);
+      v_frmPreviewPadrao.ModalResult := mrOK;
+    end;
+  end;
+  }
+
+
+  CanClose := True;
+end;
+
+procedure TfrmPrincipalBasico.KeyDown(var Key: Word; Shift: TShiftState);
+{
+var
+  Image1 : TImage;
+}
+begin
+  inherited;
+  {
+  Case Key of
+    VK_PRINT :
+    begin
+      if Clipboard.HasFormat(CF_BITMAP) then
+      begin
+        Image1 := TImage.create(nil);
+        Image1.Picture.Bitmap.Assign(Clipboard);
+        Image1.Picture.bitmap.savetofile(ExtractFilePath(Application.ExeName) + 'Saidas\Captura_da_Tela\tela.bmp');
+      end;
+    end;
+  END;
+  }
+  
+end;
+
+end.

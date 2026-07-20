@@ -1,0 +1,780 @@
+unit fmAlteracoesPrecos;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmajudabt, ComCtrls, Buttons, ToolWin, ExtCtrls, dmAlteracoesPrecos,
+  Grids, FxGrid, FxPivSrc, ActnList, ImgList, ValEdit, StdCtrls, CheckLst,
+  fxmap, FxGraph, FxCommon, FxDimPager, FxHtml, ShellAPI, frintervalodatas,
+  frmultiplaselecaoaleatoria, cpeditioncontrolvalidation, fmrelatoriopadrao, biblio,
+  ctconstantes, AdvObj, BaseGrid, AdvGrid, DBAdvGrid, dateutils,
+  tmsAdvGridExcel, Menus, AdvMenus, AsgFindDialog, fmVisualizarImageURL,
+  fmConsultaProdutosNotasAnteriores, fmPrincipalBasico, Mask, AdvSpin,
+  clparametrossistema, DBCtrls, cpdbtext, cpnumero,
+  frselecaoaleatoriagruposfornecedores, frselecaoaleatoriaclientes,
+  frselecaoaleatorianotas, cpdata, frconsulta, frconsultacodigo,
+  cpdbfindcontrols, frselecaoaleatoriaitemdeprodutos;
+
+type
+  TfrmAlteracoesPrecos = class(TfrmRelatorioPadrao{, IFxProgress})
+    pgcAlteracoesPrecos: TPageControl;
+    tstParametros: TTabSheet;
+    fraMultiplaSelecaoAleatoriaProdutos: TfraMultiplaSelecaoAleatoria;
+    fraIntervaloDatas: TfraIntervaloDatas;
+    sbnGerar: TSpeedButton;
+    tstDados: TTabSheet;
+    AdvGridExcelIO1: TAdvGridExcelIO;
+    AdvPopupMenu1: TAdvPopupMenu;
+    Pesquizar1: TMenuItem;
+    ExportarExcel1: TMenuItem;
+    AdvGridFindDialog1: TAdvGridFindDialog;
+    sbnVisualizarFoto: TSpeedButton;
+    Timer1: TTimer;
+    dbgAlteracoesPrecosVP: TDBAdvGrid;
+    sbnVisualizarDetalhesProdutosNota: TSpeedButton;
+    sbnProdutos: TSpeedButton;
+    Panel2: TPanel;
+    lblMargem: TStaticText;
+    Splitter1: TSplitter;
+    pnlAlteracoesPrecosVP: TPanel;
+    gbxPrecos: TGroupBox;
+    lblNormal: TLabel;
+    lblPromocao: TLabel;
+    lblPromocaoValidade: TLabel;
+    lblAlterado: TLabel;
+    lblDescricaoPreco: TLabel;
+    dtxValorNormal: TtecDBText;
+    dtxValorPromocao: TtecDBText;
+    dtxValidadePromocao: TtecDBText;
+    dtxDataAlteracao: TtecDBText;
+    dtxDescricaoPreco: TtecDBText;
+    PageScroller1: TPageScroller;
+    lblCustoMedio: TGroupBox;
+    dtxValor: TtecDBText;
+    lblFinanceiro: TGroupBox;
+    dtxFinanceiro: TtecDBText;
+    lblAliquotaIPI: TGroupBox;
+    dtxAliquotaIPI: TtecDBText;
+    lblMargemFinal: TGroupBox;
+    dtxMargemFinal: TtecDBText;
+    gbxDadosUltimaCompra: TGroupBox;
+    lblSemIcms: TLabel;
+    lblComIcms: TLabel;
+    lblEmpresaUltimaCompra: TLabel;
+    lblUCIcms: TLabel;
+    GroupBox5: TGroupBox;
+    edtValorUltimacompra: TDBEditNumero;
+    dtxPrecoSemICMS: TtecDBText;
+    dtxPrecoComICMS: TtecDBText;
+    dtxEmpresaUltimaCompra: TtecDBText;
+    ckboptantesimples: TDBCheckBox;
+    gbxSitTributariaNFnaEmpresa: TGroupBox;
+    pnlSituacaoTributaria: TPanel;
+    pnlcstprodutonfe: TPanel;
+    lblcst: TLabel;
+    dtxcst: TtecDBText;
+    pnlcsosnProdutonfe: TPanel;
+    lblcsosn: TLabel;
+    dtxcsosn: TtecDBText;
+    GroupBox7: TGroupBox;
+    Panel4: TPanel;
+    Panel5: TPanel;
+    Label4: TLabel;
+    tecDBText1: TtecDBText;
+    Panel6: TPanel;
+    Label5: TLabel;
+    tecDBText2: TtecDBText;
+    dtxUCICMS: TtecDBText;
+    gbxSitTributariaProduto: TGroupBox;
+    Panel3: TPanel;
+    pnlcstproduto: TPanel;
+    lblcstProduto: TLabel;
+    dtxcstproduto: TtecDBText;
+    pnlcsosnproduto: TPanel;
+    lblcsosnproduto: TLabel;
+    dtxcsosnproduto: TtecDBText;
+    gbxUltimos: TGroupBox;
+    lblEntrada: TLabel;
+    lblVenda: TLabel;
+    lblData: TLabel;
+    lblQuantidade: TLabel;
+    dtxDataCompra: TtecDBText;
+    dtxUltimaEntrada: TtecDBText;
+    dtxUltimaVenda: TtecDBText;
+    dtxQtdeCompra: TtecDBText;
+    Panel7: TPanel;
+    gbxCustos: TGroupBox;
+    dbgAlteracoesPrecos: TDBAdvGrid;
+    Panel1: TPanel;
+    edtMargemLucro: TEditNumero;
+    gbxProdutos: TGroupBox;
+    ckbProdutoEmLinha: TCheckBox;
+    ckbProdutoForadeLinha: TCheckBox;
+    ckbProdutoComMontagem: TCheckBox;
+    ckbProdutoSemMontagem: TCheckBox;
+    ckbProdutoNaoBrinde: TCheckBox;
+    ckbProdutoBrinde: TCheckBox;
+    ckbProdutoInativo: TCheckBox;
+    ckbProdutoAtivo: TCheckBox;
+    ckbDisponivelnoSite: TCheckBox;
+    ckbNaoDisponivelnoSite: TCheckBox;
+    rgbOrdenacao: TRadioGroup;
+    ckbSomentecomEstoque: TCheckBox;
+    gbxCompostos: TGroupBox;
+    cbbCompostos: TComboBox;
+    pgcMultiplasSelecoes: TPageControl;
+    tstMultiplasSelecoesFornecedores: TTabSheet;
+    fraSelecaoAleatoriaFornecedores: TfraSelecaoAleatoriaClientes;
+    tstMultiplasSelecoesProdutos: TTabSheet;
+    tstListadeNotasFiscais: TTabSheet;
+    fraSelecaoAleatorianotas1: TfraSelecaoAleatorianotas;
+    GroupBox2: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    edtIntervaloNotaInicial: TEditData;
+    edtIntervaloNotaFinal: TEditData;
+    gbxIntervalo: TGroupBox;
+    lblEmissaoInicial: TLabel;
+    lblEmissaoFinal: TLabel;
+    edtIntervaloInicial: TEditData;
+    edtIntervaloFinal: TEditData;
+    gbxMovimentacao: TGroupBox;
+    gbxFilial: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigo;
+    gbxTipodeMovimentacao: TGroupBox;
+    fraConsultaTipoMovimentacao: TfraConsultaCodigo;
+    StaticText1: TStaticText;
+    edtVariancaoPrecoAtualeAnteior: TEditNumero;
+    ComboComparisonOperator: TComboBox;
+    fraIntervaloDatas1: TfraIntervaloDatas;
+    procedure sbnGerarClick(Sender: TObject);
+    procedure dbgAlteracoesPrecosGetColumnFilter(Sender: TObject;
+      Column: Integer; Filter: TStrings);
+    procedure Pesquizar1Click(Sender: TObject);
+    procedure ExportarExcel1Click(Sender: TObject);
+    procedure sbnVisualizarFotoClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure dbgAlteracoesPrecosSelectCell(Sender: TObject; ACol,
+      ARow: Integer; var CanSelect: Boolean);
+    procedure sbnVisualizarDetalhesProdutosNotaClick(Sender: TObject);
+    procedure sbnProdutosClick(Sender: TObject);
+    procedure dbgAlteracoesPrecosGetCellColor(Sender: TObject; ARow,
+      ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+    procedure dbgAlteracoesPrecosVPGetCellColor(Sender: TObject; ARow,
+      ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+    procedure dbgAlteracoesPrecosCanClickCell(Sender: TObject; ARow,
+      ACol: Integer; var Allow: Boolean);
+    procedure dbgAlteracoesPrecosCellChanging(Sender: TObject; OldRow,
+      OldCol, NewRow, NewCol: Integer; var Allow: Boolean);
+    procedure dbgAlteracoesPrecosClickCell(Sender: TObject; ARow,
+      ACol: Integer);
+  private
+    { Private declarations }
+    vLinhaClicada : integer;
+    vColunaClicada : integer;
+
+    FCancel:Boolean;
+    FCancelBtn:TSpeedButton;
+    FProgressBar:TProgressBar;
+    FBlock:Boolean;
+    FFixedRows:Integer;
+    function GetCancel:Boolean;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    procedure KeyDown(var Key: Word; Shift: TShiftState);override;
+
+  end;
+
+var
+  frmAlteracoesPrecos: TfrmAlteracoesPrecos;
+  ControleValido : TWinControl;
+
+implementation
+
+{$R *.dfm}
+
+uses StrUtils{, ChartDlg};
+
+const
+  SAlignment:array [0..2] of string=('Left','Right','Center');
+
+function SafeInt(const Str:string; Default:Integer=10):Integer;
+begin
+  if Str='' then
+    Result:=Default
+  else
+    try
+      Result:=StrToInt(Str);
+    except
+      Result:=Default;
+    end;
+end;
+
+procedure AddCombo(Prop:TItemProp; const S:array of string);
+var
+  I:Integer;
+begin
+  Prop.EditStyle:=esPickList;
+  for I:=0 to High(S)do
+    Prop.PickList.Add(S[I]);
+end;
+
+
+{ TfrmAlteracoesPrecos }
+
+constructor TfrmAlteracoesPrecos.Create(AOwner: TComponent);
+var
+  I:Integer;
+  MapItem:TDimensionItem;
+
+
+begin
+  inherited;
+  dtmAlteracoesPrecos := TdtmAlteracoesPrecos.Create(Self);
+
+  tstDados.tabvisible := false;
+//  edtMargemLucro.floatvalue := 100;
+
+//  dtmAlteracoesPrecos.qryAlteracoesPrecos.open;
+//  dtmAlteracoesPrecos.FxCube1.active := true;
+
+  // you can uncomment this and line in destructor TDecisionChart.Destroy
+  // then you can save runtime settings for TDecisionChart;
+  {
+  if FileExists('chart.dat')then
+    try
+      FChart:=ReadComponentResFile('chart.dat',nil) as TDecisionChart;
+      //Memo.Lines.Text :=ComponentToString(Chart);
+    except
+      FChart:=nil;
+      DeleteFile('chart.dat');
+    end;
+  }
+
+  {
+  if FChart=nil then
+    FChart:=TFxChart.Create(tabChart);
+
+
+  with FChart do
+  begin
+    Align:=alClient;
+    Parent:=tabChart;
+    FxProgress:=Self;
+  end;
+  }
+
+  (*
+
+  FProgressBar:=TProgressBar.Create(StatusBar);
+  with FProgressBar do begin
+    Parent:=StatusBar;
+    Min:=0;
+    Step:=1;
+    Smooth:=True;
+  end;
+  FCancelBtn:=TSpeedButton.Create(StatusBar);
+  with FCancelBtn do begin
+    Parent:=StatusBar;
+    Caption:='Cancel';
+    Flat:=True;
+    Visible:=False;
+    OnClick:=CancelClick;
+  end;
+  // Init controls
+  cbBin.ItemIndex:=Ord(dtmAlteracoesPrecos.FxCube1.DimensionMap[0].BinType);
+  with dtmAlteracoesPrecos.FxCube1 do
+  begin
+    DimensionMap.GetDimList(lbDims.Items);
+    for I:=0 to lbDims.Count-1 do
+      lbDims.Items[i] := DimensionMap.Items[i].Caption;
+
+    for I:=0 to lbDims.Count-1 do
+      lbDims.Checked[I]:=DimensionMap[I].ActiveFlag<>diInactive;
+  end;
+
+  for I:=0 to lbDims.Count-1 do
+    lbDims.Checked[I]:=(lbDims.Items.Objects[I]as TFxMapItem).ActiveFlag<>diInactive;
+
+  FFixedRows:=0;
+  if doColumnTitles in vlPRops.DisplayOptions then
+    Inc(FFixedRows);
+
+  vlProps.ItemProps[0].EditStyle:=esPickList;
+//  dtmAlteracoesPrecos.FxCube1.DimensionMap.GetDimList(vlProps.ItemProps[0].PickList);
+
+  for I:=0 to lbDims.Count-1 do
+    vlProps.ItemProps[0].PickList.Add(lbDims.Items[i]);
+
+  AddCombo(vlProps.ItemProps[1],SAlignment);
+
+//  dtmAlteracoesPrecos.FxSource1.SparseRows := true;
+//  dtmAlteracoesPrecos.FxSource1.SparseCols := true;
+
+  with dtmAlteracoesPrecos.FxCube1 do
+  begin
+    for I:=0 to lbDims.Count-1 do
+    begin
+      MapItem:=DimensionMap.Find('_'+inttostr(I)+'_');
+      if MapItem<>nil then
+      begin
+//        MapItem.ActiveFlag:=diActive;
+        MapItem.Visible := true;
+
+      end;
+    end;
+  end;
+
+  *)
+
+  {
+  fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaGrupoProduto.TabVisible := false;
+  fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaClasseProduto.TabVisible := false;
+  fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaMarcaProduto.TabVisible := false;
+  fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaMarcaProduto.TabVisible := false;
+  }
+  fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriamodelosProduto.TabVisible := false;
+//  fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaPromocoes.TabVisible := false;
+
+  fraIntervaloDatas.edtDataInicial.text := datetostr(PrimeiroDiaMes(now()));
+  fraIntervaloDatas.edtDataFinal.text := datetostr(now());
+
+  fraConsultaFilial.tipopesquisa := pesFiliais;
+  fraConsultaTipoMovimentacao.tipopesquisa := pesTipoMovimentoEstoque;
+//  fraConsultaColuna.tipopesquisa := pesColunas;
+//  fraConsultaFilialPreco.tipopesquisa := pesFiliais;
+
+end;
+
+destructor TfrmAlteracoesPrecos.Destroy;
+begin
+  FreeAndNIl(AdvGridFindDialog1);
+  inherited;
+end;
+
+function TfrmAlteracoesPrecos.GetCancel: Boolean;
+begin
+  Result:=FCancel;
+end;
+
+
+procedure TfrmAlteracoesPrecos.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+       VK_F6 : if sbnGerar.Enabled then sbnGerarClick(Self);
+//   VK_Escape : LimpaControles;
+//       VK_F7 : if sbnImprimir.Enabled then sbnImprimirClick(Self);
+  end;
+  inherited;
+
+end;
+
+(*
+procedure TfrmAlteracoesPrecos.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+
+  if ecvValida.Verify(fraIntervaloDatas.gbxPeriodo, ControleValido) then
+  begin
+  {
+    dtmAnaliseestoques.ImprimirRelatorio(strtodatetime(fraIntervaloDatas.edtDataInicial.text),
+                                                 strtodatetime(fraIntervaloDatas.edtDataFinal.text),
+             fraListaFiliais.ListaSelecionada,
+             fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional,
+             fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriaprodutos.ListaCondicional,
+             fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatoriagruposprodutos.ListaCondicional,
+             fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatoriaclassesprodutos.ListaCondicional,
+             fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriamarcasProdutos.ListaCondicional,
+             fraSelecaoAleatoriaFornecedores.ListaCondicional,
+             fraSelecaoAleatoriaGruposFornecedores.ListaCondicional,
+             fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatoriapromocoes.ListaCondicional,
+             cbbCompostos.itemIndex);
+
+    if dtmAnaliseestoques.qryAnaliseEstoques.isempty then
+      mensagemaviso(format(ctNENHUMREGISTROENCONTRADO, ['registro']))
+    else
+      pgcAnaliseEstoques.ActivePage := tstdados;
+   }
+  end;
+end;
+*)
+
+procedure TfrmAlteracoesPrecos.sbnGerarClick(Sender: TObject);
+var
+i: integer;
+begin
+  inherited;
+  if fraIntervaloDatas.edtDataInicial.text = '' then
+  begin
+    MensagemAviso('Informe a data inicial.');
+    fraIntervaloDatas.edtDataInicial.setfocus;
+  end
+  else
+  if fraIntervaloDatas.edtDataFinal.text = '' then
+  begin
+    MensagemAviso('Informe a data final.');
+    fraIntervaloDatas.edtDataFinal.SetFocus;
+  end
+  {
+  else
+  if ((fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional)='') and
+     ((fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriaprodutos.ListaCondicional)='') then
+  begin
+    MensagemAviso('Informe pelo menos um ou mais itens na lista de produtos.');
+    fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.dbgSelecaoAleatoria.setfocus;
+  end
+  }
+  else
+  begin
+
+    dbgAlteracoesPrecos.onGetCellColor := nil;
+
+    dbgAlteracoesPrecos.onCellChanging := nil;
+
+    dbgAlteracoesPrecos.Columns.clear;
+    dbgAlteracoesPrecos.datasource := nil;
+
+    dtmAlteracoesPrecos.AbrirConsulta(
+    fraIntervaloDatas.edtDataInicial.text,
+    fraIntervaloDatas.edtDataFinal.text,
+    
+    edtIntervaloInicial.Text,
+    edtIntervaloFinal.Text,
+    edtIntervaloNotaInicial.Text,
+    edtIntervaloNotaFinal.Text,
+
+      edtMargemLucro.text,
+      edtVariancaoPrecoAtualeAnteior.text,
+      ComboComparisonOperator.text,
+
+      fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional,
+      fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriaprodutos.ListaCondicional,
+      fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatoriagruposprodutos.ListaCondicional,
+      fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatoriaclassesprodutos.ListaCondicional,
+      fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriamarcasProdutos.ListaCondicional,
+
+      fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatoriaPromocoes.ListaCondicional,
+      fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriacst.ListaCondicional,
+      fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriacsosn.ListaCondicional,
+      fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatorialistaspadronizadas.ListaCondicional,
+
+      fraSelecaoAleatoriaFornecedores.ListaCondicional,
+
+      fraSelecaoAleatorianotas1.ListaCondicional,
+
+      ckbProdutoEmLinha.checked,
+      ckbProdutoForadeLinha.checked,
+
+      ckbProdutoAtivo.checked,
+      ckbProdutoInativo.checked,
+
+      ckbProdutoComMontagem.Checked,
+      ckbProdutoSemMontagem.Checked,
+
+      ckbProdutoBrinde.Checked,
+      ckbProdutoNaoBrinde.Checked,
+
+      ckbDisponivelnoSite.checked,
+      ckbNaoDisponivelnoSite.checked,
+      ckbSomentecomEstoque.checked,
+
+      fraConsultaFilial.edfcodigo.text,
+      fraConsultaTipoMovimentacao.edfcodigo.text,
+
+//      fraConsultaColuna.edfcodigo.text,
+//      fraConsultaFilialPreco.edfCodigo.text,
+
+//      rgbPrecos.itemindex,
+//      ckbPrecosDiferenciados.checked,
+
+      cbbCompostos.itemIndex,
+      rgbOrdenacao.itemindex
+
+
+      );
+
+    if dtmAlteracoesPrecos.qryAlteracoesPrecosCargos.RecordCount <> 0 then
+    begin
+
+      dbgAlteracoesPrecos.datasource := dtmAlteracoesPrecos.dsrAlteracoesPrecosCargos;
+      dbgAlteracoesPrecos.onGetCellColor := dbgAlteracoesPrecosGetCellColor;
+
+      dbgAlteracoesPrecos.onCellChanging := dbgAlteracoesPrecosCellChanging;
+    (*
+      dbgAlteracoesPrecos.HideColumn(7); //cargo
+      dbgAlteracoesPrecos.HideColumn(5); //preco
+      dbgAlteracoesPrecos.HideColumn(2); //prodtuo
+      dbgAlteracoesPrecos.HideColumn(1); //identificador
+      *)
+
+      for i:= 15 to (dbgAlteracoesPrecos.ColCount)-1  do
+      begin
+        dbgAlteracoesPrecos.Columns[i].FloatFormat := '%.2n';
+        dbgAlteracoesPrecos.Columns[i].Width := dbgAlteracoesPrecos.Columns[i].Width + 13;
+      end;
+
+     dbgAlteracoesPrecos.ColumnByFieldName['produtovisual'].Header := 'Produto';
+     dbgAlteracoesPrecos.ColumnByFieldName['produtovisual'].width := 90;
+
+     dbgAlteracoesPrecos.ColumnByFieldName['descricao_produto'].Header := 'Descrição do Produto';
+     dbgAlteracoesPrecos.ColumnByFieldName['descricao_produto'].width := 250;
+
+     dbgAlteracoesPrecos.ColumnByFieldName['descricao_preco'].Header := 'Descrição do Preço';
+     dbgAlteracoesPrecos.ColumnByFieldName['descricao_preco'].width := 100;
+
+     dbgAlteracoesPrecos.ColumnByFieldName['descricao_cargo'].Header := 'Descrição do Cargo';
+     dbgAlteracoesPrecos.ColumnByFieldName['descricao_cargo'].width := 128;
+
+     dbgAlteracoesPrecos.ColumnByFieldName['datacompra'].Header := 'Últ. Compra';
+     dbgAlteracoesPrecos.ColumnByFieldName['datacompra'].width := dbgAlteracoesPrecos.ColumnByFieldName['datacompra'].width + 13;
+
+     dbgAlteracoesPrecos.ColumnByFieldName['valoranterior'].Header := 'Preço Anter.';
+     dbgAlteracoesPrecos.ColumnByFieldName['valoranterior'].width := dbgAlteracoesPrecos.ColumnByFieldName['valoranterior'].width + 10;
+     dbgAlteracoesPrecos.ColumnByFieldName['valoranterior'].FloatFormat := '%.2n';
+
+     dbgAlteracoesPrecos.ColumnByFieldName['valoratual'].Header := 'Preço Atual';
+     dbgAlteracoesPrecos.ColumnByFieldName['valoratual'].width := dbgAlteracoesPrecos.ColumnByFieldName['valoratual'].width + 10;
+     dbgAlteracoesPrecos.ColumnByFieldName['valoratual'].FloatFormat := '%.2n';
+
+     dbgAlteracoesPrecos.ColumnByFieldName['margematual'].Header := 'Margem';
+     dbgAlteracoesPrecos.ColumnByFieldName['margematual'].width := dbgAlteracoesPrecos.ColumnByFieldName['margematual'].width + 5;
+     dbgAlteracoesPrecos.ColumnByFieldName['margematual'].FloatFormat := '%.2n';
+
+
+//      dbgAlteracoesPrecos.fixedcols := 9;
+
+      tstDados.tabvisible := true;
+      pgcAlteracoesPrecos.ActivePage := tstDados;
+
+{      dbgAlteracoesPrecos.filteractive := true;}
+
+    end
+    else
+    begin
+      mensagemaviso(format(ctNENHUMREGISTROENCONTRADO, ['registro']));
+      tstDados.tabvisible := false;
+    end;
+
+  end;
+
+
+
+
+
+end;
+
+procedure TfrmAlteracoesPrecos.dbgAlteracoesPrecosGetColumnFilter(
+  Sender: TObject; Column: Integer; Filter: TStrings);
+begin
+  inherited;
+                 (*
+  if (column = 12 {dbgAlteracoesPrecos.ColumnByFieldName['margematual'].Index}) then
+  begin
+    Filter.clear;
+    Filter.Add('Clear');
+    Filter.Add('<=0');
+    Filter.Add('<=10');
+    Filter.Add('<=20');
+    Filter.Add('<=30');
+    Filter.Add('<=40');
+    Filter.Add('<=50');
+    Filter.Add('<=60');
+    Filter.Add('<=70');
+    Filter.Add('<=80');
+    Filter.Add('<=90');
+    Filter.Add('<=100');
+  end;
+
+  *)
+  {
+  if (Column in [1,2]) then
+    Filter.Clear;
+    }
+end;
+
+procedure TfrmAlteracoesPrecos.Pesquizar1Click(Sender: TObject);
+begin
+  inherited;
+  AdvGridFindDialog1.Execute;
+end;
+
+procedure TfrmAlteracoesPrecos.ExportarExcel1Click(Sender: TObject);
+begin
+  inherited;
+  AdvGridExcelIO1.XLSExport(ExtractFilePath(Application.ExeName) + 'Saidas\Alteracoes_de_Preco.xls', 'Alteracoes_dePreco');
+end;
+
+procedure TfrmAlteracoesPrecos.sbnVisualizarFotoClick(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarImageURL(self, dtmAlteracoesPrecos.GetProduto);
+end;
+
+procedure TfrmAlteracoesPrecos.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  sbnVisualizarFoto.visible := (pgcAlteracoesPrecos.activepage = tstDados) and
+     (dtmAlteracoesPrecos.qryAlteracoesPrecosCargos.recordcount<>0);
+
+  sbnVisualizarDetalhesProdutosNota.visible := sbnVisualizarFoto.visible;
+  sbnProdutos.visible := sbnVisualizarFoto.visible;
+
+  tstMultiplasSelecoesProdutos.Highlighted := fraMultiplaSelecaoAleatoriaProdutos.tstItemdeProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaGrupoProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaClasseProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaMarcaProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaPromocoes.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriamodelosProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaPromocoes.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstCST.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstCSOSN.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstListaPadronizada.Highlighted;
+
+  tstMultiplasSelecoesFornecedores.Highlighted := (fraSelecaoAleatoriaFornecedores.fraSelecaoAleatoriaCliente.qryselecaoaleatoria.recordcount <> 0);
+
+  tstListadeNotasFiscais.Highlighted := (fraSelecaoAleatorianotas1.fraSelecaoAleatorianotas.qryselecaoaleatoria.recordcount <> 0) or
+                                        (edtIntervaloNotaInicial.text<>'') or
+                                        (edtIntervaloNotaFinal.text<>'');
+
+end;
+
+procedure TfrmAlteracoesPrecos.dbgAlteracoesPrecosSelectCell(
+  Sender: TObject; ACol, ARow: Integer; var CanSelect: Boolean);
+  {
+var
+ vIdentificador : String;
+ }
+begin
+  inherited;
+  CanSelect := true;
+
+//  vIdentificador := dbgAlteracoesPrecos.cells[1, Arow];
+
+//  vIdentificador := dbgAlteracoesPrecos.cells[1, Arow];
+//    vIdentificador := dtmAlteracoesPrecos.qryAlteracoesPrecosCargos.fieldbyname('identificador').asString;
+
+//  if vIdentificador <> '' then
+//  begin
+//    dbgAlteracoesPrecosVP.pagemode := true;
+//    dtmAlteracoesPrecos.PosicionarTabela_AlteracoesPrecosCargos(vIdentificador);
+//    dbgAlteracoesPrecosVP.pagemode := false;
+//  end;
+
+end;
+
+
+procedure TfrmAlteracoesPrecos.sbnVisualizarDetalhesProdutosNotaClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarTelaonsultaProdutosNotasAnteriores(self, dtmAlteracoesPrecos.GetCodigoNotaProduto, dtmAlteracoesPrecos.GetProduto);
+end;
+
+procedure TfrmAlteracoesPrecos.sbnProdutosClick(Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir',
+      dtmAlteracoesPrecos.qryAlteracoesPrecosCargos.fieldbyname('produto').asString], 'TfrmCadastroCaracteristicas', True)
+
+end;
+
+procedure TfrmAlteracoesPrecos.dbgAlteracoesPrecosGetCellColor(
+  Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState;
+  ABrush: TBrush; AFont: TFont);
+begin
+  inherited;    
+
+  if ARow > 0 then
+    with TDBAdvGrid(sender) do
+    begin
+      if (ARow MOD 2)=0 then
+        if not (gdSelected in AState) then
+{           if (ABrush.Color = clwindow) or
+              (TColorRef(Brush.Color) = TColorRef(strtoint(parsistema.CorZebradoRelatorio))) then
+              }
+                 ABrush.Color := TColorRef(strtoint(parsistema.CorZebradoRelatorio));
+    end;
+
+end;
+
+procedure TfrmAlteracoesPrecos.dbgAlteracoesPrecosVPGetCellColor(
+  Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState;
+  ABrush: TBrush; AFont: TFont);
+begin
+  inherited;
+  if ARow > 0 then
+    with TDBAdvGrid(sender) do
+    begin
+      if (ARow MOD 2)=0 then
+        if not (gdSelected in AState) then
+        begin
+        {
+           if (ABrush.Color = clwindow) or
+              (TColorRef(Brush.Color) = TColorRef(strtoint(parsistema.CorZebradoRelatorio))) then
+              }
+                 ABrush.Color := TColorRef(strtoint(parsistema.CorZebradoRelatorio));
+        end;
+    end;
+
+end;
+
+procedure TfrmAlteracoesPrecos.dbgAlteracoesPrecosCanClickCell(
+  Sender: TObject; ARow, ACol: Integer; var Allow: Boolean);
+begin
+  inherited;
+
+  Allow := true;
+
+
+end;
+
+procedure TfrmAlteracoesPrecos.dbgAlteracoesPrecosCellChanging(
+  Sender: TObject; OldRow, OldCol, NewRow, NewCol: Integer;
+  var Allow: Boolean);
+begin
+  inherited;
+  Allow := true;
+  if newCol > (dbgAlteracoesPrecos.columnbyfieldname['margematual'].index+1) then
+  begin
+    if dbgAlteracoesPrecos.fixedcols <> 9 then
+      dbgAlteracoesPrecos.fixedcols := 9;
+  end
+  else
+  begin
+    if dbgAlteracoesPrecos.fixedcols <> 1 then
+      dbgAlteracoesPrecos.fixedcols := 1;
+  end;
+
+end;
+
+procedure TfrmAlteracoesPrecos.dbgAlteracoesPrecosClickCell(
+  Sender: TObject; ARow, ACol: Integer);
+begin
+
+  if not (Acol > (dbgAlteracoesPrecos.columnbyfieldname['margematual'].index+1)) then
+  begin
+    if dbgAlteracoesPrecos.fixedcols <> 1 then
+    begin
+      vLinhaClicada := aRow;
+      vColunaClicada := aCol;
+
+      dbgAlteracoesPrecos.col := dbgAlteracoesPrecos.columnbyfieldname['margematual'].index;
+
+      dbgAlteracoesPrecos.col := vColunaclicada;
+      dbgAlteracoesPrecos.row := vlinhaclicada;
+
+    end;
+  end;
+
+  inherited;
+
+end;
+
+end.
+

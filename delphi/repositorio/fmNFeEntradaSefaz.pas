@@ -1,0 +1,625 @@
+unit fmNFeEntradaSefaz;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, fmajudabt, ComCtrls, Buttons, ToolWin, ExtCtrls, DB,
+  ZQuery, ZPgSqlQuery, cpquery, cpdatasource, dmtecsoft, Grids, AdvObj,
+  BaseGrid, AdvGrid, DBAdvGrid, Mask, MaskEdEx, DBGrids, cpdbgrid, biblio,
+  ACBrBase, ACBrDFe, ACBrNFe, fmcadastropadrao, clnfe, AdvSmoothProgressBar,
+  UProcessamentoNFE, fmajuda, fmprincipalbasico, cpnumero, AdvDropDown,
+  AdvCustomGridDropDown, AdvGridDropDown, AsgListb, frintervalodatas,
+  frlistafiliais, frselecaoaleatoriaclientes, clusuario, IniFiles,
+  dmCadastroNotasFiscais, ctconstantes, cptexto;
+
+type
+  TfrmNFeEntradaSefaz = class(TfrmAjudaBt)
+    gbxNotasFiscaisEntrada: TGroupBox;
+    pnlTop: TPanel;
+    sbnGerar: TSpeedButton;
+    dsrNSUS: TtecDataSource;
+    qryNSUS: TtecQuery;
+    qryNSUScnpj: TStringField;
+    qryNSUSnsu: TStringField;
+    qryNSUSchnfe: TStringField;
+    qryNSUSxnome: TStringField;
+    qryNSUSie: TStringField;
+    qryNSUStpnf: TStringField;
+    qryNSUSvnf: TFloatField;
+    qryNSUSdigval: TStringField;
+    qryNSUSnprot: TStringField;
+    qryNSUScsitnfe: TStringField;
+    qryNSUSpossuixml: TBooleanField;
+    qryNSUSultnsu: TMemoField;
+    dbgNFESefaz: TtecDBGrid;
+    qryNSUSdhemi: TStringField;
+    qryNSUSdhrecbto: TStringField;
+    qryNSUSxmlnfe: TMemoField;
+    qryNSUStipoxmlretorno: TStringField;
+    qryNSUSxmleveciencia: TMemoField;
+    sbnNotaEntrada: TSpeedButton;
+    pgcNotasEntradaSefaz: TPageControl;
+    tstParametrosSelecao: TTabSheet;
+    tstDadosSelecionados: TTabSheet;
+    fraIntervaloDatas: TfraIntervaloDatas;
+    gbxFornecedores: TGroupBox;
+    rgpSituacaoCadastramentoNFe: TRadioGroup;
+    qryNSUSfilial: TIntegerField;
+    qryNSUSmfilial: TStringField;
+    qryNSUScnpjemitente: TStringField;
+    qryNSUScodigoclifor: TIntegerField;
+    qryNSUStipocliforn: TStringField;
+    StaticText1: TStaticText;
+    qryNSUSnrnfe: TIntegerField;
+    qryNSUSserie: TStringField;
+    qryNSUSnomecsifnfe: TStringField;
+    qryNSUSstatusnp: TStringField;
+    Panel1: TPanel;
+    GroupBox1: TGroupBox;
+    shNotaImpressa: TShape;
+    shCopiar: TShape;
+    shCancelado: TShape;
+    lblNotaFiscal: TLabel;
+    lblCopiar: TLabel;
+    lblProdutoCancelado: TLabel;
+    fraListaFiliais: TfraListaFiliais;
+    fraSelecaoAleatoriaFornecedores: TfraSelecaoAleatoriaClientes;
+    Timer1: TTimer;
+    sbnBuscarNFSefaz: TSpeedButton;
+    Timer2: TTimer;
+    sbnVisualizarNFSefaz: TSpeedButton;
+    gbxPesquisaNFe: TGroupBox;
+    edtNFE: TMaskEdit;
+    qryNSUStipo: TStringField;
+    qryNSUStipoabrv: TStringField;
+    rgpTipoNotaFiscal: TRadioGroup;
+    StaticText2: TStaticText;
+    spbGerarNotasNaoCadastradas: TSpeedButton;
+    qryNotasPagSit: TtecQuery;
+    qryNotasPagSitstatusnp: TStringField;
+    AdvSmoothProgressBar1: TAdvSmoothProgressBar;
+    qryNSUStpServ: TIntegerField;
+    qryNSUSDescrtpServ: TStringField;
+    qryNSUScancelada: TBooleanField;
+    Shape1: TShape;
+    Label1: TLabel;
+    qryNSUSfilialcontabil: TIntegerField;
+    procedure sbnGerarClick(Sender: TObject);
+
+    procedure qryNSUSFilterRecord(DataSet: TDataSet; var Accept: Boolean);
+    procedure dbgNFESefazDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure sbnNotaEntradaClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure sbnBuscarNFSefazClick(Sender: TObject);
+    procedure Timer2Timer(Sender: TObject);
+    procedure sbnVisualizarNFSefazClick(Sender: TObject);
+    procedure edtNFEKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure pgcNotasEntradaSefazChange(Sender: TObject);
+    procedure spbGerarNotasNaoCadastradasClick(Sender: TObject);
+    procedure qryNSUSCalcFields(DataSet: TDataSet);
+  private
+    vMsg : String;
+    fdtmCadastroNotasFiscais: TdtmCadastroNotasFiscais;
+    { Private declarations }
+{    vNSU : String;}
+{    vMAXNSU : String;}
+//    _ThreadCancelamento: ThreadCancelamento;
+    vPararProcessamento : boolean;
+    procedure sbnPararClick(Sender: TObject);
+
+    procedure AbrirCadastroNotasFiscais;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function getdtmCadastroNotasFiscais: TdtmCadastroNotasFiscais;
+
+    procedure GerarNotasCTeNaoCadastradas;
+
+    procedure Processamento;
+
+  public
+    { Public declarations }
+    _ProcessamentoNFE: TProcessamentoNFE;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property dtmCadastroNotasFiscais: TdtmCadastroNotasFiscais read getdtmCadastroNotasFiscais write fdtmCadastroNotasFiscais;
+  end;
+
+var
+  frmNFeEntradaSefaz: TfrmNFeEntradaSefaz;
+
+implementation
+
+uses  ComObj;
+
+{$R *.dfm}
+
+{ TfrmNFeEntradaSefaz }
+
+constructor TfrmNFeEntradaSefaz.Create(AOwner: TComponent);
+begin
+  inherited;
+  {
+  qryNSUS.ParamByName('cnpjfilialbase').AsString := FCNPJFilialBase;
+  qryNSUS.close;
+  qryNSUS.open;
+  if qryNSUSultnsu.IsNull then
+    tmsMEditNSU.Text := '000000000000000'
+  else
+    tmsMEditNSU.Text := preencheString(qryNSUSultnsu.asString, '0', 15, false);
+    }
+
+  fraIntervaloDatas.edtDataInicial.text := FormatDateTime('dd/mm/yyyy',incMonth(vdatahoraservidor, -2));
+  fraIntervaloDatas.edtDataFinal.text := FormatDateTime('dd/mm/yyyy',vdatahoraservidor);
+  fraSelecaoAleatoriaFornecedores.fraSelecaoAleatoriaCliente.ConsultaSelecaoAleatoria.TipoCliente := 'F';
+
+  {
+  fExecutavel := Value;
+  fProcesso := copy(fExecutavel, LastDelimiter('\',fExecutavel)+1,Length(fExecutavel));
+  fDiretorioExec := copy(fExecutavel,1, LastDelimiter('\',fExecutavel));
+  if not ProcessoExiste(fProcesso) then
+  begin
+    ExecutarProcesso(fExecutavel,'', fDiretorioExec, 0);
+    Sleep(delay);
+  end;
+  }
+
+//  ExecAndWait('monitor.exe', 'tecsoft filosofia', );
+
+  pgcNotasEntradaSefaz.activepageindex := 0;
+
+  AdvSmoothProgressBar1.visible := false;
+
+end;
+
+destructor TfrmNFeEntradaSefaz.Destroy;
+begin
+  qryNSUS.Close;
+  inherited;
+  
+end;
+
+procedure TfrmNFeEntradaSefaz.sbnGerarClick(Sender: TObject);
+var
+  vListaSelecionada: String;
+begin
+  inherited;
+  if pgcNotasEntradaSefaz.activepage = tstParametrosSelecao then
+  begin
+    qryNSUS.MacrobyName('IntervaloEmissao').asString :=  MontarIntervaloData('cast(nsus.dhemi as date)',
+          formatDateTime('yyyy-mm-dd',strtodatetime(fraIntervaloDatas.edtDataInicial.text)),
+          formatDateTime('yyyy-mm-dd',strtodatetime(fraIntervaloDatas.edtDataFinal.text)));
+
+    {vListaSelecionada := RetornarLista(qryFiliais, qryFiliaiscodigo, qryFiliaismarcar);}
+
+    if fraListaFiliais.ListaSelecionada<>'' then
+      qryNSUS.MacrobyName('ListadeFiliais').asString := Format('AND f.codigo in (%s)',[fraListaFiliais.ListaSelecionada])
+    else
+      qryNSUS.MacrobyName('ListadeFiliais').clear;
+
+    if fraSelecaoAleatoriaFornecedores.ListaCondicional<>'' then
+      qryNSUS.MacrobyName('LIstadeFornecedores').asString := 'and ('+fraSelecaoAleatoriaFornecedores.ListaCondicional+')'
+    else
+      qryNSUS.MacrobyName('LIstadeFornecedores').clear;
+
+    case rgpSituacaoCadastramentoNFe.ItemIndex of
+    0 : qryNSUS.MacrobyName('SituacaoCadasstroNFe').asString := 'and np.chv_nfe is not null';
+    1 : qryNSUS.MacrobyName('SituacaoCadasstroNFe').asString := 'and np.chv_nfe is null';
+    2 : qryNSUS.MacrobyName('SituacaoCadasstroNFe').clear;
+    end;
+
+    case rgpTipoNotaFiscal.ItemIndex of
+    0 : qryNSUS.MacrobyName('TipoNFe').asString := 'and nsus.tipo = ''NFE''';
+    1 : qryNSUS.MacrobyName('TipoNFe').asString := 'and nsus.tipo = ''CTE''';
+    2 : qryNSUS.MacrobyName('TipoNFe').clear;
+    end;
+
+    qryNSUS.close;
+    qryNSUS.open;
+
+    if qryNSUS.recordcount <> 0 then
+    begin
+      pgcNotasEntradaSefaz.ActivePage := tstDadosSelecionados;
+      gbxPesquisaNFe.Visible := true;
+    end
+    else
+      mensagemaviso('Nenhum regisro foi encontrado');
+
+  end;
+end;
+
+
+procedure TfrmNFeEntradaSefaz.qryNSUSFilterRecord(DataSet: TDataSet;
+  var Accept: Boolean);
+begin
+  inherited;
+//  Accept := (qryNSUStipoxmlretorno.asString = 'resNFe');
+end;
+
+procedure TfrmNFeEntradaSefaz.dbgNFESefazDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if TDBGrid(Sender).Fields[DataCol].FieldName = 'statusnp' then
+  begin
+    if TDBGrid(Sender).DataSource.DataSet.FieldByName('statusnp').AsString = 'NC' then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clred;
+      TDBGrid(Sender).Canvas.Font.Color := clWhite;
+    end
+    else
+    if TDBGrid(Sender).DataSource.DataSet.FieldByName('statusnp').AsString = 'C' then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clwhite;
+      TDBGrid(Sender).Canvas.Font.Color := clRed;
+    end
+    else
+    if TDBGrid(Sender).DataSource.DataSet.FieldByName('statusnp').AsString = 'N' then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clGreen;
+      TDBGrid(Sender).Canvas.Font.Color := clWhite;
+    end
+    else
+    if TDBGrid(Sender).DataSource.DataSet.FieldByName('statusnp').AsString = 'P' then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := $000080FF;
+      TDBGrid(Sender).Canvas.Font.Color := clWhite;
+    end;
+
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+
+end;
+
+
+procedure TfrmNFeEntradaSefaz.AbrirCadastroNotasFiscais;
+var
+  frmAjuda: TForm;
+  vArqxmlNFe : String;
+  vContinuar : Boolean;
+begin
+  inherited;
+
+  vContinuar := True;
+
+  if qryNSUScancelada.asboolean then
+    vContinuar := MensagemConfirmacao('Este documento esta cancelado, deseja continuar?') = smbOK;
+
+  if vContinuar then
+  begin
+    vArqxmlNFe := FNFeDirNotasEntrada + '\'+trocar(trocar(trocar(qryNSUSxnome.asString,' ','-'),'\',''),'/','')+'_'+somentenumero(qryNSUScnpjemitente.asString)+'_'+qryNSUSnrnfe.asString+'_'+ qryNSUSchnfe.AsString+'.xml';
+
+    qryNSUSxmlnfe.SaveToFile(vArqxmlNFe);
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['IncluiRNFeviaXML',
+                                                                     vArqxmlNFe, ''],
+                                                                     'TfrmCadastroNotasFiscais', True);
+  end;
+
+end;
+
+procedure TfrmNFeEntradaSefaz.sbnNotaEntradaClick(Sender: TObject);
+begin
+  inherited;
+  AbrirCadastroNotasFiscais
+
+end;
+
+procedure TfrmNFeEntradaSefaz.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not ctrlon and (key = VK_F6) then
+    sbnBuscarNFSefazClick(nil)
+  else
+  if not ctrlon and (key = VK_F7) then
+    AbrirCadastroNotasFiscais
+  else
+  if not ctrlon and (key = VK_F8) then
+    sbnGerarClick(nil)
+  else
+  if not ctrlon and (key = VK_F4) then
+    sbnVisualizarNFSefazClick(nil)
+end;
+
+procedure TfrmNFeEntradaSefaz.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+
+  sbnNotaEntrada.enabled := (pgcNotasEntradaSefaz.activepage = tstDadosSelecionados) and
+                             (qryNSUS.RecordCount <> 0) and
+                             qryNSUSpossuixml.asboolean;
+
+  sbnVisualizarNFSefaz.enabled := sbnNotaEntrada.enabled;
+
+
+
+  
+end;
+
+procedure TfrmNFeEntradaSefaz.sbnBuscarNFSefazClick(Sender: TObject);
+var
+  ArquivoCFG: TIniFile;
+  vTempoInicial : DWORD;
+begin
+  inherited;
+  if not ProcessoExiste('pmonitornfe.exe') then
+  begin
+    ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+
+    ArquivoCFG.WriteString(LoginSection, 'UsuarioPadraoSefaz', dtmTecSoft.dbaTecSoft.Login);
+    ArquivoCFG.WriteString(LoginSection, 'SenhaPadraoSefaz', criptografar(dtmTecSoft.dbaTecSoft.password));
+//    sleep(5000);
+
+
+    if ParamCount >= 1 then
+      ExecutarProcesso(ExtractFilePath(Application.ExeName)+'pmonitornfe.exe', ParamStr(1),
+                       ExtractFilePath(Application.ExeName), SW_MINIMIZE)
+    else
+      ExecutarProcesso(ExtractFilePath(Application.ExeName)+'pmonitornfe.exe', '',
+                       ExtractFilePath(Application.ExeName), SW_MINIMIZE);
+
+//    sleep(5000);
+
+    IniciarTempo(vTempoInicial);
+    repeat
+    until TempoEsgotado(vTempoInicial, 60000) or ProcessoExiste('pmonitornfe.exe');
+
+//    ArquivoCFG.DeleteKey(LoginSection, 'UsuarioPadraoSefaz');
+//    ArquivoCFG.DeleteKey(LoginSection, 'SenhaPadraoSefaz');
+    self.BringToFront;
+    sbnBuscarNFSefaz.enabled := false;
+  end;
+
+
+end;
+
+procedure TfrmNFeEntradaSefaz.Timer2Timer(Sender: TObject);
+begin
+  inherited;
+  if not sbnBuscarNFSefaz.Enabled and not ProcessoExiste('pmonitornfe.exe') then
+    sbnBuscarNFSefaz.Enabled := true;
+
+  
+end;
+
+procedure TfrmNFeEntradaSefaz.sbnVisualizarNFSefazClick(Sender: TObject);
+var
+  vArqxmlNFe : String;
+begin
+  inherited;
+  vArqxmlNFe := FNFeDirNotasEntrada + '\'+trocar(trocar(trocar(qryNSUSxnome.asString,' ','-'),'\',''),'/','')+'_'+somentenumero(qryNSUScnpjemitente.asString)+'_'+qryNSUSnrnfe.asString+'_'+ qryNSUSchnfe.AsString+'.xml';
+  qryNSUSxmlnfe.SaveToFile(vArqxmlNFe);
+  CreateProcessSimple(FNFeExecDANFE + ' arquivo=' +
+                      '"'+vArqxmlNFe+'"' + ' Visualizar=1');
+end;
+
+procedure TfrmNFeEntradaSefaz.edtNFEKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+  begin
+    if qryNSUS.locate('chnfe', somentenumero(edtNFE.Text), []) then
+    begin
+      dbgNFESefaz.setfocus;
+      dbgNFESefaz.SelectedField := qryNSUSchnfe;
+    end
+    else
+    begin
+      mensagemAviso('NFE não encontrada');
+      edtNFE.setfocus;
+      edtNFE.selectall;
+    end;
+  end;
+end;
+
+procedure TfrmNFeEntradaSefaz.pgcNotasEntradaSefazChange(Sender: TObject);
+begin
+  inherited;
+  gbxPesquisaNFe.visible := (pgcNotasEntradaSefaz.activePage = tstDadosSelecionados)
+                            and (qryNSUS.recordcount <> 0);
+
+end;
+
+procedure TfrmNFeEntradaSefaz.spbGerarNotasNaoCadastradasClick(
+  Sender: TObject);
+
+begin
+  inherited;
+  GerarNotasCTeNaoCadastradas;
+
+
+
+end;
+
+function TfrmNFeEntradaSefaz.getdtmCadastroNotasFiscais: TdtmCadastroNotasFiscais;
+begin
+  if not assigned(fdtmCadastroNotasFiscais) then
+  begin
+    fdtmCadastroNotasFiscais := TdtmCadastroNotasFiscais.Create(self);
+//    dmCadastroNotasFiscais.dtmCadastroNotasFiscais := fdtmCadastroNotasFiscais;
+  end;
+
+  Result := fdtmCadastroNotasFiscais;
+
+end;
+
+procedure TfrmNFeEntradaSefaz.GerarNotasCTeNaoCadastradas;
+begin
+
+  vPararProcessamento := false;
+
+  spbGerarNotasNaoCadastradas.caption := 'Parar Geração de Notas de Cte';
+  spbGerarNotasNaoCadastradas.onClick := sbnPararClick;
+  spbGerarNotasNaoCadastradas.Update;
+
+  _ProcessamentoNFE := TProcessamentoNFE.create(false);
+  _ProcessamentoNFE.Processamento := Processamento;
+  _ProcessamentoNFE.resume;
+
+
+
+
+end;
+
+procedure TfrmNFeEntradaSefaz.sbnPararClick(Sender: TObject);
+begin
+
+  AdvSmoothProgressBar1.visible := false;
+
+  spbGerarNotasNaoCadastradas.Caption := 'Iniciar Geração de Notas de Cte';
+  vPararProcessamento := true;
+  if assigned(_ProcessamentoNFE) then
+    _ProcessamentoNFE.Terminate;
+
+  spbGerarNotasNaoCadastradas.onClick := spbGerarNotasNaoCadastradasClick;
+
+  AdvSmoothProgressBar1.Position := 0;
+
+
+end;
+
+procedure TfrmNFeEntradaSefaz.Processamento;
+var
+  vArqxmlNFe : String;
+  vPosition : Double;
+  v_erro : integer;
+
+begin
+  try
+
+    if not vPararProcessamento then
+    begin
+
+      if not vPararProcessamento then
+      begin
+        vmsg := 'Início da geração de notas de CTe';
+
+
+        try
+
+          AdvSmoothProgressBar1.visible := not AdvSmoothProgressBar1.visible;
+
+          if AdvSmoothProgressBar1.visible then
+          begin
+            qryNSUS.first;
+            while not qryNSUS.eof do
+            begin
+
+              if (qryNSUSstatusnp.AsString = 'NC') and
+                 (qryNSUStipo.asString = 'CTE') and
+                 qryNSUSpossuixml.AsBoolean and
+                 (qryNSUStpServ.value = 0) and
+                 not qryNSUScancelada.AsBoolean
+
+              then
+              begin
+
+                vArqxmlNFe := FNFeDirNotasEntrada + '\'+trocar(trocar(trocar(qryNSUSxnome.asString,' ','-'),'\',''),'/','')+'_'+somentenumero(qryNSUScnpjemitente.asString)+'_'+qryNSUSnrnfe.asString+'_'+ qryNSUSchnfe.AsString+'.xml';
+                qryNSUSxmlnfe.SaveToFile(vArqxmlNFe);
+
+                with dtmCadastroNotasFiscais do
+                begin
+                  EntradaViaXML := True;
+                  ArquivoXMLNFe := vArqxmlNFe ;
+                  if not GravarNotaFiscal(v_erro) then
+                  begin
+                    sbnPararClick(nil);
+                    MensagemAviso('Ocorreu um erro ao gravar o CTe. Erro ' + inttostr(v_erro));
+                    break;
+                  end;
+
+                end;
+
+                qryNotasPagSit.parambyname('chv_nfe').asString := qryNSUSchnfe.asString;
+                qryNotasPagSit.close;
+                qryNotasPagSit.open;
+
+                if qryNotasPagSitstatusnp.asstring <>
+                   qryNSUSstatusnp.asString then
+                begin
+                  qryNSUS.edit;
+                  qryNSUSstatusnp.asString := qryNotasPagSitstatusnp.asstring;
+                  qryNSUS.post;
+                end;
+
+                application.processmessages;
+
+              end;
+
+              try
+                vPosition := qryNSUS.recno * 100 / qryNSUS.recordcount
+              except
+                vPosition := 0;
+              end;
+
+              AdvSmoothProgressBar1.Position := vPosition;
+
+
+              qryNSUS.next;
+
+              if vPararProcessamento then
+                break;
+
+            end;
+
+            {
+            vmsg := 'Atualizando CTe´s cancelados!';
+
+            qryCTeCancelados.close;
+            qryCTeCancelados.open;
+            qryCTeCancelados.first;
+            while not qryCTeCancelados.eof do
+            begin
+              qryAtualizarCte_x_NP_cancelados.parambyname('codigonota').asinteger :=
+                qryCTeCanceladoscodigo.asinteger;
+              qryAtualizarCte_x_NP_cancelados.ExecSql;
+
+              qryAtualizarCte_x_NP_cancelados.Transaction.Commit;
+
+              qryCTeCancelados.next;
+
+             try
+                vPosition := qryCTeCancelados.recno * 100 / qryCTeCancelados.recordcount
+              except
+                vPosition := 0;
+              end;
+
+              AdvSmoothProgressBar1.Position := vPosition;
+
+              application.processmessages;
+
+            end;
+            }
+
+          end;
+        finally
+          sbnPararClick(nil);
+        end;
+
+
+      end;
+
+
+      if not vPararProcessamento then
+        vmsg := 'Fim da geração de notas de CTe';
+
+    end;
+
+  finally
+
+    sbnPararClick(nil);
+
+  end;
+
+end;
+
+procedure TfrmNFeEntradaSefaz.qryNSUSCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryNSUSDescrtpServ.asString := DescricaoTipodeFrete(qryNSUStpServ.value);
+    
+end;
+
+end.

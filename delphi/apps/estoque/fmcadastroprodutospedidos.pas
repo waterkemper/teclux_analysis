@@ -1,0 +1,199 @@
+unit fmcadastroprodutospedidos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Mask, ExtCtrls, Buttons, DBCtrls, DB,
+  ComCtrls,
+  //Terceiros
+  ZQuery, cpQuery,
+  //Componentes
+  cpdata, cptexto, cpnumero, cpdbfindcontrols, cpdbtext ,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema, 
+  //Projeto
+  dmcadastropedidos,
+  //Repositorio
+  fmconsultabasica, fmconsultaporcampo, fmcadastropadrao, ToolWin;
+
+type
+  TfrmCadastroProdutosPedidos = class(TfrmCadastroPadrao)
+    gbxProdutosPedido: TGroupBox;
+    edtQuantidade: TDBEditNumero;
+    flkProduto: TtecDBFindLookup;
+    sbnProcurarProduto: TSpeedButton;
+    dtxDescricaoProduto: TtecDBText;
+    edPreco: TDBEditNumero;
+    edtDesconto: TDBEditNumero;
+    pnlFundoJanela: TPanel;
+    dtxPedido: TtecDBText;
+    gbxPedido: TGroupBox;
+    ckbTodosProdutos: TCheckBox;
+    edtICMS: TDBEditNumero;
+    edtIPI: TDBEditNumero;
+    gbxItem: TGroupBox;
+    sbnProdutos: TSpeedButton;
+    gbxQtdeItem: TGroupBox;
+    gbxPrecoUnitario: TGroupBox;
+    gbxDesconto: TGroupBox;
+    gbxValorICMS: TGroupBox;
+    gbxValordoIPI: TGroupBox;
+    GroupBox1: TGroupBox;
+    dtxDescricaoPreco: TtecDBText;
+    dtxPreco: TtecDBText;
+    procedure flkProdutoMessage(var Msg: String);
+    procedure sbnProcurarProdutoClick(Sender: TObject);
+  private
+//    dtmCadastroPedidos: TdtmCadastroPedidos;  
+    
+  protected
+    FEditando: Boolean;
+//    dtmCadastroPedidos: TdtmCadastroPedidos;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    function InternoPesquisar(Titulo:String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TabelaDePesquisa: TZDataSet; override;
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure  SetDataModulo (Dtm: TdtmCadastroPedidos);
+    property   Editando: Boolean read FEditando write FEditando;
+  end;
+
+var
+  frmCadastroProdutosPedidos: TfrmCadastroProdutosPedidos;
+
+implementation
+
+{$R *.dfm}
+
+constructor TfrmCadastroProdutosPedidos.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+destructor TfrmCadastroProdutosPedidos.Destroy;
+begin
+  inherited;
+  frmCadastroProdutosPedidos := nil;
+end;
+
+function TfrmCadastroProdutosPedidos.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := dtmCadastroPedidos.ExisteProduto(NomeCampo, Value);
+end;
+
+procedure TfrmCadastroProdutosPedidos.flkProdutoMessage(var Msg: String);
+begin
+  Msg:= Format(ctREGISTROINCLUIDO, [flkProduto.Text,'no pedido']);
+end;
+
+function TfrmCadastroProdutosPedidos.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+    dtmCadastroPedidos.ExcluirProdutoPedido(False);
+  if not sbnIncluir.Visible then
+    ModalResult := mrOk;
+end;
+
+function TfrmCadastroProdutosPedidos.InternoGravar: Boolean;
+begin
+//  Result:= OperadorTernario(flkProduto.Text <> '',flkProduto.Exist, False);
+ // if Result then
+  Result := dtmCadastroPedidos.GravarProdutoPedido;
+  if not sbnIncluir.Visible then
+    ModalResult := mrOk;
+end;
+
+function TfrmCadastroProdutosPedidos.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    ckbTodosProdutos.Checked:= False;
+    flkProduto.SetFocus;
+    dtmCadastroPedidos.IncluirProdutoPedido(False);
+  end;
+end;
+
+function TfrmCadastroProdutosPedidos.InternoPesquisar(Titulo:String): Integer;
+begin
+  Result := mrNone;
+  with dtmCadastroPedidos do begin
+    if CtrlOn and (ActiveControl = flkProduto) then begin
+      AbreTabelaPesquisa(pcoPRODUTO);
+      Result := inherited InternoPesquisar('Produtos');
+      if Result = mrOK then
+        Selecionar(pcoPRODUTO);
+      FechaTabelaPesquisa(pcoPRODUTO);
+    end;
+  end;
+end;
+
+function TfrmCadastroProdutosPedidos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  if ckbTodosProdutos.Checked then
+       TfrmConsultaPorCampo(Result).ConsultaInterativa := False
+  else TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= False;
+end;
+
+procedure TfrmCadastroProdutosPedidos.sbnProcurarProdutoClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkProduto.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroProdutosPedidos.SetDataModulo(Dtm: TdtmCadastroPedidos);
+begin
+  dtmCadastroPedidos := Dtm;
+  dtxPedido.datasource := dtmCadastroPedidos.dsrProdutosPedidos;
+
+  flkProduto.DataSource := dtmCadastroPedidos.dsrProdutosPedidos;
+  flkProduto.LookupSource := dtmCadastroPedidos.dsrProcuraProdutos;
+
+  dtxDescricaoProduto.DataSource := dtmCadastroPedidos.dsrProcuraProdutos;
+  edtQuantidade.DataSource := dtmCadastroPedidos.dsrProdutosPedidos;
+
+  dtxPreco.DataSource :=  dtmCadastroPedidos.dsrProcuraProdutos;
+  dtxDescricaoPreco.DataSource := dtmCadastroPedidos.dsrProcuraProdutos;
+
+  edPreco.DataSource := dtmCadastroPedidos.dsrProdutosPedidos;
+  edtDesconto.DataSource := dtmCadastroPedidos.dsrProdutosPedidos;
+
+  edtICMS.DataSource := dtmCadastroPedidos.dsrProdutosPedidos;
+  edtIPI.DataSource := dtmCadastroPedidos.dsrProdutosPedidos;
+
+  TTecQuery(flkProduto.LookupSource.DataSet).parambyname(flkProduto.LookupQueryParameter).clear;
+  {
+  if ParSistema.PermitirProdutoAlfanumerico then begin
+     flkProduto.Lookupfield:= 'codigovisual';
+     flkProduto.LookupQueryParameter:= 'codigovisual';
+     flkProduto.DataField     := 'produtovisual';
+  end
+  else begin
+     flkProduto.Lookupfield:= 'codigo';
+     flkProduto.LookupQueryParameter:= 'codigo';
+     flkProduto.DataField     := 'produto';
+  end;
+  }
+  dtmCadastroPedidos.CasasDecimais(edPreco);
+
+
+  
+end;
+
+function TfrmCadastroProdutosPedidos.TabelaDePesquisa: TZDataSet;
+begin
+  Result := dtmCadastroPedidos.ConsultarProduto;
+end;
+
+end.

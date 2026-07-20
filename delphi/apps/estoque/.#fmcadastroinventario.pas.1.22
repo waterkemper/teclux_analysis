@@ -1,0 +1,974 @@
+unit fmcadastroinventario;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, dmbasico, dmtecsoft, fmcadastropadrao, DB, ZQuery,
+  ZPgSqlQuery, cpquery, ComCtrls, Buttons, ExtCtrls, frconsulta,
+  frconsultacodigo, cpdbdata, cpdbradiogroup, Grids, DBGrids, cpdbgrid,
+  cpdatasource, ctconstantes, Mask, cpdbfindcontrols, Windows, dmcadastroinventario,
+  biblio, clparametrossistema, DBCtrls, cpdbtext, cppagecontrol,
+  frlistagrupoprodutos, cpdbmemo, cptexto, frlistaclasseprodutos,
+  frlistamarcasprodutos, frlistagrupofornecedores, dateutils, ToolWin, IniFiles,
+  frmultiplaselecaoaleatoria, DBEditDateTimePicker, DBDateTimePicker2,
+  dmVerificacaoReservas, clusuario;
+
+type
+  TfrmCadastroInventario = class(TfrmCadastroPadrao)
+    sbnGerar: TSpeedButton;
+    sbnImprimir: TSpeedButton;
+    gbxInventario: TGroupBox;
+    gbxSequencia: TGroupBox;
+    edfNumero: TtecDbEditFind;
+    gbxFilial: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigo;
+    gbxSituacao: TGroupBox;
+    dtxSituacao: TtecDBText;
+    gbxProdutos: TGroupBox;
+    Bevel1: TBevel;
+    pnlOpcoesProdutos: TPanel;
+    sbnIncluirProduto: TSpeedButton;
+    sbnExcluirProduto: TSpeedButton;
+    sbnGerarProdutosSemInventario: TSpeedButton;
+    sbnExcluirProdutosSemInventario: TSpeedButton;
+    dbgProdutosInventario: TtecDBGrid;
+    pnlLegenda: TPanel;
+    shIncluirNaNota: TShape;
+    lblInventarioProdutosGerados: TLabel;
+    fraListaGrupoFornecedores: TfraListaGrupoFornecedores;
+    pnlTop: TPanel;
+    gbxFornecedor: TGroupBox;
+    fraConsultaFornecedor: TfraConsultaCodigo;
+    gbxLocalizacao: TGroupBox;
+    pnlTopLeft: TPanel;
+    pnlFornecedor: TPanel;
+    edtLocalizacao: TEditTexto;
+    pgcInventario: TPageControl;
+    tstParametros: TTabSheet;
+    tstCadastro: TTabSheet;
+    pnlBottom: TPanel;
+    dbgMovimentosNegativoPosteriores: TtecDBGrid;
+    pnlMovimentosNegativoPosteriores: TPanel;
+    gbxMovimentosNegativoPosteriores: TGroupBox;
+    ckbVisualizarItensNegativos: TCheckBox;
+    sbnExcluirItensNegativos: TSpeedButton;
+    sbnCopiarItensNegativos: TSpeedButton;
+    sbnCopiarProdutos: TSpeedButton;
+    sbnGerarProdutosParametros: TSpeedButton;
+    GroupBox1: TGroupBox;
+    edtDescricaodeProdutos: TEditTexto;
+    gbxArquivo: TGroupBox;
+    lblArquivo: TLabel;
+    sbnArquivo: TSpeedButton;
+    sbnProcessarArquivoImportacao: TSpeedButton;
+    dlgArquivoaImportar: TSaveDialog;
+    GroupBox2: TGroupBox;
+    ckbProdutoEmLinha: TCheckBox;
+    ckbProdutoForadeLinha: TCheckBox;
+    ckbProdutoInativo: TCheckBox;
+    ckbProdutoAtivo: TCheckBox;
+    fraMultiplaSelecaoAleatoria1: TfraMultiplaSelecaoAleatoria;
+    gbxDatas: TGroupBox;
+    Label1: TLabel;
+    gbxData: TGroupBox;
+    edtData: TDBEditData;
+    gbxProcessamento: TGroupBox;
+    edtProcessamento: TDBEditData;
+    btnIncluirReservasPreviasInconsistentes: TButton;
+    btnIncluirResevasFuturoInconsistentes: TButton;
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure dbgProdutosInventarioDblClick(Sender: TObject);
+    procedure dbgProdutosInventarioKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure fraConsultaFilialedfCodigoKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure edfNumeroFound(Found: Boolean);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure sbnGerarProdutosSemInventarioClick(Sender: TObject);
+    procedure dbgProdutosInventarioDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure fraConsultaFilialedfCodigoExit(Sender: TObject);
+    procedure edtDataExit(Sender: TObject);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure sbnExcluirProdutosSemInventarioClick(Sender: TObject);
+    procedure pgcInventarioChange(Sender: TObject);
+    procedure ckbVisualizarItensNegativosClick(Sender: TObject);
+    procedure sbnExcluirItensNegativosClick(Sender: TObject);
+    procedure sbnCopiarItensNegativosClick(Sender: TObject);
+    procedure sbnCopiarProdutosClick(Sender: TObject);
+    procedure sbnGerarProdutosParametrosClick(Sender: TObject);
+    procedure sbnArquivoClick(Sender: TObject);
+    procedure sbnProcessarArquivoImportacaoClick(Sender: TObject);
+    procedure edtProcessamentoExit(Sender: TObject);
+    procedure btnIncluirReservasPreviasInconsistentesClick(
+      Sender: TObject);
+    procedure fraMultiplaSelecaoAleatoria1Timer1Timer(Sender: TObject);
+    procedure btnIncluirResevasFuturoInconsistentesClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+    procedure AfterScrollInventario(Sender: TObject);
+    procedure AfterScrollInventario2(Sender: TObject);
+
+    procedure AfterOpenCloseMovimentosNegativoPosteriores(Sender: TObject);
+    procedure AtribuirCamposFilial;
+    procedure SalvarArquivoImportacao;
+    procedure LerArquivoImportacao;
+
+
+  protected
+    ConsultaInventario : TfraConsultaCodigo;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AbrirInventario;
+    procedure IncluirProdutosInventario(Editar: Boolean);
+    procedure AlterarEstadoBotoes; override;
+    procedure ExcluirProduto;
+    procedure AtribuirListas;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure CriarDataModulo; override;
+  end;
+
+var
+  frmCadastroInventario: TfrmCadastroInventario;
+
+implementation
+
+uses fmnavcontroles, fmajudabt, fmcadastroprodutosinventario, fmcopiarprodutosinventarios;
+
+{$R *.dfm}
+
+{ TfrmCadastroInventario }
+
+procedure TfrmCadastroInventario.AbrirInventario;
+begin
+  edfNumero.Text := ConsultaInventario.ValorSelecionado;
+  dtmCadastroInventario.
+        refazconsulta(dtmCadastroInventario.qryInventario,[0],
+             [ConsultaInventario.ValorSelecionado]);
+  pgcInventario.ActivePage := tstCadastro;
+  AlterarEstadoBotoes;             
+// edfnumero.Exist;
+end;
+
+constructor TfrmCadastroInventario.Create(AOwner: TComponent);
+begin
+  inherited;
+  DataSet := dtmCadastroInventario.qryInventario;
+  ConsultaInventario := TfraConsultaCodigo.Create(self);
+  ConsultaInventario.edfCodigo.DataSource := dtmCadastroInventario.dsrInventario;
+  ConsultaInventario.edfCodigo.DataField := 'numero';
+  ConsultaInventario.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaInventario.AbrirTabelaProcura := false;
+  ConsultaInventario.TipoPesquisa := pesINVENTARIO;
+  ConsultaInventario.OnFound := AbrirInventario;
+  fraConsultaFilial.OnFound := AtribuirCamposFilial;
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+  dtmCadastroInventario.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  dtmCadastroInventario.OnScrollInventario := AfterScrollInventario;
+  dtmCadastroInventario.OnScrollInventario2 := AfterScrollInventario2;
+
+  dtmCadastroInventario.AfterOpenCloseMovimentosNegativoPosteriores :=
+    AfterOpenCloseMovimentosNegativoPosteriores;
+
+  dbgProdutosInventario.Columns[3].Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutosInventario.Columns[4].Visible := ParSistema.UsarGradesProdutos;
+
+  if dbgProdutosInventario.Columns[5].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[5].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[6].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[6].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[7].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[7].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[8].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[8].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[9].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[9].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[10].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[10].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[11].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[11].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[12].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[12].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[13].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[13].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[14].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[14].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[15].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[15].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  dbgProdutosInventario.OnDelete := ExcluirProduto;
+
+  fraConsultaFornecedor.TipoCliente := 'F';
+  fraConsultaFornecedor.Tipovfornecedor := 'F';
+  fraConsultaFornecedor.TipoPesquisa := pesFORNECEDORES;
+
+  if ParSistema.PermitirProdutoAlfanumerico then
+     dbgProdutosInventario.Columns[1].Width:= 217
+  else
+     dbgProdutosInventario.Columns[1].Width:= 135;
+
+  sbnCopiarItensNegativos.Enabled := false;
+  sbnExcluirItensNegativos.Enabled := false;
+
+  LerArquivoImportacao;
+
+  SalvarPropriedadesFormulario := true;
+
+//CarregarConfiguracoesFormulario;
+
+end;
+
+destructor TfrmCadastroInventario.Destroy;
+begin
+  dtmCadastroInventario.qryInventario.close;
+  dtmCadastroInventario.qryInventarioProduto.close;
+  dtmCadastroInventario := nil;
+  inherited;
+  frmCadastroInventario := nil;
+end;
+
+function TfrmCadastroInventario.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroInventario.ExcluirInventario;
+  end;
+
+end;
+
+function TfrmCadastroInventario.InternoGravar: Boolean;
+begin
+  pgcInventario.ActivePage := tstCadastro;
+  Result:= inherited InternoGravar;
+  if Result then
+  begin
+    AtribuirListas;
+    dtmCadastroInventario.GravarInventario;
+    SalvarConfiguracoesFormulario;
+  end;
+end;
+
+function TfrmCadastroInventario.InternoIncluir: Boolean;
+begin
+  pgcInventario.ActivePage := tstParametros;
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroInventario.IncluirInventario;
+  end;
+
+end;
+
+procedure TfrmCadastroInventario.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key = VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        ConsultaInventario.InternoPesquisar(ctINVENTARIOESTOQUE);
+        self.SetFocus;
+      end
+    end
+    else
+    if (key = VK_F7) then
+    begin
+      if sbnImprimir.Enabled then
+        sbnImprimirClick(nil);
+    end
+    else
+    if (key = VK_F8) then
+    begin
+      if sbnGerar.Enabled then
+        sbnGerarClick(nil);
+    end;
+  end;
+end;
+
+procedure TfrmCadastroInventario.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaInventario.InternoPesquisar(ctINVENTARIOESTOQUE);
+  self.SetFocus;
+
+end;
+
+procedure TfrmCadastroInventario.sbnIncluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  IncluirProdutosInventario(False);
+end;
+
+procedure TfrmCadastroInventario.IncluirProdutosInventario(Editar: Boolean);
+begin
+  dtmCadastroInventario.IncluirProdutosInventario(Editar);
+  AtribuirListas;
+  frmCadastroProdutosInventario := TfrmCadastroProdutosInventario.Create(self);
+//  frmCadastroProdutosInventario.fraConsultaCodigo.edfCodigo.PosicionarProdutoNaoEncontrado := true;
+  frmCadastroProdutosInventario.DataSet := dtmCadastroInventario.qryInventarioProduto;
+
+  frmCadastroProdutosInventario.ShowModal;
+  frmCadastroProdutosInventario.Free;
+  AlterarEstadoBotoes;
+  SetFocus;
+end;
+
+procedure TfrmCadastroInventario.AfterScrollLinhaColunaGrade(
+  Sender: TObject);
+begin
+  dbgProdutosInventario.Columns[3].Title.Caption := dtmCadastroInventario.LinhadaGrade;
+  dbgProdutosInventario.Columns[4].Title.Caption := dtmCadastroInventario.colunadaGrade;
+end;
+
+procedure TfrmCadastroInventario.sbnExcluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroInventario.ExcluirProdutosInventario;
+end;
+
+procedure TfrmCadastroInventario.dbgProdutosInventarioDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  if sbnIncluirProduto.Enabled then
+    IncluirProdutosInventario(True);
+end;
+
+procedure TfrmCadastroInventario.dbgProdutosInventarioKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then begin
+    case Key of
+      TeclaEditarRegistro : IncluirProdutosInventario(True);
+      TeclaInserirRegistro: IncluirProdutosInventario(False);
+    end;
+  end;
+end;
+
+
+
+procedure TfrmCadastroInventario.fraConsultaFilialedfCodigoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  fraConsultaFilial.edfCodigoKeyDown(Sender, Key, Shift);
+end;
+
+
+procedure TfrmCadastroInventario.AlterarEstadoBotoes;
+begin
+  inherited;
+  sbnGerar.Enabled := not sbnSalvar.Enabled
+                      and (dtmCadastroInventario.qryInventariosituacao.AsString='A');
+
+  sbnExcluir.Enabled := (dtmCadastroInventario.qryInventariosituacao.AsString='A');
+
+  sbnIncluirProduto.Enabled :=    (dtmCadastroInventario.qryInventariosituacao.AsString='A') 
+                              and not dtmCadastroInventario.qryInventario.IsEmpty
+                              and not dtmCadastroInventario.qryInventariodata.IsNull
+                              and not dtmCadastroInventario.qryInventarioprocessamento.IsNull
+                              and not dtmCadastroInventario.qryInventariofilial.IsNull;
+  sbnExcluirProduto.Enabled := sbnIncluirProduto.Enabled
+                               and not dtmCadastroInventario.qryInventarioProduto.IsEmpty;
+  sbnGerarProdutosSemInventario.Enabled := sbnIncluirProduto.Enabled;
+  sbnExcluirProdutosSemInventario.Enabled := sbnIncluirProduto.Enabled
+                               and not dtmCadastroInventario.qryInventarioProduto.IsEmpty;
+
+//  sbnImprimir.Enabled := sbnGerar.Enabled;
+
+  sbnCopiarProdutos.Enabled := sbnIncluirProduto.Enabled;
+
+  sbnGerarProdutosParametros.Enabled := sbnIncluirProduto.Enabled;
+  gbxArquivo.Enabled := sbnIncluirProduto.Enabled;
+end;
+
+procedure TfrmCadastroInventario.edfNumeroFound(Found: Boolean);
+begin
+  inherited;
+  AlterarEstadoBotoes;
+end;
+
+procedure TfrmCadastroInventario.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroInventario.GerarMovimentos then
+  begin
+    MensagemAviso(ctOPERACAOREALIZADACOMSUCESSO);
+    AlterarEstadoBotoes;
+  end;
+end;
+
+procedure TfrmCadastroInventario.sbnGerarProdutosSemInventarioClick(
+  Sender: TObject);
+begin
+  inherited;
+  AtribuirListas;
+
+  dtmCadastroInventario.GerarProdutosNaoIdentificados(true);
+end;
+
+procedure TfrmCadastroInventario.dbgProdutosInventarioDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+
+  TDBGrid(Sender).Canvas.Font.Style := [];
+
+  case column.Index of
+      11: TDBGrid(Sender).Canvas.Font.Color:= clRed;
+  else
+    begin
+      if not (gdSelected in State) then
+        if (dtmCadastroInventario.qryInventarioProdutoselecionadosistema.AsBoolean) then
+          TDBGrid(Sender).Canvas.Font.Color := clBlue;
+    end;
+  end;
+
+
+//  if not (dtmCadastroInventario.qryInventarioProdutosaldoaposprocessamento.IsNull) then
+
+    if dtmCadastroInventario.qryInventariosituacao.AsString = 'A' then
+      if (dtmCadastroInventario.qryInventarioProdutopossuisaldonegativoposteriormente.AsBoolean) and
+         (dtmCadastroInventario.qryInventarioProdutoselecionadosistema.AsBoolean) then
+      begin
+        TDBGrid(Sender).Canvas.Font.Color := clBlue;
+        TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+      end
+      else
+      if (dtmCadastroInventario.qryInventarioProdutopossuisaldonegativoposteriormente.AsBoolean) then
+        TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+
+
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+end;
+
+procedure TfrmCadastroInventario.fraConsultaFilialedfCodigoExit(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaFilial.edfCodigoExit(Sender);
+  AlterarEstadoBotoes;
+
+end;
+
+procedure TfrmCadastroInventario.edtDataExit(Sender: TObject);
+begin
+  inherited;
+  AlterarEstadoBotoes;
+  edtProcessamento.Minimo := DaysBetween(date(),strtodate(edtData.Text))
+end;
+
+procedure TfrmCadastroInventario.ExcluirProduto;
+begin
+  if sbnExcluirProduto.Enabled then
+    dtmCadastroInventario.ExcluirProdutosInventario;
+end;
+
+procedure TfrmCadastroInventario.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroInventario.ImprimirInventario;
+end;
+
+procedure TfrmCadastroInventario.AtribuirCamposFilial;
+begin
+ if fraConsultaFilial.qryProcuraFiliais.fieldbyname('nome').AsString <> '' then
+   dtmCadastroInventario.qryInventarionomefilial.AsString :=
+     fraConsultaFilial.qryProcuraFiliais.fieldbyname('nome').AsString
+ else
+   dtmCadastroInventario.qryInventarionomefilial.Clear;
+end;
+
+procedure TfrmCadastroInventario.sbnExcluirProdutosSemInventarioClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroInventario.ExcluirProdutosnaoInventariados;
+end;
+
+procedure TfrmCadastroInventario.AfterScrollInventario(Sender: TObject);
+begin
+//  fraListaGrupoProdutos.MarcarListaGrupos(dtmCadastroInventario.qryInventariogrupos.asstring);
+//  fraListaclasseProdutos.MarcarListaclasses(dtmCadastroInventario.qryInventarioclasses.AsString);
+//  fraListamarcasProdutos.MarcarListaMarcas(dtmCadastroInventario.qryInventariomarcas.AsString);
+  fraListaGrupoFornecedores.MarcarListaGrupoFornecedores(dtmCadastroInventario.qryInventariogruposfornecedores.AsString);
+  fraConsultaFornecedor.edfCodigo.Text := dtmCadastroInventario.qryInventariofornecedor.asstring;
+  fraConsultaFornecedor.TipoCliente := dtmCadastroInventario.qryInventariotipofornecedor.AsString;
+  fraConsultaFornecedor.edfCodigo.Exist;
+  edtLocalizacao.Text := dtmCadastroInventario.qryInventariolocalizacao.AsString;
+  edtDescricaodeProdutos.Text := dtmCadastroInventario.qryInventariodescricaodeprodutos.AsString;
+  ckbProdutoEmLinha.checked := dtmCadastroInventario.qryInventarioinvemlinhal.AsBoolean;
+  ckbProdutoForadeLinha.checked := dtmCadastroInventario.qryInventarioinvforalinhal.AsBoolean;
+  ckbProdutoAtivo.checked := dtmCadastroInventario.qryInventarioinvativol.AsBoolean;
+  ckbProdutoInativo.checked := dtmCadastroInventario.qryInventarioinvinativol.AsBoolean;
+end;
+
+procedure TfrmCadastroInventario.AtribuirListas;
+begin
+  with dtmCadastroInventario do
+  begin
+//    qryInventariogrupos.AsString := fraListaGrupoProdutos.ListaSelecionada;
+//    qryInventarioclasses.AsString := fraListaclasseProdutos.ListaSelecionada;
+//    qryInventariomarcas.AsString := fraListamarcasProdutos.ListaSelecionada;
+
+    ListadeItemProdutos := fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional;
+    ListadeProdutos     := fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaprodutos.ListaCondicional;
+    ListadeGrupos       := fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriagruposprodutos.ListaCondicional;
+    ListadeClasses      := fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriaclassesprodutos.ListaCondicional;
+    ListadeMarcas       := fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriamarcasProdutos.ListaCondicional;
+    ListaCondicionalPromocoes := fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriapromocoes.ListaCondicional;
+
+    qryInventariogruposfornecedores.AsString := fraListaGrupoFornecedores.ListaSelecionada;
+    qryInventariofornecedor.asstring := fraConsultaFornecedor.edfCodigo.Text;
+    qryInventariotipofornecedor.AsString := fraConsultaFornecedor.TipoCliente;
+    qryInventariolocalizacao.AsString := edtLocalizacao.Text;
+    qryInventariodescricaodeprodutos.AsString := edtDescricaodeProdutos.Text;
+
+    dtmCadastroInventario.qryInventarioinvemlinhal.AsBoolean := ckbProdutoEmLinha.checked;
+    dtmCadastroInventario.qryInventarioinvforalinhal.AsBoolean := ckbProdutoForadeLinha.checked;
+    dtmCadastroInventario.qryInventarioinvativol.AsBoolean := ckbProdutoAtivo.checked;
+    dtmCadastroInventario.qryInventarioinvinativol.AsBoolean := ckbProdutoInativo.checked;
+
+  end;
+end;
+
+procedure TfrmCadastroInventario.pgcInventarioChange(Sender: TObject);
+begin
+  inherited;
+  if pgcInventario.ActivePage = tstCadastro then
+  begin
+    if not (dtmCadastroInventario.qryInventario.State in [dsedit, dsinsert]) then
+    begin
+      edfNumero.SetFocus;
+      edfNumero.SelectAll;
+    end
+    else
+    begin
+      fraConsultaFilial.edfCodigo.SetFocus;
+      fraConsultaFilial.edfCodigo.SelectAll;
+    end;
+  end;
+end;
+
+
+procedure TfrmCadastroInventario.AfterOpenCloseMovimentosNegativoPosteriores(
+  Sender: TObject);
+begin
+  pnlMovimentosNegativoPosteriores.Visible := dtmCadastroInventario.fExisteDiferencaAposProcessado;
+end;
+
+procedure TfrmCadastroInventario.ckbVisualizarItensNegativosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroInventario.FiltrarItensNegativos(ckbVisualizarItensNegativos.Checked);
+  sbnCopiarItensNegativos.Enabled := ckbVisualizarItensNegativos.Checked;
+  sbnExcluirItensNegativos.Enabled := ckbVisualizarItensNegativos.Checked;
+end;
+
+procedure TfrmCadastroInventario.sbnExcluirItensNegativosClick(
+  Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroInventario.ExcluirItensNegativos then
+  begin
+    ckbVisualizarItensNegativos.Checked := false;
+    ckbVisualizarItensNegativosClick(nil);
+  end;
+
+end;
+
+procedure TfrmCadastroInventario.sbnCopiarItensNegativosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroInventario.CopiarItensNegativos;
+end;
+
+procedure TfrmCadastroInventario.sbnCopiarProdutosClick(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroInventario.AbrirInventarioAberto then
+  begin
+    frmCopiarProdutosInventarios := TfrmCopiarProdutosInventarios.Create(frmCopiarProdutosInventarios);
+    try
+      if frmCopiarProdutosInventarios.ShowModal = mrOK then
+        dtmCadastroInventario.IncluirProdutosInventarioCopia;
+    finally
+      frmCopiarProdutosInventarios.Free;
+    end;
+  end
+  else
+    MensagemAviso('Não existem inventários em aberto nesta filial')  
+
+end;
+
+procedure TfrmCadastroInventario.CriarDataModulo;
+begin
+
+  dtmCadastroInventario := TdtmCadastroInventario.Create(Self);
+  inherited;
+
+end;
+
+procedure TfrmCadastroInventario.sbnGerarProdutosParametrosClick(
+  Sender: TObject);
+begin
+  inherited;
+  AtribuirListas;
+  dtmCadastroInventario.GerarProdutosNaoIdentificados(false)
+end;
+
+procedure TfrmCadastroInventario.sbnArquivoClick(Sender: TObject);
+var
+  vNomeArquivo : String;
+
+begin
+  inherited;
+  if dlgArquivoaImportar.Execute then
+  begin
+   lblarquivo.Caption := trim(dlgArquivoaImportar.FileName);
+   if dtmCadastroInventario.ProcessarArquivoImportacao(lblarquivo.Caption) then
+   begin
+     SalvarArquivoImportacao;
+     MensagemAviso(format(ctARQUIVOIMPORTADOSUCESSO,[lblarquivo.Caption]));
+     vNomeArquivo := ChangeFileExt(lblarquivo.Caption,'.old');
+     if not (RenameFile(lblarquivo.Caption, vNomeArquivo)) then
+       raise Exception.Create('Não foi possível renomear o arquivo para a extensão ''.old''');
+
+   end;
+  end;
+
+end;
+
+procedure TfrmCadastroInventario.SalvarArquivoImportacao;
+var
+  ArquivoCFG: TIniFile;
+begin
+  if FileExists(NomeArquivoCFG) then
+  begin
+    ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+    try
+        ArquivoCFG.WriteString('Outros', 'CaminhoArquivoImportacaoInventario',lblArquivo.Caption);
+    finally
+      ArquivoCFG.UpdateFile;
+      ArquivoCFG.Free;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroInventario.sbnProcessarArquivoImportacaoClick(
+  Sender: TObject);
+begin
+  inherited;
+  if FileExists(lblarquivo.Caption) then
+  begin
+   if dtmCadastroInventario.ProcessarArquivoImportacao(lblarquivo.Caption) then
+     MensagemAviso(format(ctARQUIVOIMPORTADOSUCESSO,[lblarquivo.Caption]));
+  end
+  else
+    MensagemErro(ctARQUIVOINEXISTENTE);
+
+end;
+
+procedure TfrmCadastroInventario.LerArquivoImportacao;
+var
+  ArquivoCFG: TIniFile;
+
+begin
+  if FileExists(NomeArquivoCFG) then
+  begin
+    ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+    try
+      if ArquivoCFG.SectionExists('Outros') then begin
+        lblArquivo.Caption := ArquivoCFG.ReadString('Outros', 'CaminhoArquivoImportacaoInventario', '');
+      end;
+    finally
+      ArquivoCFG.Free;
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroInventario.AfterScrollInventario2(Sender: TObject);
+begin
+//  SalvarConfiguracoesFormulario;
+  Chave := dtmCadastroInventario.qryInventarioNumero.asString;
+end;
+
+procedure TfrmCadastroInventario.edtProcessamentoExit(Sender: TObject);
+begin
+  inherited;
+  AlterarEstadoBotoes;
+  edtProcessamento.Minimo := DaysBetween(date(),strtodate(edtData.Text))
+
+end;
+
+procedure TfrmCadastroInventario.btnIncluirReservasPreviasInconsistentesClick(
+  Sender: TObject);
+begin
+  inherited;
+
+  if dtmCadastroInventario.qryInventarioFilial.asString <> '' then
+  begin
+
+    try
+
+      if not assigned(dtmVerificacaoReservas)  then
+        MensagemAviso('Antes de prosseguir visualize os produtos em Estoque/Relatórios/Verificação Reservas/Futuro e mantenha a janela aberta com os itens a serem processados.')
+      else
+      begin
+
+        internogravar;
+        with dtmVerificacaoReservas, dtmCadastroInventario do
+        begin
+          {
+          qryReservasPrevias.macrobyname('CondicaoFilial').asString :=
+            'and f.codigo = ' + dtmCadastroInventario.qryInventarioFilial.asString;
+          qryReservasPrevias.close;
+          qryReservasPrevias.open;
+          }
+
+          if qryReservasPrevias.recordcount = 0 then
+            MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']))
+          else
+          begin
+
+            try
+
+              qrymovimentos.close;
+              qryMovimentos.Open;
+
+              fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.sbnExcluirTodosClick(nil);
+              while not qryReservasPrevias.eof do
+              begin
+                if (qryReservasPreviasSaldoReservaPrevia.AsCurrency > 0)  and
+                   (qryReservasPreviasfilial.asinteger = qryInventarioFilial.asinteger) then
+                begin
+
+                  fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.append;
+                  fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.fieldbyname('codigo').asString :=
+                     qryReservasPreviasprodutovisual.asString;
+                  fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.fieldbyname('descricao').asString :=
+                     qryReservasPreviasdescricao.asString;
+
+                  qryMovimentos.Append;
+                  qryMovimentosnumero.clear;
+                  qryMovimentosproduto.AsLargeInt     := qryReservasPreviasproduto.AsLargeInt;
+                  qryMovimentosfilial.AsInteger       := qryReservasPreviasfilial.AsInteger;
+                  qryMovimentosdata.AsDateTime        := qryInventariodata.AsDateTime;
+                  qryMovimentosquantidade.AsCurrency  := qryReservasPreviasSaldoReservaPrevia.AsCurrency;
+    //              qryMovimentosvalor.AsCurrency       := qryInventarioProdutovalorcusto.AsCurrency * qryMovimentosquantidade.AsCurrency;
+                  qryMovimentostipomovimento.AsString := '-RP';
+                  qryMovimentosreferencia.AsString    := 'AJUSTE RESERVA PRÉVIA INCONSISTENTE - INVENTÁRIO '+qryInventarionumero.AsString;
+                  qryMovimentos.Post;
+                end;
+
+                qryReservasPrevias.next;
+              end;
+            finally
+              AtribuirListas;
+              internogravar;
+              dtmVerificacaoReservas.perpetrar([qryMovimentos], AguardareTerminarDentroDm);
+              dtmCadastroInventario.GerarProdutosNaoIdentificados(false)
+            end;
+
+          end;
+        end;
+
+      end;
+    finally
+
+//      if dtmVerificacaoReservas.owner = self then
+//        dtmVerificacaoReservas.free;
+    end;
+
+  end
+  else
+  begin
+    MensagemAviso('Informe a filial do inventário!');
+    pgcInventario.activePage := tstCadastro;
+    fraConsultaFilial.edfcodigo.setfocus;
+  end;
+
+end;
+
+procedure TfrmCadastroInventario.fraMultiplaSelecaoAleatoria1Timer1Timer(
+  Sender: TObject);
+begin
+  inherited;
+  fraMultiplaSelecaoAleatoria1.Timer1Timer(Sender);
+
+  if (fraMultiplaSelecaoAleatoria1.pgcMultiplaSelecaoAleatoria.activePage =
+      fraMultiplaSelecaoAleatoria1.tstItemdeProduto) and
+      (dtmCadastroInventario.qryInventariosituacao.asString = 'A') and
+      (dtmCadastroInventario.qryInventarioProduto.recordcount = 0) and
+      UsuarioLogin.Administrador then
+  begin
+    btnIncluirReservasPreviasInconsistentes.visible := true;
+    btnIncluirResevasFuturoInconsistentes.visible := true;
+  end
+  else
+  begin
+    btnIncluirReservasPreviasInconsistentes.visible := False;
+    btnIncluirResevasFuturoInconsistentes.visible := False;
+  end;
+
+end;
+
+procedure TfrmCadastroInventario.btnIncluirResevasFuturoInconsistentesClick(
+  Sender: TObject);
+var
+  vSaldo, vQuantidade : Double;
+
+begin
+  inherited;
+  if dtmCadastroInventario.qryInventarioFilial.asString <> '' then
+  begin
+
+    try
+
+      if not assigned(dtmVerificacaoReservas)  then
+        MensagemAviso('Antes de prosseguir visualize os produtos em Estoque/Relatórios/Verificação Reservas/Futuro e mantenha a janela aberta com os itens a serem processados.')
+      else
+      begin
+
+        internogravar;
+        with dtmVerificacaoReservas, dtmCadastroInventario do
+        begin
+          {
+          qryReservadoFuturo.macrobyname('CondicaoFilial').asString :=
+            'and f.codigo = ' + dtmCadastroInventario.qryInventarioFilial.asString;
+          qryReservadoFuturo.close;
+          qryReservadoFuturo.open;
+          }
+
+          if qryReservadoFuturo.recordcount = 0 then
+            MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']))
+          else
+          begin
+
+            try
+
+              qrymovimentos.close;
+              qryMovimentos.Open;
+
+              fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.sbnExcluirTodosClick(nil);
+              while not qryReservadoFuturo.eof do
+              begin
+
+                if (qryReservadoFuturoSaldoReservadoFuturo.Asfloat > 0)  and
+                   (qryReservadoFuturofilial.asinteger = qryInventarioFilial.asinteger) then
+                begin
+
+                  fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.append;
+                  fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.fieldbyname('codigo').asString :=
+                     qryReservadoFuturoprodutovisual.asString;
+                  fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.fraSelecaoAleatoriaItemdeProduto.qrySelecaoAleatoria.fieldbyname('descricao').asString :=
+                     qryReservadoFuturodescricao.asString;
+
+                  vSaldo := qryReservadoFuturoSaldoReservadoFuturo.Asfloat;
+                  vQuantidade := 0;
+
+                  if qryReservadoFuturofuturo.AsFloat <> 0 then
+                  begin
+                    if vSaldo >= qryReservadoFuturofuturo.AsFloat then
+                      vQuantidade := qryReservadoFuturofuturo.AsFloat
+                    else
+                      vQuantidade := vSaldo;
+
+                    qryMovimentos.Append;
+                    qryMovimentosnumero.clear;
+                    qryMovimentosproduto.AsLargeInt     := qryReservadoFuturoproduto.AsLargeInt;
+                    qryMovimentosfilial.AsInteger       := qryReservadoFuturofilial.AsInteger;
+                    qryMovimentosdata.AsDateTime        := qryInventariodata.AsDateTime;
+                    qryMovimentosquantidade.AsCurrency  := vQuantidade;
+    //              qryMovimentosvalor.AsCurrency       := qryInventarioProdutovalorcusto.AsCurrency * qryMovimentosquantidade.AsCurrency;
+                    qryMovimentostipomovimento.AsString := '-FU';
+                    qryMovimentosreferencia.AsString    := 'AJUSTE RESERVADO/FUTURO INCONSISTENTE - INVENTÁRIO '+qryInventarionumero.AsString;
+                    qryMovimentos.Post;
+
+                    vSaldo := vSaldo - vQuantidade;
+                  end;
+
+                  if (qryReservadoFuturoreservado.AsFloat <> 0) and (vSaldo <> 0) then
+                  begin
+                    if vSaldo >= qryReservadoFuturoreservado.AsFloat then
+                      vQuantidade := qryReservadoFuturoreservado.AsFloat
+                    else
+                      vQuantidade := vSaldo;
+
+                    qryMovimentos.Append;
+                    qryMovimentosnumero.clear;
+                    qryMovimentosproduto.AsLargeInt     := qryReservadoFuturoproduto.AsLargeInt;
+                    qryMovimentosfilial.AsInteger       := qryReservadoFuturofilial.AsInteger;
+                    qryMovimentosdata.AsDateTime        := qryInventariodata.AsDateTime;
+                    qryMovimentosquantidade.AsCurrency  := vQuantidade;
+    //              qryMovimentosvalor.AsCurrency       := qryInventarioProdutovalorcusto.AsCurrency * qryMovimentosquantidade.AsCurrency;
+                    qryMovimentostipomovimento.AsString := '-RE';
+                    qryMovimentosreferencia.AsString    := 'AJUSTE RESERVADO/FUTURO INCONSISTENTE - INVENTÁRIO '+qryInventarionumero.AsString;
+                    qryMovimentos.Post;
+
+                    vSaldo := vSaldo - vQuantidade;
+
+                  end;
+                end;
+
+                qryReservadoFuturo.next;
+              end;
+            finally
+              AtribuirListas;
+              internogravar;
+              dtmVerificacaoReservas.perpetrar([qryMovimentos], AguardareTerminarDentroDm);
+              dtmCadastroInventario.GerarProdutosNaoIdentificados(false)
+            end;
+
+          end;
+        end;
+
+      end;
+    finally
+
+//      if dtmVerificacaoReservas.owner = self then
+//        dtmVerificacaoReservas.free;
+    end;
+
+  end
+  else
+  begin
+    MensagemAviso('Informe a filial do inventário!');
+    pgcInventario.activePage := tstCadastro;
+    fraConsultaFilial.edfcodigo.setfocus;
+  end;
+
+end;
+
+end.
+

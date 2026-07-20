@@ -1,0 +1,69 @@
+unit cpdbcombobox;
+
+interface
+
+uses
+  Classes, DBCtrls, Controls, SysUtils, {Qete,} DB, Graphics;
+
+
+type
+  TtecDBComboBox = class(TDBComboBox)
+  private
+    fDBComboBoxAssociado: TDBComboBox;
+    fItemsDataField: TStrings;
+    procedure SetItemsDataField(const Value: TStrings);
+  protected
+    procedure Change; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  published
+    property DBComboBoxAssociado: TDBComboBox read fDBComboBoxAssociado write fDBComboBoxAssociado;
+    property ItemsDataField: TStrings read fItemsDataField write SetItemsDataField;
+  end;
+
+implementation
+
+{ TtecDBComboBox }
+
+procedure TtecDBComboBox.Change;
+begin
+  inherited;
+  if assigned(DBComboBoxAssociado) then
+  begin
+    if DBComboBoxAssociado.itemindex <> self.itemindex then
+    begin
+      DBComboBoxAssociado.itemindex := self.itemindex;
+      DBComboBoxAssociado.hint := DBComboBoxAssociado.items[DBComboBoxAssociado.itemindex];
+
+    end;
+  end;
+
+  if ItemsDataField.count<>0 then
+  begin
+    datasource.dataset.fieldbyname(datafield).asVariant := ItemsDataField[self.ItemIndex];
+    text := Items[self.ItemIndex];
+  end;
+
+end;
+
+constructor TtecDBComboBox.Create(AOwner: TComponent);
+begin
+  inherited;
+  fItemsDataField := tStringList.create;
+end;
+
+
+destructor TtecDBComboBox.Destroy;
+begin
+  fItemsDataField.free;
+  inherited;
+end;
+
+procedure TtecDBComboBox.SetItemsDataField(const Value: TStrings);
+begin
+  fItemsDataField.Assign(value);
+end;
+
+end.
+

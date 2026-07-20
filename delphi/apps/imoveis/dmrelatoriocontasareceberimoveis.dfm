@@ -1,0 +1,7269 @@
+inherited dtmrelatorioContasaReceberImoveis: TdtmrelatorioContasaReceberImoveis
+  OldCreateOrder = False
+  Left = 137
+  Top = 209
+  Height = 604
+  Width = 1401
+  object qryRelatorioContasaReceberImoveis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryRelatorioContasaReceberImoveisBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereClientes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereEmpreendimentos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaSituacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select vi.*,'
+      '       CAST(CASE WHEN vi.Situacao = '#39'R'#39' THEN '#39'RESERVADO'#39
+      '                 WHEN vi.Situacao = '#39'C'#39' THEN '#39'CANCELADO'#39
+      '                 WHEN vi.Situacao = '#39'V'#39' THEN '#39'VENDIDO'#39
+      '                 WHEN vi.Situacao = '#39'Q'#39' THEN '#39'QUITADO'#39
+      '                 WHEN vi.Situacao = '#39'G'#39' THEN '#39'RENEGOCIADO PARA'#39
+      ''
+      '                 /*'
+      
+        '                 WHEN vi.Situacao = '#39'G'#39' THEN '#39'RENEGOCIADO PARA N' +
+        #186' '#39' ||'
+      
+        '                                             CAST((SELECT vir.Co' +
+        'ntrato FROM VendasImoveis vir'
+      
+        '                                                      WHERE vir.' +
+        'Contrato_Origem = vi.Contrato) AS VARCHAR)'
+      '                   */'
+      ''
+      
+        '                 WHEN vi.Situacao = '#39'D'#39' THEN '#39'RENEGOCIADO'#39' /*DE ' +
+        'N'#186' '#39' || CAST(vi.Contrato_Origem AS VARCHAR) */'
+      '                 WHEN vi.Situacao = '#39'S'#39' THEN '#39'RESCINDIDO'#39
+      '                 WHEN vi.Situacao = '#39'T'#39' THEN '#39'TRANSFERIDO PARA'#39
+      ''
+      '                   /*'
+      
+        '                 WHEN vi.Situacao = '#39'T'#39' THEN '#39'TRANSFERIDO PARA N' +
+        #186' '#39' ||'
+      
+        '                                            CAST((SELECT vir.Con' +
+        'trato FROM VendasImoveis vir'
+      
+        '                                                     WHERE vir.C' +
+        'ontrato_Origem = vi.Contrato) AS VARCHAR)'
+      '                   */'
+      ''
+      
+        '                 WHEN vi.Situacao = '#39'F'#39' THEN '#39'TRANSFERIDO'#39' /* DE' +
+        ' N'#186' '#39' || CAST(vi.Contrato_Origem AS VARCHAR)*/'
+      '            END AS VARCHAR(50)) AS NomeSituacao'
+      ''
+      'from'
+      '('
+      'select vi.contrato,'
+      '       comp.cliente,'
+      '       vf.nome as nomecliente,'
+      '       pi.tipo,'
+      '       pi.origem,'
+      '       pi.datavencto,'
+      '       to_char(pi.datavencto,'#39'YYYY/mm'#39') as mesvencto_,'
+      '       to_char(pi.datavencto,'#39'mm/YYYY'#39') as mesvencto,'
+      '       pi.ValorContratado,'
+      
+        '      (SELECT ValorDevido(pi.Contrato, pi.Tipo, pi.Numero, pi.Nr' +
+        'Pagto, :DataSituacaoEm)) AS ValorDevido,'
+      '       pi.observacoes,'
+      ''
+      
+        '       SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSitu' +
+        'acaoEm as date)) as situacao,'
+      ''
+      '       em.nome as nomeempreendimento,'
+      '       em.sigla as siglaempreendimento'
+      ''
+      ''
+      ''
+      'from vendasimoveis vi'
+      '     join empreendimentos em'
+      '     on vi.empreendimento = em.codigo'
+      ''
+      '     join compradores comp'
+      '               join vfornecedores vf'
+      '               on vf.codigo = comp.cliente and'
+      '                  vf.tipo = comp.tipocliente'
+      ''
+      '     on comp.contrato = vi.contrato'
+      '        and coalesce(comp.principal,false)'
+      ''
+      '    join parcelasimoveis pi'
+      '    on vi.contrato = pi.contrato'
+      ''
+      ''
+      'where pi.datavencto between :DataInicial and :DataFinal'
+      '  and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      ''
+      ') as vi'
+      '  where true'
+      ''
+      '  %ListaSituacao'
+      ''
+      '%Ordenacao'
+      ''
+      ''
+      '/*'
+      ' :AgruparEmpreendimento'
+      '*/')
+    RequestLive = False
+    Left = 72
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataSituacaoEm'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDateTime
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDateTime
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'AgruparEmpreendimento'
+        ParamType = ptUnknown
+      end>
+    object qryRelatorioContasaReceberImoveiscontrato: TIntegerField
+      FieldName = 'contrato'
+    end
+    object qryRelatorioContasaReceberImoveiscliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryRelatorioContasaReceberImoveisnomecliente: TStringField
+      FieldName = 'nomecliente'
+      Size = 50
+    end
+    object qryRelatorioContasaReceberImoveistipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryRelatorioContasaReceberImoveisorigem: TStringField
+      FieldName = 'origem'
+      Size = 8
+    end
+    object qryRelatorioContasaReceberImoveisdatavencto: TDateField
+      Alignment = taCenter
+      FieldName = 'datavencto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRelatorioContasaReceberImoveisvalorcontratado: TFloatField
+      FieldName = 'valorcontratado'
+      DisplayFormat = '0.00'
+    end
+    object qryRelatorioContasaReceberImoveisvalordevido: TFloatField
+      FieldName = 'valordevido'
+      DisplayFormat = '0.00'
+    end
+    object qryRelatorioContasaReceberImoveisobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 200
+    end
+    object qryRelatorioContasaReceberImoveisnomesituacao: TStringField
+      FieldName = 'nomesituacao'
+      Size = 50
+    end
+    object qryRelatorioContasaReceberImoveisnomeempreendimento: TStringField
+      FieldName = 'nomeempreendimento'
+      Size = 60
+    end
+    object qryRelatorioContasaReceberImoveissiglaempreendimento: TStringField
+      FieldName = 'siglaempreendimento'
+      Size = 10
+    end
+    object qryRelatorioContasaReceberImoveismesvencto_: TMemoField
+      FieldName = 'mesvencto_'
+      BlobType = ftMemo
+    end
+    object qryRelatorioContasaReceberImoveismesvencto: TMemoField
+      FieldName = 'mesvencto'
+      BlobType = ftMemo
+    end
+    object qryRelatorioContasaReceberImoveissituacao: TStringField
+      FieldName = 'situacao'
+      Size = 50
+    end
+  end
+  object dsrRelatorioContasaReceberImoveis: TtecDataSource
+    DataSet = qryRelatorioContasaReceberImoveis
+    Left = 104
+    Top = 104
+  end
+  object frxRelatorioContasaReceberImoveis: TfrxReport
+    Version = '4.0.11'
+    DataSet = frxDBRelatorioContasaReceberImoveis_
+    DataSetName = 'frxDBRelatorioContasaReceberImoveis_'
+    DotMatrixReport = False
+    EngineOptions.DoublePass = True
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 42340.700718275490000000
+    ReportOptions.LastChange = 43052.646347395800000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'var'
+      ' vZebrar, vZebrar2 : boolean;'
+      ''
+      ''
+      ''
+      ''
+      'procedure GroupFooter3OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      ''
+      'procedure Memo33OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Memo33OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Memo21OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo11OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo12OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo52OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo54OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure MasterData1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '  if vZebrar then'
+      '  begin'
+      '    if <CordoZebrado> <> null then'
+      '      mmoZebrado.color := <CordoZebrado>;'
+      '    vZebrar := false;'
+      '    vZebrar2 := true;'
+      '  end'
+      '  else'
+      '  begin'
+      '    mmoZebrado.color := clwhite;'
+      '    vZebrar := true;'
+      '  end;'
+      ''
+      'end;'
+      ''
+      'procedure MasterData2OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Page1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      
+        '  GroupHeaderNomeEmpreendimento.visible := <AgruparEmpreendiment' +
+        'o>;'
+      
+        '  GroupFooterEmpreendimento.visible := GroupHeaderNomeEmpreendim' +
+        'ento.visible;'
+      ''
+      'end;'
+      ''
+      'begin'
+      ''
+      'end.')
+    OnGetValue = frxRelatorioContasaReceberImoveisGetValue
+    Left = 240
+    Top = 48
+    Datasets = <
+      item
+        DataSet = frxDBRelatorioContasaReceberImoveis
+        DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+      end>
+    Variables = <
+      item
+        Name = ' Relatorio'
+        Value = Null
+      end
+      item
+        Name = 'ENDERECO_BAIRRO'
+        Value = Null
+      end
+      item
+        Name = 'RAZAOFILIALBASE'
+        Value = Null
+      end
+      item
+        Name = 'CEP_CIDADE_UF'
+        Value = Null
+      end
+      item
+        Name = 'TITULO'
+        Value = #39'PLANILHA PARA REVERS'#195'O AVP ENTRE'#39
+      end
+      item
+        Name = 'SUBTITULO'
+        Value = Null
+      end
+      item
+        Name = 'OUTRAS'
+        Value = #39'FILIAIS: 1,2,3,4,5,6,7,8,9,10 '#39
+      end
+      item
+        Name = 'DATA'
+        Value = Null
+      end
+      item
+        Name = 'CordoZebrado'
+        Value = Null
+      end
+      item
+        Name = 'AgruparGrupoFilial'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparFilial'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparFornecedor'
+        Value = Null
+      end
+      item
+        Name = 'AgruparLocalizacao'
+        Value = Null
+      end
+      item
+        Name = 'AgruparClasseProduto'
+        Value = Null
+      end
+      item
+        Name = 'AgruparGrupoProduto'
+        Value = Null
+      end
+      item
+        Name = 'DATASITUACAO'
+        Value = #39'30/04/2015'#39
+      end
+      item
+        Name = 'QuebrarPaginaporCliente'
+        Value = 'False'
+      end
+      item
+        Name = 'Ordenacao'
+        Value = Null
+      end
+      item
+        Name = 'AgruparEmpreendimento'
+        Value = Null
+      end>
+    Style = <>
+    object Data: TfrxDataPage
+      Height = 1000.000000000000000000
+      Width = 1000.000000000000000000
+    end
+    object Page1: TfrxReportPage
+      Orientation = poLandscape
+      PaperWidth = 297.000000000000000000
+      PaperHeight = 210.000000000000000000
+      PaperSize = 200
+      LeftMargin = 10.000000000000000000
+      RightMargin = 10.000000000000000000
+      TopMargin = 10.000000000000000000
+      BottomMargin = 10.000000000000000000
+      OnBeforePrint = 'Page1OnBeforePrint'
+      object PageHeader1: TfrxPageHeader
+        Height = 83.149660000000000000
+        Top = 18.897650000000000000
+        Width = 1046.929810000000000000
+        object Memo6: TfrxMemoView
+          Left = 978.898270000000000000
+          Top = 18.897650000000000000
+          Width = 52.913420000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Page]')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo4: TfrxMemoView
+          Left = 929.764380000000000000
+          Top = 18.897650000000000000
+          Width = 45.354360000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'P'#195#129'G.:')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo3: TfrxMemoView
+          Left = 929.764380000000000000
+          Top = 3.779530000000000000
+          Width = 45.354360000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'DATA:')
+          ParentFont = False
+        end
+        object Memo26: TfrxMemoView
+          Left = 978.898270000000000000
+          Top = 3.779530000000000000
+          Width = 52.913420000000000000
+          Height = 11.338582680000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Date]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object mmoTitulo: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 472.441250000000000000
+          Top = 3.779530000000000000
+          Width = 449.764070000000000000
+          Height = 30.236240000000000000
+          StretchMode = smMaxHeight
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[TITULO]')
+          ParentFont = False
+        end
+        object fmvRua: TfrxMemoView
+          Left = 143.622140000000000000
+          Top = 3.779530000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[RAZAOFILIALBASE]')
+          ParentFont = False
+        end
+        object fmvBairro: TfrxMemoView
+          Left = 143.622140000000000000
+          Top = 15.118120000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[ENDERECO_BAIRRO]')
+          ParentFont = False
+        end
+        object fmvCidade: TfrxMemoView
+          Left = 143.622140000000000000
+          Top = 26.456710000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[CEP_CIDADE_UF]')
+          ParentFont = False
+        end
+        object fpvLogo: TfrxPictureView
+          Left = 18.897650000000000000
+          Top = 7.559060000000000000
+          Width = 120.944960000000000000
+          Height = 45.354360000000000000
+          Picture.Data = {
+            07544269746D617016110000424D161100000000000036000000280000004800
+            0000140000000100180000000000E0100000C40E0000C40E0000000000000000
+            0000FFFFFFFFFFFFFCFCFCCECDCDFFFFFFE3E3E3CFCFD0FFFFFFF1F1F1CDCDCD
+            FAFAFADDDDDDFFFFFFE4E3E3FFFFFFE4E4E4DBDCDCFFFFFFECECECFBFBFBFCFC
+            FCCECECDF9F9F9FFFFFFB5B5B58D8D8E9E9E9DF8F8F8F4F4F4FAFAFAD0D0D0D3
+            D3D4FEFEFEFFFFFFFFFFFFD7D7D8DBDADAFDFDFDF2F2F2DDDDDDFEFEFEE9E9E9
+            FFFFFFFEFEFECFCFD0CFCFCFFAFAFAF0F0F1FAFAFADADADACECECEEEEEEEFFFF
+            FFE7E7E7ECECECFEFEFED0D0D1E9E9E9F1F1F1FBFBFBE1E1E1FBFBFBF4F4F4FA
+            FAFACFCFCFD4D4D5FFFFFFCECECECECECEFAFAFAFFFFFFFFFFFFFFFFFFFFFFFF
+            A9A8A8D2D2D2DCDCDC999999DFDFDFF7F7F7585859F1F1F1FDFDFD3C3A3AFFFF
+            FF545453ECECEC969696C7C7C7B2B2B2999A9AEBEBEB424140EDEDED414141FA
+            FAF9585757E7E7E7868686D9D9D9C0C0C06F6F6FDDDDDD696969F9F9F9FFFFFF
+            929394D0D0D0E7E7E7EFEFEFB3B3B23E3E3FF9F9F97B7B7AFFFFFFFFFFFFE0E0
+            E0C7C7C68C8C8CAFAEAEDFDFDFECECECD8D7D73F3F3FFEFEFE4C4D4EF9F9F946
+            4646DFDFDFF1F1F1A8A7A7E7E7E7484747DEDEDEBCBCBC545352E1E1E15A5A5A
+            FFFFFFE0E0E0D3D3D37E7D7EFFFFFFFFFFFFFFFFFFFFFFFFABABABE2E2E1DADA
+            DA7A7A79B9B9B9F6F6F668686AFEFEFEFFFFFF3E3D3DFEFEFE565658E8E8E8B0
+            B0AFD8D8D8A5A5A4999A9AEBEBEB403F3EFCFCFB464646F8F8F8616161F2F2F2
+            868686D9D9D9C0C0C0F3F3F3B3B3B3484949FAFAFAFFFFFF8E8F90AAAAA9C9C9
+            C8EFEFEFB7B7B73E4043F1F1F1848485FFFFFFF9F9F94D4D4DC5C5C5F6F6F6B1
+            B0B0DFDFDF4B4B4DC3C3C3E4E4E4FDFDFD555656FEFEFE40403FB9B9B9E1E1E1
+            A8A8A8E6E6E64B4A4ADADADAC0C1C2F2F2F2B3B3B33F3F3FFFFFFF404040C4C4
+            C4F5F5F5FFFFFFFFFFFFFFFFFFFFFFFF7474749C9B9AFFFFFFE2E2E2AFAFB0FE
+            FEFEF0F0F0AEAEADF5F6F6C0BFBEB3B3B2FCFCFCFFFFFFD7D7D8C6C6C6FFFFFF
+            989999EAEBEBFCFCFCAFAFAFF6F6F6FFFFFFEDEDEDB0B0AFE1E1E0F0F0F0E7E7
+            E7D9D9D9AFAEAEDCDDDDFFFFFFFFFFFFFFFFFFC9C9C9C2C2C2FCFCFCB0B0AFB7
+            B7B7B7B6B5FCFCFCFFFFFFFFFFFFD6D7D7AEAEADE7E7E5E0E0E0F2F2F2F2F2F2
+            B0AFAFC2C2C2E6E6E63B3A3ADDDEDEFFFFFFB6B6B6DDDDDDE9E9E9B0AFAFB7B7
+            B7BEBEBEFFFFFFD1D1D1AFAEAEE0E0E0FFFFFFDADADAAFAEAEE1E1E1FFFFFFFF
+            FFFFFFFFFFFFFFFFEAEAEAF8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9E9E9FAFAF9FFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5F5F3DDDAB6ECE9C4ECE9C4FD
+            FDF9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEAEAEAF7F7F7FFFFFFFFFFFFFFFFFFFFFF
+            FFD6D6D6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFEFEFECDCDCEB2B2B1ADAEB0BABCBDFFFFFFFFFFFFFFFFFFF8F8F9CACB
+            CCB3B4B4ADAEB0ADAEB0ADAEB0C6C7C8FFFFFFFFFFFFFFFFFFFEFEFED1D2D3B7
+            B7B7B6B7B8FFFFFFFFFFFFFCFCF6ACA205ADA400ADA400F6F5E5FFFFFFFFFFFF
+            EAE7BFE3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E5E1AEECE9C5FCFC
+            F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFEFDECEBC6E4E0ABECE9C3FDFCF9FF
+            FFFFFFFFFFFFFFFFFFFFFFFEFEFCE6E3B1E6E3B1EDEAC7FFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFF7F6E6E8E7BAE6E3B1E6E3B1FFFFFFFFFFFFF3F3F41B1E231619
+            20171A20171A203F4045FFFFFFFDFDFD8183850F1218161920171A20171A2017
+            1A20171A205C5D61FFFFFFFFFFFF9FA0A10F1218161920171A20313337FFFFFF
+            FFFFFFFCFCF6ACA205ADA400ADA400F6F5E5FFFFFFFFFFFFC2BA43ADA400ADA4
+            00ADA400ADA400ADA400ADA400ADA400ADA400ADA400ABA104F9F8EFFFFFFFFF
+            FFFFFFFEFCCDC869ACA104ADA400ADA400ADA400ACA103C8C156FEFEFBFFFFFF
+            FFFFFFFAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFFFFFFFFC1B944ACA3
+            00ADA400ADA400ADA400FFFFFFFFFFFF838586171A20181B2111151B3C3E4160
+            6265FFFFFF71737616191F181B210F13193034383D3F443D40443D4044797A7B
+            FFFFFFBEBFC113161C181B2114181D1C20244D4F4CEEECCBEEECCBEDEAC7BCB5
+            36BCB635BCB635E5E2B0E8E6BBE8E6BBC8C45ABDB63FBDB63FBDB63FBDB63FBD
+            B63FBDB63FBDB640BBB438ADA400ADA400B9AF26FFFFFFFEFEFDBCB334ADA400
+            ADA400ABA101AEA404ABA101ADA400ADA400B7AE26FEFEFAFFFFFFFAFAEFABA1
+            00ADA400C2BA45FFFFFFFFFFFFFFFFFFF4F1DCACA300ADA400ADA400B0A608B1
+            A811FFFFFFFFFFFF35383C181B2111151AE8E8E8FFFFFFFFFFFFF7F7F70E1217
+            181B211C1F24F8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFDFD1F2227181B
+            2115181EB6B7B9FFFFFFF2EFD4ACA300ADA400AFA409FEFDFAFFFFFFFFFFFFB1
+            A810ADA400ADA400E5E2AFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFB0A611ADA400AEA504FDFDF8D3CD78ACA300ADA400DCD791FFFFFFFFFF
+            FFFFFFFFDFDC9EACA202ADA400CAC35BFFFFFFFAFAEFABA100ADA400C2BA45FF
+            FFFFFFFFFFFFFFFFD4D07BADA400ADA400D3CD77FFFFFFFFFFFFFFFFFFFFFFFF
+            282A2C181B2112151BF0F1F1FFFFFFFFFFFFB6B7B8181B21181B212F32368081
+            857F80857F80857F80857F8085A6A7A8E6E6E613161C181B2124272CFFFFFFFF
+            FFFFF2EFD4ACA300ADA400B0A709FEFDFAFFFFFFFFFFFFB1A810ADA400ADA400
+            E5E2AFFFFFFFFFFFFFFEFEFEFDFDFBFBFAF3FBFAF3F9F9F0E9E6BCADA403ADA4
+            00B0A707FEFDF9ACA202ADA400CDC767FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD4
+            CF7BADA400ABA100FFFFFFFAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFF
+            CEC763ADA400ADA400E4E1ABFFFFFFFFFFFFFFFFFFFFFFFF292C31181B211216
+            1BF1F1F2FFFFFFFFFFFF9A9C9E181B21181B21181B21181B21181B21181B2118
+            1B21181B215D5E62DBDCDC11141A181B21494B4EFFFFFFFFFFFFF3F2DBB9B02A
+            B9B02BBAB230D7D7D7D7D7D7D7D7D7BDB53EBEB53BBEB53BEBE8BEFFFFFFECE9
+            C5ADA307ACA200ADA400ADA400ADA400ADA400ADA400ADA400CCC661FFFFFFAB
+            A100ADA400EEECC9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF6F5E5ACA300ADA400
+            FBFAF2FAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFFCEC762ADA400ADA4
+            00E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF292C31181B2112161BF1F1F2FFFFFFFF
+            FFFFABABAB181B21181B21171A2014171C14171C14171C14171C14171C5C5E62
+            E2E3E313161C181B21373A3EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7171A
+            1F13161B13161BE7E8EAFFFFFFFFFFFFFFFFFFFFFFFEA99E02ADA400ADA400B1
+            A610B3A918B3A919B3A91ABBB32EE5E2AFFFFFFFFFFFFFABA100ADA400E5E1AD
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEDEBCAADA400ABA000FFFFFEFAFAEFABA1
+            00ADA400C2BA45FFFFFFFFFFFFFFFFFFCEC762ADA400ADA400E7E4B5FFFFFFFF
+            FFFFFFFFFFFFFFFF292C31181B2112161BF1F1F2FFFFFFFFFFFFDFDFDF14171D
+            181B213C3E42F1F1F2F0F0F1F0F0F1F0F0F1F0F0F1F5F5F5F8F8F8171A1F181B
+            210C0F15FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7171A1F181B21181B21E7
+            E8E9FFFFFFFFFFFFFFFFFFF3F1D7ADA400ADA400B8B023FEFEFDFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB3AA15ADA400B8B023FEFEFBFFFFFFFFFF
+            FFFFFFFFFFFFFFBCB330ADA400AFA405FFFFFFFAFAEFABA100ADA400C2BA45FF
+            FFFFFFFFFFFFFFFFCEC762ADA400ADA400E7E4B5FFFFFFFFFFFFEEEEEEE8E8E8
+            272A2F181B2113171CDFDFDFE8E8E8ECECECFFFFFF111319181B21171A20ADAE
+            B0E2E2E3E8E8E8E8E8E8E8E8E8EFEFEFFFFFFF4D4F52181B21181B2147494ECF
+            D0D1E3E3E4E4E4E5E4E4E5DEDFDF27292D272B2F272B2FDADADAE6E7E7E6E7E7
+            F5F5F5F5F3E0ADA400ADA400B0A70FF1EFD4F2F0D6F2F0D6F1F0D4F1F0D4F1F0
+            D4F7F5E5FFFFFFF1EFD3ACA202ADA400AEA503DED999EDEAC5E1DEA1B0A70AAD
+            A400ACA300E8E5B7F1EFD4EEEDCCACA200ADA400BFB73BF1EFD4F1EFD4FAF9EE
+            CEC762ADA400ADA400DDD996F1EFD4F1EFD4595B5E15181E181B21181B21181B
+            2115181E15181E3D3E43FFFFFFC7C7C90E1117181B2115191E15181E15181E15
+            181E15181E5B5C5FFFFFFFF0F0F10A0E13181B21181B2115181E15181E15181E
+            15181E16191EFAFAFAFFFFFFFFFFFF25292D15181E15181E9D9EA0FFFFFFABA0
+            00ADA400ADA400ACA300ACA300ACA300ACA300ACA300ACA300CAC55CFFFFFFFF
+            FFFFE4E1ADABA200ADA400ADA400ACA300ADA400ADA400ABA200DEDA99D2CD73
+            ACA300ACA300ADA400ADA400ADA400ACA300ACA300E0DD9ECEC762ADA400ADA4
+            00ADA400ACA300ACA3005A5D6015181D181B21181B21181B2116191E15181D3E
+            4044FFFFFFFFFFFFE0E0E1494C4F212429171A1F15181D15181D15181D5C5F62
+            FFFFFFFFFFFFF0F1F16B6D70282C301B1E2215181D15181D15181D161A1FF9F9
+            F9FFFFFFFFFFFF272B2F181B21181B219E9FA2FFFFFFF9F9EDBEB83DAFA60BAD
+            A403ADA403ADA403ADA403ADA403ADA403CBC55EFFFFFFFFFFFFFFFFFFFAF9EF
+            CDC865B5AB1BAEA406B3AA18CBC562F9F7E9FFFFFFD2CD75AFA605AFA605ADA4
+            00ADA400ADA400AFA605AFA605E0DCA0CEC762ADA400ADA400AEA502AFA605AF
+            A605FDFDFDFCFCFC292C31181B2112161BF0F0F0FCFCFCFDFDFDFFFFFFFFFFFF
+            FFFFFFFFFFFFFEFEFEFCFCFCFCFCFCFCFCFCFCFCFCFDFDFDFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFDFDFDFCFCFCFCFCFCFCFCFCFCFCFCFFFFFFFFFFFFFFFFFF2A
+            2C2F15191E15191EA0A0A0FFFFFFFFFFFFFFFFFFFEFEFDFEFEFCFEFEFCFEFEFC
+            FEFEFCFEFEFCFEFEFCFEFEFDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFE
+            FDFFFFFEFFFFFFFFFFFFFFFFFFFFFEFEFEFEFDFBFBF3ABA100ADA400BEB639FE
+            FEFDFEFEFDFFFFFECEC762ADA400ADA400E6E3B3FEFEFDFEFEFDFFFFFFFFFFFF
+            292C31181B2112161BF1F1F2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFDFDF8AAA000ADA400ADA400C4BC4BC7C152ECE9C1
+            CEC762ADA400ADA400E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF292C31181B211216
+            1BF1F1F2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFBFB740ACA200ADA400ADA400ADA400E2DEA3CEC762ADA400ADA4
+            00E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF67696B5A5C60585A5EF5F5F5FFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFE
+            FCE6E3B1CBC55DC5C34EC5C34EEAE7BEDDD893C5C34EC5C34EEEECCAFFFFFFFF
+            FFFF}
+        end
+        object Memo5: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 306.141930000000000000
+          Top = 52.913420000000000000
+          Width = 56.692950000000000000
+          Height = 26.456700240000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'CONTRATO')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo9: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 449.764070000000000000
+          Top = 52.913420000000000000
+          Width = 64.252010000000000000
+          Height = 26.456700240000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'PARCELA')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo71: TfrxMemoView
+          Left = 472.441250000000000000
+          Top = 37.795300000000000000
+          Width = 461.102660000000000000
+          Height = 11.338590000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[SUBTITULO]')
+          ParentFont = False
+        end
+        object Memo44: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 574.488560000000000000
+          Top = 66.141773780000000000
+          Width = 90.708671180000000000
+          Height = 13.228346460000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'CONTRATADO')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo45: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 665.197280000000000000
+          Top = 66.141773780000000000
+          Width = 90.708671180000000000
+          Height = 13.228346460000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'DEVIDO')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo47: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 514.016080000000000000
+          Top = 52.913420000000000000
+          Width = 60.472480000000000000
+          Height = 26.456700240000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'DATA'
+            'VENCTO')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo7: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 18.897650000000000000
+          Top = 66.141773780000000000
+          Width = 45.354360000000000000
+          Height = 13.228346460000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'C'#195#8220'DIGO')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo60: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 64.252010000000000000
+          Top = 66.141773780000000000
+          Width = 241.889920000000000000
+          Height = 13.228346460000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'NOME')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo2: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 574.488560000000000000
+          Top = 52.913420000000000000
+          Width = 181.417391180000000000
+          Height = 13.228346460000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'VALORES')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo18: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 755.906000000000000000
+          Top = 52.913420000000000000
+          Width = 275.905641180000000000
+          Height = 26.456700240000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'OBERVA'#195#8225#195#8226'ES')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo39: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 18.897650000000000000
+          Top = 52.913420000000000000
+          Width = 287.244280000000000000
+          Height = 13.228346460000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'CLIENTE')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo11: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 362.834880000000000000
+          Top = 52.913420000000000000
+          Width = 86.929190000000000000
+          Height = 26.456700240000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'SITUA'#195#8225#195#402'O')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+      end
+      object MasterData1: TfrxMasterData
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        Height = 13.228346460000000000
+        ParentFont = False
+        Top = 207.874150000000000000
+        Width = 1046.929810000000000000
+        OnBeforePrint = 'MasterData1OnBeforePrint'
+        DataSet = frxDBRelatorioContasaReceberImoveis
+        DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+        RowCount = 0
+        object mmoZebrado: TfrxMemoView
+          Left = 18.897650000000000000
+          Width = 1012.914040000000000000
+          Height = 13.228346460000000000
+          Color = clBtnFace
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = []
+          HideZeros = True
+          ParentFont = False
+          Style = 'Style1'
+        end
+        object Memo22: TfrxMemoView
+          Left = 306.141930000000000000
+          Width = 60.472480000000000000
+          Height = 13.228346460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveis."contrato"]')
+          ParentFont = False
+          SuppressRepeated = True
+        end
+        object Memo23: TfrxMemoView
+          Left = 68.031540000000000000
+          Width = 238.110390000000000000
+          Height = 13.228346460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveis."nomecliente"]')
+          ParentFont = False
+          SuppressRepeated = True
+        end
+        object Memo61: TfrxMemoView
+          Left = 22.677180000000000000
+          Width = 45.354360000000000000
+          Height = 13.228346460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveis."cliente"]')
+          ParentFont = False
+          SuppressRepeated = True
+        end
+        object Memo34: TfrxMemoView
+          Left = 449.764070000000000000
+          Width = 64.252010000000000000
+          Height = 13.228346460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haCenter
+          Memo.UTF8 = (
+            
+              '[<frxDBRelatorioContasaReceberImoveis."tipo">] [<frxDBRelatorioC' +
+              'ontasaReceberImoveis."origem">]')
+          ParentFont = False
+        end
+        object Memo49: TfrxMemoView
+          Left = 514.016080000000000000
+          Width = 60.472480000000000000
+          Height = 13.228346460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = 'DD/MM/YY'
+          DisplayFormat.Kind = fkDateTime
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveis."datavencto"]')
+          ParentFont = False
+        end
+        object Memo1: TfrxMemoView
+          Left = 574.488511180000000000
+          Width = 90.708720000000000000
+          Height = 13.228346460000000000
+          DataSet = dtmrelatorioContratosSituacao.frxDBDImoveisVendidos
+          DataSetName = 'frxDBDImoveisVendidos'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveis."valorcontratado"]')
+          ParentFont = False
+        end
+        object Memo8: TfrxMemoView
+          Left = 665.197231180000000000
+          Width = 90.708720000000000000
+          Height = 13.228346460000000000
+          DataSet = dtmrelatorioContratosSituacao.frxDBDImoveisVendidos
+          DataSetName = 'frxDBDImoveisVendidos'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveis."valordevido"]')
+          ParentFont = False
+        end
+        object Memo15: TfrxMemoView
+          Left = 755.906000000000000000
+          Width = 275.905690000000000000
+          Height = 13.228346460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveis."observacoes"]')
+          ParentFont = False
+        end
+        object Memo12: TfrxMemoView
+          Left = 362.834880000000000000
+          Width = 90.708720000000000000
+          Height = 13.228346460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveis."nomesituacao"]')
+          ParentFont = False
+          SuppressRepeated = True
+        end
+      end
+      object GroupHeaderNomeEmpreendimento: TfrxGroupHeader
+        Height = 22.677180000000000000
+        Top = 162.519790000000000000
+        Width = 1046.929810000000000000
+        Condition = '<frxDBRelatorioContasaReceberImoveis."nomeempreendimento">'
+        ReprintOnNewPage = True
+        object Memo25: TfrxMemoView
+          Left = 18.897650000000000000
+          Width = 37.795300000000000000
+          Height = 18.897650000000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveis."siglaempreendimento"]')
+          ParentFont = False
+        end
+        object Memo10: TfrxMemoView
+          Left = 64.252010000000000000
+          Width = 366.614410000000000000
+          Height = 18.897650000000000000
+          AutoWidth = True
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveis."nomeempreendimento"]')
+          ParentFont = False
+        end
+      end
+      object GroupFooterEmpreendimento: TfrxGroupFooter
+        Height = 24.566934020000000000
+        Top = 245.669450000000000000
+        Width = 1046.929810000000000000
+        object Memo27: TfrxMemoView
+          Left = 18.897650000000000000
+          Top = 3.779530000000000000
+          Width = 498.897960000000000000
+          Height = 17.007874020000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              'Totais do Empreendimento [frxDBRelatorioContasaReceberImoveis."n' +
+              'omeempreendimento"]')
+          ParentFont = False
+        end
+        object Memo30: TfrxMemoView
+          Left = 555.590861180000000000
+          Top = 3.779530000000000000
+          Width = 109.606370000000000000
+          Height = 17.007874020000000000
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              '[SUM(<frxDBRelatorioContasaReceberImoveis."valorcontratado">,Mas' +
+              'terData1)]')
+          ParentFont = False
+        end
+        object Memo29: TfrxMemoView
+          Left = 646.299581180000000000
+          Top = 3.779530000000000000
+          Width = 109.606370000000000000
+          Height = 17.007874020000000000
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              '[SUM(<frxDBRelatorioContasaReceberImoveis."valordevido">,MasterD' +
+              'ata1)]')
+          ParentFont = False
+        end
+      end
+      object Footer1: TfrxFooter
+        Height = 20.787404020000000000
+        Top = 294.803340000000000000
+        Width = 1046.929810000000000000
+        object Memo35: TfrxMemoView
+          Left = 18.897650000000000000
+          Width = 498.897960000000000000
+          Height = 17.007874020000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'Total Geral')
+          ParentFont = False
+        end
+        object Memo37: TfrxMemoView
+          Left = 646.299581180000000000
+          Width = 109.606370000000000000
+          Height = 17.007874020000000000
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              '[SUM(<frxDBRelatorioContasaReceberImoveis."valordevido">,MasterD' +
+              'ata1)]')
+          ParentFont = False
+        end
+        object Memo38: TfrxMemoView
+          Left = 555.590861180000000000
+          Width = 109.606370000000000000
+          Height = 17.007874020000000000
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              '[SUM(<frxDBRelatorioContasaReceberImoveis."valorcontratado">,Mas' +
+              'terData1)]')
+          ParentFont = False
+        end
+      end
+    end
+  end
+  object frxDBRelatorioContasaReceberImoveis_: TfrxDBDataset
+    UserName = 'frxDBRelatorioContasaReceberImoveis_'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'contrato=contrato'
+      'cliente=cliente'
+      'nomecliente=nomecliente'
+      'tipo=tipo'
+      'origem=origem'
+      'datavencto=datavencto'
+      'valorcontratado=valorcontratado'
+      'valordevido=valordevido'
+      'observacoes=observacoes'
+      'nomesituacao=nomesituacao'
+      'nomeempreendimento=nomeempreendimento'
+      'siglaempreendimento=siglaempreendimento'
+      'mesvencto_=mesvencto_'
+      'mesvencto=mesvencto'
+      'situacao=situacao')
+    DataSet = qryRelatorioContasaReceberImoveis
+    Left = 440
+    Top = 136
+  end
+  object frxDBRelatorioContasaReceberImoveis: TfrxDBDataset
+    UserName = 'frxDBRelatorioContasaReceberImoveis'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'contrato=contrato'
+      'cliente=cliente'
+      'nomecliente=nomecliente'
+      'tipo=tipo'
+      'origem=origem'
+      'datavencto=datavencto'
+      'valorcontratado=valorcontratado'
+      'valordevido=valordevido'
+      'observacoes=observacoes'
+      'nomesituacao=nomesituacao'
+      'nomeempreendimento=nomeempreendimento'
+      'siglaempreendimento=siglaempreendimento'
+      'mesvencto_=mesvencto_'
+      'mesvencto=mesvencto'
+      'situacao=situacao')
+    DataSet = qryRelatorioContasaReceberImoveis
+    Left = 432
+    Top = 88
+  end
+  object frxRelatorioContasaReceberImoveisMensal: TfrxReport
+    Version = '4.0.11'
+    DataSet = frxDBRelatorioContasaReceberImoveisMensal
+    DataSetName = 'frxDBRelatorioContasaReceberImoveisMensal'
+    DotMatrixReport = False
+    EngineOptions.DoublePass = True
+    EngineOptions.PrintIfEmpty = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.AllowEdit = False
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 2.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 42340.700718275490000000
+    ReportOptions.LastChange = 43052.658600844900000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'var'
+      ' vZebrar, vZebrar2 : boolean;'
+      ''
+      ''
+      ''
+      ''
+      'procedure GroupFooter3OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      ''
+      'procedure Memo33OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Memo33OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Memo21OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo11OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo12OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo52OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo54OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure MasterData1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '{'
+      '  if vZebrar then'
+      '  begin'
+      '    if <CordoZebrado> <> null then'
+      '      mmoZebrado.color := <CordoZebrado>;'
+      '    vZebrar := false;'
+      '    vZebrar2 := true;'
+      '  end'
+      '  else'
+      '  begin'
+      '    mmoZebrado.color := clwhite;'
+      '    vZebrar := true;'
+      '  end;'
+      '}'
+      'end;'
+      ''
+      'procedure MasterData2OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Page1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '{'
+      '  GroupHeaderNomeEmpreendimento.visible := <Ordenacao> = 0;'
+      
+        '  GroupFooterEmpreendimento.visible := GroupHeaderNomeEmpreendim' +
+        'ento.visible;'
+      ''
+      '  GroupHeaderMesVencto.visible := <AgrupamentoMensal>;'
+      '  GroupFooterMesVencto.visible := GroupHeaderMesVencto.visible;'
+      '}'
+      'end;'
+      ''
+      'procedure Memo5OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '  Memo5.visible := <frxDBMensal."MesAnoExtenso"><>'#39#39
+      'end;'
+      ''
+      'procedure Memo6OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '  Memo6.visible := <frxDBMensal."MesAnoExtenso"><>'#39#39
+      'end;'
+      ''
+      'procedure Header1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      
+        'procedure GroupFooterNomeEmpreendimentoOnBeforePrint(Sender: Tfr' +
+        'xComponent);'
+      'begin'
+      '  if vZebrar then'
+      '  begin'
+      '    if <CordoZebrado> <> null then'
+      '      mmoZebrado.color := <CordoZebrado>;'
+      '    vZebrar := false;'
+      '    vZebrar2 := true;'
+      '  end'
+      '  else'
+      '  begin'
+      '    mmoZebrado.color := clwhite;'
+      '    vZebrar := true;'
+      '  end;'
+      ''
+      'end;'
+      ''
+      'procedure PageHeader1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '  mmoData.left := 950;'
+      '  mmoPagina.left := 950;'
+      '  mmoValorData.left := 980;'
+      '  mmoValorPagina.left := 980;'
+      ''
+      '  mmoTitulo.left := 387;'
+      '  mmoTitulo.width := 500;'
+      '  mmoOutras.left := 550;'
+      ''
+      ''
+      'end;'
+      ''
+      'procedure GroupFooterDiaOnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '    if vZebrar then'
+      '  begin'
+      '    if <CordoZebrado> <> null then'
+      '      mmoZebrado.color := <CordoZebrado>;'
+      '    vZebrar := false;'
+      '    vZebrar2 := true;'
+      '  end'
+      '  else'
+      '  begin'
+      '    mmoZebrado.color := clwhite;'
+      '    vZebrar := true;'
+      '  end;'
+      ''
+      'end;'
+      ''
+      'begin'
+      ''
+      'end.')
+    OnGetValue = frxRelatorioContasaReceberImoveisGetValue
+    Left = 96
+    Top = 320
+    Datasets = <
+      item
+        DataSet = frxDBQuebraPagina
+        DataSetName = 'frxDBQuebraPagina'
+      end
+      item
+        DataSet = frxDBDadosMensal
+        DataSetName = 'frxDBDadosMensal'
+      end
+      item
+        DataSet = frxDBMensal
+        DataSetName = 'frxDBMensal'
+      end>
+    Variables = <
+      item
+        Name = ' Relatorio'
+        Value = Null
+      end
+      item
+        Name = 'ENDERECO_BAIRRO'
+        Value = Null
+      end
+      item
+        Name = 'RAZAOFILIALBASE'
+        Value = Null
+      end
+      item
+        Name = 'CEP_CIDADE_UF'
+        Value = Null
+      end
+      item
+        Name = 'TITULO'
+        Value = #39'PLANILHA PARA REVERS'#195'O AVP ENTRE'#39
+      end
+      item
+        Name = 'SUBTITULO'
+        Value = Null
+      end
+      item
+        Name = 'OUTRAS'
+        Value = #39'FILIAIS: 1,2,3,4,5,6,7,8,9,10 '#39
+      end
+      item
+        Name = 'DATA'
+        Value = Null
+      end
+      item
+        Name = 'CordoZebrado'
+        Value = Null
+      end
+      item
+        Name = 'AgruparGrupoFilial'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparFilial'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparFornecedor'
+        Value = Null
+      end
+      item
+        Name = 'AgruparLocalizacao'
+        Value = Null
+      end
+      item
+        Name = 'AgruparClasseProduto'
+        Value = Null
+      end
+      item
+        Name = 'AgruparGrupoProduto'
+        Value = Null
+      end
+      item
+        Name = 'DATASITUACAO'
+        Value = #39'30/04/2015'#39
+      end
+      item
+        Name = 'QuebrarPaginaporCliente'
+        Value = 'False'
+      end
+      item
+        Name = 'Ordenacao'
+        Value = Null
+      end
+      item
+        Name = 'AgrupamentoMensal'
+        Value = Null
+      end>
+    Style = <>
+    object Data: TfrxDataPage
+      Height = 1000.000000000000000000
+      Width = 1000.000000000000000000
+    end
+    object Page1: TfrxReportPage
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Style = []
+      Orientation = poLandscape
+      PaperWidth = 297.000000000000000000
+      PaperHeight = 210.000000000000000000
+      PaperSize = 200
+      LeftMargin = 10.000000000000000000
+      RightMargin = 10.000000000000000000
+      TopMargin = 10.000000000000000000
+      BottomMargin = 10.000000000000000000
+      OnBeforePrint = 'Page1OnBeforePrint'
+      object MasterDataQuebraPagina: TfrxMasterData
+        Top = 177.637910000000000000
+        Width = 1046.929810000000000000
+        DataSet = frxDBQuebraPagina
+        DataSetName = 'frxDBQuebraPagina'
+        RowCount = 0
+        StartNewPage = True
+      end
+      object GroupHeaderNomeEmpreendimento: TfrxGroupHeader
+        Top = 200.315090000000000000
+        Width = 1046.929810000000000000
+        Condition = 'frxDBDadosMensal."nomeempreendimento"'
+        ReprintOnNewPage = True
+      end
+      object GroupFooterNomeEmpreendimento: TfrxGroupFooter
+        Height = 15.118120000000000000
+        Top = 264.567100000000000000
+        Width = 1046.929810000000000000
+        OnBeforePrint = 'GroupFooterNomeEmpreendimentoOnBeforePrint'
+        object mmoZebrado: TfrxMemoView
+          Align = baClient
+          Width = 1046.929810000000000000
+          Height = 15.118120000000000000
+          Color = clWhite
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          ParentFont = False
+        end
+        object Memo1: TfrxMemoView
+          Left = 7.559060000000000000
+          Width = 41.574830000000000000
+          Height = 11.338590000000000000
+          DataField = 'siglaempreendimento'
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBDadosMensal."siglaempreendimento"]')
+          ParentFont = False
+        end
+        object Memo2: TfrxMemoView
+          Left = 52.913420000000000000
+          Width = 200.315090000000000000
+          Height = 11.338590000000000000
+          DataField = 'nomeempreendimento'
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBDadosMensal."nomeempreendimento"]')
+          ParentFont = False
+          WordWrap = False
+        end
+        object Memo5: TfrxMemoView
+          Left = 430.866420000000000000
+          Width = 56.692950000000000000
+          Height = 11.338590000000000000
+          OnBeforePrint = 'Memo5OnBeforePrint'
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -7
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              '[SUM(IIF(<frxDBDadosMensal."mesvencto_">=<frxDBMensal."anomes">,' +
+              '<frxDBDadosMensal."valordevido">,0),DetailDataDadosMensal,1)]')
+          ParentFont = False
+        end
+      end
+      object DetailDataDadosMensal: TfrxDetailData
+        Height = 18.897650000000000000
+        Top = 222.992270000000000000
+        Visible = False
+        Width = 1046.929810000000000000
+        DataSet = frxDBDadosMensal
+        DataSetName = 'frxDBDadosMensal'
+        RowCount = 0
+        object Memo13: TfrxMemoView
+          Left = 430.866420000000000000
+          Width = 52.913420000000000000
+          Height = 15.118120000000000000
+          DataField = 'valordevido'
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBDadosMensal."valordevido"]')
+          ParentFont = False
+        end
+      end
+      object Header1: TfrxHeader
+        Height = 718.110700000000000000
+        Left = 3.779530000000000000
+        Vertical = True
+        Width = 249.448980000000000000
+        OnBeforePrint = 'Header1OnBeforePrint'
+      end
+      object MasterData1: TfrxMasterData
+        Height = 718.110700000000000000
+        Left = 430.866420000000000000
+        Vertical = True
+        Width = 56.692950000000000000
+        OnBeforePrint = 'MasterData1OnBeforePrint'
+        DataSet = frxDBMensal
+        DataSetName = 'frxDBMensal'
+        RowCount = 0
+      end
+      object Footer1: TfrxFooter
+        Height = 22.677180000000000000
+        Top = 302.362400000000000000
+        Width = 1046.929810000000000000
+        object Memo6: TfrxMemoView
+          Left = 430.866420000000000000
+          Top = 7.559060000000000000
+          Width = 56.692950000000000000
+          Height = 11.338590000000000000
+          OnBeforePrint = 'Memo6OnBeforePrint'
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -7
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              '[SUM(IIF(<frxDBDadosMensal."mesvencto_">=<frxDBMensal."anomes">,' +
+              '<frxDBDadosMensal."valordevido">,0),DetailDataDadosMensal,1)]')
+          ParentFont = False
+        end
+        object Memo7: TfrxMemoView
+          Left = 22.677180000000000000
+          Top = 7.559060000000000000
+          Width = 143.622140000000000000
+          Height = 11.338590000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'TOTAL')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+      end
+      object PageHeader1: TfrxPageHeader
+        Height = 56.692950000000000000
+        Top = 18.897650000000000000
+        Width = 1046.929810000000000000
+        OnBeforePrint = 'PageHeader1OnBeforePrint'
+        object fmvRua: TfrxMemoView
+          Left = 132.283550000000000000
+          Top = 3.779530000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[RAZAOFILIALBASE]')
+          ParentFont = False
+        end
+        object fmvBairro: TfrxMemoView
+          Left = 132.283550000000000000
+          Top = 17.007885000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[ENDERECO_BAIRRO]')
+          ParentFont = False
+        end
+        object fmvCidade: TfrxMemoView
+          Left = 132.283550000000000000
+          Top = 30.236240000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[CEP_CIDADE_UF]')
+          ParentFont = False
+        end
+        object fpvLogo: TfrxPictureView
+          Left = 3.779530000000000000
+          Top = 3.779530000000000000
+          Width = 120.944960000000000000
+          Height = 45.354360000000000000
+          Picture.Data = {
+            07544269746D617016110000424D161100000000000036000000280000004800
+            0000140000000100180000000000E0100000C40E0000C40E0000000000000000
+            0000FFFFFFFFFFFFFCFCFCCECDCDFFFFFFE3E3E3CFCFD0FFFFFFF1F1F1CDCDCD
+            FAFAFADDDDDDFFFFFFE4E3E3FFFFFFE4E4E4DBDCDCFFFFFFECECECFBFBFBFCFC
+            FCCECECDF9F9F9FFFFFFB5B5B58D8D8E9E9E9DF8F8F8F4F4F4FAFAFAD0D0D0D3
+            D3D4FEFEFEFFFFFFFFFFFFD7D7D8DBDADAFDFDFDF2F2F2DDDDDDFEFEFEE9E9E9
+            FFFFFFFEFEFECFCFD0CFCFCFFAFAFAF0F0F1FAFAFADADADACECECEEEEEEEFFFF
+            FFE7E7E7ECECECFEFEFED0D0D1E9E9E9F1F1F1FBFBFBE1E1E1FBFBFBF4F4F4FA
+            FAFACFCFCFD4D4D5FFFFFFCECECECECECEFAFAFAFFFFFFFFFFFFFFFFFFFFFFFF
+            A9A8A8D2D2D2DCDCDC999999DFDFDFF7F7F7585859F1F1F1FDFDFD3C3A3AFFFF
+            FF545453ECECEC969696C7C7C7B2B2B2999A9AEBEBEB424140EDEDED414141FA
+            FAF9585757E7E7E7868686D9D9D9C0C0C06F6F6FDDDDDD696969F9F9F9FFFFFF
+            929394D0D0D0E7E7E7EFEFEFB3B3B23E3E3FF9F9F97B7B7AFFFFFFFFFFFFE0E0
+            E0C7C7C68C8C8CAFAEAEDFDFDFECECECD8D7D73F3F3FFEFEFE4C4D4EF9F9F946
+            4646DFDFDFF1F1F1A8A7A7E7E7E7484747DEDEDEBCBCBC545352E1E1E15A5A5A
+            FFFFFFE0E0E0D3D3D37E7D7EFFFFFFFFFFFFFFFFFFFFFFFFABABABE2E2E1DADA
+            DA7A7A79B9B9B9F6F6F668686AFEFEFEFFFFFF3E3D3DFEFEFE565658E8E8E8B0
+            B0AFD8D8D8A5A5A4999A9AEBEBEB403F3EFCFCFB464646F8F8F8616161F2F2F2
+            868686D9D9D9C0C0C0F3F3F3B3B3B3484949FAFAFAFFFFFF8E8F90AAAAA9C9C9
+            C8EFEFEFB7B7B73E4043F1F1F1848485FFFFFFF9F9F94D4D4DC5C5C5F6F6F6B1
+            B0B0DFDFDF4B4B4DC3C3C3E4E4E4FDFDFD555656FEFEFE40403FB9B9B9E1E1E1
+            A8A8A8E6E6E64B4A4ADADADAC0C1C2F2F2F2B3B3B33F3F3FFFFFFF404040C4C4
+            C4F5F5F5FFFFFFFFFFFFFFFFFFFFFFFF7474749C9B9AFFFFFFE2E2E2AFAFB0FE
+            FEFEF0F0F0AEAEADF5F6F6C0BFBEB3B3B2FCFCFCFFFFFFD7D7D8C6C6C6FFFFFF
+            989999EAEBEBFCFCFCAFAFAFF6F6F6FFFFFFEDEDEDB0B0AFE1E1E0F0F0F0E7E7
+            E7D9D9D9AFAEAEDCDDDDFFFFFFFFFFFFFFFFFFC9C9C9C2C2C2FCFCFCB0B0AFB7
+            B7B7B7B6B5FCFCFCFFFFFFFFFFFFD6D7D7AEAEADE7E7E5E0E0E0F2F2F2F2F2F2
+            B0AFAFC2C2C2E6E6E63B3A3ADDDEDEFFFFFFB6B6B6DDDDDDE9E9E9B0AFAFB7B7
+            B7BEBEBEFFFFFFD1D1D1AFAEAEE0E0E0FFFFFFDADADAAFAEAEE1E1E1FFFFFFFF
+            FFFFFFFFFFFFFFFFEAEAEAF8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9E9E9FAFAF9FFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5F5F3DDDAB6ECE9C4ECE9C4FD
+            FDF9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEAEAEAF7F7F7FFFFFFFFFFFFFFFFFFFFFF
+            FFD6D6D6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFEFEFECDCDCEB2B2B1ADAEB0BABCBDFFFFFFFFFFFFFFFFFFF8F8F9CACB
+            CCB3B4B4ADAEB0ADAEB0ADAEB0C6C7C8FFFFFFFFFFFFFFFFFFFEFEFED1D2D3B7
+            B7B7B6B7B8FFFFFFFFFFFFFCFCF6ACA205ADA400ADA400F6F5E5FFFFFFFFFFFF
+            EAE7BFE3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E5E1AEECE9C5FCFC
+            F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFEFDECEBC6E4E0ABECE9C3FDFCF9FF
+            FFFFFFFFFFFFFFFFFFFFFFFEFEFCE6E3B1E6E3B1EDEAC7FFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFF7F6E6E8E7BAE6E3B1E6E3B1FFFFFFFFFFFFF3F3F41B1E231619
+            20171A20171A203F4045FFFFFFFDFDFD8183850F1218161920171A20171A2017
+            1A20171A205C5D61FFFFFFFFFFFF9FA0A10F1218161920171A20313337FFFFFF
+            FFFFFFFCFCF6ACA205ADA400ADA400F6F5E5FFFFFFFFFFFFC2BA43ADA400ADA4
+            00ADA400ADA400ADA400ADA400ADA400ADA400ADA400ABA104F9F8EFFFFFFFFF
+            FFFFFFFEFCCDC869ACA104ADA400ADA400ADA400ACA103C8C156FEFEFBFFFFFF
+            FFFFFFFAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFFFFFFFFC1B944ACA3
+            00ADA400ADA400ADA400FFFFFFFFFFFF838586171A20181B2111151B3C3E4160
+            6265FFFFFF71737616191F181B210F13193034383D3F443D40443D4044797A7B
+            FFFFFFBEBFC113161C181B2114181D1C20244D4F4CEEECCBEEECCBEDEAC7BCB5
+            36BCB635BCB635E5E2B0E8E6BBE8E6BBC8C45ABDB63FBDB63FBDB63FBDB63FBD
+            B63FBDB63FBDB640BBB438ADA400ADA400B9AF26FFFFFFFEFEFDBCB334ADA400
+            ADA400ABA101AEA404ABA101ADA400ADA400B7AE26FEFEFAFFFFFFFAFAEFABA1
+            00ADA400C2BA45FFFFFFFFFFFFFFFFFFF4F1DCACA300ADA400ADA400B0A608B1
+            A811FFFFFFFFFFFF35383C181B2111151AE8E8E8FFFFFFFFFFFFF7F7F70E1217
+            181B211C1F24F8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFDFD1F2227181B
+            2115181EB6B7B9FFFFFFF2EFD4ACA300ADA400AFA409FEFDFAFFFFFFFFFFFFB1
+            A810ADA400ADA400E5E2AFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFB0A611ADA400AEA504FDFDF8D3CD78ACA300ADA400DCD791FFFFFFFFFF
+            FFFFFFFFDFDC9EACA202ADA400CAC35BFFFFFFFAFAEFABA100ADA400C2BA45FF
+            FFFFFFFFFFFFFFFFD4D07BADA400ADA400D3CD77FFFFFFFFFFFFFFFFFFFFFFFF
+            282A2C181B2112151BF0F1F1FFFFFFFFFFFFB6B7B8181B21181B212F32368081
+            857F80857F80857F80857F8085A6A7A8E6E6E613161C181B2124272CFFFFFFFF
+            FFFFF2EFD4ACA300ADA400B0A709FEFDFAFFFFFFFFFFFFB1A810ADA400ADA400
+            E5E2AFFFFFFFFFFFFFFEFEFEFDFDFBFBFAF3FBFAF3F9F9F0E9E6BCADA403ADA4
+            00B0A707FEFDF9ACA202ADA400CDC767FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD4
+            CF7BADA400ABA100FFFFFFFAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFF
+            CEC763ADA400ADA400E4E1ABFFFFFFFFFFFFFFFFFFFFFFFF292C31181B211216
+            1BF1F1F2FFFFFFFFFFFF9A9C9E181B21181B21181B21181B21181B21181B2118
+            1B21181B215D5E62DBDCDC11141A181B21494B4EFFFFFFFFFFFFF3F2DBB9B02A
+            B9B02BBAB230D7D7D7D7D7D7D7D7D7BDB53EBEB53BBEB53BEBE8BEFFFFFFECE9
+            C5ADA307ACA200ADA400ADA400ADA400ADA400ADA400ADA400CCC661FFFFFFAB
+            A100ADA400EEECC9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF6F5E5ACA300ADA400
+            FBFAF2FAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFFCEC762ADA400ADA4
+            00E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF292C31181B2112161BF1F1F2FFFFFFFF
+            FFFFABABAB181B21181B21171A2014171C14171C14171C14171C14171C5C5E62
+            E2E3E313161C181B21373A3EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7171A
+            1F13161B13161BE7E8EAFFFFFFFFFFFFFFFFFFFFFFFEA99E02ADA400ADA400B1
+            A610B3A918B3A919B3A91ABBB32EE5E2AFFFFFFFFFFFFFABA100ADA400E5E1AD
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEDEBCAADA400ABA000FFFFFEFAFAEFABA1
+            00ADA400C2BA45FFFFFFFFFFFFFFFFFFCEC762ADA400ADA400E7E4B5FFFFFFFF
+            FFFFFFFFFFFFFFFF292C31181B2112161BF1F1F2FFFFFFFFFFFFDFDFDF14171D
+            181B213C3E42F1F1F2F0F0F1F0F0F1F0F0F1F0F0F1F5F5F5F8F8F8171A1F181B
+            210C0F15FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7171A1F181B21181B21E7
+            E8E9FFFFFFFFFFFFFFFFFFF3F1D7ADA400ADA400B8B023FEFEFDFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB3AA15ADA400B8B023FEFEFBFFFFFFFFFF
+            FFFFFFFFFFFFFFBCB330ADA400AFA405FFFFFFFAFAEFABA100ADA400C2BA45FF
+            FFFFFFFFFFFFFFFFCEC762ADA400ADA400E7E4B5FFFFFFFFFFFFEEEEEEE8E8E8
+            272A2F181B2113171CDFDFDFE8E8E8ECECECFFFFFF111319181B21171A20ADAE
+            B0E2E2E3E8E8E8E8E8E8E8E8E8EFEFEFFFFFFF4D4F52181B21181B2147494ECF
+            D0D1E3E3E4E4E4E5E4E4E5DEDFDF27292D272B2F272B2FDADADAE6E7E7E6E7E7
+            F5F5F5F5F3E0ADA400ADA400B0A70FF1EFD4F2F0D6F2F0D6F1F0D4F1F0D4F1F0
+            D4F7F5E5FFFFFFF1EFD3ACA202ADA400AEA503DED999EDEAC5E1DEA1B0A70AAD
+            A400ACA300E8E5B7F1EFD4EEEDCCACA200ADA400BFB73BF1EFD4F1EFD4FAF9EE
+            CEC762ADA400ADA400DDD996F1EFD4F1EFD4595B5E15181E181B21181B21181B
+            2115181E15181E3D3E43FFFFFFC7C7C90E1117181B2115191E15181E15181E15
+            181E15181E5B5C5FFFFFFFF0F0F10A0E13181B21181B2115181E15181E15181E
+            15181E16191EFAFAFAFFFFFFFFFFFF25292D15181E15181E9D9EA0FFFFFFABA0
+            00ADA400ADA400ACA300ACA300ACA300ACA300ACA300ACA300CAC55CFFFFFFFF
+            FFFFE4E1ADABA200ADA400ADA400ACA300ADA400ADA400ABA200DEDA99D2CD73
+            ACA300ACA300ADA400ADA400ADA400ACA300ACA300E0DD9ECEC762ADA400ADA4
+            00ADA400ACA300ACA3005A5D6015181D181B21181B21181B2116191E15181D3E
+            4044FFFFFFFFFFFFE0E0E1494C4F212429171A1F15181D15181D15181D5C5F62
+            FFFFFFFFFFFFF0F1F16B6D70282C301B1E2215181D15181D15181D161A1FF9F9
+            F9FFFFFFFFFFFF272B2F181B21181B219E9FA2FFFFFFF9F9EDBEB83DAFA60BAD
+            A403ADA403ADA403ADA403ADA403ADA403CBC55EFFFFFFFFFFFFFFFFFFFAF9EF
+            CDC865B5AB1BAEA406B3AA18CBC562F9F7E9FFFFFFD2CD75AFA605AFA605ADA4
+            00ADA400ADA400AFA605AFA605E0DCA0CEC762ADA400ADA400AEA502AFA605AF
+            A605FDFDFDFCFCFC292C31181B2112161BF0F0F0FCFCFCFDFDFDFFFFFFFFFFFF
+            FFFFFFFFFFFFFEFEFEFCFCFCFCFCFCFCFCFCFCFCFCFDFDFDFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFDFDFDFCFCFCFCFCFCFCFCFCFCFCFCFFFFFFFFFFFFFFFFFF2A
+            2C2F15191E15191EA0A0A0FFFFFFFFFFFFFFFFFFFEFEFDFEFEFCFEFEFCFEFEFC
+            FEFEFCFEFEFCFEFEFCFEFEFDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFE
+            FDFFFFFEFFFFFFFFFFFFFFFFFFFFFEFEFEFEFDFBFBF3ABA100ADA400BEB639FE
+            FEFDFEFEFDFFFFFECEC762ADA400ADA400E6E3B3FEFEFDFEFEFDFFFFFFFFFFFF
+            292C31181B2112161BF1F1F2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFDFDF8AAA000ADA400ADA400C4BC4BC7C152ECE9C1
+            CEC762ADA400ADA400E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF292C31181B211216
+            1BF1F1F2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFBFB740ACA200ADA400ADA400ADA400E2DEA3CEC762ADA400ADA4
+            00E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF67696B5A5C60585A5EF5F5F5FFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFE
+            FCE6E3B1CBC55DC5C34EC5C34EEAE7BEDDD893C5C34EC5C34EEEECCAFFFFFFFF
+            FFFF}
+        end
+        object mmoValorPagina: TfrxMemoView
+          Left = 173.858380000000000000
+          Top = 15.118120000000000000
+          Width = 60.472480000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Page#]')
+          ParentFont = False
+        end
+        object mmoPagina: TfrxMemoView
+          Left = 136.063080000000000000
+          Top = 15.118120000000000000
+          Width = 34.015770000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'P'#195#129'G.:')
+          ParentFont = False
+        end
+        object mmoData: TfrxMemoView
+          Left = 136.063080000000000000
+          Width = 34.015770000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'DATA:')
+          ParentFont = False
+        end
+        object mmoOutras: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 192.756030000000000000
+          Top = 34.015770000000000000
+          Width = 56.692950000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[SUBTITULO]')
+          ParentFont = False
+          WordWrap = False
+        end
+        object mmoValorData: TfrxMemoView
+          Left = 173.858380000000000000
+          Width = 60.472480000000000000
+          Height = 11.338582680000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Date]')
+          ParentFont = False
+        end
+        object mmoTitulo: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 196.535486770000000000
+          Width = 52.913420000000000000
+          Height = 30.236240000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[TITULO]')
+          ParentFont = False
+        end
+      end
+      object Memo11: TfrxMemoView
+        Left = 1141.418060000000000000
+        Top = 11.338590000000000000
+        Width = 94.488250000000000000
+        Height = 11.338590000000000000
+        AutoWidth = True
+        DisplayFormat.DecimalSeparator = ','
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -8
+        Font.Name = 'Arial'
+        Font.Style = []
+        Memo.UTF8 = (
+          '[RAZAOFILIALBASE]')
+        ParentFont = False
+      end
+      object ColumnHeader1: TfrxColumnHeader
+        Height = 18.897637800000000000
+        Top = 98.267780000000000000
+        Width = 1046.929810000000000000
+        object Memo3: TfrxMemoView
+          Left = 430.866420000000000000
+          Top = 3.779530000000000000
+          Width = 56.692950000000000000
+          Height = 15.118120000000000000
+          DataSet = frxDBMensal
+          DataSetName = 'frxDBMensal'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Frame.Width = 0.100000000000000000
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBMensal."MesAnoExtenso"]')
+          ParentFont = False
+        end
+        object Memo10: TfrxMemoView
+          Left = 3.779530000000000000
+          Top = 3.779530000000000000
+          Width = 249.448980000000000000
+          Height = 15.118120000000000000
+          DataSet = frxDBMensal
+          DataSetName = 'frxDBMensal'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'EMPREENDIMENTO')
+          ParentFont = False
+        end
+      end
+    end
+  end
+  object qryRelatorioContasaReceberImoveisMensal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'pagina=pagina'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrQuebraPagina
+    Constraints = <>
+    BeforeOpen = qryRelatorioContasaReceberImoveisMensalBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereClientes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereEmpreendimentos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaSituacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      
+        'select pagina, mesvencto_, mesvencto, dia, nomeempreendimento, s' +
+        'iglaempreendimento,'
+      '        sum(vi.ValorContratado) as ValorContratado,'
+      '        sum(vi.ValorDevido) as ValorDevido'
+      'from'
+      '('
+      ''
+      
+        'select case when substring(mesvencto_ from 6 for 2) = '#39'00'#39' then ' +
+        'cast(1 as integer)'
+      '            when substring(mesvencto_ from 6 for 2) = '#39'99'#39' then'
+      
+        '         quebraintervalo(to_char(cast(:DataInicial as date),'#39'yyy' +
+        'y-mm'#39'), to_char(cast(:DataFinal as date),'#39'yyyy-mm'#39'))'
+      '        else'
+      
+        '         quebraintervalo(to_char(cast(:DataInicial as date),'#39'yyy' +
+        'y-mm'#39'), mesvencto_)'
+      '       end as Pagina,'
+      ''
+      '       vi.mesvencto_,'
+      '       vi.mesvencto,'
+      '       vi.dia,'
+      '       vi.nomeempreendimento,'
+      '       vi.siglaempreendimento,'
+      #9'     vi.ValorContratado,'
+      #9'     vi.ValorDevido'
+      'from'
+      '('
+      ''
+      'select to_char(pi.datavencto,'#39'YYYY-mm'#39') as mesvencto_,'
+      '       to_char(pi.datavencto,'#39'mm-YYYY'#39') as mesvencto,'
+      '       cast(to_char(pi.datavencto,'#39'dd'#39') as integer) as dia,'
+      '       pi.ValorContratado,'
+      
+        '       (SELECT ValorDevido(pi.Contrato, pi.Tipo, pi.Numero, pi.N' +
+        'rPagto, :DataSituacaoEm)) AS ValorDevido,'
+      
+        '       SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSitu' +
+        'acaoEm as date)) as situacao,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.nome'
+      '       else'
+      '         cast(null as varchar(60))'
+      '       end as nomeempreendimento,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.sigla'
+      '       else'
+      '         cast(null as varchar(10))'
+      '       end as siglaempreendimento'
+      ''
+      'from vendasimoveis vi'
+      '     join empreendimentos em'
+      '     on vi.empreendimento = em.codigo'
+      ''
+      '     join compradores comp'
+      '          join vfornecedores vf'
+      '          on vf.codigo = comp.cliente and'
+      '             vf.tipo = comp.tipocliente'
+      ''
+      '     on comp.contrato = vi.contrato'
+      '     and coalesce(comp.principal,false)'
+      ''
+      '     join parcelasimoveis pi'
+      '     on vi.contrato = pi.contrato'
+      ''
+      ''
+      'where pi.datavencto between :DataInicial and :DataFinal'
+      ' and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      ''
+      ''
+      ' union all'
+      ''
+      ' select'
+      
+        '    cast(extract(year from cast(:DataSituacaoEm as date))||'#39'-00'#39 +
+        ' as char(7)) as mesvencto_,'
+      
+        '    cast('#39'00-'#39'||extract(year from cast(:DataSituacaoEm as date))' +
+        ' as char(7)) as mesvencto,'
+      '    dia,'
+      '    sum(ValorContratado) as ValorContratado,'
+      #9#9'sum(ValorDevido) as ValorDevido,'
+      #9#9'situacao,'
+      #9#9'nomeempreendimento,'
+      #9#9'siglaempreendimento'
+      ' from'
+      ' ('
+      
+        #9'select pi.ValorContratado, cast(to_char(datavencto,'#39'dd'#39') as int' +
+        'eger) as dia,'
+      
+        #9#9'   (SELECT ValorDevido(pi.Contrato, pi.Tipo, pi.Numero, pi.NrP' +
+        'agto, :DataSituacaoEm)) AS ValorDevido,'
+      
+        #9#9'   SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSituac' +
+        'aoEm as date)) as situacao,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.nome'
+      '       else'
+      '         cast(null as varchar(60))'
+      '       end as nomeempreendimento,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.sigla'
+      '       else'
+      '         cast(null as varchar(10))'
+      '       end as siglaempreendimento,'
+      ''
+      ''
+      '       true as anterior,'
+      '       false as avencer'
+      ''
+      #9'from vendasimoveis vi'
+      #9#9' join empreendimentos em'
+      #9#9' on vi.empreendimento = em.codigo'
+      ''
+      #9#9' join compradores comp'
+      #9#9#9'  join vfornecedores vf'
+      #9#9#9'  on vf.codigo = comp.cliente and'
+      #9#9#9#9' vf.tipo = comp.tipocliente'
+      ''
+      #9#9' on comp.contrato = vi.contrato'
+      #9#9' and coalesce(comp.principal,false)'
+      ''
+      #9#9' join parcelasimoveis pi'
+      #9#9' on vi.contrato = pi.contrato'
+      ''
+      ''
+      #9'where pi.datavencto < :DataInicial'
+      #9' and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      ''
+      '  ) as anterior'
+      ''
+      #9'  group by dia, situacao,'
+      #9#9#9'   nomeempreendimento,'
+      #9#9#9'   siglaempreendimento'
+      ''
+      ' union all'
+      ''
+      ' select'
+      
+        '    cast(extract(year from cast(:DataFinal as date))||'#39'-99'#39' as c' +
+        'har(7)) as mesvencto_,'
+      
+        '    cast('#39'99-'#39'||extract(year from cast(:DataFinal as date)) as c' +
+        'har(7)) as mesvencto,'
+      '    dia,'
+      ''
+      '    sum(ValorContratado) as ValorContratado,'
+      #9#9'sum(ValorDevido) as ValorDevido,'
+      #9#9'situacao,'
+      #9#9'nomeempreendimento,'
+      #9#9'siglaempreendimento'
+      ' from'
+      ' ('
+      ''
+      #9'select'
+      ''
+      ''
+      
+        #9#9'   pi.ValorContratado, cast(to_char(datavencto,'#39'dd'#39') as intege' +
+        'r) as dia,'
+      
+        #9#9'   (SELECT ValorDevido(pi.Contrato, pi.Tipo, pi.Numero, pi.NrP' +
+        'agto, :DataSituacaoEm)) AS ValorDevido,'
+      
+        #9#9'   SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSituac' +
+        'aoEm as date)) as situacao,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.nome'
+      '       else'
+      '         cast(null as varchar(60))'
+      '       end as nomeempreendimento,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.sigla'
+      '       else'
+      '         cast(null as varchar(10))'
+      '       end as siglaempreendimento,'
+      ''
+      ''
+      '   '#9'       false as anterior,'
+      #9'       true as avencer'
+      ''
+      #9'from vendasimoveis vi'
+      #9#9' join empreendimentos em'
+      #9#9' on vi.empreendimento = em.codigo'
+      ''
+      #9#9' join compradores comp'
+      #9#9#9'  join vfornecedores vf'
+      #9#9#9'  on vf.codigo = comp.cliente and'
+      #9#9#9#9' vf.tipo = comp.tipocliente'
+      ''
+      #9#9' on comp.contrato = vi.contrato'
+      #9#9' and coalesce(comp.principal,false)'
+      ''
+      #9#9' join parcelasimoveis pi'
+      #9#9' on vi.contrato = pi.contrato'
+      ''
+      ''
+      #9'where pi.datavencto > :DataFinal'
+      #9' and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      '   '
+      '  ) as avencer'
+      ''
+      #9'  group by dia, situacao,'
+      #9#9#9'   nomeempreendimento,'
+      #9#9#9'   siglaempreendimento'
+      ''
+      ') as vi'
+      ' where true'
+      ''
+      ' %ListaSituacao'
+      ')  as vi'
+      ''
+      'group by pagina,'
+      '       vi.nomeempreendimento,'
+      #9'     vi.siglaempreendimento,'
+      '       vi.mesvencto_,'
+      '       vi.mesvencto,'
+      '       vi.dia'
+      ''
+      ''
+      'order by'
+      '       vi.nomeempreendimento,'
+      #9'     vi.siglaempreendimento,'
+      '       vi.dia,'
+      '       vi.mesvencto_,'
+      '       vi.mesvencto'
+      ''
+      ''
+      '/*'
+      '  %Ordenacao'
+      '*/')
+    RequestLive = True
+    Left = 96
+    Top = 160
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'2017-02-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'2019-02-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataSituacaoEm'
+        ParamType = ptUnknown
+        Value = #39'2017-11-10'#39
+      end
+      item
+        DataType = ftBoolean
+        Name = 'AgruparEmpreendimento'
+        ParamType = ptUnknown
+        Value = True
+      end>
+    object qryRelatorioContasaReceberImoveisMensalmesvencto_: TMemoField
+      FieldName = 'mesvencto_'
+      BlobType = ftMemo
+    end
+    object qryRelatorioContasaReceberImoveisMensalmesvencto: TMemoField
+      FieldName = 'mesvencto'
+      BlobType = ftMemo
+    end
+    object qryRelatorioContasaReceberImoveisMensalnomeempreendimento: TStringField
+      FieldName = 'nomeempreendimento'
+      Size = 60
+    end
+    object qryRelatorioContasaReceberImoveisMensalsiglaempreendimento: TStringField
+      FieldName = 'siglaempreendimento'
+      Size = 10
+    end
+    object qryRelatorioContasaReceberImoveisMensalvalorcontratado: TFloatField
+      FieldName = 'valorcontratado'
+      DisplayFormat = '0.00'
+    end
+    object qryRelatorioContasaReceberImoveisMensalvalordevido: TFloatField
+      FieldName = 'valordevido'
+      DisplayFormat = '0.00'
+    end
+    object qryRelatorioContasaReceberImoveisMensalpagina: TIntegerField
+      FieldName = 'pagina'
+    end
+    object qryRelatorioContasaReceberImoveisMensaldia: TIntegerField
+      FieldName = 'dia'
+    end
+  end
+  object frxDBRelatorioContasaReceberImoveisMensal: TfrxDBDataset
+    UserName = 'frxDBRelatorioContasaReceberImoveisMensal'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'mesvencto_=mesvencto_'
+      'mesvencto=mesvencto'
+      'nomeempreendimento=nomeempreendimento'
+      'siglaempreendimento=siglaempreendimento'
+      'valorcontratado=valorcontratado'
+      'valordevido=valordevido'
+      'pagina=pagina'
+      'dia=dia')
+    DataSet = qryRelatorioContasaReceberImoveisMensal
+    Left = 408
+    Top = 384
+  end
+  object qryMensal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'pagina=pagina'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrQuebraPagina
+    Constraints = <>
+    OnCalcFields = qryMensalCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select selecao.*'
+      'from'
+      '('
+      'select selecao.*,'
+      
+        '       quebraintervalo(to_char(cast(:DataInicial as date),'#39'yyyy-' +
+        'mm'#39'), anomes) as Pagina'
+      ''
+      'from'
+      '('
+      ''
+      'select distinct'
+      
+        '       cast(to_char(generate_series(0, (select cast(:DataFinal a' +
+        's date) - cast(:DataInicial as date))) + cast(:DataInicial as da' +
+        'te), '#39'yyyy-mm'#39') as char(7)) as AnoMes'
+      ''
+      ') as selecao'
+      ''
+      'union all'
+      ''
+      'select cast(ano||'#39'-00'#39' as char(7)) as anomes, pagina'
+      'from'
+      '('
+      'select min(ano) as ano,'
+      '       pagina'
+      'from'
+      '('
+      'select selecao.*,'
+      
+        '       quebraintervalo(to_char(cast(:DataInicial as date),'#39'yyyy-' +
+        'mm'#39'), anomes) as Pagina'
+      'from'
+      '('
+      ''
+      'select distinct'
+      
+        '       cast(substring(cast(to_char(generate_series(0, (select ca' +
+        'st(:DataFinal as date) - cast(:DataInicial as date))) + cast(:Da' +
+        'taInicial as date), '#39'yyyy'#39')as char(7)) from 1 for 4) as integer)' +
+        ' as ano,'
+      
+        '       cast(to_char(generate_series(0, (select cast(:DataFinal a' +
+        's date) - cast(:DataInicial as date))) + cast(:DataInicial as da' +
+        'te), '#39'yyyy-mm'#39') as char(7)) as AnoMes'
+      ''
+      ') as selecao'
+      'order by ano, anomes'
+      ') as selecao'
+      '  group by pagina'
+      ') as selecao'
+      ''
+      'union all'
+      ''
+      'select cast(ano||'#39'-99'#39' as char(7)) as anomes, pagina'
+      'from'
+      '('
+      'select max(ano) as ano,'
+      '       pagina'
+      'from'
+      '('
+      'select selecao.*,'
+      
+        '       quebraintervalo(to_char(cast(:DataInicial as date),'#39'yyyy-' +
+        'mm'#39'), anomes) as Pagina'
+      'from'
+      '('
+      ''
+      'select distinct'
+      
+        '       cast(substring(cast(to_char(generate_series(0, (select ca' +
+        'st(:DataFinal as date) - cast(:DataInicial as date))) + cast(:Da' +
+        'taInicial as date), '#39'yyyy'#39')as char(7)) from 1 for 4) as integer)' +
+        ' as ano,'
+      
+        '       cast(to_char(generate_series(0, (select cast(:DataFinal a' +
+        's date) - cast(:DataInicial as date))) + cast(:DataInicial as da' +
+        'te), '#39'yyyy-mm'#39') as char(7)) as AnoMes'
+      ''
+      ') as selecao'
+      'order by ano, anomes'
+      ') as selecao'
+      '  group by pagina'
+      ') as selecao'
+      ''
+      ''
+      ') as selecao'
+      'order by pagina, anomes'
+      '')
+    RequestLive = True
+    Left = 272
+    Top = 152
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'2017-02-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'2019-02-01'#39
+      end>
+    object qryMensalanomes: TStringField
+      FieldName = 'anomes'
+      Size = 7
+    end
+    object qryMensalMesAnoExtenso: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'MesAnoExtenso'
+      Size = 15
+      Calculated = True
+    end
+    object qryMensalpagina: TIntegerField
+      FieldName = 'pagina'
+    end
+  end
+  object frxDBDadosMensal: TfrxDBDataset
+    UserName = 'frxDBDadosMensal'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'mesvencto_=mesvencto_'
+      'mesvencto=mesvencto'
+      'nomeempreendimento=nomeempreendimento'
+      'siglaempreendimento=siglaempreendimento'
+      'valorcontratado=valorcontratado'
+      'valordevido=valordevido'
+      'pagina=pagina'
+      'dia=dia')
+    DataSet = qryRelatorioContasaReceberImoveisMensal
+    Left = 400
+    Top = 224
+  end
+  object frxDBMensal: TfrxDBDataset
+    UserName = 'frxDBMensal'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'ano=ano'
+      'anomes=anomes'
+      'MesAnoExtenso=MesAnoExtenso'
+      'pagina=pagina')
+    DataSet = qryMensal
+    Left = 400
+    Top = 272
+  end
+  object dsrRelatorioContasaReceberImoveisMensal: TtecDataSource
+    DataSet = qryRelatorioContasaReceberImoveisMensal
+    Left = 136
+    Top = 208
+  end
+  object qryQuebraPagina: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryMensalCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select distinct'
+      
+        '        quebraintervalo(anomes, to_char(cast(:DataFinal as date)' +
+        ','#39'yyyy-mm'#39')) as Pagina'
+      #9#9'/*'
+      
+        '         cast((select div(cast(12 * extract('#39'years'#39' from a.i) + ' +
+        'extract('#39'months'#39'from a.i) as integer), 12)'
+      
+        '          from (values (justify_interval(cast(AnoMes||'#39'-01'#39' as t' +
+        'imestamp) - timestamp :DataInicial))) as a (i)) + 1 as integer) ' +
+        'as Pagina'
+      #9#9'  */'
+      'from'
+      '('
+      ''
+      'select distinct'
+      
+        '       cast(substring(cast(to_char(generate_series(0, (select ca' +
+        'st(:DataFinal as date) - cast(:DataInicial as date))) + cast(:Da' +
+        'taInicial as date), '#39'yyyy'#39')as char(7)) from 1 for 4) as integer)' +
+        ' as ano,'
+      
+        '       cast(to_char(generate_series(0, (select cast(:DataFinal a' +
+        's date) - cast(:DataInicial as date))) + cast(:DataInicial as da' +
+        'te), '#39'yyyy-mm'#39') as char(7)) as AnoMes'
+      ''
+      ') as selecao'
+      'order by pagina')
+    RequestLive = True
+    Left = 288
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'2019-02-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'2017-02-01'#39
+      end>
+    object qryQuebraPaginapagina: TIntegerField
+      FieldName = 'pagina'
+    end
+  end
+  object dsrQuebraPagina: TtecDataSource
+    DataSet = qryQuebraPagina
+    Left = 288
+    Top = 272
+  end
+  object frxDBQuebraPagina: TfrxDBDataset
+    UserName = 'frxDBQuebraPagina'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'pagina=pagina')
+    DataSet = qryQuebraPagina
+    Left = 400
+    Top = 328
+  end
+  object qryDiario: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'quebra=quebra'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrQuebraPaginaDiario
+    Constraints = <>
+    OnCalcFields = qryMensalCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereClientes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'WhereEmpreendimentos'
+        ParamType = ptUnknown
+        Value = 'and vi.empreendimento = 65'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaSituacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select vi.*,'
+      '       case when vi.sequencial<=16 then 1'
+      
+        '            when (mod(vi.sequencial,16) = 0) then ((vi.sequencia' +
+        'l/16) -  1) + 1'
+      '       else'
+      '          (vi.sequencial/16) + 1'
+      '       end as quebra'
+      'from'
+      '('
+      
+        'select row_number() over (/*partition by vi.empreendimento*/ ord' +
+        'er by vi.datavencto) as sequencial,'
+      '       vi.*'
+      'from'
+      '('
+      'select distinct vi.datavencto'
+      'from'
+      '('
+      ''
+      'select pi.datavencto,'
+      
+        '       SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSitu' +
+        'acaoEm as date)) as situacao'
+      ''
+      'from vendasimoveis vi'
+      '     join empreendimentos em'
+      '     on vi.empreendimento = em.codigo'
+      ''
+      '     join compradores comp'
+      '          join vfornecedores vf'
+      '          on vf.codigo = comp.cliente and'
+      '             vf.tipo = comp.tipocliente'
+      ''
+      '     on comp.contrato = vi.contrato'
+      '     and coalesce(comp.principal,false)'
+      ''
+      '     join parcelasimoveis pi'
+      '     on vi.contrato = pi.contrato'
+      ''
+      ''
+      'where pi.datavencto between :DataInicial and :DataFinal'
+      ' and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      ''
+      ''
+      ') as vi'
+      'where true'
+      '  %ListaSituacao'
+      ''
+      'order by vi.datavencto'
+      ''
+      ') as vi'
+      ')as vi'
+      ''
+      ''
+      ''
+      ''
+      'order by /*empreendimento, quebra, */ quebra, datavencto'
+      ''
+      ''
+      ''
+      '')
+    RequestLive = True
+    Left = 776
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'DataSituacaoEm'
+        ParamType = ptUnknown
+        Value = #39'2017-11-21'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'2017-10-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'2017-12-31'#39
+      end>
+    object qryDiariodatavencto: TDateField
+      Alignment = taCenter
+      FieldName = 'datavencto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryDiarioquebra: TLargeintField
+      FieldName = 'quebra'
+    end
+  end
+  object dsrDiario: TtecDataSource
+    DataSet = qryDiario
+    Left = 840
+    Top = 80
+  end
+  object frxRelatorioContasaReceberImoveisDiario: TfrxReport
+    Version = '4.0.11'
+    DataSet = frxDBRelatorioContasaReceberImoveisMensal
+    DataSetName = 'frxDBRelatorioContasaReceberImoveisMensal'
+    DotMatrixReport = False
+    EngineOptions.DoublePass = True
+    EngineOptions.PrintIfEmpty = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.AllowEdit = False
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 2.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 42340.700718275490000000
+    ReportOptions.LastChange = 43052.724640717600000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'var'
+      ' vZebrar, vZebrar2 : boolean;'
+      ''
+      ''
+      ''
+      ''
+      'procedure GroupFooter3OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      ''
+      'procedure Memo33OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Memo33OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Memo21OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo11OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo12OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '  Memo12.visible := <frxDBMensal."MesAnoExtenso"><>'#39#39
+      'end;'
+      ''
+      'procedure Memo52OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo54OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure MasterData1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '{'
+      '  if vZebrar then'
+      '  begin'
+      '    if <CordoZebrado> <> null then'
+      '      mmoZebrado.color := <CordoZebrado>;'
+      '    vZebrar := false;'
+      '    vZebrar2 := true;'
+      '  end'
+      '  else'
+      '  begin'
+      '    mmoZebrado.color := clwhite;'
+      '    vZebrar := true;'
+      '  end;'
+      '}'
+      'end;'
+      ''
+      'procedure MasterData2OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Page1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '{'
+      '  GroupHeaderNomeEmpreendimento.visible := <Ordenacao> = 0;'
+      
+        '  GroupFooterEmpreendimento.visible := GroupHeaderNomeEmpreendim' +
+        'ento.visible;'
+      ''
+      '  GroupHeaderMesVencto.visible := <AgrupamentoMensal>;'
+      '  GroupFooterMesVencto.visible := GroupHeaderMesVencto.visible;'
+      '}'
+      'end;'
+      ''
+      'procedure Memo5OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '  Memo5.visible := <frxDBMensal."MesAnoExtenso"><>'#39#39
+      'end;'
+      ''
+      'procedure Memo6OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Header1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      
+        'procedure GroupFooterNomeEmpreendimentoOnBeforePrint(Sender: Tfr' +
+        'xComponent);'
+      'begin'
+      
+        '  GroupFooterNomeEmpreendimento.visible := <frxDBDadosMensal."no' +
+        'meempreendimento"><>'#39#39
+      'end;'
+      ''
+      'procedure PageHeader1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '  mmoData.left := 950;'
+      '  mmoPagina.left := 950;'
+      '  mmoValorData.left := 980;'
+      '  mmoValorPagina.left := 980;'
+      ''
+      '  mmoTitulo.left := 387;'
+      '  mmoTitulo.width := 500;'
+      '  mmoOutras.left := 550;'
+      ''
+      ''
+      'end;'
+      ''
+      'procedure GroupFooterDiaOnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      '  if vZebrar then'
+      '  begin'
+      '    if <CordoZebrado> <> null then'
+      '      mmoZebrado.color := <CordoZebrado>;'
+      '    vZebrar := false;'
+      '    vZebrar2 := true;'
+      '  end'
+      '  else'
+      '  begin'
+      '    mmoZebrado.color := clwhite;'
+      '    vZebrar := true;'
+      '  end;'
+      ''
+      'end;'
+      ''
+      'procedure Memo8OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '  Memo5.visible := <frxDBMensal."MesAnoExtenso"><>'#39#39
+      'end;'
+      ''
+      'begin'
+      ''
+      'end.')
+    OnGetValue = frxRelatorioContasaReceberImoveisGetValue
+    Left = 96
+    Top = 272
+    Datasets = <
+      item
+        DataSet = frxDBQuebraPagina
+        DataSetName = 'frxDBQuebraPagina'
+      end
+      item
+        DataSet = frxDBDadosMensal
+        DataSetName = 'frxDBDadosMensal'
+      end
+      item
+        DataSet = frxDBMensal
+        DataSetName = 'frxDBMensal'
+      end>
+    Variables = <
+      item
+        Name = ' Relatorio'
+        Value = Null
+      end
+      item
+        Name = 'ENDERECO_BAIRRO'
+        Value = Null
+      end
+      item
+        Name = 'RAZAOFILIALBASE'
+        Value = Null
+      end
+      item
+        Name = 'CEP_CIDADE_UF'
+        Value = Null
+      end
+      item
+        Name = 'TITULO'
+        Value = #39'PLANILHA PARA REVERS'#195'O AVP ENTRE'#39
+      end
+      item
+        Name = 'SUBTITULO'
+        Value = Null
+      end
+      item
+        Name = 'OUTRAS'
+        Value = #39'FILIAIS: 1,2,3,4,5,6,7,8,9,10 '#39
+      end
+      item
+        Name = 'DATA'
+        Value = Null
+      end
+      item
+        Name = 'CordoZebrado'
+        Value = Null
+      end
+      item
+        Name = 'AgruparGrupoFilial'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparFilial'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparFornecedor'
+        Value = Null
+      end
+      item
+        Name = 'AgruparLocalizacao'
+        Value = Null
+      end
+      item
+        Name = 'AgruparClasseProduto'
+        Value = Null
+      end
+      item
+        Name = 'AgruparGrupoProduto'
+        Value = Null
+      end
+      item
+        Name = 'DATASITUACAO'
+        Value = #39'30/04/2015'#39
+      end
+      item
+        Name = 'QuebrarPaginaporCliente'
+        Value = 'False'
+      end
+      item
+        Name = 'Ordenacao'
+        Value = Null
+      end
+      item
+        Name = 'AgrupamentoMensal'
+        Value = Null
+      end>
+    Style = <>
+    object Data: TfrxDataPage
+      Height = 1000.000000000000000000
+      Width = 1000.000000000000000000
+    end
+    object Page1: TfrxReportPage
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Style = []
+      Orientation = poLandscape
+      PaperWidth = 297.000000000000000000
+      PaperHeight = 210.000000000000000000
+      PaperSize = 200
+      LeftMargin = 10.000000000000000000
+      RightMargin = 10.000000000000000000
+      TopMargin = 10.000000000000000000
+      BottomMargin = 10.000000000000000000
+      OnBeforePrint = 'Page1OnBeforePrint'
+      object MasterDataQuebraPagina: TfrxMasterData
+        Height = 3.779530000000000000
+        Top = 181.417440000000000000
+        Width = 1046.929810000000000000
+        DataSet = frxDBQuebraPagina
+        DataSetName = 'frxDBQuebraPagina'
+        RowCount = 0
+        StartNewPage = True
+      end
+      object DetailDataDadosMensal: TfrxDetailData
+        Height = 22.677180000000000000
+        Top = 298.582870000000000000
+        Visible = False
+        Width = 1046.929810000000000000
+        DataSet = frxDBDadosMensal
+        DataSetName = 'frxDBDadosMensal'
+        KeepFooter = True
+        RowCount = 0
+        object Memo6: TfrxMemoView
+          Left = 423.307360000000000000
+          Width = 37.795300000000000000
+          Height = 18.897650000000000000
+          DataField = 'valordevido'
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBDadosMensal."valordevido"]')
+          ParentFont = False
+        end
+      end
+      object Header1: TfrxHeader
+        Height = 718.110700000000000000
+        Left = 3.779530000000000000
+        Vertical = True
+        Width = 249.448980000000000000
+        OnBeforePrint = 'Header1OnBeforePrint'
+      end
+      object MasterData1: TfrxMasterData
+        Height = 718.110700000000000000
+        Left = 415.748300000000000000
+        Vertical = True
+        Width = 56.692950000000000000
+        OnBeforePrint = 'MasterData1OnBeforePrint'
+        DataSet = frxDBMensal
+        DataSetName = 'frxDBMensal'
+        RowCount = 0
+      end
+      object PageHeader1: TfrxPageHeader
+        Height = 56.692950000000000000
+        Top = 18.897650000000000000
+        Width = 1046.929810000000000000
+        OnBeforePrint = 'PageHeader1OnBeforePrint'
+        object fmvRua: TfrxMemoView
+          Left = 132.283550000000000000
+          Top = 3.779530000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[RAZAOFILIALBASE]')
+          ParentFont = False
+        end
+        object fmvBairro: TfrxMemoView
+          Left = 132.283550000000000000
+          Top = 17.007885000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[ENDERECO_BAIRRO]')
+          ParentFont = False
+        end
+        object fmvCidade: TfrxMemoView
+          Left = 132.283550000000000000
+          Top = 30.236240000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[CEP_CIDADE_UF]')
+          ParentFont = False
+        end
+        object fpvLogo: TfrxPictureView
+          Left = 3.779530000000000000
+          Top = 3.779530000000000000
+          Width = 120.944960000000000000
+          Height = 45.354360000000000000
+          Picture.Data = {
+            07544269746D617016110000424D161100000000000036000000280000004800
+            0000140000000100180000000000E0100000C40E0000C40E0000000000000000
+            0000FFFFFFFFFFFFFCFCFCCECDCDFFFFFFE3E3E3CFCFD0FFFFFFF1F1F1CDCDCD
+            FAFAFADDDDDDFFFFFFE4E3E3FFFFFFE4E4E4DBDCDCFFFFFFECECECFBFBFBFCFC
+            FCCECECDF9F9F9FFFFFFB5B5B58D8D8E9E9E9DF8F8F8F4F4F4FAFAFAD0D0D0D3
+            D3D4FEFEFEFFFFFFFFFFFFD7D7D8DBDADAFDFDFDF2F2F2DDDDDDFEFEFEE9E9E9
+            FFFFFFFEFEFECFCFD0CFCFCFFAFAFAF0F0F1FAFAFADADADACECECEEEEEEEFFFF
+            FFE7E7E7ECECECFEFEFED0D0D1E9E9E9F1F1F1FBFBFBE1E1E1FBFBFBF4F4F4FA
+            FAFACFCFCFD4D4D5FFFFFFCECECECECECEFAFAFAFFFFFFFFFFFFFFFFFFFFFFFF
+            A9A8A8D2D2D2DCDCDC999999DFDFDFF7F7F7585859F1F1F1FDFDFD3C3A3AFFFF
+            FF545453ECECEC969696C7C7C7B2B2B2999A9AEBEBEB424140EDEDED414141FA
+            FAF9585757E7E7E7868686D9D9D9C0C0C06F6F6FDDDDDD696969F9F9F9FFFFFF
+            929394D0D0D0E7E7E7EFEFEFB3B3B23E3E3FF9F9F97B7B7AFFFFFFFFFFFFE0E0
+            E0C7C7C68C8C8CAFAEAEDFDFDFECECECD8D7D73F3F3FFEFEFE4C4D4EF9F9F946
+            4646DFDFDFF1F1F1A8A7A7E7E7E7484747DEDEDEBCBCBC545352E1E1E15A5A5A
+            FFFFFFE0E0E0D3D3D37E7D7EFFFFFFFFFFFFFFFFFFFFFFFFABABABE2E2E1DADA
+            DA7A7A79B9B9B9F6F6F668686AFEFEFEFFFFFF3E3D3DFEFEFE565658E8E8E8B0
+            B0AFD8D8D8A5A5A4999A9AEBEBEB403F3EFCFCFB464646F8F8F8616161F2F2F2
+            868686D9D9D9C0C0C0F3F3F3B3B3B3484949FAFAFAFFFFFF8E8F90AAAAA9C9C9
+            C8EFEFEFB7B7B73E4043F1F1F1848485FFFFFFF9F9F94D4D4DC5C5C5F6F6F6B1
+            B0B0DFDFDF4B4B4DC3C3C3E4E4E4FDFDFD555656FEFEFE40403FB9B9B9E1E1E1
+            A8A8A8E6E6E64B4A4ADADADAC0C1C2F2F2F2B3B3B33F3F3FFFFFFF404040C4C4
+            C4F5F5F5FFFFFFFFFFFFFFFFFFFFFFFF7474749C9B9AFFFFFFE2E2E2AFAFB0FE
+            FEFEF0F0F0AEAEADF5F6F6C0BFBEB3B3B2FCFCFCFFFFFFD7D7D8C6C6C6FFFFFF
+            989999EAEBEBFCFCFCAFAFAFF6F6F6FFFFFFEDEDEDB0B0AFE1E1E0F0F0F0E7E7
+            E7D9D9D9AFAEAEDCDDDDFFFFFFFFFFFFFFFFFFC9C9C9C2C2C2FCFCFCB0B0AFB7
+            B7B7B7B6B5FCFCFCFFFFFFFFFFFFD6D7D7AEAEADE7E7E5E0E0E0F2F2F2F2F2F2
+            B0AFAFC2C2C2E6E6E63B3A3ADDDEDEFFFFFFB6B6B6DDDDDDE9E9E9B0AFAFB7B7
+            B7BEBEBEFFFFFFD1D1D1AFAEAEE0E0E0FFFFFFDADADAAFAEAEE1E1E1FFFFFFFF
+            FFFFFFFFFFFFFFFFEAEAEAF8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9E9E9FAFAF9FFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5F5F3DDDAB6ECE9C4ECE9C4FD
+            FDF9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEAEAEAF7F7F7FFFFFFFFFFFFFFFFFFFFFF
+            FFD6D6D6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFEFEFECDCDCEB2B2B1ADAEB0BABCBDFFFFFFFFFFFFFFFFFFF8F8F9CACB
+            CCB3B4B4ADAEB0ADAEB0ADAEB0C6C7C8FFFFFFFFFFFFFFFFFFFEFEFED1D2D3B7
+            B7B7B6B7B8FFFFFFFFFFFFFCFCF6ACA205ADA400ADA400F6F5E5FFFFFFFFFFFF
+            EAE7BFE3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E5E1AEECE9C5FCFC
+            F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFEFDECEBC6E4E0ABECE9C3FDFCF9FF
+            FFFFFFFFFFFFFFFFFFFFFFFEFEFCE6E3B1E6E3B1EDEAC7FFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFF7F6E6E8E7BAE6E3B1E6E3B1FFFFFFFFFFFFF3F3F41B1E231619
+            20171A20171A203F4045FFFFFFFDFDFD8183850F1218161920171A20171A2017
+            1A20171A205C5D61FFFFFFFFFFFF9FA0A10F1218161920171A20313337FFFFFF
+            FFFFFFFCFCF6ACA205ADA400ADA400F6F5E5FFFFFFFFFFFFC2BA43ADA400ADA4
+            00ADA400ADA400ADA400ADA400ADA400ADA400ADA400ABA104F9F8EFFFFFFFFF
+            FFFFFFFEFCCDC869ACA104ADA400ADA400ADA400ACA103C8C156FEFEFBFFFFFF
+            FFFFFFFAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFFFFFFFFC1B944ACA3
+            00ADA400ADA400ADA400FFFFFFFFFFFF838586171A20181B2111151B3C3E4160
+            6265FFFFFF71737616191F181B210F13193034383D3F443D40443D4044797A7B
+            FFFFFFBEBFC113161C181B2114181D1C20244D4F4CEEECCBEEECCBEDEAC7BCB5
+            36BCB635BCB635E5E2B0E8E6BBE8E6BBC8C45ABDB63FBDB63FBDB63FBDB63FBD
+            B63FBDB63FBDB640BBB438ADA400ADA400B9AF26FFFFFFFEFEFDBCB334ADA400
+            ADA400ABA101AEA404ABA101ADA400ADA400B7AE26FEFEFAFFFFFFFAFAEFABA1
+            00ADA400C2BA45FFFFFFFFFFFFFFFFFFF4F1DCACA300ADA400ADA400B0A608B1
+            A811FFFFFFFFFFFF35383C181B2111151AE8E8E8FFFFFFFFFFFFF7F7F70E1217
+            181B211C1F24F8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFDFD1F2227181B
+            2115181EB6B7B9FFFFFFF2EFD4ACA300ADA400AFA409FEFDFAFFFFFFFFFFFFB1
+            A810ADA400ADA400E5E2AFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFB0A611ADA400AEA504FDFDF8D3CD78ACA300ADA400DCD791FFFFFFFFFF
+            FFFFFFFFDFDC9EACA202ADA400CAC35BFFFFFFFAFAEFABA100ADA400C2BA45FF
+            FFFFFFFFFFFFFFFFD4D07BADA400ADA400D3CD77FFFFFFFFFFFFFFFFFFFFFFFF
+            282A2C181B2112151BF0F1F1FFFFFFFFFFFFB6B7B8181B21181B212F32368081
+            857F80857F80857F80857F8085A6A7A8E6E6E613161C181B2124272CFFFFFFFF
+            FFFFF2EFD4ACA300ADA400B0A709FEFDFAFFFFFFFFFFFFB1A810ADA400ADA400
+            E5E2AFFFFFFFFFFFFFFEFEFEFDFDFBFBFAF3FBFAF3F9F9F0E9E6BCADA403ADA4
+            00B0A707FEFDF9ACA202ADA400CDC767FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD4
+            CF7BADA400ABA100FFFFFFFAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFF
+            CEC763ADA400ADA400E4E1ABFFFFFFFFFFFFFFFFFFFFFFFF292C31181B211216
+            1BF1F1F2FFFFFFFFFFFF9A9C9E181B21181B21181B21181B21181B21181B2118
+            1B21181B215D5E62DBDCDC11141A181B21494B4EFFFFFFFFFFFFF3F2DBB9B02A
+            B9B02BBAB230D7D7D7D7D7D7D7D7D7BDB53EBEB53BBEB53BEBE8BEFFFFFFECE9
+            C5ADA307ACA200ADA400ADA400ADA400ADA400ADA400ADA400CCC661FFFFFFAB
+            A100ADA400EEECC9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF6F5E5ACA300ADA400
+            FBFAF2FAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFFCEC762ADA400ADA4
+            00E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF292C31181B2112161BF1F1F2FFFFFFFF
+            FFFFABABAB181B21181B21171A2014171C14171C14171C14171C14171C5C5E62
+            E2E3E313161C181B21373A3EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7171A
+            1F13161B13161BE7E8EAFFFFFFFFFFFFFFFFFFFFFFFEA99E02ADA400ADA400B1
+            A610B3A918B3A919B3A91ABBB32EE5E2AFFFFFFFFFFFFFABA100ADA400E5E1AD
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEDEBCAADA400ABA000FFFFFEFAFAEFABA1
+            00ADA400C2BA45FFFFFFFFFFFFFFFFFFCEC762ADA400ADA400E7E4B5FFFFFFFF
+            FFFFFFFFFFFFFFFF292C31181B2112161BF1F1F2FFFFFFFFFFFFDFDFDF14171D
+            181B213C3E42F1F1F2F0F0F1F0F0F1F0F0F1F0F0F1F5F5F5F8F8F8171A1F181B
+            210C0F15FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7171A1F181B21181B21E7
+            E8E9FFFFFFFFFFFFFFFFFFF3F1D7ADA400ADA400B8B023FEFEFDFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB3AA15ADA400B8B023FEFEFBFFFFFFFFFF
+            FFFFFFFFFFFFFFBCB330ADA400AFA405FFFFFFFAFAEFABA100ADA400C2BA45FF
+            FFFFFFFFFFFFFFFFCEC762ADA400ADA400E7E4B5FFFFFFFFFFFFEEEEEEE8E8E8
+            272A2F181B2113171CDFDFDFE8E8E8ECECECFFFFFF111319181B21171A20ADAE
+            B0E2E2E3E8E8E8E8E8E8E8E8E8EFEFEFFFFFFF4D4F52181B21181B2147494ECF
+            D0D1E3E3E4E4E4E5E4E4E5DEDFDF27292D272B2F272B2FDADADAE6E7E7E6E7E7
+            F5F5F5F5F3E0ADA400ADA400B0A70FF1EFD4F2F0D6F2F0D6F1F0D4F1F0D4F1F0
+            D4F7F5E5FFFFFFF1EFD3ACA202ADA400AEA503DED999EDEAC5E1DEA1B0A70AAD
+            A400ACA300E8E5B7F1EFD4EEEDCCACA200ADA400BFB73BF1EFD4F1EFD4FAF9EE
+            CEC762ADA400ADA400DDD996F1EFD4F1EFD4595B5E15181E181B21181B21181B
+            2115181E15181E3D3E43FFFFFFC7C7C90E1117181B2115191E15181E15181E15
+            181E15181E5B5C5FFFFFFFF0F0F10A0E13181B21181B2115181E15181E15181E
+            15181E16191EFAFAFAFFFFFFFFFFFF25292D15181E15181E9D9EA0FFFFFFABA0
+            00ADA400ADA400ACA300ACA300ACA300ACA300ACA300ACA300CAC55CFFFFFFFF
+            FFFFE4E1ADABA200ADA400ADA400ACA300ADA400ADA400ABA200DEDA99D2CD73
+            ACA300ACA300ADA400ADA400ADA400ACA300ACA300E0DD9ECEC762ADA400ADA4
+            00ADA400ACA300ACA3005A5D6015181D181B21181B21181B2116191E15181D3E
+            4044FFFFFFFFFFFFE0E0E1494C4F212429171A1F15181D15181D15181D5C5F62
+            FFFFFFFFFFFFF0F1F16B6D70282C301B1E2215181D15181D15181D161A1FF9F9
+            F9FFFFFFFFFFFF272B2F181B21181B219E9FA2FFFFFFF9F9EDBEB83DAFA60BAD
+            A403ADA403ADA403ADA403ADA403ADA403CBC55EFFFFFFFFFFFFFFFFFFFAF9EF
+            CDC865B5AB1BAEA406B3AA18CBC562F9F7E9FFFFFFD2CD75AFA605AFA605ADA4
+            00ADA400ADA400AFA605AFA605E0DCA0CEC762ADA400ADA400AEA502AFA605AF
+            A605FDFDFDFCFCFC292C31181B2112161BF0F0F0FCFCFCFDFDFDFFFFFFFFFFFF
+            FFFFFFFFFFFFFEFEFEFCFCFCFCFCFCFCFCFCFCFCFCFDFDFDFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFDFDFDFCFCFCFCFCFCFCFCFCFCFCFCFFFFFFFFFFFFFFFFFF2A
+            2C2F15191E15191EA0A0A0FFFFFFFFFFFFFFFFFFFEFEFDFEFEFCFEFEFCFEFEFC
+            FEFEFCFEFEFCFEFEFCFEFEFDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFE
+            FDFFFFFEFFFFFFFFFFFFFFFFFFFFFEFEFEFEFDFBFBF3ABA100ADA400BEB639FE
+            FEFDFEFEFDFFFFFECEC762ADA400ADA400E6E3B3FEFEFDFEFEFDFFFFFFFFFFFF
+            292C31181B2112161BF1F1F2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFDFDF8AAA000ADA400ADA400C4BC4BC7C152ECE9C1
+            CEC762ADA400ADA400E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF292C31181B211216
+            1BF1F1F2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFBFB740ACA200ADA400ADA400ADA400E2DEA3CEC762ADA400ADA4
+            00E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF67696B5A5C60585A5EF5F5F5FFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFE
+            FCE6E3B1CBC55DC5C34EC5C34EEAE7BEDDD893C5C34EC5C34EEEECCAFFFFFFFF
+            FFFF}
+        end
+        object mmoValorPagina: TfrxMemoView
+          Left = 173.858380000000000000
+          Top = 15.118120000000000000
+          Width = 60.472480000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Page#]')
+          ParentFont = False
+        end
+        object mmoPagina: TfrxMemoView
+          Left = 136.063080000000000000
+          Top = 15.118120000000000000
+          Width = 34.015770000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'P'#195#129'G.:')
+          ParentFont = False
+        end
+        object mmoData: TfrxMemoView
+          Left = 136.063080000000000000
+          Width = 34.015770000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'DATA:')
+          ParentFont = False
+        end
+        object mmoOutras: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 192.756030000000000000
+          Top = 34.015770000000000000
+          Width = 56.692950000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[SUBTITULO]')
+          ParentFont = False
+          WordWrap = False
+        end
+        object mmoValorData: TfrxMemoView
+          Left = 173.858380000000000000
+          Width = 60.472480000000000000
+          Height = 11.338582680000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Date]')
+          ParentFont = False
+        end
+        object mmoTitulo: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 196.535486770000000000
+          Width = 52.913420000000000000
+          Height = 30.236240000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[TITULO]')
+          ParentFont = False
+        end
+      end
+      object Memo11: TfrxMemoView
+        Left = 1141.418060000000000000
+        Top = 11.338590000000000000
+        Width = 94.488250000000000000
+        Height = 11.338590000000000000
+        AutoWidth = True
+        DisplayFormat.DecimalSeparator = ','
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -8
+        Font.Name = 'Arial'
+        Font.Style = []
+        Memo.UTF8 = (
+          '[RAZAOFILIALBASE]')
+        ParentFont = False
+      end
+      object ColumnHeader1: TfrxColumnHeader
+        Height = 22.677180000000000000
+        Top = 98.267780000000000000
+        Width = 1046.929810000000000000
+        object Memo3: TfrxMemoView
+          Left = 415.748300000000000000
+          Top = 3.779530000000000000
+          Width = 52.913420000000000000
+          Height = 15.118120000000000000
+          DataSet = frxDBMensal
+          DataSetName = 'frxDBMensal'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Frame.Width = 0.100000000000000000
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBMensal."MesAnoExtenso"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo10: TfrxMemoView
+          Left = 3.779530000000000000
+          Top = 3.779530000000000000
+          Width = 219.212740000000000000
+          Height = 15.118120000000000000
+          DataSet = frxDBMensal
+          DataSetName = 'frxDBMensal'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'EMPREENDIMENTO')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo7: TfrxMemoView
+          Left = 226.771800000000000000
+          Top = 3.779530000000000000
+          Width = 30.236240000000000000
+          Height = 15.118120000000000000
+          DataSet = frxDBMensal
+          DataSetName = 'frxDBMensal'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'DIA')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+      end
+      object GroupHeaderNomeEmpreendimento: TfrxGroupHeader
+        Height = 22.677180000000000000
+        Top = 207.874150000000000000
+        Visible = False
+        Width = 1046.929810000000000000
+        Condition = 'frxDBDadosMensal."nomeempreendimento"'
+      end
+      object GroupFooterDia: TfrxGroupFooter
+        Height = 15.118110240000000000
+        Top = 343.937230000000000000
+        Width = 1046.929810000000000000
+        OnBeforePrint = 'GroupFooterDiaOnBeforePrint'
+        object mmoZebrado: TfrxMemoView
+          Align = baClient
+          Width = 1046.929810000000000000
+          Height = 15.118110240000000000
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          ParentFont = False
+        end
+        object Memo4: TfrxMemoView
+          Left = 215.433210000000000000
+          Width = 34.015770000000000000
+          Height = 11.338582680000000000
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[frxDBDadosMensal."dia"]')
+          ParentFont = False
+          WordWrap = False
+        end
+        object Memo12: TfrxMemoView
+          Left = 415.748300000000000000
+          Width = 52.913420000000000000
+          Height = 11.338582680000000000
+          OnBeforePrint = 'Memo12OnBeforePrint'
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -7
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            
+              '[SUM(IIF(<frxDBDadosMensal."mesvencto_">=<frxDBMensal."anomes">,' +
+              '<frxDBDadosMensal."valordevido">,0),DetailDataDadosMensal,1)]')
+          ParentFont = False
+        end
+      end
+      object GroupHeaderDia: TfrxGroupHeader
+        Height = 22.677180000000000000
+        Top = 253.228510000000000000
+        Visible = False
+        Width = 1046.929810000000000000
+        Condition = 'frxDBDadosMensal."dia"'
+      end
+      object GroupFooterNomeEmpreendimento: TfrxGroupFooter
+        Height = 15.118110240000000000
+        Top = 381.732530000000000000
+        Width = 1046.929810000000000000
+        OnBeforePrint = 'GroupFooterNomeEmpreendimentoOnBeforePrint'
+        object Memo1: TfrxMemoView
+          Left = 7.559060000000000000
+          Width = 37.795300000000000000
+          Height = 11.338582680000000000
+          DataField = 'siglaempreendimento'
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Memo.UTF8 = (
+            '[frxDBDadosMensal."siglaempreendimento"]')
+          ParentFont = False
+        end
+        object Memo2: TfrxMemoView
+          Left = 49.133890000000000000
+          Width = 204.094620000000000000
+          Height = 11.338582680000000000
+          DataField = 'nomeempreendimento'
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Memo.UTF8 = (
+            '[frxDBDadosMensal."nomeempreendimento"]')
+          ParentFont = False
+          WordWrap = False
+        end
+        object Memo5: TfrxMemoView
+          Left = 415.748300000000000000
+          Width = 52.913420000000000000
+          Height = 11.338582680000000000
+          OnBeforePrint = 'Memo5OnBeforePrint'
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -7
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              '[SUM(IIF(<frxDBDadosMensal."mesvencto_">=<frxDBMensal."anomes">,' +
+              '<frxDBDadosMensal."valordevido">,0),DetailDataDadosMensal,1)]')
+          ParentFont = False
+        end
+      end
+      object Footer1: TfrxFooter
+        Height = 22.677180000000000000
+        Top = 419.527830000000000000
+        Width = 1046.929810000000000000
+        object Memo8: TfrxMemoView
+          Left = 415.748300000000000000
+          Top = 7.559060000000000000
+          Width = 52.913420000000000000
+          Height = 11.338590000000000000
+          OnBeforePrint = 'Memo8OnBeforePrint'
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -7
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              '[SUM(IIF(<frxDBDadosMensal."mesvencto_">=<frxDBMensal."anomes">,' +
+              '<frxDBDadosMensal."valordevido">,0),DetailDataDadosMensal,1)]')
+          ParentFont = False
+        end
+        object Memo9: TfrxMemoView
+          Left = 22.677180000000000000
+          Top = 7.559060000000000000
+          Width = 143.622140000000000000
+          Height = 11.338590000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'TOTAL')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+      end
+    end
+  end
+  object qryRelatorioContasaReceberImoveisAgrupamentodia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'pagina=pagina'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrQuebraPagina
+    Constraints = <>
+    BeforeOpen = qryRelatorioContasaReceberImoveisBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereClientes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereEmpreendimentos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaSituacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select *'
+      'from'
+      '('
+      ''
+      
+        'select quebraintervalo(to_char(cast(:DataInicial as date),'#39'yyyy-' +
+        'mm'#39'), mesvencto_) as Pagina,'
+      '       mesvencto_,'
+      
+        '       substring(periodo.mesvencto_ from 6 for 2)||'#39'/'#39'||substrin' +
+        'g(periodo.mesvencto_ from 1 for 4) as mesvencto,'
+      '       generate_series(1, numdias, 1) as dia,'
+      '       cast(null as varchar(60)) as nomeempreendimento,'
+      '       cast(null as varchar(10)) as siglaempreendimento,'
+      '       cast(null as numeric) as ValorContratado,'
+      '       cast(null as numeric) as ValorDevido'
+      'from'
+      '('
+      'select  mesvencto_,'
+      
+        '        cast(num_days(cast(substring(periodo.mesvencto_ from 1 f' +
+        'or 4) as INTEGER),'
+      
+        '                cast(substring(periodo.mesvencto_ from 6 for 2) ' +
+        'as INTEGER))as integer) as numdias'
+      'from'
+      '( select distinct'
+      
+        '   to_char(generate_series(0, (select cast(:DataFinal as date) -' +
+        ' cast(:DataInicial as date))) + cast(:DataInicial as date), '#39'yyy' +
+        'y-mm'#39') as mesvencto_'
+      ' ) as periodo'
+      ') as periodo'
+      ''
+      'union'
+      ''
+      'select vi.*'
+      'from'
+      '('
+      ''
+      
+        'select pagina, mesvencto_, mesvencto, dia, nomeempreendimento, s' +
+        'iglaempreendimento,'
+      '        sum(vi.ValorContratado) as ValorContratado,'
+      '        sum(vi.ValorDevido) as ValorDevido'
+      'from'
+      '('
+      ''
+      
+        'select case when substring(mesvencto_ from 6 for 2) = '#39'00'#39' then ' +
+        'cast(1 as integer)'
+      '            when substring(mesvencto_ from 6 for 2) = '#39'99'#39' then'
+      
+        '         quebraintervalo(to_char(cast(:DataInicial as date),'#39'yyy' +
+        'y-mm'#39'), to_char(cast(:DataFinal as date),'#39'yyyy-mm'#39'))'
+      '        else'
+      
+        '         quebraintervalo(to_char(cast(:DataInicial as date),'#39'yyy' +
+        'y-mm'#39'), mesvencto_)'
+      '       end as Pagina,'
+      ''
+      '       vi.mesvencto_,'
+      '       vi.mesvencto,'
+      '       vi.dia,'
+      '       vi.nomeempreendimento,'
+      '       vi.siglaempreendimento,'
+      #9'     vi.ValorContratado,'
+      #9'     vi.ValorDevido'
+      'from'
+      '('
+      ''
+      'select to_char(pi.datavencto,'#39'YYYY-mm'#39') as mesvencto_,'
+      '       to_char(pi.datavencto,'#39'mm-YYYY'#39') as mesvencto,'
+      '       cast(to_char(pi.datavencto,'#39'dd'#39') as integer) as dia,'
+      '       pi.ValorContratado,'
+      
+        '       (SELECT ValorDevido(pi.Contrato, pi.Tipo, pi.Numero, pi.N' +
+        'rPagto, :DataSituacaoEm)) AS ValorDevido,'
+      
+        '       SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSitu' +
+        'acaoEm as date)) as situacao,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.nome'
+      '       else'
+      '         cast(null as varchar(60))'
+      '       end as nomeempreendimento,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.sigla'
+      '       else'
+      '         cast(null as varchar(10))'
+      '       end as siglaempreendimento'
+      ''
+      'from vendasimoveis vi'
+      '     join empreendimentos em'
+      '     on vi.empreendimento = em.codigo'
+      ''
+      '     join compradores comp'
+      '          join vfornecedores vf'
+      '          on vf.codigo = comp.cliente and'
+      '             vf.tipo = comp.tipocliente'
+      ''
+      '     on comp.contrato = vi.contrato'
+      '     and coalesce(comp.principal,false)'
+      ''
+      '     join parcelasimoveis pi'
+      '     on vi.contrato = pi.contrato'
+      ''
+      ''
+      'where pi.datavencto between :DataInicial and :DataFinal'
+      ' and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      ''
+      ''
+      ' union all'
+      ''
+      ' select'
+      
+        '    cast(extract(year from cast(:DataSituacaoEm as date))||'#39'-00'#39 +
+        ' as char(7)) as mesvencto_,'
+      
+        '    cast('#39'00-'#39'||extract(year from cast(:DataSituacaoEm as date))' +
+        ' as char(7)) as mesvencto,'
+      '    dia,'
+      '    sum(ValorContratado) as ValorContratado,'
+      #9#9'sum(ValorDevido) as ValorDevido,'
+      #9#9'situacao,'
+      #9#9'nomeempreendimento,'
+      #9#9'siglaempreendimento'
+      ' from'
+      ' ('
+      
+        #9'select pi.ValorContratado, cast(to_char(datavencto,'#39'dd'#39') as int' +
+        'eger) as dia,'
+      
+        #9#9'   (SELECT ValorDevido(pi.Contrato, pi.Tipo, pi.Numero, pi.NrP' +
+        'agto, :DataSituacaoEm)) AS ValorDevido,'
+      
+        #9#9'   SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSituac' +
+        'aoEm as date)) as situacao,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.nome'
+      '       else'
+      '         cast(null as varchar(60))'
+      '       end as nomeempreendimento,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.sigla'
+      '       else'
+      '         cast(null as varchar(10))'
+      '       end as siglaempreendimento,'
+      ''
+      ''
+      '       true as anterior,'
+      '       false as avencer'
+      ''
+      #9'from vendasimoveis vi'
+      #9#9' join empreendimentos em'
+      #9#9' on vi.empreendimento = em.codigo'
+      ''
+      #9#9' join compradores comp'
+      #9#9#9'  join vfornecedores vf'
+      #9#9#9'  on vf.codigo = comp.cliente and'
+      #9#9#9#9' vf.tipo = comp.tipocliente'
+      ''
+      #9#9' on comp.contrato = vi.contrato'
+      #9#9' and coalesce(comp.principal,false)'
+      ''
+      #9#9' join parcelasimoveis pi'
+      #9#9' on vi.contrato = pi.contrato'
+      ''
+      ''
+      #9'where pi.datavencto < :DataInicial'
+      #9' and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      ''
+      '  ) as anterior'
+      ''
+      #9'  group by dia, situacao,'
+      #9#9#9'   nomeempreendimento,'
+      #9#9#9'   siglaempreendimento'
+      ''
+      ' union all'
+      ''
+      ' select'
+      
+        '    cast(extract(year from cast(:DataFinal as date))||'#39'-99'#39' as c' +
+        'har(7)) as mesvencto_,'
+      
+        '    cast('#39'99-'#39'||extract(year from cast(:DataFinal as date)) as c' +
+        'har(7)) as mesvencto,'
+      '    dia,'
+      ''
+      '    sum(ValorContratado) as ValorContratado,'
+      #9#9'sum(ValorDevido) as ValorDevido,'
+      #9#9'situacao,'
+      #9#9'nomeempreendimento,'
+      #9#9'siglaempreendimento'
+      ' from'
+      ' ('
+      ''
+      #9'select'
+      ''
+      ''
+      
+        #9#9'   pi.ValorContratado, cast(to_char(datavencto,'#39'dd'#39') as intege' +
+        'r) as dia,'
+      
+        #9#9'   (SELECT ValorDevido(pi.Contrato, pi.Tipo, pi.Numero, pi.NrP' +
+        'agto, :DataSituacaoEm)) AS ValorDevido,'
+      
+        #9#9'   SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSituac' +
+        'aoEm as date)) as situacao,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.nome'
+      '       else'
+      '         cast(null as varchar(60))'
+      '       end as nomeempreendimento,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.sigla'
+      '       else'
+      '         cast(null as varchar(10))'
+      '       end as siglaempreendimento,'
+      ''
+      ''
+      '   '#9'       false as anterior,'
+      #9'       true as avencer'
+      ''
+      #9'from vendasimoveis vi'
+      #9#9' join empreendimentos em'
+      #9#9' on vi.empreendimento = em.codigo'
+      ''
+      #9#9' join compradores comp'
+      #9#9#9'  join vfornecedores vf'
+      #9#9#9'  on vf.codigo = comp.cliente and'
+      #9#9#9#9' vf.tipo = comp.tipocliente'
+      ''
+      #9#9' on comp.contrato = vi.contrato'
+      #9#9' and coalesce(comp.principal,false)'
+      ''
+      #9#9' join parcelasimoveis pi'
+      #9#9' on vi.contrato = pi.contrato'
+      ''
+      ''
+      #9'where pi.datavencto > :DataFinal'
+      #9' and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      '   '
+      '  ) as avencer'
+      ''
+      #9'  group by dia, situacao,'
+      #9#9#9'   nomeempreendimento,'
+      #9#9#9'   siglaempreendimento'
+      ''
+      ') as vi'
+      ' where true'
+      ''
+      ' %ListaSituacao'
+      ')  as vi'
+      ''
+      'group by pagina,'
+      '       vi.nomeempreendimento,'
+      #9'     vi.siglaempreendimento,'
+      '       vi.mesvencto_,'
+      '       vi.mesvencto,'
+      '       vi.dia'
+      ''
+      ''
+      'order by'
+      '       vi.nomeempreendimento,'
+      #9'     vi.siglaempreendimento,'
+      '       vi.dia,'
+      '       vi.mesvencto_,'
+      '       vi.mesvencto'
+      ''
+      ') as vi'
+      ') as selecao'
+      ''
+      'order by'
+      ' nomeempreendimento,'
+      ' siglaempreendimento,'
+      ' dia,'
+      ' mesvencto_,'
+      ' mesvencto'
+      ''
+      ''
+      ''
+      '/*'
+      '  %Ordenacao'
+      '*/')
+    RequestLive = True
+    Left = 584
+    Top = 240
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'2017-02-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'2019-02-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataSituacaoEm'
+        ParamType = ptUnknown
+        Value = #39'2017-11-10'#39
+      end
+      item
+        DataType = ftUnknown
+        Name = 'AgruparEmpreendimento'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryRelatorioContasaReceberImoveisSemAgrupamentodia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'pagina=pagina'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrQuebraPagina
+    Constraints = <>
+    BeforeOpen = qryRelatorioContasaReceberImoveisBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereClientes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereEmpreendimentos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaSituacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      
+        'select pagina, mesvencto_, mesvencto, dia, nomeempreendimento, s' +
+        'iglaempreendimento,'
+      '        sum(vi.ValorContratado) as ValorContratado,'
+      '        sum(vi.ValorDevido) as ValorDevido'
+      'from'
+      '('
+      ''
+      
+        'select case when substring(mesvencto_ from 6 for 2) = '#39'00'#39' then ' +
+        'cast(1 as integer)'
+      '            when substring(mesvencto_ from 6 for 2) = '#39'99'#39' then'
+      
+        '         quebraintervalo(to_char(cast(:DataInicial as date),'#39'yyy' +
+        'y-mm'#39'), to_char(cast(:DataFinal as date),'#39'yyyy-mm'#39'))'
+      '        else'
+      
+        '         quebraintervalo(to_char(cast(:DataInicial as date),'#39'yyy' +
+        'y-mm'#39'), mesvencto_)'
+      '       end as Pagina,'
+      ''
+      '       vi.mesvencto_,'
+      '       vi.mesvencto,'
+      '       vi.dia,'
+      '       vi.nomeempreendimento,'
+      '       vi.siglaempreendimento,'
+      #9'     vi.ValorContratado,'
+      #9'     vi.ValorDevido'
+      'from'
+      '('
+      ''
+      'select to_char(pi.datavencto,'#39'YYYY-mm'#39') as mesvencto_,'
+      '       to_char(pi.datavencto,'#39'mm-YYYY'#39') as mesvencto,'
+      '       cast(to_char(pi.datavencto,'#39'dd'#39') as integer) as dia,'
+      '       pi.ValorContratado,'
+      
+        '       (SELECT ValorDevido(pi.Contrato, pi.Tipo, pi.Numero, pi.N' +
+        'rPagto, :DataSituacaoEm)) AS ValorDevido,'
+      
+        '       SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSitu' +
+        'acaoEm as date)) as situacao,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.nome'
+      '       else'
+      '         cast(null as varchar(60))'
+      '       end as nomeempreendimento,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.sigla'
+      '       else'
+      '         cast(null as varchar(10))'
+      '       end as siglaempreendimento'
+      ''
+      'from vendasimoveis vi'
+      '     join empreendimentos em'
+      '     on vi.empreendimento = em.codigo'
+      ''
+      '     join compradores comp'
+      '          join vfornecedores vf'
+      '          on vf.codigo = comp.cliente and'
+      '             vf.tipo = comp.tipocliente'
+      ''
+      '     on comp.contrato = vi.contrato'
+      '     and coalesce(comp.principal,false)'
+      ''
+      '     join parcelasimoveis pi'
+      '     on vi.contrato = pi.contrato'
+      ''
+      ''
+      'where pi.datavencto between :DataInicial and :DataFinal'
+      ' and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      ''
+      ''
+      ' union all'
+      ''
+      ' select'
+      
+        '    cast(extract(year from cast(:DataSituacaoEm as date))||'#39'-00'#39 +
+        ' as char(7)) as mesvencto_,'
+      
+        '    cast('#39'00-'#39'||extract(year from cast(:DataSituacaoEm as date))' +
+        ' as char(7)) as mesvencto,'
+      '    dia,'
+      '    sum(ValorContratado) as ValorContratado,'
+      #9#9'sum(ValorDevido) as ValorDevido,'
+      #9#9'situacao,'
+      #9#9'nomeempreendimento,'
+      #9#9'siglaempreendimento'
+      ' from'
+      ' ('
+      
+        #9'select pi.ValorContratado, cast(to_char(datavencto,'#39'dd'#39') as int' +
+        'eger) as dia,'
+      
+        #9#9'   (SELECT ValorDevido(pi.Contrato, pi.Tipo, pi.Numero, pi.NrP' +
+        'agto, :DataSituacaoEm)) AS ValorDevido,'
+      
+        #9#9'   SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSituac' +
+        'aoEm as date)) as situacao,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.nome'
+      '       else'
+      '         cast(null as varchar(60))'
+      '       end as nomeempreendimento,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.sigla'
+      '       else'
+      '         cast(null as varchar(10))'
+      '       end as siglaempreendimento,'
+      ''
+      ''
+      '       true as anterior,'
+      '       false as avencer'
+      ''
+      #9'from vendasimoveis vi'
+      #9#9' join empreendimentos em'
+      #9#9' on vi.empreendimento = em.codigo'
+      ''
+      #9#9' join compradores comp'
+      #9#9#9'  join vfornecedores vf'
+      #9#9#9'  on vf.codigo = comp.cliente and'
+      #9#9#9#9' vf.tipo = comp.tipocliente'
+      ''
+      #9#9' on comp.contrato = vi.contrato'
+      #9#9' and coalesce(comp.principal,false)'
+      ''
+      #9#9' join parcelasimoveis pi'
+      #9#9' on vi.contrato = pi.contrato'
+      ''
+      ''
+      #9'where pi.datavencto < :DataInicial'
+      #9' and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      ''
+      '  ) as anterior'
+      ''
+      #9'  group by dia, situacao,'
+      #9#9#9'   nomeempreendimento,'
+      #9#9#9'   siglaempreendimento'
+      ''
+      ' union all'
+      ''
+      ' select'
+      
+        '    cast(extract(year from cast(:DataFinal as date))||'#39'-99'#39' as c' +
+        'har(7)) as mesvencto_,'
+      
+        '    cast('#39'99-'#39'||extract(year from cast(:DataFinal as date)) as c' +
+        'har(7)) as mesvencto,'
+      '    dia,'
+      ''
+      '    sum(ValorContratado) as ValorContratado,'
+      #9#9'sum(ValorDevido) as ValorDevido,'
+      #9#9'situacao,'
+      #9#9'nomeempreendimento,'
+      #9#9'siglaempreendimento'
+      ' from'
+      ' ('
+      ''
+      #9'select'
+      ''
+      ''
+      
+        #9#9'   pi.ValorContratado, cast(to_char(datavencto,'#39'dd'#39') as intege' +
+        'r) as dia,'
+      
+        #9#9'   (SELECT ValorDevido(pi.Contrato, pi.Tipo, pi.Numero, pi.NrP' +
+        'agto, :DataSituacaoEm)) AS ValorDevido,'
+      
+        #9#9'   SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSituac' +
+        'aoEm as date)) as situacao,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.nome'
+      '       else'
+      '         cast(null as varchar(60))'
+      '       end as nomeempreendimento,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.sigla'
+      '       else'
+      '         cast(null as varchar(10))'
+      '       end as siglaempreendimento,'
+      ''
+      ''
+      '   '#9'       false as anterior,'
+      #9'       true as avencer'
+      ''
+      #9'from vendasimoveis vi'
+      #9#9' join empreendimentos em'
+      #9#9' on vi.empreendimento = em.codigo'
+      ''
+      #9#9' join compradores comp'
+      #9#9#9'  join vfornecedores vf'
+      #9#9#9'  on vf.codigo = comp.cliente and'
+      #9#9#9#9' vf.tipo = comp.tipocliente'
+      ''
+      #9#9' on comp.contrato = vi.contrato'
+      #9#9' and coalesce(comp.principal,false)'
+      ''
+      #9#9' join parcelasimoveis pi'
+      #9#9' on vi.contrato = pi.contrato'
+      ''
+      ''
+      #9'where pi.datavencto > :DataFinal'
+      #9' and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      '   '
+      '  ) as avencer'
+      ''
+      #9'  group by dia, situacao,'
+      #9#9#9'   nomeempreendimento,'
+      #9#9#9'   siglaempreendimento'
+      ''
+      ') as vi'
+      ' where true'
+      ''
+      ' %ListaSituacao'
+      ')  as vi'
+      ''
+      'group by pagina,'
+      '       vi.nomeempreendimento,'
+      #9'     vi.siglaempreendimento,'
+      '       vi.mesvencto_,'
+      '       vi.mesvencto,'
+      '       vi.dia'
+      ''
+      ''
+      'order by'
+      '       vi.nomeempreendimento,'
+      #9'     vi.siglaempreendimento,'
+      '       vi.dia,'
+      '       vi.mesvencto_,'
+      '       vi.mesvencto'
+      ''
+      ''
+      '/*'
+      '  %Ordenacao'
+      '*/')
+    RequestLive = True
+    Left = 584
+    Top = 296
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'2017-02-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'2019-02-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataSituacaoEm'
+        ParamType = ptUnknown
+        Value = #39'2017-11-10'#39
+      end
+      item
+        DataType = ftUnknown
+        Name = 'AgruparEmpreendimento'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryRelatorioContasaReceberImoveisVencto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'quebra=quebra'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrQuebraPaginaDiario
+    Constraints = <>
+    BeforeOpen = qryRelatorioContasaReceberImoveisVenctoBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereClientes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'WhereEmpreendimentos'
+        ParamType = ptUnknown
+        Value = 'and vi.empreendimento = 65'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaSituacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select dias.quebra, vi.*'
+      'from'
+      '('
+      'select contrato, cliente, nomecliente, datavencto,'
+      '       sum(ValorDevido) as ValorDevido,'
+      '       situacao, nomeempreendimento,'
+      '       siglaempreendimento,'
+      '       empreendimento'
+      'from       '
+      '('
+      'select vi.contrato,'
+      '       comp.cliente,'
+      '       vf.nome as nomecliente,'
+      '       pi.datavencto,'
+      
+        '       (SELECT ValorDevido(pi.Contrato, pi.Tipo, pi.Numero, pi.N' +
+        'rPagto, :DataSituacaoEm)) AS ValorDevido,'
+      
+        '       SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSitu' +
+        'acaoEm as date)) as situacao,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.nome'
+      '       else'
+      '         cast(null as varchar(60))'
+      '       end as nomeempreendimento,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     em.sigla'
+      '       else'
+      '         cast(null as varchar(10))'
+      '       end as siglaempreendimento,'
+      ''
+      '       case when :AgruparEmpreendimento then'
+      '  '#9'     vi.empreendimento'
+      '       else'
+      '         cast(null as integer)'
+      '       end as empreendimento'
+      ''
+      ''
+      'from vendasimoveis vi'
+      '     join empreendimentos em'
+      '     on vi.empreendimento = em.codigo'
+      ''
+      '     join compradores comp'
+      '          join vfornecedores vf'
+      '          on vf.codigo = comp.cliente and'
+      '             vf.tipo = comp.tipocliente'
+      ''
+      '     on comp.contrato = vi.contrato'
+      '     and coalesce(comp.principal,false)'
+      ''
+      '     join parcelasimoveis pi'
+      '     on vi.contrato = pi.contrato'
+      ''
+      ''
+      'where pi.datavencto between :DataInicial and :DataFinal'
+      ' and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      ''
+      ') as vi'
+      'where true'
+      '  %ListaSituacao'
+      ''
+      '  group by'
+      ''
+      '       contrato, cliente, nomecliente, datavencto,'
+      '       situacao, nomeempreendimento,'
+      '       siglaempreendimento,'
+      '       empreendimento'
+      ''
+      ')  as vi'
+      ''
+      ''
+      '  join'
+      ''
+      '  ('
+      ''
+      '      select vi.*,'
+      '             case when vi.sequencial<=16 then 1'
+      
+        '                  when (mod(vi.sequencial,16) = 0) then ((vi.seq' +
+        'uencial/16) -  1) + 1'
+      '             else'
+      '                (vi.sequencial/16) + 1'
+      '             end as quebra'
+      '      from'
+      '      ('
+      
+        '      select row_number() over (/*partition by vi.empreendimento' +
+        ' */ order by /*vi.empreendimento,*/ vi.datavencto) as sequencial' +
+        ','
+      '             vi.*'
+      '      from'
+      '      ('
+      '      select distinct vi.datavencto'
+      '      from'
+      '      ('
+      '      select pi.datavencto,'
+      
+        '             SituacaoContratoImoveisNaData(vi.contrato, cast(:Da' +
+        'taSituacaoEm as date)) as situacao'
+      ''
+      '             /* vi.empreendimento */'
+      ''
+      '      from vendasimoveis vi'
+      '           join empreendimentos em'
+      '           on vi.empreendimento = em.codigo'
+      ''
+      '           join compradores comp'
+      '                join vfornecedores vf'
+      '                on vf.codigo = comp.cliente and'
+      '                   vf.tipo = comp.tipocliente'
+      ''
+      '           on comp.contrato = vi.contrato'
+      '           and coalesce(comp.principal,false)'
+      ''
+      '           join parcelasimoveis pi'
+      '           on vi.contrato = pi.contrato'
+      ''
+      ''
+      '      where pi.datavencto between :DataInicial and :DataFinal'
+      
+        '       and (pi.datapagto is NULL or pi.datapagto >= :DataSituaca' +
+        'oEm)'
+      ''
+      '      %WhereClientes'
+      '      %WhereEmpreendimentos'
+      ''
+      ''
+      '      ) as vi'
+      '      where true'
+      '      %ListaSituacao'
+      ''
+      ''
+      '      order by'
+      '             vi.datavencto'
+      ''
+      '      ) as vi'
+      '      )as vi'
+      '        order by quebra, datavencto'
+      ''
+      '  ) as dias'
+      '  on /*vi.empreendimento = dias.empreendimento and*/'
+      '     vi.datavencto = dias.datavencto'
+      ''
+      ''
+      '%Ordenacao'
+      '     '
+      '     /*'
+      '     order by dias.quebra,'
+      '      vi.nomeempreendimento,'
+      '       vi.siglaempreendimento,'
+      '     vi.contrato,'
+      '     vi.datavencto'
+      '     */'
+      '')
+    RequestLive = True
+    Left = 836
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'DataSituacaoEm'
+        ParamType = ptUnknown
+        Value = #39'2017-11-10'#39
+      end
+      item
+        DataType = ftBoolean
+        Name = 'AgruparEmpreendimento'
+        ParamType = ptUnknown
+        Value = 'True'
+      end
+      item
+        DataType = ftString
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'2017-10-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'2017-12-31'#39
+      end>
+    object qryRelatorioContasaReceberImoveisVenctoquebra: TLargeintField
+      FieldName = 'quebra'
+    end
+    object qryRelatorioContasaReceberImoveisVenctocontrato: TIntegerField
+      FieldName = 'contrato'
+    end
+    object qryRelatorioContasaReceberImoveisVenctocliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryRelatorioContasaReceberImoveisVenctonomecliente: TStringField
+      FieldName = 'nomecliente'
+      Size = 45
+    end
+    object qryRelatorioContasaReceberImoveisVenctodatavencto: TDateField
+      Alignment = taCenter
+      FieldName = 'datavencto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRelatorioContasaReceberImoveisVenctovalordevido: TFloatField
+      FieldName = 'valordevido'
+      DisplayFormat = '0.00'
+    end
+    object qryRelatorioContasaReceberImoveisVenctosituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryRelatorioContasaReceberImoveisVenctonomeempreendimento: TStringField
+      FieldName = 'nomeempreendimento'
+      Size = 60
+    end
+    object qryRelatorioContasaReceberImoveisVenctosiglaempreendimento: TStringField
+      FieldName = 'siglaempreendimento'
+      Size = 10
+    end
+    object qryRelatorioContasaReceberImoveisVenctoempreendimento: TIntegerField
+      FieldName = 'empreendimento'
+    end
+  end
+  object frxDBRelatorioContasaReceberImoveisVencto: TfrxDBDataset
+    UserName = 'frxDBRelatorioContasaReceberImoveisVencto'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'quebra=quebra'
+      'contrato=contrato'
+      'cliente=cliente'
+      'nomecliente=nomecliente'
+      'datavencto=datavencto'
+      'valordevido=valordevido'
+      'situacao=situacao'
+      'nomeempreendimento=nomeempreendimento'
+      'siglaempreendimento=siglaempreendimento'
+      'empreendimento=empreendimento')
+    DataSet = qryRelatorioContasaReceberImoveisVencto
+    Left = 848
+    Top = 312
+  end
+  object qryQuebraPaginaDiario: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryMensalCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereClientes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'WhereEmpreendimentos'
+        ParamType = ptUnknown
+        Value = 'and vi.empreendimento = 65'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaSituacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select distinct quebra from'
+      '('
+      'select case when vi.sequencial<=16 then 1'
+      
+        '            when (mod(vi.sequencial,16) = 0) then ((vi.sequencia' +
+        'l/16) -  1) + 1'
+      '       else'
+      '          (vi.sequencial/16) + 1'
+      '       end as quebra  '
+      'from'
+      '('
+      'select row_number() over (order by vi.datavencto) as sequencial,'
+      '       vi.*'
+      'from'
+      '(       '
+      'select distinct vi.datavencto'
+      'from'
+      '('
+      'select pi.datavencto,'
+      
+        '       SituacaoContratoImoveisNaData(vi.contrato, cast(:DataSitu' +
+        'acaoEm as date)) as situacao'
+      ''
+      'from vendasimoveis vi'
+      '     join empreendimentos em'
+      '     on vi.empreendimento = em.codigo'
+      ''
+      '     join compradores comp'
+      '          join vfornecedores vf'
+      '          on vf.codigo = comp.cliente and'
+      '             vf.tipo = comp.tipocliente'
+      ''
+      '     on comp.contrato = vi.contrato'
+      '     and coalesce(comp.principal,false)'
+      ''
+      '     join parcelasimoveis pi'
+      '     on vi.contrato = pi.contrato'
+      ''
+      ''
+      'where pi.datavencto between :DataInicial and :DataFinal'
+      ' and (pi.datapagto is NULL or pi.datapagto >= :DataSituacaoEm)'
+      ''
+      '  %WhereClientes'
+      '  %WhereEmpreendimentos'
+      ''
+      ''
+      ''
+      ') as vi'
+      'where true'
+      '    %ListaSituacao'
+      ''
+      'order by vi.datavencto'
+      ''
+      ') as vi'
+      ')as vi'
+      ') as vi order by quebra')
+    RequestLive = True
+    Left = 888
+    Top = 112
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'DataSituacaoEm'
+        ParamType = ptUnknown
+        Value = #39'2017-11-21'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'2017-10-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'2017-12-31'#39
+      end>
+    object qryQuebraPaginaDiarioquebra: TLargeintField
+      FieldName = 'quebra'
+    end
+  end
+  object dsrQuebraPaginaDiario: TtecDataSource
+    DataSet = qryQuebraPaginaDiario
+    Left = 928
+    Top = 128
+  end
+  object frxDBDiario: TfrxDBDataset
+    UserName = 'frxDBDiario'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'datavencto=datavencto'
+      'quebra=quebra')
+    DataSet = qryDiario
+    Left = 1024
+    Top = 224
+  end
+  object frxDBQuebraPaginaDiario: TfrxDBDataset
+    UserName = 'frxDBQuebraPaginaDiario'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'quebra=quebra')
+    DataSet = qryQuebraPaginaDiario
+    Left = 1016
+    Top = 288
+  end
+  object dsrRelatorioContasaReceberImoveisVencto: TtecDataSource
+    DataSet = qryRelatorioContasaReceberImoveisVencto
+    Left = 896
+    Top = 208
+  end
+  object frxRelatorioContasaReceberImoveisVencto: TfrxReport
+    Version = '4.0.11'
+    DataSet = frxDBRelatorioContasaReceberImoveisVencto_
+    DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto_'
+    DotMatrixReport = False
+    EngineOptions.DoublePass = True
+    EngineOptions.PrintIfEmpty = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.AllowEdit = False
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 2.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 42340.700718275490000000
+    ReportOptions.LastChange = 43062.663198969900000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'var'
+      ' vZebrar, vZebrar2 : boolean;'
+      ' vTotalCol,  vTotalPeriodo,  vTotalEmp : Real;'
+      ''
+      'procedure GroupFooter3OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      ''
+      'procedure Memo33OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Memo33OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Memo21OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo11OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo12OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo52OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo54OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure MasterData1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure MasterData2OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Page1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      
+        '  GroupHeaderNomeEmpreendimento.visible := <AgruparEmpreendiment' +
+        'o>;'
+      
+        '  GroupFooterEmpreendimento.visible := GroupHeaderNomeEmpreendim' +
+        'ento.visible;'
+      ''
+      'end;'
+      ''
+      'procedure Memo5OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo6OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Header1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      
+        'procedure GroupFooterNomeEmpreendimentoOnBeforePrint(Sender: Tfr' +
+        'xComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure PageHeader1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '  mmoData.left := 950;'
+      '  mmoPagina.left := 950;'
+      '  mmoValorData.left := 980;'
+      '  mmoValorPagina.left := 980;'
+      ''
+      '  mmoTitulo.left := 387;'
+      '  mmoTitulo.width := 500;'
+      '  mmoOutras.left := 550;'
+      'end;'
+      ''
+      'procedure GroupFooterDiaOnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      ''
+      'end;'
+      ''
+      'procedure Memo8OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '//  Memo5.visible := <frxDBMensal."MesAnoExtenso"><>'#39#39
+      'end;'
+      ''
+      'procedure Memo4OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      
+        '//  vTotalCol := vTotalCol + SUM((IIF(<frxDBRelatorioContasaRece' +
+        'berImoveisVencto."datavencto">=<frxDBDiario."datavencto">,<frxDB' +
+        'RelatorioContasaReceberImoveisVencto."valordevido">,0)),DetailDa' +
+        'ta1,1);'
+      'end;'
+      ''
+      'procedure Memo1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      
+        '    vTotalCol := vTotalCol + IIF(<frxDBRelatorioContasaReceberIm' +
+        'oveisVencto."datavencto">=<frxDBDiario."datavencto">,<frxDBRelat' +
+        'orioContasaReceberImoveisVencto."valordevido">,0);'
+      'end;'
+      ''
+      'procedure Page1OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Memo18OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      '  vTotalEmp := vTotalEmp + vTotalCol;'
+      '  vTotalPeriodo := vTotalPeriodo + vTotalCol;'
+      '  vTotalCol := 0.00;'
+      'end;'
+      ''
+      'procedure Memo6OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      '  vTotalEmp := 0.00;'
+      'end;'
+      ''
+      'procedure Memo7OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      '  vTotalPeriodo := 0.00;'
+      'end;'
+      ''
+      'procedure GroupFooter2OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '  if vZebrar then'
+      '  begin'
+      '    if <CordoZebrado> <> null then'
+      '      mmoZebrado.color := <CordoZebrado>;'
+      '    vZebrar := false;'
+      '    vZebrar2 := true;'
+      '  end'
+      '  else'
+      '  begin'
+      '    mmoZebrado.color := clwhite;'
+      '    vZebrar := true;'
+      '  end;'
+      'end;'
+      ''
+      'begin'
+      '  vTotalCol := 0.00;'
+      '  vTotalEmp := 0.00;'
+      '  vTotalPeriodo := 0.00;'
+      ''
+      'end.')
+    OnGetValue = frxRelatorioContasaReceberImoveisGetValue
+    Left = 832
+    Top = 256
+    Datasets = <
+      item
+        DataSet = frxDBDiario
+        DataSetName = 'frxDBDiario'
+      end
+      item
+        DataSet = frxDBQuebraPaginaDiario
+        DataSetName = 'frxDBQuebraPaginaDiario'
+      end
+      item
+        DataSet = frxDBRelatorioContasaReceberImoveisVencto
+        DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+      end>
+    Variables = <
+      item
+        Name = ' Relatorio'
+        Value = Null
+      end
+      item
+        Name = 'ENDERECO_BAIRRO'
+        Value = Null
+      end
+      item
+        Name = 'RAZAOFILIALBASE'
+        Value = Null
+      end
+      item
+        Name = 'CEP_CIDADE_UF'
+        Value = Null
+      end
+      item
+        Name = 'TITULO'
+        Value = #39'PLANILHA PARA REVERS'#195'O AVP ENTRE'#39
+      end
+      item
+        Name = 'SUBTITULO'
+        Value = Null
+      end
+      item
+        Name = 'OUTRAS'
+        Value = #39'FILIAIS: 1,2,3,4,5,6,7,8,9,10 '#39
+      end
+      item
+        Name = 'DATA'
+        Value = Null
+      end
+      item
+        Name = 'CordoZebrado'
+        Value = Null
+      end
+      item
+        Name = 'AgruparGrupoFilial'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparFilial'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparFornecedor'
+        Value = Null
+      end
+      item
+        Name = 'AgruparLocalizacao'
+        Value = Null
+      end
+      item
+        Name = 'AgruparClasseProduto'
+        Value = Null
+      end
+      item
+        Name = 'AgruparGrupoProduto'
+        Value = Null
+      end
+      item
+        Name = 'DATASITUACAO'
+        Value = #39'30/04/2015'#39
+      end
+      item
+        Name = 'QuebrarPaginaporCliente'
+        Value = 'False'
+      end
+      item
+        Name = 'Ordenacao'
+        Value = Null
+      end
+      item
+        Name = 'AgrupamentoMensal'
+        Value = Null
+      end>
+    Style = <>
+    object Data: TfrxDataPage
+      Height = 1000.000000000000000000
+      Width = 1000.000000000000000000
+    end
+    object Page1: TfrxReportPage
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Style = []
+      Orientation = poLandscape
+      PaperWidth = 297.000000000000000000
+      PaperHeight = 210.000000000000000000
+      PaperSize = 200
+      LeftMargin = 10.000000000000000000
+      RightMargin = 10.000000000000000000
+      TopMargin = 10.000000000000000000
+      BottomMargin = 10.000000000000000000
+      OnAfterPrint = 'Page1OnAfterPrint'
+      OnBeforePrint = 'Page1OnBeforePrint'
+      object Memo11: TfrxMemoView
+        Left = 1141.418060000000000000
+        Top = 11.338590000000000000
+        Width = 94.488250000000000000
+        Height = 11.338590000000000000
+        AutoWidth = True
+        DisplayFormat.DecimalSeparator = ','
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'Arial'
+        Font.Style = []
+        Memo.UTF8 = (
+          '[RAZAOFILIALBASE]')
+        ParentFont = False
+      end
+      object MasterData1: TfrxMasterData
+        Top = 192.756030000000000000
+        Width = 1046.929810000000000000
+        DataSet = frxDBQuebraPaginaDiario
+        DataSetName = 'frxDBQuebraPaginaDiario'
+        RowCount = 0
+        StartNewPage = True
+      end
+      object GroupHeaderNomeEmpreendimento: TfrxGroupHeader
+        Height = 18.897650000000000000
+        Top = 215.433210000000000000
+        Width = 1046.929810000000000000
+        Condition = 'frxDBRelatorioContasaReceberImoveisVencto."nomeempreendimento"'
+        ReprintOnNewPage = True
+        object Memo25: TfrxMemoView
+          Left = 11.338590000000000000
+          Top = 3.779530000000000000
+          Width = 41.574830000000000000
+          Height = 13.228346460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            
+              '[frxDBRelatorioContasaReceberImoveisVencto."siglaempreendimento"' +
+              ']')
+          ParentFont = False
+          WordWrap = False
+        end
+        object Memo10: TfrxMemoView
+          Left = 52.913420000000000000
+          Top = 3.779530000000000000
+          Width = 204.094620000000000000
+          Height = 13.228346460000000000
+          AutoWidth = True
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveisVencto."nomeempreendimento"]')
+          ParentFont = False
+          WordWrap = False
+        end
+      end
+      object DetailData1: TfrxDetailData
+        Top = 279.685220000000000000
+        Width = 1046.929810000000000000
+        DataSet = frxDBRelatorioContasaReceberImoveisVencto
+        DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+        RowCount = 0
+        object Memo1: TfrxMemoView
+          Left = 347.716760000000000000
+          Width = 34.015770000000000000
+          OnBeforePrint = 'Memo1OnBeforePrint'
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          HideZeros = True
+          Memo.UTF8 = (
+            
+              '[IIF(<frxDBRelatorioContasaReceberImoveisVencto."datavencto">=<f' +
+              'rxDBDiario."datavencto">,<frxDBRelatorioContasaReceberImoveisVen' +
+              'cto."valordevido">,0)]')
+          ParentFont = False
+        end
+      end
+      object GroupFooterEmpreendimento: TfrxGroupFooter
+        Height = 18.897650000000000000
+        Top = 340.157700000000000000
+        Width = 1046.929810000000000000
+        object Memo2: TfrxMemoView
+          Left = 343.937230000000000000
+          Width = 45.354360000000000000
+          Height = 15.118120000000000000
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              '[SUM((IIF(<frxDBRelatorioContasaReceberImoveisVencto."datavencto' +
+              '">=<frxDBDiario."datavencto">,<frxDBRelatorioContasaReceberImove' +
+              'isVencto."valordevido">,0)),DetailData1,1)]')
+          ParentFont = False
+        end
+        object Memo12: TfrxMemoView
+          Left = 11.338590000000000000
+          Width = 245.669450000000000000
+          Height = 15.118110240000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              'TOTAL [frxDBRelatorioContasaReceberImoveisVencto."nomeempreendim' +
+              'ento"]')
+          ParentFont = False
+        end
+        object Memo6: TfrxMemoView
+          Left = 423.307360000000000000
+          Width = 60.472480000000000000
+          Height = 15.118120000000000000
+          OnAfterPrint = 'Memo6OnAfterPrint'
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            '[vTotalEmp]')
+          ParentFont = False
+        end
+      end
+      object MasterData2: TfrxMasterData
+        Height = 718.110700000000000000
+        Left = 343.937230000000000000
+        Vertical = True
+        Width = 46.110236220472400000
+        DataSet = frxDBDiario
+        DataSetName = 'frxDBDiario'
+        RowCount = 0
+      end
+      object Header1: TfrxHeader
+        Height = 34.015770000000000000
+        Top = 136.063080000000000000
+        Width = 1046.929810000000000000
+        ReprintOnNewPage = True
+        object Memo3: TfrxMemoView
+          Left = 343.937230000000000000
+          Top = 3.779530000000000000
+          Width = 46.110236220472400000
+          Height = 26.456710000000000000
+          DataSet = frxDBDiario
+          DataSetName = 'frxDBDiario'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = 'dd/mm/yy'
+          DisplayFormat.Kind = fkDateTime
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[frxDBDiario."datavencto"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo5: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 200.315090000000000000
+          Top = 3.779530000000000000
+          Width = 56.692950000000000000
+          Height = 26.456700240000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'CONTRATO')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo9: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 11.338590000000000000
+          Top = 17.007883780000000000
+          Width = 49.133890000000000000
+          Height = 13.228346460000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'C'#195#8220'DIGO')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo60: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 60.472480000000000000
+          Top = 17.007883780000000000
+          Width = 139.842610000000000000
+          Height = 13.228346460000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'NOME')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo39: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 11.338590000000000000
+          Top = 3.779530000000000000
+          Width = 188.976500000000000000
+          Height = 13.228346460000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'CLIENTE')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo17: TfrxMemoView
+          Left = 423.307360000000000000
+          Top = 3.779530000000000000
+          Width = 60.472480000000000000
+          Height = 26.456710000000000000
+          DataSet = frxDBDiario
+          DataSetName = 'frxDBDiario'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = 'dd/mm/yy'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'TOTAL')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+      end
+      object Header2: TfrxHeader
+        Height = 718.110700000000000000
+        Left = 11.338582680000000000
+        Vertical = True
+        Width = 245.669450000000000000
+      end
+      object Footer1: TfrxFooter
+        Height = 22.677180000000000000
+        Top = 381.732530000000000000
+        Width = 1046.929810000000000000
+        object Memo13: TfrxMemoView
+          Left = 343.937230000000000000
+          Top = 3.779530000000000000
+          Width = 45.354360000000000000
+          Height = 15.118120000000000000
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              '[SUM((IIF(<frxDBRelatorioContasaReceberImoveisVencto."datavencto' +
+              '">=<frxDBDiario."datavencto">,<frxDBRelatorioContasaReceberImove' +
+              'isVencto."valordevido">,0)),DetailData1,1)]')
+          ParentFont = False
+        end
+        object Memo7: TfrxMemoView
+          Left = 423.307360000000000000
+          Top = 3.779530000000000000
+          Width = 60.472480000000000000
+          Height = 15.118120000000000000
+          OnAfterPrint = 'Memo7OnAfterPrint'
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            '[vTotalPeriodo]')
+          ParentFont = False
+        end
+        object Memo19: TfrxMemoView
+          Left = 11.338590000000000000
+          Top = 3.779530000000000000
+          Width = 245.669450000000000000
+          Height = 15.118110240000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'TOTAL PER'#195#141'ODO')
+          ParentFont = False
+        end
+      end
+      object GroupHeader2: TfrxGroupHeader
+        Top = 257.008040000000000000
+        Visible = False
+        Width = 1046.929810000000000000
+        Condition = 'frxDBRelatorioContasaReceberImoveisVencto."contrato"'
+      end
+      object GroupFooter2: TfrxGroupFooter
+        Height = 13.228346460000000000
+        Top = 302.362400000000000000
+        Width = 1046.929810000000000000
+        OnBeforePrint = 'GroupFooter2OnBeforePrint'
+        object mmoZebrado: TfrxMemoView
+          Align = baClient
+          Width = 1046.929810000000000000
+          Height = 13.228346460000000000
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          ParentFont = False
+        end
+        object Memo4: TfrxMemoView
+          Left = 343.937230000000000000
+          Width = 45.354360000000000000
+          Height = 15.118120000000000000
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            
+              '[SUM((IIF(<frxDBRelatorioContasaReceberImoveisVencto."datavencto' +
+              '">=<frxDBDiario."datavencto">,<frxDBRelatorioContasaReceberImove' +
+              'isVencto."valordevido">,0)),DetailData1,1)]')
+          ParentFont = False
+        end
+        object Memo14: TfrxMemoView
+          Left = 230.551330000000000000
+          Width = 26.456710000000000000
+          Height = 9.448816460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveisVencto."contrato"]')
+          ParentFont = False
+        end
+        object Memo15: TfrxMemoView
+          Left = 37.795300000000000000
+          Width = 192.756030000000000000
+          Height = 9.448816460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveisVencto."nomecliente"]')
+          ParentFont = False
+          SuppressRepeated = True
+        end
+        object Memo16: TfrxMemoView
+          Left = 11.338590000000000000
+          Width = 26.456710000000000000
+          Height = 9.448816460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveisVencto."cliente"]')
+          ParentFont = False
+          SuppressRepeated = True
+        end
+        object Memo18: TfrxMemoView
+          Left = 423.307360000000000000
+          Width = 60.472480000000000000
+          Height = 15.118120000000000000
+          OnAfterPrint = 'Memo18OnAfterPrint'
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            '[vTotalCol]')
+          ParentFont = False
+        end
+      end
+      object Footer2: TfrxFooter
+        Height = 718.110700000000000000
+        Left = 423.307360000000000000
+        Vertical = True
+        Width = 60.472480000000000000
+      end
+      object PageHeader1: TfrxPageHeader
+        Height = 56.692950000000000000
+        Top = 18.897650000000000000
+        Width = 1046.929810000000000000
+        OnBeforePrint = 'PageHeader1OnBeforePrint'
+        object fmvRua: TfrxMemoView
+          Left = 132.283550000000000000
+          Top = 3.779530000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[RAZAOFILIALBASE]')
+          ParentFont = False
+        end
+        object fmvBairro: TfrxMemoView
+          Left = 132.283550000000000000
+          Top = 17.007885000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[ENDERECO_BAIRRO]')
+          ParentFont = False
+        end
+        object fmvCidade: TfrxMemoView
+          Left = 132.283550000000000000
+          Top = 30.236240000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[CEP_CIDADE_UF]')
+          ParentFont = False
+        end
+        object fpvLogo: TfrxPictureView
+          Left = 15.118120000000000000
+          Top = 3.779530000000000000
+          Width = 117.165430000000000000
+          Height = 45.354360000000000000
+          Picture.Data = {
+            07544269746D617016110000424D161100000000000036000000280000004800
+            0000140000000100180000000000E0100000C40E0000C40E0000000000000000
+            0000FFFFFFFFFFFFFCFCFCCECDCDFFFFFFE3E3E3CFCFD0FFFFFFF1F1F1CDCDCD
+            FAFAFADDDDDDFFFFFFE4E3E3FFFFFFE4E4E4DBDCDCFFFFFFECECECFBFBFBFCFC
+            FCCECECDF9F9F9FFFFFFB5B5B58D8D8E9E9E9DF8F8F8F4F4F4FAFAFAD0D0D0D3
+            D3D4FEFEFEFFFFFFFFFFFFD7D7D8DBDADAFDFDFDF2F2F2DDDDDDFEFEFEE9E9E9
+            FFFFFFFEFEFECFCFD0CFCFCFFAFAFAF0F0F1FAFAFADADADACECECEEEEEEEFFFF
+            FFE7E7E7ECECECFEFEFED0D0D1E9E9E9F1F1F1FBFBFBE1E1E1FBFBFBF4F4F4FA
+            FAFACFCFCFD4D4D5FFFFFFCECECECECECEFAFAFAFFFFFFFFFFFFFFFFFFFFFFFF
+            A9A8A8D2D2D2DCDCDC999999DFDFDFF7F7F7585859F1F1F1FDFDFD3C3A3AFFFF
+            FF545453ECECEC969696C7C7C7B2B2B2999A9AEBEBEB424140EDEDED414141FA
+            FAF9585757E7E7E7868686D9D9D9C0C0C06F6F6FDDDDDD696969F9F9F9FFFFFF
+            929394D0D0D0E7E7E7EFEFEFB3B3B23E3E3FF9F9F97B7B7AFFFFFFFFFFFFE0E0
+            E0C7C7C68C8C8CAFAEAEDFDFDFECECECD8D7D73F3F3FFEFEFE4C4D4EF9F9F946
+            4646DFDFDFF1F1F1A8A7A7E7E7E7484747DEDEDEBCBCBC545352E1E1E15A5A5A
+            FFFFFFE0E0E0D3D3D37E7D7EFFFFFFFFFFFFFFFFFFFFFFFFABABABE2E2E1DADA
+            DA7A7A79B9B9B9F6F6F668686AFEFEFEFFFFFF3E3D3DFEFEFE565658E8E8E8B0
+            B0AFD8D8D8A5A5A4999A9AEBEBEB403F3EFCFCFB464646F8F8F8616161F2F2F2
+            868686D9D9D9C0C0C0F3F3F3B3B3B3484949FAFAFAFFFFFF8E8F90AAAAA9C9C9
+            C8EFEFEFB7B7B73E4043F1F1F1848485FFFFFFF9F9F94D4D4DC5C5C5F6F6F6B1
+            B0B0DFDFDF4B4B4DC3C3C3E4E4E4FDFDFD555656FEFEFE40403FB9B9B9E1E1E1
+            A8A8A8E6E6E64B4A4ADADADAC0C1C2F2F2F2B3B3B33F3F3FFFFFFF404040C4C4
+            C4F5F5F5FFFFFFFFFFFFFFFFFFFFFFFF7474749C9B9AFFFFFFE2E2E2AFAFB0FE
+            FEFEF0F0F0AEAEADF5F6F6C0BFBEB3B3B2FCFCFCFFFFFFD7D7D8C6C6C6FFFFFF
+            989999EAEBEBFCFCFCAFAFAFF6F6F6FFFFFFEDEDEDB0B0AFE1E1E0F0F0F0E7E7
+            E7D9D9D9AFAEAEDCDDDDFFFFFFFFFFFFFFFFFFC9C9C9C2C2C2FCFCFCB0B0AFB7
+            B7B7B7B6B5FCFCFCFFFFFFFFFFFFD6D7D7AEAEADE7E7E5E0E0E0F2F2F2F2F2F2
+            B0AFAFC2C2C2E6E6E63B3A3ADDDEDEFFFFFFB6B6B6DDDDDDE9E9E9B0AFAFB7B7
+            B7BEBEBEFFFFFFD1D1D1AFAEAEE0E0E0FFFFFFDADADAAFAEAEE1E1E1FFFFFFFF
+            FFFFFFFFFFFFFFFFEAEAEAF8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9E9E9FAFAF9FFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5F5F3DDDAB6ECE9C4ECE9C4FD
+            FDF9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEAEAEAF7F7F7FFFFFFFFFFFFFFFFFFFFFF
+            FFD6D6D6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFEFEFECDCDCEB2B2B1ADAEB0BABCBDFFFFFFFFFFFFFFFFFFF8F8F9CACB
+            CCB3B4B4ADAEB0ADAEB0ADAEB0C6C7C8FFFFFFFFFFFFFFFFFFFEFEFED1D2D3B7
+            B7B7B6B7B8FFFFFFFFFFFFFCFCF6ACA205ADA400ADA400F6F5E5FFFFFFFFFFFF
+            EAE7BFE3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E5E1AEECE9C5FCFC
+            F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFEFDECEBC6E4E0ABECE9C3FDFCF9FF
+            FFFFFFFFFFFFFFFFFFFFFFFEFEFCE6E3B1E6E3B1EDEAC7FFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFF7F6E6E8E7BAE6E3B1E6E3B1FFFFFFFFFFFFF3F3F41B1E231619
+            20171A20171A203F4045FFFFFFFDFDFD8183850F1218161920171A20171A2017
+            1A20171A205C5D61FFFFFFFFFFFF9FA0A10F1218161920171A20313337FFFFFF
+            FFFFFFFCFCF6ACA205ADA400ADA400F6F5E5FFFFFFFFFFFFC2BA43ADA400ADA4
+            00ADA400ADA400ADA400ADA400ADA400ADA400ADA400ABA104F9F8EFFFFFFFFF
+            FFFFFFFEFCCDC869ACA104ADA400ADA400ADA400ACA103C8C156FEFEFBFFFFFF
+            FFFFFFFAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFFFFFFFFC1B944ACA3
+            00ADA400ADA400ADA400FFFFFFFFFFFF838586171A20181B2111151B3C3E4160
+            6265FFFFFF71737616191F181B210F13193034383D3F443D40443D4044797A7B
+            FFFFFFBEBFC113161C181B2114181D1C20244D4F4CEEECCBEEECCBEDEAC7BCB5
+            36BCB635BCB635E5E2B0E8E6BBE8E6BBC8C45ABDB63FBDB63FBDB63FBDB63FBD
+            B63FBDB63FBDB640BBB438ADA400ADA400B9AF26FFFFFFFEFEFDBCB334ADA400
+            ADA400ABA101AEA404ABA101ADA400ADA400B7AE26FEFEFAFFFFFFFAFAEFABA1
+            00ADA400C2BA45FFFFFFFFFFFFFFFFFFF4F1DCACA300ADA400ADA400B0A608B1
+            A811FFFFFFFFFFFF35383C181B2111151AE8E8E8FFFFFFFFFFFFF7F7F70E1217
+            181B211C1F24F8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFDFD1F2227181B
+            2115181EB6B7B9FFFFFFF2EFD4ACA300ADA400AFA409FEFDFAFFFFFFFFFFFFB1
+            A810ADA400ADA400E5E2AFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFB0A611ADA400AEA504FDFDF8D3CD78ACA300ADA400DCD791FFFFFFFFFF
+            FFFFFFFFDFDC9EACA202ADA400CAC35BFFFFFFFAFAEFABA100ADA400C2BA45FF
+            FFFFFFFFFFFFFFFFD4D07BADA400ADA400D3CD77FFFFFFFFFFFFFFFFFFFFFFFF
+            282A2C181B2112151BF0F1F1FFFFFFFFFFFFB6B7B8181B21181B212F32368081
+            857F80857F80857F80857F8085A6A7A8E6E6E613161C181B2124272CFFFFFFFF
+            FFFFF2EFD4ACA300ADA400B0A709FEFDFAFFFFFFFFFFFFB1A810ADA400ADA400
+            E5E2AFFFFFFFFFFFFFFEFEFEFDFDFBFBFAF3FBFAF3F9F9F0E9E6BCADA403ADA4
+            00B0A707FEFDF9ACA202ADA400CDC767FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD4
+            CF7BADA400ABA100FFFFFFFAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFF
+            CEC763ADA400ADA400E4E1ABFFFFFFFFFFFFFFFFFFFFFFFF292C31181B211216
+            1BF1F1F2FFFFFFFFFFFF9A9C9E181B21181B21181B21181B21181B21181B2118
+            1B21181B215D5E62DBDCDC11141A181B21494B4EFFFFFFFFFFFFF3F2DBB9B02A
+            B9B02BBAB230D7D7D7D7D7D7D7D7D7BDB53EBEB53BBEB53BEBE8BEFFFFFFECE9
+            C5ADA307ACA200ADA400ADA400ADA400ADA400ADA400ADA400CCC661FFFFFFAB
+            A100ADA400EEECC9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF6F5E5ACA300ADA400
+            FBFAF2FAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFFCEC762ADA400ADA4
+            00E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF292C31181B2112161BF1F1F2FFFFFFFF
+            FFFFABABAB181B21181B21171A2014171C14171C14171C14171C14171C5C5E62
+            E2E3E313161C181B21373A3EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7171A
+            1F13161B13161BE7E8EAFFFFFFFFFFFFFFFFFFFFFFFEA99E02ADA400ADA400B1
+            A610B3A918B3A919B3A91ABBB32EE5E2AFFFFFFFFFFFFFABA100ADA400E5E1AD
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEDEBCAADA400ABA000FFFFFEFAFAEFABA1
+            00ADA400C2BA45FFFFFFFFFFFFFFFFFFCEC762ADA400ADA400E7E4B5FFFFFFFF
+            FFFFFFFFFFFFFFFF292C31181B2112161BF1F1F2FFFFFFFFFFFFDFDFDF14171D
+            181B213C3E42F1F1F2F0F0F1F0F0F1F0F0F1F0F0F1F5F5F5F8F8F8171A1F181B
+            210C0F15FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7171A1F181B21181B21E7
+            E8E9FFFFFFFFFFFFFFFFFFF3F1D7ADA400ADA400B8B023FEFEFDFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB3AA15ADA400B8B023FEFEFBFFFFFFFFFF
+            FFFFFFFFFFFFFFBCB330ADA400AFA405FFFFFFFAFAEFABA100ADA400C2BA45FF
+            FFFFFFFFFFFFFFFFCEC762ADA400ADA400E7E4B5FFFFFFFFFFFFEEEEEEE8E8E8
+            272A2F181B2113171CDFDFDFE8E8E8ECECECFFFFFF111319181B21171A20ADAE
+            B0E2E2E3E8E8E8E8E8E8E8E8E8EFEFEFFFFFFF4D4F52181B21181B2147494ECF
+            D0D1E3E3E4E4E4E5E4E4E5DEDFDF27292D272B2F272B2FDADADAE6E7E7E6E7E7
+            F5F5F5F5F3E0ADA400ADA400B0A70FF1EFD4F2F0D6F2F0D6F1F0D4F1F0D4F1F0
+            D4F7F5E5FFFFFFF1EFD3ACA202ADA400AEA503DED999EDEAC5E1DEA1B0A70AAD
+            A400ACA300E8E5B7F1EFD4EEEDCCACA200ADA400BFB73BF1EFD4F1EFD4FAF9EE
+            CEC762ADA400ADA400DDD996F1EFD4F1EFD4595B5E15181E181B21181B21181B
+            2115181E15181E3D3E43FFFFFFC7C7C90E1117181B2115191E15181E15181E15
+            181E15181E5B5C5FFFFFFFF0F0F10A0E13181B21181B2115181E15181E15181E
+            15181E16191EFAFAFAFFFFFFFFFFFF25292D15181E15181E9D9EA0FFFFFFABA0
+            00ADA400ADA400ACA300ACA300ACA300ACA300ACA300ACA300CAC55CFFFFFFFF
+            FFFFE4E1ADABA200ADA400ADA400ACA300ADA400ADA400ABA200DEDA99D2CD73
+            ACA300ACA300ADA400ADA400ADA400ACA300ACA300E0DD9ECEC762ADA400ADA4
+            00ADA400ACA300ACA3005A5D6015181D181B21181B21181B2116191E15181D3E
+            4044FFFFFFFFFFFFE0E0E1494C4F212429171A1F15181D15181D15181D5C5F62
+            FFFFFFFFFFFFF0F1F16B6D70282C301B1E2215181D15181D15181D161A1FF9F9
+            F9FFFFFFFFFFFF272B2F181B21181B219E9FA2FFFFFFF9F9EDBEB83DAFA60BAD
+            A403ADA403ADA403ADA403ADA403ADA403CBC55EFFFFFFFFFFFFFFFFFFFAF9EF
+            CDC865B5AB1BAEA406B3AA18CBC562F9F7E9FFFFFFD2CD75AFA605AFA605ADA4
+            00ADA400ADA400AFA605AFA605E0DCA0CEC762ADA400ADA400AEA502AFA605AF
+            A605FDFDFDFCFCFC292C31181B2112161BF0F0F0FCFCFCFDFDFDFFFFFFFFFFFF
+            FFFFFFFFFFFFFEFEFEFCFCFCFCFCFCFCFCFCFCFCFCFDFDFDFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFDFDFDFCFCFCFCFCFCFCFCFCFCFCFCFFFFFFFFFFFFFFFFFF2A
+            2C2F15191E15191EA0A0A0FFFFFFFFFFFFFFFFFFFEFEFDFEFEFCFEFEFCFEFEFC
+            FEFEFCFEFEFCFEFEFCFEFEFDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFE
+            FDFFFFFEFFFFFFFFFFFFFFFFFFFFFEFEFEFEFDFBFBF3ABA100ADA400BEB639FE
+            FEFDFEFEFDFFFFFECEC762ADA400ADA400E6E3B3FEFEFDFEFEFDFFFFFFFFFFFF
+            292C31181B2112161BF1F1F2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFDFDF8AAA000ADA400ADA400C4BC4BC7C152ECE9C1
+            CEC762ADA400ADA400E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF292C31181B211216
+            1BF1F1F2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFBFB740ACA200ADA400ADA400ADA400E2DEA3CEC762ADA400ADA4
+            00E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF67696B5A5C60585A5EF5F5F5FFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFE
+            FCE6E3B1CBC55DC5C34EC5C34EEAE7BEDDD893C5C34EC5C34EEEECCAFFFFFFFF
+            FFFF}
+        end
+        object mmoValorPagina: TfrxMemoView
+          Left = 173.858380000000000000
+          Top = 15.118120000000000000
+          Width = 60.472480000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Page#]')
+          ParentFont = False
+        end
+        object mmoPagina: TfrxMemoView
+          Left = 136.063080000000000000
+          Top = 15.118120000000000000
+          Width = 34.015770000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'P'#195#129'G.:')
+          ParentFont = False
+        end
+        object mmoData: TfrxMemoView
+          Left = 136.063080000000000000
+          Width = 34.015770000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'DATA:')
+          ParentFont = False
+        end
+        object mmoOutras: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 192.756030000000000000
+          Top = 34.015770000000000000
+          Width = 56.692950000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[SUBTITULO]')
+          ParentFont = False
+          WordWrap = False
+        end
+        object mmoValorData: TfrxMemoView
+          Left = 173.858380000000000000
+          Width = 60.472480000000000000
+          Height = 11.338582680000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Date]')
+          ParentFont = False
+        end
+        object mmoTitulo: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 196.535486770000000000
+          Width = 52.913420000000000000
+          Height = 30.236240000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[TITULO]')
+          ParentFont = False
+        end
+      end
+    end
+  end
+  object frxDBRelatorioContasaReceberImoveisVencto_: TfrxDBDataset
+    UserName = 'frxDBRelatorioContasaReceberImoveisVencto_'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'quebra=quebra'
+      'contrato=contrato'
+      'cliente=cliente'
+      'nomecliente=nomecliente'
+      'datavencto=datavencto'
+      'valordevido=valordevido'
+      'situacao=situacao'
+      'nomeempreendimento=nomeempreendimento'
+      'siglaempreendimento=siglaempreendimento'
+      'empreendimento=empreendimento')
+    DataSet = qryRelatorioContasaReceberImoveisVencto
+    Left = 848
+    Top = 360
+  end
+  object frxRelatorioContasaReceberImoveisVencto_: TfrxReport
+    Version = '4.0.11'
+    DataSet = frxDBRelatorioContasaReceberImoveisVencto_
+    DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto_'
+    DotMatrixReport = False
+    EngineOptions.DoublePass = True
+    EngineOptions.PrintIfEmpty = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.AllowEdit = False
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 2.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 42340.700718275490000000
+    ReportOptions.LastChange = 43062.636579745400000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'var'
+      ' vZebrar, vZebrar2 : boolean;'
+      ' vTotalCol,  vTotalPeriodo,  vTotalEmp : Real;'
+      ''
+      'procedure GroupFooter3OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      ''
+      'procedure Memo33OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Memo33OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Memo21OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo11OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo12OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo52OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo54OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure MasterData1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure MasterData2OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Page1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      '  GroupHeaderNomeEmpreendimento.visible := <Ordenacao> = 0;'
+      
+        '  GroupFooterEmpreendimento.visible := GroupHeaderNomeEmpreendim' +
+        'ento.visible;'
+      ''
+      'end;'
+      ''
+      'procedure Memo5OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure Memo6OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Header1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      
+        'procedure GroupFooterNomeEmpreendimentoOnBeforePrint(Sender: Tfr' +
+        'xComponent);'
+      'begin'
+      'end;'
+      ''
+      'procedure PageHeader1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '  mmoData.left := 950;'
+      '  mmoPagina.left := 950;'
+      '  mmoValorData.left := 980;'
+      '  mmoValorPagina.left := 980;'
+      ''
+      '  mmoTitulo.left := 387;'
+      '  mmoTitulo.width := 500;'
+      '  mmoOutras.left := 550;'
+      'end;'
+      ''
+      'procedure GroupFooterDiaOnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      ''
+      'end;'
+      ''
+      'procedure Memo8OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '//  Memo5.visible := <frxDBMensal."MesAnoExtenso"><>'#39#39
+      'end;'
+      ''
+      'procedure Memo4OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      
+        '//  vTotalCol := vTotalCol + SUM((IIF(<frxDBRelatorioContasaRece' +
+        'berImoveisVencto."datavencto">=<frxDBDiario."datavencto">,<frxDB' +
+        'RelatorioContasaReceberImoveisVencto."valordevido">,0)),DetailDa' +
+        'ta1,1);'
+      'end;'
+      ''
+      'procedure Memo1OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      
+        '    vTotalCol := vTotalCol + IIF(<frxDBRelatorioContasaReceberIm' +
+        'oveisVencto."datavencto">=<frxDBDiario."datavencto">,<frxDBRelat' +
+        'orioContasaReceberImoveisVencto."valordevido">,0);'
+      'end;'
+      ''
+      'procedure Page1OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      ''
+      'end;'
+      ''
+      'procedure Memo18OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      '  vTotalEmp := vTotalEmp + vTotalCol;'
+      '  vTotalCol := 0.00;'
+      'end;'
+      ''
+      'procedure Memo6OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      '  vTotalPeriodo := vTotalPeriodo + vTotalEmp;'
+      '  vTotalEmp := 0.00;'
+      'end;'
+      ''
+      'procedure Memo7OnAfterPrint(Sender: TfrxComponent);'
+      'begin'
+      '  vTotalPeriodo := 0.00;'
+      'end;'
+      ''
+      'procedure GroupFooter2OnBeforePrint(Sender: TfrxComponent);'
+      'begin'
+      '  if vZebrar then'
+      '  begin'
+      '    if <CordoZebrado> <> null then'
+      '      mmoZebrado.color := <CordoZebrado>;'
+      '    vZebrar := false;'
+      '    vZebrar2 := true;'
+      '  end'
+      '  else'
+      '  begin'
+      '    mmoZebrado.color := clwhite;'
+      '    vZebrar := true;'
+      '  end;'
+      'end;'
+      ''
+      'begin'
+      '  vTotalCol := 0.00;'
+      '  vTotalEmp := 0.00;'
+      '  vTotalPeriodo := 0.00;'
+      ''
+      'end.')
+    OnGetValue = frxRelatorioContasaReceberImoveisGetValue
+    Left = 1040
+    Top = 448
+    Datasets = <
+      item
+        DataSet = frxDBDiario
+        DataSetName = 'frxDBDiario'
+      end
+      item
+        DataSet = frxDBQuebraPaginaDiario
+        DataSetName = 'frxDBQuebraPaginaDiario'
+      end
+      item
+        DataSet = frxDBRelatorioContasaReceberImoveisVencto
+        DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+      end>
+    Variables = <
+      item
+        Name = ' Relatorio'
+        Value = Null
+      end
+      item
+        Name = 'ENDERECO_BAIRRO'
+        Value = Null
+      end
+      item
+        Name = 'RAZAOFILIALBASE'
+        Value = Null
+      end
+      item
+        Name = 'CEP_CIDADE_UF'
+        Value = Null
+      end
+      item
+        Name = 'TITULO'
+        Value = #39'PLANILHA PARA REVERS'#195'O AVP ENTRE'#39
+      end
+      item
+        Name = 'SUBTITULO'
+        Value = Null
+      end
+      item
+        Name = 'OUTRAS'
+        Value = #39'FILIAIS: 1,2,3,4,5,6,7,8,9,10 '#39
+      end
+      item
+        Name = 'DATA'
+        Value = Null
+      end
+      item
+        Name = 'CordoZebrado'
+        Value = Null
+      end
+      item
+        Name = 'AgruparGrupoFilial'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparFilial'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparFornecedor'
+        Value = Null
+      end
+      item
+        Name = 'AgruparLocalizacao'
+        Value = Null
+      end
+      item
+        Name = 'AgruparClasseProduto'
+        Value = Null
+      end
+      item
+        Name = 'AgruparGrupoProduto'
+        Value = Null
+      end
+      item
+        Name = 'DATASITUACAO'
+        Value = #39'30/04/2015'#39
+      end
+      item
+        Name = 'QuebrarPaginaporCliente'
+        Value = 'False'
+      end
+      item
+        Name = 'Ordenacao'
+        Value = Null
+      end
+      item
+        Name = 'AgrupamentoMensal'
+        Value = Null
+      end>
+    Style = <>
+    object Data: TfrxDataPage
+      Height = 1000.000000000000000000
+      Width = 1000.000000000000000000
+    end
+    object Page1: TfrxReportPage
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Style = []
+      Orientation = poLandscape
+      PaperWidth = 297.000000000000000000
+      PaperHeight = 210.000000000000000000
+      PaperSize = 200
+      LeftMargin = 10.000000000000000000
+      RightMargin = 10.000000000000000000
+      TopMargin = 10.000000000000000000
+      BottomMargin = 10.000000000000000000
+      OnAfterPrint = 'Page1OnAfterPrint'
+      OnBeforePrint = 'Page1OnBeforePrint'
+      object Memo11: TfrxMemoView
+        Left = 1141.418060000000000000
+        Top = 11.338590000000000000
+        Width = 94.488250000000000000
+        Height = 11.338590000000000000
+        AutoWidth = True
+        DisplayFormat.DecimalSeparator = ','
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'Arial'
+        Font.Style = []
+        Memo.UTF8 = (
+          '[RAZAOFILIALBASE]')
+        ParentFont = False
+      end
+      object MasterData1: TfrxMasterData
+        Top = 188.976500000000000000
+        Width = 1046.929810000000000000
+        DataSet = frxDBQuebraPaginaDiario
+        DataSetName = 'frxDBQuebraPaginaDiario'
+        RowCount = 0
+        StartNewPage = True
+      end
+      object GroupHeaderNomeEmpreendimento: TfrxGroupHeader
+        Height = 18.897650000000000000
+        Top = 211.653680000000000000
+        Width = 1046.929810000000000000
+        Condition = 'frxDBRelatorioContasaReceberImoveisVencto."nomeempreendimento"'
+        ReprintOnNewPage = True
+        object Memo25: TfrxMemoView
+          Left = 11.338590000000000000
+          Top = 3.779530000000000000
+          Width = 41.574830000000000000
+          Height = 13.228346460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            
+              '[frxDBRelatorioContasaReceberImoveisVencto."siglaempreendimento"' +
+              ']')
+          ParentFont = False
+          WordWrap = False
+        end
+        object Memo10: TfrxMemoView
+          Left = 52.913420000000000000
+          Top = 3.779530000000000000
+          Width = 204.094620000000000000
+          Height = 13.228346460000000000
+          AutoWidth = True
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveisVencto."nomeempreendimento"]')
+          ParentFont = False
+          WordWrap = False
+        end
+      end
+      object DetailData1: TfrxDetailData
+        Top = 275.905690000000000000
+        Width = 1046.929810000000000000
+        DataSet = frxDBRelatorioContasaReceberImoveisVencto
+        DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+        RowCount = 0
+        object Memo1: TfrxMemoView
+          Left = 347.716760000000000000
+          Width = 34.015770000000000000
+          OnBeforePrint = 'Memo1OnBeforePrint'
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          HideZeros = True
+          Memo.UTF8 = (
+            
+              '[IIF(<frxDBRelatorioContasaReceberImoveisVencto."datavencto">=<f' +
+              'rxDBDiario."datavencto">,<frxDBRelatorioContasaReceberImoveisVen' +
+              'cto."valordevido">,0)]')
+          ParentFont = False
+        end
+      end
+      object GroupFooterEmpreendimento: TfrxGroupFooter
+        Height = 18.897650000000000000
+        Top = 336.378170000000000000
+        Width = 1046.929810000000000000
+        object Memo2: TfrxMemoView
+          Left = 343.937230000000000000
+          Width = 45.354360000000000000
+          Height = 15.118120000000000000
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              '[SUM((IIF(<frxDBRelatorioContasaReceberImoveisVencto."datavencto' +
+              '">=<frxDBDiario."datavencto">,<frxDBRelatorioContasaReceberImove' +
+              'isVencto."valordevido">,0)),DetailData1,1)]')
+          ParentFont = False
+        end
+        object Memo12: TfrxMemoView
+          Left = 11.338590000000000000
+          Width = 245.669450000000000000
+          Height = 15.118110240000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              'TOTAL [frxDBRelatorioContasaReceberImoveisVencto."nomeempreendim' +
+              'ento"]')
+          ParentFont = False
+        end
+        object Memo6: TfrxMemoView
+          Left = 423.307360000000000000
+          Width = 56.692950000000000000
+          Height = 15.118120000000000000
+          OnAfterPrint = 'Memo6OnAfterPrint'
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            '[vTotalEmp]')
+          ParentFont = False
+        end
+      end
+      object MasterData2: TfrxMasterData
+        Height = 718.110700000000000000
+        Left = 343.937230000000000000
+        Vertical = True
+        Width = 46.110236220472400000
+        DataSet = frxDBDiario
+        DataSetName = 'frxDBDiario'
+        RowCount = 0
+      end
+      object Header1: TfrxHeader
+        Height = 30.236240000000000000
+        Top = 136.063080000000000000
+        Width = 1046.929810000000000000
+        ReprintOnNewPage = True
+        object Memo3: TfrxMemoView
+          Left = 343.937230000000000000
+          Top = 3.779530000000000000
+          Width = 46.110236220472400000
+          Height = 26.456710000000000000
+          DataSet = frxDBDiario
+          DataSetName = 'frxDBDiario'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = 'dd/mm/yy'
+          DisplayFormat.Kind = fkDateTime
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[frxDBDiario."datavencto"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo5: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 200.315090000000000000
+          Top = 3.779530000000000000
+          Width = 56.692950000000000000
+          Height = 26.456700240000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'CONTRATO')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo9: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 11.338590000000000000
+          Top = 17.007883780000000000
+          Width = 49.133890000000000000
+          Height = 13.228346460000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'C'#195#8220'DIGO')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo60: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 60.472480000000000000
+          Top = 17.007883780000000000
+          Width = 139.842610000000000000
+          Height = 13.228346460000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'NOME')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo39: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 11.338590000000000000
+          Top = 3.779530000000000000
+          Width = 188.976500000000000000
+          Height = 13.228346460000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'CLIENTE')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo17: TfrxMemoView
+          Left = 423.307360000000000000
+          Top = 3.779530000000000000
+          Width = 60.472480000000000000
+          Height = 26.456710000000000000
+          DataSet = frxDBDiario
+          DataSetName = 'frxDBDiario'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = 'dd/mm/yy'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftLeft, ftRight, ftTop, ftBottom]
+          Frame.Width = 0.100000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'TOTAL')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo8: TfrxMemoView
+          Left = 1005.354980000000000000
+          Top = 3.779530000000000000
+          Width = 41.574830000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Page]')
+          ParentFont = False
+        end
+      end
+      object Header2: TfrxHeader
+        Height = 718.110700000000000000
+        Left = 11.338582680000000000
+        Vertical = True
+        Width = 245.669450000000000000
+      end
+      object Footer1: TfrxFooter
+        Height = 22.677180000000000000
+        Top = 377.953000000000000000
+        Width = 1046.929810000000000000
+        object Memo13: TfrxMemoView
+          Left = 343.937230000000000000
+          Top = 3.779530000000000000
+          Width = 45.354360000000000000
+          Height = 15.118120000000000000
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            
+              '[SUM((IIF(<frxDBRelatorioContasaReceberImoveisVencto."datavencto' +
+              '">=<frxDBDiario."datavencto">,<frxDBRelatorioContasaReceberImove' +
+              'isVencto."valordevido">,0)),DetailData1,1)]')
+          ParentFont = False
+        end
+        object Memo7: TfrxMemoView
+          Left = 423.307360000000000000
+          Top = 3.779530000000000000
+          Width = 56.692950000000000000
+          Height = 15.118120000000000000
+          OnAfterPrint = 'Memo7OnAfterPrint'
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            '[vTotalPeriodo]')
+          ParentFont = False
+        end
+        object Memo19: TfrxMemoView
+          Left = 11.338590000000000000
+          Top = 3.779530000000000000
+          Width = 245.669450000000000000
+          Height = 15.118110240000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'TOTAL PER'#195#141'ODO')
+          ParentFont = False
+        end
+      end
+      object GroupHeader2: TfrxGroupHeader
+        Top = 253.228510000000000000
+        Visible = False
+        Width = 1046.929810000000000000
+        Condition = 'frxDBRelatorioContasaReceberImoveisVencto."contrato"'
+      end
+      object GroupFooter2: TfrxGroupFooter
+        Height = 13.228346460000000000
+        Top = 298.582870000000000000
+        Width = 1046.929810000000000000
+        OnBeforePrint = 'GroupFooter2OnBeforePrint'
+        object mmoZebrado: TfrxMemoView
+          Align = baClient
+          Width = 1046.929810000000000000
+          Height = 13.228346460000000000
+          DataSet = frxDBDadosMensal
+          DataSetName = 'frxDBDadosMensal'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          ParentFont = False
+        end
+        object Memo4: TfrxMemoView
+          Left = 343.937230000000000000
+          Width = 45.354360000000000000
+          Height = 15.118120000000000000
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            
+              '[SUM((IIF(<frxDBRelatorioContasaReceberImoveisVencto."datavencto' +
+              '">=<frxDBDiario."datavencto">,<frxDBRelatorioContasaReceberImove' +
+              'isVencto."valordevido">,0)),DetailData1,1)]')
+          ParentFont = False
+        end
+        object Memo14: TfrxMemoView
+          Left = 230.551330000000000000
+          Width = 26.456710000000000000
+          Height = 9.448816460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveisVencto."contrato"]')
+          ParentFont = False
+        end
+        object Memo15: TfrxMemoView
+          Left = 37.795300000000000000
+          Width = 192.756030000000000000
+          Height = 9.448816460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveisVencto."nomecliente"]')
+          ParentFont = False
+          SuppressRepeated = True
+        end
+        object Memo16: TfrxMemoView
+          Left = 11.338590000000000000
+          Width = 26.456710000000000000
+          Height = 9.448816460000000000
+          DataSet = frxDBRelatorioContasaReceberImoveis
+          DataSetName = 'frxDBRelatorioContasaReceberImoveis'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBRelatorioContasaReceberImoveisVencto."cliente"]')
+          ParentFont = False
+          SuppressRepeated = True
+        end
+        object Memo18: TfrxMemoView
+          Left = 423.307360000000000000
+          Width = 56.692950000000000000
+          Height = 15.118120000000000000
+          OnAfterPrint = 'Memo18OnAfterPrint'
+          DataSet = frxDBRelatorioContasaReceberImoveisVencto
+          DataSetName = 'frxDBRelatorioContasaReceberImoveisVencto'
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2n'
+          DisplayFormat.Kind = fkNumeric
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          HideZeros = True
+          Memo.UTF8 = (
+            '[vTotalCol]')
+          ParentFont = False
+        end
+      end
+      object Footer2: TfrxFooter
+        Height = 718.110700000000000000
+        Left = 423.307360000000000000
+        Vertical = True
+        Width = 60.472480000000000000
+      end
+      object PageHeader1: TfrxPageHeader
+        Height = 56.692950000000000000
+        Top = 18.897650000000000000
+        Width = 1046.929810000000000000
+        OnBeforePrint = 'PageHeader1OnBeforePrint'
+        object fmvRua: TfrxMemoView
+          Left = 132.283550000000000000
+          Top = 3.779530000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[RAZAOFILIALBASE]')
+          ParentFont = False
+        end
+        object fmvBairro: TfrxMemoView
+          Left = 132.283550000000000000
+          Top = 17.007885000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[ENDERECO_BAIRRO]')
+          ParentFont = False
+        end
+        object fmvCidade: TfrxMemoView
+          Left = 132.283550000000000000
+          Top = 30.236240000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[CEP_CIDADE_UF]')
+          ParentFont = False
+        end
+        object fpvLogo: TfrxPictureView
+          Left = 15.118120000000000000
+          Top = 3.779530000000000000
+          Width = 117.165430000000000000
+          Height = 45.354360000000000000
+          Picture.Data = {
+            07544269746D617016110000424D161100000000000036000000280000004800
+            0000140000000100180000000000E0100000C40E0000C40E0000000000000000
+            0000FFFFFFFFFFFFFCFCFCCECDCDFFFFFFE3E3E3CFCFD0FFFFFFF1F1F1CDCDCD
+            FAFAFADDDDDDFFFFFFE4E3E3FFFFFFE4E4E4DBDCDCFFFFFFECECECFBFBFBFCFC
+            FCCECECDF9F9F9FFFFFFB5B5B58D8D8E9E9E9DF8F8F8F4F4F4FAFAFAD0D0D0D3
+            D3D4FEFEFEFFFFFFFFFFFFD7D7D8DBDADAFDFDFDF2F2F2DDDDDDFEFEFEE9E9E9
+            FFFFFFFEFEFECFCFD0CFCFCFFAFAFAF0F0F1FAFAFADADADACECECEEEEEEEFFFF
+            FFE7E7E7ECECECFEFEFED0D0D1E9E9E9F1F1F1FBFBFBE1E1E1FBFBFBF4F4F4FA
+            FAFACFCFCFD4D4D5FFFFFFCECECECECECEFAFAFAFFFFFFFFFFFFFFFFFFFFFFFF
+            A9A8A8D2D2D2DCDCDC999999DFDFDFF7F7F7585859F1F1F1FDFDFD3C3A3AFFFF
+            FF545453ECECEC969696C7C7C7B2B2B2999A9AEBEBEB424140EDEDED414141FA
+            FAF9585757E7E7E7868686D9D9D9C0C0C06F6F6FDDDDDD696969F9F9F9FFFFFF
+            929394D0D0D0E7E7E7EFEFEFB3B3B23E3E3FF9F9F97B7B7AFFFFFFFFFFFFE0E0
+            E0C7C7C68C8C8CAFAEAEDFDFDFECECECD8D7D73F3F3FFEFEFE4C4D4EF9F9F946
+            4646DFDFDFF1F1F1A8A7A7E7E7E7484747DEDEDEBCBCBC545352E1E1E15A5A5A
+            FFFFFFE0E0E0D3D3D37E7D7EFFFFFFFFFFFFFFFFFFFFFFFFABABABE2E2E1DADA
+            DA7A7A79B9B9B9F6F6F668686AFEFEFEFFFFFF3E3D3DFEFEFE565658E8E8E8B0
+            B0AFD8D8D8A5A5A4999A9AEBEBEB403F3EFCFCFB464646F8F8F8616161F2F2F2
+            868686D9D9D9C0C0C0F3F3F3B3B3B3484949FAFAFAFFFFFF8E8F90AAAAA9C9C9
+            C8EFEFEFB7B7B73E4043F1F1F1848485FFFFFFF9F9F94D4D4DC5C5C5F6F6F6B1
+            B0B0DFDFDF4B4B4DC3C3C3E4E4E4FDFDFD555656FEFEFE40403FB9B9B9E1E1E1
+            A8A8A8E6E6E64B4A4ADADADAC0C1C2F2F2F2B3B3B33F3F3FFFFFFF404040C4C4
+            C4F5F5F5FFFFFFFFFFFFFFFFFFFFFFFF7474749C9B9AFFFFFFE2E2E2AFAFB0FE
+            FEFEF0F0F0AEAEADF5F6F6C0BFBEB3B3B2FCFCFCFFFFFFD7D7D8C6C6C6FFFFFF
+            989999EAEBEBFCFCFCAFAFAFF6F6F6FFFFFFEDEDEDB0B0AFE1E1E0F0F0F0E7E7
+            E7D9D9D9AFAEAEDCDDDDFFFFFFFFFFFFFFFFFFC9C9C9C2C2C2FCFCFCB0B0AFB7
+            B7B7B7B6B5FCFCFCFFFFFFFFFFFFD6D7D7AEAEADE7E7E5E0E0E0F2F2F2F2F2F2
+            B0AFAFC2C2C2E6E6E63B3A3ADDDEDEFFFFFFB6B6B6DDDDDDE9E9E9B0AFAFB7B7
+            B7BEBEBEFFFFFFD1D1D1AFAEAEE0E0E0FFFFFFDADADAAFAEAEE1E1E1FFFFFFFF
+            FFFFFFFFFFFFFFFFEAEAEAF8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9E9E9FAFAF9FFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5F5F3DDDAB6ECE9C4ECE9C4FD
+            FDF9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEAEAEAF7F7F7FFFFFFFFFFFFFFFFFFFFFF
+            FFD6D6D6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFEFEFECDCDCEB2B2B1ADAEB0BABCBDFFFFFFFFFFFFFFFFFFF8F8F9CACB
+            CCB3B4B4ADAEB0ADAEB0ADAEB0C6C7C8FFFFFFFFFFFFFFFFFFFEFEFED1D2D3B7
+            B7B7B6B7B8FFFFFFFFFFFFFCFCF6ACA205ADA400ADA400F6F5E5FFFFFFFFFFFF
+            EAE7BFE3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E5E1AEECE9C5FCFC
+            F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFEFDECEBC6E4E0ABECE9C3FDFCF9FF
+            FFFFFFFFFFFFFFFFFFFFFFFEFEFCE6E3B1E6E3B1EDEAC7FFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFF7F6E6E8E7BAE6E3B1E6E3B1FFFFFFFFFFFFF3F3F41B1E231619
+            20171A20171A203F4045FFFFFFFDFDFD8183850F1218161920171A20171A2017
+            1A20171A205C5D61FFFFFFFFFFFF9FA0A10F1218161920171A20313337FFFFFF
+            FFFFFFFCFCF6ACA205ADA400ADA400F6F5E5FFFFFFFFFFFFC2BA43ADA400ADA4
+            00ADA400ADA400ADA400ADA400ADA400ADA400ADA400ABA104F9F8EFFFFFFFFF
+            FFFFFFFEFCCDC869ACA104ADA400ADA400ADA400ACA103C8C156FEFEFBFFFFFF
+            FFFFFFFAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFFFFFFFFC1B944ACA3
+            00ADA400ADA400ADA400FFFFFFFFFFFF838586171A20181B2111151B3C3E4160
+            6265FFFFFF71737616191F181B210F13193034383D3F443D40443D4044797A7B
+            FFFFFFBEBFC113161C181B2114181D1C20244D4F4CEEECCBEEECCBEDEAC7BCB5
+            36BCB635BCB635E5E2B0E8E6BBE8E6BBC8C45ABDB63FBDB63FBDB63FBDB63FBD
+            B63FBDB63FBDB640BBB438ADA400ADA400B9AF26FFFFFFFEFEFDBCB334ADA400
+            ADA400ABA101AEA404ABA101ADA400ADA400B7AE26FEFEFAFFFFFFFAFAEFABA1
+            00ADA400C2BA45FFFFFFFFFFFFFFFFFFF4F1DCACA300ADA400ADA400B0A608B1
+            A811FFFFFFFFFFFF35383C181B2111151AE8E8E8FFFFFFFFFFFFF7F7F70E1217
+            181B211C1F24F8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFDFD1F2227181B
+            2115181EB6B7B9FFFFFFF2EFD4ACA300ADA400AFA409FEFDFAFFFFFFFFFFFFB1
+            A810ADA400ADA400E5E2AFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFB0A611ADA400AEA504FDFDF8D3CD78ACA300ADA400DCD791FFFFFFFFFF
+            FFFFFFFFDFDC9EACA202ADA400CAC35BFFFFFFFAFAEFABA100ADA400C2BA45FF
+            FFFFFFFFFFFFFFFFD4D07BADA400ADA400D3CD77FFFFFFFFFFFFFFFFFFFFFFFF
+            282A2C181B2112151BF0F1F1FFFFFFFFFFFFB6B7B8181B21181B212F32368081
+            857F80857F80857F80857F8085A6A7A8E6E6E613161C181B2124272CFFFFFFFF
+            FFFFF2EFD4ACA300ADA400B0A709FEFDFAFFFFFFFFFFFFB1A810ADA400ADA400
+            E5E2AFFFFFFFFFFFFFFEFEFEFDFDFBFBFAF3FBFAF3F9F9F0E9E6BCADA403ADA4
+            00B0A707FEFDF9ACA202ADA400CDC767FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD4
+            CF7BADA400ABA100FFFFFFFAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFF
+            CEC763ADA400ADA400E4E1ABFFFFFFFFFFFFFFFFFFFFFFFF292C31181B211216
+            1BF1F1F2FFFFFFFFFFFF9A9C9E181B21181B21181B21181B21181B21181B2118
+            1B21181B215D5E62DBDCDC11141A181B21494B4EFFFFFFFFFFFFF3F2DBB9B02A
+            B9B02BBAB230D7D7D7D7D7D7D7D7D7BDB53EBEB53BBEB53BEBE8BEFFFFFFECE9
+            C5ADA307ACA200ADA400ADA400ADA400ADA400ADA400ADA400CCC661FFFFFFAB
+            A100ADA400EEECC9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF6F5E5ACA300ADA400
+            FBFAF2FAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFFCEC762ADA400ADA4
+            00E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF292C31181B2112161BF1F1F2FFFFFFFF
+            FFFFABABAB181B21181B21171A2014171C14171C14171C14171C14171C5C5E62
+            E2E3E313161C181B21373A3EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7171A
+            1F13161B13161BE7E8EAFFFFFFFFFFFFFFFFFFFFFFFEA99E02ADA400ADA400B1
+            A610B3A918B3A919B3A91ABBB32EE5E2AFFFFFFFFFFFFFABA100ADA400E5E1AD
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEDEBCAADA400ABA000FFFFFEFAFAEFABA1
+            00ADA400C2BA45FFFFFFFFFFFFFFFFFFCEC762ADA400ADA400E7E4B5FFFFFFFF
+            FFFFFFFFFFFFFFFF292C31181B2112161BF1F1F2FFFFFFFFFFFFDFDFDF14171D
+            181B213C3E42F1F1F2F0F0F1F0F0F1F0F0F1F0F0F1F5F5F5F8F8F8171A1F181B
+            210C0F15FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7171A1F181B21181B21E7
+            E8E9FFFFFFFFFFFFFFFFFFF3F1D7ADA400ADA400B8B023FEFEFDFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB3AA15ADA400B8B023FEFEFBFFFFFFFFFF
+            FFFFFFFFFFFFFFBCB330ADA400AFA405FFFFFFFAFAEFABA100ADA400C2BA45FF
+            FFFFFFFFFFFFFFFFCEC762ADA400ADA400E7E4B5FFFFFFFFFFFFEEEEEEE8E8E8
+            272A2F181B2113171CDFDFDFE8E8E8ECECECFFFFFF111319181B21171A20ADAE
+            B0E2E2E3E8E8E8E8E8E8E8E8E8EFEFEFFFFFFF4D4F52181B21181B2147494ECF
+            D0D1E3E3E4E4E4E5E4E4E5DEDFDF27292D272B2F272B2FDADADAE6E7E7E6E7E7
+            F5F5F5F5F3E0ADA400ADA400B0A70FF1EFD4F2F0D6F2F0D6F1F0D4F1F0D4F1F0
+            D4F7F5E5FFFFFFF1EFD3ACA202ADA400AEA503DED999EDEAC5E1DEA1B0A70AAD
+            A400ACA300E8E5B7F1EFD4EEEDCCACA200ADA400BFB73BF1EFD4F1EFD4FAF9EE
+            CEC762ADA400ADA400DDD996F1EFD4F1EFD4595B5E15181E181B21181B21181B
+            2115181E15181E3D3E43FFFFFFC7C7C90E1117181B2115191E15181E15181E15
+            181E15181E5B5C5FFFFFFFF0F0F10A0E13181B21181B2115181E15181E15181E
+            15181E16191EFAFAFAFFFFFFFFFFFF25292D15181E15181E9D9EA0FFFFFFABA0
+            00ADA400ADA400ACA300ACA300ACA300ACA300ACA300ACA300CAC55CFFFFFFFF
+            FFFFE4E1ADABA200ADA400ADA400ACA300ADA400ADA400ABA200DEDA99D2CD73
+            ACA300ACA300ADA400ADA400ADA400ACA300ACA300E0DD9ECEC762ADA400ADA4
+            00ADA400ACA300ACA3005A5D6015181D181B21181B21181B2116191E15181D3E
+            4044FFFFFFFFFFFFE0E0E1494C4F212429171A1F15181D15181D15181D5C5F62
+            FFFFFFFFFFFFF0F1F16B6D70282C301B1E2215181D15181D15181D161A1FF9F9
+            F9FFFFFFFFFFFF272B2F181B21181B219E9FA2FFFFFFF9F9EDBEB83DAFA60BAD
+            A403ADA403ADA403ADA403ADA403ADA403CBC55EFFFFFFFFFFFFFFFFFFFAF9EF
+            CDC865B5AB1BAEA406B3AA18CBC562F9F7E9FFFFFFD2CD75AFA605AFA605ADA4
+            00ADA400ADA400AFA605AFA605E0DCA0CEC762ADA400ADA400AEA502AFA605AF
+            A605FDFDFDFCFCFC292C31181B2112161BF0F0F0FCFCFCFDFDFDFFFFFFFFFFFF
+            FFFFFFFFFFFFFEFEFEFCFCFCFCFCFCFCFCFCFCFCFCFDFDFDFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFDFDFDFCFCFCFCFCFCFCFCFCFCFCFCFFFFFFFFFFFFFFFFFF2A
+            2C2F15191E15191EA0A0A0FFFFFFFFFFFFFFFFFFFEFEFDFEFEFCFEFEFCFEFEFC
+            FEFEFCFEFEFCFEFEFCFEFEFDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFE
+            FDFFFFFEFFFFFFFFFFFFFFFFFFFFFEFEFEFEFDFBFBF3ABA100ADA400BEB639FE
+            FEFDFEFEFDFFFFFECEC762ADA400ADA400E6E3B3FEFEFDFEFEFDFFFFFFFFFFFF
+            292C31181B2112161BF1F1F2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFDFDF8AAA000ADA400ADA400C4BC4BC7C152ECE9C1
+            CEC762ADA400ADA400E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF292C31181B211216
+            1BF1F1F2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFBFB740ACA200ADA400ADA400ADA400E2DEA3CEC762ADA400ADA4
+            00E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF67696B5A5C60585A5EF5F5F5FFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFE
+            FCE6E3B1CBC55DC5C34EC5C34EEAE7BEDDD893C5C34EC5C34EEEECCAFFFFFFFF
+            FFFF}
+        end
+        object mmoValorPagina: TfrxMemoView
+          Left = 173.858380000000000000
+          Top = 15.118120000000000000
+          Width = 60.472480000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Page#]')
+          ParentFont = False
+        end
+        object mmoPagina: TfrxMemoView
+          Left = 136.063080000000000000
+          Top = 15.118120000000000000
+          Width = 34.015770000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'P'#195#129'G.:')
+          ParentFont = False
+        end
+        object mmoData: TfrxMemoView
+          Left = 136.063080000000000000
+          Width = 34.015770000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'DATA:')
+          ParentFont = False
+        end
+        object mmoOutras: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 192.756030000000000000
+          Top = 34.015770000000000000
+          Width = 56.692950000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[SUBTITULO]')
+          ParentFont = False
+          WordWrap = False
+        end
+        object mmoValorData: TfrxMemoView
+          Left = 173.858380000000000000
+          Width = 60.472480000000000000
+          Height = 11.338582680000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -8
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Date]')
+          ParentFont = False
+        end
+        object mmoTitulo: TfrxMemoView
+          ShiftMode = smDontShift
+          Left = 196.535486770000000000
+          Width = 52.913420000000000000
+          Height = 30.236240000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[TITULO]')
+          ParentFont = False
+        end
+      end
+    end
+  end
+  object frxXLSExport1: TfrxXLSExport
+    UseFileCache = True
+    ShowProgress = True
+    AsText = False
+    Background = True
+    FastExport = True
+    PageBreaks = True
+    EmptyLines = True
+    SuppressPageHeadersFooters = False
+    Left = 1272
+    Top = 296
+  end
+  object frxMailExport1: TfrxMailExport
+    UseFileCache = True
+    ShowProgress = True
+    ShowExportDialog = True
+    SmtpPort = 25
+    UseIniFile = True
+    Left = 1264
+    Top = 200
+  end
+  object frxTXTExport1: TfrxTXTExport
+    UseFileCache = True
+    ShowProgress = True
+    ScaleWidth = 1.000000000000000000
+    ScaleHeight = 1.000000000000000000
+    Borders = False
+    Pseudogrpahic = False
+    PageBreaks = True
+    OEMCodepage = False
+    EmptyLines = False
+    LeadSpaces = False
+    PrintAfter = False
+    PrinterDialog = True
+    UseSavedProps = True
+    Left = 1184
+    Top = 112
+  end
+  object frxODSExport1: TfrxODSExport
+    UseFileCache = True
+    ShowProgress = True
+    Background = True
+    Creator = 'FastReport'
+    EmptyLines = True
+    SuppressPageHeadersFooters = False
+    Left = 1264
+    Top = 144
+  end
+  object frxODTExport1: TfrxODTExport
+    UseFileCache = True
+    ShowProgress = True
+    Background = True
+    Creator = 'FastReport'
+    EmptyLines = True
+    SuppressPageHeadersFooters = False
+    Left = 1184
+    Top = 264
+  end
+  object frxPDFExport1: TfrxPDFExport
+    UseFileCache = True
+    ShowProgress = True
+    PrintOptimized = False
+    Outline = False
+    Author = 'FastReport'
+    Subject = 'FastReport PDF export'
+    Background = False
+    Creator = 'FastReport (http://www.fast-report.com)'
+    HTMLTags = True
+    Left = 1184
+    Top = 216
+  end
+  object frxHTMLExport1: TfrxHTMLExport
+    UseFileCache = True
+    ShowProgress = True
+    FixedWidth = True
+    Background = False
+    Centered = False
+    EmptyLines = True
+    Left = 1264
+    Top = 16
+  end
+  object frxRTFExport1: TfrxRTFExport
+    UseFileCache = True
+    ShowProgress = True
+    Wysiwyg = True
+    Creator = 'FastReport http://www.fast-report.com'
+    SuppressPageHeadersFooters = False
+    HeaderFooterMode = hfText
+    Left = 1272
+    Top = 248
+  end
+  object frxBMPExport1: TfrxBMPExport
+    UseFileCache = True
+    ShowProgress = True
+    Left = 1264
+    Top = 96
+  end
+  object frxTIFFExport1: TfrxTIFFExport
+    UseFileCache = True
+    ShowProgress = True
+    Left = 1184
+    Top = 168
+  end
+  object frxGIFExport1: TfrxGIFExport
+    UseFileCache = True
+    ShowProgress = True
+    Left = 1168
+    Top = 56
+  end
+  object frxSimpleTextExport1: TfrxSimpleTextExport
+    UseFileCache = True
+    ShowProgress = True
+    Frames = False
+    EmptyLines = False
+    OEMCodepage = False
+    Left = 1176
+    Top = 8
+  end
+  object frxCSVExport1: TfrxCSVExport
+    UseFileCache = True
+    ShowProgress = True
+    Separator = ';'
+    OEMCodepage = False
+    Left = 1264
+    Top = 48
+  end
+  object frxJPEGExport1: TfrxJPEGExport
+    UseFileCache = True
+    ShowProgress = True
+    Left = 1224
+    Top = 368
+  end
+  object frxXMLExport1: TfrxXMLExport
+    UseFileCache = True
+    ShowProgress = True
+    Background = True
+    Creator = 'FastReport'
+    EmptyLines = True
+    SuppressPageHeadersFooters = False
+    Left = 1272
+    Top = 352
+  end
+end

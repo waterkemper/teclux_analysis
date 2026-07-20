@@ -1,0 +1,78 @@
+unit dmimprimedav;
+
+interface
+
+uses
+  SysUtils, Classes, fr_class, dmbasico, fr_dset, fr_dbset, fmpreviewpadrao, cpquery,
+  DB, biblio, ZQuery, ZPgSqlQuery, ZTransact;
+
+type
+  TdtmImprimeDAV = class(TdtmBasico)
+    frpDAV: TfrReport;
+    fdsServicosOrcamentos: TfrDBDataSet;
+    fdsOrcamentos: TfrDBDataSet;
+    fdsProdutosOrcamentos: TfrDBDataSet;
+    qryOrcamentos: TtecQuery;
+    qryProdutosOrcamentos: TtecQuery;
+    qryServicosOrcamentos: TtecQuery;
+    qryOrcamentosnome: TStringField;
+    qryOrcamentospessoatipo: TStringField;
+    qryOrcamentospessoanumero: TStringField;
+    qryProdutosOrcamentosproduto: TLargeintField;
+    qryProdutosOrcamentosfilial: TIntegerField;
+    qryProdutosOrcamentosnumero: TIntegerField;
+    qryProdutosOrcamentosquantidade: TFloatField;
+    qryProdutosOrcamentosprecovenda: TFloatField;
+    qryProdutosOrcamentosdescricao: TStringField;
+    qryServicosOrcamentosservico: TIntegerField;
+    qryServicosOrcamentosdescricaoservico: TStringField;
+    qryServicosOrcamentosquantidade: TIntegerField;
+    qryServicosOrcamentosaliquotaissqn: TFloatField;
+    qryServicosOrcamentosvalorservico: TFloatField;
+    qryOrcamentoscodigo: TIntegerField;
+    qryProdutosOrcamentosorcamento: TIntegerField;
+    qryServicosOrcamentosorcamento: TIntegerField;
+  private
+    { Private declarations }
+  public
+    procedure Imprimir(Orcamento: String);
+    { Public declarations }
+  end;
+
+var
+  dtmImprimeDAV: TdtmImprimeDAV;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmImprimeDAV }
+
+procedure TdtmImprimeDAV.Imprimir(Orcamento: String);
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  ReFazConsulta(qryOrcamentos,         [0], [Orcamento]);
+  ReFazConsulta(qryProdutosorcamentos, [0], [Orcamento]);
+  ReFazConsulta(qryServicosorcamentos, [0], [Orcamento]);
+
+  AtribuirParametrosBaseRelatorio;
+  frVariables['PRODUTOS']        := not qryProdutosOrcamentos.IsEmpty;
+  frVariables['SERVICOS']        := not qryServicosOrcamentos.IsEmpty;
+//  frpDAV.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self.owner);
+  frmPreview.cmbZoom.ItemIndex := 3;
+  try
+    Relatorio := frmPreview.frCompositeReport;
+    frmPreview.frCompositeReport.Reports.Clear;
+    frmPreview.frCompositeReport.Reports.Add(frpDAV);
+    Relatorio.Preview := frmPreview.frPreviewPadrao;
+    Relatorio.ShowReport;
+    frmPreview.ShowModal;
+  finally
+    frmPreview.Free;
+  end;
+end;
+
+end.

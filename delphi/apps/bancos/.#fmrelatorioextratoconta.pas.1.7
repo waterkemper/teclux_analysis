@@ -1,0 +1,255 @@
+unit fmrelatorioextratoconta;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmrelatoriopadrao, frlercontacorrentesaldo, ExtCtrls, Buttons,
+  //projeto
+  dmrelatorioextratoconta, StdCtrls, cpdata, cpdbradiogroup, Mask,
+  cpdbfindcontrols, DBCtrls, cpdbtext, ctconstantes, biblio, clparametrossistema,
+  fmconsultabasica, fmconsultaporcampo, zquery, cpeditioncontrolvalidation,
+  ToolWin, ComCtrls, frconsultacontabil, frconsultacodigocontabil;
+
+type
+  TfrmRelatorioExtratoConta = class(TFrmRelatorioPadrao)
+    fraLerContaCorrenteSaldo1: TfraLerContaCorrenteSaldo;
+    gbxTipo: TGroupBox;
+    ckbCreditos: TCheckBox;
+    ckbDebitos: TCheckBox;
+    gbxPeriodo: TGroupBox;
+    edtDataFinal: TEditData;
+    edtDataInicial: TEditData;
+    rgpOrdenacao: TtecDBRadioGroup;
+    rbnLancamento: TtecRadioButton;
+    rbnCompensacao: TtecRadioButton;
+    rgpDocumento: TtecDBRadioGroup;
+    rbnSoPrimeiraLinha: TtecRadioButton;
+    rbnTodasLinhas: TtecRadioButton;
+    ecvValida: TtecEditionControlValidation;
+    lblA: TLabel;
+    gbxEventos: TGroupBox;
+    fraConsultaEvento: TfraConsultaCodigoContabil;
+    procedure ckbCreditosClick(Sender: TObject);
+    procedure ckbDebitosClick(Sender: TObject);
+    procedure fraLerContaCorrenteSaldo1sbnProcurarContaClick(
+      Sender: TObject);
+    procedure fraLerContaCorrenteSaldo1edfContaExit(Sender: TObject);
+    procedure FormLoaded(Sender: TObject);
+  private
+    { Private declarations }
+    procedure CondicoesdaConsultaEvento;
+  protected
+     function  InternoPesquisar(Titulo:String): Integer; override;
+     function  JanelaPesquisa: TfrmConsultaBasica; override;
+     function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+     function  TabelaDePesquisa: TZDataSet; override;
+     procedure InternoImpressao; override;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); Override;
+    destructor  Destroy; override;
+    function  ValidarCamposSelecao: Boolean;
+  end;
+
+var
+  frmRelatorioExtratoConta: TfrmRelatorioExtratoConta;
+  TipoPesquisa: TtecMovtosBancos;
+  ControleValido       : TWinControl;
+  
+
+implementation
+
+uses DateUtils;
+
+{$R *.dfm}
+
+procedure TfrmRelatorioExtratoConta.ckbCreditosClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbCreditos.Checked then
+    ckbDebitos.Checked := true;
+end;
+
+procedure TfrmRelatorioExtratoConta.ckbDebitosClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbDebitos.Checked then
+    ckbCreditos.Checked := true;
+end;
+
+constructor TfrmRelatorioExtratoConta.Create(AOwner: TComponent);
+var Dia: Integer;
+begin
+  dtmRelatorioExtratoConta:= TdtmRelatorioExtratoConta.Create(Self);
+  inherited;
+                          {Até o 3º dia  do mês,  sugerimos o 1º}
+                          {dia do mês anterior como DataInicial,}
+                          {senão, o do mês atual                }
+  Dia:= StrToInt(Copy(DateToStr(DataLocal),1,2));
+  if Dia <= 3
+  then edtDataInicial.Text:= DateToStr(PrimeiroDiaMesPassado(1))
+  else edtDataInicial.Text:= DateToStr(PrimeiroDiaMesPassado(0));
+  edtDataInicial.Minimo:= DaysBetween(DataLocal, StrToDate('01/01/1990'));
+
+  if StrToDate(edtDataInicial.Text) < ParSistema.BancoDataInicial
+  then edtDataInicial.Text:= DateToStr(ParSistema.BancoDataInicial);
+
+                                   {Hoje é sugerido para DataFinal}
+   edtDataFinal.Text:= DateToStr(DataLocal);
+   if StrToDate(edtDataInicial.Text) > ParSistema.BancoDataFinal
+   then edtDataInicial.Text:= DateToStr(ParSistema.BancoDataFinal);
+   edtDataFinal.Minimo:= edtDataInicial.Minimo;
+
+  fraConsultaEvento.TipoPesquisa  := pesEVENTO;
+  fraConsultaEvento.CondicoesdaConsulta := CondicoesdaConsultaEvento;
+
+
+end;
+
+destructor TfrmRelatorioExtratoConta.Destroy;
+begin
+  inherited;
+
+end;
+
+function TfrmRelatorioExtratoConta.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+   case TipoPesquisa of
+      tmbCONTAS:  Result:= dtmRelatorioExtratoConta.ExisteConta (NomeCampo, Value);
+      else        Result:= False;
+   end;
+end;
+
+function TfrmRelatorioExtratoConta.InternoPesquisar(
+  Titulo: String): Integer;
+begin
+   Result:= mrOK;
+   if CtrlOn then
+   begin
+           if ActiveControl = fraLerContaCorrenteSaldo1.edfConta        then TipoPesquisa:= tmbCONTAS
+      else TipoPesquisa:= tmbNENHUM;
+   end;
+
+   if TipoPesquisa <> tmbNENHUM then begin
+      dtmRelatorioExtratoConta.AbrirTabelas(TipoPesquisa);
+      Result:= inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+         dtmRelatorioExtratoConta.Selecionar(TipoPesquisa);
+      dtmRelatorioExtratoConta.FecharTabelas(TipoPesquisa);
+      if TipoPesquisa = tmbCONTAS then
+        fraLerContaCorrenteSaldo1edfContaExit(self);
+   end;
+end;
+
+function TfrmRelatorioExtratoConta.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False
+end;
+
+function TfrmRelatorioExtratoConta.TabelaDePesquisa: TZDataSet;
+begin
+   case TipoPesquisa of
+      tmbCONTAS:  Result:= dtmRelatorioExtratoConta.TabelaConsultaContas;
+      else        Result:= nil;
+   end;
+end;
+
+procedure TfrmRelatorioExtratoConta.fraLerContaCorrenteSaldo1sbnProcurarContaClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(fraLerContaCorrenteSaldo1.edfConta,ctCONTAS);
+end;
+
+procedure TfrmRelatorioExtratoConta.InternoImpressao;
+begin
+  inherited;
+  if ValidarCamposSelecao then
+  begin
+    with dtmRelatorioExtratoConta do
+    begin
+      ParametroConta  := fraLerContaCorrenteSaldo1.edfConta.Text;
+      ParametroEvento := fraConsultaEvento.edfCodigo.Text;
+      ParametroDebito := ckbDebitos.Checked;
+      ParametroCredito := ckbCreditos.Checked;
+      ParametroDataInicial := edtDataInicial.Text;
+      ParametroDataFinal := edtDataFinal.Text;
+      ParametroOrdenacao := rgpOrdenacao.ItemIndex;
+      ParametroDocumento := rgpDocumento.ItemIndex;
+      ImprimirExtratoConta;
+    end;
+  end;  
+end;
+
+function TfrmRelatorioExtratoConta.ValidarCamposSelecao: Boolean;
+begin
+   Result:= ecvValida.Verify(pnlFundoJanela, ControleValido);
+   if result then
+   begin
+     Result := (edtDataInicial.DataValida and edtDataFinal.DataValida);
+     if Result then
+     begin
+      if (not dataembranco(edtDataInicial.text) and not dataembranco(edtDataFinal.text)) then
+        Result:=StrToDate(edtDataInicial.Text) <= StrToDate(edtDataFinal.Text);
+      if result then
+      begin
+        Result:=(not dataembranco(edtDataInicial.text) or not dataembranco(edtDataFinal.text));
+        if Result then
+          Result := OperadorTernario((Trim(fraLerContaCorrenteSaldo1.edfConta.Text) <> ''), fraLerContaCorrenteSaldo1.edfConta.Exist, True) and
+                    OperadorTernario((Trim(fraconsultaevento.edfCodigo.Text) <> ''), fraconsultaevento.edfCodigo.Exist, True)
+        else
+        begin
+         MensagemAviso(ctDATAINVALIDA);
+         edtDataInicial.SetFocus;
+        end;
+      end
+      else
+      begin
+        MensagemAviso(ctDTINICIALMAIORDTFINAL);
+        edtDataInicial.SetFocus;
+      end;
+     end;
+   end;
+end;
+
+procedure TfrmRelatorioExtratoConta.fraLerContaCorrenteSaldo1edfContaExit(
+  Sender: TObject);
+begin
+  inherited;
+   with dtmRelatorioExtratoConta do begin
+      if ContaEstaDefinida and NumeroContaFoiAlterado then begin
+
+         if qryProcuraContasSaldoLancado.AsCurrency < 0
+         then fraLerContaCorrenteSaldo1.dtxSaldo.Font.Color:= clRed
+         else fraLerContaCorrenteSaldo1.dtxSaldo.Font.Color:= clBlack;
+
+         qryUltimoLancto.ParamByName('Conta').AsString:= qryProcuraContasConta.AsString;
+         UltimaDataLancamento;
+         fraLerContaCorrenteSaldo1.gbxSaldo.Caption:= 'SALDO LANÇADO ATÉ ' + qryUltimoLanctoData.AsString;
+
+      end;
+   end;
+end;
+
+procedure TfrmRelatorioExtratoConta.FormLoaded(Sender: TObject);
+begin
+  inherited;
+  fraLerContaCorrenteSaldo1.edfConta.SetFocus;
+end;
+
+procedure TfrmRelatorioExtratoConta.CondicoesdaConsultaEvento;
+begin
+  fraConsultaEvento.qryConsultaEventos.MacroByName('condicoes').asString :=
+    ' and e.tipo = ''A'' and e.Inativo IS NULL ';
+
+  fraConsultaEvento.qryProcuraEventos.MacroByName('condicoes').asString :=
+    ' and e.tipo = ''A'' and e.Inativo IS NULL ';
+
+
+end;
+
+end.

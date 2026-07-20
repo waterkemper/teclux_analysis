@@ -1,0 +1,954 @@
+unit fmcalculofinanciamento;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, ExtCtrls, DBCtrls, Mask, Buttons, {Qete,} Grids, ActnList,
+  DBGrids, ComCtrls, DB,
+  // Constantes
+  ctconstantes, biblio, clparametrossistema, clusuario,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Componentes
+  cpdbtext, cpdbfindcontrols, cpdata, cpnumero, cpdbgrid, cpquery,
+  cppagecontrol,
+  // Repositorio
+  fmnavcontroles, fmconsultabasica, fmconsultaporcampo, fmajudabt,
+  // Projeto
+  dmcalculofinanciamento, ToolWin;
+
+type
+  TfrmCalculoFinanciamento = class(TfrmAjudaBt)
+    pnlFundoJanela: TPanel;
+    gbxValores: TGroupBox;
+    gbxMercadorias: TGroupBox;
+    gbxFrete: TGroupBox;
+    edtFrete: TEditNumero;
+    gbxSeguro: TGroupBox;
+    edtSeguro: TEditNumero;
+    pgcCalculoFinanciamento: TPageControl;
+    tstPlanoUnico: TTabSheet;
+    tstTodosPlanos: TTabSheet;
+    gbxPlanoUnico: TGroupBox;
+    gbxPlanosSemEntrada: TGroupBox;
+    gbxResumo: TGroupBox;
+    lblValorDesconto: TLabel;
+    lblPercentualValor: TLabel;
+    gbxPlanoPagamento: TGroupBox;
+    sbnProcuraPlanosPagamento: TSpeedButton;
+    edfPlanosPagamento: TtecDbEditFind;
+    dtxDescricaoPlanosPagamento: TtecDBText;
+    dbgCalculoFinanciamento: TtecDBGrid;
+    dbgPlanosSemEntrada: TtecDBGrid;
+    lblValorFinanciado: TLabel;
+    gbxPlanosComEntrada: TGroupBox;
+    dbgPlanosComEntrada: TtecDBGrid;
+    lblValorVista: TLabel;
+    actCalculoFinanciamento: TActionList;
+    aclHabilitarBotoes: TAction;
+    sbnReCalcular: TSpeedButton;
+    sbnSoDesconto: TSpeedButton;
+    sbnAlterar: TSpeedButton;
+    pnlContrato: TPanel;
+    edtMercadorias: TEditNumero;
+    sbnConfirma: TSpeedButton;
+    gbxCreditoTroca: TGroupBox;
+    edtCreditoTroca: TEditNumero;
+    lblValorAcrescimoMensal: TLabel;
+    lblTaxaJurosMensal: TLabel;
+    lblPercMensal: TLabel;
+    lblValorPagarMensal: TLabel;
+    lblTaxaJurosAnual: TLabel;
+    lblPercAnual: TLabel;
+    pnlSubstituicaoTributaria: TPanel;
+    lblValorSubstituicaoTributaria: TLabel;
+    gbxParcelas: TGroupBox;
+    gbxFinanciado: TGroupBox;
+    gbxDesconto: TGroupBox;
+    gbxICMS_ST: TGroupBox;
+    gbxPercentual: TGroupBox;
+    gbxAVista: TGroupBox;
+    gbxTaxaJuros: TGroupBox;
+    gbxTotalPagar: TGroupBox;
+    gbxAcrescimo: TGroupBox;
+    pnlEsconder: TPanel;
+    gbxTaxaMensal: TGroupBox;
+    gbxTaxaAnual: TGroupBox;
+    GroupBox1: TGroupBox;
+    lblValorDescontoItem: TLabel;
+    procedure dbgCalculoFinanciamentoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgPlanosComEntradaDblClick(Sender: TObject);
+    procedure dbgPlanosComEntradaEnter(Sender: TObject);
+    procedure dbgPlanosSemEntradaDblClick(Sender: TObject);
+    procedure dbgPlanosSemEntradaEnter(Sender: TObject);
+    procedure edfPlanosPagamentoEnter(Sender: TObject);
+    procedure edfPlanosPagamentoFound(Found: Boolean);
+    procedure edfPlanosPagamentoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edfPlanosPagamentoMessage(var Msg: String);
+    procedure edtFreteEnter(Sender: TObject);
+    procedure edtFreteKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edtMercadoriasChange(Sender: TObject);
+    procedure edtMercadoriasEnter(Sender: TObject);
+    procedure edtMercadoriasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edtSeguroEnter(Sender: TObject);
+    procedure edtSeguroKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure sbnAlterarClick(Sender: TObject);
+    procedure sbnProcuraPlanosPagamentoClick(Sender: TObject);
+    procedure sbnReCalcularClick(Sender: TObject);
+    procedure sbnSoDescontoClick(Sender: TObject);
+    procedure edtFreteChange(Sender: TObject);
+    procedure edtSeguroChange(Sender: TObject);
+    procedure sbnConfirmaClick(Sender: TObject);
+    procedure aclHabilitarBotoesUpdate(Sender: TObject);
+    procedure dbgCalculoFinanciamentoColExit(Sender: TObject);
+    procedure dbgCalculoFinanciamentoExit(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure edtCreditoTrocaEnter(Sender: TObject);
+    procedure edtCreditoTrocaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtCreditoTrocaChange(Sender: TObject);
+  private
+    FOntecCloseCancelado: TtecProcedure;
+    procedure dbgCalculoFinanciamentoReadOnly(Campo0, Campo2, Campo3, Campo4: Boolean);
+  protected
+    FGravavacaoNecessaria: Boolean;
+    FViaContrato: Boolean;
+    FOntecActivate: TtecContratoCalcFinac;
+    FOntecClose: TtecProcedure;
+    procedure Activate; override;
+    procedure AfterScrollCalculoFinanciamento(Sender : TObject);
+    function  CalcularFinanciamento: Boolean; overload;
+    procedure CalcularFinanciamento(Calcular: Boolean; Plano: Integer;
+                                    Parcelas: TResumosParcelas;
+                                    Grupos, Classes: vstring); overload;
+    procedure DoClose(var Action: TCloseAction); override;
+    procedure ExibirValoresCalculados;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean; Override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure LimparControles;
+    procedure InicializarVariaveis;
+    function  InternoPesquisar(Titulo: string): Integer; override;
+    procedure SetFrete(const Value: Currency);
+    procedure SetMercadorias(const Value: Currency);
+    procedure SetSeguro(const Value: Currency);
+    procedure SetCreditoTroca(const Value: Currency);
+    function  TabelaDePesquisa: TZdataSet; override;
+  public
+    constructor Create(AOwner: TComponent); overload; override;
+    constructor Create(AOwner: TComponent; ValorMercadoriaFixa: Boolean); reintroduce; overload;
+    procedure DefinirValoresCalculo(Calcular: Boolean; mercadoria, frete, seguro,
+                                    DescontoContrato, CreditoTroca, ValorSubstituicaoTributaria: Currency;
+                                    Plano: Integer; DataContrato, EstadoCliente: String;
+                                    Parcelas: TResumosParcelas;
+                                    Grupos, Classes: vString;
+                                    ComDesconto: Boolean; DescontoItens: Real);
+    destructor  Destroy; override;
+    function  ResumosParcelas(var Parcelas: TResumosParcelas; var ValorPrazo, TaxaJuros, Desconto: Real; var Plano: Integer): Boolean;
+    function  CalcularPlanoPadrao(PlanoPadrao: Integer): Boolean;
+    property  OntecActivate: TtecContratoCalcFinac read FOntecActivate write FOntecActivate;
+    property  OntecClose: TtecProcedure read FOntecClose write FOntecClose;
+    property  OntecCloseCancelado: TtecProcedure read FOntecCloseCancelado write FOntecCloseCancelado;
+  end;
+
+var
+  frmCalculoFinanciamento: TfrmCalculoFinanciamento;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmCalculoFinanciamento }
+
+var
+  SoDesconto        : Boolean = True;
+  MercadoriaAnterior,
+  FreteAnterior,
+  SeguroAnterior,
+  CreditoTrocaAnterior{,
+  SubstituicaoTributariaAnterior} : Currency;
+  PlanoAnterior     : String;
+  CampoEditado      : TField;
+
+procedure TfrmCalculoFinanciamento.aclHabilitarBotoesUpdate(Sender: TObject);
+begin
+  inherited;
+  sbnAlterar.Enabled   := dbgCalculoFinanciamento.Columns[0].ReadOnly and
+                          dbgCalculoFinanciamento.Columns[2].ReadOnly and
+                          dbgCalculoFinanciamento.Columns[3].ReadOnly and
+                          dbgCalculoFinanciamento.Columns[4].ReadOnly; //dbgCalculoFinanciamento.ReadOnly;
+  sbnConfirma.Enabled  := FViaContrato;
+end;
+
+procedure TfrmCalculoFinanciamento.Activate;
+var
+  Calcular: Boolean;
+  Mercadorias,
+  Frete,
+  Seguro,
+  Desconto,
+  CreditoTroca,
+  SubstituicaoTributaria: Currency;
+  Plano: Integer;
+  Grupos: vstring;
+  Classes: vString;
+  DataContrato, EstadoCliente: String;
+  Parcelas: TResumosParcelas;
+  ComDesconto: Boolean;
+  DescontoItem: Real;
+begin
+  inherited;
+  if Assigned(OntecActivate) then begin
+    Mercadorias := 0;
+    Frete       := 0;
+    Seguro      := 0;
+    CreditoTroca:= 0;
+    SubstituicaoTributaria:= 0;
+    ComDesconto := True;
+    DescontoItem:= 0;
+    OntecActivate(Calcular, Mercadorias, Frete, Seguro, Desconto, Plano, DataContrato, Parcelas, Grupos, Classes);
+    DefinirValoresCalculo(Calcular, Mercadorias, Frete, Seguro, Desconto, CreditoTroca, SubstituicaoTributaria, Plano, DataContrato, EstadoCliente, Parcelas, Grupos, Classes, ComDesconto, DescontoItem);
+    Parcelas := nil;
+  end
+end;
+
+procedure TfrmCalculoFinanciamento.AfterScrollCalculoFinanciamento(Sender: TObject);
+begin
+  ExibirValoresCalculados
+end;
+
+function TfrmCalculoFinanciamento.CalcularFinanciamento: Boolean;
+begin
+  if ParSistema.CalculoComTodosPlanos then
+    if dtmCalculoFinanciamento.CalcularDescontoZeroDosPLanos then begin
+      dtmCalculoFinanciamento.CalcularValores;
+      ExibirValoresCalculados;
+      Result := True
+    end else begin
+      MensagemAviso(Format(ctSEMPLANOSPARAVALORES, [edtMercadorias.Text]));
+      LimparControles;
+      if edtMercadorias.Enabled then
+        edtMercadorias.SetFocus;
+      Result := False;
+      Close
+    end
+  else begin
+    dtmCalculoFinanciamento.CalcularValores;
+    ExibirValoresCalculados;
+    Result := True
+  end
+end;
+
+procedure TfrmCalculoFinanciamento.CalcularFinanciamento(Calcular: Boolean; Plano: Integer;
+  Parcelas: TResumosParcelas; Grupos, Classes: vstring);
+var
+  TipoCalculo: TtecTipoCalculo;
+begin
+  dbgPlanosSemEntrada.OnEnter := nil;
+  dbgPlanosComEntrada.OnEnter := nil;
+  try
+    TipoCalculo := dtmCalculoFinanciamento.PreencherValores(Calcular, Plano, Parcelas, Grupos, Classes);
+    if TipoCalculo = tcSEMENTRADA then
+      dbgPlanosSemEntrada.SetFocus;
+  finally
+    dbgPlanosSemEntrada.OnEnter := dbgPlanosSemEntradaEnter;
+    dbgPlanosComEntrada.OnEnter := dbgPlanosComEntradaEnter;
+  end
+end;
+
+constructor TfrmCalculoFinanciamento.Create(AOwner: TComponent; ValorMercadoriaFixa: Boolean);
+begin
+  Create(AOwner);
+  edtMercadorias.Enabled := False;
+  edtFrete.Enabled       := False;
+  edtSeguro.Enabled      := False;
+  edtCreditoTroca.Enabled := false;
+  sbnConfirma.Enabled    := True;
+  if ParSistema.CalculoComTodosPlanos then
+    ActiveControl := dbgPlanosComEntrada
+  else begin
+    ActiveControl := edfPlanosPagamento;
+  end;
+  FViaContrato:= True;
+end;
+
+constructor TfrmCalculoFinanciamento.Create(AOwner: TComponent);
+begin
+
+  dtmCalculoFinanciamento:= TdtmCalculoFinanciamento.Create(Self);
+  dtmCalculoFinanciamento.qryPlanosComEntrada.Open;
+  dtmCalculoFinanciamento.qryPlanosSemEntrada.Open;
+
+  inherited Create(AOwner);
+
+
+
+  pnlEsconder.Visible:= not SoDesconto;
+
+  if not ParSistema.CalculoComTodosPlanos then
+       pgcCalculoFinanciamento.ActivePage:= tstPlanoUnico
+  else pgcCalculoFinanciamento.ActivePage:= tstTodosPlanos;
+  dtmCalculoFinanciamento.AfterScrollCalculoFinanciamento:= AfterScrollCalculoFinanciamento;
+  dtmCalculoFinanciamento.DataCalculo := DateToStr(dtmCalculoFinanciamento.DataServidor);
+  InicializarVariaveis;
+  FViaContrato:= False;
+  sbnConfirma.Enabled:= False;
+
+  dbgCalculoFinanciamento.ColumnByName('valorsubstituicao').Visible := ParSistema.CalcularSubstituicaoTributarianoContrato and not parsistema.GerarParcelaSubstituicaoTributaria;
+  dbgCalculoFinanciamento.ColumnByName('valorvenctocomst').Visible := ParSistema.CalcularSubstituicaoTributarianoContrato and not parsistema.GerarParcelaSubstituicaoTributaria;
+  if not (ParSistema.CalcularSubstituicaoTributarianoContrato and not parsistema.GerarParcelaSubstituicaoTributaria) then
+  begin
+    gbxParcelas.Width := gbxParcelas.Width - 64 - 64;
+    gbxResumo.Left := gbxResumo.Left - 64 - 64;
+  end;
+
+end;
+
+procedure TfrmCalculoFinanciamento.dbgCalculoFinanciamentoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if (TeclaEnterOuReturn(Key) or (Key = VK_UP) or (Key = VK_DOWN)) then begin
+    dtmCalculoFinanciamento.PodeReCalcular:= True;
+    dbgCalculoFinanciamento.SetFocus;
+    CampoEditado:= Nil;
+  end
+  else CampoEditado:= dbgCalculoFinanciamento.SelectedField;
+  inherited;
+end;
+
+procedure TfrmCalculoFinanciamento.dbgPlanosComEntradaDblClick(Sender: TObject);
+begin
+  inherited;
+  dbgCalculoFinanciamento.SetFocus;
+end;
+
+procedure TfrmCalculoFinanciamento.dbgPlanosComEntradaEnter(Sender: TObject);
+begin
+  inherited;
+  //dbgCalculoFinanciamento.ReadOnly:= True;
+  dbgCalculoFinanciamentoReadOnly(True, True, True, True);
+  dtmCalculoFinanciamento.TipoCalculo:= tcCOMENTRADA;
+  dtmCalculoFinanciamento.ReFazConsultaPlanoPagamento;
+  dtmCalculoFinanciamento.CalcularValores;
+  ExibirValoresCalculados;
+end;
+
+procedure TfrmCalculoFinanciamento.dbgPlanosSemEntradaDblClick(Sender: TObject);
+begin
+  inherited;
+  dbgCalculoFinanciamento.SetFocus;
+end;
+
+procedure TfrmCalculoFinanciamento.dbgPlanosSemEntradaEnter(Sender: TObject);
+begin
+  inherited;
+  //dbgCalculoFinanciamento.ReadOnly:= True;
+  dbgCalculoFinanciamentoReadOnly(True, True, True, True);
+  dtmCalculoFinanciamento.TipoCalculo:= tcSEMENTRADA;
+  dtmCalculoFinanciamento.ReFazConsultaPlanoPagamento;
+  dtmCalculoFinanciamento.CalcularValores;
+  ExibirValoresCalculados;
+end;
+
+procedure TfrmCalculoFinanciamento.DefinirValoresCalculo(Calcular: Boolean;
+  mercadoria, frete, seguro, DescontoContrato, CreditoTroca, ValorSubstituicaoTributaria: Currency;  Plano: Integer;
+  DataContrato, EstadoCliente: String; Parcelas: TResumosParcelas; Grupos, Classes: vString; ComDesconto: Boolean;
+  DescontoItens: Real);
+var
+  ReCalcular: Boolean;
+  ParcCalc: TResumosParcelas;
+  Prazo, Juros, Desconto: Real;
+  Pl: Integer;
+begin
+  Pl := 0;
+  FGravavacaoNecessaria := (plano <> 0) and Calcular;
+  ReCalcular := dtmCalculoFinanciamento.FiltrarGruposClasses(Grupos, Classes);
+  dtmCalculoFinanciamento.ResumosParcelas(ParcCalc, Prazo, Juros, Desconto, Pl);
+  ReCalcular := ReCalcular or (High(ParcCalc) = -1);
+  ParcCalc := nil;
+  SetMercadorias(Mercadoria);
+  SetFrete(Frete);
+  SetSeguro(Seguro);
+  SetCreditoTroca(CreditoTroca);
+
+  dtmCalculoFinanciamento.ValorMercadoria  := Mercadoria;
+  dtmCalculoFinanciamento.ValorFrete       := Frete;
+  dtmCalculoFinanciamento.ValorSeguro      := Seguro;
+  dtmCalculoFinanciamento.Desconto         := DescontoContrato;
+  dtmCalculoFinanciamento.CreditoTroca     := CreditoTroca;
+  dtmCalculoFinanciamento.DataCalculo      := DataContrato;
+  dtmCalculoFinanciamento.PermiteDesconto  := ComDesconto;
+  dtmCalculoFinanciamento.ValorSubstituicaoTributaria := ValorSubstituicaoTributaria;
+  dtmCalculoFinanciamento.EstadoCliente    := EstadoCliente;
+  dtmCalculoFinanciamento.DescontoItem     := DescontoItens;
+  if ReCalcular or Calcular then begin
+    if (High(Parcelas) = -1) then
+      CalcularFinanciamento
+    else begin
+      MercadoriaAnterior := StrToFloat(edtMercadorias.ValorSemFormatacao);
+      FreteAnterior      := StrToFloat(edtFrete.ValorSemFormatacao);
+      SeguroAnterior     := StrToFloat(edtSeguro.ValorSemFormatacao);
+      CreditoTrocaAnterior := StrToFloat(edtCreditoTroca.ValorSemFormatacao);
+      PlanoAnterior      := IntToStr(Plano);
+//      SubstituicaoTributariaAnterior := ValorSubstituicaoTributaria;
+      CalcularFinanciamento(Calcular, Plano, Parcelas, Grupos, Classes);
+      ExibirValoresCalculados
+    end
+  end
+end;
+
+destructor TfrmCalculoFinanciamento.Destroy;
+begin
+  frmCalculoFinanciamento:= nil;
+//  frmCalculoFinanciamento.Free;
+//  dtmCalculoFinanciamento.Free;
+
+  inherited;
+
+  dtmCalculoFinanciamento := nil;
+
+
+end;
+
+procedure TfrmCalculoFinanciamento.DoClose(var Action: TCloseAction);
+//var
+//  Usuario: TtecUsuarios;
+begin
+  inherited
+(*  if Assigned(OntecClose) then begin
+    with dtmCalculoFinanciamento do begin
+      if ValidaValores then begin
+        if not ValidarDesconto then begin
+          if PermiteDesconto then begin
+            if MensagemConfirmacao(ctAUTORIZARDESCONTOEXTRA) = smbOk then begin
+              Usuario:= TtecUsuarios.Create(dtmTecSoft.Database);
+              try
+                if UsuarioLogin.AnalistaCredito then
+                     Usuario:= ObterAutorizacao(taSENHA)
+                else Usuario:= ObterAutorizacao(taLOGIN, ctAUTORIZACAODESCONTO, ctAUTORIZADO);
+                if Assigned(Usuario) and Usuario.AnalistaCredito then
+                     OntecClose
+                else begin
+                  MensagemAviso(format(ctUSUARIONAOAUTORIZADO,['autorizar o desconto extra.']));
+                  else Action:= caNone;
+                end;
+              finally
+                Usuario.Free;
+              end;
+            end;
+          end;
+        end
+        else OntecClose;
+      end
+      else Action:= caNone;
+    end;
+  end; *)
+end;
+
+procedure TfrmCalculoFinanciamento.edfPlanosPagamentoEnter(Sender: TObject);
+begin
+  inherited;
+  if Trim(edfPlanosPagamento.Text) <> '' then
+    PlanoAnterior := Trim(edfPlanosPagamento.Text)
+end;
+
+procedure TfrmCalculoFinanciamento.edfPlanosPagamentoFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then edfPlanosPagamento.SetFocus;
+end;
+
+procedure TfrmCalculoFinanciamento.edfPlanosPagamentoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if TeclaEnterOuReturn(Key) then
+    if PlanoAnterior <> Trim(edfPlanosPagamento.Text) then begin
+      //dbgCalculoFinanciamento.ReadOnly:= True;
+      dbgCalculoFinanciamentoReadOnly(True, True, True, True);
+      dtmCalculoFinanciamento.CalcularValores;
+      ExibirValoresCalculados;
+      PlanoAnterior:= edfPlanosPagamento.Text;
+  end
+end;
+
+procedure TfrmCalculoFinanciamento.edfPlanosPagamentoMessage(var Msg: String);
+begin
+  inherited;
+  Msg:= 'O plano de pagamento não está cadastrado' + #10#13 +
+        'ou está fora dos limites de validade'     + #10#13 +
+        'ou os limites de compra não se enguadram ao valor das mercadorias' + #10#13 +
+        'ou os grupos e classes do plano não são permitidos para os produtos.';
+end;
+
+procedure TfrmCalculoFinanciamento.edtFreteChange(Sender: TObject);
+begin
+  inherited;
+  if Trim(edtFrete.Text) <> '' then
+       dtmCalculoFinanciamento.ValorFrete:= StrToFloat(Trocar(edtFrete.Text,'.',''))
+  else dtmCalculoFinanciamento.ValorFrete:= 0;
+end;
+
+procedure TfrmCalculoFinanciamento.edtFreteEnter(Sender: TObject);
+begin
+  inherited;
+  if Trim(edtFrete.Text) <> '' then
+    FreteAnterior:= StrToFloat(Trocar(edtFrete.Text,'.',''))
+  else
+    FreteAnterior:= 0
+end;
+
+procedure TfrmCalculoFinanciamento.edtFreteKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if TeclaEnterOuReturn(Key) then
+    if FreteAnterior <> dtmCalculoFinanciamento.ValorFrete then
+      if CalcularFinanciamento then
+        if edtFrete.Text <> '' then
+          FreteAnterior := StrToFloat(Trocar(edtFrete.Text,'.',''))
+        else
+          FreteAnterior := 0
+end;
+
+procedure TfrmCalculoFinanciamento.edtMercadoriasChange(Sender: TObject);
+begin
+  inherited;                                         
+  if Trim(edtMercadorias.Text) <> '' then
+       dtmCalculoFinanciamento.ValorMercadoria:= StrToFloat(Trocar(edtMercadorias.Text,'.',''))
+  else dtmCalculoFinanciamento.ValorMercadoria:= 0;
+end;
+
+procedure TfrmCalculoFinanciamento.edtMercadoriasEnter(Sender: TObject);
+begin
+  inherited;
+  if Trim(edtMercadorias.Text) <> '' then
+    MercadoriaAnterior := StrToFloat(Trocar(edtMercadorias.Text,'.',''))
+  else
+    MercadoriaAnterior := 0;
+end;
+
+procedure TfrmCalculoFinanciamento.edtMercadoriasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if TeclaEnterOuReturn(Key) then
+    if MercadoriaAnterior <> dtmCalculoFinanciamento.ValorMercadoria then begin
+      if not ParSistema.CalculoComTodosPlanos then
+        dtmCalculoFinanciamento.ReFazConsultaPlanoPagamento;
+      if CalcularFinanciamento then
+        if Trim(edtMercadorias.Text) <> '' then
+          MercadoriaAnterior := StrToFloat(Trocar(edtMercadorias.Text,'.',''))
+        else
+          MercadoriaAnterior := 0;
+    end
+end;
+
+procedure TfrmCalculoFinanciamento.edtSeguroChange(Sender: TObject);
+begin
+  inherited;
+  if edtSeguro.Text <> '' then
+       dtmCalculoFinanciamento.ValorSeguro:= StrToFloat(Trocar(edtSeguro.Text,'.',''))
+  else dtmCalculoFinanciamento.ValorSeguro:= 0;
+end;
+
+procedure TfrmCalculoFinanciamento.edtSeguroEnter(Sender: TObject);
+begin
+  inherited;
+  if Trim(edtSeguro.Text) <> '' then
+    SeguroAnterior:= StrToFloat(Trocar(edtSeguro.Text,'.',''))
+  else
+    SeguroAnterior := 0;
+end;
+
+procedure TfrmCalculoFinanciamento.edtSeguroKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if TeclaEnterOuReturn(Key) then
+    if SeguroAnterior <> dtmCalculoFinanciamento.ValorSeguro then
+      if CalcularFinanciamento then
+        if edtSeguro.Text <> '' then
+          SeguroAnterior := StrToFloat(Trocar(edtSeguro.Text,'.',''))
+        else
+          SeguroAnterior := 0
+end;
+
+procedure TfrmCalculoFinanciamento.ExibirValoresCalculados;
+begin
+  if   SoDesconto then sbnSoDesconto.Caption:= 'Acrésc. F8'
+  else                 sbnSoDesconto.Caption:= 'Descto. F8';
+
+  lblValorfinanciado.Caption   := Format('%8.2m', [dtmCalculoFinanciamento.Financiado]);
+
+  if dtmCalculoFinanciamento.Desconto < 0 then begin
+    lblValorDesconto.Font.Color:= clRed;
+    lblValorDesconto.Caption   := Format('(%8.2m)', [Abs(dtmCalculoFinanciamento.Desconto {
+                                                    dtmCalculoFinanciamento.DescontoItem})]);
+  end else begin
+    lblValorDesconto.Font.Color:= Font.Color;
+    lblValorDesconto.Caption   := Format('%8.2m', [(dtmCalculoFinanciamento.Desconto {
+                                                    dtmCalculoFinanciamento.DescontoItem})]);
+  end;
+
+  if dtmCalculoFinanciamento.DescontoItem < 0 then begin
+    lblValorDescontoItem.Font.Color:= clRed;
+    lblValorDescontoItem.Caption   := Format('(%8.2m)', [Abs(
+                                                    dtmCalculoFinanciamento.DescontoItem)]);
+  end else begin
+    lblValorDescontoItem.Font.Color:= Font.Color;
+    lblValorDescontoItem.Caption   := Format('%8.2m', [(
+                                                    dtmCalculoFinanciamento.DescontoItem)]);
+  end;
+
+
+  lblValorVista.Caption        := Format('%8.2m', [dtmCalculoFinanciamento.Vista]);
+
+  lblPercentualValor.Caption   := Format('%8.2f', [dtmCalculoFinanciamento.Porcentagem]);
+  lblValorAcrescimoMensal.Caption    := Format('%8.2m', [dtmCalculoFinanciamento.Acrescimo]);
+  lblValorPagarMensal.Caption        := Format('%8.2m', [dtmCalculoFinanciamento.Futuro]);
+  lblTaxaJurosMensal.Caption        := Format('%8.2f', [dtmCalculoFinanciamento.TaxaJurosMensal]);
+  lblTaxaJurosAnual.Caption        := Format('%8.2f', [dtmCalculoFinanciamento.TaxaJurosAnual]);
+  pnlEsconder.Visible          := not SoDesconto;
+
+  if ParSistema.CalcularSubstituicaoTributarianoContrato then
+  begin
+    lblValorSubstituicaoTributaria.Caption := Format('%8.2m', [dtmCalculoFinanciamento.ValorSubstituicaoTributaria]);
+    pnlSubstituicaoTributaria.Visible := Trim(lblValorSubstituicaoTributaria.Caption) <> 'R$0,00';
+  end
+  else
+    pnlSubstituicaoTributaria.Visible := False;
+end;
+
+function TfrmCalculoFinanciamento.ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean;
+begin
+  Result := dtmCalculoFinanciamento.ExistePlanoPagamento(NomeCampo,Value);
+end;
+
+procedure TfrmCalculoFinanciamento.InicializarVariaveis;
+begin
+  MercadoriaAnterior := 0;
+  FreteAnterior      := 0;
+  SeguroAnterior     := 0;
+  PlanoAnterior      := '';
+end;
+
+function TfrmCalculoFinanciamento.InternoPesquisar(Titulo: string): Integer;
+var
+  OntecActivatePrev: TtecContratoCalcFinac;
+  Key: Word;
+begin
+  Result:= mrNone;
+  if CtrlOn and (ActiveControl is TtecFindCustom) then begin
+    dtmCalculoFinanciamento.AbreTabelaConsulta;
+    OntecActivatePrev := OntecActivate;
+    OntecActivate := nil;
+    try
+      Result := inherited InternoPesquisar('Planos Pagamento');
+    finally
+      OntecActivate := OntecActivatePrev
+    end;
+    if Result = mrOK then begin
+      dtmCalculoFinanciamento.Selecionar;
+      Key := VK_Return;
+      edfPlanosPagamentoKeyDown(nil, Key, []);
+    end;
+    dtmCalculoFinanciamento.FechaTabelaConsulta;
+  end;
+end;
+
+function TfrmCalculoFinanciamento.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result:= TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(result).ConsultaInterativa     := True;
+  TfrmConsultaPorCampo(result).UsarParametrosDaTabela := False
+end;
+
+procedure TfrmCalculoFinanciamento.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  if TeclaEnterOuReturn(Key) and (Shift = []) then begin
+    if (dbgPlanosComEntrada.Focused or dbgPlanosSemEntrada.Focused) then begin
+       sbnConfirma.Click;
+       Key:= MAXWORD;
+     end;
+  end;
+  case Key of
+    VK_ESCAPE: if edtMercadorias.Enabled then begin
+                  //dbgCalculoFinanciamento.ReadOnly:= True;
+                  dbgCalculoFinanciamentoReadOnly(True, True, True, True);
+                  LimparControles;
+                  InicializarVariaveis;
+                  dtmCalculoFinanciamento.LimparTabelas;
+                  edtMercadorias.SetFocus;
+                end;
+    VK_F5    : if not Ctrlon and sbnConfirma.Enabled then sbnConfirma.Click;
+    VK_F7    : if not CtrlOn and sbnReCalcular.Enabled then sbnReCalcular.Click;
+    VK_F8    : if not CtrlOn and sbnSoDesconto.Enabled then sbnSoDesconto.Click;
+    VK_F11   : if not CtrlOn and sbnAlterar.Enabled    then sbnAlterar.Click;
+    else        inherited;
+  end;
+end;
+
+procedure TfrmCalculoFinanciamento.LimparControles;
+begin
+  edtMercadorias.Text              := '';
+  edtFrete.Text                    := '';
+  edtSeguro.Text                   := '';
+
+  lblValorfinanciado.Caption       := Format('%8.2m', [0.0]);
+  lblValorDesconto.Caption         := Format('%8.2m', [0.0]);
+  lblValorDescontoItem.Caption         := Format('%8.2m', [0.0]);
+
+  lblPercentualValor.Caption       := Format('%8.2f', [0.0]);
+  lblValorAcrescimoMensal.Caption  := Format('%8.2m', [0.0]);
+  lblValorPagarMensal.Caption      := Format('%8.2m', [0.0]);
+  lblValorVista.Caption            := Format('%8.2m', [0.0]);
+  FreteAnterior                    := 0;
+  SeguroAnterior                   := 0;
+end;
+
+function TfrmCalculoFinanciamento.ResumosParcelas(var Parcelas: TResumosParcelas;
+  var ValorPrazo, TaxaJuros, Desconto: Real; var Plano: Integer): Boolean;
+begin
+  Result := True;
+  dtmCalculoFinanciamento.ResumosParcelas(Parcelas, ValorPrazo, TaxaJuros, Desconto, Plano);
+end;
+
+procedure TfrmCalculoFinanciamento.sbnAlterarClick(Sender: TObject);
+begin
+  inherited;
+  if dtmCalculoFinanciamento.PodeAlterarCalculos then begin
+    if not dtmCalculoFinanciamento.PodeAlterarVenctosParcelas and
+       not dtmCalculoFinanciamento.PodeAlterarValorParcelas   and
+       not dtmCalculoFinanciamento.PodeAlterarTipoRecebimento then begin
+       MensagemAviso(ctPLANONAOPERMITEALTERACAOPARCELAS);
+       ActiveControl.SetFocus;
+    end
+    else begin
+      //dbgCalculoFinanciamento.ReadOnly:= False;
+      dbgCalculoFinanciamentoReadOnly(True, not dtmCalculoFinanciamento.PodeAlterarVenctosParcelas,
+                                            not dtmCalculoFinanciamento.PodeAlterarValorParcelas,
+                                      False);
+      dbgCalculoFinanciamento.SetFocus;
+{      dbgCalculoFinanciamento.Columns[0].ReadOnly:= True;
+      dbgCalculoFinanciamento.Columns[2].ReadOnly:= not dtmCalculoFinanciamento.PodeAlterarVenctosParcelas;
+      dbgCalculoFinanciamento.Columns[3].ReadOnly:= not dtmCalculoFinanciamento.PodeAlterarValorParcelas;
+      dbgCalculoFinanciamento.Columns[4].ReadOnly:= not dtmCalculoFinanciamento.PodeAlterarTipoRecebimento;}
+    end;
+  end;
+end;
+
+procedure TfrmCalculoFinanciamento.sbnConfirmaClick(Sender: TObject);
+var
+  Usuario: TtecUsuarios;
+  ok : Boolean;
+begin
+  FGravavacaoNecessaria := false;
+  ok := False;
+  inherited;
+  if sbnConfirma.Enabled then begin
+    {if (dtmCalculoFinanciamento.TaxaJurosMensal = 0) and (dtmCalculoFinanciamento.Financiado < dtmCalculoFinanciamento.Futuro) and
+       not (ParSistema.GerarParcelaSubstituicaoTributaria and (dtmCalculoFinanciamento.ValorSubstituicaoTributaria > 0)) then
+      MensagemAviso('Não é permitido acréscimo para planos sem taxa de juros.')
+    else}
+    if Assigned(OntecClose) then begin
+      with dtmCalculoFinanciamento do
+      begin
+        GravarCalculo;
+        ValidarValoresRedefinidos(CampoEditado,False);
+        PodeReCalcular:= False;
+
+        if ValidaValores then
+        begin
+          if PermiteDesconto and ValidarDesconto(false) then
+          begin
+            if (Desconto <> 0) and
+               (Porcentagem > DescontoMaximo) then
+            begin
+
+              if MensagemConfirmacao(ctAUTORIZARDESCONTOEXTRA) = smbOk then
+              begin
+                Usuario:= TtecUsuarios.Create(dtmTecSoft.Database);
+                try
+                  if UsuarioLogin.DescontoExtra then
+                       Usuario:= ObterAutorizacao(taSENHA)
+                  else Usuario:= ObterAutorizacao(taLOGIN, ctAUTORIZACAODESCONTO, ctAUTORIZADO);
+                  if Assigned(Usuario) and Usuario.DescontoExtra then
+                  begin
+                    ok := True;
+                    OntecClose;
+                  end
+                  else MensagemAviso(format(ctUSUARIONAOAUTORIZADO,['autorizar o desconto extra.']));
+                finally
+                  Usuario.Free;
+                end;
+              end;
+
+            end
+            else
+            begin
+              ok := True;
+              OntecClose;
+            end;
+          end
+          else
+          if not PermiteDesconto and ValidarDesconto(true) then
+          begin
+            ok := True;
+            OntecClose;
+          end;
+        end;
+
+      end;
+    end;
+  end;
+  
+  if ok then
+    Close;
+end;
+
+procedure TfrmCalculoFinanciamento.sbnProcuraPlanosPagamentoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfPlanosPagamento.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCalculoFinanciamento.sbnReCalcularClick(Sender: TObject);
+begin
+  inherited;
+//  dtmCalculoFinanciamento.ReCalcular;
+  dtmCalculoFinanciamento.ReFazConsultaPlanoPagamento;
+  dtmCalculoFinanciamento.CalcularValores;
+  ExibirValoresCalculados;
+end;
+
+procedure TfrmCalculoFinanciamento.sbnSoDescontoClick(Sender: TObject);
+begin
+  inherited;
+  SoDesconto := not SoDesconto;
+  ExibirValoresCalculados;
+end;
+
+procedure TfrmCalculoFinanciamento.SetFrete(const Value: Currency);
+begin
+  edtFrete.Text := CurrToStr(Value)
+end;
+
+procedure TfrmCalculoFinanciamento.SetMercadorias(const Value: Currency);
+begin
+  edtMercadorias.Text := CurrToStr(Value)
+end;
+
+procedure TfrmCalculoFinanciamento.SetSeguro(const Value: Currency);
+begin
+  edtSeguro.Text := CurrToStr(Value)
+end;
+
+function TfrmCalculoFinanciamento.TabelaDePesquisa: TZdataSet;
+begin
+  Result := dtmCalculoFinanciamento.TabelaConsultaPlano;
+end;
+
+procedure TfrmCalculoFinanciamento.dbgCalculoFinanciamentoColExit(Sender: TObject);
+begin
+  inherited;
+  with dtmCalculoFinanciamento do begin
+    GravarCalculo;
+    ValidarValoresRedefinidos(CampoEditado,False);
+    PodeReCalcular:= False;
+  end;
+end;
+
+procedure TfrmCalculoFinanciamento.dbgCalculoFinanciamentoExit(Sender: TObject);
+begin
+  inherited;
+  with dtmCalculoFinanciamento do begin
+    if not dbgPlanosSemEntrada.Focused and not dbgPlanosComEntrada.Focused then begin
+      GravarCalculo;
+      ValidarValoresRedefinidos(CampoEditado,False);
+      PodeReCalcular:= False;
+    end;
+  end;
+end;
+
+procedure TfrmCalculoFinanciamento.FormCreate(Sender: TObject);
+begin
+  inherited;
+  {
+  dtmCalculoFinanciamento.qryPlanosComEntrada.Open;
+  dtmCalculoFinanciamento.qryPlanosSemEntrada.Open;
+  }
+
+  dbgPlanosComEntrada.Ordenacao := 'descricao,valorparcela';
+  dbgPlanosSemEntrada.Ordenacao := 'descricao,valorparcela';
+end;
+
+procedure TfrmCalculoFinanciamento.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+//  dtmCalculoFinanciamento.qryPlanosComEntrada.Close;
+//  dtmCalculoFinanciamento.qryPlanosSemEntrada.Close;
+ if FGravavacaoNecessaria then
+   sbnConfirmaClick(sbnConfirma)
+ else
+ begin
+  if Assigned(OntecCloseCancelado) then
+    OntecCloseCancelado;
+   inherited;
+ end;
+end;
+
+procedure TfrmCalculoFinanciamento.SetCreditoTroca(const Value: Currency);
+begin
+  edtCreditoTroca.Text := CurrToStr(Value)
+end;
+
+procedure TfrmCalculoFinanciamento.edtCreditoTrocaEnter(Sender: TObject);
+begin
+  inherited;
+  if Trim(edtCreditoTroca.Text) <> '' then
+    CreditoTrocaAnterior:= StrToFloat(Trocar(edtCreditoTroca.Text,'.',''))
+  else
+    CreditoTrocaAnterior := 0;
+end;
+
+procedure TfrmCalculoFinanciamento.edtCreditoTrocaKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if TeclaEnterOuReturn(Key) then
+    if CreditoTrocaAnterior <> dtmCalculoFinanciamento.CreditoTroca then
+      if CalcularFinanciamento then
+        if edtCreditoTroca.Text <> '' then
+          CreditoTrocaAnterior := StrToFloat(Trocar(edtCreditoTroca.Text,'.',''))
+        else
+          CreditoTrocaAnterior := 0
+end;
+
+procedure TfrmCalculoFinanciamento.edtCreditoTrocaChange(Sender: TObject);
+begin
+  inherited;
+  if edtCreditoTroca.Text <> '' then
+       dtmCalculoFinanciamento.CreditoTroca:= StrToFloat(Trocar(edtCreditoTroca.Text,'.',''))
+  else dtmCalculoFinanciamento.CreditoTroca:= 0;
+end;
+
+function TfrmCalculoFinanciamento.CalcularPlanoPadrao(
+  PlanoPadrao: Integer): Boolean;
+begin
+  Result := dtmCalculoFinanciamento.localizaPlanoPadrao(PlanoPadrao);
+  if Result then
+    sbnConfirma.Click
+  else
+    Close;
+end;
+
+procedure TfrmCalculoFinanciamento.dbgCalculoFinanciamentoReadOnly(Campo0,
+                                   Campo2, Campo3, Campo4: Boolean);
+begin
+  dbgCalculoFinanciamento.ColumnByName('prestacao').ReadOnly := Campo0;
+  dbgCalculoFinanciamento.ColumnByName('datavencto').ReadOnly := Campo2;
+  dbgCalculoFinanciamento.ColumnByName('valorvencto').ReadOnly := Campo3;
+  dbgCalculoFinanciamento.ColumnByName('tiporeceb').ReadOnly := Campo4;
+end;
+
+end.

@@ -1,0 +1,33 @@
+# Consolidar a mecânica completa de Atendimento no Cancelamento de Contrato
+
+Type: task
+Status: resolved
+Blocked by:
+
+## Question
+
+Consolidar o mecanismo Delphi completo (`IncluirAtendimento_`, `qryExisteAtendimento`, `GravarAtendimentos`, `IncluirAtendimentos(true, true)`, texto/motivo, tipo `CancelamentoContrato`, campos gravados) cruzado com o inventário das primitivas já existentes no Laravel em `LegacyAtendimentoRepository` (`insert`, `update`, `findExistenteInclusaoAtendimento`, `updateStatusByCodigos`, árvore de follow-up), incluindo os campos exatos esperados por cada primitiva Laravel e o que falta implementar versus o que já existe pronto para reaproveitar.
+
+## Answer
+
+### Mecanismo Delphi
+
+- `CONFIRMADO` — `dmcadastrocontratos.pas:5907-5908`: `IncluirAtendimento_(Documento, Cliente, TipoCliente, CancelamentoContrato, TextoCancelamento)` só é chamado quando `TextoCancelamento <> ''` (texto vem do modal `TfrmMotivos`, condicionado a `ObrigarDigitacaoaoExcluir`, `fmcadastrocontratos.pas:2267-2274`).
+- `CONFIRMADO` — `IncluirAtendimento_` é um ponteiro de função genérico (`delphi/repositorio/dmbasico.pas:1023`), atribuído a `IncluirAtendimento__` (`delphi/apps/sac/dmcadastroatendimentos.pas:2103-2179, 2963`), reaproveitado também por Orçamentos, Ordem de Serviço e Frente de Caixa.
+- `CONFIRMADO` — para `TipoAtendimento_ = CancelamentoContrato`, a rotina primeiro busca Atendimento existente **aberto** para o Contrato: `ReFazConsulta(qryExisteAtendimento, [0,1,2,3,4,5], [null, null, 'C', false, null, Documento])` — ou seja, filtra por `tipo = 'C'`, `concluido/status aberto = false`, `contrato = Documento` (`dmcadastroatendimentos.pas:2130-2133`).
+- `CONFIRMADO` — se existe: `selecionarAtendimento; IncluirAtendimentos(true, true)` cria uma **nova linha** (follow-up) copiando `origem`/`dataOrigem`/`tipo`/`tipoatendimento`/`cliente`/`tipocliente`/`assunto`/`lembrarhora`/`orcamento`/`contrato` da linha selecionada, grava `data=DataServidor`, `usuario`/`usuariologado=CodigoUsuario`, `concluido=false`, e por `fechar=true` marca `status='F'` imediatamente (`dmcadastroatendimentos.pas:726-808`). Depois, `GravarAtendimentos('Fechado, contrato X cancelado' + Texto, ...)` grava o texto como informe.
+- `CONFIRMADO` — se não existe: `IncluirAtendimentos(['IncluirCancelamentoDiretoContrato', Cliente, TipoCliente, 'O', Documento, Texto, DescricaoSituacao])` cria uma linha nova com `contrato=Documento`, `cliente`, `tipocliente`, e — `DIVERGENTE/DÚVIDA` — grava `tipo = 'O'` (`dmcadastroatendimentos.pas:956-980`), **não `'C'`** como a busca de existência usou. Ou seja, a checagem de "já existe" procura `tipo='C'` mas a inclusão nova grava `tipo='O'`. É uma inconsistência real do próprio Delphi (`POSSÍVEL BUG LEGADO`) — um Atendimento de Cancelamento de Contrato criado por este caminho não seria re-encontrado por uma checagem futura que busque `tipo='C'`. Registrar como dúvida a resolver antes de fixar o `tipo` a usar no Laravel, não presumir qual dos dois é o "certo".
+- `CONFIRMADO` — `DescricaoSituacao` (parâmetro extra de `IncluirAtendimento_`) não é passado na chamada de Cancelamento de Contrato (só `Documento, Cliente, TipoCliente, CancelamentoContrato, TextoCancelamento` são passados); fica com valor default, provavelmente vazio.
+- `CONFIRMADO` — nunca duplica: é sempre no máximo uma operação de Atendimento por Contrato por chamada (reaproveitar-e-fechar OU criar-e-fechar), nunca as duas.
+
+### Primitivas Laravel já existentes (prontas para reaproveitar)
+
+- `CONFIRMADO` — `LegacyAtendimentoRepository::findExistenteInclusaoAtendimento(cliente, tipocliente, tipo, dataAtual, orcamento, contrato)` (`laravel/backend/app/Infrastructure/Persistence/Legacy/CobrancaSac/LegacyAtendimentoRepository.php:694-752`) **já implementa exatamente** a paridade do `qryExisteAtendimento` do Delphi, e **já suporta `tipo = 'C'` com union por `contrato`** — não precisa de código novo para a checagem de existência, só decidir qual `tipo` usar (ver dúvida acima).
+- `CONFIRMADO` — `insert(array $attributes): int` e `update(int $codigo, array $attributes, ?string $expectedRowVersion): array` (`LegacyAtendimentoRepository.php:96-167`) são genéricos por array de atributos, com `expectedRowVersion`/`xmin`/`cloud_row_version` para concorrência otimista — cobrem tanto "criar novo" quanto "fechar existente/criar follow-up" sem necessidade de novo método de repositório.
+- `CONFIRMADO` — `App\Services\CobrancaSac\AtendimentoService.php` **já tem uma rotina de follow-up genérica** para o cadastro manual de Atendimentos (`$hasFollowers`, cópia de `tipocliente`/`contrato`/`origem` para o draft, `informes` limpo) — padrão de follow-up já implementado e testável, não precisa ser reinventado; a integração deste mapa deve decidir se reaproveita esse serviço diretamente ou só seu padrão via `LegacyAtendimentoRepository`.
+- `CORREÇÃO (achado no ticket 3)` — a afirmação original abaixo estava **errada**: existe sim orquestração hoje. `App\Application\Vendas\Contratos\CancelarContratoCommand.php` (não bate com o glob `*Cancelamento*.php` usado nesta busca inicial, por isso passou despercebido) já injeta `LegacyAtendimentoRepository`/`LegacyTipoAtendimentoRepository` e já chama `insertAtendimentoCancelamento()` dentro da mesma `DB::transaction` do Cancelamento, quando `ObrigarDigitacaoaoExcluir` exige descrição. Esse método hoje: usa `tipo='C'` (Cobrança, não `'V'`), **sempre insere um Atendimento novo** (nunca verifica/reaproveita um aberto como follow-up), e o texto não inclui a descrição do Motivo. Ou seja, o retrofit deste mapa não é "adicionar do zero" — é **corrigir uma implementação real já existente e ativa**. Ver ticket 3 para os detalhes e a decisão sobre o limite transacional.
+- ~~`NÃO LOCALIZADO` — nenhuma orquestração hoje que ligue Cancelamento de Contrato (ou de Orçamento) a essas primitivas de Atendimento.~~ Superado pela correção acima, quanto a Contrato. Para Orçamento (`CancelarOrcamentoService.php`), a ausência se confirma — lacuna irmã, fora de escopo.
+
+### Síntese
+
+A infraestrutura de dados (repositório + serviço genérico de Atendimento) já existe e é reaproveitável quase sem modificação. O trabalho real deste mapa é (a) decidir o `tipo` correto a gravar/buscar (resolvendo a inconsistência `'C'` vs `'O'` do Delphi) e os demais campos (Motivo/texto compartilhado, `contrato`, `cliente`, `tipocliente`), e (b) orquestrar a chamada dentro do `CancelamentoContratosLoteOrchestrator`, por Contrato selecionado, reaproveitando `findExistenteInclusaoAtendimento` + `insert`/`update` (ou o `AtendimentoService` diretamente).

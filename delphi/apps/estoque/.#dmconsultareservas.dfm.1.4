@@ -1,0 +1,349 @@
+inherited dtmConsultaReservas: TdtmConsultaReservas
+  Left = 101
+  Top = 115
+  Height = 323
+  Width = 681
+  object qryConsultaProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryConsultaProdutosAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select p.descricao, p.valorgrade1, p.valorgrade2,'
+      '           p.codigo'
+      'From   produtos p'
+      '/*  Preenchido em RunTime     */'
+      
+        'Order By UPPER(TO_ASCII(p.descricao,'#39'LATIN1'#39')),p.valorgrade1,p.v' +
+        'alorgrade2')
+    RequestLive = True
+    Left = 73
+    Top = 127
+    object qryConsultaProdutosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryConsultaProdutosvalorgrade1: TStringField
+      DisplayLabel = 'Linha'
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryConsultaProdutosvalorgrade2: TStringField
+      DisplayLabel = 'Coluna'
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryConsultaProdutoscodigo: TLargeintField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object qryConsultaFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT codigo, nome '
+      'FROM  filiais'
+      'ORDER BY UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 73
+    Top = 184
+    object qryConsultaFiliaisnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object qryReservas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnProgress = ShowProgress
+    AfterScroll = qryReservasAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select pr.produto,'
+      '           pr.quantidade, '
+      '           pr.filial as filialestoque,'
+      '           pr.baixado, '
+      '           r.numero,  '
+      '           cast(r.data as date) as data,'
+      '           r.cliente,  '
+      '           r.usuario,'
+      '           r.endereco,'
+      '           r.filial as filialreserva,  '
+      '           p.descricao as descricaoproduto,'
+      
+        '           (select gr.descricao from grades gr where gr.codigo =' +
+        ' c.grade1) as linha,'
+      
+        '           (select gr.descricao from grades gr where gr.codigo =' +
+        ' c.grade2) as coluna,'
+      '            p.valorgrade1,'
+      '            p.valorgrade2,'
+      '           u.nome as nomeusuario'
+      
+        'From   produtosreservas pr, reservas r, produtos p, caracteristi' +
+        'cas c, usuarios u'
+      'Where  '
+      '    /*             Periodo             */'
+      '    /*             Reserva            */'
+      '    /*             Produtos           */'
+      '    /*             Filial                  */'
+      '    /*             Usuario             */'
+      '    /*             Situacao            */'
+      '    and ( pr.reserva = r.numero )'
+      '    and ( pr.produto = p.codigo)'
+      '    and ( p.caracteristica = c.codigo)'
+      '    and ( r.usuario = u.codigo)'
+      '   /*            Ordenacao          */')
+    RequestLive = False
+    Left = 74
+    Top = 15
+    object qryReservasquantidade: TFloatField
+      FieldName = 'quantidade'
+      Required = True
+    end
+    object qryReservasfilialestoque: TIntegerField
+      FieldName = 'filialestoque'
+      Required = True
+    end
+    object qryReservasbaixado: TFloatField
+      FieldName = 'baixado'
+      Required = True
+    end
+    object qryReservasnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+    end
+    object qryReservasdata: TDateTimeField
+      FieldName = 'data'
+      Required = True
+    end
+    object qryReservascliente: TStringField
+      FieldName = 'cliente'
+      Size = 30
+    end
+    object qryReservasusuario: TIntegerField
+      FieldName = 'usuario'
+      Required = True
+    end
+    object qryReservasendereco: TStringField
+      FieldName = 'endereco'
+      Size = 30
+    end
+    object qryReservasfilialreserva: TIntegerField
+      FieldName = 'filialreserva'
+    end
+    object qryReservasdescricaoproduto: TStringField
+      FieldName = 'descricaoproduto'
+      Required = True
+      Size = 100
+    end
+    object qryReservasnomeusuario: TStringField
+      FieldName = 'nomeusuario'
+      Required = True
+      Size = 40
+    end
+    object qryReservasproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryReservaslinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryReservascoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qryReservasvalorgrade1: TStringField
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryReservasvalorgrade2: TStringField
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+  end
+  object dsrReservas: TtecDataSource
+    DataSet = qryReservas
+    Left = 73
+    Top = 68
+  end
+  object qryProcuraFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT codigo, nome'
+      'FROM filiais'
+      'WHERE codigo = :codigo')
+    RequestLive = False
+    Left = 241
+    Top = 127
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryProcuraFiliaisnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+  end
+  object dsrProcuraFiliais: TtecDataSource
+    DataSet = qryProcuraFiliais
+    Left = 241
+    Top = 184
+  end
+  object qryProcuraProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo, '
+      
+        '          cast(descricao||'#39' '#39'||coalesce(valorgrade1,'#39#39')||'#39' '#39'||co' +
+        'alesce(valorgrade2,'#39#39') as varchar) as descricao'
+      'From produtos'
+      'Where codigo =:codigo')
+    RequestLive = False
+    Left = 241
+    Top = 15
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraProdutoscodigo: TLargeintField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryProcuraProdutosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      DisplayWidth = 62
+      FieldName = 'descricao'
+      Required = True
+      Size = 162
+    end
+  end
+  object dsrProcuraProdutos: TtecDataSource
+    DataSet = qryProcuraProdutos
+    Left = 241
+    Top = 68
+  end
+  object qryProcuraVendedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo,'
+      '           nome'
+      'From   usuarios'
+      'Where codigo =:codigo')
+    RequestLive = False
+    Left = 400
+    Top = 15
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraVendedorescodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryProcuraVendedoresnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+  end
+  object dsrVendedores: TtecDataSource
+    DataSet = qryProcuraVendedores
+    Left = 528
+    Top = 15
+  end
+  object qryConsultaVendedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select nome,'
+      '           codigo'
+      'From   usuarios'
+      'Order By UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 400
+    Top = 68
+    object qryConsultaVendedoresnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaVendedorescodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+end

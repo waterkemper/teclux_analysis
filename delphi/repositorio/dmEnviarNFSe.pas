@@ -1,0 +1,51 @@
+unit dmEnviarNFSe;
+
+interface
+
+uses
+  SysUtils, Classes, ACBrNFSeXDANFSeRLClass, ACBrDFeReport,
+  ACBrNFSeXDANFSeClass, ACBrNFSeXDANFSeFR, ACBrBase, ACBrDFe, ACBrNFSeX,
+  biblio;
+
+type
+  TdtmEnviarNFSe = class(TDataModule)
+    ACBrNFSeX: TACBrNFSeX;
+    ACBrNFSeXDANFSeFR: TACBrNFSeXDANFSeFR;
+    ACBrNFSeXDANFSeRL: TACBrNFSeXDANFSeRL;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent);override;
+    destructor Destroy; override;
+
+  end;
+
+var
+  dtmEnviarNFSe: TdtmEnviarNFSe;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmEnviarNFSe }
+
+constructor TdtmEnviarNFSe.Create(AOwner: TComponent);
+begin
+  inherited;
+  ACBrNFSeX.Configuracoes.Certificados.ArquivoPFX := fCertificadoDigitalNFSe;
+  ACBrNFSeX.Configuracoes.Arquivos.PathCan := FNFSeDirErro;
+  ACBrNFSeX.Configuracoes.Arquivos.PathGer := FNFSeDirErro;
+  ACBrNFSeX.Configuracoes.Arquivos.PathRPS := FNFSeDirEnvio;
+  ACBrNFSeX.Configuracoes.Arquivos.PathNFSe := FNFSeDirRetorno;
+  ACBrNFSeX.Configuracoes.Arquivos.PathSalvar := FNFSeDirErro;
+  ACBrNFSeX.Configuracoes.Arquivos.PathSchemas := FNFSeDirSchemas;
+end;
+
+destructor TdtmEnviarNFSe.Destroy;
+begin
+
+  inherited;
+end;
+
+end.

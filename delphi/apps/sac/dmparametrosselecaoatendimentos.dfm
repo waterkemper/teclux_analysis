@@ -1,0 +1,159 @@
+inherited dtmParametrosSelecaoAtendimentos: TdtmParametrosSelecaoAtendimentos
+  Left = 189
+  Top = 306
+  Height = 221
+  Width = 435
+  object qryConsultaAtendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Set DateStyle = ISO, european;'
+      'Select a.cliente as codigo,'
+      '          c.nome as nomecliente,'
+      '          a.lembrar,'
+      '          a.tipo'
+      'From   atendimentos a,'
+      '          clientes     c'
+      
+        'Where (a.data = (Select max(data) From atendimentos Where (clien' +
+        'te = a.cliente) and (tipo = a.tipo)))  '
+      '          and (a.cliente = c.codigo) '
+      '/* as linhas em branco ser'#227'o preenchidas em runtime */'
+      '/*   dependendo das op'#231#245'es de pesquisa. */'
+      '/*                 */'
+      '/*                 */'
+      '/*                 */'
+      '/*                 */'
+      '/*                 */'
+      'order by a.cliente'
+      '')
+    RequestLive = True
+    Left = 73
+    Top = 18
+    object qryConsultaAtendimentoscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryConsultaAtendimentosnomecliente: TStringField
+      DisplayLabel = 'Nome Cliente'
+      FieldName = 'nomecliente'
+      Size = 40
+    end
+    object qryConsultaAtendimentoslembrar: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Lembrar'
+      FieldName = 'lembrar'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryConsultaAtendimentostipo: TStringField
+      Alignment = taRightJustify
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Size = 1
+    end
+  end
+  object qryConceito: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '         descricao'
+      'from conceitos'
+      'where codigo = :codigo')
+    RequestLive = True
+    Left = 72
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryConceitocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryConceitodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object qryConsultaConceito: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select descricao,'
+      '         codigo'
+      'from conceitos'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 192
+    Top = 88
+    object qryConsultaConceitodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryConsultaConceitocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object dsrConceito: TtecDataSource
+    DataSet = qryConceito
+    Left = 72
+    Top = 144
+  end
+  object dsrConsultaConceito: TtecDataSource
+    DataSet = qryConsultaConceito
+    Left = 192
+    Top = 144
+  end
+  object qryData: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select current_date')
+    RequestLive = False
+    Left = 192
+    Top = 16
+    object qryDatadate: TDateField
+      FieldName = 'date'
+    end
+  end
+  object dsrData: TtecDataSource
+    DataSet = qryData
+    Left = 264
+    Top = 16
+  end
+end

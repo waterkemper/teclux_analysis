@@ -1,0 +1,97 @@
+unit fmVisualizarProdutosContratosSeriesaDevolver;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Grids, DBGrids, cpdbgrid, StdCtrls, Buttons, ExtCtrls,
+  DBCtrls, dbcgrids, Mask, cptexto, biblio, fmajuda, DB, cpdatasource,
+  ZQuery, ZPgSqlQuery, ctconstantes;
+
+type
+  TfrmVisualizarProdutosContratosSeriesaDevolver = class(TFrmAjuda)
+    pnlBottom: TPanel;
+    btnOK: TBitBtn;
+    btnCancel: TBitBtn;
+    dbgProdutosContratosSeries: TtecDBGrid;
+    dsrProdutosDevolvidosSeries: TtecDataSource;
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormShow(Sender: TObject);
+    procedure dbgProdutosContratosSeriesKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+  private
+    fFechamentoSeriesMarcadas: TTecBooleanRetorno;
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    property FechamentoSeriesMarcadas: TTecBooleanRetorno read fFechamentoSeriesMarcadas write fFechamentoSeriesMarcadas;
+  end;
+
+var
+  frmVisualizarProdutosContratosSeriesaDevolver: TfrmVisualizarProdutosContratosSeriesaDevolver;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmVisualizarProdutosContratosSeriesaDevolver.FormCloseQuery(
+  Sender: TObject; var CanClose: Boolean);
+  var
+   vQuantidadeMarcadas : Real;
+
+
+   (*
+  function SeriesaDevolverForamMarcadasCorretamente: boolean;
+  begin
+    vQuantidadeMarcadas := SomarValores(TZDataSet(dsrProdutosDevolvidosSeries.DataSet),
+                                        [nil],
+                                        [dsrProdutosDevolvidosSeries.DataSet.fieldbyname('devolvido')],
+                                        ['True'], ['=']);
+    result := vQuantidadeMarcadas = aDevolver;
+  end;
+  *)
+
+begin
+  CanClose := true;
+  if modalresult = mrOK then
+  begin
+    CanClose := FechamentoSeriesMarcadas;
+    (*
+    if not CanClose then
+    begin
+      MensagemAviso('Itens a devolver: ' + floattostr(aDevolver) + chr(13) +
+                    'Séries marcadas : ' + floattostr(vQuantidadeMarcadas) + chr(13) +
+                    'Marque corretamente os números de séries a serem devolvidas.');
+      dbgProdutosContratosSeries.SelectedIndex := 1;
+      dbgProdutosContratosSeries.setfocus;
+    end;
+    *)
+  end;
+end;
+
+procedure TfrmVisualizarProdutosContratosSeriesaDevolver.FormShow(Sender: TObject);
+begin
+  dbgProdutosContratosSeries.SelectedIndex := 7;
+  self.BringToFront;
+end;
+
+procedure TfrmVisualizarProdutosContratosSeriesaDevolver.dbgProdutosContratosSeriesKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if key = vk_return then
+  begin
+    dsrProdutosDevolvidosSeries.dataset.next;
+    if dsrProdutosDevolvidosSeries.dataset.eof then
+      btnOK.setfocus;
+  end;
+end;
+
+constructor TfrmVisualizarProdutosContratosSeriesaDevolver.Create(
+  AOwner: TComponent);
+begin
+  inherited;
+  Application.MainForm.SendToBack;
+end;
+
+end.

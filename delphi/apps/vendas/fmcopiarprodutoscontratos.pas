@@ -1,0 +1,235 @@
+unit fmcopiarprodutoscontratos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls,
+  Grids, DBGrids, {Qete,} ZQuery, dmbasico,
+  ctconstantes, cpdbgrid, fmconsultabasica,
+  fmconsultaporcampo, fmajudabt, DBCtrls, cpdbtext, ActnList, Mask,
+  cpdbfindcontrols, ToolWin;
+
+type
+  TfrmCopiarProdutosContratos = class(TfrmAjudaBt)
+    pnlTopoJanela: TPanel;
+    lblContrato: TLabel;
+    lblCliente: TLabel;
+    lblEmissao: TLabel;
+    lblCPF: TLabel;
+    lblFaturamento: TLabel;
+    dtxCliente: TtecDBText;
+    dtxEmissao: TtecDBText;
+    dtxCPF: TtecDBText;
+    dtxFaturamento: TtecDBText;
+    pnlFundoJanela: TPanel;
+    gbxProdutos: TGroupBox;
+    pnlFundoProdutos: TPanel;
+    dbgProdutos: TtecDBGrid;
+    dtxSituacao: TtecDBText;
+    lblSituacao: TLabel;
+    pnlProdutosAbaixo: TPanel;
+    pnlProdutosDireita: TPanel;
+    sbnAlterarPrecoSugestao: TSpeedButton;
+    ckbSelecionarTodos: TCheckBox;
+    sbnGravar: TSpeedButton;
+    edfNumeroContratoCopia: TtecDbEditFind;
+    procedure ckbSelecionarTodosClick(Sender: TObject);
+    procedure sbnAlterarPrecoSugestaoClick(Sender: TObject);
+    procedure dbgProdutosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgProdutosDblClick(Sender: TObject);
+    procedure dbgProdutosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnGravarClick(Sender: TObject);
+  private
+    FPrecoAtual: Boolean;
+    { Private declarations }
+  protected
+    Jan: TfrmConsultaPorCampo;
+    dtmCadastro : TdtmBasico;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var continuar: Boolean); override;
+    procedure ProximoControle(Ind: Integer); override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  public
+    constructor Create(AOwner: TComponent); overload; override;
+    constructor Create(AOwner: TComponent; AlterarPreco:Boolean; dtm : TdtmBasico); reintroduce; overload;
+    destructor  Destroy; override;
+    { Public declarations }
+  end;
+
+var
+  frmCopiarProdutosContratos: TfrmCopiarProdutosContratos;
+
+implementation
+
+uses fmnavcontroles;
+
+{$R *.dfm}
+
+{ TForm1 }
+
+constructor TfrmCopiarProdutosContratos.Create(AOwner: TComponent);
+begin
+  inherited;
+//  DataSet := dtmCadastro.TabelaContratos;
+
+end;
+
+function TfrmCopiarProdutosContratos.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  if Parametro = 0 then
+    Result := dtmCadastro.ExisteCliente(NomeCampo, Value)
+  else
+    Result:= dtmCadastro.ExisteContrato(NomeCampo, Value);
+end;
+
+function TfrmCopiarProdutosContratos.InternoPesquisar(Titulo: String): Integer;
+{var
+  Tabela : Integer;
+  }
+begin
+//  Tabela := ctTabelasConsultaContatos;
+  dtmCadastro.AbreConsultaClientes;
+  Titulo := ctstrCONTRATOS;
+  Result := Inherited InternoPesquisar(Titulo);
+  if Result = mrOK then
+    dtmCadastro.SelecionarContratoCopia;
+//  dtmCadastro.Fecha(Tabela);
+end;
+
+function TfrmCopiarProdutosContratos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Jan).ConsultaInterativa     := False;
+  TfrmConsultaPorCampo(Jan).UsarParametrosDaTabela := True;
+  result := Jan;
+end;
+
+procedure TfrmCopiarProdutosContratos.PosicionarTabelaNoParametro(
+  Ind: Integer; var continuar: Boolean);
+begin
+  inherited;
+  Continuar := False;
+end;
+
+procedure TfrmCopiarProdutosContratos.ProximoControle(Ind: Integer);
+begin
+  inherited;
+  if Ind = 0 then begin
+    Jan.ConsultaInterativa := True;
+    dtmCadastro.AbreConsultaContrato;
+  end else
+    Jan.ConsultaInterativa := False;
+end;
+
+function TfrmCopiarProdutosContratos.TabelaDePesquisa: TZDataSet;
+begin
+  Result := dtmCadastro.TabelaConsultaContratos;
+end;
+
+function TfrmCopiarProdutosContratos.TabelaDoParametro(
+  Parametro: Integer): TZDataSet;
+begin
+  Result := dtmCadastro.TabelaConsultaClientes
+end;
+
+procedure TfrmCopiarProdutosContratos.ckbSelecionarTodosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastro.SelecionarProdutosContratoCopiar(ckbSelecionarTodos.Checked, True);
+end;
+
+procedure TfrmCopiarProdutosContratos.sbnAlterarPrecoSugestaoClick(Sender: TObject);
+begin
+  inherited;
+  if not dtmCadastro.TabelaContratoCopia.IsEmpty then
+  begin
+    FPrecoAtual:= not FPrecoAtual;
+    dtmCadastro.AlterarPrecoProdutosContratoCopiar(FPrecoAtual);
+  end;
+end;
+
+procedure TfrmCopiarProdutosContratos.dbgProdutosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if not (gdFocused in State) then
+  begin
+    if dbgProdutos.DataSource.DataSet.FieldByName('selecionar').AsBoolean then  begin
+      TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmCopiarProdutosContratos.dbgProdutosDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastro.SelecionarProdutosContratoCopiar(false,false);
+end;
+
+procedure TfrmCopiarProdutosContratos.dbgProdutosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_SPACE) and
+     (Shift = [ssCtrl]) then
+    dtmCadastro.SelecionarProdutosContratoCopiar(false, false);
+end;
+
+procedure TfrmCopiarProdutosContratos.sbnGravarClick(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastro.HaProdutoContratoCopiarSelecionado then
+    ModalResult := mrOK;
+end;
+
+procedure TfrmCopiarProdutosContratos.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [] then
+  begin
+    case key of
+      VK_F5: if sbnGravar.Enabled then
+                sbnGravarClick(nil);
+    end;
+  end
+  else if Shift = [ssCtrl] then
+  begin
+    case key of
+      VK_P: if sbnAlterarPrecoSugestao.Enabled then  
+               sbnAlterarPrecoSugestaoClick(nil);
+    end;
+  end;
+end;
+
+destructor TfrmCopiarProdutosContratos.Destroy;
+begin
+  inherited;
+  frmCopiarProdutosContratos := nil;
+end;
+
+constructor TfrmCopiarProdutosContratos.Create(AOwner: TComponent;
+  AlterarPreco: Boolean; dtm : TdtmBasico);
+begin
+  Create(AOwner);
+  self.sbnAlterarPrecoSugestao.Enabled := AlterarPreco;
+  self.dbgProdutos.Columns[7].ReadOnly := not AlterarPreco;
+  self.dtmCadastro := dtm;
+  
+
+//  edfNumeroContratoCopia.SetFocus;
+end;
+
+end.

@@ -1,0 +1,279 @@
+unit peparameters;
+
+interface
+
+Uses
+  //CLX
+  DesignEditors, DesignIntf, classes, DBLup2, DBTables, Dialogs;
+
+type
+
+  TtecDBStringProperty = class(TStringProperty)
+  public
+    function GetAttributes: TPropertyAttributes; override;
+    procedure GetValueList(List: TStrings); virtual;
+    procedure GetValues(Proc: TGetStrProc); override;
+  end;
+
+  TtecDataFieldProperty = class(TtecDBStringProperty)
+  public
+    function GetDataSourcePropName: string; virtual;
+    procedure GetValueList(List: TStrings); override;
+  end;
+
+  TtecDataProperty = class(TtecDBStringProperty)
+  public
+    function GetDataSourcePropName: string; virtual;
+    procedure GetValueList(List: TStrings); override;
+  end;
+
+  TtecParametersEditor = class(TPropertyEditor)
+  public
+    function GetAttributes: TPropertyAttributes; override;
+    function GetValue: string; override;
+    procedure GetValues(Proc: TGetStrProc); override;
+    procedure SetValue(const Value: string); override;
+  end;
+
+  
+  TtecLookupParametersEditor = class(TtecParametersEditor)
+  public
+    function GetValue: string; override;
+    procedure GetValues(Proc: TGetStrProc); override;
+    procedure SetValue(const Value: string); override;
+  end;
+
+  TIndexNameProperty = class(TStringProperty)
+  public
+    function GetAttributes: TPropertyAttributes; override;
+    procedure GetValueList(List: TStrings); virtual;
+    procedure GetValues(Proc: TGetStrProc); override;
+  end;
+
+  TDBLookupComponentEditor = class(TDefaultEditor)
+  public
+    procedure ExecuteVerb(Index: Integer); override;
+    function GetVerb(Index: Integer): string; override;
+    function GetVerbCount: Integer; override;
+  end;
+
+
+
+
+
+
+
+implementation
+
+Uses
+  //CLX
+  TypInfo, DB,
+  //Componentes
+  cpquery, cpdbfindcontrols;
+
+{ TtecParametersEditor }
+
+function TtecParametersEditor.GetAttributes: TPropertyAttributes;
+begin
+  Result := inherited GetAttributes + [paSortList, paValueList]
+end;
+
+function TtecParametersEditor.GetValue: string;
+var
+  Par: TParam;
+begin
+  if Assigned(GetComponent(0)) and Assigned(TtecFindCustom(GetComponent(0)).Query) then
+    if TtecFindCustom(GetComponent(0)).Query.ParamCount <= 0 then
+      Result := ''
+    else
+      with TtecFindCustom(GetComponent(0)) do begin
+        Par := Query.Params.FindParam(QueryParameter);
+        if Assigned(Par) then
+          Result := Par.DisplayName
+        else
+          Result := ''
+      end
+  else
+    Result := ''
+end;
+
+procedure TtecParametersEditor.GetValues(Proc: TGetStrProc);
+var
+  a: Integer;
+  Query: TtecQuery;
+begin
+  if Assigned(GetComponent(0)) and Assigned(TtecFindCustom(GetComponent(0)).Query) then begin
+    Query := TtecFindCustom(GetComponent(0)).Query;
+    for a := 0 to Query.ParamCount - 1 do
+      Proc(Query.Params[a].DisplayName);
+  end
+end;
+
+procedure TtecParametersEditor.SetValue(const Value: string);
+begin
+  TtecFindCustom(GetComponent(0)).QueryParameter := Value;
+  {
+  if Assigned(Designer) then
+    Designer.Modified
+    }
+end;
+
+{ TtecLookupParametersEditor }
+
+function TtecLookupParametersEditor.GetValue: string;
+var
+  Par: TParam;
+begin
+  if Assigned(GetComponent(0)) and Assigned(TtecDBFindLookup(GetComponent(0)).LookupQuery) then
+    if TtecDBFindLookup(GetComponent(0)).LookupQuery.ParamCount <= 0 then
+      Result := ''
+    else
+      with TtecDBFindLookup(GetComponent(0)) do begin
+        Par := LookupQuery.Params.FindParam(LookupQueryParameter);
+        if Assigned(Par) then
+          Result := Par.DisplayName
+        else
+          Result := ''
+      end
+  else
+    Result := ''
+end;
+
+procedure TtecLookupParametersEditor.GetValues(Proc: TGetStrProc);
+var
+  a: Integer;
+  Query: TtecQuery;
+begin
+  if Assigned(GetComponent(0)) and Assigned(TtecDBFindLookup(GetComponent(0)).LookupQuery) then begin
+    Query := TtecDBFindLookup(GetComponent(0)).LookupQuery;
+    for a := 0 to Query.ParamCount - 1 do
+      Proc(Query.Params[a].DisplayName);
+  end
+end;
+
+procedure TtecLookupParametersEditor.SetValue(const Value: string);
+begin
+  TtecDBFindLookup(GetComponent(0)).LookupQueryParameter := Value;
+{  if Assigned(Designer) then
+    Designer.Modified}
+end;
+
+{ TtecDBStringProperty }
+
+
+function TtecDBStringProperty.GetAttributes: TPropertyAttributes;
+begin
+  Result := [paValueList, paSortList, paMultiSelect];
+end;
+
+procedure TtecDBStringProperty.GetValueList(List: TStrings);
+begin
+end;
+
+procedure TtecDBStringProperty.GetValues(Proc: TGetStrProc);
+var
+  I: Integer;
+  Values: TStringList;
+begin
+  Values := TStringList.Create;
+  try
+    GetValueList(Values);
+    for I := 0 to Values.Count - 1 do Proc(Values[I]);
+  finally
+    Values.Free;
+  end;
+end;
+
+{ TtecDataFieldProperty }
+
+function TtecDataFieldProperty.GetDataSourcePropName: string;
+begin
+  Result := 'LookupSource';
+end;
+
+procedure TtecDataFieldProperty.GetValueList(List: TStrings);
+var
+  DataSource: TDataSource;
+begin
+  DataSource := GetObjectProp(GetComponent(0), GetDataSourcePropName) as TDataSource;
+  if (DataSource <> nil) and (DataSource.DataSet <> nil) then
+    DataSource.DataSet.GetFieldNames(List);
+end;
+
+{ TtecDataProperty }
+
+function TtecDataProperty.GetDataSourcePropName: string;
+begin
+  Result := 'DataSource';
+end;
+
+procedure TtecDataProperty.GetValueList(List: TStrings);
+var
+  DataSource: TDataSource;
+begin
+  DataSource := GetObjectProp(GetComponent(0), GetDataSourcePropName) as TDataSource;
+  if (DataSource <> nil) and (DataSource.DataSet <> nil) then
+    DataSource.DataSet.GetFieldNames(List);
+end;
+
+
+
+function TIndexNameProperty.GetAttributes: TPropertyAttributes;
+begin
+  Result := [paValueList, paSortList, paMultiSelect];
+end;
+
+procedure TIndexNameProperty.GetValueList(List: TStrings);
+begin
+  if (GetComponent(0) as TDBLookupComboPlus).LookUpSource <> nil then
+  begin
+    If (GetComponent(0) as TDBLookupComboPlus).LookupSource.DataSet.InheritsFrom(TTable) then
+      ((GetComponent(0) as TDBLookupComboPlus).LookUpSource.DataSet as TTable).GetIndexNames(List);
+{$IFDEF D3OR4OR5}
+  {$IFDEF ISCSVER}
+    If (GetComponent(0) as TDBLookupComboPlus).LookupSource.DataSet.InheritsFrom(TClientDataSet) then
+      ((GetComponent(0) as TDBLookupComboPlus).LookUpSource.DataSet as TClientDataSet).GetIndexNames(List);
+  {$ENDIF}
+{$ENDIF}
+  end;
+end;
+
+procedure TIndexNameProperty.GetValues(Proc: TGetStrProc);
+var
+  I: Integer;
+  Values: TStringList;
+begin
+  Values := TStringList.Create;
+  try
+    GetValueList(Values);
+    for I := 0 to Values.Count - 1 do Proc(Values[I]);
+  finally
+    Values.Free;
+  end;
+end;
+
+procedure TDBLookupComponentEditor.ExecuteVerb(Index: Integer);
+begin
+  MessageDlg('TDBLookupComboPlus'
+             +#10#13+ '(c) 1995, 1996, 1997 Out && About Productions'
+             +#10#13+ '75664.1224@compuserve.com'
+             +#10#13+ 'Fax 619.566.0210' ,mtInformation,[mbOK],0);
+end;
+
+function TDBLookupComponentEditor.GetVerb(Index: Integer): string;
+begin
+  result := 'Component Info';
+end;
+
+function TDBLookupComponentEditor.GetVerbCount: Integer;
+begin
+  result := 1;
+end;
+
+
+
+
+
+
+
+end.

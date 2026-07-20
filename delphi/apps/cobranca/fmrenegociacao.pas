@@ -1,0 +1,883 @@
+unit fmrenegociacao;
+
+interface
+
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  ExtCtrls, Buttons, Mask, ComCtrls, Grids, DBCtrls, DBGrids, Windows, DB,
+  ActnList, DateUtils,
+  // Componentes
+  cpdbtext, cpquery, cpdata, cpnumero, cpdbfindcontrols, cppagecontrol, cpdbgrid,
+  cpeditioncontrolvalidation, cptexto, fmcalcularparcelas,
+  // Constantes
+  ctconstantes, biblio,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Repositorio
+  fmcadastropadrao, frconsultadadoscliente, fmconsultaporcampo, fmconsultabasica,
+  fmajudabt,
+  // Projeto
+  dmrenegociacao, cpdbradiogroup, ToolWin, frconsulta, frconsultacodigo;
+
+type
+  TfrmRenegociacao = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxRenegociacao: TGroupBox;
+    pgcRenegociacao: TtecPageControl;
+    tstDadosClientes: TTabSheet;
+    tstParcelasContratos: TTabSheet;
+    gbxDadosContratos: TGroupBox;
+    gbxParcelasContrato: TGroupBox;
+    sbnProcuraCliente: TSpeedButton;
+    dtxNomeCliente: TtecDBText;
+    dbgParcelas: TtecDBGrid;
+    lblTipoOperacao: TLabel;
+    sbnExcluirParcelas: TSpeedButton;
+    aclRenegociacao: TActionList;
+    actHabilitar: TAction;
+    dbgContratosPorCliente: TtecDBGrid;
+    gbxContratos: TGroupBox;
+    lblOrigem: TLabel;
+    dtxContratoOrigem: TtecDBText;
+    lblRenegociado: TLabel;
+    dtxRenegociado: TtecDBText;
+    edfCliente: TtecDbEditFind;
+    sbnTransferencia: TSpeedButton;
+    sbnRenegociacao: TSpeedButton;
+    sbnAlteracao: TSpeedButton;
+    lblValorVista: TLabel;
+    dtxValorVista: TtecDBText;
+    lblValorPrazo: TLabel;
+    dtxValorPrazo: TtecDBText;
+    ecvValida: TtecEditionControlValidation;
+    tstItensContrato: TTabSheet;
+    gbxItensContratos: TGroupBox;
+    dbgItensContrato: TtecDBGrid;
+    Label1: TLabel;
+    dtsData: TtecDBText;
+    Label2: TLabel;
+    dtxSituacao: TtecDBText;
+    fraConsultaDadosClienteRenegociacao: TfraConsultaDadosCliente;
+    gbxTransferencia: TGroupBox;
+    sbnClienteTransferencia: TSpeedButton;
+    dtxNomeClienteTransferencia: TtecDBText;
+    gbxData1aParcelas: TGroupBox;
+    edtJuros: TEditNumero;
+    edtParcelas: TEditNumero;
+    edtData: TEditData;
+    sbnIncluirParcela: TSpeedButton;
+    lblFilialVenda: TLabel;
+    dtxFilialVenda: TtecDBText;
+    dtxDescricaoFilialVenda: TtecDBText;
+    lblAgente: TLabel;
+    flkAgente: TtecDBFindLookup;
+    dtxDescricaoAgente: TtecDBText;
+    lblVendedor: TLabel;
+    flkVendedor: TtecDBFindLookup;
+    sbnVendedor: TSpeedButton;
+    dtxNomeVendedor: TtecDBText;
+    lblAvalista: TLabel;
+    flkAvalista: TtecDBFindLookup;
+    sbnAvalista: TSpeedButton;
+    dtxNomeAvalista: TtecDBText;
+    lblAnalista: TLabel;
+    flkAnalista: TtecDBFindLookup;
+    sbnAnalista: TSpeedButton;
+    dtxNomeAnalista: TtecDBText;
+    edfNovoCliente: TtecDbEditFind;
+    edtFaturamento: TtecDBText;
+    lblFaturamento: TLabel;
+    sbnAgente: TSpeedButton;
+    tstServicos: TTabSheet;
+    gbxServicos: TGroupBox;
+    dbgServicos: TtecDBGrid;
+    dtxEquipamento: TtecDBText;
+    dtxDescricaoEquipamento: TtecDBText;
+    mmoComplementoEquipamento: TDBMemo;
+    lblPercentagem: TLabel;
+    gbxCliente: TGroupBox;
+    gbxJuros: TGroupBox;
+    gbxNrParcelas: TGroupBox;
+    gbxEquipamento: TGroupBox;
+    gbxComplemento: TGroupBox;
+    sbnGerarParcelas: TSpeedButton;
+    gbxTipoRecebimento: TGroupBox;
+    fraConsultaTipoRecebimentos: TfraConsultaCodigo;
+    gbxRecalcularParcelas: TGroupBox;
+    sbnGerarNovasParcelas: TSpeedButton;
+    gbxIntervalo: TGroupBox;
+    lbldias: TLabel;
+    edtIntervalo: TEditNumero;
+    ckbFixoDiaVencto: TCheckBox;
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure edfClienteFound(Found: Boolean);
+    procedure sbnAlteracaoClick(Sender: TObject);
+    procedure sbnAnalistaClick(Sender: TObject);
+    procedure sbnAvalistaClick(Sender: TObject);
+    procedure sbnExcluirParcelasClick(Sender: TObject);
+    procedure sbnProcuraClienteClick(Sender: TObject);
+    procedure sbnRenegociacaoClick(Sender: TObject);
+    procedure sbnTransferenciaClick(Sender: TObject);
+    procedure sbnVendedorClick(Sender: TObject);
+    procedure sbnIncluirParcelaClick(Sender: TObject);
+    procedure dbgParcelasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgParcelasDblClick(Sender: TObject);
+    procedure sbnClienteTransferenciaClick(Sender: TObject);
+    procedure edfNovoClienteMessage(var Msg: String);
+    procedure edfNovoClienteFound(Found: Boolean);
+    procedure edfClienteMessage(var Msg: String);
+    procedure sbnAgenteClick(Sender: TObject);
+    procedure edtParcelasExit(Sender: TObject);
+    procedure edtJurosChange(Sender: TObject);
+    procedure edtParcelasChange(Sender: TObject);
+    procedure edtDataChange(Sender: TObject);
+    procedure sbnGerarParcelasClick(Sender: TObject);
+    procedure fraConsultaTipoRecebimentosedfCodigoChange(Sender: TObject);
+    procedure fraConsultaTipoRecebimentosedfCodigoExit(Sender: TObject);
+    procedure fraConsultaTipoRecebimentosedfCodigoFound(Found: Boolean);
+    procedure sbnGerarNovasParcelasClick(Sender: TObject);
+    procedure ckbFixoDiaVenctoClick(Sender: TObject);
+    procedure edtIntervaloChange(Sender: TObject);
+  private
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+    procedure FiltrarProcuraTipoRecebimento(DataSet: TDataSet; var Accept: Boolean);
+    procedure FiltrarConsultaTipoRecebimento(DataSet: TDataSet; var Accept: Boolean);
+
+
+  protected
+    dtmRenegociacao: TdtmRenegociacao;
+    FTipoOperacao: TtecTipoOperacao;
+    procedure AcionaCadastroParcelas(Editar: Boolean);
+    procedure AtualizarControlesJanela;
+    procedure ContratosAfterScroll(Sender: TObject);
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar : Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure SetTipoOperacao(const Value: TtecTipoOperacao);
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  ValidarControles: Boolean;
+    function  ValidarNumeroParcelas: Boolean;
+    function  ValidarDataPrimeiraParcela: Boolean;
+    property  TipoOperacao: TtecTipoOperacao read FTipoOperacao write SetTipoOperacao;
+  public
+    constructor Create(AOwner: TComponent); Override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmRenegociacao : TfrmRenegociacao;
+  TipoProcura     : TtecRenegociacao;
+  ControleValido  : TWinControl;
+
+implementation
+
+uses
+  //Biblio
+  clparametrossistema,
+  //Repositorio
+  dmbasico,
+  //Projeto
+  fmcadastroparcelasrenegociacao;
+
+{$R *.dfm}
+
+{ TfrmRenegociacao }
+
+procedure TfrmRenegociacao.AcionaCadastroParcelas(Editar: Boolean);
+begin
+  if not Assigned (frmCadastroParcelasRenegociacao) then
+    frmCadastroParcelasRenegociacao:= TfrmCadastroParcelasRenegociacao.Create(frmCadastroParcelasRenegociacao);
+
+  with frmCadastroParcelasRenegociacao do
+  begin
+    if (TipoOperacao = tpALTERACAO) then
+      frmCadastroParcelasRenegociacao.edtDataVencto.Minimo :=
+          DaysBetween(Date, dtmRenegociacao.qryContratosPorClientedata.AsDateTime)
+    else
+      frmCadastroParcelasRenegociacao.edtDataVencto.Minimo := 0;
+
+    sbnIncluir.Enabled := sbnIncluirParcela.Enabled;
+    sbnExcluir.Enabled := sbnExcluirParcelas.Enabled;
+    SetDataModulo(dtmRenegociacao);
+    DataSet:= dtmRenegociacao.TabelaParcela;
+    dtmRenegociacao.IncluirParcelas(Editar);
+    ShowModal;
+    Free;
+    dbgParcelas.SetFocus;
+  end
+end;
+
+procedure TfrmRenegociacao.actHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  with dtmRenegociacao do begin
+
+    gbxRecalcularParcelas.Visible := ((TipoOperacao = tpALTERACAO) and
+                                     (ParSistema.PermitirAlterarQuantidadeParcelas)) or
+                                     (TipoOperacao in [tpTRANSFERENCIA, tpRENEGOCIACAO]) or
+                                     (TipoOperacao = tpNENHUM);
+
+
+    gbxTransferencia.Enabled        := (TipoOperacao in [tpTRANSFERENCIA]);
+    sbnClienteTransferencia.Enabled := (TipoOperacao in [tpTRANSFERENCIA]);
+
+    gbxJuros.         Enabled := TipoOperacao in [tpTRANSFERENCIA, tpRENEGOCIACAO, tpALTERACAO];
+    gbxNrParcelas.    Enabled := gbxJuros.Enabled;
+    gbxData1aParcelas.Enabled := gbxJuros.Enabled;
+    sbnAgente.Enabled         := (TipoOperacao in [tpTRANSFERENCIA, tpRENEGOCIACAO, tpALTERACAO]);
+    sbnAvalista.Enabled       := sbnAgente.Enabled;
+    sbnAnalista.Enabled       := sbnAgente.Enabled;
+    sbnVendedor.Enabled       := sbnAgente.Enabled;
+
+    sbnExcluir.Enabled        := PodeExcluir    and (TipoOperacao = tpNENHUM);
+    sbnTransferencia.Enabled  := ExisteContrato and (TipoOperacao = tpNENHUM);
+    sbnAlteracao.Enabled      := ExisteContrato and (TipoOperacao = tpNENHUM);
+    sbnRenegociacao.Enabled   := ExisteContrato and (TipoOperacao = tpNENHUM);
+{
+    if (TipoOperacao in [tpTRANSFERENCIA, tpRENEGOCIACAO]) then
+     sbnIncluirParcela.Enabled := PodeIncluirParcela
+    else
+     if (TipoOperacao in [tpALTERACAO]) then
+      sbnIncluirParcela.Enabled := PodeAlterarParcela
+     else sbnIncluirParcela.Enabled := False ;
+}
+
+    if (TipoOperacao in [tpTRANSFERENCIA, tpRENEGOCIACAO]) or
+       ((TipoOperacao = tpALTERACAO) and
+         (ParSistema.PermitirAlterarQuantidadeParcelas)) then
+     sbnIncluirParcela.Enabled := PodeIncluirParcela
+    else sbnIncluirParcela.Enabled := False ;
+
+    sbnExcluirParcelas.Enabled:= PodeExcluirParcela and
+                                 (TipoOperacao in [tpTRANSFERENCIA, tpRENEGOCIACAO, tpALTERACAO]);
+
+{
+    sbnGerarParcelas.Visible := ((TipoOperacao = tpALTERACAO) and
+                                 (ParSistema.PermitirAlterarQuantidadeParcelas));
+}
+
+
+
+  end;
+end;
+
+procedure TfrmRenegociacao.AtualizarControlesJanela;
+begin
+  with dtmRenegociacao do begin
+    if (TipoOperacao in [tpTRANSFERENCIA, tpRENEGOCIACAO, tpALTERACAO]) then begin
+      edtJuros.Text    := FloatToStr(ParSistema.TaxaJuros);
+      edtParcelas.Text := IntToStr(ParSistema.MaximoParcelasRenegociacao);
+      edtData.Text     := DateToStr(DataServidor + ParSistema.VenctoPrimeiraParcela);
+    end
+    else begin
+      edfNovoCliente.Text:= '';
+      edtJuros.Text   := '';
+      edtParcelas.Text:= '';
+      edtData.Text    := '';
+      fraConsultaTipoRecebimentos.edfCodigo.Clear;
+    end;
+
+    case TipoOperacao of
+            tpNENHUM : begin
+                         lblTipoOperacao.Caption := '';
+                         pgcRenegociacao.ActivePage:= tstParcelasContratos;
+                       end;
+         tpRETIRASPC : lblTipoOperacao.Caption  := 'RETIRAR CLIENTE SPC';
+     tpTRANSFERENCIA : begin
+                         Abre(ctCrediarioClientesTransferencia);
+                         lblTipoOperacao.Caption  := 'TRANSFERÊNCIA DA DÍVIDA';
+                         if not gbxTransferencia.Enabled then
+                           gbxTransferencia.Enabled:= True;
+                         edfNovoCliente.SetFocus;
+                       end;
+         tpALTERACAO : lblTipoOperacao.Caption  := 'ALTERAÇÂO DO CONTRATO';
+      tpRENEGOCIACAO : begin
+                         lblTipoOperacao.Caption  := 'RENEGOCIAÇÂO DO CONTRATO';
+                         if not gbxJuros.Enabled then begin
+                            gbxJuros.         Enabled:= True;
+                            gbxNrParcelas.    Enabled:= True;
+                            gbxData1aParcelas.Enabled:= True;
+                         end;
+//                         edtParcelas.SetFocus;
+                       end;
+    end;
+  end;
+end;
+
+procedure TfrmRenegociacao.ContratosAfterScroll(Sender: TObject);
+begin
+  TipoOperacao:= tpNENHUM;
+end;
+
+constructor TfrmRenegociacao.Create(AOwner: TComponent);
+begin
+  dtmRenegociacao:= TdtmRenegociacao.Create(Self);
+  inherited;
+  DataSet:= dtmRenegociacao.TabelaContrato;
+  TipoOperacao:= tpNENHUM;
+  dtmRenegociacao.Abre(ctCrediarioClientes);
+  dtmRenegociacao.OnAfterScroll:= ContratosAfterScroll;
+  edfNovoCliente.ReadOnly:= False;
+  dbgItensContrato.Columns[2].Visible := ParSistema.UsarGradesProdutos;
+  dbgItensContrato.Columns[3].Visible := ParSistema.UsarGradesProdutos;
+  dtmRenegociacao.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  dbgItensContrato.Columns[5].Width := length(ParSistema.MascaraQuantidade)*7;
+  dbgParcelas.OnDelete := dtmRenegociacao.ExcluirParcelas;
+
+  fraConsultaTipoRecebimentos.TipoPesquisa := pesTIPORECEBIMENTO;
+  fraConsultaTipoRecebimentos.qryProcuraTipoRecebimento.Filtered := True;
+  fraConsultaTipoRecebimentos.qryConsultaTipoRecebimento.Filtered := True;
+
+  fraConsultaTipoRecebimentos.qryProcuraTipoRecebimento.OnFilterRecord := FiltrarProcuraTipoRecebimento;
+  fraConsultaTipoRecebimentos.qryConsultaTipoRecebimento.OnFilterRecord := FiltrarConsultaTipoRecebimento;
+
+
+
+end;
+
+procedure TfrmRenegociacao.dbgParcelasDblClick(Sender: TObject);
+begin
+  inherited;
+//  if sbnIncluirParcela.Enabled or (TipoOperacao = tpALTERACAO) then
+  if dtmRenegociacao.PodeAlterarParcela then
+     AcionaCadastroParcelas(True);
+end;
+
+procedure TfrmRenegociacao.dbgParcelasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+//    TeclaInserirRegistro : if sbnIncluirParcela.Enabled and (TipoOperacao <> tpALTERACAO)then
+    TeclaInserirRegistro : if sbnIncluirParcela.Enabled then
+                              AcionaCadastroParcelas(
+                                (TipoOperacao = tpALTERACAO) and
+                                not (ParSistema.PermitirAlterarQuantidadeParcelas));
+
+    TeclaEditarRegistro  : if dtmRenegociacao.PodeAlterarParcela then
+                              AcionaCadastroParcelas(True);
+  end;
+end;
+
+destructor TfrmRenegociacao.Destroy;
+begin
+  dtmRenegociacao:=nil;
+  inherited;
+  frmRenegociacao:= nil;
+end;
+
+procedure TfrmRenegociacao.edfClienteFound(Found: Boolean);
+begin
+  inherited;
+  if Found then begin
+    case dtmRenegociacao.TipoCliente[1] of
+      'C': gbxCliente.Caption:= 'Cliente';
+      'F': gbxCliente.Caption:= 'Fornecedor';
+      'L': gbxCliente.Caption:= 'Filial';
+    end;
+    TipoOperacao:= tpNENHUM;
+    if not dtmRenegociacao.ReFazConsultaContratosPorCliente then begin
+      fraConsultaDadosClienteRenegociacao.BuscarDadosCliente(StrToInt(edfCliente.Text),
+                                                             dtmRenegociacao.TipoCliente);
+      pgcRenegociacao.ActivePage := tstParcelasContratos;
+      dbgContratosPorCliente.SetFocus;
+    flkAgente.Exist;
+    flkVendedor.Exist;
+    flkAnalista.Exist;
+    end;
+  end;
+end;
+
+procedure TfrmRenegociacao.edfClienteMessage(var Msg: String);
+begin
+  inherited;
+  Msg:= Format(ctCLIENTEINVALIDORENEGOCIACAO,[edfCliente.Text]);
+end;
+
+procedure TfrmRenegociacao.edfNovoClienteFound(Found: Boolean);
+begin
+  inherited;
+  if Found then begin
+    edfNovoCliente.ReadOnly:= True;
+    case dtmRenegociacao.TipoNovoCliente[1] of
+      'C': gbxTransferencia.Caption:= 'Novo Cliente';
+      'F': gbxTransferencia.Caption:= 'Novo Cliente (Fornecedor)';
+      'L': gbxTransferencia.Caption:= 'Novo Cliente (Filial)';
+    end;
+    fraConsultaDadosClienteRenegociacao.BuscarDadosCliente(StrToInt(edfNovoCliente.Text),
+                                                           dtmRenegociacao.TipoNovoCliente);
+  end;
+end;
+
+procedure TfrmRenegociacao.edfNovoClienteMessage(var Msg: String);
+begin
+  inherited;
+  Msg:= Format(ctCLIENTEINVALIDOTRANSFERENCIA,[edfNovoCliente.Text]);
+end;
+
+function TfrmRenegociacao.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmRenegociacao do begin
+    case TipoProcura of
+      rgCLIENTE,
+      rgAVALISTA,
+      rgTRANSFERENCIA : Result:= ExisteCliente(nomecampo, value);
+      rgAGENTE        : Result:= ExisteAgente(nomecampo, value);
+      rgANALISTA      : Result:= ExisteAnalista(nomecampo, value);
+      rgVENDEDOR      : Result:= ExisteVendedor(nomecampo, value);
+      else              Result:= False;
+    end;
+  end;
+end;
+
+function TfrmRenegociacao.InternoExcluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then begin
+    Result:= inherited InternoExcluir;
+    if Result then begin
+      TipoOperacao:= tpEXCLUSAO;
+      dtmRenegociacao.ExcluirContrato;
+      TipoOperacao:= tpNENHUM;
+    end;
+  end;
+end;
+
+function TfrmRenegociacao.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then begin
+    Result:= dtmRenegociacao.GravarRenegociacao;
+    fraConsultaDadosClienteRenegociacao.BuscarDadosCliente(StrToInt(edfCliente.Text),
+                                                           dtmRenegociacao.TipoCliente);
+    edfNovoCliente.ReadOnly:= False;
+    if Result then
+      TipoOperacao:= tpNENHUM;
+  end;
+  if pgcRenegociacao.ActivePageIndex <> 0 then
+    pgcRenegociacao.ActivePageIndex:= 0;
+  if Result then edfCliente.SetFocus
+  else           dbgParcelas.SetFocus;
+end;
+
+function TfrmRenegociacao.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result := mrNone;
+  with dtmRenegociacao do begin
+    if CtrlOn and (ActiveControl is TtecFindCustom) then begin
+      if ActiveControl = edfCliente then begin
+        Titulo     := 'Cliente';
+        TipoProcura:= rgCLIENTE;
+      end
+      else if (ActiveControl = edfNovoCliente) and not edfNovoCliente.ReadOnly then begin
+        Titulo     := 'Cliente';
+        TipoProcura:= rgTRANSFERENCIA;
+      end
+      else if ActiveControl = flkAgente then begin
+        Titulo     := 'Agente';
+        TipoProcura:= rgAGENTE;
+      end
+      else if ActiveControl = flkVendedor then begin
+        Titulo     := 'Vendedor';
+        TipoProcura:= rgVENDEDOR;
+      end
+      else if ActiveControl = flkAvalista then begin
+        Titulo     := 'Avalista';
+        TipoProcura:= rgAVALISTA;
+      end
+      else if ActiveControl = flkAnalista then begin
+        Titulo     := 'Analista';
+        TipoProcura:= rgANALISTA;
+      end
+      else
+        TipoProcura:= rgNENHUM;
+
+      if TipoProcura <> rgNENHUM then begin
+        AbrirTabelas(TipoProcura);
+        Result := inherited InternoPesquisar(Titulo);
+        if Result = mrOK then
+          Selecionar(TipoProcura);
+        FecharTabelas(TipoProcura);
+      end;  
+    end;
+  end
+end;
+
+function TfrmRenegociacao.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  case TipoProcura of
+    rgCLIENTE  : begin
+                   TfrmConsultaPorCampo(Result).ConsultaInterativa     := False;
+                   TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+                   TfrmConsultaPorCampo(Result).Msg:= Format(ctCLIENTEINVALIDORENEGOCIACAO,['']);
+                 end;
+    rgTRANSFERENCIA,
+    rgAVALISTA : begin
+                   TfrmConsultaPorCampo(Result).ConsultaInterativa     := False;
+                   TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+                 end;
+    rgAGENTE,
+    rgVENDEDOR,
+    rgANALISTA : begin
+                   TfrmConsultaPorCampo(Result).ConsultaInterativa     := True;
+                   TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := false;
+                 end;
+  end;
+end;
+
+procedure TfrmRenegociacao.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    VK_F8    : if (Shift = []) and sbnAlteracao.Enabled     then sbnAlteracao.Click;
+    VK_F11   : if (Shift = []) and sbnRenegociacao.Enabled  then sbnRenegociacao.Click;
+    VK_F12   : if (Shift = []) and sbnTransferencia.Enabled then sbnTransferencia.Click;
+    VK_ESCAPE: begin
+                  dtmRenegociacao.ReFazConsultaContratos;
+                  fraConsultaDadosClienteRenegociacao.BuscarDadosCliente(0,'');
+                  TipoOperacao:= tpNENHUM;
+                end;
+    VK_G :
+    begin
+      if ctrlon then
+        sbnGerarNovasParcelasClick(nil);  
+    end;
+
+  end;
+end;
+
+procedure TfrmRenegociacao.sbnAgenteClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkAgente.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRenegociacao.sbnAlteracaoClick(Sender: TObject);
+begin
+  inherited;
+
+  TipoOperacao:= tpALTERACAO;
+  if Not dtmRenegociacao.NaoPodeRenegociar then
+  begin
+    dtmRenegociacao.EditarContrato;
+    if pgcRenegociacao.ActivePageIndex <> 0 then
+      pgcRenegociacao.ActivePageIndex:= 0;
+    //edtJuros.SetFocus;
+//    dbgParcelas.SetFocus;
+  end
+  else
+  begin
+    TipoOperacao:= tpNENHUM;
+    edfCliente.SetFocus;
+  end;
+
+end;
+
+procedure TfrmRenegociacao.sbnAnalistaClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkAnalista.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRenegociacao.sbnAvalistaClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkAvalista.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRenegociacao.sbnClienteTransferenciaClick(Sender: TObject);
+begin
+  inherited;
+  if not edfNovoCliente.ReadOnly then begin
+    CtrlOn:= True;
+    edfNovoCliente.SetFocus;
+    InternoPesquisar('');
+  end;
+end;
+
+procedure TfrmRenegociacao.sbnExcluirParcelasClick(Sender: TObject);
+begin
+  inherited;
+  dtmRenegociacao.ExcluirParcelas;
+end;
+
+procedure TfrmRenegociacao.sbnIncluirParcelaClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroParcelas(
+    (TipoOperacao = tpALTERACAO) and
+    not (ParSistema.PermitirAlterarQuantidadeParcelas));
+end;
+
+procedure TfrmRenegociacao.sbnProcuraClienteClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfCliente.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRenegociacao.sbnRenegociacaoClick(Sender: TObject);
+begin
+  inherited;
+  with dtmRenegociacao do
+  begin
+    if not ProdutosPendentes then
+    begin
+      TipoOperacao:= tpRENEGOCIACAO;
+
+      if Not NaoPodeRenegociar then
+      begin
+        dtmRenegociacao.Renegociar;
+        dtmRenegociacao.EditarContrato;
+        if pgcRenegociacao.ActivePageIndex <> 0 then
+          pgcRenegociacao.ActivePageIndex:= 0;
+        edtJuros.SetFocus;
+//        dbgParcelas.SetFocus;
+      end
+      else
+      begin
+        TipoOperacao:= tpNENHUM;
+        edfCliente.SetFocus;
+      end;
+    end;
+  end;      
+end;
+
+procedure TfrmRenegociacao.sbnTransferenciaClick(Sender: TObject);
+begin
+  inherited;
+  with dtmRenegociacao do begin
+    if not ProdutosPendentes then begin
+      TipoOperacao:= tpTRANSFERENCIA;
+      if NaoPodeRenegociar then begin
+        TipoOperacao:= tpNENHUM;
+        edfCliente.SetFocus;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmRenegociacao.sbnVendedorClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkVendedor.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRenegociacao.SetTipoOperacao(const Value: TtecTipoOperacao);
+begin
+  if FTipoOperacao <> Value then
+    FTipoOperacao:= Value;
+  dtmRenegociacao.Operacao:= FTipoOperacao;
+    
+  AtualizarControlesJanela;
+end;
+
+function TfrmRenegociacao.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmRenegociacao do begin
+    case TipoProcura of
+      rgCLIENTE,
+      rgAVALISTA,
+      rgTRANSFERENCIA : Result := ConsultaCliente;
+      rgAGENTE        : Result := ConsultaAgente;
+      rgANALISTA      : Result := ConsultaAnalista;
+      rgVENDEDOR      : Result := ConsultaVendedor;
+      else              Result := Nil;
+    end;
+  end;
+end;
+
+function TfrmRenegociacao.ValidarControles: Boolean;
+begin
+
+   Result:= ecvValida.Verify(gbxJuros,         ControleValido) and
+            ecvValida.Verify(gbxNrParcelas,    ControleValido) and
+            ecvValida.Verify(gbxData1aParcelas,ControleValido);
+
+   if result and not ckbFixoDiaVencto.checked then
+     result := ecvValida.Verify(gbxIntervalo,  ControleValido);
+
+   if result then
+   begin
+     result := fraConsultaTipoRecebimentos.qryProcuraTipoRecebimento.fieldbyname('codigo').AsInteger <> 0;
+     if not result then
+     begin
+       if not fraConsultaTipoRecebimentos.edfCodigo.Focused then
+       begin
+         MensagemAviso('Informe o tipo de recebimento');
+         fraConsultaTipoRecebimentos.edfCodigo.SetFocus;
+       end;  
+     end;  
+   end;
+
+   if Result then
+     Result:= edtData.DataValida;
+
+   if Result and (TipoOperacao = tpTRANSFERENCIA) then
+     Result:= OperadorTernario(edfNovoCliente.Text <> '',edfNovoCliente.Exist,False);
+end;
+
+procedure TfrmRenegociacao.edtParcelasExit(Sender: TObject);
+begin
+  inherited;
+  if not ValidarNumeroParcelas then begin
+    edtParcelas.Text:= IntToStr(ParSistema.MaximoParcelasRenegociacao);
+    edtParcelas.SetFocus;
+  end;
+end;
+
+function TfrmRenegociacao.ValidarNumeroParcelas: Boolean;
+var
+  NP: Integer;
+begin
+  if edtParcelas.Text = '' then NP:= 0
+  else                          NP:= StrToInt(edtParcelas.Text);
+  Result:= (NP <= dtmRenegociacao.NumeroParcelasValida);
+  if not Result then
+    MensagemAviso(Format(ctNUMEROMAXIMOPARCELA,[IntToStr(dtmRenegociacao.NumeroParcelasValida)]));
+end;
+
+function TfrmRenegociacao.ValidarDataPrimeiraParcela: Boolean;
+begin
+  Result:= (StrToDate(edtData.Text) <= (dtmRenegociacao.DataServidor + dtmRenegociacao.VenctoPrimeiraParcela));
+  if not Result then
+    MensagemAviso(Format(ctDATAMINIMAPRIMEIRAPARCELA,[DateToStr(dtmRenegociacao.DataServidor +
+                                                                dtmRenegociacao.VenctoPrimeiraParcela)]));
+end;
+
+procedure TfrmRenegociacao.edtJurosChange(Sender: TObject);
+begin
+  inherited;
+  if edtJuros.Text = '' then dtmRenegociacao.JurosCobrado:= 0
+  else                       dtmRenegociacao.JurosCobrado:= StrToFloat(edtJuros.Text);
+end;
+
+procedure TfrmRenegociacao.edtParcelasChange(Sender: TObject);
+begin
+  inherited;
+  if edtParcelas.Text = '' then dtmRenegociacao.NumeroParcela:= 0
+  else                          dtmRenegociacao.NumeroParcela:= StrToInt(edtParcelas.Text);
+end;
+
+procedure TfrmRenegociacao.edtDataChange(Sender: TObject);
+begin
+  inherited;
+  dtmRenegociacao.PrimeiraParcela:= edtData.Text;
+end;
+procedure TfrmRenegociacao.AfterScrollLinhaColunaGrade(Sender: TObject);
+begin
+  dbgItensContrato.Columns[2].Title.Caption := dtmRenegociacao.LinhadaGrade;
+  dbgItensContrato.Columns[3].Title.Caption := dtmRenegociacao.colunadaGrade;
+end;
+
+procedure TfrmRenegociacao.sbnGerarParcelasClick(Sender: TObject);
+begin
+  inherited;
+  frmCalcularParcelas := TfrmcalcularParcelas.Create(frmCalcularParcelas);
+
+  frmCalcularParcelas.edtVencimento.Minimo := DaysBetween(Date,
+              dtmRenegociacao.qryContratosPorClientedata.AsDateTime);
+
+  frmCalcularParcelas.DataEmissao := dtmRenegociacao.qryContratosPorClientedata.AsDateTime;
+  frmCalcularParcelas.edtVencimento.MensagemPadronizada := frmCalcularParcelas.ExibirMensagemPadronizada;
+  frmCalcularParcelas.ShowModal;
+  if frmCalcularParcelas.ModalResult = mrOK then
+    dtmRenegociacao.GerarParcelas(frmCalcularParcelas.NrParcelas,
+                               frmCalcularParcelas.Vencimento,
+                               frmCalcularParcelas.Intervalo);
+  frmCalcularParcelas.free;
+  dbgParcelas.SetFocus;
+end;
+
+procedure TfrmRenegociacao.fraConsultaTipoRecebimentosedfCodigoChange(
+  Sender: TObject);
+begin
+  inherited;
+  dtmRenegociacao.TipoRecebimento := 0;
+  if fraConsultaTipoRecebimentos.qryProcuraTipoRecebimento.active then
+    dtmRenegociacao.TipoRecebimento := fraConsultaTipoRecebimentos.qryProcuraTipoRecebimento.fieldbyname('codigo').AsInteger;
+
+end;
+
+procedure TfrmRenegociacao.fraConsultaTipoRecebimentosedfCodigoExit(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaTipoRecebimentos.edfCodigoExit(Sender);
+
+end;
+
+procedure TfrmRenegociacao.fraConsultaTipoRecebimentosedfCodigoFound(
+  Found: Boolean);
+begin
+  inherited;
+  dtmRenegociacao.TipoRecebimento := fraConsultaTipoRecebimentos.qryProcuraTipoRecebimento.fieldbyname('codigo').AsInteger;
+end;
+
+procedure TfrmRenegociacao.sbnGerarNovasParcelasClick(Sender: TObject);
+begin
+  inherited;
+  ckbFixoDiaVenctoClick(nil);
+  fraConsultaTipoRecebimentosedfCodigoChange(nil);
+  
+  if ValidarControles then
+  begin
+    if ValidarDataPrimeiraParcela then
+    begin
+      pgcRenegociacao.ActivePage:= tstParcelasContratos;
+
+      if TipoOperacao = tpALTERACAO then
+        dtmRenegociacao.GerarParcelas_
+      else
+        dtmRenegociacao.Renegociar(true, );
+
+      if pgcRenegociacao.ActivePageIndex <> 0 then
+        pgcRenegociacao.ActivePageIndex:= 0;
+      dbgParcelas.SetFocus;
+    end
+    else edtData.SetFocus;
+  end;
+
+end;
+
+procedure TfrmRenegociacao.ckbFixoDiaVenctoClick(Sender: TObject);
+begin
+  inherited;
+  dtmrenegociacao.FixoDiaVencto := ckbFixoDiaVencto.checked;
+  edtIntervalo.enabled := not ckbFixoDiaVencto.checked;
+  lbldias.enabled := not ckbFixoDiaVencto.checked;
+end;
+
+procedure TfrmRenegociacao.edtIntervaloChange(Sender: TObject);
+begin
+  inherited;
+  if edtIntervalo.Text = '' then dtmRenegociacao.Intervalo := 0
+  else dtmRenegociacao.Intervalo := StrToInt(edtIntervalo.Text);
+end;
+
+procedure TfrmRenegociacao.FiltrarConsultaTipoRecebimento(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  Accept := Dataset.fieldbyname('permitirselecionar').asBoolean;
+end;
+
+procedure TfrmRenegociacao.FiltrarProcuraTipoRecebimento(DataSet: TDataSet;
+  var Accept: Boolean);
+begin
+  Accept := Dataset.fieldbyname('permitirselecionar').asBoolean;
+end;
+
+end.

@@ -1,0 +1,1962 @@
+inherited frmEFD: TfrmEFD
+  Left = 216
+  Top = 25
+  ActiveControl = edtMesInicial
+  Caption = 'EFD - Escritura'#231#227'o Fiscal Digital'
+  ClientHeight = 729
+  ClientWidth = 937
+  FormStyle = fsMDIChild
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    Left = 0
+    Top = 45
+    Width = 937
+    Height = 684
+    Align = alClient
+    BevelOuter = bvNone
+    Visible = True
+    inherited bvlBotoesEd: TBevel
+      Left = 0
+      Top = 81
+      Width = 937
+      Height = 0
+      Align = alTop
+      Visible = False
+    end
+    object pnlTop: TPanel
+      Left = 0
+      Top = 0
+      Width = 937
+      Height = 81
+      Align = alTop
+      BevelOuter = bvNone
+      TabOrder = 0
+      object gbxPeriodo: TGroupBox
+        Left = 7
+        Top = 0
+        Width = 68
+        Height = 36
+        Caption = 'PER'#205'ODO'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        object edtMesInicial: TtecDbEditFind
+          Left = 2
+          Top = 10
+          Width = 63
+          Height = 23
+          Alignment = taLeftJustify
+          DataField = 'periodo'
+          DataSource = dtmEFD.dsrefd
+          EditMask = '!99/0000;1;_'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Group = 'periodo'
+          MaxLength = 7
+          Maximo = 0
+          Minimo = 37353
+          Adicional = 0
+          Opcional = True
+          OnFound = fraConsultaFilialedfCodigoFound
+          OnMessage = edtMesInicialMessage
+          ParentFont = False
+          TabOrder = 0
+          PermitirZero = False
+          PermitirNulo = False
+          Operacao = opATRIBUICAO
+          Parameter = 'periodo'
+          ActiveSetControls = True
+          DenyInsert = False
+          NoSetControls = <
+            item
+              Control = gbxPeriodo
+            end
+            item
+              Control = gbxFilial
+            end>
+          SetControls = <
+            item
+              Control = gbxArquivo
+            end
+            item
+              Control = pgcOpcoesEFD
+            end
+            item
+              Control = rgpTipoEnvio
+            end
+            item
+            end>
+        end
+      end
+      object gbxArquivo: TGroupBox
+        Left = 7
+        Top = 40
+        Width = 327
+        Height = 36
+        Caption = 'NOME DO ARQUIVO'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        object dtxArquivo: TtecDBText
+          Left = 2
+          Top = 10
+          Width = 322
+          Height = 23
+          TabStop = False
+          Color = clBtnFace
+          DataField = 'nomearquivo'
+          DataSource = dtmEFD.dsrefd
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+          Alignment = taLeftJustify
+        end
+      end
+      object rgpTipoEnvio: TtecDBRadioGroup
+        Left = 552
+        Top = 3
+        Width = 105
+        Height = 56
+        Caption = 'TIPO DE ENVIO'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        TabStop = False
+        DataField = 'tipo'
+        DataSource = dtmEFD.dsrefd
+        object rbnOriginal: TtecRadioButton
+          Left = 8
+          Top = 14
+          Width = 89
+          Height = 17
+          Caption = 'Original'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          Value = 'O'
+        end
+        object rbnSubstituto: TtecRadioButton
+          Left = 8
+          Top = 34
+          Width = 89
+          Height = 17
+          Caption = 'Substituto'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          Value = 'S'
+        end
+      end
+      object gbxFilial: TGroupBox
+        Left = 80
+        Top = 1
+        Width = 464
+        Height = 36
+        Caption = 'FILIAL'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        inline fraConsultaFilial: TfraConsultaCodigo
+          Left = 5
+          Top = 10
+          Width = 496
+          Height = 25
+          HorzScrollBar.Range = 456
+          VertScrollBar.Range = 23
+          AutoScroll = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          inherited sbnProcura: TSpeedButton
+            Left = 32
+          end
+          inherited dtxDescricao: TtecDBText
+            Left = 56
+            Width = 400
+            DataField = 'nome'
+            DataSource = fraConsultaFilial.dsrProcuraFiliais
+          end
+          inherited edfCodigo: TtecDBFindLookup
+            Width = 32
+            DataField = 'filial'
+            DataSource = dtmEFD.dsrefd
+            Group = 'periodo'
+            MaxLength = 3
+            OnFound = fraConsultaFilialedfCodigoFound
+            LookupField = 'codigo'
+            LookupSource = fraConsultaFilial.dsrProcuraFiliais
+            LookupQueryParameter = 'codigo'
+            Parameter = 'filial'
+            LookupParameter = 'codigo'
+          end
+          inherited qryProcuraFiliais: TtecQuery
+            Options = [doAutoFillDefs]
+          end
+        end
+      end
+    end
+    object pgcOpcoesEFD: TPageControl
+      Left = 0
+      Top = 81
+      Width = 937
+      Height = 603
+      ActivePage = tstApuracaoICMS
+      Align = alClient
+      TabOrder = 1
+      object tstApuracaoICMS: TTabSheet
+        Caption = ' Apura'#231#227'o do I&CMS '
+        ImageIndex = 1
+        object sbnReatualizarSaldos: TSpeedButton
+          Left = 775
+          Top = 0
+          Width = 109
+          Height = 36
+          Hint = 'Recalcular os totais de d'#233'bitos e cr'#233'ditos de ICMS'
+          Caption = 'Reatualizar'
+          Flat = True
+          Glyph.Data = {
+            DE030000424DDE03000000000000360000002800000011000000120000000100
+            180000000000A8030000120B0000120B00000000000000000000DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC80878000
+            0000808780DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDC
+            DCDCDCDCDCDCDC80878000000080878000000000FFFF00000080878000000080
+            8780DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDC00000000FF
+            FF80878000000000FFFF00000080878000FFFF000000DCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDC00DCDCDCDCDCDC00000080878080878000FFFF00FFFF00FFFF00FF
+            FF00FFFF808780808780000000DCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDC
+            80878000000000000000FFFF80878000000080878000FFFF0000000000008087
+            80DCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDC00000000FFFF00FFFF00FFFF
+            000000FFFFFF00000000FFFF00FFFF00FFFF000000DCDCDCDCDCDCDCDCDCDCDC
+            DC00DCDCDCDCDCDC80878000000000000000FFFF80878000000080878000FFFF
+            000000000000808780DCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDC80
+            878080878000FFFF00FFFF00FFFF00FFFF00FFFF808780808780DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDC00000000FFFF80878000000000
+            FFFF00000080878000FFFF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDC
+            DCDCDCDCDCDCDC80878000000080878000000000FFFF00000080878000000080
+            8780DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDC808780000000808780DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DC00}
+          Spacing = 0
+          OnClick = sbnReatualizarSaldosClick
+        end
+        object gbxSaldoCreditoMesAnterior: TGroupBox
+          Left = 472
+          Top = 41
+          Width = 115
+          Height = 37
+          Caption = 'CR'#201'DITO ANTERIOR'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          object DBEditNumero1: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = -1
+            ParentFont = False
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_sld_credor_ant'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+        object gbxProcesso: TGroupBox
+          Left = 6
+          Top = 421
+          Width = 801
+          Height = 139
+          Caption = 'PROCESSO OU AUTO DE INFRA'#199#195'O'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 4
+          object gbxNumeroProcesso: TGroupBox
+            Left = 5
+            Top = 13
+            Width = 165
+            Height = 37
+            Caption = 'N'#186' DO PROCESSO'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            object edtNrProcesso: TDBEditTexto
+              Left = 2
+              Top = 11
+              Width = 160
+              Height = 23
+              DataField = 'num_proc'
+              DataSource = dtmEFD.dsrEFD_E116
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              MaxLength = -1
+              ParentFont = False
+              TabOrder = 0
+              CharCasenoDefault = False
+              Alignment = taLeftJustify
+            end
+          end
+          object rgpOrigemProcesso: TtecDBRadioGroup
+            Left = 4
+            Top = 51
+            Width = 166
+            Height = 85
+            Caption = 'ORIGEM DO PROCESSO'
+            TabOrder = 1
+            TabStop = False
+            DataField = 'ind_proc'
+            DataSource = dtmEFD.dsrEFD_E116
+            object rbnSefaz: TtecRadioButton
+              Left = 8
+              Top = 13
+              Width = 145
+              Height = 17
+              Caption = '0 - SEFAZ'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 0
+              Value = '0'
+            end
+            object rbnJusticaFederal: TtecRadioButton
+              Left = 8
+              Top = 30
+              Width = 153
+              Height = 17
+              Caption = '1 - Justi'#231'a Federal'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 1
+              Value = '1'
+            end
+            object rbnJusticaEstadual: TtecRadioButton
+              Left = 8
+              Top = 48
+              Width = 153
+              Height = 17
+              Caption = '2 - Justi'#231'a Estadual'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 2
+              Value = '2'
+            end
+            object rbnOUTROS: TtecRadioButton
+              Left = 8
+              Top = 65
+              Width = 153
+              Height = 17
+              Caption = '9 - Outros'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 3
+              Value = '9'
+            end
+          end
+          object gbxDescricaoProcesso: TGroupBox
+            Left = 175
+            Top = 13
+            Width = 623
+            Height = 124
+            Caption = 'DESCRI'#199#195'O'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 2
+            object mmoDescricaoProcesso: TtecDBMemo
+              Left = 2
+              Top = 14
+              Width = 619
+              Height = 108
+              Align = alClient
+              DataField = 'descr_proc'
+              DataSource = dtmEFD.dsrEFD_E116
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              MaxLength = 150
+              ParentFont = False
+              TabOrder = 0
+            end
+          end
+        end
+        object gbxOBRIGACAO: TGroupBox
+          Left = 6
+          Top = 92
+          Width = 801
+          Height = 186
+          Caption = 'OBRIGA'#199#213'ES A RECOLHER'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 2
+          object lblTotalObrigacoes: TLabel
+            Left = 622
+            Top = 111
+            Width = 36
+            Height = 14
+            Caption = 'TOTAL'
+          end
+          object gbxDescricao: TGroupBox
+            Left = 4
+            Top = 125
+            Width = 793
+            Height = 57
+            Caption = 'DESCRI'#199#195'O DA OBRIGA'#199#195'O'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+            object mmoDescricaoObrigacao: TtecDBMemo
+              Left = 2
+              Top = 14
+              Width = 789
+              Height = 41
+              Align = alClient
+              DataField = 'txt_comp'
+              DataSource = dtmEFD.dsrEFD_E116
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              MaxLength = 150
+              ParentFont = False
+              TabOrder = 0
+            end
+          end
+          object dbgObrigacoes: TtecDBGrid
+            Left = 4
+            Top = 13
+            Width = 794
+            Height = 92
+            DataSource = dtmEFD.dsrEFD_E116
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            TitleFont.Charset = DEFAULT_CHARSET
+            TitleFont.Color = clBlack
+            TitleFont.Height = -9
+            TitleFont.Name = 'helvetica'
+            TitleFont.Pitch = fpVariable
+            TitleFont.Style = []
+            OnKeyDown = dbgObrigacoesKeyDown
+            RowWrap = 60
+            Large = False
+            DoubleRowColor = False
+            TitleMinHeight = 100
+            CellHeights = 100
+            StrippedColor = 16054260
+            CanDelete = True
+            CanNotInsertFromGrid = False
+            PostOnEnter = False
+            PostOnSetUpDown = False
+            DenySort = True
+            DefaultRowHeight = 19
+            ExibirNumerodaLinha = False
+            NaoAtribuirDadosaTabelaaoDigitar = False
+            ShowWhenFieldInvisible = False
+            CanClickWhenEditing = False
+            Columns = <
+              item
+                Expanded = False
+                FieldName = 'icmsobrigacao'
+                Title.Alignment = taCenter
+                Title.Caption = 'OBRIGA'#199#195'O'
+                Width = 65
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'descricaoicmsobrigacao'
+                ReadOnly = True
+                Title.Alignment = taCenter
+                Title.Caption = 'DESCRI'#199#195'O'
+                Width = 400
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'cod_rec'
+                Title.Alignment = taCenter
+                Title.Caption = 'C'#211'DIGO DA RECEITA'
+                Width = 110
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'dt_vcto'
+                Title.Alignment = taCenter
+                Title.Caption = 'VENCTO'
+                Width = 70
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'vl_or'
+                Title.Alignment = taCenter
+                Title.Caption = 'VALOR'
+                Width = 100
+                Visible = True
+              end>
+          end
+          object edtTotalObrigacoes: TDBEditNumero
+            Left = 666
+            Top = 106
+            Width = 101
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 2
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = True
+            Tamanho = 9
+            DataField = 'TotalObrigacoes'
+            DataSource = dtmEFD.dsrEFD_E116
+          end
+        end
+        object gbxTotalDebitos: TGroupBox
+          Left = 6
+          Top = 1
+          Width = 115
+          Height = 37
+          Caption = 'TOTAL D'#201'BITOS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
+          object DBEditNumero2: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_tot_debitos'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+        object gbxTotalCreditos: TGroupBox
+          Left = 6
+          Top = 41
+          Width = 115
+          Height = 37
+          Caption = 'TOTAL CR'#201'DITOS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 6
+          object DBEditNumero6: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_tot_creditos'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+        object gbxSaldoDevedor: TGroupBox
+          Left = 698
+          Top = 41
+          Width = 115
+          Height = 37
+          Caption = 'SALDO DEVEDOR'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 7
+          object DBEditNumero12: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'SALDODEVEDOR'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+        object gbxCreditoSeguinte: TGroupBox
+          Left = 811
+          Top = 41
+          Width = 115
+          Height = 37
+          Caption = 'CR'#201'DITO SEGUINTE'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 8
+          object DBEditNumero15: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'SALDOCREDOR'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+        object gbxDebitoEspecial: TGroupBox
+          Left = 472
+          Top = 1
+          Width = 115
+          Height = 37
+          Caption = 'D'#201'BITO ESPECIAL'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          object DBEditNumero3: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'deb_esp'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+        object gbxAjusteICMS: TGroupBox
+          Left = 6
+          Top = 280
+          Width = 803
+          Height = 141
+          Caption = 'E111 - AJUSTES, BENEF'#205'CIOS, INCENTIVOS DA APURA'#199#195'O DO ICMS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 3
+          object dbgAJUSTEICMS: TtecDBGrid
+            Left = 4
+            Top = 13
+            Width = 797
+            Height = 126
+            DataSource = dtmEFD.dsrEFD_E111
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            TitleFont.Charset = DEFAULT_CHARSET
+            TitleFont.Color = clBlack
+            TitleFont.Height = -9
+            TitleFont.Name = 'helvetica'
+            TitleFont.Pitch = fpVariable
+            TitleFont.Style = []
+            OnKeyDown = dbgAJUSTEICMSKeyDown
+            RowWrap = 60
+            Large = False
+            DoubleRowColor = False
+            TitleMinHeight = 100
+            CellHeights = 100
+            StrippedColor = 16054260
+            CanDelete = True
+            CanNotInsertFromGrid = False
+            PostOnEnter = False
+            PostOnSetUpDown = False
+            DenySort = True
+            DefaultRowHeight = 19
+            ExibirNumerodaLinha = False
+            NaoAtribuirDadosaTabelaaoDigitar = False
+            ShowWhenFieldInvisible = False
+            CanClickWhenEditing = False
+            Columns = <
+              item
+                Expanded = False
+                FieldName = 'cod_aj_apur'
+                Title.Alignment = taCenter
+                Title.Caption = 'C'#211'DIGO'
+                Width = 70
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'descr_comp_aj'
+                ReadOnly = True
+                Title.Alignment = taCenter
+                Title.Caption = 'DESCRI'#199#195'O'
+                Width = 550
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'filialorigemdestino'
+                ReadOnly = True
+                Title.Alignment = taCenter
+                Title.Caption = 'FILIAL'
+                Width = 30
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'vl_aj_apur'
+                Title.Alignment = taCenter
+                Title.Caption = 'VALOR'
+                Width = 100
+                Visible = True
+              end>
+          end
+        end
+        object GroupBox1: TGroupBox
+          Left = 119
+          Top = 1
+          Width = 122
+          Height = 37
+          Caption = 'AJ. D'#201'BITOS - DOCTOS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 9
+          object DBEditNumero4: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 117
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_aj_debitos'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+        object GroupBox2: TGroupBox
+          Left = 119
+          Top = 41
+          Width = 122
+          Height = 37
+          Caption = 'AJ. CR'#201'DITOS - DOCTOS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 10
+          object DBEditNumero5: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 117
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_aj_creditos'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+        object gbxEstornoCreditos: TGroupBox
+          Left = 359
+          Top = 1
+          Width = 115
+          Height = 37
+          Caption = 'ESTORNO CR'#201'DITOS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 11
+          object DBEditNumero7: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_estornos_cred'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+        object gbxEstornoDebitos: TGroupBox
+          Left = 359
+          Top = 41
+          Width = 115
+          Height = 37
+          Caption = 'ESTORNO D'#201'BITOS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 12
+          object DBEditNumero8: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_estornos_deb'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+        object gbxDeducoes: TGroupBox
+          Left = 585
+          Top = 41
+          Width = 115
+          Height = 37
+          Caption = 'DEDU'#199#213'ES'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 13
+          object edtDeducoes: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_tot_ded'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+        object GroupBox3: TGroupBox
+          Left = 240
+          Top = 1
+          Width = 115
+          Height = 37
+          Caption = 'AJ. D'#201'BITOS - E111'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 14
+          object DBEditNumero9: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_tot_aj_debitos'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+        object GroupBox4: TGroupBox
+          Left = 240
+          Top = 41
+          Width = 115
+          Height = 37
+          Caption = 'AJ. CR'#201'DITOS - E111'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 15
+          object DBEditNumero10: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_tot_aj_creditos'
+            DataSource = dtmEFD.dsrEFD_E110
+          end
+        end
+      end
+      object tstApuracaoIPI: TTabSheet
+        Caption = ' Apura'#231#227'o do I&PI '
+        ImageIndex = 1
+        object sbnReatualizarSaldosIPI: TSpeedButton
+          Left = 416
+          Top = 0
+          Width = 109
+          Height = 36
+          Hint = 'Recalcular os totais de d'#233'bitos e cr'#233'ditos de IPI'
+          Caption = 'Reatualizar'
+          Flat = True
+          Glyph.Data = {
+            DE030000424DDE03000000000000360000002800000011000000120000000100
+            180000000000A8030000120B0000120B00000000000000000000DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC80878000
+            0000808780DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDC
+            DCDCDCDCDCDCDC80878000000080878000000000FFFF00000080878000000080
+            8780DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDC00000000FF
+            FF80878000000000FFFF00000080878000FFFF000000DCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDC00DCDCDCDCDCDC00000080878080878000FFFF00FFFF00FFFF00FF
+            FF00FFFF808780808780000000DCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDC
+            80878000000000000000FFFF80878000000080878000FFFF0000000000008087
+            80DCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDC00000000FFFF00FFFF00FFFF
+            000000FFFFFF00000000FFFF00FFFF00FFFF000000DCDCDCDCDCDCDCDCDCDCDC
+            DC00DCDCDCDCDCDC80878000000000000000FFFF80878000000080878000FFFF
+            000000000000808780DCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDC80
+            878080878000FFFF00FFFF00FFFF00FFFF00FFFF808780808780DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDC00000000FFFF80878000000000
+            FFFF00000080878000FFFF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDC
+            DCDCDCDCDCDCDC80878000000080878000000000FFFF00000080878000000080
+            8780DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDC808780000000808780DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+            DC00}
+          Spacing = 0
+          OnClick = sbnReatualizarSaldosIPIClick
+        end
+        object gbxTotalDebitosIPI: TGroupBox
+          Left = 6
+          Top = 1
+          Width = 115
+          Height = 37
+          Caption = 'TOTAL D'#201'BITOS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          object edtTotalDebitosIPI: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_tot_debitos'
+            DataSource = dtmEFD.dsrEFD_E520
+          end
+        end
+        object gbxTotalCreditosIPI: TGroupBox
+          Left = 6
+          Top = 41
+          Width = 115
+          Height = 37
+          Caption = 'TOTAL CR'#201'DITOS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          object edtTotalCreditosIPI: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_tot_creditos'
+            DataSource = dtmEFD.dsrEFD_E520
+          end
+        end
+        object gbxTotalAjustesDebitosIPI: TGroupBox
+          Left = 119
+          Top = 1
+          Width = 115
+          Height = 37
+          Caption = 'AJUSTES D'#201'BITOS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          object edtTotalAjustesDebitosIPI: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_tot_aj_debitos'
+            DataSource = dtmEFD.dsrEFD_E520
+          end
+        end
+        object gbxTotalAjustesCreditosIPI: TGroupBox
+          Left = 119
+          Top = 41
+          Width = 115
+          Height = 37
+          Caption = 'AJUSTES CR'#201'DITOS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+          object edtTotalAjustesCreditosIPI: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_tot_aj_creditos'
+            DataSource = dtmEFD.dsrEFD_E520
+          end
+        end
+        object gbxTotalCreditosAnteriorIPI: TGroupBox
+          Left = 232
+          Top = 41
+          Width = 115
+          Height = 37
+          Caption = 'CR'#201'DITO ANTERIOR'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 4
+          object edtTotalCreditosAnteriorIPI: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = -1
+            ParentFont = False
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'vl_sld_credor_ant'
+            DataSource = dtmEFD.dsrEFD_E520
+          end
+        end
+        object gbxTotalSaldoDevedorIPI: TGroupBox
+          Left = 345
+          Top = 41
+          Width = 115
+          Height = 37
+          Caption = 'SALDO DEVEDOR'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
+          object edtTotalSaldoDevedorIPI: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'SALDODEVEDOR'
+            DataSource = dtmEFD.dsrEFD_E520
+          end
+        end
+        object GroupBox9: TGroupBox
+          Left = 458
+          Top = 41
+          Width = 115
+          Height = 37
+          Caption = 'CR'#201'DITO SEGUINTE'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 6
+          object DBEditNumero17: TDBEditNumero
+            Left = 2
+            Top = 10
+            Width = 110
+            Height = 23
+            TabStop = False
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            MaxLength = -1
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Mascara = True
+            Alignment = taLeftJustify
+            TipoMascara = tmGERAL
+            NrDecimal = 2
+            Decimais = True
+            Negativo = False
+            Tamanho = 9
+            DataField = 'SALDOCREDOR'
+            DataSource = dtmEFD.dsrEFD_E520
+          end
+        end
+        object gbxAjusteIPI: TGroupBox
+          Left = 6
+          Top = 88
+          Width = 802
+          Height = 473
+          Caption = 'AJUSTES DA APURA'#199#195'O DO IPI'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 7
+          object dbgAjusteIPI: TtecDBGrid
+            Left = 2
+            Top = 14
+            Width = 810
+            Height = 330
+            DataSource = dtmEFD.dsrEFD_E530
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            TitleFont.Charset = DEFAULT_CHARSET
+            TitleFont.Color = clBlack
+            TitleFont.Height = -9
+            TitleFont.Name = 'helvetica'
+            TitleFont.Pitch = fpVariable
+            TitleFont.Style = []
+            OnKeyDown = dbgAjusteIPIKeyDown
+            RowWrap = 60
+            Large = False
+            DoubleRowColor = False
+            TitleMinHeight = 100
+            CellHeights = 100
+            StrippedColor = 16054260
+            CanDelete = True
+            CanNotInsertFromGrid = False
+            PostOnEnter = False
+            PostOnSetUpDown = False
+            DenySort = True
+            DefaultRowHeight = 19
+            ExibirNumerodaLinha = False
+            NaoAtribuirDadosaTabelaaoDigitar = False
+            ShowWhenFieldInvisible = False
+            CanClickWhenEditing = False
+            Columns = <
+              item
+                Expanded = False
+                FieldName = 'cod_aj_apur'
+                Title.Caption = 'C'#211'DIGO'
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'descricao'
+                ReadOnly = True
+                Title.Alignment = taCenter
+                Title.Caption = 'AJUSTE'
+                Width = 350
+                Visible = True
+              end
+              item
+                Alignment = taCenter
+                Expanded = False
+                FieldName = 'descr_ind_aj'
+                PickList.Strings = (
+                  '0 - D'#233'bito'
+                  '1 - Cr'#233'dito')
+                ReadOnly = True
+                Title.Alignment = taCenter
+                Title.Caption = 'TIPO'
+                Width = 80
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'vl_aj_apur'
+                Title.Alignment = taCenter
+                Title.Caption = 'VALOR'
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'descr_ind_doc'
+                PickList.Strings = (
+                  '0 - Processo Judicial'
+                  '1 - Processo Adm.'
+                  '2 - PER/DCOMP'
+                  '9 - Outros')
+                Title.Alignment = taCenter
+                Title.Caption = 'ORIGEM'
+                Width = 130
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'num_doc'
+                Title.Alignment = taCenter
+                Title.Caption = 'DOCUMENTO'
+                Width = 80
+                Visible = True
+              end>
+          end
+          object gbxDescricaoAjusteIPI: TGroupBox
+            Left = 2
+            Top = 347
+            Width = 798
+            Height = 124
+            Align = alBottom
+            Caption = 'DESCRI'#199#195'O'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+            object mmoDescricaoAjusteIPI: TtecDBMemo
+              Left = 2
+              Top = 14
+              Width = 794
+              Height = 108
+              Align = alClient
+              DataField = 'descr_aj'
+              DataSource = dtmEFD.dsrEFD_E530
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              MaxLength = 150
+              ParentFont = False
+              TabOrder = 0
+            end
+          end
+        end
+      end
+      object tstInventario: TTabSheet
+        Caption = 'Invent'#225'rio'
+        ImageIndex = 3
+        object rgpMotivodoInventario: TtecDBRadioGroup
+          Left = 12
+          Top = 51
+          Width = 453
+          Height = 102
+          Caption = 'MOTIVO DO INVENT'#193'RIO'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          TabStop = False
+          DataField = 'motivoinventario'
+          DataSource = dtmEFD.dsrefd
+          object rbn01NoFinaldoPeriodo: TtecRadioButton
+            Left = 8
+            Top = 14
+            Width = 161
+            Height = 17
+            Caption = '01 - No Final do per'#237'odo'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            Value = '01'
+          end
+          object rbn02Namudancadeformadetributacodamercadoria: TtecRadioButton
+            Left = 8
+            Top = 30
+            Width = 417
+            Height = 17
+            Caption = '02 - Na mudan'#231'a de forma de tributa'#231#227'o da mercadoria (ICMS)'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+            Value = '02'
+          end
+          object rbn03Nasolicitacaodabaixacadastralparalisacaotempor: TtecRadioButton
+            Left = 8
+            Top = 47
+            Width = 433
+            Height = 17
+            Caption = 
+              '03 - Na solicita'#231#227'o da baixa cadastral, paralisa'#231#227'o tempor'#225'ria e' +
+              ' outras'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 2
+            Value = '03'
+          end
+          object rbn04Naalteraderegimedepagamento: TtecRadioButton
+            Left = 8
+            Top = 63
+            Width = 441
+            Height = 17
+            Caption = 
+              '04 - Na altera'#231#227'o de regime de pagamento - condi'#231#227'o do contribui' +
+              'nte'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 3
+            Value = '04'
+          end
+          object rbn05Pordeterminadosfiscos: TtecRadioButton
+            Left = 8
+            Top = 79
+            Width = 417
+            Height = 17
+            Caption = '05 - Por determina'#231#227'o dos fiscos'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 4
+            Value = '05'
+          end
+        end
+        object gbxDataEstoque: TGroupBox
+          Left = 12
+          Top = 8
+          Width = 84
+          Height = 36
+          Caption = 'INVENT'#193'RIO EM'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          object DBEditData1: TDBEditData
+            Left = 2
+            Top = 11
+            Width = 79
+            Height = 23
+            Alignment = taCenter
+            DataField = 'datainventario'
+            DataSource = dtmEFD.dsrefd
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            MaxLength = -1
+            Maximo = 0
+            Minimo = 37353
+            Adicional = 0
+            ParentFont = False
+            TabOrder = 0
+            Opcional = True
+          end
+        end
+      end
+      object tstErros: TTabSheet
+        Caption = ' Erros '
+        object mmoErro: TMemo
+          Left = 0
+          Top = 0
+          Width = 929
+          Height = 572
+          Align = alClient
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Lines.Strings = (
+            'mmoErro')
+          ParentFont = False
+          TabOrder = 0
+        end
+      end
+    end
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 937
+    inherited tblBarra: TToolBar
+      Left = 297
+      Width = 640
+      inherited sbnAjuda: TSpeedButton
+        Action = Action1
+      end
+    end
+    inherited tblBarraCadastro: TToolBar
+      Width = 297
+      object sbnGerarArquivo: TSpeedButton
+        Left = 225
+        Top = 2
+        Width = 72
+        Height = 39
+        Caption = 'Gerar F8'
+        Flat = True
+        Glyph.Data = {
+          DE030000424DDE03000000000000360000002800000011000000120000000100
+          180000000000A8030000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC80878000
+          0000808780DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDC
+          DCDCDCDCDCDCDC80878000000080878000000000FFFF00000080878000000080
+          8780DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDC00000000FF
+          FF80878000000000FFFF00000080878000FFFF000000DCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC00DCDCDCDCDCDC00000080878080878000FFFF00FFFF00FFFF00FF
+          FF00FFFF808780808780000000DCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDC
+          80878000000000000000FFFF80878000000080878000FFFF0000000000008087
+          80DCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDC00000000FFFF00FFFF00FFFF
+          000000FFFFFF00000000FFFF00FFFF00FFFF000000DCDCDCDCDCDCDCDCDCDCDC
+          DC00DCDCDCDCDCDC80878000000000000000FFFF80878000000080878000FFFF
+          000000000000808780DCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDC80
+          878080878000FFFF00FFFF00FFFF00FFFF00FFFF808780808780DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDC00000000FFFF80878000000000
+          FFFF00000080878000FFFF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDC
+          DCDCDCDCDCDCDC80878000000080878000000000FFFF00000080878000000080
+          8780DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDC808780000000808780DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC00}
+        Layout = blGlyphTop
+        Spacing = 0
+        OnClick = sbnGerarArquivoClick
+      end
+    end
+  end
+  object ActionList1: TActionList
+    Left = 496
+    object Action1: TAction
+      Caption = 'Action1'
+    end
+  end
+end

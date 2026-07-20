@@ -1,0 +1,286 @@
+unit fmdipj_ipi;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Forms, Dialogs,
+  StdCtrls, fmrelatoriopadrao, ExtCtrls, Buttons, fmajudabt, Mask,
+  cpdata, ComCtrls, biblio, ctconstantes, Controls, ACBrSped,
+  cpdbradiogroup, frconsultacontabil, frconsultacodigocontabil, cpnumero,
+  DBCtrls, cpdbtext, cpdbmemo, cptexto, cpdbdata, cpdbmesano, Windows, {Qete,} DB,
+  fmcadastropadrao, cpdbfindcontrols, dateutils, Grids, DBGrids, cpdbgrid,
+  frconsulta,  frconsultacodigo, ToolWin;
+
+type
+  TfrmDIPJ_IPI = class(TfrmCadastroPadrao)
+    pnlTop: TPanel;
+    gbxExercicio: TGroupBox;
+    gbxArquivo: TGroupBox;
+    dtxArquivo: TtecDBText;
+    edtExercicio: TtecDbEditFind;
+    gbxFilial: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigo;
+    pgcDIPJ_IPI: TPageControl;
+    tstApuracaoSaldoIPI: TTabSheet;
+    dbgdipj_ipi_f20: TtecDBGrid;
+    sbnReatualizarSaldos: TSpeedButton;
+    tstInformacoes: TTabSheet;
+    dbgEntradaseCreditosF21: TtecDBGrid;
+    dbgSaidaseDebitosF22: TtecDBGrid;
+    pgcInformacoes: TPageControl;
+    tstEntradasF21: TTabSheet;
+    tstSaidasF22: TTabSheet;
+    tstInsumoeMercadorias: TTabSheet;
+    pgcInsumosemercadorias: TPageControl;
+    tstRemetentesInsumo: TTabSheet;
+    tstEntradasdeInsumos: TTabSheet;
+    tstDestinatarioInsumo: TTabSheet;
+    tstSaidasdeInsumos: TTabSheet;
+    dbgf23: TtecDBGrid;
+    dbgf24: TtecDBGrid;
+    dbgf25: TtecDBGrid;
+    dbgf26: TtecDBGrid;
+    sbnGerarArquivo: TSpeedButton;
+    rbgTipoDeclaracao: TtecDBRadioGroup;
+    rbnDeclaracaoOriginal: TtecRadioButton;
+    rbnDeclaracaoRetificadora: TtecRadioButton;
+    procedure sbnGerarArquivoClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure sbnReatualizarSaldosClick(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure fraConsultaFilialedfCodigoFound(Found: Boolean);
+    procedure dbgEntradaseCreditosF21DrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgSaidaseDebitosF22DrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgDetalhadoDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+  protected
+    fraConsultaICMSObrigacoes : TfraConsultaCodigoContabil;
+    fraConsultaAjusteICMS : TfraConsultaCodigoContabil;
+    fraConsultadipj_ipi : TfraConsultaCodigoContabil;
+    procedure AbrirDIPJ_IPI(Found: Boolean);
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AlterarEstadoBotoes; override;
+
+  private
+    { Private declarations }
+    function  ValidarCamposSelecao: Boolean;
+    function  InternoIncluir: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+
+    { Public declarations}
+  end;
+
+var
+  frmDIPJ_IPI: TfrmDIPJ_IPI;
+
+implementation
+
+uses dmdipj_ipi;
+
+{$R *.dfm}
+
+constructor TfrmDIPJ_IPI.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmDIPJ_IPI := TdtmDIPJ_IPI.Create(self);
+  DataSet := dtmDIPJ_IPI.qrydipj_ipi;
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+
+  fraConsultadipj_ipi := TfraConsultaCodigoContabil.Create(self);
+  fraConsultadipj_ipi.edfCodigo.Operacao := opPESQUISA;
+  fraConsultadipj_ipi.AbrirTabelaProcura := false;
+  fraConsultadipj_ipi.TipoPesquisa := pesDIPJ_IPI;
+  fraConsultadipj_ipi.OnFound := AbrirDIPJ_IPI;
+
+  sbnGerarArquivo.Enabled := false;
+
+end;
+
+procedure TfrmDIPJ_IPI.sbnGerarArquivoClick(Sender: TObject);
+begin
+  inherited;
+  if ValidarCamposSelecao then
+  begin
+     with dtmDIPJ_IPI do
+     begin
+       if GerarArquivo(qrydipj_ipinomearquivo.AsString) then
+         MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[qrydipj_ipinomearquivo.AsString]));
+     end;
+  end
+end;
+
+function TfrmDIPJ_IPI.ValidarCamposSelecao: Boolean;
+begin
+  result := not length(trim(edtExercicio.Text))<>4;
+  if not result then
+  begin
+    MensagemAviso(ctPERIODOINVALIDO);
+    edtExercicio.SetFocus;
+  end;
+end;
+
+
+function TfrmDIPJ_IPI.InternoExcluir: Boolean;
+begin
+  Result := inherited InternoExcluir;
+  if Result then
+    if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['DIPJ IPI'])) = smbOK then
+      Result := dtmDIPJ_IPI.Excluirdipj_ipi
+    else
+      Result := False
+end;
+
+function TfrmDIPJ_IPI.InternoGravar: Boolean;
+begin
+  inherited InternoGravar;
+  Result := dtmDIPJ_IPI.Gravardipj_ipi
+end;
+
+function TfrmDIPJ_IPI.InternoIncluir: Boolean;
+begin
+  result := inherited internoincluir;
+  if result then
+    Result := dtmDIPJ_IPI.Incluirdipj_ipi;
+end;
+
+destructor TfrmDIPJ_IPI.Destroy;
+begin
+  inherited;
+  dtmDIPJ_IPI := nil;
+  frmDIPJ_IPI := nil;
+end;
+
+
+procedure TfrmDIPJ_IPI.AbrirDIPJ_IPI(Found: Boolean);
+begin
+  dtmDIPJ_IPI.
+        refazconsulta(dtmDIPJ_IPI.qrydipj_ipi,[0,1],
+             [fraConsultadipj_ipi.qryProcuraDIPJ_IPIexercicio.AsString,
+              fraConsultadipj_ipi.qryProcuraDIPJ_IPIfilial.AsString]);
+end;
+
+procedure TfrmDIPJ_IPI.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  fraConsultadipj_ipi.InternoPesquisar('DIPJ IPI');
+  self.SetFocus;
+end;
+
+procedure TfrmDIPJ_IPI.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key = VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        fraConsultadipj_ipi.InternoPesquisar('DIPJ IPI');
+        self.SetFocus;
+      end
+    end
+    else
+    if (key = VK_F8) then
+    begin
+      if sbnGerarArquivo.Enabled then
+        sbnGerarArquivoClick(nil);
+    end;
+  end;
+end;
+
+procedure TfrmDIPJ_IPI.AlterarEstadoBotoes;
+begin
+  inherited;
+
+  sbnGerarArquivo.Enabled := sbnIncluir.Enabled and
+                             not sbnSalvar.Enabled and
+                             (dtmDIPJ_IPI.qrydipj_ipi.RecordCount<>0);
+end;
+
+procedure TfrmDIPJ_IPI.sbnReatualizarSaldosClick(Sender: TObject);
+begin
+  inherited;
+  dtmDIPJ_IPI.AtualizarSaldosIPI;
+  dtmDIPJ_IPI.RecalcularSaldosF20(true);
+  dtmDIPJ_IPI.RecalcularSaldosF21(true);
+  dtmDIPJ_IPI.RecalcularSaldosF22(true);
+end;
+
+procedure TfrmDIPJ_IPI.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+  dtmDIPJ_IPI.RecalcularSaldosF20(true);
+end;
+
+procedure TfrmDIPJ_IPI.fraConsultaFilialedfCodigoFound(Found: Boolean);
+begin
+  inherited;
+  if found then
+  begin
+    with dtmDIPJ_IPI do
+    begin
+      if (edtExercicio.Text<>'') and
+         (fraConsultaFilial.edfCodigo.Text<>'') then
+      begin
+        DataInicial := strtodate('01/01/'+edtExercicio.Text);
+        DataFinal   := strtodate('31/12/'+edtExercicio.Text);
+        qrydipj_ipiAfterScroll(nil);
+        if qrydipj_ipi.State = dsinsert then
+          AtualizarSaldosIPI;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmDIPJ_IPI.dbgEntradaseCreditosF21DrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dtmDIPJ_IPI.qrydipj_ipi_f21tipo.AsString='V' then
+    TDBGrid(Sender).Canvas.Font.Style := []
+  else
+    TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+end;
+
+procedure TfrmDIPJ_IPI.dbgSaidaseDebitosF22DrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dtmDIPJ_IPI.qrydipj_ipi_f22tipo.AsString='V' then
+    TDBGrid(Sender).Canvas.Font.Style := []
+  else
+    TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmDIPJ_IPI.dbgDetalhadoDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dtmDIPJ_IPI.qrydipj_ipi_f21_Discriminacaotipo.AsString='V' then
+    TDBGrid(Sender).Canvas.Font.Style := []
+  else
+    TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+end;
+
+end.

@@ -1,0 +1,2566 @@
+inherited frmFichaFinanceira: TfrmFichaFinanceira
+  Left = 329
+  Top = 42
+  ActiveControl = edfCodigoCliente
+  Caption = 'Ficha Financeira do Cliente'
+  ClientHeight = 584
+  ClientWidth = 797
+  FormStyle = fsMDIChild
+  Visible = True
+  OnActivate = FormActivate
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    Width = 732
+    TabOrder = 2
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 797
+    inherited tblBarra: TToolBar
+      Width = 796
+      inherited sbnProcurar: TSpeedButton
+        Visible = False
+        OnClick = nil
+      end
+      inherited sbnAjuda: TSpeedButton
+        Action = actHabilitarBotaoCalcular
+      end
+      object sbnDebitos: TSpeedButton
+        Left = 158
+        Top = 2
+        Width = 75
+        Height = 35
+        Hint = 'Visualizar d'#233'bitos'
+        Caption = 'D'#233'bitos F7'
+        Flat = True
+        Glyph.Data = {
+          76010000424D7601000000000000760000002800000020000000100000000100
+          04000000000000010000120B0000120B00001000000010000000000000000000
+          800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+          FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00337000000000
+          73333337777777773F333308888888880333337F3F3F3FFF7F33330808089998
+          0333337F737377737F333308888888880333337F3F3F3F3F7F33330808080808
+          0333337F737373737F333308888888880333337F3F3F3F3F7F33330808080808
+          0333337F737373737F333308888888880333337F3F3F3F3F7F33330808080808
+          0333337F737373737F333308888888880333337F3FFFFFFF7F33330800000008
+          0333337F7777777F7F333308000E0E080333337F7FFFFF7F7F33330800000008
+          0333337F777777737F333308888888880333337F333333337F33330888888888
+          03333373FFFFFFFF733333700000000073333337777777773333}
+        Layout = blGlyphTop
+        NumGlyphs = 2
+        Spacing = 0
+        OnClick = sbnDebitosClick
+      end
+      object sbnImprimir: TSpeedButton
+        Left = 233
+        Top = 2
+        Width = 75
+        Height = 35
+        Hint = 'Visualizar como o relat'#243'rio ser'#225' impresso'
+        Caption = 'Imprimir F12'
+        Flat = True
+        Glyph.Data = {
+          F6030000424DF603000000000000360000002800000013000000100000000100
+          180000000000C0030000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDC00
+          0000000000000000000000000000000000000000000000000000000000000000
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000DCDCDCDCDCDC000000C0C7C0C0C7
+          C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0000000C0C7C0000000DC
+          DCDCDCDCDCDCDCDCDCDCDC000000DCDCDC000000000000000000000000000000
+          000000000000000000000000000000000000000000000000C0C7C0000000DCDC
+          DCDCDCDCDCDCDC000000DCDCDC000000C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0
+          C7C000FFFF00FFFF00FFFFC0C7C0C0C7C0000000000000000000DCDCDCDCDCDC
+          DCDCDC000000DCDCDC000000C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C08087
+          80808780808780C0C7C0C0C7C0000000C0C7C0000000DCDCDCDCDCDCDCDCDC00
+          0000DCDCDC000000000000000000000000000000000000000000000000000000
+          000000000000000000000000C0C7C0C0C7C0000000DCDCDCDCDCDC000000DCDC
+          DC000000C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0
+          C7C0000000C0C7C0000000C0C7C0000000DCDCDCDCDCDC000000DCDCDCDCDCDC
+          000000000000000000000000000000000000000000000000000000000000C0C7
+          C0000000C0C7C0000000000000DCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDC00
+          0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000C0C7C0
+          000000C0C7C0000000DCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDCDCDCDC0000
+          00FFFFFF000000000000000000000000000000FFFFFF00000000000000000000
+          0000DCDCDCDCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDCDCDCDC000000FFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000FFFFFF00
+          0000000000000000000000000000FFFFFF000000DCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000FFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000DCDCDCDCDCDCDCDCDCDCDCDC00
+          0000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000000000000000000000
+          000000000000000000000000000000DCDCDCDCDCDCDCDCDCDCDCDC000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000}
+        Layout = blGlyphTop
+        Spacing = 0
+        OnClick = sbnImprimirClick
+      end
+      object sbnExibirJurosDescontos: TSpeedButton
+        Left = 308
+        Top = 2
+        Width = 75
+        Height = 35
+        Hint = 'Exibir taxa juros/desconto'
+        Caption = 'Taxas F11'
+        Flat = True
+        Glyph.Data = {
+          36050000424D3605000000000000360000002800000015000000140000000100
+          18000000000000050000120B0000120B00000000000000000000C0C0C0C0C0C0
+          C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0
+          C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          FFFFFFBFBFBFBFBFBFBFBFBFFFFFFFFF0000FF0000BFBFBFFFFFFFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFFFFFFFBFBFBFBFBFBFFF0000FF0000FF0000FF0000FF0000BFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFFFFFFFFF0000FF0000BFBFBFFFFFFFFF0000FF0000FF0000BFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFFF0000FF0000FFFFFFFFFFFFBFBFBFBFBFBFFF0000FF0000FF00
+          00FF0000FF0000FF0000FF0000FF0000BFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          FFFFFFFFFFFFFF0000FF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBFBFBFFF00
+          00FF0000FF0000FF0000FF0000FF0000BFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFFF0000FF0000FF0000BFBFBFBFBFBFBFBFBFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFFFFFFFBFBFBFFF0000FF0000FF0000BFBFBFBFBFBFBFBFBFBFBF
+          BF000000BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFFFFFFFBFBFBFBFBFBFFFFFFFBFBFBFBFBFBFFFFFFFBFBFBFBFBFBFBFBF
+          BFC0C7C0000000BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          FFFFFFBFBFBFBFBFBFBFBFBFFFFFFFBFBFBFBFBFBFBFBFBFFFFFFFBFBFBFBFBF
+          BF00FF00C0C7C0000000BFBFBFBFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
+          BFC0C7C000FF00C0C7C0000000BFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
+          BF00FF00C0C7C000FF00C0C7C0000000BFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
+          BFC0C7C000FF00C0C7C000FF00C0C7C0BFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
+          BF00FF00C0C7C000FF00C0C7C0BFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
+          BFC0C7C000FF00C0C7C0BFBFBFBFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
+          BF00FF00C0C7C0BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
+          BFC0C7C0BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFC0C0C000BFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
+          BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFC0C0C000}
+        Layout = blGlyphTop
+        Spacing = 0
+        OnClick = sbnExibirJurosDescontosClick
+      end
+    end
+  end
+  object pnlFundoJanela: TPanel
+    Left = 0
+    Top = 40
+    Width = 797
+    Height = 544
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 0
+    object gbxFichaFinanceira: TGroupBox
+      Left = 0
+      Top = 0
+      Width = 797
+      Height = 544
+      Align = alClient
+      TabOrder = 0
+      object sbnCliente: TSpeedButton
+        Left = 168
+        Top = 6
+        Width = 23
+        Height = 23
+        Hint = 'Procurar Cliente'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDC800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC800000800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000
+          00800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000
+          00800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000008000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+          FFFFDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDC0000FF800000800000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDC
+          DCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFDCDCDCDCDCDC7F
+          7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFFFFFFFDCDCDCDCDCDCDC
+          DCDCFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA858800000DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FC3C3C3FFFFFFFFFFFF7F
+          7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = sbnClienteClick
+      end
+      object lblCliente: TLabel
+        Left = 34
+        Top = 10
+        Width = 40
+        Height = 16
+        Alignment = taRightJustify
+        Caption = 'Cliente'
+        FocusControl = edfCodigoCliente
+      end
+      object lblConceito: TLabel
+        Left = 559
+        Top = 10
+        Width = 51
+        Height = 16
+        Alignment = taRightJustify
+        Caption = 'Conceito'
+        FocusControl = edfCodigoCliente
+      end
+      object dtxNome: TtecDBText
+        Left = 192
+        Top = 6
+        Width = 350
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'nome'
+        DataSource = dtmFichaFinanceira.dsrClientes
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taLeftJustify
+      end
+      object pgcFichaFinanceira: TPageControl
+        Left = 2
+        Top = 34
+        Width = 793
+        Height = 508
+        ActivePage = tstInformacoes
+        Align = alBottom
+        MultiLine = True
+        ParentShowHint = False
+        ShowHint = True
+        Style = ctTRectDefaultDrawBoolean 0T¨     ¸Ö∂ ç@ P¨ TTVCustomDrawItemEvent SenderTCustomTreeView
+        TabOrder = 3
+        object tstInformacoes: TTabSheet
+          Caption = 'tstInformacoes'
+          object shpAberto: TShape
+            Left = 2
+            Top = 489
+            Width = 11
+            Height = 11
+            Pen.Width = 0
+          end
+          object shpRenegociado: TShape
+            Left = 279
+            Top = 487
+            Width = 11
+            Height = 11
+            Brush.Color = 8240895
+            Pen.Width = 0
+          end
+          object shpReservado: TShape
+            Left = 201
+            Top = 487
+            Width = 11
+            Height = 11
+            Brush.Color = 16767396
+            Pen.Width = 0
+          end
+          object shpCancelado: TShape
+            Left = 374
+            Top = 487
+            Width = 11
+            Height = 11
+            Brush.Color = clYellow
+            Pen.Width = 0
+          end
+          object Shape1: TShape
+            Left = 138
+            Top = 487
+            Width = 11
+            Height = 11
+            Brush.Color = 8366677
+            Pen.Width = 0
+          end
+          object shpAtraso: TShape
+            Left = 58
+            Top = 487
+            Width = 11
+            Height = 11
+            Brush.Color = 5592575
+            Pen.Width = 0
+          end
+          object lblAberto: TLabel
+            Left = 16
+            Top = 485
+            Width = 38
+            Height = 16
+            Caption = 'Aberto'
+          end
+          object lblRenegociado: TLabel
+            Left = 293
+            Top = 485
+            Width = 75
+            Height = 16
+            Caption = 'Renegociado'
+          end
+          object Label1: TLabel
+            Left = 2
+            Top = 243
+            Width = 56
+            Height = 16
+            Caption = 'Contrato&s'
+            FocusControl = dbgContratosPorCliente
+          end
+          object lblReservado: TLabel
+            Left = 215
+            Top = 485
+            Width = 60
+            Height = 16
+            Caption = 'Reservado'
+          end
+          object lblCancelado: TLabel
+            Left = 388
+            Top = 485
+            Width = 61
+            Height = 16
+            Caption = 'Cancelado'
+          end
+          object lblQuitado: TLabel
+            Left = 152
+            Top = 485
+            Width = 45
+            Height = 16
+            Caption = 'Quitado'
+          end
+          object Label3: TLabel
+            Left = 73
+            Top = 485
+            Width = 61
+            Height = 16
+            Caption = 'Em Atraso'
+          end
+          object dbgContratosPorCliente: TtecDBGrid
+            Left = 2
+            Top = 263
+            Width = 222
+            Height = 220
+            DataSource = dtmFichaFinanceira.dsrContratosPorCliente
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            TitleFont.Charset = DEFAULT_CHARSET
+            TitleFont.Color = clBlack
+            TitleFont.Height = 13
+            TitleFont.Name = 'helvetica'
+            TitleFont.Pitch = fpVariable
+            TitleFont.Style = []
+            OnDrawColumnCell = dbgContratosPorClienteDrawColumnCell
+            RowWrap = 60
+            Large = False
+            DoubleRowColor = False
+            TitleMinHeight = 100
+            CellHeights = 100
+            StrippedColor = 16054260
+            CanDelete = False
+            PostOnEnter = False
+            DenySort = False
+            DefaultRowHeight = 16
+            ExibirNumerodaLinha = False
+            Columns = <
+              item
+                Expanded = False
+                FieldName = 'numero'
+                Title.Alignment = taCenter
+                Title.Caption = 'Contratos'
+                Width = 100
+                Visible = True
+              end
+              item
+                Alignment = taCenter
+                Expanded = False
+                FieldName = 'situacaocontrato'
+                Title.Alignment = taCenter
+                Title.Caption = 'Situa'#231#227'o'
+                Width = 82
+                Visible = True
+              end>
+          end
+          object pgcContratos: TtecPageControl
+            Left = 225
+            Top = 243
+            Width = 559
+            Height = 240
+            ActivePage = tstContratos
+            TabOrder = 1
+            TabWidth = 90
+            OnChange = pgcContratosChange
+            object tstContratos: TTabSheet
+              Caption = '&Geral'
+              ImageIndex = -1
+              object gbxContratos: TGroupBox
+                Left = 0
+                Top = 0
+                Width = 551
+                Height = 209
+                Align = alClient
+                TabOrder = 0
+                object lblDataEmissao: TLabel
+                  Left = 2
+                  Top = 11
+                  Width = 85
+                  Height = 16
+                  Alignment = taRightJustify
+                  AutoSize = False
+                  Caption = 'Data Emiss'#227'o'
+                end
+                object lblPlano: TLabel
+                  Left = 385
+                  Top = 11
+                  Width = 33
+                  Height = 16
+                  Caption = 'Plano'
+                end
+                object lblOrigem: TLabel
+                  Left = 2
+                  Top = 131
+                  Width = 85
+                  Height = 16
+                  Alignment = taRightJustify
+                  AutoSize = False
+                  Caption = 'Anterior'
+                end
+                object lblReneg: TLabel
+                  Left = 2
+                  Top = 155
+                  Width = 85
+                  Height = 16
+                  Alignment = taRightJustify
+                  AutoSize = False
+                  Caption = 'Renegociado'
+                end
+                object lblPrimogenito: TLabel
+                  Left = 2
+                  Top = 107
+                  Width = 85
+                  Height = 16
+                  Alignment = taRightJustify
+                  AutoSize = False
+                  Caption = 'Original'
+                end
+                object lblVendedor: TLabel
+                  Left = 2
+                  Top = 59
+                  Width = 85
+                  Height = 16
+                  Alignment = taRightJustify
+                  AutoSize = False
+                  Caption = 'Vendedor'
+                end
+                object lblAvalista: TLabel
+                  Left = 2
+                  Top = 35
+                  Width = 85
+                  Height = 16
+                  Alignment = taRightJustify
+                  AutoSize = False
+                  Caption = 'Avalista'
+                end
+                object lblFilial: TLabel
+                  Left = 305
+                  Top = 11
+                  Width = 27
+                  Height = 16
+                  Caption = 'Filial'
+                end
+                object lblDependente: TLabel
+                  Left = 2
+                  Top = 179
+                  Width = 85
+                  Height = 16
+                  Alignment = taRightJustify
+                  AutoSize = False
+                  Caption = 'Dep. / Obs.'
+                end
+                object lblCobrador: TLabel
+                  Left = 2
+                  Top = 83
+                  Width = 85
+                  Height = 16
+                  Alignment = taRightJustify
+                  AutoSize = False
+                  Caption = 'Cobrador'
+                end
+                object lblFaturamento: TLabel
+                  Left = 172
+                  Top = 11
+                  Width = 43
+                  Height = 16
+                  Alignment = taRightJustify
+                  AutoSize = False
+                  Caption = 'Fatura'
+                end
+                object dtxEmissao: TtecDBText
+                  Left = 89
+                  Top = 7
+                  Width = 75
+                  Height = 24
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'data'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  ReadOnly = True
+                  TabOrder = 0
+                  Alignment = taCenter
+                end
+                object dtxDescricaoPlano: TtecDBText
+                  Left = 421
+                  Top = 7
+                  Width = 120
+                  Height = 24
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'plano'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  ReadOnly = True
+                  TabOrder = 1
+                  Alignment = taLeftJustify
+                end
+                object dtxOrigem: TtecDBText
+                  Left = 89
+                  Top = 127
+                  Width = 100
+                  Height = 21
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'origem'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clMaroon
+                  Font.Height = 13
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  ParentFont = False
+                  ReadOnly = True
+                  TabOrder = 2
+                  Alignment = taLeftJustify
+                end
+                object dtxRenegociado: TtecDBText
+                  Left = 89
+                  Top = 151
+                  Width = 100
+                  Height = 21
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'renegociado'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clMaroon
+                  Font.Height = 13
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  ParentFont = False
+                  ReadOnly = True
+                  TabOrder = 3
+                  Alignment = taLeftJustify
+                end
+                object dtxDescricaoVendedor: TtecDBText
+                  Left = 89
+                  Top = 55
+                  Width = 200
+                  Height = 24
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'nome'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  ReadOnly = True
+                  TabOrder = 4
+                  Alignment = taLeftJustify
+                end
+                object dtxPrimogenito: TtecDBText
+                  Left = 89
+                  Top = 103
+                  Width = 100
+                  Height = 21
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'primogenito'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clOlive
+                  Font.Height = 13
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  ParentFont = False
+                  ReadOnly = True
+                  TabOrder = 5
+                  Alignment = taLeftJustify
+                end
+                object dtxNomeClienteOrigem: TtecDBText
+                  Left = 190
+                  Top = 127
+                  Width = 170
+                  Height = 21
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'nomeclienteorigem'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clMaroon
+                  Font.Height = 13
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  ParentFont = False
+                  ReadOnly = True
+                  TabOrder = 6
+                  Alignment = taLeftJustify
+                end
+                object dtxNomeClienteRenegociado: TtecDBText
+                  Left = 190
+                  Top = 151
+                  Width = 170
+                  Height = 21
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'nomeclienterenegociado'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clMaroon
+                  Font.Height = 13
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  ParentFont = False
+                  ReadOnly = True
+                  TabOrder = 7
+                  Alignment = taLeftJustify
+                end
+                object dtxNomeClientePrimogenito: TtecDBText
+                  Left = 190
+                  Top = 103
+                  Width = 170
+                  Height = 21
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'nomeclienteprimogenito'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clOlive
+                  Font.Height = 13
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  ParentFont = False
+                  ReadOnly = True
+                  TabOrder = 8
+                  Alignment = taLeftJustify
+                end
+                object dtxNomeAvalista: TtecDBText
+                  Left = 143
+                  Top = 31
+                  Width = 217
+                  Height = 24
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'nomeavalista'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  ReadOnly = True
+                  TabOrder = 9
+                  Alignment = taLeftJustify
+                end
+                object dtxFilial: TtecDBText
+                  Left = 336
+                  Top = 7
+                  Width = 35
+                  Height = 24
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'filialvenda'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  ReadOnly = True
+                  TabOrder = 10
+                  Alignment = taLeftJustify
+                end
+                object dtxAvalista: TtecDBText
+                  Left = 89
+                  Top = 31
+                  Width = 53
+                  Height = 24
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'avalista'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  ReadOnly = True
+                  TabOrder = 11
+                end
+                object gbxValores: TGroupBox
+                  Left = 365
+                  Top = 31
+                  Width = 176
+                  Height = 143
+                  TabOrder = 12
+                  object lblValorPrazo: TLabel
+                    Left = 2
+                    Top = 118
+                    Width = 70
+                    Height = 16
+                    Alignment = taRightJustify
+                    AutoSize = False
+                    Caption = 'Valor prazo'
+                    Font.Charset = DEFAULT_CHARSET
+                    Font.Color = clBlack
+                    Font.Height = 13
+                    Font.Name = 'helvetica'
+                    Font.Pitch = fpVariable
+                    Font.Style = []
+                    ParentFont = False
+                  end
+                  object lblFrete: TLabel
+                    Left = 2
+                    Top = 10
+                    Width = 70
+                    Height = 16
+                    Alignment = taRightJustify
+                    AutoSize = False
+                    Caption = 'Frete'
+                  end
+                  object lblDesconto: TLabel
+                    Left = 2
+                    Top = 37
+                    Width = 70
+                    Height = 16
+                    Alignment = taRightJustify
+                    AutoSize = False
+                    Caption = 'Desconto'
+                  end
+                  object lblAcrescimo: TLabel
+                    Left = 2
+                    Top = 91
+                    Width = 70
+                    Height = 16
+                    Alignment = taRightJustify
+                    AutoSize = False
+                    Caption = 'Acr'#233'scimo'
+                  end
+                  object lblValorVista: TLabel
+                    Left = 2
+                    Top = 64
+                    Width = 70
+                    Height = 16
+                    Alignment = taRightJustify
+                    AutoSize = False
+                    Caption = 'Valor vista'
+                    Font.Charset = DEFAULT_CHARSET
+                    Font.Color = clBlack
+                    Font.Height = 13
+                    Font.Name = 'helvetica'
+                    Font.Pitch = fpVariable
+                    Font.Style = []
+                    ParentFont = False
+                  end
+                  object dtxValorPrazo: TtecDBText
+                    Left = 75
+                    Top = 114
+                    Width = 96
+                    Height = 24
+                    TabStop = False
+                    Color = clBtnFace
+                    DataField = 'valor'
+                    DataSource = dtmFichaFinanceira.dsrContratos
+                    ReadOnly = True
+                    TabOrder = 0
+                  end
+                  object dtxFrete: TtecDBText
+                    Left = 75
+                    Top = 6
+                    Width = 96
+                    Height = 24
+                    TabStop = False
+                    Color = clBtnFace
+                    DataField = 'frete'
+                    DataSource = dtmFichaFinanceira.dsrContratos
+                    ReadOnly = True
+                    TabOrder = 1
+                  end
+                  object dtxDesconto: TtecDBText
+                    Left = 75
+                    Top = 33
+                    Width = 96
+                    Height = 24
+                    TabStop = False
+                    Color = clBtnFace
+                    DataField = 'desconto'
+                    DataSource = dtmFichaFinanceira.dsrContratos
+                    ReadOnly = True
+                    TabOrder = 2
+                  end
+                  object dtxAcrescimo: TtecDBText
+                    Left = 75
+                    Top = 87
+                    Width = 96
+                    Height = 24
+                    TabStop = False
+                    Color = clBtnFace
+                    DataField = 'acrescimo'
+                    DataSource = dtmFichaFinanceira.dsrContratos
+                    ReadOnly = True
+                    TabOrder = 3
+                  end
+                  object dtxValorVista: TtecDBText
+                    Left = 75
+                    Top = 60
+                    Width = 96
+                    Height = 24
+                    TabStop = False
+                    Color = clBtnFace
+                    DataField = 'valorvista'
+                    DataSource = dtmFichaFinanceira.dsrContratos
+                    ReadOnly = True
+                    TabOrder = 4
+                  end
+                end
+                object dtxNomeDependente: TtecDBText
+                  Left = 89
+                  Top = 175
+                  Width = 452
+                  Height = 21
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'nomedependente'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clBlack
+                  Font.Height = 13
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  ParentFont = False
+                  ReadOnly = True
+                  TabOrder = 13
+                  Alignment = taLeftJustify
+                end
+                object dtxNomeCobrador: TtecDBText
+                  Left = 89
+                  Top = 79
+                  Width = 200
+                  Height = 24
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'nomecobrador'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  ReadOnly = True
+                  TabOrder = 14
+                  Alignment = taLeftJustify
+                end
+                object dtxFaturamento: TtecDBText
+                  Left = 217
+                  Top = 7
+                  Width = 75
+                  Height = 24
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'data'
+                  DataSource = dtmFichaFinanceira.dsrContratos
+                  ReadOnly = True
+                  TabOrder = 15
+                  Alignment = taCenter
+                end
+              end
+            end
+            object tstParcelas: TTabSheet
+              Caption = 'Parce&las'
+              ImageIndex = 3
+              object pgcParcelasRecebimentos: TtecPageControl
+                Left = 0
+                Top = 0
+                Width = 551
+                Height = 209
+                ActivePage = tstParcelasRecebimentos
+                Align = alClient
+                TabOrder = 0
+                OnChange = pgcParcelasRecebimentosChange
+                object tstParcelasRecebimentos: TTabSheet
+                  Caption = 'Parcelas'
+                  object dbgParcelas: TtecDBGrid
+                    Left = 0
+                    Top = 0
+                    Width = 543
+                    Height = 178
+                    Align = alClient
+                    DataSource = dtmFichaFinanceira.dsrParcelas
+                    Font.Charset = DEFAULT_CHARSET
+                    Font.Color = clBlack
+                    Font.Height = 11
+                    Font.Name = 'helvetica'
+                    Font.Pitch = fpVariable
+                    Font.Style = []
+                    Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+                    ParentFont = False
+                    ReadOnly = True
+                    TabOrder = 0
+                    TitleFont.Charset = DEFAULT_CHARSET
+                    TitleFont.Color = clBlack
+                    TitleFont.Height = 13
+                    TitleFont.Name = 'helvetica'
+                    TitleFont.Pitch = fpVariable
+                    TitleFont.Style = []
+                    OnDrawColumnCell = dbgParcelasDrawColumnCell
+                    RowWrap = 60
+                    Large = False
+                    DoubleRowColor = False
+                    TitleMinHeight = 100
+                    CellHeights = 100
+                    StrippedColor = 16054260
+                    CanDelete = False
+                    PostOnEnter = False
+                    DenySort = False
+                    DefaultRowHeight = 14
+                    ExibirNumerodaLinha = False
+                    Columns = <
+                      item
+                        Alignment = taCenter
+                        Expanded = False
+                        FieldName = 'numero'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'NP'
+                        Width = 35
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'datavencto'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Vencto'
+                        Width = 75
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'valorvencto'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Valor'
+                        Width = 77
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'descontosugerido'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Descto'
+                        Width = 60
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'liquido'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'L'#237'quido'
+                        Width = 75
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'datapagto'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Pagto'
+                        Width = 75
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'valorpagto'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Valor'
+                        Width = 77
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'jurosdesctos'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Juros/Dscto'
+                        Title.Font.Charset = DEFAULT_CHARSET
+                        Title.Font.Color = clBlack
+                        Title.Font.Height = 11
+                        Title.Font.Name = 'helvetica'
+                        Title.Font.Pitch = fpVariable
+                        Title.Font.Style = []
+                        Width = 60
+                        Visible = True
+                      end
+                      item
+                        Alignment = taCenter
+                        Expanded = False
+                        FieldName = 'filialpagto'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Filial'
+                        Width = 30
+                        Visible = True
+                      end
+                      item
+                        Alignment = taCenter
+                        Expanded = False
+                        FieldName = 'tipopagto'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'TP'
+                        Width = 24
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'deventrada'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Dev. Entrada'
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'devcaixa'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Dev. Caixa'
+                        Width = 67
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'siglabanco'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Banco'
+                        Width = 100
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'nomeagencia'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Ag'#234'ncia'
+                        Width = 200
+                        Visible = True
+                      end
+                      item
+                        Alignment = taCenter
+                        Expanded = False
+                        FieldName = 'ContaBoleto'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Conta'
+                        Width = 64
+                        Visible = True
+                      end
+                      item
+                        Alignment = taCenter
+                        Expanded = False
+                        FieldName = 'Digito'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'D'
+                        Width = 15
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'usuarioextracaixa'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Aut. Extra Caixa'
+                        Width = 300
+                        Visible = True
+                      end>
+                  end
+                end
+                object tstRecebimentosParcelas: TTabSheet
+                  Caption = 'Recebimentos'
+                  ImageIndex = 1
+                  object gbxRecebimentos: TGroupBox
+                    Left = 0
+                    Top = 0
+                    Width = 543
+                    Height = 89
+                    Align = alTop
+                    Caption = 'Recebimentos'
+                    TabOrder = 0
+                    object Bevel1: TBevel
+                      Left = 2
+                      Top = 18
+                      Width = 539
+                      Height = 2
+                      Align = alTop
+                      Shape = bsSpacer
+                    end
+                    object dbgRecebimento: TtecDBGrid
+                      Left = 2
+                      Top = 20
+                      Width = 539
+                      Height = 67
+                      TabStop = False
+                      Align = alClient
+                      BorderStyle = bsNone
+                      DataSource = dtmFichaFinanceira.dsrRecebimentos
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clBlack
+                      Font.Height = 11
+                      Font.Name = 'Arial'
+                      Font.Pitch = fpVariable
+                      Font.Style = []
+                      Options = [dgTitles, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+                      ParentFont = False
+                      ReadOnly = True
+                      TabOrder = 0
+                      TitleFont.Charset = DEFAULT_CHARSET
+                      TitleFont.Color = clBlack
+                      TitleFont.Height = 13
+                      TitleFont.Name = 'Arial'
+                      TitleFont.Pitch = fpVariable
+                      TitleFont.Style = []
+                      RowWrap = 60
+                      Large = False
+                      DoubleRowColor = False
+                      TitleMinHeight = 100
+                      CellHeights = 90
+                      StrippedColor = 16054260
+                      CanDelete = False
+                      PostOnEnter = False
+                      DenySort = False
+                      DefaultRowHeight = 12
+                      ExibirNumerodaLinha = False
+                      Columns = <
+                        item
+                          Expanded = False
+                          FieldName = 'datalancto'
+                          Title.Alignment = taCenter
+                          Title.Caption = 'Lancto'
+                          Width = 75
+                          Visible = True
+                        end
+                        item
+                          Expanded = False
+                          FieldName = 'valorlancto'
+                          Title.Alignment = taCenter
+                          Title.Caption = 'Valor Lancto'
+                          Width = 90
+                          Visible = True
+                        end
+                        item
+                          Expanded = False
+                          FieldName = 'datavencto'
+                          Title.Alignment = taCenter
+                          Title.Caption = 'Vencto'
+                          Width = 75
+                          Visible = True
+                        end
+                        item
+                          Expanded = False
+                          FieldName = 'tiporecebimento'
+                          Title.Alignment = taCenter
+                          Title.Caption = 'Tipo Recebimento'
+                          Width = 160
+                          Visible = True
+                        end>
+                    end
+                  end
+                  object gbxParcelas: TGroupBox
+                    Left = 0
+                    Top = 89
+                    Width = 543
+                    Height = 89
+                    Align = alTop
+                    Caption = 'Parcelas'
+                    TabOrder = 1
+                    object Bevel2: TBevel
+                      Left = 2
+                      Top = 18
+                      Width = 539
+                      Height = 2
+                      Align = alTop
+                      Shape = bsSpacer
+                    end
+                    object dbgParcelasRecebimentos: TtecDBGrid
+                      Left = 2
+                      Top = 20
+                      Width = 539
+                      Height = 67
+                      TabStop = False
+                      Align = alClient
+                      BorderStyle = bsNone
+                      DataSource = dtmFichaFinanceira.dsrParcelas
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clBlack
+                      Font.Height = 11
+                      Font.Name = 'Arial'
+                      Font.Pitch = fpVariable
+                      Font.Style = []
+                      Options = [dgTitles, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+                      ParentFont = False
+                      ReadOnly = True
+                      TabOrder = 0
+                      TitleFont.Charset = DEFAULT_CHARSET
+                      TitleFont.Color = clBlack
+                      TitleFont.Height = 13
+                      TitleFont.Name = 'Arial'
+                      TitleFont.Pitch = fpVariable
+                      TitleFont.Style = []
+                      RowWrap = 60
+                      Large = False
+                      DoubleRowColor = False
+                      TitleMinHeight = 100
+                      CellHeights = 90
+                      StrippedColor = 16054260
+                      CanDelete = False
+                      PostOnEnter = False
+                      DenySort = False
+                      DefaultRowHeight = 12
+                      ExibirNumerodaLinha = False
+                      Columns = <
+                        item
+                          Expanded = False
+                          FieldName = 'numero'
+                          Title.Alignment = taCenter
+                          Title.Caption = 'NP'
+                          Width = 35
+                          Visible = True
+                        end
+                        item
+                          Expanded = False
+                          FieldName = 'datavencto'
+                          Title.Alignment = taCenter
+                          Title.Caption = 'Vencto'
+                          Width = 75
+                          Visible = True
+                        end
+                        item
+                          Expanded = False
+                          FieldName = 'datapagto'
+                          Title.Alignment = taCenter
+                          Title.Caption = 'Pagto'
+                          Width = 75
+                          Visible = True
+                        end
+                        item
+                          Expanded = False
+                          FieldName = 'valorpagto'
+                          Title.Alignment = taCenter
+                          Title.Caption = 'Valor Pagto'
+                          Width = 90
+                          Visible = True
+                        end
+                        item
+                          Expanded = False
+                          FieldName = 'tiporecebimento'
+                          Title.Alignment = taCenter
+                          Title.Caption = 'Tipo Recebimento'
+                          Width = 160
+                          Visible = True
+                        end>
+                    end
+                  end
+                end
+              end
+            end
+            object tstProdutos: TTabSheet
+              Caption = 'Prod&utos'
+              ImageIndex = -1
+              object dbgProdutos: TtecDBGrid
+                Left = 0
+                Top = 0
+                Width = 551
+                Height = 209
+                Align = alClient
+                DataSource = dtmFichaFinanceira.dsrProdutos
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = 11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+                ParentFont = False
+                ReadOnly = True
+                TabOrder = 0
+                TitleFont.Charset = DEFAULT_CHARSET
+                TitleFont.Color = clBlack
+                TitleFont.Height = 13
+                TitleFont.Name = 'helvetica'
+                TitleFont.Pitch = fpVariable
+                TitleFont.Style = []
+                OnDrawColumnCell = dbgProdutosDrawColumnCell
+                RowWrap = 60
+                Large = False
+                DoubleRowColor = False
+                TitleMinHeight = 100
+                CellHeights = 100
+                StrippedColor = 16054260
+                CanDelete = False
+                PostOnEnter = False
+                DenySort = False
+                DefaultRowHeight = 14
+                ExibirNumerodaLinha = False
+                Columns = <
+                  item
+                    Expanded = False
+                    FieldName = 'produto'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'C'#243'digo'
+                    Width = 135
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'descricao'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Descri'#231#227'o'
+                    Width = 300
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'valorgrade1'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Linha'
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'valorgrade2'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Coluna'
+                    Width = 64
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'filial'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Fil.'
+                    Width = 30
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'quantidade'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Qtde.'
+                    Width = 35
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'precovenda'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Pre'#231'o'
+                    Width = 85
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'cancelado'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Devolvido'
+                    Width = 70
+                    Visible = True
+                  end>
+              end
+            end
+            object tstServicos: TTabSheet
+              Caption = 'Servi'#231'os'
+              ImageIndex = 6
+              object lblEquipamento: TLabel
+                Left = 1
+                Top = 116
+                Width = 76
+                Height = 16
+                Alignment = taRightJustify
+                Caption = 'Equipamento'
+              end
+              object lblComplemento: TLabel
+                Left = 20
+                Top = 141
+                Width = 58
+                Height = 12
+                Alignment = taRightJustify
+                Caption = 'Complemento'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = 12
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                ParentFont = False
+              end
+              object dbgServicos: TtecDBGrid
+                Left = 0
+                Top = 0
+                Width = 551
+                Height = 108
+                DataSource = dtmFichaFinanceira.dsrServicos
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = 11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+                ParentFont = False
+                ReadOnly = True
+                TabOrder = 0
+                TitleFont.Charset = DEFAULT_CHARSET
+                TitleFont.Color = clBlack
+                TitleFont.Height = 13
+                TitleFont.Name = 'helvetica'
+                TitleFont.Pitch = fpVariable
+                TitleFont.Style = []
+                RowWrap = 60
+                Large = False
+                DoubleRowColor = False
+                MsgDelete = 'o SERVI'#199'O'
+                TitleMinHeight = 100
+                CellHeights = 100
+                StrippedColor = 16054260
+                CanDelete = False
+                PostOnEnter = False
+                DenySort = False
+                DefaultRowHeight = 14
+                ExibirNumerodaLinha = False
+                Columns = <
+                  item
+                    Expanded = False
+                    FieldName = 'servico'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'C'#243'd.'
+                    Width = 50
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'descricaoservico'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Descri'#231#227'o do Servi'#231'o'
+                    Width = 310
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'quantidade'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Qtde.'
+                    Width = 35
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'aliquotaissqn'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'ISSQN'
+                    Width = 45
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'valorservico'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Valor'
+                    Width = 65
+                    Visible = True
+                  end>
+              end
+              object dtxEquipamento: TtecDBText
+                Left = 82
+                Top = 112
+                Width = 59
+                Height = 23
+                TabStop = False
+                Color = clBtnFace
+                DataField = 'equipamento'
+                DataSource = dtmFichaFinanceira.dsrServicos
+                ReadOnly = True
+                TabOrder = 1
+                Alignment = taLeftJustify
+              end
+              object dtxDescricaoEquipamento: TtecDBText
+                Left = 141
+                Top = 112
+                Width = 273
+                Height = 23
+                TabStop = False
+                Color = clBtnFace
+                DataField = 'descricaoequipamento'
+                DataSource = dtmFichaFinanceira.dsrServicos
+                ReadOnly = True
+                TabOrder = 2
+                Alignment = taLeftJustify
+              end
+              object mmoComplementoEquipamento: TDBMemo
+                Left = 82
+                Top = 137
+                Width = 468
+                Height = 48
+                TabStop = False
+                Color = clBtnFace
+                DataField = 'complementoservico'
+                DataSource = dtmFichaFinanceira.dsrServicos
+                ReadOnly = True
+                TabOrder = 3
+              end
+              object dtxReferencia: TtecDBText
+                Left = 415
+                Top = 112
+                Width = 135
+                Height = 23
+                TabStop = False
+                Color = clBtnFace
+                DataField = 'referencia'
+                DataSource = dtmFichaFinanceira.dsrServicos
+                ReadOnly = True
+                TabOrder = 4
+                Alignment = taLeftJustify
+              end
+            end
+            object tstNotasCupons: TTabSheet
+              Caption = ' Dados &Fiscais'
+              ImageIndex = -1
+              object lblNotas: TLabel
+                Left = 0
+                Top = -1
+                Width = 34
+                Height = 16
+                Caption = 'Notas'
+              end
+              object lblCupons: TLabel
+                Left = 260
+                Top = -1
+                Width = 44
+                Height = 16
+                Caption = 'Cupons'
+              end
+              object dbgNotas: TtecDBGrid
+                Left = 0
+                Top = 16
+                Width = 256
+                Height = 169
+                DataSource = dtmFichaFinanceira.dsrNotas
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = 11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+                ParentFont = False
+                ReadOnly = True
+                TabOrder = 0
+                TitleFont.Charset = DEFAULT_CHARSET
+                TitleFont.Color = clBlack
+                TitleFont.Height = 13
+                TitleFont.Name = 'helvetica'
+                TitleFont.Pitch = fpVariable
+                TitleFont.Style = []
+                RowWrap = 60
+                Large = False
+                DoubleRowColor = False
+                TitleMinHeight = 100
+                CellHeights = 100
+                StrippedColor = 16054260
+                CanDelete = False
+                PostOnEnter = False
+                DenySort = False
+                DefaultRowHeight = 14
+                ExibirNumerodaLinha = False
+                Columns = <
+                  item
+                    Alignment = taCenter
+                    Expanded = False
+                    FieldName = 'filial'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Fil.'
+                    Width = 30
+                    Visible = True
+                  end
+                  item
+                    Alignment = taCenter
+                    Expanded = False
+                    FieldName = 'serie'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'S'#233'rie'
+                    Width = 30
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'numero'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'N'#250'mero'
+                    Width = 85
+                    Visible = True
+                  end
+                  item
+                    Alignment = taCenter
+                    Expanded = False
+                    FieldName = 'data'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Data'
+                    Width = 70
+                    Visible = True
+                  end>
+              end
+              object dbgCupons: TtecDBGrid
+                Left = 259
+                Top = 16
+                Width = 291
+                Height = 169
+                DataSource = dtmFichaFinanceira.dsrCupons
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = 11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+                ParentFont = False
+                ReadOnly = True
+                TabOrder = 1
+                TitleFont.Charset = DEFAULT_CHARSET
+                TitleFont.Color = clBlack
+                TitleFont.Height = 13
+                TitleFont.Name = 'helvetica'
+                TitleFont.Pitch = fpVariable
+                TitleFont.Style = []
+                RowWrap = 60
+                Large = False
+                DoubleRowColor = False
+                TitleMinHeight = 100
+                CellHeights = 100
+                StrippedColor = 16054260
+                CanDelete = False
+                PostOnEnter = False
+                DenySort = False
+                DefaultRowHeight = 14
+                ExibirNumerodaLinha = False
+                Columns = <
+                  item
+                    Alignment = taCenter
+                    Expanded = False
+                    FieldName = 'maquina'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'ECF'
+                    Width = 30
+                    Visible = True
+                  end
+                  item
+                    Alignment = taCenter
+                    Expanded = False
+                    FieldName = 'filial'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Fil.'
+                    Width = 30
+                    Visible = True
+                  end
+                  item
+                    Alignment = taCenter
+                    Expanded = False
+                    FieldName = 'intervensao'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Interv'
+                    Width = 35
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'numero'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'N'#250'mero'
+                    Width = 83
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'data'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Data'
+                    Width = 70
+                    Visible = True
+                  end>
+              end
+            end
+            object tstEntrega: TTabSheet
+              Caption = '&Entrega'
+              ImageIndex = 5
+              object pgcEntrega: TtecPageControl
+                Left = 0
+                Top = 0
+                Width = 551
+                Height = 209
+                ActivePage = tstNotaEntrega
+                Align = alClient
+                TabOrder = 0
+                TabWidth = 100
+                object tstNotaEntrega: TTabSheet
+                  Caption = '  &1 - Romaneios'
+                  object dbgNotaEntrega: TtecDBGrid
+                    Left = 0
+                    Top = 0
+                    Width = 543
+                    Height = 178
+                    Align = alClient
+                    DataSource = dtmFichaFinanceira.dsrRomaneios
+                    Font.Charset = DEFAULT_CHARSET
+                    Font.Color = clBlack
+                    Font.Height = 11
+                    Font.Name = 'helvetica'
+                    Font.Pitch = fpVariable
+                    Font.Style = []
+                    Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+                    ParentFont = False
+                    TabOrder = 0
+                    TitleFont.Charset = DEFAULT_CHARSET
+                    TitleFont.Color = clBlack
+                    TitleFont.Height = 13
+                    TitleFont.Name = 'helvetica'
+                    TitleFont.Pitch = fpVariable
+                    TitleFont.Style = []
+                    OnTitleClick = dbgNotaEntregaTitleClick
+                    RowWrap = 60
+                    Large = False
+                    DoubleRowColor = False
+                    TitleMinHeight = 100
+                    CellHeights = 100
+                    StrippedColor = 16054260
+                    CanDelete = False
+                    PostOnEnter = False
+                    DenySort = False
+                    DefaultRowHeight = 14
+                    ExibirNumerodaLinha = False
+                    Columns = <
+                      item
+                        Expanded = False
+                        FieldName = 'numero'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'N'#250'mero'
+                        Width = 50
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'emissao'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Emiss'#227'o'
+                        Width = 70
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'cupom'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Filial/ECF/Inter./N'#250'mero ...'
+                        Width = 160
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'transportador'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'C'#243'digo'
+                        Width = 45
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'razao'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Raz'#227'o'
+                        Width = 168
+                        Visible = True
+                      end>
+                  end
+                end
+                object tstProdutoEntrega: TTabSheet
+                  Caption = '  &2 - Produtos'
+                  ImageIndex = 1
+                  object dbgProdutoEntrega: TtecDBGrid
+                    Left = 0
+                    Top = 0
+                    Width = 543
+                    Height = 178
+                    Align = alClient
+                    DataSource = dtmFichaFinanceira.dsrProdutosRomaneios
+                    Font.Charset = DEFAULT_CHARSET
+                    Font.Color = clBlack
+                    Font.Height = -9
+                    Font.Name = 'helvetica'
+                    Font.Pitch = fpVariable
+                    Font.Style = []
+                    Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+                    ParentFont = False
+                    TabOrder = 0
+                    TitleFont.Charset = DEFAULT_CHARSET
+                    TitleFont.Color = clBlack
+                    TitleFont.Height = 13
+                    TitleFont.Name = 'helvetica'
+                    TitleFont.Pitch = fpVariable
+                    TitleFont.Style = []
+                    RowWrap = 60
+                    Large = False
+                    DoubleRowColor = False
+                    TitleMinHeight = 100
+                    CellHeights = 100
+                    StrippedColor = 16054260
+                    CanDelete = False
+                    PostOnEnter = False
+                    DenySort = False
+                    DefaultRowHeight = 16
+                    ExibirNumerodaLinha = False
+                    Columns = <
+                      item
+                        Expanded = False
+                        FieldName = 'produto'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'C'#243'digo'
+                        Width = 50
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'descricao'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Descri'#231#227'o Produto'
+                        Width = 250
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'filial'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Fil.'
+                        Width = 30
+                        Visible = True
+                      end
+                      item
+                        Expanded = False
+                        FieldName = 'quantidade'
+                        Title.Alignment = taCenter
+                        Title.Caption = 'Qtde.'
+                        Width = 40
+                        Visible = True
+                      end>
+                  end
+                end
+              end
+            end
+            object tstMontagem: TTabSheet
+              Caption = 'Montagem'
+              ImageIndex = 6
+              object dbgMontagem: TtecDBGrid
+                Left = 0
+                Top = 0
+                Width = 551
+                Height = 209
+                Align = alClient
+                DataSource = dtmFichaFinanceira.dsrMontagens
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -9
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+                ParentFont = False
+                TabOrder = 0
+                TitleFont.Charset = DEFAULT_CHARSET
+                TitleFont.Color = clBlack
+                TitleFont.Height = 13
+                TitleFont.Name = 'helvetica'
+                TitleFont.Pitch = fpVariable
+                TitleFont.Style = []
+                RowWrap = 60
+                Large = False
+                DoubleRowColor = False
+                TitleMinHeight = 100
+                CellHeights = 100
+                StrippedColor = 16054260
+                CanDelete = False
+                PostOnEnter = False
+                DenySort = False
+                DefaultRowHeight = 16
+                ExibirNumerodaLinha = False
+                Columns = <
+                  item
+                    Expanded = False
+                    FieldName = 'produto'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Produto'
+                    Width = 100
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'descricaoproduto'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Descri'#231#227'o'
+                    Width = 250
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'valorgrade1'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'LInha'
+                    Width = 55
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'valorgrade2'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Coluna'
+                    Width = 55
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'numero'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Nota'
+                    Width = 65
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'serie'
+                    Title.Caption = 'S'#233'rie'
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'situacao'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'Situa'#231#227'o'
+                    Width = 60
+                    Visible = True
+                  end>
+              end
+            end
+          end
+          object gxgDadosCliente: TGroupBox
+            Left = 0
+            Top = 0
+            Width = 785
+            Height = 243
+            Align = alTop
+            TabOrder = 2
+            inline fraConsultaDadosClienteFicha: TfraConsultaDadosCliente
+              Left = 2
+              Top = 18
+              Width = 781
+              Height = 223
+              HorzScrollBar.Range = 734
+              VertScrollBar.Range = 238
+              Align = alClient
+              AutoScroll = False
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = 13
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 0
+              inherited lblResumoCobranca: TLabel
+                Top = 217
+                Width = 728
+              end
+              inherited pgcDetalhesCliente: TtecPageControl
+                Left = -1
+                inherited tstEndereco: TTabSheet
+                  inherited fraEnderecoCliente: TfraEndereco
+                    inherited gbxEndereco: TGroupBox
+                      inherited pnlRua: TPanel
+                        inherited mmoRua: TtecDBMemo
+                          DataSource = fraConsultaDadosClienteFicha.dsrCliente
+                        end
+                      end
+                      inherited pnlNumero: TPanel
+                        inherited edtNumeroEndereco: TDBEditTexto
+                          DataField = 'numero'
+                          DataSource = fraConsultaDadosClienteFicha.dsrCliente
+                        end
+                        inherited edtComplemento: TDBEditTexto
+                          DataField = 'complemento'
+                          DataSource = fraConsultaDadosClienteFicha.dsrCliente
+                        end
+                      end
+                      inherited pnlBairro: TPanel
+                        inherited edtBairro: TtecDoubleDBEdit
+                          LookupSource = fraConsultaDadosClienteFicha.dsrCliente
+                          DataSource = fraConsultaDadosClienteFicha.dsrCliente
+                        end
+                      end
+                      inherited pnlCidade: TPanel
+                        inherited edtCEP: TDBEditCep
+                          DataSource = fraConsultaDadosClienteFicha.dsrCliente
+                        end
+                        inherited edtCidade: TtecDoubleDBEdit
+                          LookupSource = fraConsultaDadosClienteFicha.dsrCliente
+                          DataSource = fraConsultaDadosClienteFicha.dsrCliente
+                        end
+                        inherited edtEstado: TDBEditTexto
+                          DataSource = fraConsultaDadosClienteFicha.dsrCliente
+                        end
+                      end
+                    end
+                  end
+                  inherited GroupBox1: TGroupBox
+                    inherited lblFoneRamal: TLabel
+                      Width = 31
+                      Height = 13
+                    end
+                    inherited lblFoneNumero: TLabel
+                      Width = 24
+                      Height = 13
+                    end
+                    inherited lblDDD: TLabel
+                      Width = 21
+                      Height = 13
+                    end
+                  end
+                end
+                inherited tstCheques: TTabSheet
+                  inherited pgcCheques: TtecPageControl
+                    inherited tstCheques1: TTabSheet
+                      inherited dbgCheques: TtecDBGrid
+                        Height = 110
+                        OnDrawColumnCell = fraConsultaDadosClienteFichadbgChequesDrawColumnCell
+                      end
+                    end
+                    inherited tstResgate: TTabSheet
+                      inherited dbgResgates: TtecDBGrid
+                        OnDrawColumnCell = fraConsultaDadosClienteFichadbgResgatesDrawColumnCell
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+          object pnlProdutos: TPanel
+            Left = 546
+            Top = 484
+            Width = 236
+            Height = 17
+            BevelOuter = bvNone
+            TabOrder = 3
+            Visible = False
+            object shpTotal: TShape
+              Left = 126
+              Top = 3
+              Width = 11
+              Height = 11
+              Brush.Color = 16755200
+              Pen.Width = 0
+            end
+            object shpParcial: TShape
+              Left = 179
+              Top = 3
+              Width = 11
+              Height = 11
+              Brush.Color = 16773515
+              Pen.Width = 0
+            end
+            object lblProdutosCancelados: TLabel
+              Left = 1
+              Top = 1
+              Width = 122
+              Height = 16
+              Caption = 'Produtos cancelados'
+            end
+            object lblTotal: TLabel
+              Left = 140
+              Top = 1
+              Width = 27
+              Height = 16
+              Caption = 'Total'
+            end
+            object lblParcial: TLabel
+              Left = 193
+              Top = 1
+              Width = 40
+              Height = 16
+              Caption = 'Parcial'
+            end
+          end
+          object ckbSomenteEmAberto: TCheckBox
+            Left = 110
+            Top = 245
+            Width = 114
+            Height = 15
+            Caption = 'Mostrar em Aberto'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = 11
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 4
+            OnClick = ckbSomenteEmAbertoClick
+          end
+        end
+        object tstDebitos: TTabSheet
+          Caption = 'tstDebitos'
+          ImageIndex = 1
+          object gbxCalculoDebito: TGroupBox
+            Left = 0
+            Top = 0
+            Width = 785
+            Height = 477
+            Align = alClient
+            TabOrder = 0
+            object gbxDataBase: TGroupBox
+              Left = 6
+              Top = 6
+              Width = 104
+              Height = 60
+              TabOrder = 0
+              object lblDataPagto: TLabel
+                Left = 11
+                Top = 6
+                Width = 59
+                Height = 16
+                Caption = 'Data base'
+              end
+              object edtDataPagto: TEditData
+                Left = 8
+                Top = 24
+                Width = 83
+                Height = 23
+                TabOrder = 0
+                OnEnter = edtDataPagtoEnter
+                OnKeyDown = edtDataPagtoKeyDown
+                Minimo = 0
+                Maximo = 37353
+              end
+            end
+            object gbxValoresEmAtrasos: TGroupBox
+              Left = 114
+              Top = 6
+              Width = 210
+              Height = 88
+              TabOrder = 1
+              object lblAtrasoParcelas: TLabel
+                Left = 34
+                Top = 10
+                Width = 60
+                Height = 16
+                Alignment = taRightJustify
+                Caption = 'Em atraso'
+              end
+              object lblAtrasoJuros: TLabel
+                Left = 64
+                Top = 36
+                Width = 31
+                Height = 16
+                Alignment = taRightJustify
+                Caption = 'Juros'
+              end
+              object lblAtrasoTotal: TLabel
+                Left = 68
+                Top = 62
+                Width = 27
+                Height = 16
+                Alignment = taRightJustify
+                Caption = 'Total'
+              end
+              object lblAtrasoParcelasValor: TLabel
+                Left = 98
+                Top = 6
+                Width = 108
+                Height = 23
+                Alignment = taRightJustify
+                AutoSize = False
+              end
+              object lblAtrasoJurosValor: TLabel
+                Left = 98
+                Top = 32
+                Width = 108
+                Height = 23
+                Alignment = taRightJustify
+                AutoSize = False
+              end
+              object lblAtrasoTotalValor: TLabel
+                Left = 98
+                Top = 58
+                Width = 108
+                Height = 23
+                Alignment = taRightJustify
+                AutoSize = False
+              end
+            end
+            object gbxEmAberto: TGroupBox
+              Left = 328
+              Top = 6
+              Width = 210
+              Height = 88
+              TabOrder = 2
+              object lblEmAbertoParcelas: TLabel
+                Left = 45
+                Top = 10
+                Width = 49
+                Height = 16
+                Alignment = taRightJustify
+                Caption = 'A vencer'
+              end
+              object lblEmAbertoDescontos: TLabel
+                Left = 30
+                Top = 36
+                Width = 62
+                Height = 16
+                Alignment = taRightJustify
+                Caption = 'Descontos'
+              end
+              object lblEmAbertoTotal: TLabel
+                Left = 66
+                Top = 62
+                Width = 27
+                Height = 16
+                Alignment = taRightJustify
+                Caption = 'Total'
+              end
+              object lblEmAbertoParcelasValor: TLabel
+                Left = 96
+                Top = 6
+                Width = 108
+                Height = 23
+                Alignment = taRightJustify
+                AutoSize = False
+              end
+              object lblEmAbertoDescontosValor: TLabel
+                Left = 96
+                Top = 32
+                Width = 108
+                Height = 23
+                Alignment = taRightJustify
+                AutoSize = False
+              end
+              object lblEmAbertoTotalValor: TLabel
+                Left = 96
+                Top = 58
+                Width = 108
+                Height = 23
+                Alignment = taRightJustify
+                AutoSize = False
+              end
+            end
+            object GroupBox3: TGroupBox
+              Left = 542
+              Top = 6
+              Width = 237
+              Height = 126
+              TabOrder = 3
+              object lblParcela: TLabel
+                Left = 70
+                Top = 11
+                Width = 51
+                Height = 16
+                Alignment = taRightJustify
+                Caption = 'Parcelas'
+              end
+              object lblJuros: TLabel
+                Left = 91
+                Top = 38
+                Width = 31
+                Height = 16
+                Alignment = taRightJustify
+                Caption = 'Juros'
+              end
+              object lblDescontos: TLabel
+                Left = 66
+                Top = 65
+                Width = 55
+                Height = 16
+                Alignment = taRightJustify
+                Caption = 'Desconto'
+              end
+              object lblCarnes: TLabel
+                Left = 49
+                Top = 98
+                Width = 74
+                Height = 16
+                Alignment = taRightJustify
+                Caption = 'Total a pagar'
+              end
+              object lblValorParcelas: TLabel
+                Left = 124
+                Top = 8
+                Width = 108
+                Height = 23
+                Alignment = taRightJustify
+                AutoSize = False
+              end
+              object lblValorJuros: TLabel
+                Left = 124
+                Top = 35
+                Width = 108
+                Height = 23
+                Alignment = taRightJustify
+                AutoSize = False
+              end
+              object lblValorDescontos: TLabel
+                Left = 124
+                Top = 62
+                Width = 108
+                Height = 23
+                Alignment = taRightJustify
+                AutoSize = False
+              end
+              object lblValorCarnes: TLabel
+                Left = 124
+                Top = 95
+                Width = 108
+                Height = 23
+                Alignment = taRightJustify
+                AutoSize = False
+              end
+              object pnlDivisor: TPanel
+                Left = 126
+                Top = 89
+                Width = 105
+                Height = 2
+                TabOrder = 0
+              end
+            end
+            object GroupBox4: TGroupBox
+              Left = 114
+              Top = 98
+              Width = 424
+              Height = 35
+              TabOrder = 4
+              object lblTotalGeral: TLabel
+                Left = 224
+                Top = 9
+                Width = 84
+                Height = 16
+                Caption = 'Total do d'#233'bito'
+              end
+              object lblTotalAtrasos: TLabel
+                Left = 311
+                Top = 5
+                Width = 108
+                Height = 23
+                Alignment = taRightJustify
+                AutoSize = False
+              end
+            end
+            object dbgParcelasCalcularDebito: TtecDBGrid
+              Left = 2
+              Top = 111
+              Width = 781
+              Height = 364
+              Align = alBottom
+              DataSource = dtmFichaFinanceira.dsrParcelasCalcularDebito
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -9
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 5
+              TitleFont.Charset = DEFAULT_CHARSET
+              TitleFont.Color = clBlack
+              TitleFont.Height = 13
+              TitleFont.Name = 'helvetica'
+              TitleFont.Pitch = fpVariable
+              TitleFont.Style = []
+              OnDrawColumnCell = dbgParcelasCalcularDebitoDrawColumnCell
+              OnDblClick = dbgParcelasCalcularDebitoDblClick
+              OnKeyDown = dbgParcelasCalcularDebitoKeyDown
+              RowWrap = 60
+              Large = False
+              DoubleRowColor = False
+              TitleMinHeight = 100
+              CellHeights = 100
+              StrippedColor = 16054260
+              CanDelete = False
+              PostOnEnter = False
+              DenySort = False
+              DefaultRowHeight = 16
+              ExibirNumerodaLinha = False
+              Columns = <
+                item
+                  Expanded = False
+                  FieldName = 'aux'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'Contrato'
+                  Width = 125
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'numeroparcela'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'NP'
+                  Width = 25
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'datavencimento'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'Data Vencto.'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'valorvencimento'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'Valor Vencto.'
+                  Width = 90
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'datapagamento'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'Data Pagto.'
+                  Width = 80
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'valorpagamento'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'Valor Pagto.'
+                  Width = 90
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'JurosDescontos'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'Juros/Desctos'
+                  Width = 90
+                  Visible = True
+                end
+                item
+                  Alignment = taCenter
+                  Expanded = False
+                  FieldName = 'filialpagamento'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'Fil.'
+                  Width = 30
+                  Visible = True
+                end
+                item
+                  Alignment = taCenter
+                  Expanded = False
+                  FieldName = 'tipopagamento'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'TP'
+                  Width = 25
+                  Visible = True
+                end
+                item
+                  Alignment = taCenter
+                  Expanded = False
+                  FieldName = 'Quitar'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'Sel.'
+                  Width = 30
+                  Visible = True
+                end>
+            end
+          end
+        end
+      end
+      object dtxDescricaoConceito: TtecDBText
+        Left = 616
+        Top = 6
+        Width = 177
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'descricaoconceito'
+        DataSource = dtmFichaFinanceira.dsrClientes
+        ReadOnly = True
+        TabOrder = 2
+        Alignment = taLeftJustify
+      end
+      object edfCodigoCliente: TtecDbEditFind
+        Left = 77
+        Top = 6
+        Width = 90
+        Height = 24
+        Alignment = taLeftJustify
+        DataField = 'codigo'
+        DataSource = dtmFichaFinanceira.dsrClientes
+        Group = 'Ficha'
+        MaxLength = 10
+        Maximo = 0
+        Minimo = 37353
+        Adicional = 0
+        Opcional = True
+        OnEnter = edfCodigoClienteEnter
+        OnExit = edfCodigoClienteExit
+        OnFound = edfCodigoClienteFound
+        TabOrder = 1
+        PermitirZero = False
+        PermitirNulo = False
+        Operacao = opPESQUISA
+        Parameter = 'Codigo'
+        ActiveSetControls = True
+        DenyInsert = True
+        NoSetControls = <
+          item
+            Control = sbnCliente
+          end
+          item
+            Control = dtxNome
+          end>
+        SetControls = <>
+      end
+    end
+  end
+  object aclFichaFinanceira: TActionList
+    Left = 536
+    Top = 8
+    object actHabilitarBotaoCalcular: TAction
+      OnUpdate = actHabilitarBotaoCalcularUpdate
+    end
+  end
+end

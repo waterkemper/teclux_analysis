@@ -1,0 +1,510 @@
+unit fmcadastroprodutosinventario;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadraonavegacao, ComCtrls, Buttons, ExtCtrls,
+  dmcadastroinventario, DBCtrls, cpdbtext, frconsulta, frconsultacodigo,
+  cpnumero, ctconstantes, biblio,Windows, cptexto, db, clparametrossistema,
+  Mask, ToolWin, frVisualizarImageURL, fmVisualizarImageURL;
+
+type
+  TfrmCadastroProdutosInventario = class(TfrmCadastroPadraoNav)
+    gbxSequencia: TGroupBox;
+    gbxProdutos: TGroupBox;
+    gbxQuantidade: TGroupBox;
+    dtxSequencia: TtecDBText;
+    fraConsultaProduto: TfraConsultaCodigo;
+    edtQuantidade: TDBEditNumero;
+    gbxEstoque: TGroupBox;
+    gbxReserva: TGroupBox;
+    gbxTransito: TGroupBox;
+    gbxDiferenca: TGroupBox;
+    gbxDemonstracao: TGroupBox;
+    gbxConserto: TGroupBox;
+    gbxDanificada: TGroupBox;
+    gbxReservaPrevia: TGroupBox;
+    dtxEmEstoque: TtecDBText;
+    dtxReserva: TtecDBText;
+    dtxTransito: TtecDBText;
+    dtxDiferenca: TtecDBText;
+    dtxDemonstracao: TtecDBText;
+    dtxConserto: TtecDBText;
+    dtxDanificada: TtecDBText;
+    dtxReservaPrevia: TtecDBText;
+    gbxQuantidades: TGroupBox;
+    GroupBox1: TGroupBox;
+    dtxMovimentado: TtecDBText;
+    fraVisualizarImageURL1: TfraVisualizarImageURL;
+    sbnVisualizarFoto: TSpeedButton;
+    procedure fraConsultaProdutoedfCodigoKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure edtQuantidadeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+    procedure fraConsultaProdutoedfCodigoMessage(var Msg: String);
+    procedure sbnVisualizarFotoClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure CondicoesItemProduto;
+    procedure AtribuirCamposProdutos;
+    procedure VisualizarImagem(Sender: TObject);
+  protected
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AlterarEstadoBotoes; override;
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmCadastroProdutosInventario: TfrmCadastroProdutosInventario;
+
+implementation
+
+uses fmnavcontroles, fmcadastropadrao;
+
+{$R *.dfm}
+
+{ TfrmCadastroProdutosInventario }
+
+procedure TfrmCadastroProdutosInventario.CondicoesItemProduto;
+const
+{  SQL = 'and (p.codigo not in (%s) or p.codigo = %s)';}
+  SQL = 'and (p.codigo not in (select ip.produto from inventarioprodutos ip where ip.inventario = %s) or p.codigo = %s)';
+//  SQLGrupos = 'and (c.grupo in (%s) or p.codigo = %s)';
+//  SQLClasses = 'and (c.classe in (%s) or p.codigo = %s)';
+//  SQLMarcas = 'and (c.marca in (%s) or p.codigo = %s)';
+  SQLGruposFornecedor = 'and (c.codigo in (select distinct fp.caracteristica '+
+                                          'from fornecedoresprodutos fp join '+
+                                              ' fornecedores f on fp.fornecedor = f.codigo '+
+                                          'where f.grupofornecedor in (%s) '+
+                                          'order by fp.caracteristica) or p.codigo = %s)';
+  SQLFornecedor = 'and (c.codigo in (select fp.caracteristica '+
+                                    'from fornecedoresprodutos fp '+
+                                    'where fp.fornecedor = %s '+
+                                    'order by fp.caracteristica) or p.codigo = %s)';
+  SQLLocalizacao = 'and (p.codigo in (select e.produto '+
+                                     'from estoques e '+
+                                     'where e.localizacao in (%s)) or p.codigo = %s)';
+begin
+
+{
+  fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+    format(SQL,[inttostr(dtmCadastroInventario.qryInventarionumero.AsInteger),
+                inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+}
+
+  if not parsistema.Inventariar_Produtos_Compostos then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLCondicaoCompostos').AsString :=  ' and not (coalesce(c.composto,false)) ';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLCondicaoCompostos').AsString := ' and not (coalesce(c.composto,false)) ';
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLCondicaoCompostos').AsString :=  '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLCondicaoCompostos').AsString := '';
+  end;
+
+  fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+    format(SQL,[inttostr(dtmCadastroInventario.qryInventarionumero.AsInteger),
+                inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+
+  if ListadeItemProdutos<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroItemProdutos').AsString :=  'and ('+ListadeItemProdutos+')';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroItemProdutos').AsString :=  'and ('+ListadeItemProdutos+')';
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroItemProdutos').AsString :=  '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroItemProdutos').AsString :=  '';
+  end;
+
+  if ListadeProdutos<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroProdutos').AsString :=  ' and (' + ListadeProdutos + ')';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroProdutos').AsString :=  ' and (' + ListadeProdutos + ')';
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroProdutos').AsString :=  '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroProdutos').AsString :=  '';
+  end;
+
+  if ListadeGrupos<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroGrupos').AsString := ' and (' + ListadeGrupos + ')';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroGrupos').AsString := ' and (' + ListadeGrupos + ')';
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroGrupos').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroGrupos').AsString := '';
+  end;
+
+  if ListadeClasses<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroClasses').AsString := ' and ('+ ListadeClasses + ')';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroClasses').AsString := ' and ('+ ListadeClasses + ')';
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroClasses').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroClasses').AsString := '';
+  end;
+
+  if ListadeMarcas<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroMarcas').AsString := ' and ('+ ListadeMarcas + ')';
+    fraConsultaProduto.qryconsultaItemProdutos.MacroByName('SQLFiltroMarcas').AsString := ' and ('+ ListadeMarcas + ')';
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroMarcas').AsString :='';
+    fraConsultaProduto.qryconsultaItemProdutos.MacroByName('SQLFiltroMarcas').AsString :='';
+  end;
+
+  if ListaCondicionalPromocoes<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('ListaCondicionalPromocoes').AsString := ' and ('+ ListaCondicionalPromocoes + ')';
+    fraConsultaProduto.qryconsultaItemProdutos.MacroByName('ListaCondicionalPromocoes').AsString := ' and ('+ ListaCondicionalPromocoes + ')';
+  end  
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('ListaCondicionalPromocoes').AsString := '';
+    fraConsultaProduto.qryconsultaItemProdutos.MacroByName('ListaCondicionalPromocoes').AsString := '';
+  end;
+
+                {
+  if dtmCadastroInventario.qryInventariogrupos.AsString<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroGrupos').AsString :=
+      format(SQLGrupos,[dtmCadastroInventario.qryInventariogrupos.AsString,
+                  inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroGrupos').AsString :=
+      format(SQLGrupos,[dtmCadastroInventario.qryInventariogrupos.AsString,
+                  inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroGrupos').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroGrupos').AsString := '';
+  end;
+
+  if dtmCadastroInventario.qryInventarioclasses.AsString<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroClasses').AsString :=
+      format(SQLClasses,[dtmCadastroInventario.qryInventarioclasses.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroClasses').AsString :=
+      format(SQLClasses,[dtmCadastroInventario.qryInventarioclasses.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)])
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroClasses').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroClasses').AsString := '';
+  end;
+
+  if dtmCadastroInventario.qryInventariomarcas.AsString<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroMarcas').AsString :=
+      format(SQLMarcas,[dtmCadastroInventario.qryInventariomarcas.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+    fraConsultaProduto.qryconsultaItemProdutos.MacroByName('SQLFiltroMarcas').AsString :=
+      format(SQLMarcas,[dtmCadastroInventario.qryInventariomarcas.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroMarcas').AsString :='';
+    fraConsultaProduto.qryconsultaItemProdutos.MacroByName('SQLFiltroMarcas').AsString :='';
+  end;
+  }
+
+  if dtmCadastroInventario.qryInventariogruposfornecedores.AsString<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroGruposFornecedores').AsString :=
+      format(SQLGruposFornecedor,[dtmCadastroInventario.qryInventariogruposfornecedores.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroGruposFornecedores').AsString :=
+      format(SQLGruposFornecedor,[dtmCadastroInventario.qryInventariogruposfornecedores.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroGruposFornecedores').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroGruposFornecedores').AsString := '';
+  end;
+
+  if dtmCadastroInventario.qryInventariofornecedor.AsString<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroFornecedor').AsString :=
+      format(SQLFornecedor,[dtmCadastroInventario.qryInventariofornecedor.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroFornecedor').AsString :=
+      format(SQLFornecedor,[dtmCadastroInventario.qryInventariofornecedor.AsString,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroFornecedor').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroFornecedor').AsString := '';
+  end;
+
+  if dtmCadastroInventario.qryInventariolocalizacao.AsString<>'' then
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroLocalizacao').AsString :=
+      format(SQLLocalizacao,[dtmCadastroInventario.Localizacao,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroLocalizacao').AsString :=
+      format(SQLLocalizacao,[dtmCadastroInventario.Localizacao,
+      inttostr(dtmCadastroInventario.qryInventarioProdutoproduto.asinteger)]);
+  end
+  else
+  begin
+    fraConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroLocalizacao').AsString := '';
+    fraConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroLocalizacao').AsString := '';
+  end;
+
+end;
+
+constructor TfrmCadastroProdutosInventario.Create(AOwner: TComponent);
+begin
+  inherited;
+//  fraConsultaProduto.edfCodigo.vCampoPesquisa := nil;
+//  fraConsultaProduto.edfCodigo.vCampoPesquisaLocate := nil;
+
+  fraConsultaProduto.edfCodigo.PosicionarProdutoNaoEncontrado := true;
+
+{
+  if ParSistema.PermitirProdutoAlfanumerico then begin
+     fraConsultaProduto.edfCodigo.Lookupfield:= 'produtovisual';
+     fraConsultaProduto.edfCodigo.LookupQueryParameter:= 'produtovisual';
+     fraConsultaProduto.edfCodigo.DataField     := 'produtovisual';
+     fraConsultaProduto.edfCodigo.LookupParameters := 'produtovisual,codigobarras';
+     fraConsultaProduto.edfCodigo.LocateParameters := 'produtovisual';
+     fraConsultaProduto.edfCodigo.Width := 200;
+     fraConsultaProduto.sbnProcura.Left := 200;
+     fraConsultaProduto.dtxDescricao.Left := 224;
+     fraConsultaProduto.dtxDescricao.Width := 321;
+  end
+  else
+  begin
+     fraConsultaProduto.edfCodigo.Lookupfield:= 'produto';
+     fraConsultaProduto.edfCodigo.LocateParameters := 'produto,codigobarras';
+     fraConsultaProduto.edfCodigo.LookupParameters := 'produto,codigobarras';
+
+     fraConsultaProduto.edfCodigo.LookupQueryParameter:= 'produto';
+
+     fraConsultaProduto.edfCodigo.DataField     := 'produto';
+     fraConsultaProduto.edfCodigo.Width := 135;
+     fraConsultaProduto.sbnProcura.Left := 136;
+     fraConsultaProduto.dtxDescricao.Left := 160;
+     fraConsultaProduto.dtxDescricao.Width := 385;
+  end;
+}
+
+  fraConsultaProduto.CondicoesdaConsulta := CondicoesItemProduto;
+  fraConsultaProduto.OnFound := AtribuirCamposProdutos;
+  fraConsultaProduto.TipoPesquisa := pesITEMPRODUTOS;
+
+  if (ParSistema.ValordaQuantidade > 0) then
+    Self.ActiveControl:=fraConsultaProduto.edfcodigo
+  else
+    Self.ActiveControl:=edtQuantidade;
+
+  fraVisualizarImageURL1.Produto := dtmCadastroInventario.GetProduto;
+  dtmCadastroInventario.VisualizarImagem := self.VisualizarImagem;
+  VisualizarImagem(nil);
+
+
+end;
+
+destructor TfrmCadastroProdutosInventario.Destroy;
+begin
+  inherited;
+  frmCadastroProdutosInventario := nil;
+end;
+
+function TfrmCadastroProdutosInventario.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroInventario.ExcluirProdutosInventario;
+  end;
+
+end;
+
+function TfrmCadastroProdutosInventario.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    result := dtmCadastroInventario.GravarProdutosInventario;
+end;
+
+function TfrmCadastroProdutosInventario.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+    begin
+      dtmCadastroInventario.IncluirProdutosInventario(false);
+      if (ParSistema.ValordaQuantidade > 0) then
+        fraConsultaProduto.edfCodigo.SetFocus
+      else
+        edtQuantidade.SetFocus;
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroProdutosInventario.AtribuirCamposProdutos;
+begin
+ if fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('descricao').AsString <> '' then
+ begin
+   dtmCadastroInventario.qryInventarioProdutoproduto.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('produto').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutoprodutovisual.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('produtovisual').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutodescricao.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('descricao').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutovalorgrade1.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('valorgrade1').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutovalorgrade2.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('valorgrade2').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutolinha.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('linha').AsString;
+
+   dtmCadastroInventario.qryInventarioProdutocoluna.AsString :=
+     fraConsultaProduto.qryProcuraItemProdutos.fieldbyname('coluna').AsString;
+
+   dtmCadastroInventario.AtribuirQuantidades;
+ end
+ else
+ begin
+   with dtmCadastroInventario do
+   begin
+     qryInventarioProdutoproduto.clear;
+     qryInventarioProdutoprodutovisual.clear;
+     qryInventarioProdutodescricao.clear;
+     qryInventarioProdutovalorgrade1.clear;
+     qryInventarioProdutovalorgrade2.clear;
+     qryInventarioProdutolinha.clear;
+     qryInventarioProdutocoluna.clear;
+     qryInventarioProdutoemestoque.clear;
+     qryInventarioProdutoreservado.clear;
+     qryInventarioProdutotransito.clear;
+     qryInventarioProdutodemonstracao.clear;
+     qryInventarioProdutoconserto.clear;
+     qryInventarioProdutodanificada.clear;
+     qryInventarioProdutoreservaprevia.clear;
+   end;
+ end;
+end;
+
+procedure TfrmCadastroProdutosInventario.fraConsultaProdutoedfCodigoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  fraConsultaProduto.edfCodigoKeyDown(Sender, Key, Shift);
+//gbxProdutos.Caption := fraConsultaProduto.edfCodigo.FParameterLabel;
+end;
+
+procedure TfrmCadastroProdutosInventario.edtQuantidadeKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    VK_RETURN:
+//      if (dtmCadastroInventario.qryInventarioProduto.State = dsinsert) then
+         fraConsultaProduto.edfCodigo.ConfirmarQuantidade := false;
+  end;
+
+//  if not ParSistema.GravarProdutoContratoAutomaticamente then
+    if TeclaEnterOuReturn(Key) and (Shift = []) then
+      if sbnsalvar.Enabled then
+        sbnSalvar.Click;
+end;
+
+procedure TfrmCadastroProdutosInventario.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  case key of
+    VK_RETURN: if Shift = [] then
+               begin
+                 if ((ActiveControl = fraConsultaProduto.edfCodigo) and
+                     (ParSistema.GravarProdutoContratoAutomaticamente)) then
+                 begin
+                   inherited;
+                   if fraConsultaProduto.edfCodigo.Text <> '' then
+                     if sbnSalvar.Enabled then
+                       if InternoGravar then
+                       begin
+                         fraConsultaProduto.edfCodigo.Clear;
+                         fraConsultaProduto.edfCodigo.setfocus;
+                         fraConsultaProduto.edfCodigo.selectall;
+                       end;
+                 end
+                 else inherited;
+               end;
+    else inherited;
+  end
+end;
+
+procedure TfrmCadastroProdutosInventario.FormShow(Sender: TObject);
+begin
+  inherited;
+  fraConsultaProduto.edfCodigo.SetFocus;
+  fraConsultaProduto.edfCodigo.SelectAll;
+end;
+
+procedure TfrmCadastroProdutosInventario.fraConsultaProdutoedfCodigoMessage(
+  var Msg: String);
+begin
+  inherited;
+  fraConsultaProduto.edfCodigoMessage(Msg);
+  windows.Beep(1200, 500);
+	windows.Beep(1200, 300);
+	windows.Beep(1200, 900);
+
+
+end;
+
+procedure TfrmCadastroProdutosInventario.AlterarEstadoBotoes;
+begin
+  inherited;
+  if fraConsultaProduto.edfCodigo.confirmarquantidade then
+    if dataset.State = dsbrowse then
+      fraConsultaProduto.edfCodigo.confirmarquantidade := false;
+
+end;
+
+procedure TfrmCadastroProdutosInventario.VisualizarImagem(Sender: TObject);
+begin
+  fraVisualizarImageURL1.AbrirqryFotosProdutos;
+end;
+
+procedure TfrmCadastroProdutosInventario.sbnVisualizarFotoClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarImageURL(self, dtmCadastroInventario.GetProduto);
+end;
+
+end.

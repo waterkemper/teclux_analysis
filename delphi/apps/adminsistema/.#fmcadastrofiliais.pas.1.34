@@ -1,0 +1,1193 @@
+unit fmcadastrofiliais ;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  ExtCtrls, Windows, Buttons, Mask, DBCtrls, ComCtrls, Grids, DBGrids, DB, {Qete,}
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Biblio
+  ctconstantes, biblio, variants,
+  //Componentes
+  cpdata, cpfone, cptexto, cpdocumento, cpnumero, cpcnpj, cpdatasource, cpdbradiogroup,
+  cpdbdata, cpdbfindcontrols, cppagecontrol, cpquery, cpdbtext, cpcep, cpdbgrid,
+  //Repositorio
+  dmBasico,fmcadastropadrao,frendereco, frenderecoeditor, fmConsultaBasica, frtelefone, frfoneramal,
+  //Projeto
+  dmcadastrosinternos, ActnList, clparametrossistema, friesubsttributario,
+  frestoquesfiliais, frconsultacontabil, frconsultacodigocontabil, ToolWin,
+  cpdbcombobox, cpdblookupcombobox, DBMaplistCombobox, DBLup2, AdvEdit,
+  DBAdvEd, AdvObj, BaseGrid, AdvGrid, DBAdvGrid, frmctrllink, frconsulta,
+  frconsultacodigo;
+
+
+type
+  TfrmCadastroFiliais = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    pgcFiliais: TtecPageControl;
+    tstIdentificacao: TTabSheet;
+    fraEnderecoEditorFilial: TfraEnderecoEditor;
+    edtCNPJ: TDBEditCNPJ;
+    edtInscricaoEstadual: TDBEditDocumento;
+    edtInscricaoMunicipal: TDBEditDocumento;
+    fraTelefoneFilial: TfraTelefone;
+    fraFaxFilial: TfraTelefone;
+    tstParametros: TTabSheet;
+    tstInformacoesFiscais: TTabSheet;
+    gbxJunta: TGroupBox;
+    tstColunasPrecosMoedas: TTabSheet;
+    gbxFatoresPreco: TGroupBox;
+    sbnIncluirFatorPreco: TSpeedButton;
+    sbnExcluirFatorPreco: TSpeedButton;
+    dbgFatoresPreco: TtecDBGrid;
+    gbxSigla: TGroupBox;
+    edtMnemonico: TDBEditTexto;
+    gbxCodigo: TGroupBox;
+    edfCodigo: TtecDbEditFind;
+    gbxNome: TGroupBox;
+    gbxRazaoSocial: TGroupBox;
+    edtRazao: TDBEditTexto;
+    edtNome: TDBEditTexto;
+    aclAbilitar: TActionList;
+    actAbilitar: TAction;
+    edtDataJunta: TDBEditData;
+    edtJunta: TDBEditTexto;
+    edtInicioAtividades: TDBEditData;
+    gbxCNPJ: TGroupBox;
+    gbxInscrEstadual: TGroupBox;
+    gbxInscMunicipal: TGroupBox;
+    gbxDataJunta: TGroupBox;
+    gbxNIRE: TGroupBox;
+    gbxDataInicio: TGroupBox;
+    gbxQuitacaoCarne: TGroupBox;
+    gbxRazaoQuitacao: TGroupBox;
+    edtRazaoQuitacao: TDBEditTexto;
+    gbxImpressaoCarnes: TGroupBox;
+    gbxRazaoImpressao: TGroupBox;
+    edtRazaoCarne: TDBEditTexto;
+    gbxCidadeImpressao: TGroupBox;
+    edtCidadeCarne: TDBEditTexto;
+    pgcSeries: TtecPageControl;
+    tstSeriesFiliais: TTabSheet;
+    sbnIncluirSerieFilial: TSpeedButton;
+    sbnExcluirSerieFilial: TSpeedButton;
+    dbgSeriesFiliais: TtecDBGrid;
+    gbxFilialMontagem: TGroupBox;
+    sbnFilialMontagem: TSpeedButton;
+    flkFilialMontagem: TtecDBFindLookup;
+    dtxFilialMontagem: TtecDBText;
+    gbxFilialContabil: TGroupBox;
+    sbnFilialContabil: TSpeedButton;
+    flkFilialContabil: TtecDBFindLookup;
+    dtxFilialContabil: TtecDBText;
+    rgpTipoFilial: TtecDBRadioGroup;
+    rbnLoja: TtecRadioButton;
+    rbnDeposito: TtecRadioButton;
+    rbnVirtual: TtecRadioButton;
+    gbxContribuinte: TGroupBox;
+    ckbIcms: TDBCheckBox;
+    ckbIPI: TDBCheckBox;
+    ckbISS: TDBCheckBox;
+    gbxSPC: TGroupBox;
+    gbxRegistro: TGroupBox;
+    edtCodigoInformante: TDBEditTexto;
+    gbxDestinatario: TGroupBox;
+    edtDestinatario: TDBEditTexto;
+    gbxDASPDestinatario: TGroupBox;
+    edtDASPDestinatario: TDBEditTexto;
+    gbxOperador: TGroupBox;
+    edtOperador: TDBEditTexto;
+    gbxRemetente: TGroupBox;
+    edtRemetente: TDBEditTexto;
+    gbxDASPRemetente: TGroupBox;
+    edtDASPRemetente: TDBEditTexto;
+    gbxPrazoReservaEstoque: TGroupBox;
+    edtPrazoReserva: TDBEditNumero;
+    gbxSerieSugestao: TGroupBox;
+    edtSerieSugestaoMercadorias: TDBEditTexto;
+    gbxOpcoes: TGroupBox;
+    ckbNotaFiscalFilialVenda: TDBCheckBox;
+    ckbExibirComplementonf: TDBCheckBox;
+    gbxFilialDime: TGroupBox;
+    sbnFilialConsolidadora: TSpeedButton;
+    flkFilialConsolidadora: TtecDBFindLookup;
+    dtxFilialConsolidadora: TtecDBText;
+    gbxcreditoIcns: TGroupBox;
+    DBEditNumero1: TDBEditNumero;
+    gbxIESubstTributaria: TGroupBox;
+    fraIESubstTributario1: TfraIESubstTributario;
+    gbxSite: TGroupBox;
+    edtSite: TDBEditTexto;
+    gbxSuframa: TGroupBox;
+    edtSuframa: TDBEditTexto;
+    rgbPerfilArquivoFiscal: TtecDBRadioGroup;
+    rbnPerfil_A: TtecRadioButton;
+    rbnPerfil_B: TtecRadioButton;
+    rbnPerfil_C: TtecRadioButton;
+    rgbIndAtividadeEconomica: TtecDBRadioGroup;
+    rgbIndustria_ou_equiparado_a_industrial: TtecRadioButton;
+    rgbOutros: TtecRadioButton;
+    tstEstoques: TTabSheet;
+    gbxInstRespCadastro: TGroupBox;
+    dbgInstRespCadastro: TtecDBGrid;
+    fraEstoquesFiliais: TfraEstoquesFiliais;
+    lblInicio: TLabel;
+    rbnRegimeTributarioNFE: TtecDBRadioGroup;
+    ckbSimpleNacional: TtecRadioButton;
+    ckbSimpleNacionalExcesso: TtecRadioButton;
+    ckbRegimeNormal: TtecRadioButton;
+    gbxAliquotasSimplesNacional: TGroupBox;
+    dbggbxAliquotasSimplesNacional: TtecDBGrid;
+    rgbRegimeSubstituicao: TtecDBRadioGroup;
+    rbnRegimeSubstituicao_NaoseAplica: TtecRadioButton;
+    rbnRegimeSubstituicao_Substituto: TtecRadioButton;
+    rbnRegimeSubstituicao_Substituido: TtecRadioButton;
+    fraConsultaClassificacaoIPI: TfraConsultaCodigoContabil;
+    gbxClassificacaoIPI: TGroupBox;
+    dtxDescricao: TtecDBText;
+    gbxSpedContribuicoes: TGroupBox;
+    ckbSpedContribuicoesPisCofins: TDBCheckBox;
+    ckbSpedContribuicoesPisCofinsrb: TDBCheckBox;
+    ckbSpedContribuicoesPisCofinsrem: TDBCheckBox;
+    ckbSpedFiscal: TDBCheckBox;
+    lblSerieSugestaoProduto: TLabel;
+    lblSerieSugestaoServico: TLabel;
+    edtSerieSugestaoServicos: TDBEditTexto;
+    gbxCNAEFISCAL: TGroupBox;
+    edtCNAEFISCAL: TDBEditTexto;
+    rbnNotaConjugada: TtecRadioButton;
+    rbnBethaSistemas: TtecRadioButton;
+    gbxTipoNFServico: TtecDBRadioGroup;
+    rbnOutras: TtecRadioButton;
+    gbxAedfFatura: TGroupBox;
+    edtAedfFatura: TDBEditTexto;
+    rbnInexistente: TtecRadioButton;
+    rbnSErvicoMatricial: TtecRadioButton;
+    rbnMatricialConjugada: TtecRadioButton;
+    gbxNaturezaJuridica: TGroupBox;
+    DBLCBBNaturezaJuridica: TTecDBLookupComboBox;
+    tstECF: TTabSheet;
+    tecPageControl1: TtecPageControl;
+    tstParametrosComplementares: TTabSheet;
+    edtIND_ALIQ_CSLL: TDBMaplistCombobox;
+    edtIND_ADM_FUN_CLU: TDBMaplistCombobox;
+    edtIND_PART_CONS: TDBMaplistCombobox;
+    edtIND_OP_EXT: TDBMaplistCombobox;
+    edtIND_OP_VINC: TDBMaplistCombobox;
+    edtIND_PJ_ENQUAD: TDBMaplistCombobox;
+    edtIND_PART_EXT: TDBMaplistCombobox;
+    edtIND_ATIV_RURAL: TDBMaplistCombobox;
+    edtIND_LUC_EXP: TDBMaplistCombobox;
+    edtIND_RED_ISEN: TDBMaplistCombobox;
+    edtIND_FIN: TDBMaplistCombobox;
+    edtIND_DOA_ELEIT: TDBMaplistCombobox;
+    edtIND_PART_COLIG: TDBMaplistCombobox;
+    edtIND_VEND_EXP: TDBMaplistCombobox;
+    edtIND_REC_EXT: TDBMaplistCombobox;
+    edtIND_ATIV_EXT: TDBMaplistCombobox;
+    edtIND_COM_EXP: TDBMaplistCombobox;
+    edtIND_PGTO_EXT: TDBMaplistCombobox;
+    IND_E_COM_TI: TDBMaplistCombobox;
+    edtIND_ROY_REC: TDBMaplistCombobox;
+    edtIND_ROY_PAG: TDBMaplistCombobox;
+    edtIND_REND_SERV: TDBMaplistCombobox;
+    edtIND_PGTO_REM: TDBMaplistCombobox;
+    edtIND_INOV_TEC: TDBMaplistCombobox;
+    edtIND_PJ_HAB: TDBMaplistCombobox;
+    edtIND_POLO_AM: TDBMaplistCombobox;
+    edtIND_ZON_EXP: TDBMaplistCombobox;
+    edtIND_AREA_COM: TDBMaplistCombobox;
+    lblIND_PJ_HAB: TStaticText;
+    edtIND_CAP_INF: TDBMaplistCombobox;
+    tstParametrosTributacao: TTabSheet;
+    lblFormaTributacao_1_Periodo: TLabel;
+    lblFormaTributacao_2_Periodo: TLabel;
+    lblFormaTributacao_3_Periodo: TLabel;
+    lblFormaTributacao_4_Periodo: TLabel;
+    DBCbbOptanteRefis: TDBMaplistCombobox;
+    DBCbbOptantePaes: TDBMaplistCombobox;
+    DBCBFormadeTributacao: TDBMaplistCombobox;
+    DBCBBPeriododeApuracao: TDBMaplistCombobox;
+    DBCBBQualificacaoPessoaJuridica: TDBMaplistCombobox;
+    DBCBFormaTributacao_1_Periodo: TDBMaplistCombobox;
+    DBCBFormaTributacao_2_Periodo: TDBMaplistCombobox;
+    DBCBFormaTributacao_3_Periodo: TDBMaplistCombobox;
+    DBCBFormaTributacao_4_Periodo: TDBMaplistCombobox;
+    DBCBtip_esc_pre: TDBMaplistCombobox;
+    DBCBtip_ent: TDBMaplistCombobox;
+    DBCBFormaApuralcaoIRPJ: TDBMaplistCombobox;
+    DBCBFormaApuralcaoCSLL: TDBMaplistCombobox;
+    DBCBOptanteRTT2014: TDBMaplistCombobox;
+    DBCBHaDiferencaContabilidadeFCONT: TDBMaplistCombobox;
+    gbxFormaApuracaoEstimativaMensal: TGroupBox;
+    lblFormaApuracaoJAN: TLabel;
+    lblFormaApuracaoFEV: TLabel;
+    lblFormaApuracaoMAR: TLabel;
+    lblFormaApuracaoABR: TLabel;
+    lblFormaApuracaoMAI: TLabel;
+    lblFormaApuracaoJUN: TLabel;
+    lblFormaApuracaoJUL: TLabel;
+    lblFormaApuracaoAGO: TLabel;
+    lblFormaApuracaoSET: TLabel;
+    lblFormaApuracaoOUT: TLabel;
+    lblFormaApuracaoNOV: TLabel;
+    lblFormaApuracaoDEZ: TLabel;
+    dbcbFormaApuracaoJAN: TDBMaplistCombobox;
+    dbcbFormaApuracaoFEV: TDBMaplistCombobox;
+    dbcbFormaApuracaoMAR: TDBMaplistCombobox;
+    dbcbFormaApuracaoABR: TDBMaplistCombobox;
+    dbcbFormaApuracaoMAI: TDBMaplistCombobox;
+    dbcbFormaApuracaoJUN: TDBMaplistCombobox;
+    dbcbFormaApuracaoJUL: TDBMaplistCombobox;
+    dbcbFormaApuracaoAGO: TDBMaplistCombobox;
+    dbcbFormaApuracaoSET: TDBMaplistCombobox;
+    dbcbFormaApuracaoOUT: TDBMaplistCombobox;
+    dbcbFormaApuracaoNOV: TDBMaplistCombobox;
+    dbcbFormaApuracaoDEZ: TDBMaplistCombobox;
+    dbcbIND_AVAL_ESTOQ: TDBMaplistCombobox;
+    DBCBtip_ecd: TDBMaplistCombobox;
+    edtIND_QTE_SCP: TDBEditNumero;
+    lblIND_VEND_EXP: TStaticText;
+    lblIND_PGTO_REM: TStaticText;
+    lblIND_COM_EXP: TStaticText;
+    lblIND_PGTO_EXT: TStaticText;
+    lblIND_E_COM_TI: TStaticText;
+    lblIND_ROY_REC: TStaticText;
+    lblIND_ROY_PAG: TStaticText;
+    lblIND_REND_SERV: TStaticText;
+    lblIND_INOV_TEC: TStaticText;
+    lblIND_ALIQ_CSLL: TStaticText;
+    lblIND_QTE_SCP: TStaticText;
+    lblIND_ADM_FUN_CLU: TStaticText;
+    lblIND_PART_CONS: TStaticText;
+    lblIND_CAP_INF: TStaticText;
+    lblIND_POLO_AM: TStaticText;
+    lblIND_ZON_EXP: TStaticText;
+    lblIND_AREA_COM: TStaticText;
+    lblIND_OP_EXT: TStaticText;
+    lblIND_OP_VINC: TStaticText;
+    lblIND_PJ_ENQUAD: TStaticText;
+    lblIND_PART_EXT: TStaticText;
+    lblIND_ATIV_RURAL: TStaticText;
+    lblIND_LUC_EXP: TStaticText;
+    lblIND_RED_ISEN: TStaticText;
+    lblIND_FIN: TStaticText;
+    lblIND_DOA_ELEIT: TStaticText;
+    lblIND_PART_COLIG: TStaticText;
+    lblIND_REC_EXT: TStaticText;
+    lblIND_ATIV_EXT: TStaticText;
+    lblOptanteRefis: TStaticText;
+    lblOptantePaes: TStaticText;
+    lblFormadeTributacao: TStaticText;
+    lblPeriododeApuracao: TStaticText;
+    lblQualificacaoPessoaJuridica: TStaticText;
+    lblFormaTribPeriodo: TStaticText;
+    lbltip_esc_pre: TStaticText;
+    lbltip_ent: TStaticText;
+    lblFORMA_APUR_I: TStaticText;
+    StaticText2: TStaticText;
+    OPT_EXT_RTT: TStaticText;
+    lblDIF_FCONT: TStaticText;
+    lblTIP_ECF: TStaticText;
+    lblIND_AVAL_ESTOQ: TStaticText;
+    lblSerieSugestaoNFCe: TLabel;
+    edtSerieSugestaoNFCe: TDBEditTexto;
+    tstEmDesuso: TTabSheet;
+    gbxGIA: TGroupBox;
+    rgpPorte: TtecDBRadioGroup;
+    rbnMicro: TtecRadioButton;
+    rbnPequena: TtecRadioButton;
+    rbnOutro: TtecRadioButton;
+    rgpSimples: TtecDBRadioGroup;
+    rbnUnico: TtecRadioButton;
+    rbnCentralizadoA: TtecRadioButton;
+    rbnCentralizadoB: TtecRadioButton;
+    rbnNao: TtecRadioButton;
+    rgpRegime: TtecDBRadioGroup;
+    rbnRegimeNormal: TtecRadioButton;
+    rbnRegimeSimplesSC: TtecRadioButton;
+    rbnRegimeEstimativa: TtecRadioButton;
+    rbnRegimeBarLanch: TtecRadioButton;
+    rbnRegimeNormalEst: TtecRadioButton;
+    rgpPrestadorServicos: TtecRadioButton;
+    rgbAtividadeComercio: TtecRadioButton;
+    rgbPessoasJuridicas: TtecRadioButton;
+    rgbAtividadeImobiliaria: TtecRadioButton;
+    stxPrazoPara: TStaticText;
+    stxReserva: TStaticText;
+    stxPerfil: TStaticText;
+    stxSuframa: TStaticText;
+    stxAliquotaCreditoICMS: TStaticText;
+    gbxColunasPrecos: TGroupBox;
+    gbxColunaNormal: TGroupBox;
+    sbnPrecoNormal: TSpeedButton;
+    flkPrecoNormal: TtecDBFindLookup;
+    dtxPrecoNormal: TtecDBText;
+    gbxColunaPromocao: TGroupBox;
+    sbnPrecoPromocao: TSpeedButton;
+    flkPrecoPromocao: TtecDBFindLookup;
+    dtxPrecoPromocao: TtecDBText;
+    lblind_esc_cons: TStaticText;
+    DBMaplistCombobox1: TDBMaplistCombobox;
+    lblind_rec_receita: TStaticText;
+    DBCind_rec_receita: TDBMaplistCombobox;
+    StaticText1: TStaticText;
+    DBMaplistCombobox2: TDBMaplistCombobox;
+    tecRadioButton1: TtecRadioButton;
+    gbxLoginName: TGroupBox;
+    edtclient_id_nfse_: TDBEditTexto;
+    gbxSenha_1: TGroupBox;
+    gbxSenhaEnvioNFSe: TGroupBox;
+    edtclient_secret_nfse_: TDBEditTexto;
+    gbxurlauth_nfse: TGroupBox;
+    edturlauth_nfse: TDBEditTexto;
+    gbxclient_id_nfse: TGroupBox;
+    edtclient_id_nfse: TDBEditTexto;
+    gbxedtclient_secret_nfse: TGroupBox;
+    edtclient_secret_nfse: TDBEditTexto;
+    gbxSiteNFServico: TGroupBox;
+    edtSiteNFServico: TDBEditTexto;
+    gbxUrlProcessamento_normal: TGroupBox;
+    edtURLProcessamento_normal: TDBEditTexto;
+    gbxUrlProcessamento_simplificada: TGroupBox;
+    edtUrlProcessamento_simplificada: TDBEditTexto;
+    gbxnumeroseriecertificadodigital: TGroupBox;
+    edtnumeroseriecertificadodigital: TDBEditTexto;
+    gbxsenhacertificadodigital: TGroupBox;
+    edtsenhacertificadodigital: TDBEditTexto;
+    gbxTiposFiliais: TGroupBox;
+    tstSpedReinf: TTabSheet;
+    lblClassificacaoTributaria: TStaticText;
+    DBMClassificacaoTributaria: TDBMaplistCombobox;
+    edtInicioalidadeReinf: TDBEditData;
+    StaticText3: TStaticText;
+    stxObirgatoriedadedaECD: TStaticText;
+    DBMObrigatoriedadedaECD: TDBMaplistCombobox;
+    stxIindDesoneracao: TStaticText;
+    DBMindDesoneracao: TDBMaplistCombobox;
+    stxindAcordoIsenMulta: TStaticText;
+    DBMaplistCombobox3: TDBMaplistCombobox;
+    stxindSitPJ: TStaticText;
+    DBMaplistCombobox4: TDBMaplistCombobox;
+    StaticText4: TStaticText;
+    DBEditData1: TDBEditData;
+    DBAdvEdit2: TDBAdvEdit;
+    pgcReinf: TPageControl;
+    tstDadosReinf: TTabSheet;
+    tstEnvioReinf: TTabSheet;
+    dbgDadosReinf: TDBAdvGrid;
+    gbxObras_Fornecedores: TGroupBox;
+    pnlOpcoesObras_Fornecedoes: TPanel;
+    btnIncluirObras_Fornecedores: TSpeedButton;
+    btnExcluirObras_Fornecedores: TSpeedButton;
+    dbgObras_Filiais: TDBAdvGrid;
+    gbxinfoProcRetPr: TGroupBox;
+    fraConsultaProcessoJudicialReinf: TfraConsultaCodigoContabil;
+    fraConsultaSuspensaoExibilidadeTributos: TfraConsultaCodigoContabil;
+    dbgfornecedor_infoProcRetPr: TDBAdvGrid;
+    pnlfornecedor_infoProcRetPr: TPanel;
+    btnIncluirfornecedor_infoProcRetPr: TSpeedButton;
+    btnExcluirfornecedor_infoProcRetPr: TSpeedButton;
+    gbxinfoProcRetAd: TGroupBox;
+    fraConsultaProcessoJudicialReinf_Ad: TfraConsultaCodigoContabil;
+    fraConsultaSuspensaoExibilidadeTributos_Ad: TfraConsultaCodigoContabil;
+    dbgfornecedor_infoProcRetPrAd: TDBAdvGrid;
+    pnlfornecedor_infoProcRetPrAd: TPanel;
+    btnIncluirfornecedor_infoProcRetPrAd: TSpeedButton;
+    btnExcluirfornecedor_infoProcRetPrAd: TSpeedButton;
+    fcelConsultaProcessoJudicialReinf: TFormControlEditLink;
+    fcelConsultaSuspensaoExibilidadeTributos: TFormControlEditLink;
+    fcelConsultaProcessoJudicialReinf_Ad: TFormControlEditLink;
+    fcelConsultaSuspensaoExibilidadeTributos_Ad: TFormControlEditLink;
+    ckbMaodeObra: TDBCheckBox;
+    gbxContaCaixaPagamentoAutenticacoes: TGroupBox;
+    fraConsultaContaCaixa: TfraConsultaCodigo;
+    dtxDigito: TtecDBText;
+    tecRadioButton2: TtecRadioButton;
+    gbxUrlProcessamento_consulta: TGroupBox;
+    edtURLProcessamento_consulta: TDBEditTexto;
+    gbxCofinsAliquota: TGroupBox;
+    edtAliquotaCofins: TDBEditNumero;
+    gbxPisAliquota: TGroupBox;
+    edtAliquotaPIS: TDBEditNumero;
+    tstInternet: TTabSheet;
+    gbxConexao: TGroupBox;
+    gbxEmail: TGroupBox;
+    gbx_email: TGroupBox;
+    edtEmail: TDBEditTexto;
+    gbx_Usuario: TGroupBox;
+    edtUsuarioEmail: TDBEditTexto;
+    gbx_Senha: TGroupBox;
+    edtSenhaEmail: TEdit;
+    gbxPOP3: TGroupBox;
+    gbxPortaPOP3: TGroupBox;
+    edtPortaPop: TDBEditTexto;
+    gbxHostPOP3: TGroupBox;
+    edtHostPop: TDBEditTexto;
+    gbxSMTP: TGroupBox;
+    gbxPortaSMTP: TGroupBox;
+    edtPortaSmtp: TDBEditTexto;
+    gbxHostSMTP: TGroupBox;
+    edtHostSmtp: TDBEditTexto;
+    ckbClientesCartaoCredito: TDBCheckBox;
+    ckbMeuServidorRequerUmaConexaodeSegurancaSSL: TDBCheckBox;
+    ckbMeuServidorRequerUmaConexaodeSegurancaTLS: TDBCheckBox;
+    lblTipo_do_plano_referencial: TStaticText;
+    DBMaplistCombobox5: TDBMaplistCombobox;
+    btnEnviarEmailTeste: TButton;
+    gbxEmaildeTeste: TGroupBox;
+    edtEmaildeTeste: TEditTexto;
+    StaticText5: TStaticText;
+    DBMaplistCombobox6: TDBMaplistCombobox;
+    procedure sbnFilialContabilClick(Sender: TObject);
+    procedure sbnFilialMontagemClick(Sender: TObject);
+    procedure sbnPrecoNormalClick(Sender: TObject);
+    procedure sbnPrecoPromocaoClick(Sender: TObject);
+    procedure sbnIncluirSerieFilialClick(Sender: TObject);
+    procedure sbnExcluirSerieFilialClick(Sender: TObject);
+    procedure dbgSeriesFiliaisDblClick(Sender: TObject);
+    procedure edtSerieSugestaoMercadoriasExit(Sender: TObject);
+    procedure actAbilitarUpdate(Sender: TObject);
+    procedure sbnIncluirFatorPrecoClick(Sender: TObject);
+    procedure sbnExcluirFatorPrecoClick(Sender: TObject);
+    procedure dbgFatoresPrecoDblClick(Sender: TObject);
+    procedure sbnSalvarClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnFilialConsolidadoraClick(Sender: TObject);
+    procedure edfCodigoFound(Found: Boolean);
+    procedure rgpSimplesChange(Sender: TObject);
+    procedure dbgInstRespCadastroKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure fraIESubstTributario1dsrIESubstTributarioDataChange(
+      Sender: TObject; Field: TField);
+    procedure ckbSpedContribuicoesPisCofinsrbClick(Sender: TObject);
+    procedure ckbSpedContribuicoesPisCofinsremClick(Sender: TObject);
+    procedure DBCBtip_esc_preDropDown(Sender: TObject);
+    procedure DBCBtip_entChange(Sender: TObject);
+    procedure pgcReinfChange(Sender: TObject);
+    procedure dbgObras_FiliaisCanAddRow(Sender: TObject;
+      var CanAdd: Boolean);
+    procedure btnIncluirObras_FornecedoresClick(Sender: TObject);
+    procedure btnExcluirObras_FornecedoresClick(Sender: TObject);
+    procedure dbgfornecedor_infoProcRetPrCanAddRow(Sender: TObject;
+      var CanAdd: Boolean);
+    procedure dbgfornecedor_infoProcRetPrAdCanAddRow(Sender: TObject;
+      var CanAdd: Boolean);
+    procedure btnIncluirfornecedor_infoProcRetPrClick(Sender: TObject);
+    procedure btnExcluirfornecedor_infoProcRetPrClick(Sender: TObject);
+    procedure btnIncluirfornecedor_infoProcRetPrAdClick(Sender: TObject);
+    procedure btnExcluirfornecedor_infoProcRetPrAdClick(Sender: TObject);
+    procedure edtSenhaEmailChange(Sender: TObject);
+    procedure DBMaplistCombobox5KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure btnEnviarEmailTesteClick(Sender: TObject);
+  protected
+    TipoPesquisa: TtecProcuraFiliais;
+    fraInstRespAdmCadastro : TfraConsultaCodigoContabil;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure IncluirEditarSerieFilial(Incluir: Boolean);
+    procedure IncluirEditarFatoresPrecosFilial(Incluir: Boolean);
+    function  InternoCancelar  : Boolean;    override;
+    function  InternoExcluir   : Boolean;    override;
+    function  InternoGravar    : Boolean;    override;
+    function  InternoIncluir   : Boolean;    override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  TipoDePesquisa: string;
+    procedure AcionaPesquisaGrade;
+
+    procedure AtribuirDadosSuspensaoExibilidadeTributos_pr;
+    procedure AtribuirDadosSuspensaoExibilidadeTributos_ad;
+
+
+  public
+    constructor Create(AOwner: TComponent); Override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroFiliais: TfrmCadastroFiliais;
+
+implementation
+
+Uses
+  //Repositorio
+  fmconsultaporcampo, fmnavcontroles,
+  //Projeto
+  fmcadastroseriesfiliais,
+  fmcadastrofatoresprecosfilial;
+
+{$R *.dfm}
+
+constructor TfrmCadastroFiliais.Create(AOwner: TComponent);
+begin
+  dtmCadastrosInternos := TdtmCadastrosInternos.Create(self);
+  inherited Create(AOwner);
+
+  dtmCadastrosInternos.Abre(ctCadastroFiliais);
+
+  DataSet := dtmCadastrosInternos.TabelaFiliais;
+  pgcFiliais.ActivePage := tstIdentificacao;
+  if Assigned(edtCNPJ.Field) then
+    edtCNPJ.Field.EditMask := MascaraPessoaJuridica;
+  pgcFiliais.ActivePage:= tstIdentificacao;
+  gbxcreditoIcns.Visible:= False;
+//  tstContabil.TabVisible := ParSistema.GerarContabilidade;
+
+
+  fraInstRespAdmCadastro := TfraConsultaCodigoContabil.Create(self);
+  fraInstRespAdmCadastro.Name := 'fraInstRespAdmCadastro';
+  fraInstRespAdmCadastro.edfCodigo.MaxLength := 2;
+  fraInstRespAdmCadastro.edfCodigo.DataSource := dtmCadastrosInternos.dsrRespAdmCadastro;
+  fraInstRespAdmCadastro.edfCodigo.DataField := 'instituicao';
+  fraInstRespAdmCadastro.edfCodigo.Operacao := opATRIBUICAO;
+  fraInstRespAdmCadastro.edfCodigo.LookupSource := fraInstRespAdmCadastro.dsrProcuraInstRespAdmCadastro;
+  fraInstRespAdmCadastro.edfCodigo.LookupField := 'codigo';
+  fraInstRespAdmCadastro.edfCodigo.LookupQueryParameter := 'codigo';
+  fraInstRespAdmCadastro.AbrirTabelaProcura := false;
+  fraInstRespAdmCadastro.TipoPesquisa := pesINSTRESPADMCADASTRO;
+
+  fraConsultaClassificacaoIPI.TipoPesquisa := pesCLASSIFICACAOIPI;
+
+  edfCodigo.SetFocus;
+  edfcodigo.SelectAll;
+
+  stxPrazoPara.Height:= 10;
+  stxReserva  .Height:= 10;
+
+
+  fraConsultaProcessoJudicialReinf.TipoPesquisa := pesProcessoJudicialReinf;
+  fraConsultaSuspensaoExibilidadeTributos.TipoPesquisa := pesSuspensaoExibilidadeTributos;
+  fraConsultaSuspensaoExibilidadeTributos.OnFound := AtribuirDadosSuspensaoExibilidadeTributos_pr;
+
+
+  fraConsultaProcessoJudicialReinf_Ad.TipoPesquisa := pesProcessoJudicialReinf;
+  fraConsultaSuspensaoExibilidadeTributos_Ad.TipoPesquisa := pesSuspensaoExibilidadeTributos;
+
+  fraConsultaSuspensaoExibilidadeTributos_Ad.OnFound := AtribuirDadosSuspensaoExibilidadeTributos_ad;
+
+  fraConsultaContaCaixa.TipoPesquisa := pesCONTAS;
+
+  SetarActivePage(self);
+
+
+end;
+
+procedure TfrmCadastroFiliais.dbgSeriesFiliaisDblClick(Sender: TObject);
+begin
+  inherited;
+  IncluirEditarSerieFilial(False);
+end;
+
+destructor TfrmCadastroFiliais.Destroy;
+begin
+
+  dtmCadastrosInternos.Fecha(ctCadastroFiliais);
+{
+  FreeAndNIl(dbgObras_Filiais);
+  FreeAndNIl(dbgfornecedor_infoProcRetPr);
+  FreeAndNIl(dbgfornecedor_infoProcRetPrAd);
+  FreeAndNIl(dbgDadosReinf);
+
+  FreeAndNIl(fcelConsultaProcessoJudicialReinf);
+  FreeAndNIl(fcelConsultaSuspensaoExibilidadeTributos);
+  FreeAndNIl(fcelConsultaProcessoJudicialReinf_Ad);
+  FreeAndNIl(fcelConsultaSuspensaoExibilidadeTributos_Ad);
+}
+  inherited;
+  freeandnil(frmCadastroFiliais);
+end;
+
+function TfrmCadastroFiliais.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoPesquisa of
+    tpFILIAIS,
+    tpFILIALCONTABILFILIAIS,
+    tpFILIALMONTAGEMFILIAIS      : Result:= dtmCadastrosInternos.ExisteFilial(NomeCampo, Value);
+    tpCOLUNASPRECONORMALFILIAIS,
+    tpCOLUNASPRECOPROMOCAOFILIAIS: Result:= dtmCadastrosInternos.ExisteColunas(NomeCampo,Value);
+  else
+    Result := False;
+  end;
+end;
+
+procedure TfrmCadastroFiliais.IncluirEditarSerieFilial(Incluir: Boolean);
+begin
+  if not assigned(frmCadastroSeriesFilial) then
+    frmCadastroSeriesFilial := TfrmCadastroSeriesFilial.Create(frmCadastroSeriesFilial);
+
+  if Incluir then
+    dtmCadastrosInternos.IncluirSerieFilial
+  else
+    dtmCadastrosInternos.qrySeriesFiliais.Edit;
+  frmCadastroSeriesFilial.ShowModal;
+
+  frmCadastroSeriesFilial.free;
+end;
+
+function TfrmCadastroFiliais.InternoCancelar: Boolean;
+begin
+  Result := inherited InternoCancelar;
+  dtmCadastrosInternos.CancelarSerieFilial;
+end;
+
+function TfrmCadastroFiliais.InternoExcluir: Boolean;
+begin
+  Result:= True;
+//  Result := inherited InternoExcluir;
+//  if Result then begin
+    if not CtrlOn then
+         dtmCadastrosInternos.ExcluirFilial
+    else begin
+      if dbgSeriesFiliais.Focused then dtmCadastrosInternos.ExcluirSerieFilial
+      else if dbgFatoresPreco.Focused then dtmCadastrosInternos.ExcluirFatoresPrecosFilial;
+    end;
+//  end;
+end;
+
+function TfrmCadastroFiliais.InternoGravar: Boolean;
+begin
+  Result:= True;
+  edtInscricaoEstadual.Estado:= fraEnderecoEditorFilial.edtEstado.Text;
+  if edtInscricaoEstadual.Criticar then
+  begin
+   Result:= inherited InternoGravar;
+   if Result then
+   begin
+    if edtSenhaEmail.Modified then
+      dtmCadastrosInternos.qryFiliaissenhaemail.asString := edtSenhaEmail.Text;
+
+    if edfCodigo.Text <> '' then
+       dtmCadastrosInternos.GravarFiliais(StrToInt(edfCodigo.Text))
+    else dtmCadastrosInternos.GravarFiliais(0);
+   end;
+
+  end
+  else
+    edtInscricaoEstadual.SetFocus;
+end;
+
+function TfrmCadastroFiliais.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if CtrlOn then begin
+      if dbgSeriesFiliais.Focused then IncluirEditarSerieFilial(True)
+      else if dbgFatoresPreco.Focused then IncluirEditarFatoresPrecosFilial(True);
+    end
+    else dtmCadastrosInternos.IncluirFiliais;
+  end;
+  CtrlOn:= False;
+end;
+
+function TfrmCadastroFiliais.InternoPesquisar(Titulo:String): Integer;
+begin
+  Result:= mrNone;
+  TipoPesquisa:= tpFILIAIS;
+
+  if CtrlOn then begin
+    if flkFilialMontagem.Focused      then
+      TipoPesquisa:= tpFILIALMONTAGEMFILIAIS
+    else if flkFilialContabil.Focused then
+      TipoPesquisa:= tpFILIALCONTABILFILIAIS
+    else if flkPrecoNormal.Focused    then
+      TipoPesquisa:= tpCOLUNASPRECONORMALFILIAIS
+    else if flkPrecoPromocao.Focused  then
+      TipoPesquisa:= tpCOLUNASPRECOPROMOCAOFILIAIS
+    else if flkFilialConsolidadora.Focused then
+      TipoPesquisa := tpFILIALCONSOLIDADORADIME;
+
+    if TipoPesquisa <> tpFILIAIS then
+      if ActiveControl is TtecFindCustom then begin
+        dtmCadastrosInternos.AbreTabelasConsulta(TipoPesquisa);
+        Result := inherited InternoPesquisar(TipoDePesquisa);
+        if Result  = mrok then
+          dtmCadastrosInternos.Selecionar(TipoPesquisa);
+        dtmCadastrosInternos.FechaTabelasConsulta(TipoPesquisa);
+      end;
+//    CtrlOn:= False;
+  end
+  else begin
+    TipoPesquisa:= tpFILIAIS;
+    dtmCadastrosInternos.AbreTabelasConsulta(TipoPesquisa);
+    titulo := TipoDePesquisa;
+    Result := inherited InternoPesquisar(titulo);
+    if Result  = mrok then
+      dtmCadastrosInternos.Selecionar(TipoPesquisa);
+    dtmCadastrosInternos.FechaTabelasConsulta(TipoPesquisa);
+  end;
+end;
+
+function TfrmCadastroFiliais.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+end;
+
+procedure TfrmCadastroFiliais.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case key of
+//   VK_ESCAPE: InternoCancelar;
+    VK_Return: if (Shift = []) then begin
+                 if ActiveControl = edtRazaoQuitacao then begin
+                    pgcFiliais.ActivePage := tstParametros;
+                    rgpTipoFilial.SetFocus;
+                    Key:= MAXWORD;
+                 end
+                 else if ActiveControl = edtDASPRemetente then begin
+                   pgcFiliais.ActivePage := tstColunasPrecosMoedas;
+                   flkPrecoNormal.SetFocus;
+                   Key:= MAXWORD;
+                 end else if ActiveControl = flkPrecoPromocao then begin
+{                  pgcFiliais.ActivePage := tstCotacoesMoedas;
+}                  dbgFatoresPreco.SetFocus;
+                   Key:= MAXWORD;
+                 end else if ActiveControl = dbgFatoresPreco then begin
+                   pgcFiliais.ActivePage := tstInformacoesFiscais;
+                   rgpPorte.SetFocus;
+                   Key:= MAXWORD;
+                 end else if ActiveControl = fraConsultaClassificacaoIPI then begin
+                   pgcFiliais.ActivePage := tstIdentificacao;
+                   edtCNPJ.SetFocus;
+                   Key:= MAXWORD;
+                 end;
+               end;
+    VK_F2: if (Shift = [ssCtrl]) then
+              if dbgSeriesFiliais.Focused then IncluirEditarSerieFilial(False)
+              else if dbgFatoresPreco.Focused then IncluirEditarFatoresPrecosFilial(False);
+  end;
+  inherited;
+end;
+
+procedure TfrmCadastroFiliais.sbnExcluirSerieFilialClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgSeriesFiliais.SetFocus;
+  InternoExcluir
+end;
+
+procedure TfrmCadastroFiliais.sbnFilialContabilClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:=True;
+  flkFilialContabil.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroFiliais.sbnFilialMontagemClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:=True;
+  flkFilialMontagem.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroFiliais.sbnIncluirSerieFilialClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgSeriesFiliais.SetFocus;
+  InternoIncluir
+end;
+
+procedure TfrmCadastroFiliais.sbnPrecoNormalClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:=True;
+  flkPrecoNormal.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroFiliais.sbnPrecoPromocaoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:=True;
+  flkPrecoPromocao.SetFocus;
+  InternoPesquisar('');
+end;
+
+function TfrmCadastroFiliais.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoPesquisa of
+    tpFILIAIS,
+    tpFILIALCONTABILFILIAIS,
+    tpFILIALMONTAGEMFILIAIS,
+    tpFILIALCONSOLIDADORADIME : Result:= dtmCadastrosInternos.TabelaConsultaFilial;
+    tpCOLUNASPRECONORMALFILIAIS,
+    tpCOLUNASPRECOPROMOCAOFILIAIS : Result:= dtmCadastrosInternos.TabelaConsultaColuna;
+  else
+    Result := nil;
+  end;
+end;
+
+function TfrmCadastroFiliais.TipoDePesquisa: string;
+begin
+  case TipoPesquisa of
+    tpFILIAIS                    : Result:= 'Filial';
+    tpFILIALCONTABILFILIAIS      : Result:= 'Filial Contábil';
+    tpFILIALMONTAGEMFILIAIS      : Result:= 'Filial Montagem';
+    tpFILIALCONSOLIDADORADIME    : Result:= 'Filial Consolidadora';
+    tpCOLUNASPRECONORMALFILIAIS  : Result:= 'Coluna Preço Normal';
+    tpCOLUNASPRECOPROMOCAOFILIAIS: Result:= 'Coluna Preço Promoção';
+  end;
+end;
+
+procedure TfrmCadastroFiliais.edtSerieSugestaoMercadoriasExit(Sender: TObject);
+begin
+  inherited;
+  if not dtmCadastrosInternos.ExisteSerieFilial(edtSerieSugestaoMercadorias.Text) then
+  begin
+    MensagemAviso('A série sugestão das mercadorias não está cadastrada.');
+    edtSerieSugestaoMercadorias.SetFocus;
+  end;
+
+  if not dtmCadastrosInternos.ExisteSerieFilial(edtSerieSugestaoServicos.Text) then
+  begin
+    MensagemAviso('A série sugestão dos serviços não está cadastrada.');
+    edtSerieSugestaoServicos.SetFocus;
+  end;
+
+end;
+
+procedure TfrmCadastroFiliais.actAbilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  sbnExcluirSerieFilial.Enabled := not dtmCadastrosInternos.ExisteSerieFilialUtilizada;
+
+  ckbSpedContribuicoesPisCofinsrb.Enabled := ckbIPI.Checked or ckbiss.Checked;
+  if not ckbSpedContribuicoesPisCofinsrb.Enabled and ckbSpedContribuicoesPisCofinsrb.Checked then
+    ckbSpedContribuicoesPisCofinsrb.Checked := false;
+
+  ckbSpedContribuicoesPisCofinsrem.Enabled := ckbIPI.Checked or ckbiss.Checked;
+  if not ckbSpedContribuicoesPisCofinsrem.Enabled and ckbSpedContribuicoesPisCofinsrem.Checked then
+    ckbSpedContribuicoesPisCofinsrem.Checked := false;
+
+  tstSpedReinf.TabVisible := ckbMaodeObra.Checked;
+
+end;
+
+procedure TfrmCadastroFiliais.IncluirEditarFatoresPrecosFilial(Incluir: Boolean);
+begin
+  frmCadastroFatoresPrecos:= TfrmCadastroFatoresPrecos.Create(frmCadastroFatoresPrecos);
+  dtmCadastrosInternos.IncluirFatoresPrecosFilial(Incluir);
+  frmCadastroFatoresPrecos.ShowModal;
+  frmCadastroFatoresPrecos.free;
+end;
+
+procedure TfrmCadastroFiliais.sbnIncluirFatorPrecoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  dbgFatoresPreco.SetFocus;
+  InternoIncluir;
+end;
+
+procedure TfrmCadastroFiliais.sbnExcluirFatorPrecoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  dbgFatoresPreco.SetFocus;
+  InternoExcluir;
+end;
+
+procedure TfrmCadastroFiliais.dbgFatoresPrecoDblClick(Sender: TObject);
+begin
+  inherited;
+  IncluirEditarFatoresPrecosFilial(False);
+end;
+
+procedure TfrmCadastroFiliais.sbnSalvarClick(Sender: TObject);
+begin
+  if Trim(edtCNPJ.Text)<>'' then
+  begin
+    if edtCNPJ.Criticar then
+    begin
+     inherited;
+     end;
+  end
+  else
+    MensagemAviso('O CNPJ deve ser preenchido.');
+end;
+
+procedure TfrmCadastroFiliais.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key=VK_F5 then
+  begin
+    if Trim(edtCNPJ.Text)<>'' then
+    begin
+      if edtCNPJ.Criticar then
+      begin
+        inherited;
+      end;
+    end
+    else
+    begin
+      MensagemAviso('O CNPJ precisa ser preenchido.');
+    end;
+  end;
+end;
+
+procedure TfrmCadastroFiliais.sbnFilialConsolidadoraClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkFilialConsolidadora, ctFILIAIS)
+end;
+
+
+procedure TfrmCadastroFiliais.edfCodigoFound(Found: Boolean);
+begin
+  inherited;
+  if dtmCadastrosInternos.OptantepeloSimples then
+   gbxcreditoIcns.Visible := true
+  else
+    gbxcreditoIcns.Visible := False;
+end;
+
+procedure TfrmCadastroFiliais.rgpSimplesChange(Sender: TObject);
+begin
+  inherited;
+  dtmCadastrosInternos.EstadoVAriavel;
+  if dtmCadastrosInternos.OptantepeloSimples then
+    gbxcreditoIcns.Visible:= True
+  else
+     gbxcreditoIcns.Visible := FAlse;
+end;
+
+procedure TfrmCadastroFiliais.dbgInstRespCadastroKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 : begin
+                 dbgInstRespCadastro.SetFocus;
+                 AcionaPesquisaGrade;
+               end;
+    end;
+  end
+  else
+  begin
+    case key of
+      VK_Return :
+      begin
+        case dbgInstRespCadastro.SelectedIndex of
+        0 : begin
+              if not fraInstRespAdmCadastro.edfCodigo.Exist then
+              begin
+                dbgInstRespCadastro.DataSource.DataSet.FieldByName('instituicao').Clear;
+                dbgInstRespCadastro.DataSource.DataSet.FieldByName('codigo').Clear;
+              end;
+
+              dbgInstRespCadastro.SelectedIndex := 0;
+              dbgInstRespCadastro.SetFocus;
+            end;
+        end;
+
+        if dtmCadastrosInternos.qryRespAdmCadastro.State in [dsedit, dsinsert] then
+           dtmCadastrosInternos.qryRespAdmCadastro.Post;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroFiliais.AcionaPesquisaGrade;
+begin
+  if dbgInstRespCadastro.Focused then
+  begin
+    fraInstRespAdmCadastro.CtrlOn := True;
+    fraInstRespAdmCadastro.InternoPesquisar('Resp. Adm. Cadastro');
+    dbgInstRespCadastro.SetFocus;
+    dbgInstRespCadastro.SelectedIndex :=  0;
+  end;
+end;
+
+procedure TfrmCadastroFiliais.fraIESubstTributario1dsrIESubstTributarioDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  fraIESubstTributario1.dsrIESubstTributarioDataChange(Sender, Field);
+
+end;
+
+procedure TfrmCadastroFiliais.ckbSpedContribuicoesPisCofinsrbClick(
+  Sender: TObject);
+begin
+  inherited;
+  if ckbSpedContribuicoesPisCofinsrb.checked and ckbSpedContribuicoesPisCofinsrem.checked then
+    ckbSpedContribuicoesPisCofinsrem.checked := false;
+
+end;
+
+procedure TfrmCadastroFiliais.ckbSpedContribuicoesPisCofinsremClick(
+  Sender: TObject);
+begin
+  inherited;
+  if ckbSpedContribuicoesPisCofinsrb.checked and ckbSpedContribuicoesPisCofinsrem.checked then
+    ckbSpedContribuicoesPisCofinsrb.checked := false;
+
+end;
+
+procedure TfrmCadastroFiliais.DBCBtip_esc_preDropDown(Sender: TObject);
+begin
+  inherited;
+// DBCBtip_esc_preDescricao.DroppedDown := True;
+ //  SendMessage(DBCBtip_esc_preDescricao.Handle,CB_SHOWDROPDOWN,1,0);
+end;
+
+procedure TfrmCadastroFiliais.DBCBtip_entChange(Sender: TObject);
+begin
+  inherited;
+//DBCBtip_ent.text := 'teste';
+end;
+
+procedure TfrmCadastroFiliais.pgcReinfChange(Sender: TObject);
+begin
+  inherited;
+  if pgcReinf.ActivePage = tstEnvioReinf then
+    dtmCadastrosInternos.abrirDadosEnvioReinf
+end;
+
+procedure TfrmCadastroFiliais.dbgObras_FiliaisCanAddRow(
+  Sender: TObject; var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := TtecQuery(dbgObras_Filiais.DataSource.DataSet).CheckRequiredFields;
+end;
+
+procedure TfrmCadastroFiliais.btnIncluirObras_FornecedoresClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgObras_Filiais.DataSource.DataSet.Append;
+end;
+
+procedure TfrmCadastroFiliais.btnExcluirObras_FornecedoresClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not dbgObras_Filiais.DataSource.DataSet.isempty then
+    dbgObras_Filiais.DataSource.DataSet.delete;
+end;
+
+procedure TfrmCadastroFiliais.dbgfornecedor_infoProcRetPrCanAddRow(
+  Sender: TObject; var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := TtecQuery(dbgfornecedor_infoProcRetPr.DataSource.DataSet).CheckRequiredFields;
+end;
+
+procedure TfrmCadastroFiliais.dbgfornecedor_infoProcRetPrAdCanAddRow(
+  Sender: TObject; var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := TtecQuery(dbgfornecedor_infoProcRetPrAd.DataSource.DataSet).CheckRequiredFields;
+end;
+
+procedure TfrmCadastroFiliais.btnIncluirfornecedor_infoProcRetPrClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgfornecedor_infoProcRetPr.DataSource.DataSet.Append;
+end;
+
+procedure TfrmCadastroFiliais.btnExcluirfornecedor_infoProcRetPrClick(
+  Sender: TObject);
+begin
+  inherited;
+  if (dbgfornecedor_infoProcRetPr.DataSource.DataSet.RecordCount<>0) then
+    dbgfornecedor_infoProcRetPr.DataSource.DataSet.Delete;
+end;
+
+procedure TfrmCadastroFiliais.btnIncluirfornecedor_infoProcRetPrAdClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgfornecedor_infoProcRetPrAd.DataSource.DataSet.Append;
+end;
+
+procedure TfrmCadastroFiliais.btnExcluirfornecedor_infoProcRetPrAdClick(
+  Sender: TObject);
+begin
+  inherited;
+  
+  if (dbgfornecedor_infoProcRetPrAd.DataSource.DataSet.RecordCount<>0) then
+    dbgfornecedor_infoProcRetPrAd.DataSource.DataSet.delete;
+
+end;
+
+procedure TfrmCadastroFiliais.AtribuirDadosSuspensaoExibilidadeTributos_ad;
+begin
+
+end;
+
+procedure TfrmCadastroFiliais.AtribuirDadosSuspensaoExibilidadeTributos_pr;
+begin
+  dtmCadastrosInternos.AtribuirDadosSuspensaoExibilidadeTributos_pr(fraConsultaSuspensaoExibilidadeTributos.qryProcuraSuspensaoExibilidadeTributos)
+end;
+
+procedure TfrmCadastroFiliais.edtSenhaEmailChange(Sender: TObject);
+begin
+  inherited;
+  dtmCadastrosInternos.qryfiliais.edit;
+end;
+
+procedure TfrmCadastroFiliais.DBMaplistCombobox5KeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_delete then
+  begin
+//    dtmCadastrosInternos.qryFiliais.edit;
+//    dtmCadastrosInternos.qryFiliaiscod_plan_ref.clear;
+//    DBMaplistCombobox5.ItemIndex := -1;
+  end;
+
+end;
+
+procedure TfrmCadastroFiliais.btnEnviarEmailTesteClick(Sender: TObject);
+var
+  vSenha : String;
+  vEmails : String;
+begin
+  inherited;
+
+  if edtEmaildeTeste.text = '' then
+  begin
+    MensagemAviso('Informe o email de teste');
+    edtEmaildeTeste.setfocus;
+  end
+  else
+  if emailValido(edtEmaildeTeste.text) then
+  begin
+
+    if edtSenhaEmail.Text <> '' then
+      vSenha := edtSenhaEmail.Text
+    else
+      vSenha := dtmCadastrosInternos.qryFiliaissenhaemail.asString;
+
+    vEmails := LowerCase(edtEmail.text)+';' + LowerCase(edtEmaildeTeste.text);
+
+    if EnviarEmail_(LowerCase(edtHostSmtp.text),
+                         edtUsuarioEmail.text,
+                         vSenha,
+                         edtPortaSmtp.text,
+                         LowerCase(edtEmail.text),
+                         vEmails,
+                         'Teste de envio de email do cadastro de usuários', 'TESTE', fRazaoFilialBase,
+                         ckbMeuServidorRequerUmaConexaodeSegurancaSSL.checked,
+                         nil) then
+      MensagemAviso(ctEMAILENVIADOCOMSUCESSO);
+  end;
+
+end;
+
+end.

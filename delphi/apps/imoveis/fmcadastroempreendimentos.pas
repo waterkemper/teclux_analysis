@@ -1,0 +1,498 @@
+unit fmcadastroempreendimentos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, DB, {Qete,}
+  StdCtrls, dmcadastroempreendimentos, fmcadastropadrao, Mask, Zquery,
+  cpdbfindcontrols, ComCtrls, Buttons, ExtCtrls, frendereco, ctconstantes,
+  frenderecoeditor, Windows, DBCtrls, cptexto, cpdbmemo, Grids, DBGrids, cpdbgrid,
+  fmconsultabasica, fmconsultaporcampo, fmcadastroblocos, Biblio, clparametrossistema,
+  cppagecontrol, cpdbtext, frconsulta, frconsultacodigo, cpnumero, cpdbdata,
+  frconsultacontabil, frconsultacodigocontabil, dateutils, ToolWin,
+  cpdbradiogroup;
+type
+  TfrmCadastroEmpreendimentos = class(TfrmCadastroPadrao)
+    pnlDadosEmpreendimento: TPanel;
+    gbxCodigo: TGroupBox;
+    gbxDescricao: TGroupBox;
+    edtDescricaoEmpreendimento: TDBEditTexto;
+    fraEnderecoEmpreendimento: TfraEnderecoEditor;
+    gbxObservacoes: TGroupBox;
+    mmoObservacoes: TtecDBMemo;
+    dbgBlocos: TtecDBGrid;
+    sbnincluirBloco: TSpeedButton;
+    sbnExcluirBloco: TSpeedButton;
+    gbxSigla: TGroupBox;
+    edtSigla: TDBEditTexto;
+    gbxEmpreendimentos: TGroupBox;
+    pgcDadosEmpreendimento: TtecPageControl;
+    tstBlocos: TTabSheet;
+    tstContabil: TTabSheet;
+    tstEndereco: TTabSheet;
+    gbxHabite_se: TGroupBox;
+    gbxFracaoIdeal: TGroupBox;
+    dtxFracaoIdeal: TtecDBText;
+    gbxAreaTotal: TGroupBox;
+    dtxAreaTotal: TtecDBText;
+    tstVenda: TTabSheet;
+    gbxCreVenda: TGroupBox;
+
+    fraCreditoVenda: TfraConsultaCodigoContabil;
+    fraCreditarAtualizacaoMonetaria: TfraConsultaCodigoContabil;
+    fraChavesCreditarVenda: TfraConsultaCodigoContabil;
+    fraChavesDebitarCustos: TfraConsultaCodigocontabil;
+    fraDebitarCustosVenda: TfraConsultaCodigoContabil;
+    fraCreditarCustosVenda: TfraConsultaCodigoContabil;
+    fraDebitoCOFINSVenda: TfraConsultaCodigoContabil;
+    fraDebitarCSLLVenda: TfraConsultaCodigoContabil;
+    fraIRPJDebitarVenda: TfraConsultaCodigoContabil;
+    fraPISDebtarVenda: TfraConsultaCodigoContabil;
+
+    dtxCreditoVendaClass: TtecDBText;
+    gbxImpostoSobreVendas: TGroupBox;
+    tstEntregaChaves: TTabSheet;
+    gbxImpostosChaves: TGroupBox;
+    gbxCOFINSChaves: TGroupBox;
+    tecDBText3: TtecDBText;
+    tecDBText4: TtecDBText;
+    tecDBText5: TtecDBText;
+    tecDBText6: TtecDBText;
+    gbxDebitarCSLLVenda: TGroupBox;
+    gbxDebitarIRPJVendas: TGroupBox;
+    gbxDebitarPISVenda: TGroupBox;
+    gbxDebitarTransferenciaCustos: TGroupBox;
+    tecDBText7: TtecDBText;
+    gbxTransferenciaCustos: TGroupBox;
+    tstAtualizacaoMonetaria: TTabSheet;
+    gbxAtualizacaoMonetaria: TGroupBox;
+    tecDBText9: TtecDBText;
+    gbxTransferenciaValorVenda: TGroupBox;
+    GroupBox4: TGroupBox;
+    tecDBText10: TtecDBText;
+    GroupBox6: TGroupBox;
+    tecDBText11: TtecDBText;
+    gbxApropriacaoCustos: TGroupBox;
+    gbxDebitoCustosVenda: TGroupBox;
+    dtxDebitoCustos: TtecDBText;
+    gbxCreditoCustosVendas: TGroupBox;
+    tecDBText13: TtecDBText;
+    edtDataHabitese: TDBEditData;
+
+    tecDBText1: TtecDBText;
+    tecDBText2: TtecDBText;
+    gbxCSLLChaves: TGroupBox;
+    gbxIRPJChaves: TGroupBox;
+    tecDBText14: TtecDBText;
+    tecDBText15: TtecDBText;
+    tecDBText16: TtecDBText;
+    GroupBox5: TGroupBox;
+    tecDBText17: TtecDBText;
+    tecDBText18: TtecDBText;
+    tecDBText19: TtecDBText;
+    GroupBox7: TGroupBox;
+    tecDBText20: TtecDBText;
+    tecDBText21: TtecDBText;
+    tecDBText22: TtecDBText;
+    tecDBText8: TtecDBText;
+    tecDBText23: TtecDBText;
+    gbxAreaTerreno: TGroupBox;
+    grxDescontosConcedidos: TGroupBox;
+    fraDebitarDescontosConcedidos: TfraConsultaCodigoContabil;
+    dtxDebitarDescontosRecebimentos: TtecDBText;
+    DBEditNumero1: TDBEditNumero;
+    gbxDebitarAbatimentos: TGroupBox;
+    fraDebitarDescontosConcedidosChaves: TfraConsultaCodigoContabil;
+    tecDBText24: TtecDBText;
+    gbxTransferenciaDespesasVendas: TGroupBox;
+    GroupBox8: TGroupBox;
+    fraCreditoDespesasVenda: TfraConsultaCodigoContabil;
+    tecDBText25: TtecDBText;
+    GroupBox9: TGroupBox;
+    tecDBText26: TtecDBText;
+    tecDBText27: TtecDBText;
+    tecDBText28: TtecDBText;
+    edfNumeroEmpreendimento: TtecDbEditFind;
+    drgF200_03: TtecDBRadioGroup;
+    rbnF200_03_01: TtecRadioButton;
+    rbnF200_03_02: TtecRadioButton;
+    rbnF200_03_03: TtecRadioButton;
+    rbnF200_03_04: TtecRadioButton;
+    rbnF200_03_05: TtecRadioButton;
+    rbnF200_03_06: TtecRadioButton;
+    drgF200_21: TtecDBRadioGroup;
+    rbnF200_21_01: TtecRadioButton;
+    rbnF200_21_02: TtecRadioButton;
+    rbnF200_21_03: TtecRadioButton;
+    rbnF200_21_04: TtecRadioButton;
+    lblParticipacao: TLabel;
+    GroupBox1: TGroupBox;
+    dtxAreaPrivativa: TtecDBText;
+    GroupBox2: TGroupBox;
+    dtxAreaComum: TtecDBText;
+    gbxAreasEmpreendimento: TGroupBox;
+    lblAreasDo: TLabel;
+    gbxApropriacaoVendaImovel: TGroupBox;
+    gbxApropriacaoDescontosRecebimentos: TGroupBox;
+    gbxApropriacaoAVP: TGroupBox;
+    gbxAVPCurtoPrazo: TGroupBox;
+    fraAVPCurtoPrazo: TfraConsultaCodigoContabil;
+    tecDBText29: TtecDBText;
+    gbxAVPLongPrazo: TGroupBox;
+    fraAVPLongoPrazo: TfraConsultaCodigoContabil;
+    tecDBText30: TtecDBText;
+    gbxAVPTaxaDesconto: TGroupBox;
+    DBEditNumero2: TDBEditNumero;
+    lblTaxaDesconto: TLabel;
+    lblSugerida: TLabel;
+    stxAVPPercentual: TStaticText;
+    gbxEstoqueConcluidos: TGroupBox;
+    fraEstoqueImoveisConcluidos: TfraConsultaCodigoContabil;
+    tecDBText12: TtecDBText;
+    procedure edfNumeroEmpreendimentoFound(Found: Boolean);
+    procedure fraEnderecoEmpreendimentosbnRuaClick(Sender: TObject);
+    procedure fraEnderecoEmpreendimentosbnBairroClick(Sender: TObject);
+    procedure sbnincluirBlocoClick(Sender: TObject);
+    procedure dbgBlocosDblClick(Sender: TObject);
+    procedure sbnExcluirBlocoClick(Sender: TObject);
+    procedure dbgBlocosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtDataHabiteseExit(Sender: TObject);
+  private
+    { Private declarations }
+    procedure ExibirMensagemPadronizadaDataHabitese;
+
+  protected
+    function PermitirProcura: Boolean;
+    procedure AcionaCadastroBlocos(Editar: Boolean);
+    function GetTitulo: String;
+    function InternoExcluir: Boolean; override;
+    function InternoCancelar: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    function InternoPesquisar(Titulo:String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    function TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    procedure AlterarEstadoBotoes; override;
+    procedure AbrirHabitese(Sender: TObject);
+    procedure FecharHabitese(Sender: TObject);
+  public
+    { Public declarations }
+    TipoPesquisa : TtecPesquisa;
+    Ativo: Boolean;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroEmpreendimentos: TfrmCadastroEmpreendimentos;
+
+implementation
+
+uses dmbasico, fmnavcontroles;
+
+{$R *.dfm}
+
+{ TfrmCadastroEmpreendimentos }
+
+constructor TfrmCadastroEmpreendimentos.Create(AOwner: TComponent);
+begin
+  dtmcadastroempreendimentos:= Tdtmcadastroempreendimentos.Create(Self);
+  inherited;
+  DataSet:= dtmcadastroempreendimentos.qryEmpreendimentos;
+
+  fraCreditoVenda.                    TipoPesquisa := pesCONTACREDITO;
+  fradebitarCustosVenda.              TipoPesquisa := pesCONTADEBITO;
+  fraCreditarAtualizacaoMonetaria.    TipoPesquisa := pesCONTACREDITO;
+  fraChavesCreditarVenda.             TipoPesquisa := pesCONTACREDITO;
+  fraChavesDebitarCustos.             TipoPesquisa := pesCONTADEBITO;
+  fraDebitarCustosVenda.              TipoPesquisa := pesCONTADEBITO;
+  fraCreditarCustosVenda.             TipoPesquisa := pesCONTACREDITO;
+  fraDebitoCOFINSVenda.               TipoPesquisa := pesCONTADEBITO;
+  fraDebitarCSLLVenda.                TipoPesquisa := pesCONTADEBITO;
+  fraIRPJDebitarVenda.                TipoPesquisa := pesCONTADEBITO;
+  fraPISDebtarVenda.                  TipoPesquisa := pesCONTADEBITO;
+  fraDebitarDescontosConcedidos.      TipoPesquisa := pesCONTADEBITO;
+  fraDebitarDescontosConcedidosChaves.TipoPesquisa := pesCONTADEBITO;
+  fraAVPCurtoPrazo.                   TipoPesquisa := pesCONTACREDITO;
+  fraAVPLongoPrazo.                   TipoPesquisa := pesCONTACREDITO;
+
+  fraCreditoDespesasVenda.TipoContaContabilCreditoSelecionavel := 'A';
+  fraCreditoDespesasVenda.TipoPesquisa             := pesCONTACREDITO;
+
+  gbxHabite_se.Enabled:= False;
+  dtmcadastroempreendimentos.AfterOpenEmpreendimentos:= AbrirHabitese;
+  dtmcadastroempreendimentos.AfterCancelEmpreendimentos:= FecharHabitese;
+
+  edtDataHabitese.Minimo := DaysBetween(DataLocal,ParSistema.DataContabil)-1;
+  edtDataHabitese.MensagemPadronizada := ExibirMensagemPadronizadaDataHabitese;
+
+  stxAVPPercentual.Width:= 13;
+end;
+
+destructor TfrmCadastroEmpreendimentos.Destroy;
+begin
+  inherited;
+  dtmcadastroempreendimentos:= nil;
+  frmCadastroEmpreendimentos:= nil;
+end;
+
+procedure TfrmCadastroEmpreendimentos.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+  edfNumeroEmpreendimento.SetFocus;
+  edfNumeroEmpreendimento.Text:= Value[0];
+  dtmcadastroempreendimentos.RefazConsultaEmpreendimento(Value[0]);
+  edfNumeroEmpreendimentoFound(True);
+
+  if (high(Value)=2) then
+  begin
+    application.ProcessMessages;
+    close;
+  end;
+end;
+
+procedure TfrmCadastroEmpreendimentos.edfNumeroEmpreendimentoFound(Found: Boolean);
+begin
+  inherited;
+  if FOund then
+    edtSigla.SetFocus;
+end;
+
+function TfrmCadastroEmpreendimentos.InternoExcluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then
+  begin
+    Result:= inherited InternoExcluir;
+    if Result then
+    begin
+      dtmcadastroempreendimentos.ExcluirEmpreendimento;
+    end;
+  end;
+end;
+
+function TfrmCadastroEmpreendimentos.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    dtmcadastroempreendimentos.GravarEmpreendimento;
+  edtSigla.SetFocus;
+end;
+
+function TfrmCadastroEmpreendimentos.InternoIncluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then
+  begin
+    Result:= inherited InternoIncluir;
+    if Result then
+    begin
+      dtmcadastroempreendimentos.IncluirEmpreendimento;
+      dtmcadastroempreendimentos.RefazConsulta(dtmcadastroempreendimentos.qryBlocos,[0],[0]);
+      edfNumeroEmpreendimento.Enabled:= False;
+      edtSigla.SetFocus;
+    end;
+  end;
+end;
+
+function TfrmCadastroEmpreendimentos.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmcadastroempreendimentos do
+  begin
+    case TipoPesquisa of
+      pesEMPREENDIMENTOS : Result:= ExisteEmpreendimento(NomeCampo, Value);
+    end;
+  end;
+end;
+
+function TfrmCadastroEmpreendimentos.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result:= mrCancel;
+  if not CtrlOn then
+  begin
+    with dtmcadastroempreendimentos do
+    begin
+      if PermitirProcura then
+      begin
+        AbreTabelasConsulta(TipoPesquisa);
+        Result := inherited InternoPesquisar(GetTitulo);
+        if Result = mrOK then
+          Selecionar(TipoPesquisa);
+        FechaTabelasConsulta(TipoPesquisa);
+      end;
+    end;
+  end;
+end;
+
+function TfrmCadastroEmpreendimentos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  case TipoPesquisa of
+    pesEMPREENDIMENTOS :
+      begin
+        TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+        TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+      end;
+  end;
+end;
+
+function TfrmCadastroEmpreendimentos.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmcadastroempreendimentos do
+  begin
+    case TipoPesquisa of
+      pesEMPREENDIMENTOS : Result:= qryConsultaEmpreendimentos;
+      pesBLOCOS          : Result:= qryBlocos;
+    end;
+  end;
+end;
+
+function TfrmCadastroEmpreendimentos.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+  Result := nil;
+
+  with dtmcadastroempreendimentos do
+  begin
+    case TipoPesquisa of
+      pesEMPREENDIMENTOS : Result:= qryConsultaEmpreendimentos;
+    end;
+  end;
+end;
+
+
+function TfrmCadastroEmpreendimentos.PermitirProcura: Boolean;
+begin
+  Result := True;
+  if ((ActiveControl = fraEnderecoEmpreendimento.mmoRua) or
+      (ActiveControl = fraEnderecoEmpreendimento.edtBairro)) then // (ActiveControl.Parent.Parent.ClassType = TfraEnderecoEditor)
+    Result := False
+  else if CtrlOn then
+  begin
+    if ActiveControl = edfNumeroEmpreendimento then
+      TipoPesquisa:= pesEMPREENDIMENTOS
+  end
+  else
+    TipoPesquisa:= pesEMPREENDIMENTOS;
+end;
+
+procedure TfrmCadastroEmpreendimentos.fraEnderecoEmpreendimentosbnRuaClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraEnderecoEmpreendimento.sbnRuaClick(Sender);
+end;
+
+procedure TfrmCadastroEmpreendimentos.fraEnderecoEmpreendimentosbnBairroClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraEnderecoEmpreendimento.sbnBairroClick(Sender);
+end;
+
+function TfrmCadastroEmpreendimentos.GetTitulo: String;
+begin
+  case TipoPesquisa of
+    pesEMPREENDIMENTOS : Result:= 'Empreendimentos';
+    pesBLOCOS          : Result:= 'Blocos';
+  end;
+end;
+
+procedure TfrmCadastroEmpreendimentos.sbnincluirBlocoClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroBlocos(False);
+end;
+
+procedure TfrmCadastroEmpreendimentos.AcionaCadastroBlocos(Editar: Boolean);
+begin
+  with dtmcadastroempreendimentos do
+  begin
+    frmCadastroBlocos:= TfrmCadastroBlocos.Create(frmCadastroBlocos);
+    with frmCadastroBlocos do
+    begin
+      DataSet:= qryBlocos;
+      IncluirBloco(Editar);
+      try
+        ShowModal;
+        edtDescricaoBloco.SetFocus;
+      finally
+        Free;
+      end;
+    end;
+    dbgBlocos.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroEmpreendimentos.dbgBlocosDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroBlocos(True);
+end;
+
+procedure TfrmCadastroEmpreendimentos.sbnExcluirBlocoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmcadastroempreendimentos.ExcluirBloco;
+end;
+
+procedure TfrmCadastroEmpreendimentos.dbgBlocosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_F2) then
+    if (Shift = [ssCtrl]) then
+      AcionaCadastroBlocos(True)
+    else if (Shift = [ssCtrl, ssAlt]) then
+      AcionaCadastroBlocos(False);
+end;
+
+
+function TfrmCadastroEmpreendimentos.InternoCancelar: Boolean;
+begin
+  Result := inherited InternoCancelar;
+  if Result then
+  begin
+    edfNumeroEmpreendimento.Enabled:= True;
+    edfNumeroEmpreendimento.SetFocus;
+    gbxHabite_se.Enabled:= False;
+  end;
+end;
+
+procedure TfrmCadastroEmpreendimentos.AlterarEstadoBotoes;
+begin
+  inherited;
+  if DataSet.State = dsInsert then
+    gbxHabite_se.Enabled:= False;
+end;
+
+procedure TfrmCadastroEmpreendimentos.AbrirHabitese(Sender: TObject);
+begin
+  gbxHabite_se.Enabled:= True;
+end;
+
+procedure TfrmCadastroEmpreendimentos.FecharHabitese(Sender: TObject);
+begin
+  gbxHabite_se.Enabled:= False;
+end;
+
+procedure TfrmCadastroEmpreendimentos.ExibirMensagemPadronizadaDataHabitese;
+begin
+  if strtodate(edtDataHabitese.Text) <= ParSistema.DataContabil then
+    MensagemAviso(format(ctDATACONTABILMAIORDATALANCTO, ['do habite-se',
+                     edtDataHabitese.Text, 'contábil', ParSistema.DataContabilstring]));
+end;
+
+procedure TfrmCadastroEmpreendimentos.edtDataHabiteseExit(Sender: TObject);
+begin
+  inherited;
+  edtDataHabitese.Minimo := dtmcadastroempreendimentos.NDiasLimiteData(edtDataHabitese.Text);
+end;
+
+end.

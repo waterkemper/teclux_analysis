@@ -1,0 +1,947 @@
+unit fmGerarRemessasPagamentos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  //Repositorio
+  fmajudabt, ComCtrls, Buttons, ExtCtrls, StdCtrls, CheckLst, Mask,
+  Grids, DBGrids, cpdbgrid, cpdata, cpeditioncontrolvalidation,
+  ActnList, cpdbfindcontrols, DBCtrls, cpdbtext, ctconstantes,
+  zquery, biblio,
+  fmconsultabasica, fmconsultaporcampo,  frconsultadadoscliente,
+  frconsultadadosclientecod, dmconsultadadoscliente,
+  Windows, DB,
+  // Constantes
+  clparametrossistema,
+  // Componenetes
+  ACBrBoleto,
+  cpdatasource, cpnumero, ZPgSqlQuery, cpquery, cptexto,
+  fmcadastropadrao,fmrelatoriopadrao, cpcep, cpdbcombobox,
+  cpdblookupcombobox, ToolWin, frselecaoaleatoriaplanorecebimento,
+  frselecaoaleatoriatiporecebimento, iniFiles, AdvSpin, FileCtrl;
+
+type
+  TfrmGerarRemessasPagamentos = class(TfrmAjudaBt)
+    sbnImprimir: TSpeedButton;
+    plnFundoJanela: TPanel;
+    gbxCliente: TGroupBox;
+    dtxNomeCliente: TtecDBText;
+    sbnGerarParcelas: TSpeedButton;
+    gbxNomeArquivo: TGroupBox;
+    lblArquivo: TLabel;
+    gbxFilial: TGroupBox;
+    dtxFilial: TtecDBText;
+    edfFiliais: TtecDbEditFind;
+    edfClientes: TtecDbEditFind;
+    dlgArquivoaExportar: TSaveDialog;
+    edtDiaMes: TMaskEdit;
+    edmNumero: TMaskEdit;
+    gbxParcelas: TGroupBox;
+    dbgParcelas: TtecDBGrid;
+    sbnProcurarFilial: TSpeedButton;
+    sbnProcurarCliente: TSpeedButton;
+    ckbSelecionarTodas: TCheckBox;
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    gbxConta: TGroupBox;
+    sbnProcurarConta: TSpeedButton;
+    edfConta: TtecDbEditFind;
+    dtxDigito: TtecDBText;
+    Label3: TLabel;
+    gbxSiglaBanco: TGroupBox;
+    dtxSigla: TtecDBText;
+    gbxNomeAgencia: TGroupBox;
+    dtxNomeAgencia: TtecDBText;
+    gbxAutorizacao: TGroupBox;
+    edtAutorizacao: TEditNumero;
+    gbxVencimentos: TGroupBox;
+    edtVenctoInicial: TEditData;
+    edtVenctoFinal: TEditData;
+    gbxFaturamento: TGroupBox;
+    edtVendaInicial: TEditData;
+    edtVendaFinal: TEditData;
+    ckbJaGerados: TCheckBox;
+    gbxSequencial: TGroupBox;
+    dbeUltimoSeq: TDBEditNumero;
+    gbxCarteira: TGroupBox;
+    cmbCarteira: TComboBox;
+    edtVariacao: TEditNumero;
+    edtConvenio: TEditNumero;
+    gbxLidos: TGroupBox;
+    gbxNrLidos: TGroupBox;
+    edtQtdeLidas: TEditNumero;
+    gbxValorLido: TGroupBox;
+    edtTotalLidas: TEditNumero;
+    gbxMarcadas: TGroupBox;
+    GroupBox2: TGroupBox;
+    GroupBox3: TGroupBox;
+    edtQtdeMarcadas: TEditNumero;
+    edtTotalMarcadas: TEditNumero;
+    sbnGerarTxt: TSpeedButton;
+    lblEmissao_A: TLabel;
+    Label1: TLabel;
+    lslSequencia: TLabel;
+    gbxProtestar: TGroupBox;
+    edtNrDiasProtesto: TEditNumero;
+    lblDias: TLabel;
+    lblApos: TLabel;
+    pgcCabecalhoRemessaBancos: TPageControl;
+    tstFiltros: TTabSheet;
+    tstDados: TTabSheet;
+    pnlRodapeRegistrosSelecionados: TPanel;
+    GroupBox1: TGroupBox;
+    DBEditNumero2: TDBEditNumero;
+    ckbSelecionarIntegracao_Nexxera: TCheckBox;
+    Timer2: TTimer;
+    gbxRefazOperacao: TGroupBox;
+    Label4: TLabel;
+    AdvSpinEditOPMinutes: TAdvSpinEdit;
+    gbxUltimaVerificacao: TGroupBox;
+    lblUltimaVerificacao: TStaticText;
+    OpenDialog1: TOpenDialog;
+    sbnDirRemessa: TSpeedButton;
+    ckbAtivo: TCheckBox;
+    procedure sbnGerarParcelasClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure edtDiaMesChange(Sender: TObject);
+    procedure sbnGerarTxtClick(Sender: TObject);
+    procedure edmNumeroChange(Sender: TObject);
+    procedure sbnProcurarFilialClick(Sender: TObject);
+    procedure sbnProcurarContaClick(Sender: TObject);
+    procedure sbnProcurarClienteClick(Sender: TObject);
+    procedure cmbCarteiraChange(Sender: TObject);
+    procedure ckbSelecionarTodasClick(Sender: TObject);
+    procedure dbgParcelasDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgParcelasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgParcelasDblClick(Sender: TObject);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure edfContaExit(Sender: TObject);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure edfContaFound(Found: Boolean);
+    procedure AdvSpinEditOPMinutesChange(Sender: TObject);
+    procedure Timer2Timer(Sender: TObject);
+    procedure sbnDirRemessaClick(Sender: TObject);
+    procedure ckbAtivoClick(Sender: TObject);
+
+  protected
+    vgerandoconsulta : Boolean;
+    function InternoPesquisar(Titulo: string): Integer; override;
+    function ValidaControles: Boolean;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean; Override;
+    function PermitirPesquisa: Boolean;
+    function TabelaDePesquisa: TZdataSet; override;
+    function TituloPesquisa: string;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure SugestaoNomeDoArquivo;
+    procedure AtualizarAutorizacaoCarteira;
+
+  private
+    result_sbnGerarParcelas : Boolean;
+    { Private declarations }
+    function PastaGravacaoArquivoCobranca: String;
+    procedure GuardarPastaGravacaoArquivoCobranca(pasta: String);
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure AtualizarContadores(SoMarcados: Boolean);
+    procedure ZerarCampos;
+
+  end;
+
+var
+  frmGerarRemessasPagamentos: TfrmGerarRemessasPagamentos;
+  TipoPesquisa: TtecGerarRemessas;
+
+
+implementation
+
+{$R *.dfm}
+
+uses  dmGerarRemessasPagamentos, dmbasico {, fmconfirmarimpressaonoboleto};
+
+
+procedure TfrmGerarRemessasPagamentos.SugestaoNomeDoArquivo;
+var Extensao: string[03];
+begin
+   if edfConta.Text <> '' then
+   begin
+
+     with dtmGerarRemessasPagamentos do
+     begin
+       case qryContasBanco.AsInteger of
+       001: begin
+              lblArquivo.Caption:= 'CB';
+              Extensao:= 'REM';
+            end; {Banco do Brasil}
+
+       237: begin
+              lblArquivo.Caption:= 'DS';
+              Extensao:= 'REM';
+            end; {Bradesco}
+
+       399: begin
+              lblArquivo.Caption:= 'RM';
+              Extensao:= 'TXT';
+            end; {HSBC}
+{
+       748: begin
+              ACBrBoleto1.Banco.TipoCobranca := cobSicred;
+              ACBrBoleto1.Cedente.CodigoCedente :=  qryContasCedente.AsString;
+              ACBrBoleto1.DirArqRemessa := PastaGravacaoArquivoCobranca;
+              ACBrBoleto1.DirArqRemessa := copy(ACBrBoleto1.DirArqRemessa, 1, length(ACBrBoleto1.DirArqRemessa)-1);
+
+              lblArquivo.Caption := ACBrBoleto1.Banco.CalcularNomeArquivoRemessa;
+            end; Sicred
+            }
+       else
+            begin
+              lblArquivo.Caption:= 'RM';
+              Extensao:= 'REM';
+            end;
+       end;
+
+       if qryContasBanco.AsInteger <> 748 then {Sicredi}
+       begin
+         edmNumero.OnChange := nil;
+         edmNumero.text := copy(preencheString(inttostr(dtmGerarRemessasPagamentos.qryContasSequencialPagFor.asinteger), '0',4,false),3,2) ;
+         edmNumero.OnChange := edmNumeroChange;
+
+         lblArquivo.Caption:= PastaGravacaoArquivoCobranca + lblArquivo.Caption
+                                                               + '_F' + preencheString(dtmGerarRemessasPagamentos.qryContasfilial.asString, '0',2,false)+'_'
+                                                               + Copy(edtDiaMes.Text,1,2)
+                                                               + Copy(edtDiaMes.Text,4,2)
+                                                               +'_'
+                                                               + edmNumero.Text + '.' + Extensao;
+       end;
+     end;
+
+     SetCurrentDir(ExtractFileDir(lblArquivo.Caption));
+     dlgArquivoaExportar.InitialDir := ExtractFileDir(lblArquivo.Caption);
+
+   end;
+
+end;
+
+
+
+function TfrmGerarRemessasPagamentos.InternoPesquisar(Titulo: string): Integer;
+begin
+  Result:= mrNone;
+  if PermitirPesquisa then begin
+     dtmGerarRemessasPagamentos.AbreTabelaConsulta(TipoPesquisa);
+     Result := inherited InternoPesquisar(TituloPesquisa);
+     if Result = mrOK then
+        dtmGerarRemessasPagamentos.Selecionar(TipoPesquisa);
+
+     dtmGerarRemessasPagamentos.FechaTabelaConsulta(TipoPesquisa);
+  end;
+end;
+
+
+
+function TfrmGerarRemessasPagamentos.PermitirPesquisa: Boolean;
+begin
+   Result := False;
+   if CtrlOn
+   then if ActiveControl is TtecFindCustom then begin
+                if edfFiliais. Focused then TipoPesquisa:= grsFILIAIS
+           else if edfClientes.Focused then TipoPesquisa:= grsCLIENTES
+           else if edfConta.   Focused then TipoPesquisa:= grsCONTAS;
+
+           Result:= True;
+        end;
+end;
+
+
+
+function TfrmGerarRemessasPagamentos.ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean;
+begin
+   with dtmGerarRemessasPagamentos do
+      case TipoPesquisa of
+         grsFILIAIS:  Result:= dtmGerarRemessasPagamentos.ExisteFiliais (NomeCampo, Value);
+         grsCLIENTES: Result:= dtmGerarRemessasPagamentos.ExisteClientes(NomeCampo, Value);
+         grsCONTAS:   Result:= dtmGerarRemessasPagamentos.ExisteContas  (NomeCampo, Value);
+         else         Result:= False;
+      end;
+end;
+
+
+
+function TfrmGerarRemessasPagamentos.TabelaDePesquisa: TZdataSet;
+begin
+   case TipoPesquisa of
+      grsFILIAIS:  Result:= dtmGerarRemessasPagamentos.ConsultarFiliais;
+      grsCLIENTES: Result:= dtmGerarRemessasPagamentos.ConsultarClientes;
+      grsCONTAS:   Result:= dtmGerarRemessasPagamentos.ConsultarContas;
+      else         Result := nil;
+   end;
+end;
+
+
+
+function TfrmGerarRemessasPagamentos.TituloPesquisa: string;
+begin
+   case TipoPesquisa of
+      grsFILIAIS:  Result:= 'Filiais';
+      grsCLIENTES: Result:= 'Clientes';
+      grsCONTAS:   Result:= 'Contas';
+    end;
+end;
+
+
+
+function TfrmGerarRemessasPagamentos.ValidaControles: Boolean;
+begin
+   if ((edtVenctoInicial.Text = '') and (edtVenctoFinal.Text = '')) and
+      ((edtVendaInicial. Text = '') and (edtVendaFinal. Text = '')) then
+   begin
+      MensagemAviso('Não ha intervalo de datas informados.');
+      edtVenctoInicial.SetFocus;
+      Result:= False;
+      Exit;
+   end;
+
+   if (edtVenctoInicial.Text <> '') and (edtVenctoFinal.Text <> '') then
+     if StrToDate(edtVenctoInicial.Text) > StrToDate(edtVenctoFinal.Text) then
+     begin
+       MensagemAviso(ctDTINICIALMAIORDTFINAL);
+       edtVenctoInicial.SetFocus;
+       Result:= False;
+       Exit;
+     end;
+
+   if (edtVendaInicial.Text <> '') and (edtVendaFinal.Text <> '')
+   then if (StrToDate(edtVendaInicial.Text)) > (StrToDate(edtVendaFinal.Text)) then begin
+           MensagemAviso(ctDTINICIALMAIORDTFINAL);
+           edtVendaInicial.SetFocus;
+           Result:= False;    Exit;
+        end;
+
+
+   if edfConta.Text = '' then
+   begin
+     if not ckbSelecionarIntegracao_Nexxera.checked then
+     begin
+        MensagemAviso(ctCONTABRANCO);
+        edfConta.SetFocus;
+        Result:= False;
+        Exit;
+     end;
+   end;
+
+   if edfFiliais.Text = '' then
+   begin
+     if not ckbSelecionarIntegracao_Nexxera.checked then
+     begin
+       MensagemAviso(ctCODIGOFILIALBRANCO);
+       edfFiliais.SetFocus;
+       Result:= False;
+       Exit;
+     end;
+   end;
+
+   if Trim(edmNumero.Text) = '' then
+   begin
+      MensagemAviso(ctNumeroSequencialBranco);
+      edmNumero.SetFocus;
+      Result:= False;
+      Exit;
+   end;
+
+   if (Trim(edtDiaMes.Text) = '/') or (Length(Trim(edtDiaMes.Text)) <> 5) then begin
+      MensagemAviso(ctDIAMESBRANCO);
+      edtDiaMes.SetFocus;
+      Result:= False;          Exit;
+   end;
+
+   Result := True;
+end;
+
+
+constructor TfrmGerarRemessasPagamentos.Create(AOwner: TComponent);
+begin
+   dtmGerarRemessasPagamentos:= TdtmGerarRemessasPagamentos.Create(Self);
+   inherited;
+
+   dtmGerarRemessasPagamentos.Abre(ctConsultaTabelas);
+
+   pgcCabecalhoRemessaBancos.TabIndex := 0;
+   
+
+   if ParSistema.ClienteUsaContrato then begin
+      dbgParcelas.Columns[4].FieldName := 'contrato';
+      dbgParcelas.Columns[4].Title.Caption := 'CONTRATO';
+      dbgParcelas.Columns[5].Title.Caption := 'NP';
+
+      gbxParcelas.       Caption:= ' PARCELAS A ENVIAR';
+      ckbSelecionarTodas.Caption:= 'Marcar todas as parcelas';
+   end
+   else begin
+      dbgParcelas.Columns[4].FieldName := 'nrdocumento';
+      dbgParcelas.Columns[4].Title.Caption := 'NOTA FISCAL';
+      dbgParcelas.Columns[5].Title.Caption := 'ND';
+
+      gbxParcelas.       Caption:= ' DUPLICATAS A ENVIAR ';
+      ckbSelecionarTodas.Caption:= 'Marcar todas as duplicatas';
+   end;
+   SalvarPropriedadesFormulario := true;
+   CarregarConfiguracoesFormulario;
+   SetarActivePage(self);
+   if edfConta.Text <> '' then
+   begin
+     if edfConta.Exist then
+       edfContaFound(true);
+   end;
+     
+
+   edtVendaInicial.Text:= datetostr(DataLocal);
+   edtVendaFinal.  Text:= datetostr(DataLocal);
+   edtVendaInicial.SetFocus;
+   edtVendaInicial.SelectAll;
+
+   lblArquivo.caption := PastaGravacaoArquivoCobranca;
+
+
+end;
+
+
+
+function TfrmGerarRemessasPagamentos.JanelaPesquisa: TfrmConsultaBasica;
+var jan: TfrmConsultaPorCampo;
+begin
+  jan:=TfrmConsultaPorCampo.Create(nil);
+  jan.ConsultaInterativa     := not (TipoPesquisa in [grsClientes]) and CtrlOn;
+  jan.UsarParametrosDaTabela := False;
+  Result:=jan;
+end;
+
+
+
+procedure TfrmGerarRemessasPagamentos.AtualizarContadores(SoMarcados: Boolean);
+begin
+   with dtmGerarRemessasPagamentos do begin
+      if not SoMarcados then begin
+         edtQtdeLidas. Text:= IntToStr(QtdeLidas);
+         edtTotalLidas.Text:= Format('%8.2m', [TotalLidas]);
+    end;
+    edtQtdeMarcadas. Text:= IntToStr(QtdeMarcados);
+    edtTotalMarcadas.Text:= Format('%8.2m', [TotalMarcados]);
+  end;
+end;
+
+
+
+procedure TfrmGerarRemessasPagamentos.sbnGerarParcelasClick(Sender: TObject);
+var
+  SQLSituacao: String;
+begin
+   inherited;
+   try
+     Timer2.enabled := sender <> nil;
+     result_sbnGerarParcelas := false;
+     vgerandoconsulta := true;
+
+     if ValidaControles then
+     begin
+       with dtmGerarRemessasPagamentos do
+       begin
+
+
+          ckbSelecionarTodas.Checked := false;
+          Filiais           := edfFiliais.text;
+
+          Clientes          := edfClientes.Text;
+          DataVenctoInicial := edtVenctoInicial.Text;
+          DataVenctoFinal   := edtVenctoFinal.Text;
+          DataVendaInicial  := edtVendaInicial.Text;
+          DataVendaFinal    := edtVendaFinal.Text;
+          JaGerados         := ckbJaGerados.Checked;
+          DiaMes            := Copy(edtDiaMes.Text,1,2) + Copy(edtDiaMes.Text,4,2);
+          DiaMes            := Trim(DiaMes);
+          Numero            := edmNumero.Text;
+          Autorizacao       := edtAutorizacao.Text;
+          Carteira          := cmbCarteira.Text;
+          Variacao          := edtVariacao.Text;
+          Convenio          := edtConvenio.Text;
+
+
+          Integracao_Nexxera := ckbSelecionarIntegracao_Nexxera.checked;
+
+          if not abrirParcelas then
+          begin
+             pgcCabecalhoRemessaBancos.TabIndex := 0;
+             if not dtmGerarRemessasPagamentos.ModoIntermitente then
+             begin
+               MensagemAviso(ctCONSULTAVAZIA);
+               edtVenctoInicial.SetFocus;
+             end  
+          end
+          else
+          begin
+            pgcCabecalhoRemessaBancos.TabIndex := 1;
+            dbgParcelas.SetFocus;
+          end;
+
+          QtdeMarcados := 0;
+          TotalMarcados:= 0;
+          AtualizarContadores(False);
+          SugestaoNomeDoArquivo;
+
+
+       end;
+     end;
+
+   finally
+     result_sbnGerarParcelas := dtmGerarRemessasPagamentos.qryDuplicatas.recordcount <> 0;
+     AdvSpinEditOPMinutesChange(nil);
+     vgerandoconsulta := false;
+   end;
+end;
+
+
+
+
+
+
+procedure TfrmGerarRemessasPagamentos.FormShow(Sender: TObject);
+Var Ano, Mes, Dia: Word;
+begin
+  inherited;
+  DecodeDate(Now, Ano, Mes, Dia);
+  edtDiaMes.Text:= FStr(Dia,$21) + '/' + FStr(Mes,$21);
+//SugestaoNomeDoArquivo;
+
+  sbnProcurarFilial. Enabled:= True;
+  sbnProcurarCliente.Enabled:= True;
+  gbxAutorizacao.    Enabled:= False;
+  edtAutorizacao.    Enabled:= False;
+  gbxSequencial.     Enabled:= False;
+  dbeUltimoSeq.      Enabled:= False;
+  cmbCarteira.       Enabled:= False;
+  edtConvenio.       Enabled:= False;
+  gbxSequencial.     Enabled:= False;
+  dbeUltimoSeq.      Enabled:= False;
+  gbxCarteira.       Enabled:= False;
+  edtVariacao.       Enabled:= False;
+end;
+
+
+
+procedure TfrmGerarRemessasPagamentos.edtDiaMesChange(Sender: TObject);
+begin
+  inherited;
+  SugestaoNomeDoArquivo;
+end;
+
+
+procedure TfrmGerarRemessasPagamentos.sbnGerarTxtClick(Sender: TObject);
+var PadraoCNAB: TACBrLayoutRemessa;
+    vNomeArquivo : String;
+begin
+  inherited;
+
+  if ValidaControles then
+  begin
+
+    with dtmGerarRemessasPagamentos do
+    begin
+
+      if qryDuplicatas.IsEmpty then
+      begin
+         MensagemAviso(ctCONSULTAVAZIA);
+         edtVenctoInicial.SetFocus;
+         Exit;
+      end;
+
+      try
+
+        vgerandoconsulta := true;
+
+
+            edfConta.Exist;
+
+            if edfConta.Text = dtmGerarRemessasPagamentos.qryContasConta.asString then
+            begin
+              edfContaExit(nil);
+              edfContaFound(true);
+
+              if lblArquivo.Caption <> '' then
+              begin
+
+                 if DirectoryExists(ExtractFileDir(lblArquivo.Caption)) then
+                 begin
+                   vNomeArquivo :=  lblArquivo.Caption;
+
+//                   GuardarPastaGravacaoArquivoCobranca(lblArquivo.Caption);
+                   if FileExists(lblArquivo.Caption)
+                   then if MessageDlg('O arquivo  ' + lblArquivo.Caption + ' já existe. Recriá-lo?',
+                                     mtConfirmation, mbYesNoCancel, 0) <> mrYes
+                        then Exit;
+
+                   if qryContasPadraoCNAB.AsString = '2' then PadraoCNAB:= c240
+                                                         else PadraoCNAB:= c400;
+
+                   GerarArquivoACBrCNAB(PadraoCNAB, lblArquivo.Caption);
+                 end
+                 else
+                 begin
+                   MensagemAviso('Informe a pasta de gravação do arquivo de remessa.');
+                   Exit;
+                 end;
+              end
+              else begin
+                 MensagemAviso('Informe o arquivo de remessa.');
+                 Exit;
+              end;
+
+              ckbJaGerados.Checked := False;
+
+            end;
+
+
+
+      finally
+
+        vgerandoconsulta := false;
+      end;
+
+    end;
+
+  //   pgcCabecalhoRemessaBancos.ActivePage := tstFiltros;
+   //  edtVendaInicial.SetFocus;
+  //   sbnGerarParcelasClick(nil);
+
+    dtmGerarRemessasPagamentos.MarcarRegistrosSelecionados(false, true);
+    AtualizarContadores(True);
+
+    lblUltimaVerificacao.Caption := FormatDateTime('dd/MM/yyyy HH:mm:ss', dtmGerarRemessasPagamentos.DataHoraServidor);
+
+  end;
+
+end; {sbnGerarTxtClick}
+
+
+
+procedure TfrmGerarRemessasPagamentos.edmNumeroChange(Sender: TObject);
+begin
+  inherited;
+  SugestaoNomeDoArquivo;
+end;
+
+
+destructor TfrmGerarRemessasPagamentos.Destroy;
+begin
+  inherited;
+  frmGerarRemessasPagamentos:= nil;
+end;
+
+
+
+procedure TfrmGerarRemessasPagamentos.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+   inherited;
+   case Key of
+      VK_F5: if sbnGerarTxt.     Enabled then sbnGerarTxt.     Click;
+      VK_F6: if sbnGerarParcelas.Enabled then sbnGerarParcelas.Click;
+      VK_F7: if sbnImprimir.     Enabled then sbnImprimir.     Click;
+   end;
+end;
+
+
+procedure TfrmGerarRemessasPagamentos.sbnProcurarFilialClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfFiliais.SetFocus;
+  InternoPesquisar('')
+end;
+
+
+procedure TfrmGerarRemessasPagamentos.sbnProcurarClienteClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfClientes.SetFocus;
+  InternoPesquisar('')
+end;
+
+procedure TfrmGerarRemessasPagamentos.cmbCarteiraChange(Sender: TObject);
+begin
+   inherited;
+   if (cmbCarteira.Text = '11') or (cmbCarteira.Text = '17') or
+      (cmbCarteira.Text = '18') or (cmbCarteira.Text = '51') then
+   begin
+      edtVariacao.Text := '19';
+      case FLVal(cmbCarteira.Text) of
+         11:  edtConvenio.Text:=  '41067';
+         17:  edtConvenio.Text:= '169573';
+         18:  edtConvenio.Text:= '892706';
+         51:  edtConvenio.Text:=  '41067';
+         else edtConvenio.Text:= '';
+      end;
+   end
+   else begin
+      edtVariacao.Text := '';
+      edtConvenio.Text := '';
+   end;
+end;
+
+
+procedure TfrmGerarRemessasPagamentos.ckbSelecionarTodasClick(Sender: TObject);
+begin
+  inherited;
+  dtmGerarRemessasPagamentos.MarcarRegistrosSelecionados(ckbSelecionarTodas.Checked, True);
+  AtualizarContadores(True);
+end;
+
+procedure TfrmGerarRemessasPagamentos.dbgParcelasDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dbgParcelas.DataSource.DataSet.FieldByName('selecionar').AsBoolean then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+
+procedure TfrmGerarRemessasPagamentos.dbgParcelasKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_SPACE then
+    if Shift = [ssCtrl] then begin
+       dtmGerarRemessasPagamentos.MarcarRegistrosSelecionados(ckbSelecionarTodas.Checked, False);
+       AtualizarContadores(True);
+    end;
+end;
+
+procedure TfrmGerarRemessasPagamentos.dbgParcelasDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmGerarRemessasPagamentos.MarcarRegistrosSelecionados(ckbSelecionarTodas.Checked, False);
+  AtualizarContadores(True);
+end;
+
+
+procedure TfrmGerarRemessasPagamentos.ZerarCampos;
+begin
+   edtQtdeLidas.    Clear;
+   edtQtdeMarcadas. Clear;
+   edtTotalLidas.   Clear;
+   edtTotalMarcadas.Clear;
+   dtmGerarRemessasPagamentos.QtdeMarcados := 0;
+end;
+
+procedure TfrmGerarRemessasPagamentos.actHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  with dtmGerarRemessasPagamentos do
+  begin
+    sbnGerarTxt.Enabled := QtdeMarcados > 0;
+    sbnImprimir.Enabled := QtdeMarcados > 0;
+  end;
+
+//  gbxRefazOperacao.visible := ckbSelecionarIntegracao_Nexxera.Checked;
+//  gbxUltimaVerificacao.visible := gbxRefazOperacao.visible;
+
+//  if not Timer2.enabled <> ckbSelecionarIntegracao_Nexxera.Checked then
+//    AdvSpinEditOPMinutesChange(nil)
+
+end;
+
+procedure TfrmGerarRemessasPagamentos.sbnProcurarContaClick(Sender: TObject);
+begin
+   inherited;
+   InternoPesquisar(edfConta, ctCONTAS);
+end;
+
+
+procedure TfrmGerarRemessasPagamentos.AtualizarAutorizacaoCarteira;
+begin
+   if edfConta.Text <> '' then
+   with dtmGerarRemessasPagamentos do
+   begin
+      case qryContasBanco.AsInteger of
+         001: begin                                      {-- BANCO DO BRASIL --}
+                 gbxAutorizacao.Enabled:= False;
+                 edtAutorizacao.Enabled:= False;
+                 cmbCarteira.   Enabled:= True;
+                 edtConvenio.   Enabled:= True;
+                 gbxSequencial. Enabled:= True;
+                 dbeUltimoSeq.  Enabled:= True;
+                 gbxCarteira.   Enabled:= True;
+                 edtVariacao.   Enabled:= True;
+                 edtAutorizacao.Text   := '';
+              end;
+
+         399: begin                                      {-- HSBC --}
+                 gbxAutorizacao.Enabled:= False;
+                 edtAutorizacao.Enabled:= False;
+                 cmbCarteira.   Enabled:= True;
+                 edtConvenio.   Enabled:= True;
+                 gbxSequencial. Enabled:= True;
+                 dbeUltimoSeq.  Enabled:= True;
+                 gbxCarteira.   Enabled:= True;
+                 edtVariacao.   Enabled:= True;
+                 edtAutorizacao.Text   := '';
+              end;
+
+
+         237: begin                                             {-- BRADESCO --}
+                 gbxAutorizacao.Enabled:= True;
+                 edtAutorizacao.Enabled:= True;
+                 gbxSequencial. Enabled:= True;
+                 dbeUltimoSeq.  Enabled:= True;
+                 gbxCarteira.   Enabled:= False;
+                 cmbCarteira.   Enabled:= False;
+                 edtConvenio.   Enabled:= False;
+                 edtVariacao.   Enabled:= False;
+                 cmbCarteira.   Text   := '';
+              end;
+
+         else begin
+                 gbxAutorizacao.Enabled:= False;
+                 edtAutorizacao.Enabled:= False;
+                 gbxSequencial. Enabled:= False;
+                 dbeUltimoSeq.  Enabled:= False;
+                 cmbCarteira.   Enabled:= False;
+                 edtConvenio.   Enabled:= False;
+                 gbxCarteira.   Enabled:= False;
+                 edtVariacao.   Enabled:= False;
+                 edtAutorizacao.Text   := '';
+                 edtVariacao.   Text   := '';
+                 cmbCarteira.   Text   := '';
+              end;
+      end;
+   end;
+
+end;
+
+procedure TfrmGerarRemessasPagamentos.edfContaExit(Sender: TObject);
+begin
+   inherited;
+   SugestaoNomeDoArquivo;
+   AtualizarAutorizacaoCarteira;
+end;
+
+procedure TfrmGerarRemessasPagamentos.sbnImprimirClick(Sender: TObject);
+begin
+   inherited;
+   dtmGerarRemessasPagamentos.imprimirEspelhoRemessa
+end;
+
+procedure TfrmGerarRemessasPagamentos.edfContaFound(Found: Boolean);
+begin
+  inherited;
+  if found then
+  begin
+    cmbCarteira.Text := dtmGerarRemessasPagamentos.qrycontascarteira.AsString;
+    cmbCarteiraChange(nil);
+    AtualizarAutorizacaoCarteira;
+  end;
+  
+end;
+
+
+function TfrmGerarRemessasPagamentos.PastaGravacaoArquivoCobranca: String;
+var
+  ArquivoCFG: TIniFile;
+  vDiretorio: String;
+begin
+  if FileExists(NomeArquivoCFG) then
+  begin
+    try
+      ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+      vDiretorio := ArquivoCFG.ReadString('Cobrança Bancária','Diretorio', ExtractFilePath(Application.ExeName) + 'Saidas' )+'\';
+    finally
+      ArquivoCFG.Free;
+    end;
+  end;
+  result := vDiretorio;
+end;
+
+procedure TfrmGerarRemessasPagamentos.GuardarPastaGravacaoArquivoCobranca(
+  pasta: String);
+var
+  ArquivoCFG: TIniFile;
+  vPasta : String;
+begin
+  if FileExists(NomeArquivoCFG) then
+  begin
+    try
+      ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+
+      ArquivoCFG.WriteString('Cobrança Bancária','Diretorio', Pasta );
+    finally
+      ArquivoCFG.UpdateFile;
+      ArquivoCFG.Free;
+    end;
+  end;
+end;
+
+procedure TfrmGerarRemessasPagamentos.AdvSpinEditOPMinutesChange(Sender: TObject);
+begin
+  inherited;
+  if AdvSpinEditOPMinutes.Value < 0 then
+    AdvSpinEditOPMinutes.Value := 0;
+
+  Timer2.enabled := (AdvSpinEditOPMinutes.Value <> 0) and ckbAtivo.checked;
+  Timer2.Interval := AdvSpinEditOPMinutes.Value * 60 * 1000;
+
+
+
+end;
+
+procedure TfrmGerarRemessasPagamentos.Timer2Timer(Sender: TObject);
+begin
+  inherited;
+  if not vgerandoconsulta then
+  begin
+    try
+      dtmGerarRemessasPagamentos.ModoIntermitente := true;
+      ckbAtivo.Checked := false;
+      Timer2.enabled := false;
+
+      sbnGerarParcelasClick(nil);
+      if result_sbnGerarParcelas then
+      begin
+        ckbSelecionarTodas.checked := true;
+        sbnGerarTxtClick(nil)
+      end;
+    finally
+      ckbAtivo.Checked := true;
+      AdvSpinEditOPMinutesChange(nil);
+      dtmGerarRemessasPagamentos.ModoIntermitente := false;
+    end;
+  end;
+end;
+
+procedure TfrmGerarRemessasPagamentos.sbnDirRemessaClick(Sender: TObject);
+var
+  Dir: String;
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório de Envio','',Dir) then
+  begin
+    lblArquivo.caption := Dir;
+    GuardarPastaGravacaoArquivoCobranca(lblArquivo.caption);
+  end;
+end;
+
+procedure TfrmGerarRemessasPagamentos.ckbAtivoClick(Sender: TObject);
+begin
+  inherited;
+  AdvSpinEditOPMinutesChange(Sender);
+end;
+
+end.
+
+
+

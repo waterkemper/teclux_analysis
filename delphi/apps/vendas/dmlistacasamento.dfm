@@ -1,0 +1,5506 @@
+inherited dtmListaCasamento: TdtmListaCasamento
+  Left = 279
+  Top = 82
+  Height = 832
+  Width = 1021
+  object qryListaCasamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeClose = qryListaCasamentoBeforeClose
+    AfterScroll = qryListaCasamentoAfterScroll
+    OnCalcFields = qryListaCasamentoCalcFields
+    OnNewRecord = qryListaCasamentoNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select     l.codigo,'
+      '           l.noiva,'
+      '           l.noivo,'
+      '           l.data,'
+      '           l.rua,'
+      '           l.numero,'
+      '           l.complemento,'
+      '           l.estado,'
+      '           l.bairro,'
+      '           l.cidade,'
+      '           l.cep,'
+      '           l.observacoes,'
+      '           l.nome_noiva,'
+      '           l.nome_noivo,'
+      '           l.aparecernosite,'
+      '           l.exibir_indisponiveis,'
+      ''
+      
+        '           case when l.cliente is not null then vf.nome         ' +
+        '     else c1.nome          end as nomenoiva,'
+      
+        '           case when l.cliente is not null then vf.inscricaoesta' +
+        'dual else c1.iddocumento   end as iddocumento,'
+      
+        '           case when l.cliente is not null then vf.pessoatipo   ' +
+        '     else c1.pessoatipo    end as pessoatipo,'
+      
+        '           case when l.cliente is not null then vf.pessoanumero ' +
+        '     else c1.pessoanumero  end as pessoanumero,'
+      
+        '           case when l.cliente is not null then vf.foneddd      ' +
+        '     else c1.foneddd       end as foneddd,'
+      
+        '           case when l.cliente is not null then vf.fonenumero   ' +
+        '     else c1.fonenumero    end as fonenumero,'
+      
+        '           case when l.cliente is not null then vf.email        ' +
+        '     else c1.email         end as email,'
+      
+        '           case when l.cliente is not null then vf.suframa      ' +
+        '     else c1.suframa       end as suframa,'
+      
+        '           case when l.cliente is not null then vf.debito       ' +
+        '     else c1.debito        end as debito,'
+      
+        '           case when l.cliente is not null then vf.credito      ' +
+        '     else c1.credito       end as credito,'
+      
+        '           case when l.cliente is not null then vf.nosimples    ' +
+        '     else c1.nosimples     end as nosimples,'
+      ''
+      
+        '           case when l.cliente is not null and l.tipocliente = '#39 +
+        'C'#39' then'
+      '             (select cl.obsnotafiscal'
+      '              from clientes cl'
+      '              where cl.codigo = l.cliente)'
+      '           else'
+      '              c1.obsnotafiscal'
+      '           end as obsnotafiscal,'
+      ''
+      
+        '           case when l.cliente is not null and l.tipocliente = '#39 +
+        'C'#39' then'
+      '             (select cl.obsipisuspenso'
+      '              from clientes cl'
+      '              where cl.codigo = l.cliente)'
+      '           else'
+      '              c1.obsipisuspenso'
+      '           end as obsipisuspenso,'
+      ''
+      '           c2.nome as nomenoivo,'
+      ''
+      '           (Select c.nome'
+      '            From cidades c'
+      '            Where (c.estado = l.estado)'
+      '              and (c.codigo = l.cidade)) as nomecidade ,'
+      ''
+      '           (Select b.nome'
+      '            From bairros b'
+      '            Where (b.estado = l.estado)'
+      '             and (b.cidade = l.cidade)'
+      '             and (b.codigo = l.bairro)) as nomebairro ,'
+      ''
+      '            (select c.CodigoIBGE'
+      '             from cidades c'
+      '             where c.estado = l.estado'
+      '               and c.codigo = l.cidade) as CidadeIBGE ,'
+      ''
+      '           l.cliente,'
+      '           l.tipocliente ,'
+      ''
+      
+        '           case when l.cliente is not null and l.tipocliente = '#39 +
+        'C'#39' then'
+      '            (select cl.refrua'
+      '             from clientes cl'
+      '             where cl.codigo = l.cliente)'
+      '           else'
+      '             c1.refrua end as refrua ,'
+      ''
+      
+        '           case when l.cliente is not null and l.tipocliente = '#39 +
+        'C'#39' then'
+      '            (select cl.refnumero'
+      '             from clientes cl'
+      '             where cl.codigo = l.cliente)'
+      '           else'
+      '             c1.refnumero end as refnumero ,'
+      ''
+      
+        '           case when l.cliente is not null and l.tipocliente = '#39 +
+        'C'#39' then'
+      '            (select cl.refComplemento'
+      '             from clientes cl'
+      '             where cl.codigo = l.cliente)'
+      '           else'
+      '             c1.refComplemento end as refComplemento ,'
+      ''
+      
+        '           case when l.cliente is not null and l.tipocliente = '#39 +
+        'C'#39' then'
+      '            (select cl.refBairro'
+      '             from clientes cl'
+      '             where cl.codigo = l.cliente)'
+      '           else'
+      '             c1.refBairro end as refBairro ,'
+      ''
+      ''
+      
+        '          case when l.cliente is not null and l.tipocliente = '#39'C' +
+        #39' then'
+      '            (select b.nome'
+      '             from bairros b'
+      '             where (b.estado,b.cidade,b.codigo) in'
+      '               (select cl.refestado,'
+      '                       cl.refcidade,'
+      '                       cl.refBairro'
+      '                from clientes cl'
+      '                where cl.codigo = l.cliente))'
+      '          else'
+      '            (select b.nome'
+      '             from bairros b'
+      '             where b.estado = c1.refestado'
+      '               and b.cidade = c1.refcidade'
+      '               and b.codigo = c1.refBairro)'
+      '          end as refNomeBairro ,'
+      ''
+      
+        '          case when l.cliente is not null and l.tipocliente = '#39'C' +
+        #39' then'
+      '            (select cl.refCidade'
+      '             from clientes cl'
+      '             where cl.codigo = l.cliente)'
+      '          else'
+      '            c1.refCidade end as refCidade ,'
+      ''
+      
+        '          case when l.cliente is not null and l.tipocliente = '#39'C' +
+        #39' then'
+      '            (select cl.refCep'
+      '             from clientes cl'
+      '             where cl.codigo = l.cliente)'
+      '          else'
+      '            c1.refCep end as refCep,'
+      ''
+      
+        '          case when l.cliente is not null and l.tipocliente = '#39'C' +
+        #39' then'
+      '            (select c.nome'
+      '             from cidades c'
+      '             where (c.estado,c.codigo) in'
+      '               (select cl.refestado,'
+      '                       cl.refcidade'
+      '                from clientes cl'
+      '                where cl.codigo = l.cliente))'
+      '          else'
+      '            (select c.nome'
+      '             from cidades c'
+      '             where c.estado = c1.refestado'
+      
+        '               and c.codigo = c1.refcidade) end as refNomeCidade' +
+        ','
+      ''
+      
+        '          case when l.cliente is not null and l.tipocliente = '#39'C' +
+        #39' then'
+      '            (select c.nome'
+      '             from cidades c'
+      '             where (c.estado,c.codigo) in'
+      '               (select cl.refestado,'
+      '                       cl.refcidade'
+      '                from clientes cl'
+      '                where cl.codigo = l.cliente))'
+      '          else'
+      '            (select c.nome'
+      '             from cidades c'
+      '             where c.estado = c1.refestado'
+      
+        '               and c.codigo = c1.refcidade) end as refCidadeIBGE' +
+        ','
+      ''
+      
+        '          case when l.cliente is not null and l.tipocliente = '#39'C' +
+        #39' then'
+      '            (select cl.refestado'
+      '             from clientes cl'
+      '             where cl.codigo = l.cliente)'
+      '          else'
+      '            c1.refestado end as refestado,'
+      ''
+      
+        '          case when l.cliente is not null and l.tipocliente = '#39'C' +
+        #39' then'
+      '            (select cl.referencia'
+      '             from clientes cl'
+      '             where cl.codigo = l.cliente)'
+      '          else'
+      '            c1.referencia end as referencia,'
+      ''
+      '         c1.email as emailnoiva,'
+      '         c2.email as emailnoivo,'
+      ''
+      '         l.data_de_criacao,'
+      '         l.quem_criou,'
+      '         l.criada_onde,'
+      
+        '         (select u.nome from usuarios u where u.codigo = l.quem_' +
+        'criou) as nomeusuario_quem_criou,'
+      '         l.local_cerimonia,'
+      '         l.local_recepcao,'
+      '         vf.contribicms'
+      ''
+      
+        'From listascasamento l Left join clientes c1 ON  (l.noiva = c1.c' +
+        'odigo)'
+      
+        '                       Left join clientes c2 ON (l.noivo = c2.co' +
+        'digo)'
+      
+        '                       left join vfornecedores vf ON (l.cliente ' +
+        '= vf.codigo and l.tipocliente = vf.tipo)'
+      ''
+      'Where l.codigo = :codigo')
+    RequestLive = True
+    Left = 88
+    Top = 10
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryListaCasamentocodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentonoiva: TIntegerField
+      FieldName = 'noiva'
+      OnChange = qryListaCasamentonoivaChange
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentonoivo: TIntegerField
+      FieldName = 'noivo'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentodata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryListaCasamentorua: TStringField
+      FieldName = 'rua'
+      Required = True
+      Size = 100
+    end
+    object qryListaCasamentoestado: TStringField
+      FieldName = 'estado'
+      Required = True
+      Size = 2
+    end
+    object qryListaCasamentobairro: TIntegerField
+      FieldName = 'bairro'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentocidade: TIntegerField
+      FieldName = 'cidade'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentocep: TIntegerField
+      FieldName = 'cep'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentoobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 5000
+    end
+    object qryListaCasamentonomenoiva: TStringField
+      FieldName = 'nomenoiva'
+      Size = 40
+    end
+    object qryListaCasamentonomenoivo: TStringField
+      FieldName = 'nomenoivo'
+      Size = 40
+    end
+    object qryListaCasamentonomecidade: TStringField
+      FieldName = 'nomecidade'
+      Size = 50
+    end
+    object qryListaCasamentonomebairro: TStringField
+      FieldName = 'nomebairro'
+      Size = 50
+    end
+    object qryListaCasamentoiddocumento: TStringField
+      FieldName = 'iddocumento'
+    end
+    object qryListaCasamentopessoatipo: TStringField
+      FieldName = 'pessoatipo'
+      Size = 1
+    end
+    object qryListaCasamentopessoanumero: TStringField
+      FieldName = 'pessoanumero'
+      Size = 14
+    end
+    object qryListaCasamentofoneddd: TIntegerField
+      FieldName = 'foneddd'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentofonenumero: TIntegerField
+      FieldName = 'fonenumero'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentonumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentocomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 100
+    end
+    object qryListaCasamentonome_noiva: TStringField
+      FieldName = 'nome_noiva'
+      Size = 60
+    end
+    object qryListaCasamentonome_noivo: TStringField
+      FieldName = 'nome_noivo'
+      Size = 60
+    end
+    object qryListaCasamentoaparecernosite: TBooleanField
+      FieldName = 'aparecernosite'
+    end
+    object qryListaCasamentocliente: TLargeintField
+      FieldName = 'cliente'
+    end
+    object qryListaCasamentotipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryListaCasamentocidadeibge: TIntegerField
+      FieldName = 'cidadeibge'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentoemail: TStringField
+      FieldName = 'email'
+      Size = 50
+    end
+    object qryListaCasamentosuframa: TStringField
+      FieldName = 'suframa'
+      Size = 9
+    end
+    object qryListaCasamentoobsnotafiscal: TStringField
+      FieldName = 'obsnotafiscal'
+      Size = 50
+    end
+    object qryListaCasamentoobsipisuspenso: TStringField
+      FieldName = 'obsipisuspenso'
+      Size = 50
+    end
+    object qryListaCasamentodebito: TIntegerField
+      FieldName = 'debito'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentocredito: TIntegerField
+      FieldName = 'credito'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentorefrua: TStringField
+      FieldName = 'refrua'
+      Size = 50
+    end
+    object qryListaCasamentorefnumero: TIntegerField
+      FieldName = 'refnumero'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentorefcomplemento: TStringField
+      FieldName = 'refcomplemento'
+      Size = 50
+    end
+    object qryListaCasamentorefbairro: TIntegerField
+      FieldName = 'refbairro'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentorefnomebairro: TStringField
+      FieldName = 'refnomebairro'
+      Size = 50
+    end
+    object qryListaCasamentorefcidade: TIntegerField
+      FieldName = 'refcidade'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentorefcep: TIntegerField
+      FieldName = 'refcep'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentorefnomecidade: TStringField
+      FieldName = 'refnomecidade'
+      Size = 50
+    end
+    object qryListaCasamentorefcidadeibge: TStringField
+      FieldName = 'refcidadeibge'
+      Size = 50
+    end
+    object qryListaCasamentorefestado: TStringField
+      FieldName = 'refestado'
+      Size = 50
+    end
+    object qryListaCasamentonosimples: TBooleanField
+      FieldName = 'nosimples'
+    end
+    object qryListaCasamentoemailnoiva: TStringField
+      FieldName = 'emailnoiva'
+      Size = 128
+    end
+    object qryListaCasamentoemailnoivo: TStringField
+      FieldName = 'emailnoivo'
+      Size = 128
+    end
+    object qryListaCasamentorua_nr_compl: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'rua_nr_compl'
+      Size = 150
+      Calculated = True
+    end
+    object qryListaCasamentodata_de_criacao: TDateTimeField
+      FieldName = 'data_de_criacao'
+      DisplayFormat = 'dd/mm/yy hh:mm'
+    end
+    object qryListaCasamentoquem_criou: TIntegerField
+      FieldName = 'quem_criou'
+      DisplayFormat = '0'
+    end
+    object qryListaCasamentocriada_onde: TStringField
+      FieldName = 'criada_onde'
+      Size = 6
+    end
+    object qryListaCasamentonomeusuario_quem_criou: TStringField
+      FieldName = 'nomeusuario_quem_criou'
+      Size = 40
+    end
+    object qryListaCasamentolocal_cerimonia: TStringField
+      FieldName = 'local_cerimonia'
+      Size = 200
+    end
+    object qryListaCasamentolocal_recepcao: TStringField
+      FieldName = 'local_recepcao'
+      Size = 200
+    end
+    object qryListaCasamentoexibir_indisponiveis: TBooleanField
+      FieldName = 'exibir_indisponiveis'
+    end
+    object qryListaCasamentocontribicms: TBooleanField
+      FieldName = 'contribicms'
+    end
+    object qryListaCasamentoreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 40
+    end
+  end
+  object dsrListaCasamento: TtecDataSource
+    DataSet = qryListaCasamento
+    Left = 285
+    Top = 10
+  end
+  object qryProdutosListaCasamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryProdutosListaCasamentoAfterOpen
+    AfterPost = qryProdutosListaCasamentoAfterPost
+    AfterDelete = qryProdutosListaCasamentoAfterDelete
+    AfterScroll = qryProdutosListaCasamentoAfterScroll
+    OnCalcFields = qryProdutosListaCasamentoCalcFields
+    OnNewRecord = qryProdutosListaCasamentoNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select pl.lista,'
+      '       pl.produto,'
+      '       pl.quantidade,'
+      ''
+      '      (select sum(pc.quantidade-COALESCE(pc.cancelado,0))'
+      '       from produtoscontratos pc'
+      '            join contratos ct'
+      '            on pc.contrato = ct.numero'
+      '       where pc.contrato = ct.numero'
+      '         and pc.listacasamento = pl.lista'
+      '         AND ct.situacao in ('#39'P'#39','#39'N'#39','#39'F'#39')'
+      '         AND pc.produto = pl.produto) as qtdevendida,'
+      ''
+      '       pl.incluidodepois,'
+      '       pl.etiqueta,'
+      '       p.descricao,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e1) as linha,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e2) as coluna,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      '       p.referencia,'
+      '       c.classe,'
+      '       cl.descricao as descricaoclasse,'
+      '       c.grupo,'
+      '       g.descricao as descricaogrupo,'
+      ''
+      '       (select sum(pc.quantidade-coalesce(pc.cancelado,0))'
+      
+        '        from produtoscontratos pc join contratos ct on pc.contra' +
+        'to = ct.numero'
+      '        where pc.contrato = ct.numero'
+      '          and pc.produto = pl.produto'
+      '          and pc.listacasamento = pl.lista'
+      '          and ct.situacao = '#39'R'#39') as reservado,'
+      ''
+      '       (select sum(pdfsr.quantidade)'
+      '        from produtosdadosfiscaissimplesremessa pdfsr'
+      '             join produtosdadosfiscais pdf'
+      '                  join dadosfiscais df'
+      '                  on pdf.dadofiscal = df.numero'
+      ''
+      '                  join produtoscontratos pc'
+      '                  on df.contrato = pc.contrato'
+      '                  and pdf.produto = pc.produto'
+      '                  and pdf.filial = pc.filial'
+      ''
+      '             on pdfsr.dadofiscalvenda = pdf.dadofiscal'
+      '            and pdfsr.produtodadofiscalvenda = pdf.produto'
+      '            and pdfsr.numeroprodutodadofiscalvenda = pdf.numero'
+      ''
+      '            join dadosfiscais dfs'
+      '            on pdfsr.dadofiscalsimplesremessa = dfs.numero'
+      ''
+      '        where df.situacao = '#39'N'#39
+      '          and dfs.situacao = '#39'N'#39
+      '          and pdfsr.produtodadofiscalsimplesremessa = pl.produto'
+      '          and pc.listacasamento = pl.lista'
+      ''
+      '       ) as quantidadenotafiscalsimplesremessa,'
+      ''
+      '       estoques_preco(pl.produto, :FilialPreco) as preco,'
+      '       p.aparecernosite,'
+      '       pl.qtdeminimacompra,'
+      
+        '       (select count(*) from fotosprodutos where produto=pl.prod' +
+        'uto) as fotos'
+      
+        'From produtoslistacasamento pl , produtos p, caracteristicas c, ' +
+        'grupos g, classes cl'
+      'Where (pl.lista         = :lista  )'
+      '  and (pl.produto       = p.codigo)'
+      '  and (p.caracteristica = c.codigo)'
+      '  and (c.grupo          = g.codigo)'
+      '  and (cl.codigo        = c.classe)'
+      ''
+      'order by c.classe,'
+      '         cl.descricao,'
+      '         c.grupo,'
+      '         g.descricao,'
+      '         pl.produto'
+      '')
+    RequestLive = True
+    Left = 84
+    Top = 186
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'FilialPreco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'lista'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosListaCasamentolista: TIntegerField
+      FieldName = 'lista'
+      DisplayFormat = '0'
+    end
+    object qryProdutosListaCasamentoproduto: TLargeintField
+      FieldName = 'produto'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProdutosListaCasamentoquantidade: TFloatField
+      FieldName = 'quantidade'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProdutosListaCasamentoqtdevendida: TFloatField
+      FieldName = 'qtdevendida'
+      DisplayFormat = '0'
+    end
+    object qryProdutosListaCasamentodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryProdutosListaCasamentoreservado: TFloatField
+      FieldName = 'reservado'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosListaCasamentoetiqueta: TBooleanField
+      FieldName = 'etiqueta'
+    end
+    object qryProdutosListaCasamentoincluidodepois: TBooleanField
+      FieldName = 'incluidodepois'
+    end
+    object qryProdutosListaCasamentogrupo: TStringField
+      FieldName = 'grupo'
+      Size = 4
+    end
+    object qryProdutosListaCasamentodescricaogrupo: TStringField
+      FieldName = 'descricaogrupo'
+      Size = 30
+    end
+    object qryProdutosListaCasamentoreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 15
+    end
+    object qryProdutosListaCasamentolinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryProdutosListaCasamentocoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qryProdutosListaCasamentovalorgrade1: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryProdutosListaCasamentovalorgrade2: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryProdutosListaCasamentodescricaolc: TStringField
+      DisplayWidth = 62
+      FieldKind = fkCalculated
+      FieldName = 'descricaolc'
+      Size = 162
+      Calculated = True
+    end
+    object qryProdutosListaCasamentopreco: TFloatField
+      FieldName = 'preco'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryProdutosListaCasamentoaparecernosite: TBooleanField
+      FieldName = 'aparecernosite'
+      Required = True
+    end
+    object qryProdutosListaCasamentofotos: TLargeintField
+      FieldName = 'fotos'
+    end
+    object qryProdutosListaCasamentoclasse: TStringField
+      FieldName = 'classe'
+      Size = 2
+    end
+    object qryProdutosListaCasamentodescricaoclasse: TStringField
+      FieldName = 'descricaoclasse'
+      Size = 30
+    end
+    object qryProdutosListaCasamentoquantidadenotafiscalsimplesremessa: TFloatField
+      FieldName = 'quantidadenotafiscalsimplesremessa'
+    end
+    object qryProdutosListaCasamentoqtdeminimacompra: TFloatField
+      FieldName = 'qtdeminimacompra'
+    end
+  end
+  object dsrProdutosListaCasamento: TtecDataSource
+    DataSet = qryProdutosListaCasamento
+    Left = 285
+    Top = 186
+  end
+  object qryConsultaListas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select   l.codigo, '
+      '         l.data,'
+      '         nome_noiva as nomenoiva,'
+      '         nome_noivo as nomenoivo,'
+      
+        '         case when aparecernosite then '#39'Sim'#39' else '#39'N'#227'o'#39' END as S' +
+        'ite'
+      
+        'From     listascasamento l left join clientes c1 ON (l.noiva = c' +
+        '1.codigo)'
+      
+        '                                         left join clientes c2 O' +
+        'N (l.noivo = c2.codigo)'
+      'Order By UPPER(TO_ASCII(l.noiva,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 468
+    Top = 10
+    object qryConsultaListasnomenoiva: TStringField
+      DisplayLabel = 'Nome Noiva'
+      FieldName = 'nomenoiva'
+      Size = 40
+    end
+    object qryConsultaListasnomenoivo: TStringField
+      DisplayLabel = 'Nome Noivo'
+      FieldName = 'nomenoivo'
+      Size = 40
+    end
+    object qryConsultaListasdata: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Data'
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryConsultaListascodigo: TIntegerField
+      DisplayLabel = 'Lista'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryConsultaListassite: TMemoField
+      DisplayLabel = 'Site'
+      FieldName = 'site'
+      BlobType = ftMemo
+    end
+  end
+  object qryProcuraNoiva: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryProcuraNoivaAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select  vf.codigo,'
+      '          coalesce(vf.razao,vf.nome) as nomenoiva ,'
+      '          vf.pessoatipo,'
+      '          vf.pessoanumero,'
+      '          vf.inscricaoestadual as iddocumento,'
+      ''
+      '         (case when vf.tipo='#39'C'#39' then'
+      '            (select cl.suframa'
+      '             from clientes cl'
+      '             where cl.codigo = vf.codigo)'
+      '          else (case when vf.tipo='#39'F'#39' then'
+      '                 (select f.suframa'
+      '                  from fornecedores f'
+      '                  where f.codigo = vf.codigo)'
+      '                end)'
+      '          end) as suframa,'
+      ''
+      '         (case when vf.tipo='#39'C'#39' then'
+      '          (select cl.obsnotafiscal'
+      '           from clientes cl'
+      '           where cl.codigo = vf.codigo)'
+      '         else'
+      '           cast(null as varchar) end) as obsnotafiscal,'
+      ''
+      '       (case when vf.tipo='#39'C'#39' then'
+      '          (select cl.obsipisuspenso'
+      '           from clientes cl'
+      '           where cl.codigo = vf.codigo)'
+      '        else'
+      '          cast(null as varchar) end) as obsipisuspenso,'
+      '          '
+      '            /*'
+      '       (case when vf.tipo='#39'C'#39' then'
+      '          (select cl.ipisuspenso'
+      '           from clientes cl'
+      '           where cl.codigo = vf.codigo)'
+      '        else'
+      '          false end) as ipisuspenso,'
+      '          */'
+      ''
+      ''
+      '          vf.tipo as tipocliente,'
+      ''
+      '          vf.rua,'
+      '          vf.numero,'
+      '          vf.complemento,'
+      '          vf.cidade,'
+      ''
+      '          (select c.CodigoIBGE'
+      '           from cidades c'
+      '           where c.estado = vf.estado'
+      '             and c.codigo = vf.cidade) as CidadeIBGE,'
+      ''
+      '          (select c.nome'
+      '           from cidades c'
+      '           where (c.estado = vf.estado) and'
+      '                     (c.codigo = vf.cidade)'
+      '          ) as nomecidade,'
+      '          vf.bairro,'
+      '          (select b.nome'
+      '           from bairros b'
+      '           where (b.estado = vf.estado) and'
+      '                     (b.cidade = vf.cidade) and'
+      '                     (b.codigo = vf.bairro)'
+      '          ) as nomebairro,'
+      '          vf.cep,'
+      '          vf.estado,'
+      ''
+      '         (case when vf.tipo='#39'C'#39' then'
+      '            (select cl.refrua'
+      '             from clientes cl'
+      '             where cl.codigo = vf.codigo)'
+      '          else'
+      '            cast(null as varchar(100)) end) as refrua,'
+      ''
+      '         (case when vf.tipo='#39'C'#39' then'
+      '            (select cl.refNumero'
+      '             from clientes cl'
+      '             where cl.codigo = vf.codigo)'
+      '          else'
+      '            cast(null as integer) end) as refNumero,'
+      ''
+      '         (case when vf.tipo='#39'C'#39' then'
+      '            (select cl.refComplemento'
+      '             from clientes cl'
+      '             where cl.codigo = vf.codigo)'
+      '          else'
+      '            cast(null as varchar(60)) end) as refComplemento,'
+      ''
+      '         (case when vf.tipo='#39'C'#39' then'
+      '            (select cl.refBairro'
+      '             from clientes cl'
+      '             where cl.codigo = vf.codigo)'
+      '          else'
+      '            cast(null as integer) end) as refBairro,'
+      ''
+      '         (case when vf.tipo='#39'C'#39' then'
+      '            (select b.nome'
+      '             from bairros b'
+      '             where (b.estado,b.cidade,b.codigo) in'
+      '               (select cl.refestado,'
+      '                       cl.refcidade,'
+      '                       cl.refBairro'
+      '                from clientes cl'
+      '                where cl.codigo = vf.codigo))'
+      '          else'
+      '            cast(null as varchar(60)) end) as refNomeBairro,'
+      ''
+      '         (case when vf.tipo='#39'C'#39' then'
+      '            (select cl.refCidade'
+      '             from clientes cl'
+      '             where cl.codigo = vf.codigo)'
+      '          else'
+      '            cast(null as integer) end) as refCidade,'
+      ''
+      '         (case when vf.tipo='#39'C'#39' then'
+      '            (select cl.refCep'
+      '             from clientes cl'
+      '             where cl.codigo = vf.codigo)'
+      '          else'
+      '            cast(null as integer) end) as refCep,'
+      ''
+      '         (case when vf.tipo='#39'C'#39' then'
+      '            (select c.nome'
+      '             from cidades c'
+      '             where (c.estado,c.codigo) in'
+      '               (select cl.refestado,'
+      '                       cl.refcidade'
+      '                from clientes cl'
+      '                where cl.codigo = vf.codigo))'
+      '          else'
+      '            cast(null as varchar(60)) end) as refNomeCidade,'
+      ''
+      '         (case when vf.tipo='#39'C'#39' then'
+      '            (select c.CodigoIBGE'
+      '             from cidades c'
+      '             where (c.estado,c.codigo) in'
+      '               (select cl.refestado,'
+      '                       cl.refcidade'
+      '                from clientes cl'
+      '                where cl.codigo = vf.codigo))'
+      '          else'
+      '            cast(null as integer) end) as refCidadeIBGE,'
+      ''
+      '         (case when vf.tipo='#39'C'#39' then'
+      '            (select cl.refestado'
+      '             from clientes cl'
+      '             where cl.codigo = vf.codigo)'
+      '          else'
+      '            cast(null as varchar(2)) end) as refestado,'
+      ''
+      ''
+      '          vf.fonenumero,'
+      '          vf.foneddd,'
+      '          vf.debito,'
+      '          vf.credito,'
+      '          vf.email,'
+      '          vf.nosimples '
+      'from vfornecedores vf'
+      'where vf.tipo = '#39'C'#39
+      '  and vf.codigo = :codigo'
+      '  and vf.sexo = '#39'F'#39)
+    RequestLive = True
+    Active = True
+    Left = 84
+    Top = 67
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraNoivacodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivanomenoiva: TStringField
+      FieldName = 'nomenoiva'
+      Size = 50
+    end
+    object qryProcuraNoivapessoatipo: TStringField
+      FieldName = 'pessoatipo'
+      Size = 1
+    end
+    object qryProcuraNoivapessoanumero: TStringField
+      FieldName = 'pessoanumero'
+      Size = 14
+    end
+    object qryProcuraNoivaiddocumento: TStringField
+      FieldName = 'iddocumento'
+      Size = 50
+    end
+    object qryProcuraNoivasuframa: TStringField
+      FieldName = 'suframa'
+      Size = 50
+    end
+    object qryProcuraNoivaobsnotafiscal: TStringField
+      FieldName = 'obsnotafiscal'
+      Size = 50
+    end
+    object qryProcuraNoivaobsipisuspenso: TStringField
+      FieldName = 'obsipisuspenso'
+      Size = 50
+    end
+    object qryProcuraNoivatipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryProcuraNoivarua: TStringField
+      FieldName = 'rua'
+      Size = 100
+    end
+    object qryProcuraNoivanumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivacomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 100
+    end
+    object qryProcuraNoivacidade: TIntegerField
+      FieldName = 'cidade'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivacidadeibge: TIntegerField
+      FieldName = 'cidadeibge'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivanomecidade: TStringField
+      DisplayWidth = 50
+      FieldName = 'nomecidade'
+      Size = 72
+    end
+    object qryProcuraNoivabairro: TIntegerField
+      FieldName = 'bairro'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivanomebairro: TStringField
+      DisplayWidth = 50
+      FieldName = 'nomebairro'
+      Size = 80
+    end
+    object qryProcuraNoivacep: TIntegerField
+      FieldName = 'cep'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivaestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryProcuraNoivarefrua: TStringField
+      DisplayWidth = 50
+      FieldName = 'refrua'
+      Size = 100
+    end
+    object qryProcuraNoivarefnumero: TIntegerField
+      FieldName = 'refnumero'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivarefcomplemento: TStringField
+      FieldName = 'refcomplemento'
+      Size = 50
+    end
+    object qryProcuraNoivarefbairro: TIntegerField
+      FieldName = 'refbairro'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivarefnomebairro: TStringField
+      FieldName = 'refnomebairro'
+      Size = 50
+    end
+    object qryProcuraNoivarefcidade: TIntegerField
+      FieldName = 'refcidade'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivarefcep: TIntegerField
+      FieldName = 'refcep'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivarefnomecidade: TStringField
+      FieldName = 'refnomecidade'
+      Size = 50
+    end
+    object qryProcuraNoivarefcidadeibge: TIntegerField
+      FieldName = 'refcidadeibge'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivarefestado: TStringField
+      FieldName = 'refestado'
+      Size = 50
+    end
+    object qryProcuraNoivafonenumero: TIntegerField
+      FieldName = 'fonenumero'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivafoneddd: TIntegerField
+      FieldName = 'foneddd'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivadebito: TIntegerField
+      FieldName = 'debito'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivacredito: TIntegerField
+      FieldName = 'credito'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivaemail: TStringField
+      FieldName = 'email'
+      Size = 50
+    end
+    object qryProcuraNoivanosimples: TBooleanField
+      FieldName = 'nosimples'
+    end
+  end
+  object dsrProcuraNoiva: TtecDataSource
+    DataSet = qryProcuraNoiva
+    Left = 285
+    Top = 67
+  end
+  object qryConsultaClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select c.nome,'
+      '           c.codigo,'
+      '           formatar_cpf_cnpj(c.pessoanumero) as pessoanumero,'
+      '           c.estado,'
+      '           d.nome as nomecidade'
+      ''
+      'From   clientes c, cidades d'
+      '       '
+      '/* editada em run time */'
+      '/* editada em run time */'
+      ''
+      '  and (c.estado = d.estado)'
+      '  and (c.cidade = d.codigo)'
+      'Order By UPPER(TO_ASCII(c.nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 468
+    Top = 123
+    object qryConsultaClientesnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaClientespessoanumero: TStringField
+      DisplayLabel = 'CPF'
+      FieldName = 'pessoanumero'
+      Size = 14
+    end
+    object qryConsultaClientesnomecidade: TStringField
+      DisplayLabel = 'Cidade'
+      FieldName = 'nomecidade'
+      Size = 30
+    end
+    object qryConsultaClientesestado: TStringField
+      DisplayLabel = 'UF'
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryConsultaClientescodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object qryProcuraNoivo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryProcuraNoivoAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select   codigo, '
+      '             nome'
+      'From     clientes'
+      'Where  (codigo = :codigo) '
+      '     and (sexo = '#39'M'#39')')
+    RequestLive = True
+    Active = True
+    Left = 84
+    Top = 127
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraNoivocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNoivonome: TStringField
+      DisplayWidth = 40
+      FieldName = 'nome'
+      Size = 60
+    end
+  end
+  object dsrProcuraNoivo: TtecDataSource
+    DataSet = qryProcuraNoivo
+    Left = 285
+    Top = 123
+  end
+  object spcListaCasamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select listascasamento_proximocodigo() as codigo')
+    RequestLive = False
+    Left = 468
+    Top = 67
+    object spcListaCasamentocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object qryProcuraProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryProcuraProdutosBeforeOpen
+    AfterOpen = qryProcuraProdutosAfterOpen
+    OnCalcFields = qryProcuraProdutosCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQLProdutosJaSelecionados'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select p.codigo, '
+      '          p.descricao, '
+      
+        '          (select gr.descricao from grades gr where gr.codigo = ' +
+        'c.grade1) as linha,'
+      
+        '          (select gr.descricao from grades gr where gr.codigo = ' +
+        'c.grade2) as coluna,'
+      '          p.valorgrade1, '
+      '          p.valorgrade2,  '
+      '         estoques_preco(p.codigo, :FilialPreco) as preco,'
+      '         p.aparecernosite,'
+      
+        '         (select count(*) from fotosprodutos where produto=p.cod' +
+        'igo) as fotos'
+      'From   produtos p, caracteristicas c'
+      'Where p.caracteristica = c.codigo'
+      '  and p.codigo =:codigo'
+      '  and p.inativo is null'
+      ''
+      '%SQLProdutosJaSelecionados')
+    RequestLive = False
+    Left = 84
+    Top = 249
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'FilialPreco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftLargeint
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraProdutoscodigo: TLargeintField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcuraProdutosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryProcuraProdutosvalorgrade1: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryProcuraProdutosvalorgrade2: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryProcuraProdutosdescricaolc: TStringField
+      DisplayWidth = 62
+      FieldKind = fkCalculated
+      FieldName = 'descricaolc'
+      Size = 162
+      Calculated = True
+    end
+    object qryProcuraProdutoslinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryProcuraProdutoscoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qryProcuraProdutospreco: TFloatField
+      FieldName = 'preco'
+      DisplayFormat = '0.00'
+    end
+    object qryProcuraProdutosaparecernosite: TBooleanField
+      FieldName = 'aparecernosite'
+    end
+    object qryProcuraProdutosfotos: TLargeintField
+      FieldName = 'fotos'
+    end
+  end
+  object dsrProcuraProdutos: TtecDataSource
+    DataSet = qryProcuraProdutos
+    Left = 285
+    Top = 249
+  end
+  object qryConsultaProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryConsultaProdutosBeforeOpen
+    AfterOpen = qryConsultaProdutosAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQLProduto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLProdutosJaSelecionados'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select p.descricao, p.valorgrade1, p.valorgrade2,'
+      '           p.referencia,'
+      '           p.codigo,'
+      
+        '           cast(case when aparecernosite then '#39'Sim'#39' else '#39'N'#227'o'#39' e' +
+        'nd as varchar) as Site,'
+      
+        '           (select count(*) from fotosprodutos where produto=p.c' +
+        'odigo) as fotos'
+      'From   produtos p'
+      '%SQLProduto'
+      '%SQLProdutosJaSelecionados'
+      
+        'Order By UPPER(TO_ASCII(p.descricao,'#39'LATIN1'#39')), p.valorgrade1, p' +
+        '.valorgrade2')
+    RequestLive = False
+    Left = 468
+    Top = 249
+    object qryConsultaProdutosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      DisplayWidth = 62
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryConsultaProdutoscodigo: TLargeintField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryConsultaProdutosvalorgrade1: TStringField
+      DisplayLabel = 'Linha'
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryConsultaProdutosvalorgrade2: TStringField
+      DisplayLabel = 'Coluna'
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryConsultaProdutosreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 15
+    end
+    object qryConsultaProdutosfotos: TLargeintField
+      DisplayLabel = 'Fotos'
+      DisplayWidth = 10
+      FieldName = 'fotos'
+    end
+    object qryConsultaProdutossite: TStringField
+      DisplayLabel = 'Site'
+      DisplayWidth = 5
+      FieldName = 'site'
+      Size = 3
+    end
+  end
+  object qryDadosFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qryDadosFiscaisNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select df.*,'
+      '       coalesce(df.valorprodutos,0) +'
+      '       (coalesce(df.valortotal,0) -'
+      '        coalesce(df.valorvista,0)) -'
+      '       coalesce(df.desconto,0) as totalprodutos,'
+      '       (cast(null as Numeric(9,3))) as totalqtdeprodutos,'
+      
+        '       (select sum(pdf.vCredICMSSN) from produtosdadosfiscais pd' +
+        'f where pdf.dadofiscal = df.numero) as vCredICMSSN,'
+      
+        '       (select sum(pdf.vICMSSTRet) from produtosdadosfiscais pdf' +
+        ' where pdf.dadofiscal = df.numero) as vICMSSTRet'
+      ''
+      'from dadosfiscais df '
+      'where df.numero = :numero'
+      ''
+      ''
+      '')
+    RequestLive = True
+    Left = 88
+    Top = 370
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryDadosFiscaisnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+    end
+    object qryDadosFiscaisdata: TDateField
+      FieldName = 'data'
+      Required = True
+    end
+    object qryDadosFiscaissituacao: TStringField
+      FieldName = 'situacao'
+      Required = True
+      Size = 1
+    end
+    object qryDadosFiscaismanual: TBooleanField
+      FieldName = 'manual'
+      Required = True
+    end
+    object qryDadosFiscaisfilialvenda: TIntegerField
+      FieldName = 'filialvenda'
+      Required = True
+    end
+    object qryDadosFiscaiscontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryDadosFiscaisvalortotal: TFloatField
+      FieldName = 'valortotal'
+      Required = True
+    end
+    object qryDadosFiscaisvalorvista: TFloatField
+      FieldName = 'valorvista'
+      Required = True
+    end
+    object qryDadosFiscaisdesconto: TFloatField
+      FieldName = 'desconto'
+      Required = True
+    end
+    object qryDadosFiscaisvalorfrete: TFloatField
+      FieldName = 'valorfrete'
+    end
+    object qryDadosFiscaisseguro: TFloatField
+      FieldName = 'seguro'
+    end
+    object qryDadosFiscaisvaloripi: TFloatField
+      FieldName = 'valoripi'
+    end
+    object qryDadosFiscaisdespesasacessorias: TFloatField
+      FieldName = 'despesasacessorias'
+    end
+    object qryDadosFiscaiscodigofiscal: TIntegerField
+      FieldName = 'codigofiscal'
+      Required = True
+    end
+    object qryDadosFiscaiscodigofiscalservico: TIntegerField
+      FieldName = 'codigofiscalservico'
+    end
+    object qryDadosFiscaisvendedor: TIntegerField
+      FieldName = 'vendedor'
+    end
+    object qryDadosFiscaisagente: TIntegerField
+      FieldName = 'agente'
+    end
+    object qryDadosFiscaisestadocfo: TStringField
+      FieldName = 'estadocfo'
+      Required = True
+      Size = 2
+    end
+    object qryDadosFiscaisfilialemissao: TIntegerField
+      FieldName = 'filialemissao'
+      Required = True
+    end
+    object qryDadosFiscaisnatureza: TStringField
+      FieldName = 'natureza'
+      Size = 80
+    end
+    object qryDadosFiscaisdescricaosemprodutos: TStringField
+      FieldName = 'descricaosemprodutos'
+      Size = 200
+    end
+    object qryDadosFiscaisplano: TIntegerField
+      FieldName = 'plano'
+    end
+    object qryDadosFiscaisviatransporte: TStringField
+      FieldName = 'viatransporte'
+      Required = True
+      Size = 1
+    end
+    object qryDadosFiscaisdatasaida: TDateField
+      FieldName = 'datasaida'
+    end
+    object qryDadosFiscaisfornecedortransporte: TIntegerField
+      FieldName = 'fornecedortransporte'
+    end
+    object qryDadosFiscaisfrete: TStringField
+      FieldName = 'frete'
+      Size = 1
+    end
+    object qryDadosFiscaiscliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryDadosFiscaistipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryDadosFiscaisestadoplaca: TStringField
+      FieldName = 'estadoplaca'
+      Size = 2
+    end
+    object qryDadosFiscaisplaca: TStringField
+      FieldName = 'placa'
+      Size = 10
+    end
+    object qryDadosFiscaisnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryDadosFiscaisrua: TStringField
+      FieldName = 'rua'
+      Size = 100
+    end
+    object qryDadosFiscaisbairro: TIntegerField
+      FieldName = 'bairro'
+    end
+    object qryDadosFiscaiscidade: TIntegerField
+      FieldName = 'cidade'
+    end
+    object qryDadosFiscaisestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryDadosFiscaiscep: TIntegerField
+      FieldName = 'cep'
+    end
+    object qryDadosFiscaispessoatipo: TStringField
+      FieldName = 'pessoatipo'
+      Required = True
+      Size = 1
+    end
+    object qryDadosFiscaispessoanumero: TStringField
+      FieldName = 'pessoanumero'
+      Size = 14
+    end
+    object qryDadosFiscaisfonenumero: TIntegerField
+      FieldName = 'fonenumero'
+    end
+    object qryDadosFiscaisfoneddd: TIntegerField
+      FieldName = 'foneddd'
+    end
+    object qryDadosFiscaisdocumento: TStringField
+      FieldName = 'documento'
+    end
+    object qryDadosFiscaisobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 350
+    end
+    object qryDadosFiscaisconceito: TIntegerField
+      FieldName = 'conceito'
+    end
+    object qryDadosFiscaisdebitar: TIntegerField
+      FieldName = 'debitar'
+    end
+    object qryDadosFiscaiscreditar: TIntegerField
+      FieldName = 'creditar'
+    end
+    object qryDadosFiscaishistorico: TIntegerField
+      FieldName = 'historico'
+    end
+    object qryDadosFiscaistotalbaseicmsproprio: TFloatField
+      FieldName = 'totalbaseicmsproprio'
+    end
+    object qryDadosFiscaistotalvaloricmsproprio: TFloatField
+      FieldName = 'totalvaloricmsproprio'
+    end
+    object qryDadosFiscaistotalbaseicmssubstituicao: TFloatField
+      FieldName = 'totalbaseicmssubstituicao'
+    end
+    object qryDadosFiscaistotalvaloricmssubstituicao: TFloatField
+      FieldName = 'totalvaloricmssubstituicao'
+    end
+    object qryDadosFiscaisaliquotaicmsproprio: TFloatField
+      FieldName = 'aliquotaicmsproprio'
+    end
+    object qryDadosFiscaisanexotres: TStringField
+      FieldName = 'anexotres'
+      Size = 100
+    end
+    object qryDadosFiscaisacrescimofinanceiro: TFloatField
+      FieldName = 'acrescimofinanceiro'
+    end
+    object qryDadosFiscaisacrescimoexcluido: TFloatField
+      FieldName = 'acrescimoexcluido'
+    end
+    object qryDadosFiscaisicmsexcluido: TFloatField
+      FieldName = 'icmsexcluido'
+    end
+    object qryDadosFiscaiscodigonatureza: TIntegerField
+      FieldName = 'codigonatureza'
+    end
+    object qryDadosFiscaisvalorservicos: TFloatField
+      FieldName = 'valorservicos'
+    end
+    object qryDadosFiscaisirretido: TFloatField
+      FieldName = 'irretido'
+    end
+    object qryDadosFiscaisinssretido: TFloatField
+      FieldName = 'inssretido'
+    end
+    object qryDadosFiscaisissretido: TFloatField
+      FieldName = 'issretido'
+    end
+    object qryDadosFiscaiscofinsretido: TFloatField
+      FieldName = 'cofinsretido'
+    end
+    object qryDadosFiscaispisretido: TFloatField
+      FieldName = 'pisretido'
+    end
+    object qryDadosFiscaiscsllretido: TFloatField
+      FieldName = 'csllretido'
+    end
+    object qryDadosFiscaisbaseicms: TFloatField
+      FieldName = 'baseicms'
+    end
+    object qryDadosFiscaisvaloricms: TFloatField
+      FieldName = 'valoricms'
+    end
+    object qryDadosFiscaisvalorissqn: TFloatField
+      FieldName = 'valorissqn'
+    end
+    object qryDadosFiscaisvalorprodutos: TFloatField
+      FieldName = 'valorprodutos'
+    end
+    object qryDadosFiscaissubstituicaoipi: TBooleanField
+      FieldName = 'substituicaoipi'
+    end
+    object qryDadosFiscaisobservacoescomplementar: TStringField
+      FieldName = 'observacoescomplementar'
+      Size = 500
+    end
+    object qryDadosFiscaisobscliente: TStringField
+      FieldName = 'obscliente'
+      Size = 320
+    end
+    object qryDadosFiscaisobsclienteipisuspenso: TStringField
+      FieldName = 'obsclienteipisuspenso'
+      Size = 320
+    end
+    object qryDadosFiscaisobservacoesicmssubstituido: TStringField
+      FieldName = 'observacoesicmssubstituido'
+      Size = 500
+    end
+    object qryDadosFiscaisdadofiscalcomplementar: TIntegerField
+      FieldName = 'dadofiscalcomplementar'
+    end
+    object qryDadosFiscaisversaolayout: TFloatField
+      FieldName = 'versaolayout'
+    end
+    object qryDadosFiscaismodelodocto: TStringField
+      FieldName = 'modelodocto'
+      Required = True
+      Size = 2
+    end
+    object qryDadosFiscaisnrdocumento: TIntegerField
+      FieldName = 'nrdocumento'
+    end
+    object qryDadosFiscaiscodaleatorio: TIntegerField
+      FieldName = 'codaleatorio'
+    end
+    object qryDadosFiscaisformapagto: TIntegerField
+      FieldName = 'formapagto'
+    end
+    object qryDadosFiscaisformatodanfe: TIntegerField
+      FieldName = 'formatodanfe'
+    end
+    object qryDadosFiscaisformaemissao: TIntegerField
+      FieldName = 'formaemissao'
+    end
+    object qryDadosFiscaisdigchaveacesso: TIntegerField
+      FieldName = 'digchaveacesso'
+    end
+    object qryDadosFiscaisambiente: TIntegerField
+      FieldName = 'ambiente'
+    end
+    object qryDadosFiscaisfinalidadenf: TIntegerField
+      FieldName = 'finalidadenf'
+    end
+    object qryDadosFiscaisprocemissao: TIntegerField
+      FieldName = 'procemissao'
+    end
+    object qryDadosFiscaisversaoteclux: TStringField
+      FieldName = 'versaoteclux'
+      Size = 8
+    end
+    object qryDadosFiscaistotalimportacao: TFloatField
+      FieldName = 'totalimportacao'
+    end
+    object qryDadosFiscaistotalvalorpis: TFloatField
+      FieldName = 'totalvalorpis'
+    end
+    object qryDadosFiscaistotalvalorcofins: TFloatField
+      FieldName = 'totalvalorcofins'
+    end
+    object qryDadosFiscaisnomebairro: TStringField
+      FieldName = 'nomebairro'
+      Size = 60
+    end
+    object qryDadosFiscaisnomecidade: TStringField
+      FieldName = 'nomecidade'
+      Size = 60
+    end
+    object qryDadosFiscaiscidadeibge: TIntegerField
+      FieldName = 'cidadeibge'
+    end
+    object qryDadosFiscaispais: TIntegerField
+      FieldName = 'pais'
+    end
+    object qryDadosFiscaisnomepais: TStringField
+      FieldName = 'nomepais'
+      Size = 60
+    end
+    object qryDadosFiscaislocalretirada_cnpj: TStringField
+      FieldName = 'localretirada_cnpj'
+      Size = 14
+    end
+    object qryDadosFiscaislocalretirada_rua: TStringField
+      FieldName = 'localretirada_rua'
+      Size = 100
+    end
+    object qryDadosFiscaislocalretirada_complemento: TStringField
+      FieldName = 'localretirada_complemento'
+      Size = 60
+    end
+    object qryDadosFiscaislocalretirada_bairro: TIntegerField
+      FieldName = 'localretirada_bairro'
+    end
+    object qryDadosFiscaislocalretirada_nomebairro: TStringField
+      FieldName = 'localretirada_nomebairro'
+      Size = 60
+    end
+    object qryDadosFiscaislocalretirada_cidade: TIntegerField
+      FieldName = 'localretirada_cidade'
+    end
+    object qryDadosFiscaislocalretirada_cep: TIntegerField
+      FieldName = 'localretirada_cep'
+    end
+    object qryDadosFiscaislocalretirada_nomecidade: TStringField
+      FieldName = 'localretirada_nomecidade'
+      Size = 60
+    end
+    object qryDadosFiscaislocalretirada_cidadeibge: TIntegerField
+      FieldName = 'localretirada_cidadeibge'
+    end
+    object qryDadosFiscaislocalretirada_estado: TStringField
+      FieldName = 'localretirada_estado'
+      Size = 2
+    end
+    object qryDadosFiscaislocalentrega_cnpj: TStringField
+      FieldName = 'localentrega_cnpj'
+      Size = 14
+    end
+    object qryDadosFiscaislocalentrega_rua: TStringField
+      FieldName = 'localentrega_rua'
+      Size = 100
+    end
+    object qryDadosFiscaislocalentrega_complemento: TStringField
+      FieldName = 'localentrega_complemento'
+      Size = 60
+    end
+    object qryDadosFiscaislocalentrega_bairro: TIntegerField
+      FieldName = 'localentrega_bairro'
+    end
+    object qryDadosFiscaislocalentrega_nomebairro: TStringField
+      FieldName = 'localentrega_nomebairro'
+      Size = 60
+    end
+    object qryDadosFiscaislocalentrega_cidade: TIntegerField
+      FieldName = 'localentrega_cidade'
+    end
+    object qryDadosFiscaislocalentrega_cep: TIntegerField
+      FieldName = 'localentrega_cep'
+    end
+    object qryDadosFiscaislocalentrega_nomecidade: TStringField
+      FieldName = 'localentrega_nomecidade'
+      Size = 60
+    end
+    object qryDadosFiscaislocalentrega_cidadeibge: TIntegerField
+      FieldName = 'localentrega_cidadeibge'
+    end
+    object qryDadosFiscaislocalentrega_estado: TStringField
+      FieldName = 'localentrega_estado'
+      Size = 2
+    end
+    object qryDadosFiscaistransportadora_cnpj: TStringField
+      FieldName = 'transportadora_cnpj'
+      Size = 14
+    end
+    object qryDadosFiscaistransportadora_ie: TStringField
+      FieldName = 'transportadora_ie'
+    end
+    object qryDadosFiscaistransportadora_nome: TStringField
+      FieldName = 'transportadora_nome'
+      Size = 60
+    end
+    object qryDadosFiscaistransportadora_rua: TStringField
+      FieldName = 'transportadora_rua'
+      Size = 60
+    end
+    object qryDadosFiscaistransportadora_bairro: TIntegerField
+      FieldName = 'transportadora_bairro'
+    end
+    object qryDadosFiscaistransportadora_nomebairro: TStringField
+      FieldName = 'transportadora_nomebairro'
+      Size = 60
+    end
+    object qryDadosFiscaistransportadora_cidade: TIntegerField
+      FieldName = 'transportadora_cidade'
+    end
+    object qryDadosFiscaistransportadora_nomecidade: TStringField
+      FieldName = 'transportadora_nomecidade'
+      Size = 60
+    end
+    object qryDadosFiscaistransportadora_cidadeibge: TIntegerField
+      FieldName = 'transportadora_cidadeibge'
+    end
+    object qryDadosFiscaistransportadora_estado: TStringField
+      FieldName = 'transportadora_estado'
+      Size = 2
+    end
+    object qryDadosFiscaistransportadora_rntc: TStringField
+      FieldName = 'transportadora_rntc'
+    end
+    object qryDadosFiscaisinfcomplementar: TStringField
+      FieldName = 'infcomplementar'
+      Size = 512
+    end
+    object qryDadosFiscaisexportacoes_ufembarque: TStringField
+      FieldName = 'exportacoes_ufembarque'
+      Size = 2
+    end
+    object qryDadosFiscaisexportacoes_localembarque: TStringField
+      FieldName = 'exportacoes_localembarque'
+      Size = 60
+    end
+    object qryDadosFiscaisendnumero: TIntegerField
+      FieldName = 'endnumero'
+    end
+    object qryDadosFiscaisendcomplemento: TStringField
+      FieldName = 'endcomplemento'
+      Size = 100
+    end
+    object qryDadosFiscaislocalretirada_numero: TIntegerField
+      FieldName = 'localretirada_numero'
+    end
+    object qryDadosFiscaislocalentrega_numero: TIntegerField
+      FieldName = 'localentrega_numero'
+    end
+    object qryDadosFiscaissuframa: TStringField
+      FieldName = 'suframa'
+      Size = 9
+    end
+    object qryDadosFiscaisiesubsttributario: TStringField
+      FieldName = 'iesubsttributario'
+    end
+    object qryDadosFiscaisnumlotenfe: TStringField
+      FieldName = 'numlotenfe'
+      Size = 15
+    end
+    object qryDadosFiscaisnumrecibonfe: TStringField
+      FieldName = 'numrecibonfe'
+      Size = 15
+    end
+    object qryDadosFiscaisnumprotocolonfe: TStringField
+      FieldName = 'numprotocolonfe'
+      Size = 15
+    end
+    object qryDadosFiscaisemail: TStringField
+      FieldName = 'email'
+      Size = 128
+    end
+    object qryDadosFiscaisdatacancelamento: TDateField
+      FieldName = 'datacancelamento'
+    end
+    object qryDadosFiscaisnumcancelamentonfe: TStringField
+      FieldName = 'numcancelamentonfe'
+      Size = 15
+    end
+    object qryDadosFiscaischv_nfe: TStringField
+      FieldName = 'chv_nfe'
+      Size = 44
+    end
+    object qryDadosFiscaisnuminutilizacaonfe: TStringField
+      FieldName = 'numinutilizacaonfe'
+      Size = 15
+    end
+    object qryDadosFiscaisdatahoraemissao: TDateTimeField
+      FieldName = 'datahoraemissao'
+    end
+    object qryDadosFiscaisregimetributario: TIntegerField
+      FieldName = 'regimetributario'
+    end
+    object qryDadosFiscaisnosimples: TBooleanField
+      FieldName = 'nosimples'
+    end
+    object qryDadosFiscaisdhprocnfe: TDateTimeField
+      FieldName = 'dhprocnfe'
+    end
+    object qryDadosFiscaistotalprodutos: TFloatField
+      FieldName = 'totalprodutos'
+    end
+    object qryDadosFiscaistotalqtdeprodutos: TFloatField
+      FieldName = 'totalqtdeprodutos'
+    end
+    object qryDadosFiscaisvcredicmssn: TFloatField
+      FieldName = 'vcredicmssn'
+    end
+    object qryDadosFiscaisvicmsstret: TFloatField
+      FieldName = 'vicmsstret'
+    end
+    object qryDadosFiscaishsaient: TDateTimeField
+      FieldName = 'hsaient'
+    end
+    object qryDadosFiscaisstatusnfe: TIntegerField
+      FieldName = 'statusnfe'
+    end
+    object qryDadosFiscaisclientecontribicms: TBooleanField
+      FieldName = 'clientecontribicms'
+    end
+    object qryDadosFiscaisentnomedestinatario: TStringField
+      FieldName = 'entnomedestinatario'
+      Size = 100
+    end
+    object qryDadosFiscaislocalentrega_pessoatipo: TStringField
+      FieldName = 'localentrega_pessoatipo'
+      Size = 1
+    end
+    object qryDadosFiscaislocalretirada_pessoatipo: TStringField
+      FieldName = 'localretirada_pessoatipo'
+      Size = 1
+    end
+  end
+  object qryNotas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select filial,'
+      '         serie,'
+      '         numero,'
+      '         dadofiscal'
+      'from  notas'
+      'where dadofiscal = -1')
+    RequestLive = True
+    Left = 285
+    Top = 429
+    object qryNotasfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryNotasserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryNotasnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryNotasdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+  end
+  object qryProdutosDadosFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pdf.*'
+      'from produtosdadosfiscais pdf'
+      'where pdf.dadofiscal = :dadofiscal')
+    RequestLive = True
+    Left = 285
+    Top = 370
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'dadofiscal'
+        ParamType = ptUnknown
+      end>
+  end
+  object qrySeriesFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select   filial,'
+      '         valor,'
+      '         numeroinicial,'
+      '         numerofinal,'
+      '         modelonota'
+      'from seriesfiliais'
+      'where (filial = :filial) and'
+      '          (valor = :serie)'
+      'for update')
+    RequestLive = True
+    Left = 84
+    Top = 429
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'serie'
+        ParamType = ptUnknown
+      end>
+    object qrySeriesFiliaisfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qrySeriesFiliaisvalor: TStringField
+      FieldName = 'valor'
+      Size = 3
+    end
+    object qrySeriesFiliaisnumeroinicial: TIntegerField
+      FieldName = 'numeroinicial'
+    end
+    object qrySeriesFiliaisnumerofinal: TIntegerField
+      FieldName = 'numerofinal'
+    end
+    object qrySeriesFiliaismodelonota: TIntegerField
+      FieldName = 'modelonota'
+    end
+  end
+  object spcDadosFiscaisProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dadosfiscais_proximonumero() as numero')
+    RequestLive = False
+    Left = 468
+    Top = 429
+    object spcDadosFiscaisProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object qrySaldosProdutosSimplesRemessa: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qrySaldosProdutosSimplesRemessaAfterOpen
+    AfterScroll = qrySaldosProdutosSimplesRemessaAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select produtosselecionados.*,'
+      '       plc.quantidade as quantidadelistacasamento,'
+      ''
+      '      (select sum(pc.quantidade-COALESCE(pc.cancelado,0))'
+      '       from produtoscontratos pc'
+      '            join contratos ct'
+      '            on pc.contrato = ct.numero'
+      '       where pc.contrato = ct.numero'
+      '         and pc.listacasamento = plc.lista'
+      '         AND ct.situacao in ('#39'P'#39','#39'N'#39','#39'F'#39')'
+      '         AND pc.produto = plc.produto) as qtdevendida,'
+      ''
+      '       p.descricao,'
+      
+        '      (select gr.descricao from grades gr where gr.codigo = c.gr' +
+        'ade1) as linha,'
+      
+        '      (select gr.descricao from grades gr where gr.codigo = c.gr' +
+        'ade2) as coluna,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      
+        '       case when (produtosselecionados.filial = :filialbase) and' +
+        ' quantidadenotafiscalvenda is not null then'
+      
+        '         quantidadenotafiscalvenda - coalesce(quantidadenotafisc' +
+        'alsimplesremessa,0)'
+      
+        '      else cast(null as numeric(9,3)) end as  quantidadeaentrega' +
+        'r'
+      'from'
+      '('
+      
+        'select produto, filial, listacasamento, max(precovenda) as preco' +
+        'venda,'
+      
+        '       sum(quantidadenotafiscalvenda) as quantidadenotafiscalven' +
+        'da,'
+      
+        '       sum(quantidadenotafiscalsimplesremessa) as quantidadenota' +
+        'fiscalsimplesremessa'
+      'from'
+      '('
+      '  select pdf.produto,'
+      '         pdf.filial,'
+      '         pdf.precovenda,'
+      '         pc.listacasamento,'
+      ''
+      '         pdf.quantidade - coalesce((select sum(pnp.quantidade)'
+      
+        '                           from produtosnotaspag pnp join notasp' +
+        'ag np on pnp.codigonota = np.codigo'
+      '                           where pnp.codigonota = np.codigo'
+      '                             and np.situacao = '#39'N'#39
+      '                             and pnp.dadofiscal = pdf.dadofiscal'
+      '                             and pnp.produto = pdf.produto'
+      
+        '                             and pnp.numeroprodutotabela = pdf.n' +
+        'umero),0) as quantidadenotafiscalvenda,'
+      ''
+      '                       /*'
+      '         pdf.quantidade -'
+      '             coalesce((select sum(npdf.quantidade)'
+      '              from notaspagdadosfiscais npdf'
+      '              where npdf.dadofiscal = pdf.dadofiscal'
+      
+        '                and npdf.produto = pdf.produto),0)  as quantidad' +
+        'enotafiscalvenda,'
+      '                */'
+      ''
+      '         (select sum(pdfsr.quantidade)'
+      '          from produtosdadosfiscaissimplesremessa pdfsr'
+      '               join dadosfiscais dfsr'
+      '               on pdfsr.dadofiscalsimplesremessa = dfsr.numero'
+      '          where pdfsr.dadofiscalvenda = pdf.dadofiscal'
+      #9#9#9'    and dfsr.numero = pdfsr.dadofiscalsimplesremessa'
+      #9#9'    '#9'and dfsr.situacao='#39'N'#39
+      '            and pdfsr.produtodadofiscalvenda = pdf.produto'
+      
+        '            and pdfsr.numeroprodutodadofiscalvenda = pdf.numero)' +
+        ' as quantidadenotafiscalsimplesremessa'
+      ''
+      '  from produtosdadosfiscais pdf'
+      '       join dadosfiscais df on pdf.dadofiscal = df.numero'
+      '       join produtoscontratos pc'
+      '            join contratos ct'
+      '            on pc.contrato  = ct.numero'
+      '       on df.contrato = pc.contrato'
+      '       and pc.produto = pdf.produto'
+      '       and pc.filial = pdf.filial'
+      ''
+      '  where pc.listacasamento = :listacasamento'
+      '    and df.situacao = '#39'N'#39
+      '    and ct.situacao in ('#39'N'#39','#39'P'#39')'
+      '    and pc.quantidade > coalesce(pc.cancelado,0)'
+      ') as produtosselecionados'
+      'where  quantidadenotafiscalvenda > 0'
+      ''
+      'group by produto, filial, precovenda, listacasamento'
+      ') as produtosselecionados'
+      '    join produtos p'
+      '         join caracteristicas c'
+      '         on p.caracteristica = c.codigo'
+      '    on produtosselecionados.produto = p.codigo'
+      ''
+      '    join produtoslistacasamento plc'
+      '    on produtosselecionados.listacasamento = plc.lista'
+      '   and produtosselecionados.produto = plc.produto'
+      
+        'where coalesce(quantidadenotafiscalvenda,0) > coalesce(quantidad' +
+        'enotafiscalsimplesremessa,0)'
+      
+        'order by produtosselecionados.filial, produtosselecionados.produ' +
+        'to')
+    RequestLive = True
+    Left = 468
+    Top = 310
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'listacasamento'
+        ParamType = ptUnknown
+      end>
+    object qrySaldosProdutosSimplesRemessaproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qrySaldosProdutosSimplesRemessafilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qrySaldosProdutosSimplesRemessalistacasamento: TIntegerField
+      FieldName = 'listacasamento'
+      DisplayFormat = '0'
+    end
+    object qrySaldosProdutosSimplesRemessaprecovenda: TFloatField
+      FieldName = 'precovenda'
+      DisplayFormat = '0.00'
+    end
+    object qrySaldosProdutosSimplesRemessaquantidadenotafiscalvenda: TFloatField
+      FieldName = 'quantidadenotafiscalvenda'
+      DisplayFormat = '0.00'
+    end
+    object qrySaldosProdutosSimplesRemessaquantidadenotafiscalsimplesremessa: TFloatField
+      FieldName = 'quantidadenotafiscalsimplesremessa'
+      DisplayFormat = '0.00'
+    end
+    object qrySaldosProdutosSimplesRemessaquantidadelistacasamento: TFloatField
+      FieldName = 'quantidadelistacasamento'
+      DisplayFormat = '0.00'
+    end
+    object qrySaldosProdutosSimplesRemessaqtdevendida: TFloatField
+      FieldName = 'qtdevendida'
+      DisplayFormat = '0.00'
+    end
+    object qrySaldosProdutosSimplesRemessadescricao: TStringField
+      DisplayWidth = 50
+      FieldName = 'descricao'
+      Required = True
+      Size = 100
+    end
+    object qrySaldosProdutosSimplesRemessalinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qrySaldosProdutosSimplesRemessacoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qrySaldosProdutosSimplesRemessavalorgrade1: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qrySaldosProdutosSimplesRemessavalorgrade2: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qrySaldosProdutosSimplesRemessaquantidadeaentregar: TFloatField
+      FieldName = 'quantidadeaentregar'
+      DisplayFormat = '0.00'
+    end
+  end
+  object qryProdutosEtiquetas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryProdutosEtiquetasAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select    pc.contrato,'
+      '              pc.produto, '
+      '              pc.quantidade,'
+      '              (pc.quantidade * pc.precovenda) as precototal,'
+      '              pc.filial,'
+      '              p.descricao,'
+      
+        '              (select gr.descricao from grades gr where gr.codig' +
+        'o = c.grade1) as linha,'
+      
+        '              (select gr.descricao from grades gr where gr.codig' +
+        'o = c.grade2) as coluna,'
+      '              p.valorgrade1,'
+      '              p.valorgrade2,    '
+      '              (Select n.numero From notas n, dadosfiscais df '
+      
+        '                                          Where (df.numero = n.d' +
+        'adofiscal)       and'
+      
+        '                                                      (df.contra' +
+        'to    = pc.contrato)    and'
+      
+        '                                                      (pc.produt' +
+        'o   in (Select pn.produto From produtosdadosfiscais pn'
+      
+        '                                                                ' +
+        '                                             Where (pn.dadofisca' +
+        'l = n.dadofiscal)))) as nota,'
+      '              true as imprimir'
+      
+        'From      produtoscontratos pc, contratos t, produtos p, caracte' +
+        'risticas c'
+      'Where  (pc.produto = p.codigo)   and'
+      '             (pc.contrato = t.numero) and'
+      '             (p.caracteristica = c.codigo) and'
+      '             (pc.listacasamento =:lista) and'
+      '             (t.situacao = '#39'N'#39') and'
+      '             (pc.produtolista = true) and'
+      
+        '             not (pc.produto in (Select produto From  produtosli' +
+        'stacasamento plc Where (plc.etiqueta = true)))')
+    RequestLive = True
+    Left = 468
+    Top = 370
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'lista'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosEtiquetascontrato: TStringField
+      FieldName = 'contrato'
+      Required = True
+    end
+    object qryProdutosEtiquetasproduto: TLargeintField
+      FieldName = 'produto'
+      Required = True
+    end
+    object qryProdutosEtiquetasquantidade: TFloatField
+      FieldName = 'quantidade'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosEtiquetasnota: TIntegerField
+      FieldName = 'nota'
+      DisplayFormat = '0'
+    end
+    object qryProdutosEtiquetasimprimir: TBooleanField
+      FieldName = 'imprimir'
+    end
+    object qryProdutosEtiquetasprecototal: TFloatField
+      FieldName = 'precototal'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosEtiquetasdescricao: TStringField
+      DisplayWidth = 50
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryProdutosEtiquetaslinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryProdutosEtiquetascoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qryProdutosEtiquetasvalorgrade1: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryProdutosEtiquetasvalorgrade2: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+  end
+  object dsrSaldosProdutosSimplesRemessa: TtecDataSource
+    DataSet = qrySaldosProdutosSimplesRemessa
+    OnDataChange = dsrSaldosProdutosSimplesRemessaDataChange
+    Left = 585
+    Top = 326
+  end
+  object dsrProdutosEtiquetas: TtecDataSource
+    DataSet = qryProdutosEtiquetas
+    Left = 633
+    Top = 426
+  end
+  object qryExisteListaCasamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo'
+      'From   listascasamento'
+      'Where noiva =:noiva and'
+      '            noivo =:noivo')
+    RequestLive = False
+    Left = 468
+    Top = 186
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'noiva'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftInteger
+        Name = 'noivo'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+  end
+  object qryContratosListaCasamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryContratosListaCasamentoAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      '/*'
+      ';'
+      
+        'select contrato, cliente, tipocliente, nome, data, datareservado' +
+        ', faturamento, NomeSituacao'
+      'from'
+      '('
+      '*/'
+      'select pc.contrato,'
+      '       pc.produto,'
+      '       pc.numero,'
+      '       pc.listacasamento,'
+      '       ct.cliente,'
+      '       ct.tipocliente,'
+      '       ct.nome,'
+      '       ct.data,'
+      '       ct.datareservado,'
+      '       ct.faturamento,'
+      '       cast (case when ct.situacao = '#39'O'#39' then '#39'OR'#199'ADO'#39
+      '                  when ct.situacao = '#39'R'#39' then '#39'RESERVADO'#39
+      '                  when ct.situacao = '#39'F'#39' then '#39'FATURADO'#39
+      '                  when ct.situacao = '#39'P'#39' then '#39'NOTA PARCIAL'#39
+      '                  when ct.situacao = '#39'N'#39' then '#39'NOTA FISCAL'#39
+      '                  when ct.situacao = '#39'C'#39' then '#39'CANCELADO'#39
+      '       end as varchar) as NomeSituacao,'
+      '       pc.contrato as contratoanterior'
+      ''
+      'from produtoscontratos pc'
+      '     join contratos ct'
+      '     on pc.contrato = ct.numero'
+      ''
+      'where pc.listacasamento = :lista'
+      '  and pc.produto = :produto'
+      '  and pc.contrato = ct.numero'
+      '/*'
+      ') as pc'
+      
+        'group by contrato, cliente, tipocliente, nome, data, datareserva' +
+        'do, faturamento, NomeSituacao'
+      
+        'order by contrato, cliente, tipocliente, nome, data, datareserva' +
+        'do, faturamento, NomeSituacao'
+      '*/'
+      
+        'order by contrato, cliente, tipocliente, nome, data, datareserva' +
+        'do, faturamento, Situacao'
+      '')
+    RequestLive = True
+    Left = 78
+    Top = 490
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'lista'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end>
+    object qryContratosListaCasamentocontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryContratosListaCasamentocliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryContratosListaCasamentotipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryContratosListaCasamentonome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryContratosListaCasamentodata: TDateField
+      FieldName = 'data'
+    end
+    object qryContratosListaCasamentodatareservado: TDateField
+      FieldName = 'datareservado'
+    end
+    object qryContratosListaCasamentofaturamento: TDateField
+      FieldName = 'faturamento'
+    end
+    object qryContratosListaCasamentonomesituacao: TStringField
+      FieldName = 'nomesituacao'
+      Size = 50
+    end
+    object qryContratosListaCasamentoproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryContratosListaCasamentonumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryContratosListaCasamentolistacasamento: TIntegerField
+      FieldName = 'listacasamento'
+    end
+    object qryContratosListaCasamentocontratoanterior: TStringField
+      FieldName = 'contratoanterior'
+    end
+  end
+  object dsrContratosListaCasamento: TtecDataSource
+    DataSet = qryContratosListaCasamento
+    Left = 286
+    Top = 490
+  end
+  object qryListaPadrao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterClose = qryListaPadraoAfterClose
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo,'
+      '           descricao'
+      'From   listaspadrao'
+      'Where codigo =:codigo')
+    RequestLive = False
+    Left = 628
+    Top = 11
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryListaPadraocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryListaPadraodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object dsrListasPadrao: TtecDataSource
+    DataSet = qryListaPadrao
+    Left = 628
+    Top = 68
+  end
+  object qryProdutosListaPadrao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryProdutosListaPadraoAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListaJaCadastrados'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select pl.listapadrao,'
+      '           pl.produto,'
+      '           p.descricao,'
+      
+        '           (select gr.descricao from grades gr where gr.codigo =' +
+        ' c.grade1) as linha,'
+      
+        '           (select gr.descricao from grades gr where gr.codigo =' +
+        ' c.grade2) as coluna,'
+      '           p.valorgrade1,'
+      '           p.valorgrade2,   '
+      '           p.referencia,'
+      '           c.grupo,'
+      '           estoques_preco(pl.produto, :FilialPreco) as preco,'
+      '           cast(1 as numeric(9,3)) as qtde,'
+      '           false as selecionar'
+      'From   produtoslistaspadrao pl, produtos p, caracteristicas c'
+      'Where (pl.listapadrao =:lista) '
+      '          %ListaJaCadastrados'
+      '           and (pl.produto = p.codigo) '
+      '           and (p.caracteristica = c.codigo)'
+      'Order By c.grupo')
+    RequestLive = True
+    Left = 628
+    Top = 125
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'FilialPreco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'lista'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosListaPadraolistapadrao: TIntegerField
+      FieldName = 'listapadrao'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProdutosListaPadraoproduto: TLargeintField
+      FieldName = 'produto'
+      Required = True
+    end
+    object qryProdutosListaPadraodescricao: TStringField
+      DisplayWidth = 50
+      FieldName = 'descricao'
+      Required = True
+      Size = 100
+    end
+    object qryProdutosListaPadraoqtde: TFloatField
+      FieldName = 'qtde'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosListaPadraoreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 15
+    end
+    object qryProdutosListaPadraoselecionar: TBooleanField
+      FieldName = 'selecionar'
+    end
+    object qryProdutosListaPadraogrupo: TStringField
+      FieldName = 'grupo'
+      Size = 4
+    end
+    object qryProdutosListaPadraolinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryProdutosListaPadraocoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qryProdutosListaPadraovalorgrade1: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryProdutosListaPadraovalorgrade2: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryProdutosListaPadraopreco: TFloatField
+      FieldName = 'preco'
+      DisplayFormat = '0.00'
+    end
+  end
+  object dsrProdutosListaPadrao: TtecDataSource
+    DataSet = qryProdutosListaPadrao
+    Left = 628
+    Top = 185
+  end
+  object qryConsultaListasPadrao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select descricao,'
+      '           codigo'
+      'From   listaspadrao'
+      'Order By UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 628
+    Top = 250
+    object qryConsultaListasPadraodescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryConsultaListasPadraocodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object frpListaCasamento: TfrReport
+    Dataset = fdsListaCasamento
+    InitialZoom = pzDefault
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    RebuildPrinter = False
+    OnBeforePrint = frpListaCasamentoBeforePrint
+    Left = 480
+    Top = 488
+    ReportForm = {
+      19000000795B000019FFFF00000A0050444643726561746F7200FFFFFFFFFF00
+      000000340800009A0B0000000000001200000000000000240000000000040000
+      0000FFFF000000000000000000000000030400466F726D00FEFFFFFFDC000000
+      780000007C0100002C010000042B000500626567696E0D270020206966205B49
+      6D7072696D6972507265636F50726F6475746F5D203D2054727565207468656E
+      0D07002020626567696E0D2400202020206D6D6F507265636F50726F6475746F
+      2E76697369626C65203A3D20747275653B0D2900202020206D6D6F43616D706F
+      507265636F50726F6475746F2E76697369626C65203A3D20747275653B0D1E00
+      202020206D6D6F5265666572656E6369612E4C656674203A3D203430303B0D23
+      00202020206D6D6F43616D706F5265666572656E6369612E4C656674203A3D20
+      3430343B0D2700202020206D6D6F43616D706F44657363726963616F2E776964
+      7468203A3D203235363B202020200D05002020656E640D06002020656C73650D
+      07002020626567696E0D2600202020206D6D6F507265636F50726F6475746F2E
+      76697369626C65203A3D2066616C73653B200D2B00202020206D6D6F43616D70
+      6F507265636F50726F6475746F2E76697369626C65203A3D2066616C73653B20
+      0D1F00202020206D6D6F5265666572656E6369612E4C656674203A3D20343732
+      3B200D2400202020206D6D6F43616D706F5265666572656E6369612E4C656674
+      203A3D203437363B200D2300202020206D6D6F43616D706F4465736372696361
+      6F2E7769647468203A3D203332383B0D06002020656E643B0D00000D2A002020
+      6966205B5365706172617250726F6475746F7356656E6469646F735D203D2054
+      727565207468656E0D07002020626567696E0D26002020202042616E64615369
+      74756163616F56656E64612E76697369626C65203A3D20747275650D05002020
+      656E640D06002020656C73650D07002020626567696E0D27002020202042616E
+      6461536974756163616F56656E64612E76697369626C65203A3D2046616C7365
+      0D06002020656E643B0D00000D190020206966205B6F7264656E6163616F5D20
+      3D2030207468656E0D07002020626567696E0D2600202020204361626563616C
+      686F4465436C617373652E76697369626C65203A3D20547275653B0D25002020
+      20204361626563616C686F4465477275706F2E76697369626C65203A3D205472
+      75653B0D240020202020526F646170654465436C617373652E76697369626C65
+      203A3D20547275653B200D230020202020526F646170654465477275706F2E76
+      697369626C65203A3D20547275653B200D05002020656E640D06002020656C73
+      650D07002020626567696E0D2800202020204361626563616C686F4465436C61
+      7373652E76697369626C65203A3D2046616C73653B200D270020202020436162
+      6563616C686F4465477275706F2E76697369626C65203A3D2046616C73653B20
+      0D260020202020526F646170654465436C617373652E76697369626C65203A3D
+      2046616C73653B20200D250020202020526F646170654465477275706F2E7669
+      7369626C65203A3D2046616C73653B20200D08002020656E643B20200D00000D
+      0300656E6400020011050000130043616265E7616C686F44652050E167696E61
+      310002010000000020000000F50200006C000000300002000100000000000000
+      0000FFFFFF1F00000000000000000000000000FFFF0000000000020000000100
+      00000000000001000000C8000000140000000100000000000002008105000010
+      00526F646170E944652050E167696E61310002010000000054020000F5020000
+      0E0000003000030001000000000000000000FFFFFF1F00000000000000000000
+      000000FFFF000000000002000000010000000000000001000000C80000001400
+      0000010000000000000200FF0500000D004461646F7350726F6475746F730002
+      010000000048010000F50200000E0000003000050001000000000000000000FF
+      FFFF1F0000000011006664734C69737461436173616D656E746F000000000000
+      00FFFF000000000002000000010000000000000001000000C800000014000000
+      0100000000000002009506000010004361626563616C686F4465477275706F00
+      02010000000018010000F5020000120000003000100001000000000000000000
+      FFFFFF1F0000000026005B71727950726F6475746F734C69737461436173616D
+      656E746F496D702E22677275706F225D00000000000000FFFF00000000000200
+      0000010000000000000001000000C80000001400000001000000000000020002
+      0700000D00526F646170654465477275706F000201000000006C010000F50200
+      00020000003000110001000000000000000000FFFFFF1F000000000000000000
+      00000000FFFF000000000002000000010000000000000001000000C800000014
+      00000001000000000000020076070000140053756DE172696F446F2052656C61
+      74F372696F3100020100000000BD010000F50200007200000030000100010000
+      00000000000000FFFFFF1F00000000000000000000000000FFFF000000000002
+      000000010000000000000001000000C800000014000000010000000000000200
+      0E08000011004361626563616C686F4465436C6173736500020100000000E800
+      0000F5020000120000003000100001000000000000000000FFFFFF1F00000000
+      27005B71727950726F6475746F734C69737461436173616D656E746F496D702E
+      22636C61737365225D00000000000000FFFF0000000000020000000100000000
+      00000001000000C8000000140000000100000000000002007D0800000F00526F
+      646170E9446520477275706F320002010000000090010000F50200000E000000
+      3000110001000000000000000000FFFFFF1F00000000000000000000000000FF
+      FF000000000002000000010000000000000001000000C8000000140000000100
+      000000000002001D090000120042616E6461536974756163616F56656E646100
+      020100000000AC000000F5020000130000003200100001000000000000000000
+      FFFFFF1F000000002E005B71727950726F6475746F734C69737461436173616D
+      656E746F496D702E22736974756163616F76656E6461225D00000000000000FF
+      FF000000000002000000010000000000000001000000C8000000140000000100
+      000000000002008B0900000E00526F646170654465436C617373650002010000
+      00007C010000F5020000020000003000110001000000000000000000FFFFFF1F
+      00000000000000000000000000FFFF0000000000020000000100000000000000
+      01000000C800000014000000010000000000000000100A00000A006D6D6F5A65
+      627261646F0002002A00000048010000BE0200000E0000004300000001000000
+      000000000000FFFFFF1F2C020000000000000000000000FFFF00000000000200
+      00000100000000090068656C7665746963610008000000000000000000010000
+      001700020000000000FFFFFF0000000002000000000000000000910A00000600
+      4D656D6F31360002002C0000006A000000500100001300000043000F00F40100
+      00000000000000FFFFFF1F2C020000000000000000000000FFFF000000000002
+      0000000100000000090068656C766574696361000A0000000000000000000000
+      00000100020000000000FFFFFF0000000002000000000000000000190B000006
+      004D656D6F31370002003200000062000000200000000E00000043000000F401
+      0000000000000000FFFFFF002C020000000000010005004E4F49564F00000000
+      FFFF0000000000020000000100000000090068656C7665746963610007000000
+      000000000000120000000100020000000000FFFFFF0000000002000000000000
+      000000990B000005004D656D6F390002007C0100006A00000090000000130000
+      0043000F00F4010000000000000000FFFFFF1F2C020000000000000000000000
+      FFFF0000000000020000000100000000090068656C766574696361000A000000
+      000000000000000000000100020000000000FFFFFF0000000002000000000000
+      000000200C000006004D656D6F31390002008401000062000000200000000E00
+      000043000000F4010000000000000000FFFFFF002C0200000000000100040046
+      4F4E4500000000FFFF0000000000020000000100000000090068656C76657469
+      63610007000000000000000000120000000100020000000000FFFFFF00000000
+      02000000000000000000A10C000006004D656D6F31330002002C000000510000
+      00500100001300000043000F00F4010000000000000000FFFFFF1F2C02000000
+      0000000000000000FFFF0000000000020000000100000000090068656C766574
+      696361000A000000000000000000000000000100020000000000FFFFFF000000
+      00020000000000000001008E36000007006670764C6F676F0002002C00000022
+      000000730000002700000005000000F4010000000000000000FFFFFF1F2C0200
+      00000000000000000000FFFF000000000002000000010000000001008E360000
+      424D96290000000000003604000028000000B800000034000000010008000000
+      000060250000120B0000120B0000000100000001000000000000E6E3AF00AA9F
+      0000A2960000ABAAA90034373B0085878A00BFB73A0066666600D7D38300FBFA
+      F200181B2100D5CF7B00B6AD1A00DBD78F00EFEFEF0052545800DEDA97001F22
+      2800DEDEDE00CBC45A00B8B8BA00E6E6E6000C0B0A0099999900D8D9DB00D6D6
+      D60044474A0076787B00EDEBC700ADA4000003070D00F5F3DF00CCCCCC00CCCC
+      6600AEA4070012151A00C5BE4A005D606300B0B1B300B8B02600A0A2A3001B1E
+      23002B2E3300F9F8ED0001050A004C4F5300868776003B3E4200CDC77C00FFFF
+      FF0092929100C1C2C200090D1200E3DEA5005A5A59001615140010131900CCCC
+      6600B3A905006E707300F1EFD500C8C25300C1BA4000E9E7BD00222121002929
+      2900F1F0E9005B5D6300BDB53100F7F7F700A7A8AA00E1DEA3008A898800D3CE
+      7400403F3E00B2A80B00F5F3D800B7AE210061605F004A4C50001D1C1C009F9F
+      A200FDFDF700080809003A3A3A008C8C8B0010101000C9C357004F4F4E002625
+      2400AFB0B2003F424600292B3000EBE8BF0047464500BDBDBD00070A10007F81
+      83006B6D7000A2A1A000E5E1AD007473730000020700C6BE4F00B2B1B100A59B
+      0000DCDDE6007C7D8000F5F4DF00393B40005A5A520008101900424241004A4A
+      49005F5E5D0024272B00C7C26C00A5A5A500ADADAD00D7D1810066666600CCC5
+      6300E7E4B50084848400525A5A00B9B22500BDB54200F0EECF00DFDB9B00D1CC
+      7200DED99900807F7F00BCB32A0090909200B5B5B500333333008F919300F7F6
+      E600B1A80F00474545001A19180052525100C5C5C500B4AA1200B0A71000D6DE
+      DE0021211900EDEAC60029292100B5BDBD00EFEFF700E6DEDE00948C8C00BDB5
+      B500A5ADA500524A4A00C4BC4300C5BDBD007B7B7B00999999002E2D2C007476
+      7900F7F7D600423A3A00DCD89300DEDBAF001010080087898B00000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000032323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      323232323232323232323232323232323232329F5F5910841632323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232189F06065571323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232320F04331A323232605218520F3232322176183313
+      32326921323216040F3232321647335B463232321647163232320F7733040F32
+      3232323221040473570F323234343232321647181852770F3232323232323260
+      5218640F32467719324676133246771A32323232320F5218181876163232465B
+      1A32328F331818186032323232466933213232328F521818163232872132325B
+      1A3232152132323219641818521532321318181818040F323232323232323232
+      3232323259545A773246375788555F1332329F57554BA18F320F383C32328700
+      8F32326038418851A113323260003432321A5A51885A41213232324F57887142
+      8D16323271553232195A414B4B5A001332323232324659578855721632135456
+      321600643216547C3232323232195F55715557550F3216579F323256887171A1
+      541832323208545A183232085788557121324651083232176632465A37323287
+      57A14B4B5741323234554B4B55173732323232323232323232323216387C3232
+      32040021323232323221008632323232320F419F323215178F32464255463216
+      518E323234548F32325F5A0F3246558853326900043232045416323259723232
+      33000F32328F0013323232323252001A3232323232163833320F0076320F3856
+      32323232323232323232040021320F517C32323232323232558C3232465A6332
+      3232600087323232323246A1663232519F3246880832328E5A3232327C413232
+      323232323249540F3232323232323232323232168D333232329F57333356330F
+      3233000F32323232320F419F323215578F321300773232329F8D0F3234548F32
+      461756323232521713329F383232326417163232597232326000A27604665413
+      32323232323C57183356180F32168D33320F6776320F38563232323232322163
+      73735A3816320F417C3232463373738E003C32320F429F323232565449333333
+      163246A1663232519F32468808323249678647475942323232150873738DA146
+      3232323232323232323232168D863232329F005972718E133252000F32323232
+      320F419F323260178F321300043232321C8D0F3234548F324657493232321817
+      1932495746323264171632325972323232185555554257133232323232660059
+      728C8E1632168D18320F6776320F385632323232321651417308636032320F41
+      7C32328600590808060F323246421C32323256005F728C721A3246A166323251
+      84323288083232469F8855558DA132322154884F086621323232323232323232
+      3232320F513332323215006032323232321A671832323232320F418432323367
+      133246884B323216515F323234548F32328E5A0F324655A14632340047323276
+      5416323259723232323232323229001632323232325B008F3232323232168D18
+      320F6704321A545232323232328F00603232323232320F417C323210A1323232
+      3232323246429F323232210047323232323246A16632325184320F381C323232
+      32323232084232327600163232323232323232323232323232328F7257888E15
+      32326654718E4F16323249544B375921320F41414F72004F3232328F3842378D
+      411A323234548F3232195151375A38343232320800717388541632328C4B3232
+      138E37378E175932323232323232635471104F16321657424F8E0055378D4113
+      32323232320F8851373759664632163884323277675F37375915321A8E57A18E
+      76323249175510371A3246425173370042734217213232605937375F00623232
+      1351A1373759493232323232323232323232199F5759492132323221187C860F
+      3232321A52497C19324604564933604632323232165284760F32323234548F32
+      32320F4784521632323232328F184956644632328F343232167C4949565B4632
+      3232323232323221187C330F3246765649491886566416323232323232320F29
+      49497C52533246871A323232218649497C2132167C8D7149343232321A184956
+      16323277864949183356181A323232217C4949336032323232161849497C7732
+      32323232323232323232320F5733323232323232323232323232323232323232
+      3232323232323232323232323232323232323232340034323232323232323232
+      3232323232323232323232320404323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232324633
+      34323232323232323232323232411C3232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      323232164B643232323232323232323232323232323232323232323232323232
+      32323232323232323232323221A1213232323232323232323232323232323232
+      323232324F4F3232323232323232323232323232323232323232323232323232
+      323232323232323232323232323232323232323232320F888632323232323232
+      3232323246725632323232323232323232323232323232323232323232323232
+      323232323232323232323232323232323232323232323232323232320F463232
+      3232323232323232323232323232323232323232323232323232323232323232
+      32323232320F5332323232323232323232323232323232323232323243A67B7B
+      7B7B7B7B7B0A3232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232320F463232323232323232323232320F4632
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      32323232323232323232323232323232323232324D3B6A0202020202023D3232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323D8B021E1E1E1E1E1E3D32323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323213476C083710101010260F323232323232323232195B066308
+      7D10101010101010101B15323232323232323232321927066608441B56323232
+      323232323D8B021E1E1E1E1E1E3D32323232323232823F9D9D9D9D9D9D9D9D9D
+      9D9D9D9D9D9D9D9D9D68147A787B20323232323232323232323232323232323D
+      814A142558820E800A323232323232323232323232324A141414141414653232
+      3232323232323232323232531D114A22141414141481323232323232320FA22A
+      613535353535351F2A163232323232323227100B613535353535353535353535
+      3500183232323232323232181B2461353535350044323232323232323D8B021E
+      1E1E1E1E1E3D32323232323232456A0202020202020202020202020202020202
+      02020202020223825332323232323232323232320A0E071E0202020202020202
+      854A8A32323232323232323232530D6A02020202038232323232323232323232
+      32328145020202020202020202583232323232320F1B2D240B0B0B0B0B0B0B24
+      5D16323232323216263961240B0B0B0B0B0B0B0B0B0B0B0B0B61523232323232
+      3213506161240B0B0B0B0B1F08323232323232323D8B021E1E1E1E1E1E3D3232
+      323232323207021E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E6A
+      5832323232323232323232482802021E1E1E1E1E1E1E1E1E0202907853323232
+      3232323232537E021E1E1E1E020C32323232323232323232328202021E1E1E1E
+      1E1E1E1E1E7A3232323232323C2D0B0B0B0B0B0B0B0B0B245D16323232321A88
+      1F240B0B0B0B0B0B0B0B0B0B0B0B0B0B0B615232323232321A2B610B0B0B0B0B
+      0B0B0B1F08323232323232323D8B021E1E1E1E1E1E3D3232323232323207021E
+      1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E6A78323232323232
+      320A7A02021E1E1E1E1E1E1E1E1E1E1E1E1E1E6A3F2032323232323232537E02
+      1E1E1E1E020C3232323232323232323283021E1E1E1E1E1E1E1E1E1E1E7A3232
+      323232132A390B0B0B0B0B0B3961612D0B163232321388610B0B0B0B0B0B2424
+      3561616161616161610018323232320F05610B0B0B0B0B0B0B24240044323232
+      32323232201E6A02020202026A8A3232323232323245036A6A6A6A6A6A6A6A6A
+      6A6A6A6A6A6A6A6A6A6A6A1E1E1E1E1E1E4C2032323232320A076A1E1E1E1E1E
+      1E1E1E1E1E1E1E1E1E1E1E1E020D3D323232323232537E021E1E1E1E020C3232
+      323232323232320A4E021E1E1E1E1E1E1E1E020202143232323232291F0B0B0B
+      0B0B0B3505372626630F323232441F0B0B0B0B0B3961125C2E44262626262626
+      26106032323232631F0B0B0B0B0B0B3535745C5C2F6565656565656548583E3E
+      3E3E3E3E250983A5A5A5A5A5A5227A7A7A7A7A7A7A7A7A7A7A7A7A7A7A7A7A7A
+      8282071E1E1E1E1E1E0209323232325368021E1E1E1E1E02020202231E020202
+      1E1E1E1E1E02288A3232323232537E021E1E1E1E020C32323232323232323240
+      021E1E1E1E1E1E1E024C0D0D0D82323232323266350B0B0B0B0B0B330F323232
+      3232323227350B0B0B0B0B395D29134632323232323232323232323232328F39
+      390B0B0B0B0B616E04164632366A0202020202024E32323232323232534C036A
+      6A6A6A6A6A5E3232323232323232323232323232323232323232327A021E1E1E
+      1E023F323232324A6A1E1E1E1E1E020D22013D3D3D400C8502021E1E1E1E6A9D
+      3232323232537E021E1E1E1E020C32323232323232323209021E1E1E1E1E1E4E
+      36208A8A8A0A32323232322E350B0B0B0B350832323232323232323250350B0B
+      0B0B24121A323232323232323232323232323232323226610B0B0B0B0B35260F
+      32323232366A1E1E1E1E1E02850A3232323232322C0D021E1E1E1E1E1E7B3232
+      3232323232323232323232323232323232323294021E1E1E1E1E0D2C32323D23
+      021E1E1E1E1E4A2C3232323232323253A58B021E1E1E1E023632323232537E02
+      1E1E1E1E020C3232323232323232323E021E1E1E1E1E23803232323232323232
+      3232325C390B0B0B0B2D1832323232323232321A2A390B0B0B0B616C32323232
+      32323232323232323232323232162A240B0B0B0B355C463232323232366A1E1E
+      1E1E1E1E850A3232323232322C0D021E1E1E1E1E1E7B32323232323232323232
+      32323232323232323232327B021E1E1E1E1E1E8A32323E021E1E1E1E1E483232
+      3232323232323232321D90021E1E1E1E7E53323232537E021E1E1E1E020C3232
+      323232323232323F021E1E1E1E1E0732323232323232323232323205390B0B0B
+      0B1F293232323232323232291F0B0B0B0B0B0B60323232323232323232323232
+      323232323227390B0B0B0B0B3515323232323232366A1E1E1E1E1E1E850A3232
+      323232322C0D021E1E1E1E1E1E7B323232323232323232323232323232323232
+      3232327A021E1E1E1E1E4C8A328A8B021E1E1E02783232323232323232323232
+      3232011E1E1E1E1E1E7B323232537E021E1E1E1E020C32323232323232323245
+      021E1E1E1E023E32323232323232323232323288390B0B0B0B35773232323232
+      3232321C610B0B0B0B0B0B2E264444444444444444444444441060323284350B
+      0B0B0B39050F323232323232366A1E1E1E1E1E1E850A3232323232322C0D021E
+      1E1E1E1E1E7B32323232323232323232530A0A0A0A0A0A2C8A8078231E1E1E1E
+      1E1E7E0A3281021E1E1E1E4E53323232323232323232323232323268021E1E1E
+      027A323232537E021E1E1E1E020C32323232323232323285021E1E1E1E027A32
+      323232323232323232323205390B0B0B0B3527323232323232323244350B0B0B
+      0B0B0B35616161616161616161616161610018323263610B0B0B0B6110323232
+      32323232366A1E1E1E1E1E1E850A3232323232322C0D021E1E1E1E1E1E7B3232
+      32323232534814450D904C4C4C4C4C4C4C23021E1E1E1E1E1E6A7A323222021E
+      1E1E028232323232323232323232323232323236021E1E1E0245323232537E02
+      1E1E1E1E020C32323232323232323285021E1E1E1E0222323232323232323232
+      32323205390B0B0B0B352732323232323232322E350B0B0B0B0B0B0B0B0B0B0B
+      0B0B0B0B0B0B0B0B0B61523232441F0B0B0B0B1F263232323232323248030202
+      020202024E32323232323232324C6A0202020202020132323232325E85020202
+      1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1D32323E021E1E1E1E8132323232
+      323232323232323232323280231E1E1E1E7E0A3232537E021E1E1E1E020C3232
+      3232323232323285021E1E1E1E028232323232323232323232323205390B0B0B
+      0B352732323232323232322E390B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B
+      0B61523232371F0B0B0B0B1F0832323232323232943E14141414141475777777
+      7777777776310C0C0C0C0C0C0C4D323232324023021E1E1E1E1E1E1E1E1E1E1E
+      1E1E1E1E1E1E1E1E020932323207021E1E1E1E7B323232323232323232323232
+      3232322090021E1E1E0D6D3232537E021E1E1E1E020C32323232323232323285
+      021E1E1E1E028232323232323232323232323205390B0B0B0B35273232323232
+      32323237350B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B6152323263610B
+      0B0B0B61443232323232323232323232323232321912353939393939356B3232
+      3232323232323232328A0D021E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E02020291
+      0E3232323225021E1E1E1E363232323232323232323232323232323D8B021E1E
+      1E4E8A3232537E021E1E1E1E020C32323232323232323285021E1E1E1E028232
+      323232323232323232323205390B0B0B0B3527323232323232323208350B0B0B
+      0B0B0B24242424242424242424242424241F5232321C350B0B0B0B3550323232
+      3232323232323232323232321974392424242424241932323232323232323232
+      32826A1E1E1E1E1E1E1E020202020202020202028B854A2032323232327A021E
+      1E1E02783232323232323232323232323232327B1E1E1E1E0245323232537E02
+      1E1E1E1E020C32323232323232323285021E1E1E1E0282323232323232323232
+      32323205390B0B0B0B35273232323232323232A81F0B0B0B0B0B0B2A2A2A2A2A
+      2A2A2A2A2A2A2A2A2A3529323286350B0B0B0B392B1632323232323232323232
+      323232321974390B0B0B0B0B3919323232323232323232320A4E021E1E1E1E1E
+      1E850C1111363636363665403D323232323232323209021E1E1E020732323232
+      323232323232323232323282021E1E1E0225323232537E021E1E1E1E020C3232
+      3232323232323285021E1E1E1E028232323232323232323232323205390B0B0B
+      0B35273232323232323232771F0B0B0B0B0B0B76131919191919191919191919
+      191A0F323234390B0B0B0B0B352132323232323232323232323232321974390B
+      0B0B0B0B3919323232323232323232321D021E1E1E1E1E1E072C323232323232
+      323232323232323232323232321D1E1E1E1E1E1E7B3232323232323232323232
+      32326D901E1E1E1E0211323232537E021E1E1E1E020C32323232323232323285
+      021E1E1E1E028232323232323232323232323205390B0B0B0B35273232323232
+      3232321A12390B0B0B0B352932323232323232323232323232323232320F7424
+      0B0B0B0B616232323232323232323232323232321974390B0B0B0B0B39193232
+      323232323232323201021E1E1E1E1E1E11323232323232323232323232323232
+      32323232323245021E1E1E1E4E6D3232323232323232323232329D021E1E1E1E
+      4C8A323232537E021E1E1E1E020C32323232323232323285021E1E1E1E028232
+      323232323232323232323205390B0B0B0B35273232323232323232321B350B0B
+      0B0B35103232323232323232323232323232323232327D350B0B0B0B24121A32
+      3232323232323232323232321974390B0B0B0B0B391932323232323232323232
+      36021E1E1E1E1E1E113232323232323232323232323232323232323232323602
+      1E1E1E1E02285E3232323232323232324D9D021E1E1E1E024A32323232537E02
+      1E1E1E1E020C32323232323232323285021E1E1E1E0282323232323232323232
+      32323205390B0B0B0B3515323232323232323232861F0B0B0B0B0B3989323232
+      323232323232323232323232323252610B0B0B0B0B392B5B3232323232323232
+      32323232130B2D35353535352D163232323232323232323240021E1E1E1E1E02
+      25323232323232323232323232323232323232323232323F6A1E1E1E1E021E7A
+      400A323232321D0C90021E1E1E1E020D53323232323285021E1E1E1E02783232
+      3232323232323285021E1E1E1E02823232323232323221878787875D240B0B0B
+      0B3962608787878715463232165D390B0B0B0B0B391B6C185B87878787878787
+      875B133232320F88350B0B0B0B0B3939306389524747474747474747293C0863
+      6363636308765B5B5B5B5B5B04133232204C1E1E1E1E1E1E1E580C0C0C0C0C0C
+      0C4A4A4A4A4A4A4A4AA532323232323D90021E1E1E1E1E02024E079D07852302
+      1E1E1E1E1E1E1E01368282828282901E1E1E1E1E1E454A828282828201323285
+      021E1E1E1E1E454A82828282823608353535350B0B0B0B0B0B0B39353535351F
+      0B16323232181F240B0B0B0B0B35353535353535353535353500183232323252
+      1F0B0B0B0B0B0B0B353535353535353535353567053232323232323232056735
+      3535353567183232329D021E1E1E1E1E1E020202020202020202020202020202
+      6A7E323232323232948B021E1E1E1E1E1E02020202021E1E1E1E1E1E1E028132
+      076A020202021E1E1E1E1E1E1E1E02020202026A82323285021E1E1E1E1E1E02
+      0202020202583C0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B245D1632323232632D
+      240B0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B61523232323232262D240B0B0B0B0B
+      0B0B0B0B0B0B0B0B0B0B0B39300F3232323232323230350B0B0B0B0B35523232
+      327B021E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E45323232323232
+      32400D021E1E1E1E1E1E1E1E1E1E1E1E1E1E1E02238132329D021E1E1E1E1E1E
+      1E1E1E1E1E1E1E1E1E1E1E024A323285021E1E1E1E1E1E1E1E1E1E1E1E7A3C0B
+      0B0B0B0B0B0B0B0B0B0B0B0B0B0B0B245D1632323232326361390B0B0B0B0B0B
+      0B0B0B0B0B0B0B0B0B6152323232323246086139390B0B0B0B0B0B0B0B0B0B0B
+      0B0B0B39300F3232323232323230350B0B0B0B0B355232323232826A1E1E1E1E
+      1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E4532323232323232328A6802021E1E
+      1E1E1E1E1E1E1E1E1E1E0245943232329D021E1E1E1E1E1E1E1E1E1E1E1E1E1E
+      1E1E1E024A323285021E1E1E1E1E1E1E1E1E1E1E1E7A3C242424240B0B0B0B0B
+      0B0B24242424242474163232323232324705351F353539242424242424242424
+      241F52323232323232324705391F61393924242424242424242424356E0F3232
+      323232323230350B0B0B0B0B3552323232323222020202021E1E1E1E1E1E1E1E
+      1E1E1E1E1E1E1E1E0245323232323232323232327B3F1E020202020202020202
+      02858153323232323F021E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E1E6A82323285
+      021E1E1E1E1E1E1E1E1E1E1E1E143C0B0B0B0B0B0B0B0B0B0B0B0B2A0B0B0B0B
+      5D163232323232323246473C506E2B120B0B0B0B0B0B0B0B0B35293232323232
+      3232323215A27D302B74120B0B0B0B0B0B0B0B395C0F3232323232323230350B
+      0B0B0B0B35523232323232324022070D8B232323232323232323232323232323
+      02453232323232323232323232321D7825850D4C907E3F4A4053323232323232
+      25234C4C4C4C1E1E1E1E1E1E1E1E4C4C4C4C4C230C323285021E1E1E1E1E1E4C
+      4C4C4C4C4C2216131313132B390B0B0B0B391813131313131353323232323232
+      32323232320F0F13131313131313131313190F3232323232323232323232320F
+      16161313131313131313131913323232323232323230350B0B0B0B0B35523232
+      323232323232328A6D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D4D6D323232323232
+      3232323232323232320A8A20202C323232323232323232328A4D2020203D4E02
+      1E1E1E1E02222020202020202C323285021E1E1E1E02142020202020202C3232
+      32323205390B0B0B0B3515323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      323232323232323232323232322B001F1F1F1F1F001832323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323285021E1E1E1E02823232
+      3232323232323285021E1E1E1E028232323232323232323232323205390B0B0B
+      0B35273232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      323232323206083C3C3C3C3C6334323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      323232323232323232323232323245021E1E1E1E1E8553323232323232323285
+      021E1E1E1E028232323232323232323232323205390B0B0B0B35273232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      32323232323225021E1E1E1E1E1E9D403D3D3D3D2C323285021E1E1E1E028232
+      323232323232323232323205390B0B0B0B352732323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232324A6A
+      1E1E1E1E1E1E1E021E1E1E020C323285021E1E1E1E0282323232323232323232
+      32323205390B0B0B0B3527323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323240021E1E1E1E1E1E1E1E
+      1E1E1E024A323285021E1E1E1E028232323232323232323232323205390B0B0B
+      0B35273232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323F6A1E1E1E1E1E1E1E1E1E1E020C323285
+      021E1E1E1E028232323232323232323232323205390B0B0B0B35273232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323220286A021E1E1E1E1E1E1E1E020C323285021E1E1E1E028232
+      323232323232323232323205390B0B0B0B352732323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      8A824E1E1E1E1E1E1E1E1E020C323285021E1E1E1E0282323232323232323232
+      32323262633C3C3C3C6321323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232323232323232
+      3232323232323232323232323232323232323232323232323232206509827A22
+      2222227A653232787A222222227A363232323232323200001B3700000600666D
+      76527561000200A100000025000000D70000000A00000049000000F401000000
+      0000000000FFFFFF1F2C02000000000001000A005275613A205B5275615D0000
+      0000FFFF0000000000020000000100000000090068656C766574696361000700
+      0000000000000000100000000100020000000000FFFFFF000000000200000000
+      0000000000A93700000900666D76436964616465000200A10000003B000000D7
+      0000000A00000049000000F4010000000000000000FFFFFF1F2C020000000000
+      010008005B4369646164655D00000000FFFF0000000000020000000100000000
+      090068656C766574696361000700000000000000000010000000010002000000
+      0000FFFFFF0000000002000000000000000000393800000700666D76466F6E65
+      000200A100000046000000D70000000A00000049000000F40100000000000000
+      00FFFFFF1F2C02000000000001000C00466F6E653A205B466F6E655D00000000
+      FFFF0000000000020000000100000000090068656C7665746963610007000000
+      000000000000100000000100020000000000FFFFFF0000000002000000000000
+      000000F43800000900666D76546974756C6F0002008801000025000000F40000
+      002200000043000000F4010000000000000000FFFFFF1F2C0200000000000200
+      12004C4953544120444520434153414D454E544F0D20004EBA2E205B7172794C
+      69737461436173616D656E746F2E22636F6469676F225D00000000FFFF000000
+      0000020000000100000000090068656C766574696361000A0000000200000000
+      00020000001700020000000000FFFFFF00000000020000000000000000008239
+      00000900666D7642616972726F000200A100000030000000D70000000A000000
+      49000000F4010000000000000000FFFFFF1F2C020000000000010008005B4261
+      6972726F5D00000000FFFF0000000000020000000100000000090068656C7665
+      746963610007000000000000000000100000000100020000000000FFFFFF0000
+      0000020000000000000000000A3A000005004D656D6F310002002C0000007D00
+      0000640000000D00000043000F00F4010000000000000000FFFFFF1F2C020000
+      0000000100060043D34449474F00000000FFFF00000000000200000001000000
+      00090068656C7665746963610007000000000000000000020000000100020000
+      000000FFFFFF00000000020000000000000000009C3A00000C006D6D6F446573
+      63726963616F000200900000007D000000480100000D00000043000F00F40100
+      00000000000000FFFFFF1F2C02000000000001000900444553435249C7C34F00
+      000000FFFF0000000000020000000100000000090068656C7665746963610007
+      000000000000000000020000000100020000000000FFFFFF0000000002000000
+      000000000000303B00000D006D6D6F5265666572656E63696100020090010000
+      7D000000480000000D00000043000F00F4010000000000000000FFFFFF1F2C02
+      000000000001000A005245464552CA4E43494100000000FFFF00000000000200
+      00000100000000090068656C7665746963610007000000000000000000020000
+      000100020000000000FFFFFF0000000002000000000000000000DD3B00001000
+      666D76446573656E766F6C7665646F72000200FC01000056020000EC0000000A
+      00000043000000F4010000000000000000FFFFFF1F2C02000000000001002000
+      746563534F4654202D205465636E6F6C6F67696120656D2053697374656D6173
+      00000000FFFF0000000000020000000100000000090068656C76657469636100
+      07000000000000000000110000000100020000000000FFFFFF00000000020000
+      00000000000000873C000005004D656D6F340002002A00000048010000660000
+      000E0000004300000001000000000000000000FFFFFF1F2C0200000000000100
+      28005B71727950726F6475746F734C69737461436173616D656E746F696D702E
+      2270726F6475746F225D00000000FFFF00000000000200000001000000000900
+      68656C7665746963610008000000000000000000000000001700020000000000
+      FFFFFF0000000002000000000000000000413D000011006D6D6F43616D706F44
+      657363726963616F0002009000000048010000000100000E0000004300000001
+      000000000000000000FFFFFF1F2C02000000000001002C005B71727950726F64
+      75746F734C69737461436173616D656E746F696D702E2264657363726963616F
+      6C63225D00000000FFFF0000000000020000000100000000090068656C766574
+      6963610008000000000000000000000000001700020000000000FFFFFF000000
+      0002000000000000000000FB3D000012006D6D6F43616D706F5265666572656E
+      6369610002009001000048010000480000000E00000043000000010000000000
+      00000000FFFFFF1F2C02000000000001002B005B71727950726F6475746F734C
+      69737461436173616D656E746F696D702E227265666572656E636961225D0000
+      0000FFFF0000000000020000000100000000090068656C766574696361000800
+      0000000000000000000000001700020000000000FFFFFF000000000200000000
+      0000000000AC3E000005004D656D6F370002002C000000190100006401000010
+      0000004300000001000000000000000000FFFFFF1F2C02000000000001002F00
+      5B71727950726F6475746F734C69737461436173616D656E746F496D702E2264
+      657363726963616F677275706F225D00000000FFFF0000000000020000000100
+      000000090068656C766574696361000900000002000000000000000000170002
+      0000000000FFFFFF0000000002000000000000000000C43F000006004D656D6F
+      3130000200800100006D000000880000000F00000043000000F4010000000000
+      000000FFFFFF1F2C020000000000010095005B6966287172794C697374614361
+      73616D656E746F2E22666F6E65646464223C3E302C5B2728272B737472287172
+      794C69737461436173616D656E746F2E22666F6E6564646422292B272920272B
+      737472287172794C69737461436173616D656E746F2E22666F6E656E756D6572
+      6F22295D2C5B7172794C69737461436173616D656E746F2E22666F6E656E756D
+      65726F225D295D00000000FFFF0000000000020000000100000000090068656C
+      7665746963610008000000000000000000020000001700020000000000FFFFFF
+      00000000020000000000000000005840000006004D656D6F3132000200350100
+      00E0010000A8000000120000004300000001000000000000000000FFFFFF1F2C
+      020000000000010011005445524D4F5320504152412054524F434100000000FF
+      FF0000000000020000000100000000090068656C766574696361000A00000002
+      0000000000020000001700020000000000FFFFFF000000000200000000000000
+      0000E040000006004D656D6F31350002003200000049000000200000000E0000
+      0043000000F4010000000000000000FFFFFF002C020000000000010005004E4F
+      49564100000000FFFF0000000000020000000100000000090068656C76657469
+      63610007000000000000000000120000000100020000000000FFFFFF00000000
+      020000000000000000008241000005004D656D6F380002002E00000054000000
+      4A0100000F00000043000000F4010000000000000000FFFFFF1F2C0200000000
+      00010020005B7172794C69737461436173616D656E746F2E226E6F6D655F6E6F
+      697661225D00000000FFFF0000000000020000000100000000090068656C7665
+      746963610008000000020000000000000000001700020000000000FFFFFF0000
+      0000020000000000000000002542000006004D656D6F31380002002E0000006D
+      0000004A0100000F00000043000000F4010000000000000000FFFFFF1F2C0200
+      00000000010020005B7172794C69737461436173616D656E746F2E226E6F6D65
+      5F6E6F69766F225D00000000FFFF000000000002000000010000000009006865
+      6C7665746963610008000000020000000000000000001700020000000000FFFF
+      FF0000000002000000000000000000A642000006004D656D6F32300002007C01
+      000051000000900000001300000043000F00F4010000000000000000FFFFFF1F
+      2C020000000000000000000000FFFF0000000000020000000100000000090068
+      656C766574696361000A000000000000000000000000000100020000000000FF
+      FFFF00000000020000000000000000002D43000006004D656D6F323100020084
+      01000049000000200000000E00000043000000F4010000000000000000FFFFFF
+      002C020000000000010004004441544100000000FFFF00000000000200000001
+      00000000090068656C7665746963610007000000000000000000120000000100
+      020000000000FFFFFF0000000002000000000000000000CA43000006004D656D
+      6F31310002008001000054000000880000000F00000043000000F40100000000
+      00000000FFFFFF1F2C02000000000001001A005B7172794C6973746143617361
+      6D656E746F2E2264617461225D00000000FFFF00000000000200000001000000
+      00090068656C7665746963610008000000020000000000020000001700020000
+      000000FFFFFF00000000020000000000000000005B4400000F006D6D6F507265
+      636F50726F6475746F000200D80100007D000000480000000D00000043000F00
+      F4010000000000000000FFFFFF1F2C02000000000001000500505245C74F0000
+      0000FFFF0000000000020000000100000000090068656C766574696361000700
+      0000000000000000020000000100020000000000FFFFFF000000000200000000
+      00000000004F45000014006D6D6F43616D706F507265636F50726F6475746F00
+      0200D801000048010000440000000E0000004300000001000000000000000000
+      FFFFFF1F2C020000000000010063005B494628496D7072696D6972507265636F
+      50726F6475746F3D547275652C5B666F726D6174666C6F617428272323232C23
+      23302E3030272C71727950726F6475746F734C69737461436173616D656E746F
+      696D702E22707265636F22295D2C2727295D00000000FFFF0000000000040000
+      000100000000090068656C766574696361000800000000000000000001000000
+      1700020000000000FFFFFF0000000002000000000000000000DA45000006004D
+      656D6F3233000200200200007D000000340000000D00000043000F00F4010000
+      000000000000FFFFFF1F2C020000000000010008005154204C49535441000000
+      00FFFF0000000000020000000100000000090068656C76657469636100070000
+      00000000000000020000000100020000000000FFFFFF00000000020000000000
+      00000000E446000006004D656D6F32340002001402000048010000400000000E
+      0000004300000001000000000000000000FFFFFF1F2C02000000000001008700
+      5B6966285B71727950726F6475746F734C69737461436173616D656E746F696D
+      702E227175616E746964616465225D3C3E302C205B466F726D6174466C6F6174
+      285B4D6173636172615175616E7469646164655D2C5B71727950726F6475746F
+      734C69737461436173616D656E746F696D702E227175616E746964616465225D
+      295D2C2727295D00000000FFFF0000000000040000000100000000090068656C
+      7665746963610008000000000000000000010000001700020000000000FFFFFF
+      00000000020000000000000000006F47000006004D656D6F3235000200540200
+      007D000000340000000D00000043000F00F4010000000000000000FFFFFF1F2C
+      0200000000000100080051542056454E442E00000000FFFF0000000000020000
+      000100000000090068656C766574696361000700000000000000000002000000
+      0100020000000000FFFFFF00000000020000000000000000007B48000006004D
+      656D6F32360002004002000048010000480000000E0000004300000001000000
+      000000000000FFFFFF1F2C020000000000010089005B6966285B71727950726F
+      6475746F734C69737461436173616D656E746F696D702E227174646576656E64
+      696461225D3C3E302C205B466F726D6174466C6F6174285B4D61736361726151
+      75616E7469646164655D2C5B71727950726F6475746F734C6973746143617361
+      6D656E746F696D702E227174646576656E64696461225D295D2C2727295D0000
+      0000FFFF0000000000040000000100000000090068656C766574696361000800
+      0000000000000000010000001700020000000000FFFFFF000000000200000000
+      00000000000549000006004D656D6F3237000200B80200007D00000034000000
+      0D00000043000F00F4010000000000000000FFFFFF1F2C020000000000010007
+      005154205245532E00000000FFFF000000000002000000010000000009006865
+      6C7665746963610007000000000000000000020000000100020000000000FFFF
+      FF00000000020000000000000000000D4A000006004D656D6F3238000200AC02
+      000048010000400000000E0000004300000001000000000000000000FFFFFF1F
+      2C020000000000010085005B6966285B71727950726F6475746F734C69737461
+      436173616D656E746F696D702E2272657365727661646F225D3C3E302C205B46
+      6F726D6174466C6F6174285B4D6173636172615175616E7469646164655D2C5B
+      71727950726F6475746F734C69737461436173616D656E746F696D702E227265
+      7365727661646F225D295D2C2727295D00000000FFFF00000000000400000001
+      00000000090068656C7665746963610008000000000000000000010000001700
+      020000000000FFFFFF0000000002000000000000000000954A000006004D656D
+      6F32390002008802000024000000240000000F00000043000000010000000000
+      00000000FFFFFF1F2C02000000000001000500446174613A00000000FFFF0000
+      000000020000000100000000090068656C766574696361000800000002000000
+      0000000000000100020000000000FFFFFF00000000020000000000000000001F
+      4B000006004D656D6F33300002008802000034000000340000000F0000004300
+      000001000000000000000000FFFFFF1F2C0200000000000100070050E167696E
+      613A00000000FFFF0000000000020000000100000000090068656C7665746963
+      610008000000020000000000000000000100020000000000FFFFFF0000000002
+      000000000000000000B54B000006004D656D6F3331000200A502000024000000
+      480000000F0000004300000001000000000000000000FFFFFF1F2C0200000000
+      00010013005B4441544520234464642F6D6D2F797979795D00000000FFFF0000
+      000000020000000100000000090068656C766574696361000800000000000000
+      0000010000000100020000000000FFFFFF00000000020000000000000000003F
+      4C000006004D656D6F3332000200CD02000034000000200000000F0000004300
+      000001000000000000000000FFFFFF1F2C020000000000010007005B50414745
+      235D00000000FFFF0000000000020000000100000000090068656C7665746963
+      610008000000000000000000010000000100020000000000FFFFFF0000000002
+      000000000000000000D34C000006004D656D6F33330002002C00000054020000
+      500000000B0000004300000001000000000000000000FFFFFF1F2C0200000000
+      00010011005B54494D4520235468683A6D6D3A73735D00000000FFFF00000000
+      00020000000100000006090068656C7665746963610007000000000000000000
+      000000000100020000000000FFFFFF0000000002000000000000000000544D00
+      0006004D656D6F33340002000C02000051000000E00000001300000043000F00
+      F4010000000000000000FFFFFF1F2C020000000000000000000000FFFF000000
+      0000020000000100000000090068656C766574696361000A0000000000000000
+      00000000000100020000000000FFFFFF0000000002000000000000000000DC4D
+      000006004D656D6F33350002001002000049000000200000000E000000430000
+      00F4010000000000000000FFFFFF002C02000000000001000500454D41494C00
+      000000FFFF0000000000020000000100000000090068656C7665746963610007
+      000000000000000000120000000100020000000000FFFFFF0000000002000000
+      0000000000007F4E000006004D656D6F33360002001002000054000000DA0000
+      000F00000043000000F4010000000000000000FFFFFF1F2C0200000000000100
+      20005B7172794C69737461436173616D656E746F2E22656D61696C6E6F697661
+      225D00000000FFFF0000000000020000000100000000090068656C7665746963
+      610008000000000000000000000000001700020000000000FFFFFF0000000002
+      000000000000000000004F000006004D656D6F33370002000C0200006A000000
+      E00000001300000043000F00F4010000000000000000FFFFFF1F2C0200000000
+      00000000000000FFFF0000000000020000000100000000090068656C76657469
+      6361000A000000000000000000000000000100020000000000FFFFFF00000000
+      02000000000000000000884F000006004D656D6F333800020010020000620000
+      00200000000E00000043000000F4010000000000000000FFFFFF002C02000000
+      000001000500454D41494C00000000FFFF000000000002000000010000000009
+      0068656C76657469636100070000000000000000001200000001000200000000
+      00FFFFFF00000000020000000000000000002B50000006004D656D6F33390002
+      00100200006D000000DA0000000F00000043000000F4010000000000000000FF
+      FFFF1F2C020000000000010020005B7172794C69737461436173616D656E746F
+      2E22656D61696C6E6F69766F225D00000000FFFF000000000002000000010000
+      0000090068656C76657469636100080000000000000000000000000017000200
+      00000000FFFFFF0000000002000000000000000000DD50000005004D656D6F32
+      0002002C000000E8000000640100001000000043000000010000000000000000
+      00FFFFFF1F2C020000000000010030005B71727950726F6475746F734C697374
+      61436173616D656E746F496D702E2264657363726963616F636C61737365225D
+      00000000FFFF0000000000020000000100000000090068656C76657469636100
+      09000000020000000000000000001700020000000000FFFFFF00000000020000
+      00000000000000C251000005004D656D6F3300020014020000BE010000400000
+      000E0000004300000001000000000000000000FFFFFF1F2C0200000000000100
+      63005B466F726D6174466C6F6174285B4D6173636172615175616E7469646164
+      655D2C5B73756D285B71727950726F6475746F734C69737461436173616D656E
+      746F696D702E227175616E746964616465225D2C4461646F7350726F6475746F
+      73295D295D00000000FFFF0000000000040000000100000000090068656C7665
+      746963610008000000000000000000010000001700020000000000FFFFFF0000
+      000002000000000000000000A852000005004D656D6F3600020044020000BE01
+      0000440000000E0000004300000001000000000000000000FFFFFF1F2C020000
+      000000010064005B466F726D6174466C6F6174285B4D6173636172615175616E
+      7469646164655D2C5B73756D285B71727950726F6475746F734C697374614361
+      73616D656E746F696D702E227174646576656E64696461225D2C4461646F7350
+      726F6475746F73295D295D00000000FFFF000000000004000000010000000009
+      0068656C76657469636100080000000000000000000100000017000200000000
+      00FFFFFF00000000020000000000000000008D53000006004D656D6F31340002
+      00AC020000BE010000400000000E0000004300000001000000000000000000FF
+      FFFF1F2C020000000000010062005B466F726D6174466C6F6174285B4D617363
+      6172615175616E7469646164655D2C5B73756D285B71727950726F6475746F73
+      4C69737461436173616D656E746F696D702E2272657365727661646F225D2C44
+      61646F7350726F6475746F73295D295D00000000FFFF00000000000400000001
+      00000000090068656C7665746963610008000000000000000000010000001700
+      020000000000FFFFFF00000000020000000000000000001554000005004D656D
+      6F35000200DC010000BE010000400000000E0000004300000001000000000000
+      000000FFFFFF1F2C02000000000001000600544F5441495300000000FFFF0000
+      000000040000000100000000090068656C766574696361000800000002000000
+      0000010000001700020000000000FFFFFF0000000002000000000000000000AE
+      54000006004D656D6F323200020090010000BE010000340000000E0000004300
+      000001000000000000000000FFFFFF1F2C020000000000010016005B434F554E
+      54284461646F7350726F6475746F73295D00000000FFFF000000000004000000
+      0100000000090068656C76657469636100080000000000000000000100000017
+      00020000000000FFFFFF00000000020000000000000000003B55000006004D65
+      6D6F343000020038010000BE010000500000000E000000430000000100000000
+      0000000000FFFFFF1F2C02000000000001000A005155414E5449444144450000
+      0000FFFF0000000000040000000100000000090068656C766574696361000800
+      0000020000000000010000001700020000000000FFFFFF000000000200000000
+      0000000000D155000006004D656D6F34310002002E000000BD010000FC000000
+      0800000043000000F4010000000000000000FFFFFF002C020000000000010013
+      00454E44455245C74F20444520454E545245474100000000FFFF000000000002
+      0000000100000000090068656C76657469636100070000000000000000000800
+      00000100020000000000FFFFFF00000000020000000000000000007B56000006
+      004D656D6F34320002002E000000C6010000FB0000000A00000049000000F401
+      0000000000000000FFFFFF1F2C020000000000010027005275613A205B717279
+      4C69737461436173616D656E746F2E227275615F6E725F636F6D706C225D0000
+      0000FFFF0000000000020000000100000000090068656C766574696361000700
+      0000000000000000080000000100020000000000FFFFFF000000000200000000
+      00000000001E57000006004D656D6F34330002002E000000D1010000FB000000
+      0A00000049000000F4010000000000000000FFFFFF1F2C020000000000010020
+      005B7172794C69737461436173616D656E746F2E226E6F6D6562616972726F22
+      5D00000000FFFF0000000000020000000100000000090068656C766574696361
+      0007000000000000000000080000000100020000000000FFFFFF000000000200
+      0000000000000000C157000006004D656D6F34340002002E000000DC010000FB
+      0000000A00000049000000F4010000000000000000FFFFFF1F2C020000000000
+      010020005B7172794C69737461436173616D656E746F2E226E6F6D6563696461
+      6465225D00000000FFFF0000000000020000000100000000090068656C766574
+      6963610007000000000000000000080000000100020000000000FFFFFF000000
+      00020000000000000000008858000006004D656D6F34350002002E000000E701
+      0000FB0000000A00000049000000F4010000000000000000FFFFFF1F2C020000
+      00000001004400466F6E653A205B7172794C69737461436173616D656E746F2E
+      22666F6E65646464225D205B7172794C69737461436173616D656E746F2E2266
+      6F6E656E756D65726F225D00000000FFFF000000000002000000010000000009
+      0068656C76657469636100070000000000000000000800000001000200000000
+      00FFFFFF00000000020000000000000000003559000006004D656D6F34360002
+      002C000000AC00000064010000100000004300000001000000000000000000FF
+      FFFF1F2C02000000000001002E005B71727950726F6475746F734C6973746143
+      6173616D656E746F496D702E22736974756163616F76656E6461225D00000000
+      FFFF00000000000200000001000000000500417269616C000C00000006000000
+      0000100000001700020000000000FFFFFF0000000002000000000000000000BD
+      59000006004D656D6F3437000200880200007D000000300000000D0000004300
+      0F00F4010000000000000000FFFFFF1F2C0200000000000100050053414C444F
+      00000000FFFF0000000000020000000100000000090068656C76657469636100
+      07000000000000000000020000000100020000000000FFFFFF00000000020000
+      00000000000000BD5A000006004D656D6F343800020070020000480100004800
+      00000E0000004300000001000000000000000000FFFFFF1F2C02000000000001
+      007D005B6966285B71727950726F6475746F734C69737461436173616D656E74
+      6F696D702E2273616C646F225D3C3E302C205B466F726D6174466C6F6174285B
+      4D6173636172615175616E7469646164655D2C5B71727950726F6475746F734C
+      69737461436173616D656E746F696D702E2273616C646F225D295D2C2727295D
+      00000000FFFF0000000000040000000100000000090068656C76657469636100
+      08000000000000000000010000001700020000000000FFFFFF00000000020000
+      0000000000FEFEFF08000000090020456E64657265636F000000000300527561
+      00000000060042616972726F000000000600436964616465000000000400466F
+      6E65000000001400496D7072696D6972507265636F50726F6475746F00050046
+      616C73650017005365706172617250726F6475746F7356656E6469646F730004
+      00547275650009006F7264656E6163616F00010030000000000000000000FC00
+      0000000000000000000000000000005800FFFDB252CCA8E340A1347229D316E6
+      40}
+  end
+  object fdsListaCasamento: TfrDBDataSet
+    DataSet = qryProdutosListaCasamentoImp
+    OpenDataSource = False
+    Left = 632
+    Top = 485
+  end
+  object qryUsuarioListaCasamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select us.email,'
+      '       us.usuario,'
+      
+        '       cast(cast (cliente as varchar) || '#39' - '#39' || us.nome as var' +
+        'char) as nome,'
+      '       c.nome as nomecliente,'
+      '       c.foneddd,'
+      '       c.fonenumero'
+      'From usuarios_site us, clientes c'
+      'WHERE us.cliente = c.codigo'
+      '  and cliente = :cliente'
+      '  and tipocliente = '#39'C'#39
+      '  '
+      'LIMIT 1'
+      '')
+    RequestLive = True
+    Left = 84
+    Top = 538
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end>
+    object qryUsuarioListaCasamentoemail: TStringField
+      FieldName = 'email'
+      Required = True
+      Size = 200
+    end
+    object qryUsuarioListaCasamentousuario: TStringField
+      FieldName = 'usuario'
+      Required = True
+      Size = 100
+    end
+    object qryUsuarioListaCasamentonome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 200
+    end
+    object qryUsuarioListaCasamentofoneddd: TIntegerField
+      FieldName = 'foneddd'
+      DisplayFormat = '0'
+    end
+    object qryUsuarioListaCasamentofonenumero: TIntegerField
+      FieldName = 'fonenumero'
+      DisplayFormat = '0'
+    end
+    object qryUsuarioListaCasamentonomecliente: TStringField
+      FieldName = 'nomecliente'
+      Size = 60
+    end
+  end
+  object dsrUsuarioListaCasamento: TtecDataSource
+    DataSet = qryUsuarioListaCasamento
+    Left = 285
+    Top = 538
+  end
+  object qryNaturezasPadrao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select np.*,'
+      '          n.codigofiscal,'
+      '          n.tipomovimento,'
+      '          n.destacarIPI,'
+      '          n.NaoGerarDebitoICMS,'
+      '          n.NaoGerarDebitoIPI,'
+      '          (select t.operacao'
+      '           from tiposmovimentos t'
+      '           where t.codigo = n.tipomovimento) as operacao,'
+      '          n.piscst,'
+      '          n.cofinscst,'
+      '          n.ipicst,'
+      '          n.icmscst,'
+      '          n.csosn'
+      
+        'from naturezaspadrao np join naturezas n on np.natureza = n.codi' +
+        'go'
+      'order by descricao')
+    RequestLive = False
+    Left = 712
+    Top = 312
+    object qryNaturezasPadraodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryNaturezasPadraonatureza: TIntegerField
+      FieldName = 'natureza'
+      DisplayFormat = '0'
+    end
+    object qryNaturezasPadraocodigofiscal: TIntegerField
+      FieldName = 'codigofiscal'
+    end
+    object qryNaturezasPadraooperacao: TStringField
+      FieldName = 'operacao'
+    end
+    object qryNaturezasPadraotipomovimento: TStringField
+      FieldName = 'tipomovimento'
+      Size = 3
+    end
+    object qryNaturezasPadraodestacaripi: TBooleanField
+      FieldName = 'destacaripi'
+    end
+    object qryNaturezasPadraonaogerardebitoicms: TBooleanField
+      FieldName = 'naogerardebitoicms'
+    end
+    object qryNaturezasPadraonaogerardebitoipi: TBooleanField
+      FieldName = 'naogerardebitoipi'
+    end
+    object qryNaturezasPadraopiscst: TStringField
+      FieldName = 'piscst'
+      Size = 2
+    end
+    object qryNaturezasPadraocofinscst: TStringField
+      FieldName = 'cofinscst'
+      Size = 2
+    end
+    object qryNaturezasPadraoipicst: TStringField
+      FieldName = 'ipicst'
+      Size = 2
+    end
+    object qryNaturezasPadraoicmscst: TStringField
+      FieldName = 'icmscst'
+      Size = 2
+    end
+    object qryNaturezasPadraocsosn: TStringField
+      FieldName = 'csosn'
+      Size = 3
+    end
+  end
+  object qryProcuraNota: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      '('
+      'select n.filial,'
+      '       n.serie,'
+      '       n.numero'
+      'from notas n'
+      'where (n.filial = :Filial) and'
+      '      (n.serie  = :Serie) and'
+      '      (n.numero = :Numero)'
+      ')'
+      'union'
+      '('
+      'select filial,'
+      '       serie,'
+      '       numero'
+      'from notaspag'
+      'where filial = :Filial'
+      '  and serie  = :Serie'
+      '  and numero = :Numero'
+      '  and permitirimprimir'
+      ')')
+    RequestLive = False
+    Left = 731
+    Top = 392
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Serie'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Numero'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraNotafilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraNotaserie: TStringField
+      FieldName = 'serie'
+      Required = True
+      Size = 3
+    end
+    object qryProcuraNotanumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+  end
+  object qryNotasVendas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select df.*, '
+      
+        '       cf.filial as filialcupom, cf.maquina, cf.intervensao, cf.' +
+        'numero as numerocupom,'
+      '       df.quantidade - df.quantidadeentregue as saldoaentregar'
+      'from'
+      '('
+      'select df.*,'
+      '       n.filial as filialnota,'
+      '       n.serie,'
+      '       n.numero as numeronota'
+      'from'
+      '('
+      '  select pdf.dadofiscal,'
+      '         pdf.numero,'
+      '         pdf.produto,'
+      '         df.contrato,'
+      '         df.data,'
+      ''
+      '         pdf.quantidade - coalesce((select sum(pnp.quantidade)'
+      
+        '                           from produtosnotaspag pnp join notasp' +
+        'ag np on pnp.codigonota = np.codigo'
+      '                           where pnp.codigonota = np.codigo'
+      '                             and np.situacao = '#39'N'#39
+      '                             and pnp.dadofiscal = pdf.dadofiscal'
+      '                             and pnp.produto = pdf.produto'
+      
+        '                             and pnp.numeroprodutotabela = pdf.n' +
+        'umero),0) as quantidade,'
+      ''
+      '          /*'
+      '         pdf.quantidade -'
+      '          coalesce((select sum(npdf.quantidade)'
+      '              from notaspagdadosfiscais npdf'
+      '              where npdf.dadofiscal = pdf.dadofiscal'
+      
+        '                and npdf.produto = pdf.produto),0) as quantidade' +
+        ','
+      '         */'
+      ''
+      '         coalesce((select sum(pdfsr.quantidade)'
+      '                   from produtosdadosfiscaissimplesremessa pdfsr'
+      '                        join dadosfiscais dfr'
+      
+        '                        on pdfsr.dadofiscalsimplesremessa = dfr.' +
+        'numero'
+      '                   where pdfsr.dadofiscalvenda = pdf.dadofiscal'
+      
+        '                     and pdfsr.numeroprodutodadofiscalvenda = pd' +
+        'f.numero'
+      
+        '                     and dfr.situacao='#39'N'#39'),0) as quantidadeentre' +
+        'gue'
+      ''
+      '  from produtosdadosfiscais pdf'
+      '       join dadosfiscais df on pdf.dadofiscal = df.numero'
+      '       join produtoscontratos pc'
+      '       on df.contrato = pc.contrato'
+      '       and pc.produto = pdf.produto'
+      '       and pc.filial = pdf.filial'
+      ''
+      '  where pdf.produto = :produto'
+      '    and pdf.filial  = :filial'
+      '    and pc.listacasamento = :listacasamento'
+      '    and df.situacao = '#39'N'#39
+      '    and (pdf.quantidade - coalesce((select sum(pnp.quantidade)'
+      
+        '                                    from produtosnotaspag pnp jo' +
+        'in notaspag np on pnp.codigonota = np.codigo'
+      
+        '                                    where pnp.codigonota = np.co' +
+        'digo'
+      '                                      and np.situacao = '#39'N'#39
+      
+        '                                      and pnp.dadofiscal = pdf.d' +
+        'adofiscal'
+      
+        '                                      and pnp.produto = pdf.prod' +
+        'uto'
+      
+        '                                      and pnp.numeroprodutotabel' +
+        'a = pdf.numero),0))'
+      ''
+      '        > coalesce((select sum(pdfsr.quantidade)'
+      '          from produtosdadosfiscaissimplesremessa pdfsr'
+      '                join dadosfiscais dfr'
+      '                on pdfsr.dadofiscalsimplesremessa = dfr.numero'
+      ''
+      '          where pdfsr.dadofiscalvenda = pdf.dadofiscal'
+      '           and pdfsr.numeroprodutodadofiscalvenda = pdf.numero'
+      '           and dfr.situacao='#39'N'#39'),0)'
+      ''
+      '           /*'
+      '    and (pdf.quantidade -'
+      '          coalesce((select sum(npdf.quantidade)'
+      '              from notaspagdadosfiscais npdf'
+      '              where npdf.dadofiscal = pdf.dadofiscal'
+      '                and npdf.produto = pdf.produto),0))'
+      ''
+      '                        > coalesce((select sum(pdfsr.quantidade)'
+      
+        '                          from produtosdadosfiscaissimplesremess' +
+        'a pdfsr'
+      '                                join dadosfiscais dfr'
+      
+        '                                on pdfsr.dadofiscalsimplesremess' +
+        'a = dfr.numero'
+      ''
+      
+        '                          where pdfsr.dadofiscalvenda = pdf.dado' +
+        'fiscal'
+      
+        '                           and pdfsr.numeroprodutodadofiscalvend' +
+        'a = pdf.numero'
+      '                           and dfr.situacao='#39'N'#39'),0)'
+      '           */'
+      ''
+      ''
+      ') as df left join notas n on df.dadofiscal = n.dadofiscal'
+      'where coalesce(quantidade,0)<>0'
+      ') as df left join cupons cf on df.dadofiscal = cf.dadofiscal'
+      'order by contrato')
+    RequestLive = True
+    Left = 740
+    Top = 446
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'listacasamento'
+        ParamType = ptUnknown
+      end>
+    object qryNotasVendasdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+    object qryNotasVendasnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryNotasVendascontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryNotasVendasdata: TDateField
+      FieldName = 'data'
+    end
+    object qryNotasVendasfilialnota: TIntegerField
+      FieldName = 'filialnota'
+    end
+    object qryNotasVendasserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryNotasVendasnumeronota: TIntegerField
+      FieldName = 'numeronota'
+    end
+    object qryNotasVendasfilialcupom: TIntegerField
+      FieldName = 'filialcupom'
+    end
+    object qryNotasVendasmaquina: TIntegerField
+      FieldName = 'maquina'
+    end
+    object qryNotasVendasintervensao: TIntegerField
+      FieldName = 'intervensao'
+    end
+    object qryNotasVendasnumerocupom: TIntegerField
+      FieldName = 'numerocupom'
+    end
+    object qryNotasVendassaldoaentregar: TFloatField
+      FieldName = 'saldoaentregar'
+    end
+    object qryNotasVendasproduto: TLargeintField
+      FieldName = 'produto'
+    end
+  end
+  object dsrNotasVendas: TtecDataSource
+    DataSet = qryNotasVendas
+    Left = 769
+    Top = 462
+  end
+  object qryProdutosDadosFiscaisSimplesRemessa: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pdfsr.*'
+      'from produtosdadosfiscaissimplesremessa pdfsr'
+      'where false')
+    RequestLive = True
+    Left = 544
+    Top = 512
+    object qryProdutosDadosFiscaisSimplesRemessadadofiscalvenda: TIntegerField
+      FieldName = 'dadofiscalvenda'
+      Required = True
+    end
+    object qryProdutosDadosFiscaisSimplesRemessanumeroprodutodadofiscalvenda: TIntegerField
+      FieldName = 'numeroprodutodadofiscalvenda'
+      Required = True
+    end
+    object qryProdutosDadosFiscaisSimplesRemessaquantidade: TFloatField
+      FieldName = 'quantidade'
+      Required = True
+    end
+    object qryProdutosDadosFiscaisSimplesRemessadadofiscalsimplesremessa: TIntegerField
+      FieldName = 'dadofiscalsimplesremessa'
+    end
+    object qryProdutosDadosFiscaisSimplesRemessanumeroprodutodadofiscalsimplesremessa: TIntegerField
+      FieldName = 'numeroprodutodadofiscalsimplesremessa'
+    end
+    object qryProdutosDadosFiscaisSimplesRemessaprodutodadofiscalvenda: TLargeintField
+      FieldName = 'produtodadofiscalvenda'
+    end
+    object qryProdutosDadosFiscaisSimplesRemessaprodutodadofiscalsimplesremessa: TLargeintField
+      FieldName = 'produtodadofiscalsimplesremessa'
+    end
+  end
+  object qryNotasListaCasamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select n.*'
+      'from notas n'
+      '     join dadosfiscais df'
+      '     on n.dadofiscal = df.numero'
+      'where df.contrato = :contrato'
+      '  and df.situacao <> '#39'C'#39
+      ''
+      ' ')
+    RequestLive = False
+    Left = 80
+    Top = 592
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qryNotasListaCasamentofilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryNotasListaCasamentoserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryNotasListaCasamentonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object qryCuponsListaCasamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select c.*'
+      'from cupons c'
+      '     join dadosfiscais df'
+      '     on c.dadofiscal = df.numero'
+      'where df.contrato = :contrato'
+      '  and df.situacao <> '#39'C'#39)
+    RequestLive = False
+    Left = 80
+    Top = 640
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qryCuponsListaCasamentofilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryCuponsListaCasamentomaquina: TIntegerField
+      FieldName = 'maquina'
+    end
+    object qryCuponsListaCasamentointervensao: TIntegerField
+      FieldName = 'intervensao'
+    end
+    object qryCuponsListaCasamentonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object dsrNotasListaCasamento: TtecDataSource
+    DataSet = qryNotasListaCasamento
+    Left = 288
+    Top = 592
+  end
+  object dsrCuponsListaCasamento: TtecDataSource
+    DataSet = qryCuponsListaCasamento
+    Left = 288
+    Top = 640
+  end
+  object qryNotasSimplesRemessa: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'numero = dadofiscal'
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select df.*,'
+      '       n.filial as filialnota,'
+      '       n.serie,'
+      '       n.numero as numeronota'
+      'from'
+      '('
+      'select df.numero, df.data, df.nome, df.observacoes'
+      'from dadosfiscais df'
+      'where df.numero in'
+      '('
+      ''
+      '  select distinct pdfsr.dadofiscalsimplesremessa'
+      ''
+      '  from produtosdadosfiscais pdf'
+      '       join produtosdadosfiscaissimplesremessa pdfsr'
+      '       on pdf.dadofiscal = pdfsr.dadofiscalvenda'
+      '       and pdf.numero = pdfsr.numeroprodutodadofiscalvenda'
+      ''
+      '       join dadosfiscais df on pdf.dadofiscal = df.numero'
+      '       join produtoscontratos pc'
+      '       on df.contrato = pc.contrato'
+      '       and pc.produto = pdf.produto'
+      '       and pc.filial = pdf.filial'
+      ''
+      '  where pc.listacasamento = :listacasamento'
+      '    and df.situacao = '#39'N'#39
+      ''
+      ')'
+      'and df.situacao = '#39'N'#39
+      ') as df left join notas n on df.numero = n.dadofiscal'
+      'order by df.data'
+      '')
+    RequestLive = False
+    Left = 480
+    Top = 568
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'listacasamento'
+        ParamType = ptUnknown
+      end>
+    object qryNotasSimplesRemessanumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryNotasSimplesRemessadata: TDateField
+      FieldName = 'data'
+    end
+    object qryNotasSimplesRemessanome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryNotasSimplesRemessafilialnota: TIntegerField
+      FieldName = 'filialnota'
+    end
+    object qryNotasSimplesRemessaserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryNotasSimplesRemessanumeronota: TIntegerField
+      FieldName = 'numeronota'
+    end
+    object qryNotasSimplesRemessaobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 350
+    end
+  end
+  object dsrNotasSimplesRemessa: TtecDataSource
+    DataSet = qryNotasSimplesRemessa
+    Left = 512
+    Top = 584
+  end
+  object qryProdutosNotaSimplesRemessa: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'numero = dadofiscal'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrNotasSimplesRemessa
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        '                                                         Select ' +
+        ' pdf.quantidade,'
+      '        pdf.aliquotaicms,'
+      '        pdf.aliquotaipi,'
+      '        pdf.valoripi,'
+      '        pdf.produto,'
+      '        pdf.precovenda,'
+      '        pdf.entregar,'
+      '       trunc(pdf.quantidade * pdf.precovenda,2) as precototal,'
+      '        p.preco,'
+      '        p.descricao as produtodescricao,'
+      '        p.referencia,'
+      
+        '        (select g.descricao from grades g where g.codigo = c.gra' +
+        'de1) as linha,'
+      
+        '        (select g.descricao from grades g where g.codigo = c.gra' +
+        'de2) as coluna,'
+      '        p.valorgrade1,'
+      '        p.valorgrade2,'
+      '        m.descricao as marcadescricao,'
+      '        pdf.codigofiscal,'
+      '        pdf.localizacao,'
+      '        pdf.numero,'
+      '        p.codigovisual,'
+      '        pdf.classificacaofiscal,'
+      '        pdf.origem,'
+      '        pdf.incidencia,'
+      '        pdf.unidade,'
+      '        pdf.icmsbasecalculo,'
+      '        pdf.icmsvalor,'
+      '        pdf.dadofiscal'
+      'From  produtosdadosfiscais pdf'
+      '      join produtos p'
+      '           join caracteristicas c'
+      '                join  marcas m'
+      '                on  c.marca = m.codigo'
+      '           on  p.caracteristica = c.codigo'
+      '      on  pdf.produto = p.codigo'
+      '      '
+      'Where  pdf.dadofiscal IN'
+      '('
+      ''
+      '  select distinct pdfsr.dadofiscalsimplesremessa'
+      ''
+      '  from produtosdadosfiscais pdf'
+      '       join produtosdadosfiscaissimplesremessa pdfsr'
+      '       on pdf.dadofiscal = pdfsr.dadofiscalvenda'
+      '       and pdf.numero = pdfsr.numeroprodutodadofiscalvenda'
+      ''
+      '       join dadosfiscais df on pdf.dadofiscal = df.numero'
+      '       join produtoscontratos pc'
+      '       on df.contrato = pc.contrato'
+      '       and pc.produto = pdf.produto'
+      '       and pc.filial = pdf.filial'
+      ''
+      '  where pc.listacasamento = :listacasamento'
+      '    and df.situacao = '#39'N'#39
+      ''
+      ')'
+      'order by pdf.dadofiscal, pdf.numero')
+    RequestLive = False
+    Left = 608
+    Top = 600
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'listacasamento'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosNotaSimplesRemessaquantidade: TFloatField
+      FieldName = 'quantidade'
+    end
+    object qryProdutosNotaSimplesRemessaaliquotaicms: TFloatField
+      FieldName = 'aliquotaicms'
+    end
+    object qryProdutosNotaSimplesRemessaaliquotaipi: TFloatField
+      FieldName = 'aliquotaipi'
+    end
+    object qryProdutosNotaSimplesRemessavaloripi: TFloatField
+      FieldName = 'valoripi'
+    end
+    object qryProdutosNotaSimplesRemessaproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryProdutosNotaSimplesRemessaprecovenda: TFloatField
+      FieldName = 'precovenda'
+    end
+    object qryProdutosNotaSimplesRemessaentregar: TBooleanField
+      FieldName = 'entregar'
+    end
+    object qryProdutosNotaSimplesRemessaprecototal: TFloatField
+      FieldName = 'precototal'
+    end
+    object qryProdutosNotaSimplesRemessapreco: TIntegerField
+      FieldName = 'preco'
+    end
+    object qryProdutosNotaSimplesRemessaprodutodescricao: TStringField
+      DisplayWidth = 50
+      FieldName = 'produtodescricao'
+      Size = 100
+    end
+    object qryProdutosNotaSimplesRemessareferencia: TStringField
+      FieldName = 'referencia'
+      Size = 15
+    end
+    object qryProdutosNotaSimplesRemessalinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryProdutosNotaSimplesRemessacoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qryProdutosNotaSimplesRemessavalorgrade1: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryProdutosNotaSimplesRemessavalorgrade2: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryProdutosNotaSimplesRemessamarcadescricao: TStringField
+      FieldName = 'marcadescricao'
+      Size = 15
+    end
+    object qryProdutosNotaSimplesRemessacodigofiscal: TIntegerField
+      FieldName = 'codigofiscal'
+    end
+    object qryProdutosNotaSimplesRemessalocalizacao: TStringField
+      FieldName = 'localizacao'
+      Size = 10
+    end
+    object qryProdutosNotaSimplesRemessanumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryProdutosNotaSimplesRemessacodigovisual: TStringField
+      FieldName = 'codigovisual'
+      Size = 30
+    end
+    object qryProdutosNotaSimplesRemessaclassificacaofiscal: TStringField
+      FieldName = 'classificacaofiscal'
+      Size = 10
+    end
+    object qryProdutosNotaSimplesRemessaorigem: TIntegerField
+      FieldName = 'origem'
+    end
+    object qryProdutosNotaSimplesRemessaincidencia: TStringField
+      FieldName = 'incidencia'
+      Size = 2
+    end
+    object qryProdutosNotaSimplesRemessaunidade: TStringField
+      FieldName = 'unidade'
+      Size = 6
+    end
+    object qryProdutosNotaSimplesRemessaicmsbasecalculo: TFloatField
+      FieldName = 'icmsbasecalculo'
+    end
+    object qryProdutosNotaSimplesRemessaicmsvalor: TFloatField
+      FieldName = 'icmsvalor'
+    end
+    object qryProdutosNotaSimplesRemessadadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+  end
+  object dsrProdutosNotaSimplesRemessa: TtecDataSource
+    DataSet = qryProdutosNotaSimplesRemessa
+    Left = 664
+    Top = 616
+  end
+  object qryNotasCuponsRef: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast(null as varchar(3)) as serie,'
+      '       cast(null as integer) as numeronota,'
+      '       cast(null as integer) as maquina,'
+      '       cast(null as integer) as intervensao,'
+      '       cast(null as integer) as numerocupom'
+      '')
+    RequestLive = True
+    Left = 744
+    Top = 536
+    object qryNotasCuponsRefserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryNotasCuponsRefnumeronota: TIntegerField
+      FieldName = 'numeronota'
+    end
+    object qryNotasCuponsRefmaquina: TIntegerField
+      FieldName = 'maquina'
+    end
+    object qryNotasCuponsRefintervensao: TIntegerField
+      FieldName = 'intervensao'
+    end
+    object qryNotasCuponsRefnumerocupom: TIntegerField
+      FieldName = 'numerocupom'
+    end
+  end
+  object dsrEtiquetas: TtecDataSource
+    DataSet = qryEtiquetas
+    Left = 282
+    Top = 712
+  end
+  object qryProdutosListaCasamentoImp: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryProdutosListaCasamentoImpCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ordenacao'
+        ParamType = ptUnknown
+        Value = 
+          'order by SituacaoVenda, classe, descricaoclasse, grupo, descrica' +
+          'ogrupo, produto, descricao'
+      end>
+    Sql.Strings = (
+      ';select selecao.*'
+      'from'
+      '('
+      'select selecao.*,'
+      
+        '       case when coalesce(selecao.qtdevendida,0)<>0 then cast('#39'V' +
+        'ENDIDOS'#39' as varchar(8)) else cast('#39'A VENDER'#39' as varchar(8)) end ' +
+        'as SituacaoVenda'
+      'from'
+      '('
+      'Select pl.lista,'
+      '       pl.produto,'
+      '       pl.quantidade,'
+      ''
+      '      (select sum(pc.quantidade-COALESCE(pc.cancelado,0))'
+      '       from produtoscontratos pc'
+      '            join contratos ct'
+      '            on pc.contrato = ct.numero'
+      '       where pc.contrato = ct.numero'
+      '         and pc.listacasamento = pl.lista'
+      '         AND ct.situacao in ('#39'P'#39','#39'N'#39','#39'F'#39')'
+      '         AND pc.produto = pl.produto) as qtdevendida,'
+      ''
+      '       pl.incluidodepois,'
+      '       pl.etiqueta,'
+      '       p.descricao,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e1) as linha,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e2) as coluna,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      '       p.referencia,'
+      '       c.classe,'
+      '       cl.descricao as descricaoclasse,'
+      '       c.grupo,'
+      '       g.descricao as descricaogrupo,'
+      ''
+      '       (select sum(pc.quantidade-coalesce(pc.cancelado,0))'
+      
+        '        from produtoscontratos pc join contratos ct on pc.contra' +
+        'to = ct.numero'
+      '        where pc.contrato = ct.numero'
+      '          and pc.produto = pl.produto'
+      '          and pc.listacasamento = pl.lista'
+      '          and ct.situacao = '#39'R'#39') as reservado,'
+      ''
+      '       estoques_preco(pl.produto, :FilialPreco) as preco,'
+      
+        '       (select aparecernosite from produtos where codigo=pl.prod' +
+        'uto) as aparecernosite,'
+      
+        '       (select count(*) from fotosprodutos where produto=pl.prod' +
+        'uto) as fotos'
+      
+        'From produtoslistacasamento pl , produtos p, caracteristicas c, ' +
+        'grupos g, classes cl'
+      'Where (pl.lista         = :lista  )'
+      '  and (pl.produto       = p.codigo)'
+      '  and (p.caracteristica = c.codigo)'
+      '  and (c.grupo          = g.codigo)'
+      '  and (cl.codigo        = c.classe)'
+      ''
+      ') as selecao'
+      ') as selecao'
+      ''
+      '%ordenacao'
+      ''
+      ''
+      '')
+    RequestLive = True
+    Left = 428
+    Top = 634
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'FilialPreco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'lista'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosListaCasamentoImplista: TIntegerField
+      FieldName = 'lista'
+      DisplayFormat = '0'
+    end
+    object qryProdutosListaCasamentoImpproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryProdutosListaCasamentoImpquantidade: TFloatField
+      FieldName = 'quantidade'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosListaCasamentoImpqtdevendida: TFloatField
+      FieldName = 'qtdevendida'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosListaCasamentoImpincluidodepois: TBooleanField
+      FieldName = 'incluidodepois'
+    end
+    object qryProdutosListaCasamentoImpetiqueta: TBooleanField
+      FieldName = 'etiqueta'
+    end
+    object qryProdutosListaCasamentoImpdescricao: TStringField
+      DisplayWidth = 50
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryProdutosListaCasamentoImplinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryProdutosListaCasamentoImpcoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qryProdutosListaCasamentoImpvalorgrade1: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryProdutosListaCasamentoImpvalorgrade2: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryProdutosListaCasamentoImpreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 15
+    end
+    object qryProdutosListaCasamentoImpclasse: TStringField
+      FieldName = 'classe'
+      Size = 2
+    end
+    object qryProdutosListaCasamentoImpdescricaoclasse: TStringField
+      FieldName = 'descricaoclasse'
+      Size = 30
+    end
+    object qryProdutosListaCasamentoImpgrupo: TStringField
+      FieldName = 'grupo'
+      Size = 4
+    end
+    object qryProdutosListaCasamentoImpdescricaogrupo: TStringField
+      FieldName = 'descricaogrupo'
+      Size = 30
+    end
+    object qryProdutosListaCasamentoImpreservado: TFloatField
+      FieldName = 'reservado'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosListaCasamentoImppreco: TFloatField
+      FieldName = 'preco'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosListaCasamentoImpaparecernosite: TBooleanField
+      FieldName = 'aparecernosite'
+    end
+    object qryProdutosListaCasamentoImpfotos: TLargeintField
+      FieldName = 'fotos'
+    end
+    object qryProdutosListaCasamentoImpdescricaolc: TStringField
+      DisplayWidth = 62
+      FieldKind = fkCalculated
+      FieldName = 'descricaolc'
+      Size = 162
+      Calculated = True
+    end
+    object qryProdutosListaCasamentoImpsituacaovenda: TStringField
+      FieldName = 'situacaovenda'
+      Size = 8
+    end
+    object qryProdutosListaCasamentoImpsaldo: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'saldo'
+      Calculated = True
+    end
+  end
+  object qryProdutosListaCasamentoImp_SEPARAR_VENDIDOS: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryProdutosListaCasamentoImpCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ordenacao'
+        ParamType = ptUnknown
+        Value = 
+          'order by SituacaoVenda, classe, descricaoclasse, grupo, descrica' +
+          'ogrupo, produto, descricao'
+      end>
+    Sql.Strings = (
+      ';'
+      'select selecao.*'
+      'from'
+      '('
+      'select selecao.*,'
+      
+        '       case when coalesce(selecao.qtdevendida,0)<>0 then cast('#39'V' +
+        'ENDIDOS'#39' as varchar(8)) else cast('#39'A VENDER'#39' as varchar(8)) end ' +
+        'as SituacaoVenda'
+      'from'
+      '('
+      'Select pl.lista,'
+      '       pl.produto,'
+      '       pl.quantidade,'
+      ''
+      '      (select sum(pc.quantidade-COALESCE(pc.cancelado,0))'
+      '       from produtoscontratos pc'
+      '            join contratos ct'
+      '            on pc.contrato = ct.numero'
+      '       where pc.contrato = ct.numero'
+      '         and pc.listacasamento = pl.lista'
+      '         AND ct.situacao in ('#39'P'#39','#39'N'#39','#39'F'#39')'
+      '         AND pc.produto = pl.produto) as qtdevendida,'
+      ''
+      '       pl.incluidodepois,'
+      '       pl.etiqueta,'
+      '       p.descricao,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e1) as linha,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e2) as coluna,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      '       p.referencia,'
+      '       c.classe,'
+      '       cl.descricao as descricaoclasse,'
+      '       c.grupo,'
+      '       g.descricao as descricaogrupo,'
+      ''
+      '       (select sum(pc.quantidade-coalesce(pc.cancelado,0))'
+      
+        '        from produtoscontratos pc join contratos ct on pc.contra' +
+        'to = ct.numero'
+      '        where pc.contrato = ct.numero'
+      '          and pc.produto = pl.produto'
+      '          and pc.listacasamento = pl.lista'
+      '          and ct.situacao = '#39'R'#39') as reservado,'
+      ''
+      '       estoques_preco(pl.produto, :FilialPreco) as preco,'
+      
+        '       (select aparecernosite from produtos where codigo=pl.prod' +
+        'uto) as aparecernosite,'
+      
+        '       (select count(*) from fotosprodutos where produto=pl.prod' +
+        'uto) as fotos'
+      
+        'From produtoslistacasamento pl , produtos p, caracteristicas c, ' +
+        'grupos g, classes cl'
+      'Where (pl.lista         = :lista  )'
+      '  and (pl.produto       = p.codigo)'
+      '  and (p.caracteristica = c.codigo)'
+      '  and (c.grupo          = g.codigo)'
+      '  and (cl.codigo        = c.classe)'
+      ''
+      ') as selecao'
+      ''
+      'union all'
+      ''
+      
+        'select /*lista, produto, quantidade - qtdevendida as quantidade,' +
+        ' qtdevendida, incluidodepois, etiqueta, descricao, linha, coluna' +
+        ', valorgrade1, valorgrade2, referencia, classe,'
+      
+        '       descricaoclasse, grupo, descricaogrupo, reservado, preco,' +
+        ' aparecernosite, fotos,'
+      '       */'
+      '       selecao.*, '
+      '       cast('#39'A VENDER'#39' as varchar(8)) as SituacaoVenda'
+      'from'
+      '('
+      'Select pl.lista,'
+      '       pl.produto,'
+      '       pl.quantidade,'
+      ''
+      '      (select sum(pc.quantidade-COALESCE(pc.cancelado,0))'
+      '       from produtoscontratos pc'
+      '            join contratos ct'
+      '            on pc.contrato = ct.numero'
+      '       where pc.contrato = ct.numero'
+      '         and pc.listacasamento = pl.lista'
+      '         AND ct.situacao in ('#39'P'#39','#39'N'#39','#39'F'#39')'
+      '         AND pc.produto = pl.produto) as qtdevendida,'
+      ''
+      '       pl.incluidodepois,'
+      '       pl.etiqueta,'
+      '       p.descricao,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e1) as linha,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e2) as coluna,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      '       p.referencia,'
+      '       c.classe,'
+      '       cl.descricao as descricaoclasse,'
+      '       c.grupo,'
+      '       g.descricao as descricaogrupo,'
+      ''
+      '       (select sum(pc.quantidade-coalesce(pc.cancelado,0))'
+      
+        '        from produtoscontratos pc join contratos ct on pc.contra' +
+        'to = ct.numero'
+      '        where pc.contrato = ct.numero'
+      '          and pc.produto = pl.produto'
+      '          and pc.listacasamento = pl.lista'
+      '          and ct.situacao = '#39'R'#39') as reservado,'
+      ''
+      '       estoques_preco(pl.produto, :FilialPreco) as preco,'
+      
+        '       (select aparecernosite from produtos where codigo=pl.prod' +
+        'uto) as aparecernosite,'
+      
+        '       (select count(*) from fotosprodutos where produto=pl.prod' +
+        'uto) as fotos'
+      
+        'From produtoslistacasamento pl , produtos p, caracteristicas c, ' +
+        'grupos g, classes cl'
+      'Where (pl.lista         = :lista  )'
+      '  and (pl.produto       = p.codigo)'
+      '  and (p.caracteristica = c.codigo)'
+      '  and (c.grupo          = g.codigo)'
+      '  and (cl.codigo        = c.classe)'
+      ''
+      ') as selecao'
+      'where (qtdevendida <> 0) and (quantidade > qtdevendida)'
+      ''
+      ''
+      ') as selecao'
+      ''
+      '%ordenacao'
+      ''
+      '')
+    RequestLive = True
+    Left = 692
+    Top = 674
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'FilialPreco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'lista'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryProdutosListaCasamentoImp_NAOSEPARAR_VENDIDOS: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryProdutosListaCasamentoImpCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ordenacao'
+        ParamType = ptUnknown
+        Value = 
+          'order by SituacaoVenda, classe, descricaoclasse, grupo, descrica' +
+          'ogrupo, produto, descricao'
+      end>
+    Sql.Strings = (
+      'Select pl.lista,'
+      '       pl.produto,'
+      '       pl.quantidade,'
+      '      (select sum(pc.quantidade-COALESCE(pc.cancelado,0))'
+      '       from produtoscontratos pc'
+      '            join contratos ct'
+      '            on pc.contrato = ct.numero'
+      '       where pc.contrato = ct.numero'
+      '         and pc.listacasamento = pl.lista'
+      '         AND ct.situacao in ('#39'P'#39','#39'N'#39','#39'F'#39')'
+      '         AND pc.produto = pl.produto) as qtdevendida,'
+      '       pl.incluidodepois,'
+      '       pl.etiqueta,'
+      '       p.descricao,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e1) as linha,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e2) as coluna,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      '       p.referencia,'
+      '       c.classe,'
+      '       cl.descricao as descricaoclasse,'
+      '       c.grupo,'
+      '       g.descricao as descricaogrupo,'
+      ''
+      '       (select sum(pc.quantidade-coalesce(pc.cancelado,0))'
+      
+        '        from produtoscontratos pc join contratos ct on pc.contra' +
+        'to = ct.numero'
+      '        where pc.contrato = ct.numero'
+      '          and pc.produto = pl.produto'
+      '          and pc.listacasamento = pl.lista'
+      '          and ct.situacao = '#39'R'#39') as reservado,'
+      ''
+      '       estoques_preco(pl.produto, :FilialPreco) as preco,'
+      
+        '       (select aparecernosite from produtos where codigo=pl.prod' +
+        'uto) as aparecernosite,'
+      
+        '       (select count(*) from fotosprodutos where produto=pl.prod' +
+        'uto) as fotos,'
+      '       cast(null as varchar(8)) as SituacaoVenda'
+      '       '
+      
+        'From produtoslistacasamento pl , produtos p, caracteristicas c, ' +
+        'grupos g, classes cl'
+      'Where (pl.lista         = :lista  )'
+      '  and (pl.produto       = p.codigo)'
+      '  and (p.caracteristica = c.codigo)'
+      '  and (c.grupo          = g.codigo)'
+      '  and (cl.codigo        = c.classe)'
+      ''
+      '%ordenacao'
+      '')
+    RequestLive = True
+    Left = 724
+    Top = 682
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'FilialPreco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'lista'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryUpdateProdutosContratos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update produtoscontratos set listacasamento = :listacasamento'
+      'where contrato = :contrato'
+      '  and produto = :produto')
+    RequestLive = False
+    Left = 176
+    Top = 464
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'listacasamento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryEtiquetas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'JOIN_Notas_ou_Cupons_ou_Contratos'
+        ParamType = ptUnknown
+        Value = 'JOIN Notas nc                    ON df.Numero = nc.DadoFiscal'
+      end
+      item
+        DataType = ftString
+        Name = 'SQL_Notas_ou_Cupons_ou_Contratos'
+        ParamType = ptUnknown
+        Value = 
+          'AND  nc.filial = :filial and nc.serie = :serie and nc.numero = :' +
+          'numeronota'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'OrdenacaoCupomSemIntervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SelecionarAindanaoImpressas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT  CAST(:SelecionarTodos AS BOOLEAN) AS Marcar,'
+      '        nc.Filial,'
+      ''
+      
+        '        case WHEN :eHPorNota then nc.Numero else cast(null as in' +
+        'teger) end AS NrNota,'
+      
+        '        case WHEN :eHPorNota then cast(null as integer) else nc.' +
+        'numero end AS NrCupom,'
+      '        cast(null as varchar(20)) as contrato,'
+      ''
+      '       (SELECT c.Nome'
+      '           FROM Clientes c'
+      '           WHERE c.Codigo = df.Cliente) AS Convidado,'
+      ''
+      '        plc.lista,'
+      ''
+      '        lc.Nome_Noiva,'
+      ''
+      '        plc.Produto,'
+      ''
+      '        p.CodigoVisual, p.Descricao AS DescricaoProduto,'
+      ''
+      '       (SELECT pdf.Quantidade'
+      
+        '           FROM ProdutosDadosFiscais pdf WHERE pdf.DadoFiscal = ' +
+        'df.Numero AND'
+      
+        '                                               pdf.Produto    = ' +
+        'pc.Produto) AS Quantidade,'
+      '        lc.rua, lc.numero, lc.complemento,'
+      ''
+      '       (SELECT b.Nome'
+      '            FROM Bairros b'
+      '            WHERE b.Estado = lc.Estado AND'
+      '                  b.Cidade = lc.Cidade AND'
+      '                  b.Codigo = lc.Bairro) AS NomeBairro,'
+      '       (SELECT c.Nome'
+      '           FROM Cidades c'
+      '           WHERE c.Estado = lc.Estado AND'
+      '                 c.Codigo = lc.Cidade) AS NomeCidade,'
+      '        lc.estado,'
+      '        df.Data AS DataEmissao,'
+      ''
+      '        plc.Etiqueta'
+      ''
+      'FROM    produtoslistacasamento plc'
+      ''
+      
+        '        JOIN ProdutosContratos pc   ON plc.Lista     = pc.ListaC' +
+        'asamento AND'
+      
+        '                                       plc.Produto   = pc.Produt' +
+        'o'
+      '        JOIN Produtos p             ON pc.Produto    = p.Codigo'
+      '        JOIN ListasCasamento lc     ON plc.Lista     = lc.Codigo'
+      
+        '        JOIN DadosFiscais df        ON df.Contrato   = pc.Contra' +
+        'to'
+      ''
+      '        %JOIN_Notas_ou_Cupons_ou_Contratos'
+      ''
+      ''
+      'WHERE   TRUE'
+      '%SQL_Notas_ou_Cupons_ou_Contratos'
+      ''
+      '%OrdenacaoCupomSemIntervensao'
+      ''
+      '%SelecionarAindanaoImpressas'
+      ''
+      ''
+      ''
+      ''
+      '/*'
+      '  PAR'#194'METROS (n'#227'o retirar)'
+      ''
+      '  :filial'
+      '  :serie'
+      '  :numeronota'
+      ''
+      '  :maquina'
+      '  :numerocupom'
+      '  :intervensao'
+      ''
+      '  :SelecionarTodos'
+      ''
+      '  :contrato'
+      ''
+      '  :eHPorNota'
+      ''
+      '*/')
+    RequestLive = True
+    Left = 90
+    Top = 696
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'SelecionarTodos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'eHPorNota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Serie'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numeronota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numerocupom'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'intervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qryEtiquetasFilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryEtiquetasNrNota: TIntegerField
+      FieldName = 'nrnota'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryEtiquetasNrCupom: TIntegerField
+      FieldName = 'NrCupom'
+      DisplayFormat = '0'
+    end
+    object qryEtiquetasConvidado: TStringField
+      FieldName = 'convidado'
+      Size = 50
+    end
+    object qryEtiquetasLista: TIntegerField
+      FieldName = 'lista'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryEtiquetasProduto: TLargeintField
+      FieldName = 'produto'
+      Required = True
+    end
+    object qryEtiquetasCodigoVisual: TStringField
+      FieldName = 'codigovisual'
+      Required = True
+      Size = 30
+    end
+    object qryEtiquetasDescricaoProduto: TStringField
+      DisplayWidth = 50
+      FieldName = 'descricaoproduto'
+      Required = True
+      Size = 100
+    end
+    object qryEtiquetasQuantidade: TFloatField
+      FieldName = 'quantidade'
+      DisplayFormat = '0.00'
+    end
+    object qryEtiquetasetiqueta: TBooleanField
+      FieldName = 'etiqueta'
+      Required = True
+    end
+    object qryEtiquetasRua: TStringField
+      FieldName = 'rua'
+      Size = 100
+    end
+    object qryEtiquetasNumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryEtiquetasComplemento: TStringField
+      FieldName = 'complemento'
+      Size = 100
+    end
+    object qryEtiquetasNomeBairro: TStringField
+      FieldName = 'nomebairro'
+      Size = 50
+    end
+    object qryEtiquetasNomeCidade: TStringField
+      FieldName = 'nomecidade'
+      Size = 50
+    end
+    object qryEtiquetasEstado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryEtiquetasDataEmissao: TDateField
+      Alignment = taCenter
+      FieldName = 'dataemissao'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryEtiquetasMarcar: TBooleanField
+      FieldName = 'Marcar'
+    end
+    object qryEtiquetascontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryEtiquetasNomeNoiva: TStringField
+      FieldName = 'nome_noiva'
+      Size = 60
+    end
+  end
+  object qryEtiquetas_NOTAS_OU_CUPONS: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'JOIN_Notas_ou_Cupons_ou_Contratos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQL_Notas_ou_Cupons_ou_Contratos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'OrdenacaoCupomSemIntervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SelecionarAindanaoImpressas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT  CAST(:SelecionarTodos AS BOOLEAN) AS Marcar,'
+      '        nc.Filial,'
+      ''
+      
+        '        case WHEN :eHPorNota then nc.Numero else cast(null as in' +
+        'teger) end AS NrNota,'
+      
+        '        case WHEN :eHPorNota then cast(null as integer) else nc.' +
+        'numero end AS NrCupom,'
+      '        cast(null as varchar(20)) as contrato,'
+      ''
+      '       (SELECT c.Nome'
+      '           FROM Clientes c'
+      '           WHERE c.Codigo = df.Cliente) AS Convidado,'
+      ''
+      '        plc.lista,'
+      '        lc.Nome_Noiva,'
+      '        plc.Produto,'
+      ''
+      '        p.CodigoVisual, p.Descricao AS DescricaoProduto,'
+      ''
+      '       (SELECT pdf.Quantidade'
+      
+        '           FROM ProdutosDadosFiscais pdf WHERE pdf.DadoFiscal = ' +
+        'df.Numero AND'
+      
+        '                                               pdf.Produto    = ' +
+        'pc.Produto) AS Quantidade,'
+      '        lc.rua, lc.numero, lc.complemento,'
+      ''
+      '       (SELECT b.Nome'
+      '            FROM Bairros b'
+      '            WHERE b.Estado = lc.Estado AND'
+      '                  b.Cidade = lc.Cidade AND'
+      '                  b.Codigo = lc.Bairro) AS NomeBairro,'
+      '       (SELECT c.Nome'
+      '           FROM Cidades c'
+      '           WHERE c.Estado = lc.Estado AND'
+      '                 c.Codigo = lc.Cidade) AS NomeCidade,'
+      '        lc.estado,'
+      '        df.Data AS DataEmissao,'
+      ''
+      '        plc.Etiqueta'
+      ''
+      'FROM    produtoslistacasamento plc'
+      ''
+      
+        '        JOIN ProdutosContratos pc   ON plc.Lista     = pc.ListaC' +
+        'asamento AND'
+      
+        '                                       plc.Produto   = pc.Produt' +
+        'o'
+      '        JOIN Produtos p             ON pc.Produto    = p.Codigo'
+      '        JOIN ListasCasamento lc     ON plc.Lista     = lc.Codigo'
+      
+        '        JOIN DadosFiscais df        ON df.Contrato   = pc.Contra' +
+        'to'
+      ''
+      '        %JOIN_Notas_ou_Cupons_ou_Contratos'
+      ''
+      ''
+      'WHERE   TRUE'
+      '%SQL_Notas_ou_Cupons_ou_Contratos'
+      ''
+      '%OrdenacaoCupomSemIntervensao'
+      ''
+      '%SelecionarAindanaoImpressas'
+      ''
+      ''
+      ''
+      ''
+      '/*'
+      '  PAR'#194'METROS (n'#227'o retirar)'
+      ''
+      '  :filial'
+      '  :serie'
+      '  :numeronota'
+      ''
+      '  :maquina'
+      '  :numerocupom'
+      '  :intervensao'
+      ''
+      '  :SelecionarTodos'
+      ''
+      '  :contrato'
+      ''
+      '  :eHPorNota'
+      ''
+      '*/')
+    RequestLive = True
+    Left = 418
+    Top = 712
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'SelecionarTodos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'eHPorNota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Serie'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numeronota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numerocupom'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'intervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryEtiquetas_CONTRATOS: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'JOIN_Notas_ou_Cupons_ou_Contratos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQL_Notas_ou_Cupons_ou_Contratos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'OrdenacaoCupomSemIntervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SelecionarAindanaoImpressas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT  CAST(:SelecionarTodos AS BOOLEAN) AS Marcar,'
+      '        ct.Filialvenda as filial,'
+      ''
+      '        cast(null as integer) AS NrNota,'
+      '        cast(null as integer) AS NrCupom,'
+      '        ct.numero as contrato,'
+      ''
+      '       (SELECT vf.Nome'
+      '           FROM vfornecedores vf'
+      '           WHERE vf.Codigo = ct.Cliente'
+      '             and vf.tipo = ct.tipocliente) AS Convidado,'
+      ''
+      '        plc.lista,'
+      '        lc.Nome_Noiva,'
+      '        plc.Produto,'
+      ''
+      '        p.CodigoVisual, p.Descricao AS DescricaoProduto,'
+      ''
+      '        pc.quantidade,'
+      '        lc.rua, lc.numero, lc.complemento,'
+      ''
+      '       (SELECT b.Nome'
+      '            FROM Bairros b'
+      '            WHERE b.Estado = lc.Estado AND'
+      '                  b.Cidade = lc.Cidade AND'
+      '                  b.Codigo = lc.Bairro) AS NomeBairro,'
+      '       (SELECT c.Nome'
+      '           FROM Cidades c'
+      '           WHERE c.Estado = lc.Estado AND'
+      '                 c.Codigo = lc.Cidade) AS NomeCidade,'
+      '        lc.estado,'
+      ''
+      '        ct.Data AS DataEmissao,'
+      ''
+      '        plc.Etiqueta'
+      ''
+      'FROM    produtoslistacasamento plc'
+      ''
+      
+        '        JOIN ProdutosContratos pc   ON plc.Lista     = pc.ListaC' +
+        'asamento AND'
+      
+        '                                       plc.Produto   = pc.Produt' +
+        'o'
+      '             join contratos ct      on pc.contrato   = ct.numero'
+      '        JOIN Produtos p             ON pc.Produto    = p.Codigo'
+      '        JOIN ListasCasamento lc     ON plc.Lista     = lc.Codigo'
+      ''
+      '        %JOIN_Notas_ou_Cupons_ou_Contratos'
+      ''
+      ''
+      'WHERE   ct.numero = :contrato'
+      '%SQL_Notas_ou_Cupons_ou_Contratos'
+      ''
+      '%OrdenacaoCupomSemIntervensao'
+      ''
+      '%SelecionarAindanaoImpressas'
+      ''
+      ''
+      ''
+      ''
+      '/*'
+      '  PAR'#194'METROS (n'#227'o retirar)'
+      ''
+      '  :filial'
+      '  :serie'
+      '  :numeronota'
+      ''
+      '  :maquina'
+      '  :numerocupom'
+      '  :intervensao'
+      ''
+      '  :SelecionarTodos'
+      ''
+      '  :contrato'
+      ''
+      '  :eHPorNota'
+      ''
+      '*/')
+    RequestLive = True
+    Left = 466
+    Top = 728
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'SelecionarTodos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Serie'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numeronota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numerocupom'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'intervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'eHPorNota'
+        ParamType = ptUnknown
+      end>
+  end
+end

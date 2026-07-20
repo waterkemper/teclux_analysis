@@ -1,0 +1,874 @@
+
+unit dmCadastroLicitacoes;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft, ctconstantes, biblio, clparametrossistema, variants,
+  fmPrincipalBasico, forms, frxClass, frxDBSet, frxExportODF, frxExportTXT,
+  frxExportMail, frxExportCSV, frxExportText, frxExportImage, frxExportRTF,
+  frxExportXML, frxExportXLS, frxExportHTML, frxExportPDF,
+  Math;
+
+type
+  TdtmCadastroLicitacoes = class(TdtmBasico)
+    qryLicitacoes: TtecQuery;
+    dsrLicitacoes: TtecDataSource;
+    qryProdutosLicitacoes: TtecQuery;
+    dsrProdutosLicitacoes: TtecDataSource;
+    qryLicitacoesnumero: TIntegerField;
+    qryLicitacoescliente: TIntegerField;
+    qryLicitacoesvendedor: TIntegerField;
+    qryLicitacoesdatavenda: TDateField;
+    qryLicitacoesvalortotal: TFloatField;
+    qryLicitacoesvigencia: TDateField;
+    qryLicitacoesobservacoes: TStringField;
+    qryLicitacoesnomecliente: TStringField;
+    qryLicitacoesnrproposta: TStringField;
+    qryProdutosLicitacoeslicitacao: TIntegerField;
+    qryProdutosLicitacoesproduto: TIntegerField;
+    qryProdutosLicitacoesquantidade: TFloatField;
+    qryProdutosLicitacoespreco: TFloatField;
+    qryProdutosLicitacoesprodutovisual: TStringField;
+    qryProdutosLicitacoestotalproduto: TFloatField;
+    qryProdutosLicitacoesdescricaoproduto: TStringField;
+    qrylicitacoes_proximo: TtecQuery;
+    qrylicitacoes_proximonumero: TIntegerField;
+    qryProdutosLicitacoespendente: TFloatField;
+    qryProdutosLicitacoesentregar: TFloatField;
+    qryProdutosLicitacoespendenteatual: TFloatField;
+    qryLicitacoesvalorentregue: TFloatField;
+    qryLicitacoesvalorpendente: TFloatField;
+    qryProdutosLicitacoesqtdeentregue: TFloatField;
+    qryProdutosLicitacoestotalentregue: TFloatField;
+    qryProdutosLicitacoestotalpendente: TFloatField;
+    qryLicitacoesvalorentregar: TFloatField;
+    qryProdutosLicitacoestotalentregar: TFloatField;
+    qryLicitacoesfilialvenda: TIntegerField;
+    qryGerarContrato: TtecQuery;
+    qryGerarContratoNumeroContrato: TStringField;
+    qryContratosNotaseCuponsdaLicitacao: TtecQuery;
+    qryContratosNotaseCuponsdaLicitacaofilial: TIntegerField;
+    qryContratosNotaseCuponsdaLicitacaoserie: TStringField;
+    qryContratosNotaseCuponsdaLicitacaomaquina: TIntegerField;
+    qryContratosNotaseCuponsdaLicitacaointervensao: TIntegerField;
+    qryContratosNotaseCuponsdaLicitacaonumero: TIntegerField;
+    qryContratosNotaseCuponsdaLicitacaodatasaida: TDateField;
+    qryContratosNotaseCuponsdaLicitacaosituacao: TStringField;
+    qryContratosNotaseCuponsdaLicitacaocliente: TIntegerField;
+    qryContratosNotaseCuponsdaLicitacaotipocliente: TStringField;
+    qryContratosNotaseCuponsdaLicitacaonomecliente: TStringField;
+    qryContratosNotaseCuponsdaLicitacaovalortotal: TFloatField;
+    qryContratosNotaseCuponsdaLicitacaodadofiscal: TIntegerField;
+    qryContratosNotaseCuponsdaLicitacaonatureza: TStringField;
+    qryContratosNotaseCuponsdaLicitacaochv_nfe: TStringField;
+    dsrContratosNotaseCuponsdaLicitacao: TDataSource;
+    qryContratosNotaseCuponsdaLicitacaocontrato: TStringField;
+    qryContratosNotaseCuponsdaLicitacaodatacontrato: TDateField;
+    qryContratosNotaseCuponsdaLicitacaonomesituacaocontrato: TStringField;
+    qryContratosNotaseCuponsdaLicitacaodescricaosituacaodoctofiscal: TStringField;
+    qryContratosNotasDevolucoesdaLicitacao: TtecQuery;
+    qryContratosNotasDevolucoesdaLicitacaofornecedor: TIntegerField;
+    qryContratosNotasDevolucoesdaLicitacaotipofornecedor: TStringField;
+    qryContratosNotasDevolucoesdaLicitacaonomefornecedor: TStringField;
+    qryContratosNotasDevolucoesdaLicitacaoserie: TStringField;
+    qryContratosNotasDevolucoesdaLicitacaonumero: TIntegerField;
+    qryContratosNotasDevolucoesdaLicitacaodata: TDateField;
+    qryContratosNotasDevolucoesdaLicitacaosituacao: TStringField;
+    qryContratosNotasDevolucoesdaLicitacaodescricaosituacao: TStringField;
+    qryContratosNotasDevolucoesdaLicitacaovalornota: TFloatField;
+    qryContratosNotasDevolucoesdaLicitacaofilialsaida: TIntegerField;
+    qryContratosNotasDevolucoesdaLicitacaoseriesaida: TStringField;
+    qryContratosNotasDevolucoesdaLicitacaonumerosaida: TIntegerField;
+    qryContratosNotasDevolucoesdaLicitacaomaquina: TIntegerField;
+    qryContratosNotasDevolucoesdaLicitacaointervensao: TIntegerField;
+    qryContratosNotasDevolucoesdaLicitacaodatasaida: TDateField;
+    qryContratosNotasDevolucoesdaLicitacaodadofiscal: TIntegerField;
+    qryContratosNotasDevolucoesdaLicitacaochv_nfe: TStringField;
+    dsrContratosNotasDevolucoesdaLicitacao: TtecDataSource;
+    qryContratosNotasDevolucoesdaLicitacaocontrato: TStringField;
+    qryContratosNotasDevolucoesdaLicitacaodatacontrato: TDateField;
+    qryContratosNotasDevolucoesdaLicitacaonomesituacaocontrato: TStringField;
+    frxReportLicitacao: TfrxReport;
+    frxDBDatasetLicitacoes: TfrxDBDataset;
+    frxDBDatasetProdutosLicitacoes: TfrxDBDataset;
+    qryFornecedoresProdutos: TtecQuery;
+    qryFornecedoresProdutoscaracteristica: TLargeintField;
+    qryFornecedoresProdutosfornecedor: TIntegerField;
+    qryFornecedoresProdutosreferencia: TStringField;
+    qryFornecedoresProdutosrazao: TStringField;
+    qryFornecedoresProdutosdata: TDateField;
+    qryFornecedoresProdutospreco: TFloatField;
+    qryFornecedoresProdutosipi: TFloatField;
+    qryFornecedoresProdutosobservacao: TStringField;
+    qryFornecedoresProdutosprecocomipi: TFloatField;
+    qryFornecedoresProdutosprecoultimaentrada: TFloatField;
+    qryFornecedoresProdutosprecoipiultimaentrada: TFloatField;
+    qryFornecedoresProdutosipiultimaentrada: TFloatField;
+    qryFornecedoresProdutosdataultimaentrada: TDateField;
+    qryFornecedoresProdutosgeradocadastro: TBooleanField;
+    dsrFornecedoresProdutos: TtecDataSource;
+    qryProdutosLicitacoesmarca: TIntegerField;
+    qryProdutosLicitacoesdescricaomarca: TStringField;
+    qryProdutosLicitacoesunidade: TStringField;
+    qryProdutosLicitacoesdescricaounidade: TStringField;
+    qryProdutosLicitacoescaracteristica: TLargeintField;
+    qryProdutosLicitacoesfaturados: TFloatField;
+    frxDBDatasetContratosLicitacao: TfrxDBDataset;
+    qryProdutosLicitacoesorcados: TFloatField;
+    qryProdutosLicitacoesreservados: TFloatField;
+    qryProdutosLicitacoesnotafiscal: TFloatField;
+    qryProdutosLicitacoesdevolvidos: TFloatField;
+    qryLicitacoesvalororcado: TFloatField;
+    qryLicitacoesvalorreservado: TFloatField;
+    qryLicitacoesvalorfaturado: TFloatField;
+    qryLicitacoesvalordevolvido: TFloatField;
+    qryProdutosLicitacoestotalorcado: TFloatField;
+    qryProdutosLicitacoestotalreservado: TFloatField;
+    qryProdutosLicitacoestotalfaturado: TFloatField;
+    qryProdutosLicitacoestotaldevolvido: TFloatField;
+    qryContratosdaLicitacao: TtecQuery;
+    qryProdutosContratosLicitacoes: TtecQuery;
+    qryContratosdaLicitacaocontrato: TStringField;
+    qryContratosdaLicitacaodatacontrato: TDateField;
+    qryContratosdaLicitacaonomesituacaocontrato: TStringField;
+    qryContratosdaLicitacaocliente: TIntegerField;
+    qryContratosdaLicitacaotipocliente: TStringField;
+    qryContratosdaLicitacaonomecliente: TStringField;
+    qryContratosdaLicitacaovalorprazo: TFloatField;
+    dsrContratosdaLicitacao: TtecDataSource;
+    qryProdutosContratosLicitacoescontrato: TStringField;
+    qryProdutosContratosLicitacoesproduto: TLargeintField;
+    qryProdutosContratosLicitacoesprecovenda: TFloatField;
+    qryProdutosContratosLicitacoesprodutovisual: TStringField;
+    qryProdutosContratosLicitacoesdescricaoproduto: TStringField;
+    qryProdutosContratosLicitacoestotalproduto: TFloatField;
+    qryProdutosContratosLicitacoesorcados: TFloatField;
+    qryProdutosContratosLicitacoesreservados: TFloatField;
+    qryProdutosContratosLicitacoesfaturados: TFloatField;
+    qryProdutosContratosLicitacoesnotafiscal: TFloatField;
+    qryProdutosContratosLicitacoesdevolvidos: TFloatField;
+    qryProdutosContratosLicitacoespendente: TFloatField;
+    qryProdutosContratosLicitacoesmarca: TIntegerField;
+    qryProdutosContratosLicitacoesdescricaomarca: TStringField;
+    qryProdutosContratosLicitacoesunidade: TStringField;
+    qryProdutosContratosLicitacoesdescricaounidade: TStringField;
+    qryProdutosContratosLicitacoescaracteristica: TLargeintField;
+    frxDBDatasetProdutosContratosLicitacoes: TfrxDBDataset;
+    qryProdutosContratosLicitacoesquantidade: TFloatField;
+    frxPDFExport1: TfrxPDFExport;
+    frxHTMLExport1: TfrxHTMLExport;
+    frxXLSExport1: TfrxXLSExport;
+    frxXMLExport1: TfrxXMLExport;
+    frxRTFExport1: TfrxRTFExport;
+    frxBMPExport1: TfrxBMPExport;
+    frxJPEGExport1: TfrxJPEGExport;
+    frxTIFFExport1: TfrxTIFFExport;
+    frxGIFExport1: TfrxGIFExport;
+    frxSimpleTextExport1: TfrxSimpleTextExport;
+    frxCSVExport1: TfrxCSVExport;
+    frxMailExport1: TfrxMailExport;
+    frxTXTExport1: TfrxTXTExport;
+    frxODSExport1: TfrxODSExport;
+    frxODTExport1: TfrxODTExport;
+    qryProdutosLicitacoesreferencialicitacao: TStringField;
+    qryProdutosLicitacoesobservacoes: TStringField;
+    qryProdutosLicitacoesvalorultimacompra: TFloatField;
+    qryProdutosLicitacoescustomedio: TFloatField;
+    qryLicitacoesagente: TIntegerField;
+    qryLicitacoesnomevendedor: TStringField;
+    qryLicitacoesestado: TStringField;
+    qryProdutosContratosLicitacoesreferencialicitacao: TStringField;
+    qryProdutosLicitacoesnumero: TIntegerField;
+    qryProdutosContratosLicitacoesnumeroprodutolicitacao: TIntegerField;
+    qryLicitacoesprazo: TIntegerField;
+    qryProdutosLicitacoesprodutoantesalterar: TIntegerField;
+    qryLicitacoessituacao_licitacao: TStringField;
+    qryProdutosLicitacoesaliquotaipi: TFloatField;
+    qryProdutosLicitacoesvaloripi: TFloatField;
+    qryProdutosContratosLicitacoesvaloripi: TFloatField;
+    qryProdutosLicitacoesipicst: TStringField;
+    qryProdutosLicitacoesvalordesconto: TFloatField;
+    qryProdutosContratosLicitacoesdescontogeral: TFloatField;
+    procedure qryLicitacoesAfterScroll(DataSet: TDataSet);
+    procedure qryLicitacoesNewRecord(DataSet: TDataSet);
+    procedure qryProdutosLicitacoesNewRecord(DataSet: TDataSet);
+    procedure qryProdutosLicitacoesAfterDelete(DataSet: TDataSet);
+    procedure qryProdutosLicitacoesAfterPost(DataSet: TDataSet);
+    procedure qryProdutosLicitacoesCalcFields(DataSet: TDataSet);
+    procedure qryProdutosLicitacoesAfterCancel(DataSet: TDataSet);
+    procedure frxReportLicitacaoGetValue(const VarName: String;
+      var Value: Variant);
+    procedure qryProdutosContratosLicitacoesCalcFields(DataSet: TDataSet);
+    procedure qryProdutosLicitacoesAfterEdit(DataSet: TDataSet);
+    procedure qryProdutosLicitacoesBeforeOpen(DataSet: TDataSet);
+    procedure qryProdutosLicitacoesBeforePost(DataSet: TDataSet);
+    procedure dsrProdutosLicitacoesDataChange(Sender: TObject;
+      Field: TField);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    function ExcluirLicitacao: Boolean;
+    function GravarLicitacoes: Boolean;
+    function ExcluirLicitacoesProdutos: Boolean;
+    procedure CalcularTotalLicitacao;
+    function gerarcontrato: Boolean;
+    procedure AbrirContratosNotaseCuponsdaLicitacao;
+
+    procedure ImprimirContrato;
+    procedure EqualizarDescontoGeralcomIPI;
+    
+  end;
+
+var
+  dtmCadastroLicitacoes: TdtmCadastroLicitacoes;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmCadastroLicitacoes }
+
+constructor TdtmCadastroLicitacoes.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryLicitacoes.tag := ctTabelas;
+  qryProdutosLicitacoes.tag := ctTabelas;
+
+  qryProdutosLicitacoesquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosLicitacoesorcados.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosLicitacoesreservados.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosLicitacoesfaturados.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosLicitacoesNotaFiscal.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosLicitacoesdevolvidos.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+
+  qryProdutosLicitacoespendente.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosLicitacoesentregar.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosLicitacoespendenteatual.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+
+
+  qryProdutosLicitacoesquantidade.EditFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosLicitacoesNotaFiscal.EditFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosLicitacoespendente.EditFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosLicitacoesentregar.EditFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosLicitacoespendenteatual.EditFormat := ParSistema.MascaraQuantidadeGrade;
+
+
+end;
+
+destructor TdtmCadastroLicitacoes.Destroy;
+begin
+
+  inherited;
+end;
+
+function TdtmCadastroLicitacoes.ExcluirLicitacao: Boolean;
+var
+  vNumero : integer;
+begin
+  while not qryProdutosLicitacoes.eof do
+    qryProdutosLicitacoes.delete;
+  qryLicitacoes.delete;
+
+  result := perpetrar([qryProdutosLicitacoes, qryLicitacoes]);
+
+  if not result then
+    RefazConsultaPorNome(qryLicitacoes,['numero'],[vnumero]);
+
+
+end;
+
+function TdtmCadastroLicitacoes.GravarLicitacoes: Boolean;
+begin
+  if qryLicitacoes.CheckRequiredFields(false, false, true, self.owner, true) then
+  begin
+    qryProdutosLicitacoes.GuardarRegistroAtual(false, false);
+    if qryProdutosLicitacoes.CheckRequiredFields(true, true, true, self.owner, true) then
+      result := perpetrar([qryLicitacoes, qryProdutosLicitacoes]);
+    qryProdutosLicitacoes.VoltarRegistro;  
+  end;
+end;
+
+procedure TdtmCadastroLicitacoes.qryLicitacoesAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryProdutosLicitacoes, ['licitacao'], [qryLicitacoesnumero.asInteger]);
+  CalcularTotalLicitacao;
+end;
+
+procedure TdtmCadastroLicitacoes.qryLicitacoesNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qrylicitacoes_proximo.close;
+  qrylicitacoes_proximo.open;
+  qryLicitacoesnumero.asinteger := qrylicitacoes_proximonumero.asinteger;
+  qryLicitacoesdatavenda.asDateTime := dataservidor;
+  qryLicitacoesfilialvenda.asinteger := FilialBase;
+
+  qryLicitacoessituacao_licitacao.asString := 'ABERTO';
+
+end;
+
+procedure TdtmCadastroLicitacoes.qryProdutosLicitacoesNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosLicitacoeslicitacao.asinteger := qryLicitacoesnumero.asinteger;
+  qryProdutosLicitacoesquantidade.asCurrency := 1;
+  qryProdutosLicitacoespreco.asCurrency := 0.00;
+
+  qryProdutosLicitacoesnumero.AsInteger := qryProdutosLicitacoes.recno;
+  if qryProdutosLicitacoesnumero.AsInteger = 0 then
+    qryProdutosLicitacoesnumero.AsInteger := 1;
+
+
+end;
+
+procedure TdtmCadastroLicitacoes.qryProdutosLicitacoesAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  qryLicitacoes.edit;
+  CalcularTotalLicitacao;
+end;
+
+procedure TdtmCadastroLicitacoes.qryProdutosLicitacoesAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  try
+//    qryProdutosLicitacoes.afterpost := nil;
+
+    qryLicitacoes.edit;
+    CalcularTotalLicitacao;
+  finally
+//    qryProdutosLicitacoes.afterpost := qryProdutosLicitacoesAfterPost;
+  end;
+end;
+
+procedure TdtmCadastroLicitacoes.qryProdutosLicitacoesCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  qryProdutosLicitacoestotalproduto.asCurrency :=
+     (qryProdutosLicitacoesquantidade.asCurrency *
+      qryProdutosLicitacoespreco.asCurrency) +
+
+      ifthen(qryProdutosLicitacoesquantidade.asCurrency<>0,
+      qryProdutosLicitacoesvaloripi.asCurrency,
+      0) -
+      qryProdutosLicitacoesvalordesconto.AsCurrency;
+
+  qryProdutosLicitacoespendente.asCurrency :=
+    qryProdutosLicitacoesquantidade.AsCurrency -
+    (qryProdutosLicitacoesorcados.AsCurrency +
+     qryProdutosLicitacoesreservados.AsCurrency +
+     qryProdutosLicitacoesfaturados.AsCurrency +
+     qryProdutosLicitacoesnotafiscal.AsCurrency -
+     qryProdutosLicitacoesdevolvidos.AsCurrency);
+
+  qryProdutosLicitacoespendenteatual.asCurrency :=
+    qryProdutosLicitacoespendente.asCurrency -
+    qryProdutosLicitacoesentregar.asCurrency;
+
+  qryProdutosLicitacoestotalpendente.asCurrency :=
+     (qryProdutosLicitacoespendente.asCurrency *
+      qryProdutosLicitacoespreco.asCurrency) +
+      ifthen(qryProdutosLicitacoespendente.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvaloripi.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoespendente.asCurrency)
+
+      ,0) -
+	  
+      ifthen(qryProdutosLicitacoespendente.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvalordesconto.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoespendente.asCurrency)
+
+      ,0);
+	  
+	  
+
+  qryProdutosLicitacoestotalorcado.asCurrency :=
+     (qryProdutosLicitacoesorcados.asCurrency *
+      qryProdutosLicitacoespreco.asCurrency) +
+      ifthen(qryProdutosLicitacoesorcados.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvaloripi.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoesorcados.asCurrency)
+
+      ,0) -
+	  
+      ifthen(qryProdutosLicitacoesorcados.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvalordesconto.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoesorcados.asCurrency)
+
+      ,0);
+	  
+	  
+
+  qryProdutosLicitacoestotalreservado.asCurrency :=
+     (qryProdutosLicitacoesreservados.asCurrency *
+      qryProdutosLicitacoespreco.asCurrency) +
+      ifthen(qryProdutosLicitacoesreservados.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvaloripi.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoesreservados.asCurrency)
+      ,0) -
+	  
+      ifthen(qryProdutosLicitacoesreservados.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvalordesconto.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoesreservados.asCurrency)
+
+      ,0);
+	  
+	  
+	  
+  qryProdutosLicitacoestotalfaturado.asCurrency :=
+     (qryProdutosLicitacoesfaturados.asCurrency *
+     qryProdutosLicitacoespreco.asCurrency) +
+
+      ifthen(qryProdutosLicitacoesfaturados.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvaloripi.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoesfaturados.asCurrency)
+      ,0) -
+	  
+      ifthen(qryProdutosLicitacoesfaturados.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvalordesconto.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoesfaturados.asCurrency)
+
+      ,0);
+
+  qryProdutosLicitacoestotalentregue.asCurrency :=
+     (qryProdutosLicitacoesnotafiscal.asCurrency *
+     qryProdutosLicitacoespreco.asCurrency) +
+      ifthen(qryProdutosLicitacoesnotafiscal.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvaloripi.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoesnotafiscal.asCurrency)
+
+      ,0) -
+	  
+      ifthen(qryProdutosLicitacoesnotafiscal.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvalordesconto.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoesnotafiscal.asCurrency)
+
+      ,0);
+	  
+  qryProdutosLicitacoestotaldevolvido.asCurrency :=
+     (qryProdutosLicitacoesdevolvidos.asCurrency *
+      qryProdutosLicitacoespreco.asCurrency) +
+      ifthen(qryProdutosLicitacoesdevolvidos.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvaloripi.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoesdevolvidos.asCurrency)
+
+      ,0) -
+	  
+      ifthen(qryProdutosLicitacoesdevolvidos.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvalordesconto.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoesdevolvidos.asCurrency)
+
+      ,0);
+
+  qryProdutosLicitacoestotalentregar.asCurrency :=
+     (qryProdutosLicitacoesentregar.asCurrency *
+     qryProdutosLicitacoespreco.asCurrency) +
+      ifthen(qryProdutosLicitacoesentregar.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvaloripi.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoesentregar.asCurrency)
+
+      ,0) -
+	  
+      ifthen(qryProdutosLicitacoesentregar.asCurrency<>0,
+
+      RatearValores(qryProdutosLicitacoesvalordesconto.asCurrency,
+                    qryProdutosLicitacoesquantidade.asCurrency,
+                    qryProdutosLicitacoesentregar.asCurrency)
+
+      ,0);
+
+
+end;
+
+procedure TdtmCadastroLicitacoes.CalcularTotalLicitacao;
+begin
+  qryLicitacoesvalortotal.asCurrency := 0;
+
+  qryLicitacoesvalororcado.asCurrency := 0;
+  qryLicitacoesvalorreservado.asCurrency := 0;
+  qryLicitacoesvalorfaturado.asCurrency := 0;
+  qryLicitacoesvalorentregue.asCurrency := 0;
+  qryLicitacoesvalordevolvido.asCurrency := 0;
+
+  qryLicitacoesvalorentregar.asCurrency := 0;
+  qryLicitacoesvalorpendente.asCurrency := 0;
+
+  qryProdutosLicitacoes.GuardarRegistroAtual(true, false);
+
+  qryProdutosLicitacoes.first;
+  while not qryProdutosLicitacoes.eof do
+  begin
+                           {
+    qryProdutosLicitacoestotalproduto.asCurrency :=
+       qryProdutosLicitacoesquantidade.asCurrency *
+       qryProdutosLicitacoespreco.asCurrency;
+
+    qryProdutosLicitacoespendente.asCurrency :=
+      qryProdutosLicitacoesquantidade.AsCurrency -
+      qryProdutosLicitacoesNotaFiscal.AsCurrency;
+
+    qryProdutosLicitacoespendenteatual.asCurrency :=
+      qryProdutosLicitacoespendente.asCurrency -
+      qryProdutosLicitacoesentregar.asCurrency;
+
+    qryProdutosLicitacoestotalpendente.asCurrency :=
+       qryProdutosLicitacoespendente.asCurrency *
+       qryProdutosLicitacoespreco.asCurrency;
+
+    qryProdutosLicitacoestotalentregue.asCurrency :=
+       qryProdutosLicitacoesNotaFiscal.asCurrency *
+       qryProdutosLicitacoespreco.asCurrency;
+       }
+
+    qryLicitacoesvalortotal.asCurrency := qryLicitacoesvalortotal.asCurrency +
+       qryProdutosLicitacoestotalproduto.asCurrency;
+
+    qryLicitacoesvalororcado.asCurrency := qryLicitacoesvalororcado.asCurrency +
+       qryProdutosLicitacoestotalorcado.asCurrency;
+
+    qryLicitacoesvalorreservado.asCurrency := qryLicitacoesvalorreservado.asCurrency +
+       qryProdutosLicitacoestotalreservado.asCurrency;
+
+    qryLicitacoesvalorfaturado.asCurrency := qryLicitacoesvalorfaturado.asCurrency +
+       qryProdutosLicitacoestotalfaturado.asCurrency;
+
+    qryLicitacoesvalorentregue.asCurrency := qryLicitacoesvalorentregue.asCurrency +
+       qryProdutosLicitacoestotalentregue.asCurrency;
+
+    qryLicitacoesvalordevolvido.asCurrency := qryLicitacoesvalordevolvido.asCurrency +
+       qryProdutosLicitacoestotaldevolvido.asCurrency;
+
+    qryLicitacoesvalorentregar.asCurrency := qryLicitacoesvalorentregar.asCurrency +
+       qryProdutosLicitacoestotalentregar.asCurrency;
+
+    qryLicitacoesvalorpendente.asCurrency := qryLicitacoesvalorpendente.asCurrency +
+       qryProdutosLicitacoestotalpendente.asCurrency;
+
+    qryProdutosLicitacoes.next;
+  end;
+
+  qryProdutosLicitacoes.VoltarRegistro;
+
+   {
+
+  qryLicitacoesvalortotal.asCurrency :=
+    SomarValores(qryProdutosLicitacoes, [qryProdutosLicitacoestotalproduto], [], [], []);
+
+  qryLicitacoesvalorentregue.asCurrency :=
+    SomarValores(qryProdutosLicitacoes, [qryProdutosLicitacoestotalentregue], [], [], []);
+
+  qryLicitacoesvalorpendente.asCurrency :=
+    SomarValores(qryProdutosLicitacoes, [qryProdutosLicitacoestotalpendente], [], [], []);
+   }
+
+end;
+
+function TdtmCadastroLicitacoes.ExcluirLicitacoesProdutos: Boolean;
+begin
+  if not qryProdutosLicitacoes.IsEmpty then
+    if MensagemConfirmacao('Excluir o produto desta licitação') = smbOk then
+      qryProdutosLicitacoes.delete;
+end;
+
+procedure TdtmCadastroLicitacoes.qryProdutosLicitacoesAfterCancel(
+  DataSet: TDataSet);
+begin
+  inherited;
+;
+end;
+
+function TdtmCadastroLicitacoes.gerarcontrato: Boolean;
+  function PossuiPendenteAtualNegativo: boolean;
+  begin
+    result := false;
+    try
+      qryProdutosLicitacoes.GuardarRegistroAtual(true, false);
+      qryProdutosLicitacoes.first;
+      while not qryProdutosLicitacoes.eof do
+      begin
+        if qryProdutosLicitacoespendenteatual.asFloat < 0 then
+        begin
+          result := true;
+          break;
+        end;
+
+        qryProdutosLicitacoes.next;
+
+      end;
+    finally
+      qryProdutosLicitacoes.VoltarRegistro;
+    end;
+
+  end;
+begin
+
+  result := true;
+
+  if PossuiPendenteAtualNegativo then
+    result := MensagemConfirmacao('A coluna ''Pendente atual'' possui quantidades negativas. Continuar?') = smbOk;
+
+  if result then
+  begin
+    try
+      qryGerarContrato.close;
+      qryGerarContrato.parambyname('licitacao').asInteger := qryLicitacoesnumero.asInteger;
+      qryGerarContrato.open;
+      perpetrar([]);
+    except
+      on E: Exception do
+      begin
+        result := false;
+        MensagemErro(E.Message);
+
+      end;
+    end;
+
+    if result then
+    begin
+      AtribuirDados(qryProdutosLicitacoes, [qryProdutosLicitacoesentregar],[Null]);
+      GravarLicitacoes;
+
+      TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir da Licitação',qryGerarContratoNumeroContrato.asInteger], 'TfrmCadastroContratos', True)
+
+    end;
+
+  end;
+
+end;
+
+procedure TdtmCadastroLicitacoes.AbrirContratosNotaseCuponsdaLicitacao;
+begin
+  RefazConsultaPorNome(qryContratosNotaseCuponsdaLicitacao,
+     ['licitacao'],[qrylicitacoesnumero.asinteger]);
+
+  RefazConsultaPorNome(qryContratosNotasDevolucoesdaLicitacao,
+     ['licitacao'],[qrylicitacoesnumero.asinteger]);
+
+end;
+
+procedure TdtmCadastroLicitacoes.frxReportLicitacaoGetValue(
+  const VarName: String; var Value: Variant);
+begin
+  inherited;
+  if VarName = 'FABRICANTE' then
+  begin
+    RefazConsultaPorNome(qryFornecedoresProdutos,
+    ['produto','caracteristica'],
+    [qryProdutosLicitacoesproduto.asString,
+     qryProdutosLicitacoescaracteristica.asString]);
+
+    Value := qryFornecedoresProdutosrazao.asString;
+
+  end
+  else
+  if VarName = 'FABRICANTE_PC' then
+  begin
+    RefazConsultaPorNome(qryFornecedoresProdutos,
+    ['produto','caracteristica'],
+    [qryProdutosContratosLicitacoesproduto.asString,
+     qryProdutosContratosLicitacoescaracteristica.asString]);
+
+    Value := qryFornecedoresProdutosrazao.asString;
+
+  end
+  else
+  if VarName = 'TITULO' then
+    Value :=  'HISTÓRICO DO CONTRATO DE LICITAÇÃO Nº '+qryLicitacoesnumero.Asstring
+  else if VarName = 'RAZAOFILIALBASE' then
+    Value := RazaoFilialBase
+  else if VarName = 'ENDERECO_BAIRRO' then
+    Value :=  RuaFilialBase+ ' - '+BairroFilialBase
+  else if VarName = 'CEP_CIDADE_UF' then
+    Value :=  FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase
+  else if VarName = 'OUTRAS' then
+    Value :=  ''
+  else if VarName = 'DATA' then
+    Value :=  FormatDateTime('DD/MM/YYYY',date())
+  else if VarName = 'CordoZebrado' then
+    Value :=  strtoint(parsistema.CorZebradoRelatorio)
+  else if VarName = 'MascaraQuantidade' then
+    Value := ParSistema.MascaraQuantidadeGrade;
+
+
+
+end;
+
+procedure TdtmCadastroLicitacoes.ImprimirContrato;
+var
+  PV: TfrxComponent;
+  arquivofast: String;
+
+begin
+
+
+   RefazConsultaPorNome(qryContratosdaLicitacao, ['licitacao'],
+      [qryLicitacoesnumero.asinteger]);
+
+   RefazConsultaPorNome(qryProdutosContratosLicitacoes, ['licitacao'],
+      [qryLicitacoesnumero.asinteger]);
+
+
+
+  if FileExists(LogotipoFilialBase) then
+  begin
+    PV := frxReportLicitacao.FindObject('fpvLogo');
+    if (PV is TfrxPictureView) then
+      TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+  end;
+
+  arquivofast := ExtractFilePath(Application.ExeName) + 'frxReportLicitacao.fr3';
+  if FileExists(arquivofast) then
+    frxReportLicitacao.LoadFromFile(arquivofast);
+
+//  frxReportLicitacao.DesignReport;
+  frxReportLicitacao.showreport;
+
+end;
+
+procedure TdtmCadastroLicitacoes.qryProdutosContratosLicitacoesCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+
+  qryProdutosContratosLicitacoespendente.asCurrency :=
+    qryProdutosContratosLicitacoesquantidade.AsCurrency -
+
+    (qryProdutosContratosLicitacoesorcados.AsCurrency +
+     qryProdutosContratosLicitacoesreservados.AsCurrency +
+     qryProdutosContratosLicitacoesfaturados.AsCurrency +
+     qryProdutosContratosLicitacoesnotafiscal.AsCurrency -
+     qryProdutosContratosLicitacoesdevolvidos.AsCurrency);
+
+
+end;
+
+procedure TdtmCadastroLicitacoes.qryProdutosLicitacoesAfterEdit(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryLicitacoes.edit;
+end;
+
+procedure TdtmCadastroLicitacoes.qryProdutosLicitacoesBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryLicitacoesfilialvenda.asinteger <> 0 then
+    qryProdutosLicitacoes.ParamByName('filialvenda').asinteger := qryLicitacoesfilialvenda.asinteger
+  else
+    qryProdutosLicitacoes.ParamByName('filialvenda').asinteger := filialbase;
+
+end;
+
+procedure TdtmCadastroLicitacoes.qryProdutosLicitacoesBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosLicitacoesprodutoantesalterar.asString :=
+    qryProdutosLicitacoesproduto.asString;
+end;
+
+procedure TdtmCadastroLicitacoes.dsrProdutosLicitacoesDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if (field = qryProdutosLicitacoesquantidade) or
+     (field = qryProdutosLicitacoescustomedio) or
+     (field = qryProdutosLicitacoespreco) or
+     (field = qryProdutosLicitacoesvalordesconto)
+  then
+  begin
+    if contribipi and
+       (pos(qryProdutosLicitacoesipicst.asstring, '00,49,50,99')<>0) then
+
+       qryProdutosLicitacoesvaloripi.ascurrency :=
+         roundto(
+
+         ((
+          ((qryProdutosLicitacoesquantidade.ascurrency *
+            qryProdutosLicitacoespreco.asCurrency) -
+           qryProdutosLicitacoesvalordesconto.asCurrency)
+
+           *
+
+           qryProdutosLicitacoesaliquotaipi.asCurrency
+           ) / 100), -2)
+   else
+     qryProdutosLicitacoesvaloripi.ascurrency := 0.00;
+
+  end;
+
+end;
+
+procedure TdtmCadastroLicitacoes.EqualizarDescontoGeralcomIPI;
+var
+  nxdif : integer;
+begin
+  nxdif := 0;
+  if not qryProdutosLicitacoes.readonly then
+  begin
+    while abs((qryProdutosLicitacoesvalordesconto.AsCurrency -
+              qryProdutosLicitacoesvaloripi.AsCurrency))<>0 do
+    begin
+      qryProdutosLicitacoes.edit;
+      qryProdutosLicitacoesvalordesconto.AsCurrency := roundto(qryProdutosLicitacoesvaloripi.AsCurrency, -2);
+      qryProdutosLicitacoes.Post;
+
+      if (abs((qryProdutosLicitacoesvalordesconto.AsCurrency -
+              qryProdutosLicitacoesvaloripi.AsCurrency))>0) and
+
+         (abs((qryProdutosLicitacoesvalordesconto.AsCurrency -
+              qryProdutosLicitacoesvaloripi.AsCurrency)) <= 0.02) then
+         inc(nxdif);
+
+      if nxdif > 7 then
+      begin
+        MensagemErro('Não foi possível equalizar os valores. Entre em contato com o suporte');
+        break;
+      end;
+
+    end;
+  end;
+end;
+
+end.

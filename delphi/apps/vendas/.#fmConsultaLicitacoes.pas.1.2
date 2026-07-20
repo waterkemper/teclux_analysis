@@ -1,0 +1,188 @@
+unit fmConsultaLicitacoes;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmajudabt, ComCtrls, Buttons, ToolWin, ExtCtrls, Grids, AdvObj,
+  BaseGrid, AdvGrid, DBAdvGrid, frselecaoaleatoriaclientes, StdCtrls,
+  frintervalodatas, frintervalodatasparametros, frlistafiliais,
+  frselecaoaleatoriaitemdeprodutos, frselecaoaleatoriavendedores,
+  dmConsultaLicitacoes, biblio, ctConstantes, clparametrossistema, Menus,
+  AdvMenus, tmsAdvGridExcel, AsgFindDialog, fmPrincipalBasico;
+
+type
+  TfrmConsultaLicitacoes = class(TfrmAjudaBt)
+    pgcLicitacoes: TPageControl;
+    tstParametros: TTabSheet;
+    gbxClientes: TGroupBox;
+    fraSelecaoAleatoriaClientes1: TfraSelecaoAleatoriaClientes;
+    tstDados: TTabSheet;
+    DBAdvGridLicitacoes: TDBAdvGrid;
+    Panel1: TPanel;
+    fraIntervaloDataVenda: TfraIntervaloDatas;
+    fraIntervaloDataVigencia: TfraIntervaloDatas;
+    gbxListaItemsdeProduto: TGroupBox;
+    fraSelecaoAleatoriaItemdeProdutos1: TfraSelecaoAleatoriaItemdeProdutos;
+    gbxSituacao: TGroupBox;
+    ckbAberto: TCheckBox;
+    ckbVencidos: TCheckBox;
+    gbxListadeVendedores: TGroupBox;
+    fraSelecaoAleatoriavendedores1: TfraSelecaoAleatoriavendedores;
+    pnlTop: TPanel;
+    sbnGerar: TSpeedButton;
+    AdvGridFindDialog1: TAdvGridFindDialog;
+    AdvGridExcelIO1: TAdvGridExcelIO;
+    AdvPopupMenu1: TAdvPopupMenu;
+    Pesquizar1: TMenuItem;
+    ExportarExcel1: TMenuItem;
+    Copia1: TMenuItem;
+    sbnAbrirLicitacao: TSpeedButton;
+    procedure sbnGerarClick(Sender: TObject);
+    procedure Pesquizar1Click(Sender: TObject);
+    procedure ExportarExcel1Click(Sender: TObject);
+    procedure Copia1Click(Sender: TObject);
+    procedure pgcLicitacoesChange(Sender: TObject);
+    procedure sbnAbrirLicitacaoClick(Sender: TObject);
+  private
+    { Private declarations }
+     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure CalcularTotaisConsultaLicitacoes;
+
+  end;
+
+var
+  frmConsultaLicitacoes: TfrmConsultaLicitacoes;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmConsultaLicitacoes.CalcularTotaisConsultaLicitacoes;
+begin
+  DBAdvGridLicitacoes.FloatingFooter.ColumnCalc[
+    DBAdvGridLicitacoes.ColumnByFieldName['totalproduto'].Index] := acsum;
+
+  DBAdvGridLicitacoes.FloatingFooter.ColumnCalc[
+    DBAdvGridLicitacoes.ColumnByFieldName['totalprodutoentregue'].Index] := acsum;
+
+  DBAdvGridLicitacoes.FloatingFooter.ColumnCalc[
+    DBAdvGridLicitacoes.ColumnByFieldName['totalprodutopendente'].Index] := acsum;
+
+
+end;
+
+constructor TfrmConsultaLicitacoes.Create(AOwner: TComponent);
+begin
+  dtmConsultaLicitacoes := TdtmConsultaLicitacoes.Create(Self);
+  inherited;
+  DBAdvGridLicitacoes.Bands.PrimaryColor := TColor(strtoint(parsistema.CorZebradoRelatorio));
+  DBAdvGridLicitacoes.Bands.active := True;
+
+  pgcLicitacoes.tabindex := 0;
+
+  sbnAbrirLicitacao.enabled := false;
+
+end;
+
+procedure TfrmConsultaLicitacoes.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  dtmConsultaLicitacoes.GerarConsulta(
+     fraIntervaloDataVenda.edtDataInicial.Text,
+     fraIntervaloDataVenda.edtDataFinal.Text,
+
+     fraIntervaloDataVigencia.edtDataInicial.Text,
+     fraIntervaloDataVigencia.edtDataFinal.Text,
+
+     ckbAberto.checked,
+     ckbVencidos.checked,
+
+     fraSelecaoAleatoriavendedores1.ListaCondicional,
+     fraSelecaoAleatoriaItemdeProdutos1.ListaCondicional,
+     fraSelecaoAleatoriaClientes1.ListaCondicional);
+
+
+  if dtmConsultaLicitacoes.qryConsultaLicitacoes.recordcount <> 0 then
+  begin
+    pgcLicitacoes.activepage := tstDados;
+    pgcLicitacoesChange(nil);
+  end
+  else
+    MensagemAviso(ctNENHUMREGISTROSELECIONADO);
+
+
+end;
+
+procedure TfrmConsultaLicitacoes.Pesquizar1Click(Sender: TObject);
+begin
+  inherited;
+  AdvGridFindDialog1.Grid := DBAdvGridLicitacoes;
+  AdvGridFindDialog1.Execute;
+
+end;
+
+procedure TfrmConsultaLicitacoes.ExportarExcel1Click(Sender: TObject);
+var
+  vNomeArquivo : String;
+begin
+  inherited;
+  AdvGridExcelIO1.AdvStringGrid := DBAdvGridLicitacoes;
+  vNomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas\ConsultaLicitacoes.xls';
+  AdvGridExcelIO1.XLSExport(vNomeArquivo, 'ConsultaLicitacoes');
+end;
+
+procedure TfrmConsultaLicitacoes.Copia1Click(Sender: TObject);
+begin
+  inherited;
+  DBAdvGridLicitacoes.CopySelectionToClipboard;
+end;
+
+procedure TfrmConsultaLicitacoes.pgcLicitacoesChange(Sender: TObject);
+begin
+  inherited;
+  pnlBarra.visible := pgcLicitacoes.activepage = tstDados;
+  sbnAbrirLicitacao.enabled := (pgcLicitacoes.activepage = tstDados) and (dtmConsultaLicitacoes.qryConsultaLicitacoes.recordcount <> 0);
+end;
+
+procedure TfrmConsultaLicitacoes.sbnAbrirLicitacaoClick(Sender: TObject);
+begin
+  inherited;
+//  DBAdvGridLicitacoes.Cells[DBAdvGridLicitacoes.ColumnByFieldName['numero'].Index,DBAdvGridLicitacoes.Row],
+
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(
+    ['Abrir',
+
+     DBAdvGridLicitacoes.Cells[DBAdvGridLicitacoes.ColumnByFieldName['numero'].Index,DBAdvGridLicitacoes.Row]],
+
+{     dtmConsultaLicitacoes.qryConsultaLicitacoesnumero.asInteger],}
+    'TfrmCadastroLicitacoes', True)
+
+end;
+
+procedure TfrmConsultaLicitacoes.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  case Key of
+
+  VK_F6: begin
+           if sbnGerar.enabled then
+             sbnGerarclick(nil);
+         end;
+
+  VK_F8: begin
+           if sbnAbrirLicitacao.enabled then
+             sbnAbrirLicitacaoclick(nil);
+         end;
+
+  end;
+
+  inherited;
+
+end;
+
+end.

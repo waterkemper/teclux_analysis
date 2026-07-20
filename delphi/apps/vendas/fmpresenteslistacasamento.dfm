@@ -1,0 +1,209 @@
+inherited frmPresentesListaCasamento: TfrmPresentesListaCasamento
+  Left = 263
+  Top = 319
+  ActiveControl = flkProduto
+  Caption = 'Presentes Lista Casamento'
+  ClientHeight = 114
+  ClientWidth = 483
+  Color = clBtnFace
+  PixelsPerInch = 75
+  inherited tblBarra: TToolBar
+    Width = 483
+    inherited sbnProcurar: TSpeedButton
+      Left = 312
+      Visible = False
+    end
+    inherited sbnAjuda: TSpeedButton
+      Left = 237
+      Action = actComprados
+      Caption = 'Help'
+    end
+    inherited tbnDivisor: TToolButton
+      Left = 229
+    end
+  end
+  object pnlFundoJanela: TPanel
+    Left = 0
+    Top = 44
+    Width = 483
+    Height = 70
+    Align = alClient
+    BevelOuter = bvNone
+    BorderWidth = 3
+    TabOrder = 2
+    object sbnProcurarProduto: TSpeedButton
+      Left = 154
+      Top = 10
+      Width = 23
+      Height = 23
+      Hint = 'Procurar Noivo'
+      Flat = True
+      Glyph.Data = {
+        3A060000424D3606000000000000360000002800000020000000100000000100
+        18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDC800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DC800000800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000
+        00800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000
+        00800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000008000
+        00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+        FFFFDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCFFA858800000800000800000FFA858DCDCDC0000FF800000800000DCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDC
+        DCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFDCDCDCDCDCDC7F
+        7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+        FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+        FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+        FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+        FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+        FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+        FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+        FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFFFFFFFDCDCDCDCDCDCDC
+        DCDCFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        800000FFA858FFA858FFA858FFA858FFA858800000DCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FC3C3C3FFFFFFFFFFFF7F
+        7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCFFA858800000800000800000FFA858DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+      NumGlyphs = 2
+      OnClick = sbnProcurarProdutoClick
+    end
+    object dtxProduto: TtecDBText
+      Left = 180
+      Top = 10
+      Width = 297
+      Height = 23
+      DataField = 'descricao'
+      DataSource = dtmListaCasamento.dsrProcuraPresentes
+      BorderStyle = bsSingle
+    end
+    object lblProduto: TLabel
+      Left = 22
+      Top = 13
+      Width = 43
+      Height = 15
+      Caption = 'Produto'
+    end
+    object flkProduto: TtecDBFindLookup
+      Left = 71
+      Top = 9
+      Width = 80
+      Height = 23
+      CharCase = ecUpperCase
+      DataField = 'presente'
+      DataSource = dtmListaCasamento.dsrPresentes
+      MaxLength = 10
+      OnMessage = flkProdutoMessage
+      TabOrder = 2
+      LookupField = 'codigo'
+      LookupSource = dtmListaCasamento.dsrProcuraPresentes
+      Parameter = ' '
+      ActiveSetControls = False
+      DenyInsert = False
+      NoSetControls = <>
+      SetControls = <>
+      LookupParameter = 'codigo'
+    end
+    object lblMaximo: TLabel
+      Left = 6
+      Top = 42
+      Width = 58
+      Height = 15
+      Caption = 'Qtde M'#225'x.'
+    end
+    object edtDesejado: TDBEditNumero
+      Left = 71
+      Top = 38
+      Width = 45
+      Height = 23
+      Alignment = taRightJustify
+      TabOrder = 4
+      OnKeyDown = edtDesejadoKeyDown
+      Mascara = True
+      NrDecimal = 2
+      Decimais = False
+      Negativo = False
+      Tamanho = 4
+      DataField = 'desejado'
+      DataSource = dtmListaCasamento.dsrPresentes
+    end
+    object edtComprado1: TDBEditNumero
+      Left = 249
+      Top = 38
+      Width = 45
+      Height = 23
+      Alignment = taRightJustify
+      TabOrder = 5
+      OnExit = edtComprado1Exit
+      Mascara = True
+      NrDecimal = 2
+      Decimais = False
+      Negativo = False
+      Tamanho = 4
+      DataField = 'compradonoivo1'
+      DataSource = dtmListaCasamento.dsrPresentes
+    end
+    object edtComprado2: TDBEditNumero
+      Left = 432
+      Top = 38
+      Width = 45
+      Height = 23
+      Alignment = taRightJustify
+      TabOrder = 6
+      OnExit = edtComprado1Exit
+      OnKeyDown = edtComprado2KeyDown
+      Mascara = True
+      NrDecimal = 2
+      Decimais = False
+      Negativo = False
+      Tamanho = 4
+      DataField = 'compradonoivo2'
+      DataSource = dtmListaCasamento.dsrPresentes
+    end
+    object lblComprado1: TLabel
+      Left = 123
+      Top = 42
+      Width = 109
+      Height = 15
+      Caption = 'Comp. familia noivo'
+    end
+    object lblComprado2: TLabel
+      Left = 304
+      Top = 42
+      Width = 109
+      Height = 15
+      Caption = 'Comp. familia noiva'
+    end
+  end
+  object aclValores: TActionList
+    Left = 408
+    Top = 8
+    object actComprados: TAction
+      OnUpdate = actCompradosUpdate
+    end
+  end
+end

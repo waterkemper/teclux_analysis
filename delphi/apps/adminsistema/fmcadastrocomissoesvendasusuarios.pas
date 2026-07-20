@@ -1,0 +1,122 @@
+
+unit fmcadastrocomissoesvendasusuarios;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, StdCtrls,
+  dmcadastrosinternos, cpnumero, ctconstantes, biblio, ToolWin;
+
+type
+  TfrmCadastroComissoesVendasUsuarios = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxComissoesUsuarios: TGroupBox;
+    lblLimite: TLabel;
+    edtLimite: TDBEditNumero;
+    lblPrazo: TLabel;
+    edtPrazo: TDBEditNumero;
+    lblEntrada: TLabel;
+    edtEntrada: TDBEditNumero;
+    lblVista: TLabel;
+    edtVista: TDBEditNumero;
+    procedure edtPrazoExit(Sender: TObject);
+    procedure edtEntradaExit(Sender: TObject);
+    procedure edtVistaExit(Sender: TObject);
+
+  protected
+    dtmCadastrosInternos: TdtmCadastrosInternos;
+  public
+    constructor Create(AOwner : TComponent); override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    procedure  SetDataModulo(Dtm: TdtmCadastrosInternos);
+    destructor Destroy; override;
+    procedure ValidaComissao(comissao: TDBEditNumero);
+  end;
+
+var
+  frmCadastroComissoesVendasUsuarios: TfrmCadastroComissoesVendasUsuarios;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmCadastroComissoesVendasUsuarios }
+
+destructor TfrmCadastroComissoesVendasUsuarios.Destroy;
+begin
+  inherited;
+  frmCadastroComissoesVendasUsuarios:= nil;
+end;
+
+function TfrmCadastroComissoesVendasUsuarios.InternoExcluir: Boolean;
+begin
+  Result := inherited InternoExcluir;
+  if not CtrlOn then begin
+    if Result then
+      dtmCadastrosInternos.ExcluirComissoesUsuarios;
+  end;
+end;
+
+function TfrmCadastroComissoesVendasUsuarios.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    dtmCadastrosInternos.GravarComissoesUsuarios;
+end;
+
+function TfrmCadastroComissoesVendasUsuarios.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if not CtrlOn then begin
+    if Result then
+      dtmCadastrosInternos.IncluirComissoesUsuarios(False);
+  end;
+end;
+
+procedure TfrmCadastroComissoesVendasUsuarios.SetDataModulo(Dtm: TdtmCadastrosInternos);
+begin
+  dtmCadastrosInternos:= Dtm;
+end;
+
+procedure TfrmCadastroComissoesVendasUsuarios.ValidaComissao
+(comissao: TDBEditNumero);
+begin
+  if comissao.Text <> '' then
+    if (StrToFloat(comissao.Text) > 100) then
+    begin
+      MensagemAviso(ctAVISOCOMISSAO);
+      comissao.Text := '0';
+      comissao.setfocus;
+    end;
+end;
+
+procedure TfrmCadastroComissoesVendasUsuarios.edtPrazoExit(
+  Sender: TObject);
+begin
+  inherited;
+  ValidaComissao(edtPrazo);
+end;
+
+procedure TfrmCadastroComissoesVendasUsuarios.edtEntradaExit(
+  Sender: TObject);
+begin
+  inherited;
+  ValidaComissao(edtEntrada);
+end;
+
+procedure TfrmCadastroComissoesVendasUsuarios.edtVistaExit(
+  Sender: TObject);
+begin
+  inherited;
+  ValidaComissao(edtVista);
+end;
+
+constructor TfrmCadastroComissoesVendasUsuarios.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+end.

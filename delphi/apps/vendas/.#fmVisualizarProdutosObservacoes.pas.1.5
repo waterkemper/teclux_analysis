@@ -1,0 +1,59 @@
+unit fmVisualizarProdutosObservacoes;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Grids, DBGrids, cpdbgrid, StdCtrls, Buttons, ExtCtrls,
+  dmcadastrocontratos, DBCtrls, dbcgrids;
+
+type
+  TfrmVisualizarProdutosObservacoes = class(TForm)
+    pnlBottom: TPanel;
+    btnOK: TBitBtn;
+    btnCancel: TBitBtn;
+    DBCtrlGrid1: TDBCtrlGrid;
+    dbCodigoVisual: TDBText;
+    DBDescricao: TDBText;
+    dbmmoobservacoesvenda: TDBMemo;
+    pnlCabecalho: TPanel;
+    gbxProduto: TGroupBox;
+    gbxObservacoes: TGroupBox;
+  private
+    { Private declarations }
+  protected
+    dtmCadastroContratos : tdtmCadastroContratos;
+    
+  public
+    { Public declarations }
+    
+    constructor Create(AOwner: TComponent; dtm: TdtmCadastroContratos); reintroduce;
+    procedure  SetDataModulo (Dtm: TdtmCadastroContratos);
+  end;
+
+var
+  frmVisualizarProdutosObservacoes: TfrmVisualizarProdutosObservacoes;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmVisualizarProdutosObservacoes }
+
+constructor TfrmVisualizarProdutosObservacoes.Create(AOwner: TComponent;
+  dtm: TdtmCadastroContratos);
+begin
+  inherited Create(AOwner);
+  SetDataModulo(dtm);
+end;
+
+procedure TfrmVisualizarProdutosObservacoes.SetDataModulo(
+  Dtm: TdtmCadastroContratos);
+begin
+  dtmCadastroContratos := dtm;
+  DBCtrlGrid1.DataSource := dtmCadastroContratos.dsrProdutosContratosObservacoes;
+  dbCodigoVisual.DataSource := dtmCadastroContratos.dsrProdutosContratosObservacoes;
+  DBDescricao.DataSource := dtmCadastroContratos.dsrProdutosContratosObservacoes;
+end;
+
+end.

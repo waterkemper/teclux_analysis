@@ -1,0 +1,265 @@
+unit fmcentrodecusto;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, dmcentrodecusto,
+  frconsultacontabil, frconsultacodigocontabil, db,
+  frconsulta, frconsultacodigo,
+  ctconstantes, DBCtrls, clparametrossistema,
+  cptexto, Mask, cpdbfindcontrols, biblio, ToolWin, Windows, Grids,
+  DBGrids, cpdbgrid {Qete,};
+
+type
+  TfrmCentrodeCusto = class(TFrmCadastroPadrao)
+    gbxCodigo: TGroupBox;
+    edfCodigo: TtecDbEditFind;
+    gbxDescricao: TGroupBox;
+    edtDescricao: TDBEditTexto;
+    gbxSetoresdeProducao: TGroupBox;
+    Bevel1: TBevel;
+    dbgSetoresdeProducao: TtecDBGrid;
+    pnlOperacoes: TPanel;
+    sbnIncluirSetordeProducao: TSpeedButton;
+    sbnExcluirSetordeProducao: TSpeedButton;
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure dbgSetoresdeProducaoDblClick(Sender: TObject);
+    procedure dbgSetoresdeProducaoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirSetordeProducaoClick(Sender: TObject);
+    procedure sbnExcluirSetordeProducaoClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    ConsultaCentrodeCusto: TfraConsultaCodigoContabil;
+    ConsultaSetoresdeProducao: TfraConsultaCodigo;
+
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AbrirCentrodeCusto;
+    procedure AcionarPesquisaSetoresdeProducao;
+    procedure CondicoesSetoresdeProducao;
+    procedure AtribuirDadosSetoresdeProducao;
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    { Public declarations }
+  end;
+
+var
+  frmCentrodeCusto: TfrmCentrodeCusto;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmCentrodeCusto }
+
+procedure TfrmCentrodeCusto.AbrirCentrodeCusto;
+begin
+  edfCodigo.Text := ConsultaCentrodeCusto.qryConsultaCentrodeCustocodigo.AsString;
+  edfCodigo.Exist;
+{
+  with dtmCentrodeCusto do
+     refazconsulta(qryCentrodeCusto,[0], [ConsultaCentrodeCusto.ValorSelecionado]);
+     }
+end;
+
+constructor TfrmCentrodeCusto.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCentrodeCusto := TdtmCentrodeCusto.Create(Self);
+  DataSet := dtmCentrodeCusto.qryCentrodeCusto;
+
+  ConsultaCentrodeCusto := TfraConsultaCodigoContabil.Create(self);
+  ConsultaCentrodeCusto.edfCodigo.DataSource := dtmCentrodeCusto.dsrCentrodeCusto;
+  ConsultaCentrodeCusto.edfCodigo.DataField := 'codigo';
+  ConsultaCentrodeCusto.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaCentrodeCusto.AbrirTabelaProcura := false;
+  ConsultaCentrodeCusto.TipoPesquisa := pesCENTRODECUSTO;
+  ConsultaCentrodeCusto.OnFound := AbrirCentrodeCusto;
+  ConsultaCentrodeCusto.Name := 'fraConsultaCentrodeCusto';
+
+
+  ConsultaSetoresdeProducao := TfraConsultaCodigo.Create(self);
+  ConsultaSetoresdeProducao.Name := 'fraConsultaSetoresdeProducao';
+  ConsultaSetoresdeProducao.edfCodigo.MaxLength := 3;
+  ConsultaSetoresdeProducao.edfCodigo.DataSource := dtmCentrodeCusto.dsrCentrodeCustoSetoresProducao;
+  ConsultaSetoresdeProducao.edfCodigo.DataField := 'setordeproducao';
+  ConsultaSetoresdeProducao.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaSetoresdeProducao.edfCodigo.LookupSource := ConsultaSetoresdeProducao.dsrProcuraSetoresProducao;
+  ConsultaSetoresdeProducao.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaSetoresdeProducao.edfCodigo.LookupField := 'Codigo';
+  ConsultaSetoresdeProducao.AbrirTabelaProcura := false;
+  ConsultaSetoresdeProducao.CondicoesdaConsulta := CondicoesSetoresdeProducao;
+  ConsultaSetoresdeProducao.TipoPesquisa := pesSETORESPRODUCAO;
+  ConsultaSetoresdeProducao.OnFound := AtribuirDadosSetoresdeProducao;
+
+  gbxSetoresdeProducao.Visible := ParSistema.ControlesVoltadosparaIndustria;
+  sbnIncluirSetordeProducao.Visible := gbxSetoresdeProducao.Visible;
+  sbnExcluirSetordeProducao.Visible := gbxSetoresdeProducao.Visible;
+
+  dbgSetoresdeProducao.OnDelete := dtmCentrodeCusto.ExcluirSetoresdeProducao;
+
+  if not gbxSetoresdeProducao.Visible then
+    self.Height := self.Height - gbxSetoresdeProducao.Height;
+
+end;
+
+destructor TfrmCentrodeCusto.Destroy;
+begin
+  dtmCentrodeCusto.qryCentrodeCusto.close;
+  dtmCentrodeCusto := nil;
+  inherited;
+end;
+
+function TfrmCentrodeCusto.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+      Result := dtmCentrodeCusto.ExcluirCentrodeCusto;
+  end;
+
+end;
+
+function TfrmCentrodeCusto.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    Result := dtmCentrodeCusto.GravarCentrodeCusto;
+end;
+
+function TfrmCentrodeCusto.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCentrodeCusto.IncluirCentrodeCusto;
+  end;
+
+end;
+
+procedure TfrmCentrodeCusto.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key = VK_F9) then
+      if sbnProcurar.Enabled then
+        if ConsultaCentrodeCusto.InternoPesquisar('Centro de Custo') = mrOK then
+          edfCodigo.SetFocus;
+  end;
+
+end;
+
+procedure TfrmCentrodeCusto.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaCentrodeCusto.InternoPesquisar('Centro de Custo');
+  edfCodigo.SetFocus;
+  edfCodigo.SelectAll;
+
+end;
+
+procedure TfrmCentrodeCusto.dbgSetoresdeProducaoDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaSetoresdeProducao;
+end;
+
+procedure TfrmCentrodeCusto.CondicoesSetoresdeProducao;
+const
+  SQL = 'and (sp.codigo not in (%s) or sp.codigo = %s)';
+var
+  vsetordeproducao : String;
+begin
+  vsetordeproducao := dtmCentrodeCusto.qryCentrodeCustoSetoresProducaosetordeproducao.AsString;
+
+  if (dtmCentrodeCusto.qryCentrodeCustoSetoresProducao.State = dsInsert) or
+     (vsetordeproducao = '') then
+    vsetordeproducao := '0';
+
+  vsetordeproducao := QuotedStr(vsetordeproducao);
+
+  ConsultaSetoresdeProducao.qryProcuraSetoresProducao.MacroByName('SQLSetoresProducaoJaSelecionados').AsString :=
+    format(SQL,[dtmCentrodeCusto.ListaSetoresProducaoSelecionadas, vsetordeproducao]);
+  ConsultaSetoresdeProducao.qryConsultaSetoresProducao.MacroByName('SQLSetoresProducaoJaSelecionados').AsString :=
+    format(SQL,[dtmCentrodeCusto.ListaSetoresProducaoSelecionadas, vsetordeproducao]);
+end;
+
+procedure TfrmCentrodeCusto.AtribuirDadosSetoresdeProducao;
+begin
+  with dtmCentrodeCusto do
+  begin
+    EditarSetoresdeProducao;
+    qryCentrodeCustoSetoresProducaosetordeproducao.AsString := ConsultaSetoresdeProducao.qryProcuraSetoresProducaocodigo.AsString;
+    qryCentrodeCustoSetoresProducaodescricaosetorproducao.AsString := ConsultaSetoresdeProducao.qryProcuraSetoresProducaodescricao.AsString;
+    qryCentrodeCustoSetoresProducao.Post;
+  end;
+
+end;
+
+procedure TfrmCentrodeCusto.AcionarPesquisaSetoresdeProducao;
+begin
+  dbgSetoresdeProducao.SetFocus;
+  ConsultaSetoresdeProducao.CtrlOn := True;
+  ConsultaSetoresdeProducao.InternoPesquisar('Setores de Produção');
+  dbgSetoresdeProducao.SetFocus;
+  dbgSetoresdeProducao.SelectedIndex :=  1;
+end;
+
+
+procedure TfrmCentrodeCusto.dbgSetoresdeProducaoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+     VK_F9     : begin
+                     if dbgSetoresdeProducao.SelectedIndex in [0..1] then
+                     begin
+                       ConsultaSetoresdeProducao.CtrlOn := Shift = [ssCtrl];
+                       if (Shift = []) or ConsultaSetoresdeProducao.CtrlOn then
+                         AcionarPesquisaSetoresdeProducao
+                     end;
+                   end;
+    end;
+  end
+  else if Shift = [] then
+  case Key of
+   VK_Return: begin
+                  if dbgSetoresdeProducao.SelectedIndex = 0 then
+                  begin
+                    if ConsultaSetoresdeProducao.edfCodigo.Exist then
+                     dbgSetoresdeProducao.SelectedIndex := dbgSetoresdeProducao.SelectedIndex + 1
+                    else
+                      key := 0;
+                  end
+                  else
+                  if dbgSetoresdeProducao.SelectedIndex = 1 then
+                       dtmCentrodeCusto.GravarSetoresdeProducao;
+                end;
+  end;
+  inherited;
+end;
+
+procedure TfrmCentrodeCusto.sbnIncluirSetordeProducaoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCentrodeCusto.IncluirSetoresdeProducao;
+end;
+
+procedure TfrmCentrodeCusto.sbnExcluirSetordeProducaoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCentrodeCusto.ExcluirSetoresdeProducao;
+end;
+
+end.

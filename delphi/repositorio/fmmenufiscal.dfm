@@ -1,0 +1,498 @@
+inherited frmMenuFiscal: TfrmMenuFiscal
+  Left = 293
+  Top = 157
+  Width = 791
+  Height = 371
+  HorzScrollBar.Range = 598
+  HorzScrollBar.Visible = False
+  VertScrollBar.Range = 241
+  ActiveControl = rgpFonteDados
+  BorderIcons = [biSystemMenu, biMinimize]
+  Caption = 'Menu Fiscal'
+  FormStyle = fsMDIChild
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 16
+  object rgpFonteDados: TRadioGroup
+    Left = 5
+    Top = 2
+    Width = 132
+    Height = 93
+    Caption = 'DADOS'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ItemIndex = 0
+    Items.Strings = (
+      'PER'#205'ODO'
+      'CRZ'
+      'COO')
+    ParentFont = False
+    TabOrder = 0
+    OnClick = rgpFonteDadosClick
+  end
+  object rgpDestino: TRadioGroup
+    Left = 5
+    Top = 182
+    Width = 131
+    Height = 65
+    Caption = 'SA'#205'DA'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ItemIndex = 0
+    Items.Strings = (
+      'ECF'
+      'ARQUIVO')
+    ParentFont = False
+    TabOrder = 2
+  end
+  object gbxFaixas: TGroupBox
+    Left = 5
+    Top = 97
+    Width = 132
+    Height = 73
+    Caption = 'PER'#205'ODOs'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 1
+    object lblDe: TLabel
+      Left = 8
+      Top = 23
+      Width = 14
+      Height = 15
+      Caption = 'de'
+    end
+    object lblAte: TLabel
+      Left = 8
+      Top = 47
+      Width = 17
+      Height = 15
+      Caption = 'at'#233
+    end
+    object pnlCupons: TPanel
+      Left = 34
+      Top = 15
+      Width = 86
+      Height = 53
+      BevelOuter = bvNone
+      TabOrder = 1
+      object edtCupomInicial: TEditNumero
+        Left = 2
+        Top = 2
+        Width = 80
+        Height = 23
+        MaxLength = -1
+        TabOrder = 0
+        Mascara = True
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 0
+        Decimais = False
+        Negativo = False
+        Tamanho = 9
+      end
+      object edtCupomFinal: TEditNumero
+        Left = 2
+        Top = 27
+        Width = 80
+        Height = 23
+        MaxLength = -1
+        TabOrder = 1
+        Mascara = True
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 0
+        Decimais = False
+        Negativo = False
+        Tamanho = 9
+      end
+    end
+    object pnlDatas: TPanel
+      Left = 35
+      Top = 15
+      Width = 86
+      Height = 53
+      BevelOuter = bvNone
+      TabOrder = 0
+      object edtPeriodoInicial: TEditData
+        Left = 2
+        Top = 2
+        Width = 80
+        Height = 23
+        TabOrder = 0
+        Minimo = 37353
+        Maximo = 0
+      end
+      object edtPeriodoFinal: TEditData
+        Left = 2
+        Top = 27
+        Width = 80
+        Height = 23
+        TabOrder = 1
+        Minimo = 37353
+        Maximo = 0
+      end
+    end
+  end
+  object gbxComandos: TGroupBox
+    Left = 148
+    Top = 0
+    Width = 621
+    Height = 273
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'Helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 3
+    object btnMovimentoECF: TButton
+      Left = 48
+      Top = 214
+      Width = 129
+      Height = 25
+      Caption = 'Movimento por ECF'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      Visible = False
+      OnClick = btnMovimentoECFClick
+    end
+    object btnMeiosPagto: TButton
+      Left = 32
+      Top = 239
+      Width = 177
+      Height = 25
+      Caption = 'Meios de Pagto.'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+      Visible = False
+      OnClick = btnMeiosPagtoClick
+    end
+    object btnLX: TButton
+      Left = 8
+      Top = 10
+      Width = 220
+      Height = 25
+      Caption = 'LX'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 2
+      OnClick = btnLXClick
+    end
+    object btnIdentificaPAF: TButton
+      Left = 232
+      Top = 98
+      Width = 385
+      Height = 25
+      Caption = 'Identifica'#231#227'o do PAF-ECF'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 3
+      OnClick = btnIdentificaPAFClick
+    end
+    object btnEstoque: TButton
+      Left = 232
+      Top = 39
+      Width = 385
+      Height = 25
+      Caption = 'Registros PAF-ECF'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 4
+      OnClick = btnEstoqueClick
+    end
+    object btnEspelhoMFD: TButton
+      Left = 8
+      Top = 156
+      Width = 219
+      Height = 25
+      Caption = 'Espelho MFD'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 5
+      OnClick = btnEspelhoMFDClick
+    end
+    object btnArqMFD: TButton
+      Left = -16
+      Top = 232
+      Width = 89
+      Height = 24
+      Caption = 'Arq. MFD'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 6
+      Visible = False
+      OnClick = btnArqMFDClick
+    end
+    object btnTabIndiceTecnicoProducao: TButton
+      Left = 232
+      Top = 10
+      Width = 385
+      Height = 25
+      Caption = 'Tab. '#205'ndice T'#233'cnico Produ'#231#227'o'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 7
+      OnClick = btnTabIndiceTecnicoProducaoClick
+    end
+    object btnReducaoZ: TButton
+      Left = 8
+      Top = 127
+      Width = 220
+      Height = 25
+      Caption = 'Redu'#231#227'o Z'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 8
+      OnClick = btnReducaoZClick
+    end
+    object btnArqMFBin: TButton
+      Left = 8
+      Top = 68
+      Width = 220
+      Height = 25
+      Caption = 'Arq. MF Binario'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 9
+      OnClick = btnArqMFBinClick
+    end
+    object btnArqMFDBin: TButton
+      Left = 8
+      Top = 98
+      Width = 220
+      Height = 25
+      Caption = 'Arq. MFD Binario'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 10
+      OnClick = btnArqMFDBinClick
+    end
+    object btnParamConfig: TButton
+      Left = 232
+      Top = 68
+      Width = 385
+      Height = 25
+      Caption = 'Par'#226'metros de Configura'#231#227'o'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 11
+      OnClick = btnParamConfigClick
+    end
+    object VendasDoPeriodo: TButton
+      Left = 9
+      Top = 186
+      Width = 218
+      Height = 25
+      Caption = 'Vendas do Per'#237'odo'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 12
+      OnClick = VendasDoPeriodoClick
+    end
+    object LeituraMemoriaFiscal: TButton
+      Left = 7
+      Top = 39
+      Width = 220
+      Height = 25
+      Caption = 'Leitura Mem'#243'ria Fiscal'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 13
+      OnClick = LeituraMemoriaFiscalClick
+    end
+    object btnFiscoEstoque: TButton
+      Left = 232
+      Top = 156
+      Width = 385
+      Height = 25
+      Caption = 'Fisco - TRANSMITIR ARQUIVO ESTOQUE MENSAL MMAAAA'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 14
+      OnClick = btnFiscoEstoqueClick
+    end
+    object btnFiscoReducaoZ: TButton
+      Left = 232
+      Top = 127
+      Width = 385
+      Height = 25
+      Caption = 'Fisco - TRANSMITIR ARQUIVO REDU'#199#195'O Z DDMMAAAA'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 15
+      OnClick = btnFiscoReducaoZClick
+    end
+    object btnVendasIdentificadas: TButton
+      Left = 232
+      Top = 186
+      Width = 385
+      Height = 25
+      Caption = 'Vendas Identificadas pelo CPF/CNPJ'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 16
+      OnClick = btnVendasIdentificadasClick
+    end
+    object btnRequisicoesExternasRegistradas: TButton
+      Left = 231
+      Top = 212
+      Width = 386
+      Height = 25
+      Caption = 'Requisi'#231#245'es Externas Registradas'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 17
+      OnClick = btnRequisicoesExternasRegistradasClick
+    end
+    object btnTransmitiArquivosRequisitoXXVI: TButton
+      Left = 230
+      Top = 238
+      Width = 386
+      Height = 25
+      Caption = 'Transmitir arquivos Requisito XXVI'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 18
+      OnClick = btnTransmitiArquivosRequisitoXXVIClick
+    end
+  end
+  object gbxArquivoSaida: TGroupBox
+    Left = 148
+    Top = 280
+    Width = 621
+    Height = 46
+    Caption = 'Arquivo Sa'#237'da'
+    TabOrder = 4
+    object lblArquivoSaida: TLabel
+      Left = 4
+      Top = 17
+      Width = 613
+      Height = 24
+      AutoSize = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+  end
+  object SaveDialog1: TSaveDialog
+    Options = []
+    Title = 'Salvar Como...'
+    Left = 48
+    Top = 232
+  end
+end

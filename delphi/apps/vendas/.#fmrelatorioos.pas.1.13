@@ -1,0 +1,273 @@
+
+unit fmrelatorioos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmrelatoriopadrao, ExtCtrls, Buttons, StdCtrls, cpdata, Mask,
+  cpdbfindcontrols, DBCtrls, cpdbtext,
+  //Projetos
+  dmrelatorioos, ctconstantes, clparametrossistema,
+  fmconsultabasica, fmconsultaporcampo, zquery, biblio, frconsulta,
+  frconsultacodigo, ToolWin, ComCtrls, AdvListV, DBAdvLst, AdvCombo,
+  Lucombo, dblucomb, AdvDBComboBox, slstbox, dbslstbox, paramchklist,
+  AdvEdit, advlued, dbadvle, DBLup2, clisted, BtnListB,
+  paramlst, ColListb, ColCombo, dblookup, Grids, DBGrids, lpLstBox,
+  frlistatiposAtendimentos;
+
+type
+  TfrmRelatorioOS = class(TFrmRelatorioPadrao)
+    gbxPeriodoAbertura: TGroupBox;
+    lblVencimentoInicial: TLabel;
+    edtDataInicialAbertura: TEditData;
+    lblVencimentoFinal: TLabel;
+    edtDataFinalAbertura: TEditData;
+    gbxPeriodoFechamento: TGroupBox;
+    lblInicioFechamento: TLabel;
+    edtDataInicialFechamento: TEditData;
+    lblFimFechamento: TLabel;
+    edtDataFinalFechamento: TEditData;
+    ckbCustoMedio: TCheckBox;
+    rgpTipoRelatorio: TRadioGroup;
+    gbxCliente: TGroupBox;
+    gbxFiliais: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigo;
+    fraConsultaCliente: TfraConsultaCodigo;
+    rgpTipoEquipamento: TGroupBox;
+    ckbNovoCliente: TCheckBox;
+    ckbUsadoCliente: TCheckBox;
+    ckbAtivoFixo: TCheckBox;
+    ckbEstoque: TCheckBox;
+    gbxGarantiaCortesia: TGroupBox;
+    ckbGarantia: TCheckBox;
+    ckbCortesia: TCheckBox;
+    cmbLogicalGarantia: TComboBox;
+    gbxSituacaoGarantia: TGroupBox;
+    ckbGarantiaAprovada: TCheckBox;
+    ckbGarantiaReprovada: TCheckBox;
+    ckbNaoDefinida: TCheckBox;
+    gbxEquipamento: TGroupBox;
+    fraConsultaEquipamento: TfraConsultaCodigo;
+    gbxSituacao: TGroupBox;
+    ckbReservado: TCheckBox;
+    ckbNotaParcial: TCheckBox;
+    ckbCancelado: TCheckBox;
+    ckbNotaFiscal: TCheckBox;
+    ckbOrcado: TCheckBox;
+    fraListatiposatendimentos: TfraListatiposatendimentos;
+    GroupBox2: TGroupBox;
+    ckbComAtendimento: TCheckBox;
+    ckbSemAtendimento: TCheckBox;
+    procedure ckbAbertasClick(Sender: TObject);
+    procedure ckbFechadasClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure ckbGarantiaClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+   TipoConsulta: TtecOrdemServicoTipoConsulta;
+   procedure InternoImpressao; override;
+   function  ValidarCamposSelecao: Boolean;
+  public
+    { Public declarations }
+   constructor Create(AOwner: TComponent); override;
+   destructor Destroy; override;
+  end;
+
+var
+  frmRelatorioOS: TfrmRelatorioOS;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmRelatorioOS }
+
+procedure TfrmRelatorioOS.InternoImpressao;
+var
+  SQLTipoOrdemServico: String;
+  SQLSituacao: String;
+
+
+begin
+  inherited;
+  if ValidarCamposSelecao then
+  begin
+   with dtmRelatorioOS do
+   begin
+    ParametroCabecalho      :='';
+    DataInicialAbertura     := edtDataInicialAbertura.Text;
+    DataFinalAbertura       := edtDataFinalAbertura.Text;
+    DataInicialFechamento   := edtDataInicialFechamento.Text;
+    DataFinalFechamento     := edtDataFinalFechamento.Text;
+    Cliente                 := fraConsultaCliente.edfCodigo.Text;
+    Filial                  := fraConsultaFilial.edfCodigo.Text;
+    ComCustoMedio           := ckbCustoMedio.Checked;
+//    OSAberta                := ckbAbertas.Checked;
+//    OSFechada               := ckbFechadas.Checked;
+    TipoRelatorio           := rgpTipoRelatorio.ItemIndex;
+
+    OrdemServicoemGarantia := CkbGarantia.checked;
+    OrdemServicoemCortesia := CkbCortesia.checked;
+    GarantiaAprovada := ckbGarantiaAprovada.checked;
+    GarantiaReprovada := ckbGarantiaReprovada.checked;
+    GarantiaNaoDefinida := ckbNaoDefinida.checked;
+    LogicaGarantia := cmbLogicalGarantia.text;
+
+    Equipamento       := fraConsultaEquipamento.qryProcuraEquipamento.fieldbyname('codigo').asString;
+
+    SQLSituacao := '';
+    if ckbOrcado.Checked then
+      SQLSituacao := SQLSituacao + '''O'',';
+    if ckbReservado.Checked then
+      SQLSituacao := SQLSituacao + '''R'',';
+
+{    if ckbFaturado.Checked then
+      SQLSituacao := SQLSituacao + '''F'',';}
+
+    if ckbNotaParcial.Checked then
+      SQLSituacao := SQLSituacao + '''P'',';
+    if ckbNotaFiscal.Checked then
+      SQLSituacao := SQLSituacao + '''N'',';
+    if ckbCancelado.Checked then
+      SQLSituacao := SQLSituacao + '''C'',';
+
+    if SQLSituacao = '' then
+{      SQLSituacao := SQLSituacao + '''O'',''R'',''F'',''P'','+
+                                   '''N'',''C'') ';}
+
+      SQLSituacao := SQLSituacao + '''O'',''R'',''P'','+
+                                   '''N'',''C'') ';
+
+    FSituacao         := SQLSituacao;
+
+    SQLTipoOrdemServico := '';
+    if ckbNovoCliente.checked then
+      SQLTipoOrdemServico := SQLTipoOrdemServico + '1,';
+
+    if ckbUsadoCliente.checked then
+      SQLTipoOrdemServico := SQLTipoOrdemServico + '2,';
+
+    if ckbAtivoFixo.checked then
+      SQLTipoOrdemServico := SQLTipoOrdemServico + '3,';
+
+    if ckbEstoque.checked then
+      SQLTipoOrdemServico := SQLTipoOrdemServico + '4,';
+
+    SemAtendimento := ckbSemAtendimento.checked;
+    ComAtendimento := ckbComAtendimento.checked;
+
+    TodosListaTiposAtendimentosMarcados := fraListatiposatendimentos.TodosMarcados;
+    ListaTiposAtendimentos := fraListatiposatendimentos.ListaSelecionada;
+
+    TipoEqptoOrdemServico := SQLTipoOrdemServico;
+
+    if not AbrirRelatorio then
+      MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']))
+    else
+      ImprimirRelatorio;
+   end;
+  end;
+end;
+
+function TfrmRelatorioOS.ValidarCamposSelecao: Boolean;
+begin
+  Result := (edtDataInicialAbertura.DataValida and edtDataFinalAbertura.DataValida);
+  if Result then
+  begin
+   if (not dataembranco(edtDataInicialAbertura.text) and not dataembranco(edtDataFinalAbertura.text)) then
+     Result:=StrToDate(edtDataInicialAbertura.Text) <= StrToDate(edtDataFinalAbertura.Text);
+   if result then
+   begin
+     Result:=(not dataembranco(edtDataInicialAbertura.text) or
+              not dataembranco(edtDataFinalAbertura.text) or
+              not dataembranco(edtDataInicialFechamento.Text) or
+              not dataembranco(edtDataFinalFechamento.Text));
+     if not result then
+     begin
+      MensagemAviso(ctDATAINVALIDA);
+      edtDataInicialAbertura.SetFocus;
+     end;
+   end
+   else
+   begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      edtDataInicialAbertura.SetFocus;
+   end;
+  end;
+
+  if result then
+  begin
+    Result := (edtDataInicialFechamento.DataValida and edtDataFinalFechamento.DataValida);
+    if Result then
+    begin
+     if (not dataembranco(edtDataInicialFechamento.text) and not dataembranco(edtDataFinalFechamento.text)) then
+       Result:=StrToDate(edtDataInicialFechamento.Text) <= StrToDate(edtDataFinalFechamento.Text);
+     if result then
+       Result := OperadorTernario((Trim(fraConsultaFilial.edfCodigo.Text) <> ''),
+                                        fraConsultaFilial.edfCodigo.Exist, True) and
+                 OperadorTernario((Trim(fraConsultaCliente.edfCodigo.Text) <> ''),
+                                        fraConsultaCliente.edfCodigo.Exist, True)
+     else
+     begin
+        MensagemAviso(ctDTINICIALMAIORDTFINAL);
+        edtDataInicialFechamento.SetFocus;
+     end;
+    end;
+  end;
+end;
+
+procedure TfrmRelatorioOS.ckbAbertasClick(Sender: TObject);
+begin
+  inherited;
+//  if ckbAbertas.Checked  then
+//  ckbFechadas.Checked := False;
+end;
+
+procedure TfrmRelatorioOS.ckbFechadasClick(Sender: TObject);
+begin
+  inherited;
+//  if ckbFechadas.Checked Then
+//  ckbAbertas.Checked := False;
+end;
+
+constructor TfrmRelatorioOS.Create(AOwner: TComponent);
+begin
+  dtmRelatorioOS:= TdtmRelatorioOS.Create(Self);
+  inherited;
+  fraConsultaFilial.SomenteFiliaisUsuario :=
+    ParSistema.RelatorioSomenteFiliaisAutorizadas;
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+  fraConsultaCliente.TipoCliente := 'C';
+  fraConsultaCliente.TipoPesquisa := pesCLIENTES;
+  edtDataInicialAbertura.Text:= DatetoStr(PrimeiroDiaMesPassado(0));
+  edtDataFinalAbertura.Text  := DatetoStr(DataLocal);
+
+  fraConsultaEquipamento.tipopesquisa := pesEQUIPAMENTO;
+  
+end;
+
+destructor TfrmRelatorioOS.Destroy;
+begin
+  dtmRelatorioOS.dtmImprimeOrdemServicos:=nil;
+  dtmRelatorioOS:=nil;
+  inherited;
+  frmRelatorioOS:=nil;
+end;
+
+procedure TfrmRelatorioOS.FormShow(Sender: TObject);
+begin
+  inherited;
+  fraConsultaFilial.edfCodigo.SetFocus;
+  fraConsultaFilial.edfCodigo.SelectAll;
+end;
+
+procedure TfrmRelatorioOS.ckbGarantiaClick(Sender: TObject);
+begin
+  inherited;
+  gbxSituacaoGarantia.visible := ckbGarantia.checked;
+end;
+
+end.
+

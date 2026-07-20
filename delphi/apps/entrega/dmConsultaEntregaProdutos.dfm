@@ -1,0 +1,856 @@
+inherited dtmConsultaEntregaProdutos: TdtmConsultaEntregaProdutos
+  OldCreateOrder = False
+  Left = 930
+  Top = 236
+  Height = 321
+  Width = 641
+  object qryConsultaEntregaProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryConsultaEntregaProdutosAfterPost
+    OnCalcFields = qryConsultaEntregaProdutosCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListaFiliaisVenda_DF_ListaSelecionada'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaFiliaisProdutos_DF_ListaSelecionada'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'PeriodoEntrega_DF'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CondicaoRomaneio_DF'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaFiliaisVenda_ListaSelecionada'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaFiliaisProdutos_ListaSelecionada'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'PeriodoEntrega'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CondicaoRomaneio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaFornecedoresTransporte'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select entregas.*,'
+      ''
+      
+        '       coalesce(r.fornecedor, entregas.fornecedortransporte) as ' +
+        'fornecedor_transporte,'
+      
+        '       coalesce(vft.nome, vfft.nome) as nomefornecedortransporte' +
+        ','
+      ''
+      '       coalesce(regiao_bairro, regiao_cidade) as regiao,'
+      '       coalesce(rg.nome, nomecidade) as nomeregiao,'
+      ''
+      '       case when entregas.entregas is not null then'
+      ''
+      '       (select l_e_r.quantidade'
+      '        from limites_entregas_regioes l_e_r'
+      
+        '        where l_e_r.dia_da_semana = extract(dow from entregas.da' +
+        'taentrega)+1'
+      
+        '          and coalesce(l_e_r.periodo, entregas.periodoentrega) =' +
+        ' entregas.periodoentrega'
+      
+        '          and l_e_r.regiao = coalesce(regiao_bairro, regiao_cida' +
+        'de)'
+      '        order by l_e_r.quantidade desc limit 1)'
+      ''
+      ''
+      '        else'
+      '         cast(null as integer)'
+      '        end as limitequantidade,'
+      ''
+      ''
+      ''
+      '       cast('
+      '       '#39' BAIRRO '#39'||coalesce(entregas.nomebairro,'#39#39') ||'
+      '       '#39' Cto '#39' || contrato                   ||'
+      
+        '       '#39' NF '#39' || coalesce(cast(entregas.numero as varchar),'#39#39')  ' +
+        '     ||'
+      '       '#39' FIL '#39' || coalesce(cast(filialnf as varchar), '#39#39')   ||'
+      '       '#39' S'#201'R '#39' || coalesce(serie,'#39#39')                        ||'
+      
+        '       '#39' ROMANEIO '#39' || coalesce(cast(romaneio as varchar),'#39#39') as' +
+        ' varchar(200)) as contratonota'
+      ''
+      'from'
+      ''
+      '('
+      ''
+      '('
+      'select df.contrato,'
+      '       pdf.dadofiscal,'
+      '       n.filial as filialnf,'
+      '       n.serie,'
+      '       n.numero,'
+      '       p.codigovisual as produtovisual,'
+      '       pdf.produto,'
+      '       pdf.filial,'
+      '       p.descricao as descricaoproduto,'
+      ''
+      '       pdf.quantidade -'
+      ''
+      '           coalesce((select sum(ctd.quantidade)'
+      '                     from contratosdevolvidos ctd'
+      '                     where ctd.contrato = df.contrato'
+      '                       and ctd.produto = pdf.produto'
+      '                       and ctd.situacao = '#39'N'#39'),0)'
+      ''
+      '        as saldo_quantidade,'
+      ''
+      '       pdf.dataentrega,'
+      '       pdf.horaentrega,'
+      '       pdf.periodoentrega,'
+      ''
+      '       pdf.dataentrega as auxdataentrega,'
+      '       pdf.horaentrega as auxhoraentrega,'
+      '       pdf.periodoentrega as auxperiodoentrega,'
+      ''
+      '       pe.descricao as descricaoperiodoentrega,'
+      ''
+      '       coalesce(df.localentrega_estado,df.estado) as estado,'
+      ''
+      '       case when df.localentrega_cidade is not null then'
+      '         (select cid.nome'
+      '          from cidades cid'
+      '          where cid.codigo = df.localentrega_cidade'
+      '            and cid.estado = df.localentrega_estado)'
+      '       else'
+      '         (select cid.nome'
+      '          from cidades cid'
+      '          where cid.codigo = df.cidade'
+      '            and cid.estado = df.estado)'
+      '       end as nomecidade,'
+      ''
+      '       case when df.localentrega_cidade is not null then'
+      '         (select cid.regiao'
+      '          from cidades cid'
+      '          where cid.codigo = df.localentrega_cidade'
+      '            and cid.estado = df.localentrega_estado)'
+      '       else'
+      '         (select cid.regiao'
+      '          from cidades cid'
+      '          where cid.codigo = df.cidade'
+      '            and cid.estado = df.estado)'
+      '       end as regiao_cidade,'
+      ''
+      '       coalesce(df.localentrega_cep,df.cep) as cep,'
+      ''
+      '       case when df.localentrega_cidade is not null then'
+      '         (select ba.nome'
+      '          from bairros ba'
+      '          where ba.codigo = df.localentrega_bairro'
+      '            and ba.cidade = df.localentrega_cidade'
+      '            and ba.estado = df.localentrega_estado)'
+      '       else'
+      '         (select ba.nome'
+      '          from bairros ba'
+      '          where ba.codigo = df.bairro'
+      '            and ba.cidade = df.cidade'
+      '            and ba.estado = df.estado)'
+      '       end as nomebairro,'
+      ''
+      '       case when df.localentrega_cidade is not null then'
+      '         (select ba.regiao'
+      '          from bairros ba'
+      '          where ba.codigo = df.localentrega_bairro'
+      '            and ba.cidade = df.localentrega_cidade'
+      '            and ba.estado = df.localentrega_estado)'
+      '       else'
+      '         (select ba.regiao'
+      '          from bairros ba'
+      '          where ba.codigo = df.bairro'
+      '            and ba.cidade = df.cidade'
+      '            and ba.estado = df.estado)'
+      '       end as regiao_bairro,'
+      ''
+      ''
+      '       coalesce(df.localentrega_rua, df.rua) as rua,'
+      
+        '       coalesce(df.localentrega_numero, df.endnumero) as endnume' +
+        'ro,'
+      
+        '       coalesce(df.localentrega_complemento, df.endcomplemento) ' +
+        'as endcomplemento,'
+      ''
+      '       df.data,'
+      ''
+      '       (select r.numero'
+      '        from romaneios r'
+      '        where r.numero in (select rn.romaneio'
+      '                           from romaneiosnotas rn'
+      '                           where rn.dadofiscal = df.numero'
+      
+        '                            and rn.data_hora_recebimento is null' +
+        ' order by rn.romaneio desc limit 1)'
+      '        order by r.numero desc limit 1'
+      '       ) as romaneio,'
+      ''
+      
+        '        /* s'#243' para identificar que tendo mais de um item '#233' somen' +
+        'te uma entrega */'
+      ''
+      '       case when  pdf.numero = (select min(pdfm.numero)'
+      '                                from produtosdadosfiscais pdfm'
+      
+        '                                where pdfm.dadofiscal = pdf.dado' +
+        'fiscal'
+      
+        '                                      and coalesce(pdfm.entregar' +
+        ',false)'
+      
+        '                                      and  pdfm.dataentrega is n' +
+        'ot null'
+      '                                      and  (pdfm.quantidade -'
+      ''
+      
+        '                                               coalesce((select ' +
+        'sum(ctd.quantidade)'
+      
+        '                                                         from co' +
+        'ntratosdevolvidos ctd'
+      
+        '                                                         where c' +
+        'td.contrato = df.contrato'
+      
+        '                                                           and c' +
+        'td.produto = pdfm.produto'
+      
+        '                                                           and c' +
+        'td.situacao = '#39'N'#39'),0)  > 0)) then cast(1 as numeric(11,3))'
+      ''
+      '            else cast(null as numeric(11,3))'
+      '       end as entregas,'
+      ''
+      '       df.fornecedortransporte'
+      ''
+      ''
+      ''
+      'from dadosfiscais df'
+      '     join produtosdadosfiscais pdf'
+      '          join produtos p'
+      '          on pdf.produto = p.codigo'
+      '     on df.numero = pdf.dadofiscal'
+      ''
+      ''
+      '     left join periodosentrega pe'
+      '     on pdf.periodoentrega = pe.codigo'
+      ''
+      '     join notas n'
+      '     on df.numero = n.dadofiscal'
+      ''
+      'where coalesce(pdf.entregar,false)'
+      '  and  df.situacao = '#39'N'#39
+      '  and df.contrato is not null'
+      ''
+      '  and case when :TodoIntervalodeEntregas then'
+      '      pdf.dataentrega is not null'
+      '  else'
+      
+        '    case when coalesce(:DataInicial,'#39#39') <> coalesce(null,'#39#39') and' +
+        ' coalesce(:DataFinal,'#39#39') <> coalesce(null,'#39#39') then'
+      
+        '               pdf.dataentrega between :DataInicial and :DataFin' +
+        'al'
+      ''
+      
+        '         when coalesce(:DataInicial,'#39#39') <> coalesce(null,'#39#39') and' +
+        ' coalesce(:DataFinal,'#39#39') = coalesce(null,'#39#39') then'
+      '               pdf.dataentrega >= :DataInicial'
+      ''
+      
+        '         when coalesce(:DataInicial,'#39#39') = coalesce(null,'#39#39') and ' +
+        'coalesce(:DataFinal,'#39#39') <> coalesce(null,'#39#39') then'
+      '               pdf.dataentrega <= :Datafinal'
+      ''
+      '    end'
+      '  end'
+      ''
+      '  and  (pdf.quantidade -'
+      ''
+      '           coalesce((select sum(ctd.quantidade)'
+      '                     from contratosdevolvidos ctd'
+      '                     where ctd.contrato = df.contrato'
+      '                       and ctd.produto = pdf.produto'
+      '                       and ctd.situacao = '#39'N'#39'),0)  > 0)'
+      ''
+      '  and not exists (select rn.dadofiscal '
+      '                  from romaneiosnotas rn'
+      '                  where rn.dadofiscal = df.numero'
+      '                    and rn.data_hora_recebimento is not null'
+      
+        '                    and rn.justificativa_entrega is null)       ' +
+        '              '
+      ''
+      '                       '
+      '  %ListaFiliaisVenda_DF_ListaSelecionada'
+      '  %ListaFiliaisProdutos_DF_ListaSelecionada'
+      ''
+      '  %PeriodoEntrega_DF'
+      '  %CondicaoRomaneio_DF'
+      ''
+      ')'
+      ''
+      'union all'
+      ''
+      '('
+      'select pc.contrato,'
+      '       cast(null as integer) as dadofiscal,'
+      '       ct.filialvenda as filialnf,'
+      '/*       cast(null as integer) as filialnf, */'
+      '       cast(null as varchar(3)) as serie,'
+      '       cast(null as integer) as numero,'
+      ''
+      '       p.codigovisual as produtovisual,'
+      '       pc.produto,'
+      '       pc.filial,'
+      '       p.descricao as descricaoproduto,'
+      ''
+      '       pc.quantidade -'
+      ''
+      '           coalesce((select sum(ctd.quantidade)'
+      '                     from contratosdevolvidos ctd'
+      '                     where ctd.contrato = pc.contrato'
+      '                       and ctd.produto = pc.produto'
+      '                       and ctd.situacao = '#39'F'#39'),0) -'
+      ''
+      '            coalesce((select sum(pdf.quantidade)'
+      '                      from produtosdadosfiscais pdf'
+      '                           join dadosfiscais df'
+      '                           on pdf.dadofiscal = df.numero'
+      '                      where df.situacao = '#39'N'#39
+      '                        and df.contrato = ct.numero'
+      '                        and pdf.produto = pc.produto'
+      ''
+      '                      ),0)'
+      ''
+      '       as saldo_quantidade,'
+      ''
+      ''
+      '       pc.dataentrega,'
+      '       pc.horaentrega,'
+      '       pc.periodoentrega,'
+      ''
+      '       pc.dataentrega as auxdataentrega,'
+      '       pc.horaentrega as auxhoraentrega,'
+      '       pc.periodoentrega as auxperiodoentrega,'
+      '       pe.descricao as descricaoperiodoentrega,'
+      ''
+      ''
+      '       coalesce(ct.entestado,ct.estado) as estado,'
+      ''
+      '       case when ct.entcidade is not null then'
+      '         (select cid.nome'
+      '          from cidades cid'
+      '          where cid.codigo = ct.entcidade'
+      '            and cid.estado = ct.entestado)'
+      '       else'
+      '         (select cid.nome'
+      '          from cidades cid'
+      '          where cid.codigo = ct.cidade'
+      '            and cid.estado = ct.estado)'
+      '       end as nomecidade,'
+      ''
+      '       case when ct.entcidade is not null then'
+      '         (select cid.regiao'
+      '          from cidades cid'
+      '          where cid.codigo = ct.entcidade'
+      '            and cid.estado = ct.entestado)'
+      '       else'
+      '         (select cid.regiao'
+      '          from cidades cid'
+      '          where cid.codigo = ct.cidade'
+      '            and cid.estado = ct.estado)'
+      '       end as regiao_cidade,'
+      ''
+      '      coalesce(ct.entcep,ct.cep) as cep,'
+      ''
+      '       case when ct.entcidade is not null then'
+      '         (select ba.nome'
+      '          from bairros ba'
+      '          where ba.codigo = ct.entbairro'
+      '            and ba.cidade = ct.entcidade'
+      '            and ba.estado = ct.entestado)'
+      '       else'
+      '         (select ba.nome'
+      '          from bairros ba'
+      '          where ba.codigo = ct.bairro'
+      '            and ba.cidade = ct.cidade'
+      '            and ba.estado = ct.estado)'
+      '       end as nomebairro,'
+      ''
+      '       case when ct.entcidade is not null then'
+      '         (select ba.regiao'
+      '          from bairros ba'
+      '          where ba.codigo = ct.entbairro'
+      '            and ba.cidade = ct.entcidade'
+      '            and ba.estado = ct.entestado)'
+      '       else'
+      '         (select ba.regiao'
+      '          from bairros ba'
+      '          where ba.codigo = ct.bairro'
+      '            and ba.cidade = ct.cidade'
+      '            and ba.estado = ct.estado)'
+      '       end as regiao_bairro,'
+      ''
+      '       coalesce(ct.entrua, ct.rua) as rua,'
+      '       coalesce(ct.entnumero, ct.endnumero) as endnumero,'
+      
+        '       coalesce(ct.entcomplemento, ct.endcomplemento) as endcomp' +
+        'lemento,'
+      ''
+      '       ct.data,'
+      '       cast(null as integer) as romaneio,'
+      ''
+      
+        '       /* s'#243' para identificar que tendo mais de um item '#233' soment' +
+        'e uma entrega */'
+      '       case when  pc.numero = (select min(pcm.numero)'
+      '                                from produtoscontratos pcm'
+      '                                where pcm.contrato = pc.contrato'
+      
+        '                                      and coalesce(pcm.entrega,'#39 +
+        'N'#39')='#39'S'#39
+      
+        '                                      and  pcm.dataentrega is no' +
+        't null'
+      '                                      and  (pcm.quantidade -'
+      ''
+      
+        '                                               coalesce((select ' +
+        'sum(ctd.quantidade)'
+      
+        '                                                         from co' +
+        'ntratosdevolvidos ctd'
+      
+        '                                                         where c' +
+        'td.contrato = pcm.contrato'
+      
+        '                                                           and c' +
+        'td.produto = pcm.produto'
+      
+        '                                                           and c' +
+        'td.situacao = '#39'F'#39'),0) -'
+      ''
+      
+        '                                              coalesce((select s' +
+        'um(pdf.quantidade)'
+      
+        '                                                        from pro' +
+        'dutosdadosfiscais pdf'
+      
+        '                                                             joi' +
+        'n dadosfiscais df'
+      
+        '                                                             on ' +
+        'pdf.dadofiscal = df.numero'
+      
+        '                                                        where df' +
+        '.situacao = '#39'N'#39
+      
+        '                                                          and df' +
+        '.contrato = ct.numero'
+      
+        '                                                          and pd' +
+        'f.produto = pcm.produto'
+      ''
+      '                                                        ),0)'
+      ''
+      ''
+      ''
+      
+        '                                                           > 0))' +
+        ' then cast(1 as numeric(11,3))'
+      ''
+      '            else cast(null as numeric(11,3))'
+      '       end as entregas,'
+      ''
+      '       ct.fornecedorfrete as fornecedortransporte'
+      ''
+      ''
+      'from produtoscontratos pc'
+      '     join produtos p'
+      '     on pc.produto = p.codigo'
+      ''
+      '     join contratos ct'
+      '     on pc.contrato = ct.numero'
+      ''
+      '     left join periodosentrega pe'
+      '     on pc.periodoentrega = pe.codigo'
+      ''
+      'where coalesce(pc.entrega,'#39'N'#39')='#39'S'#39
+      '  and ct.situacao in ('#39'F'#39','#39'P'#39')'
+      '  and contratos_atual(ct.numero)'
+      ''
+      '  and case when :TodoIntervalodeEntregas then'
+      '      pc.dataentrega is not null'
+      '  else'
+      
+        '    case when coalesce(:DataInicial,'#39#39') <> coalesce(null,'#39#39') and' +
+        ' coalesce(:DataFinal,'#39#39') <> coalesce(null,'#39#39') then'
+      
+        '               pc.dataentrega between :DataInicial and :DataFina' +
+        'l'
+      ''
+      
+        '         when coalesce(:DataInicial,'#39#39') <> coalesce(null,'#39#39') and' +
+        ' coalesce(:DataFinal,'#39#39') = coalesce(null,'#39#39') then'
+      '               pc.dataentrega >= :DataInicial'
+      ''
+      
+        '         when coalesce(:DataInicial,'#39#39') = coalesce(null,'#39#39') and ' +
+        'coalesce(:DataFinal,'#39#39') <> coalesce(null,'#39#39') then'
+      '               pc.dataentrega <= :Datafinal'
+      ''
+      '    end'
+      '  end'
+      ''
+      '  and  ((pc.quantidade -'
+      ''
+      '           coalesce((select sum(ctd.quantidade)'
+      '                     from contratosdevolvidos ctd'
+      '                     where ctd.contrato = pc.contrato'
+      '                       and ctd.produto = pc.produto'
+      '                       and ctd.situacao = '#39'F'#39'),0) -'
+      ''
+      '            coalesce((select sum(pdf.quantidade)'
+      '                      from produtosdadosfiscais pdf'
+      '                           join dadosfiscais df'
+      '                           on pdf.dadofiscal = df.numero'
+      '                      where df.situacao = '#39'N'#39
+      '                        and df.contrato = ct.numero'
+      '                        and pdf.produto = pc.produto'
+      ''
+      '                      ),0)'
+      ''
+      ''
+      '                      ) > 0)'
+      ''
+      '  %ListaFiliaisVenda_ListaSelecionada'
+      '  %ListaFiliaisProdutos_ListaSelecionada'
+      ''
+      '  %PeriodoEntrega'
+      '  %CondicaoRomaneio'
+      ''
+      ''
+      ')'
+      ''
+      ') as entregas'
+      '     left join (romaneios r'
+      '                join vfornecedores vft'
+      '                on r.fornecedor = vft.codigo and vft.tipo = '#39'F'#39
+      '                )'
+      '     on entregas.romaneio = r.numero'
+      ''
+      '     left join vfornecedores vfft'
+      
+        '     on entregas.fornecedortransporte = vfft.codigo and vfft.tip' +
+        'o = '#39'F'#39
+      ''
+      
+        '     left join regioes rg on coalesce(regiao_bairro,regiao_cidad' +
+        'e) = rg.codigo'
+      ''
+      'Where true     '
+      '%ListaFornecedoresTransporte'
+      ''
+      
+        'order by dataentrega, descricaoperiodoentrega, rg.nome, cep, nom' +
+        'ebairro, horaentrega'
+      '')
+    RequestLive = True
+    Left = 112
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'TodoIntervalodeEntregas'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaEntregaProdutoscontrato: TStringField
+      DisplayLabel = 'Contrato'
+      FieldName = 'contrato'
+    end
+    object qryConsultaEntregaProdutosprodutovisual: TStringField
+      DisplayLabel = 'Produto'
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryConsultaEntregaProdutosfilial: TIntegerField
+      DisplayLabel = 'Filial'
+      FieldName = 'filial'
+    end
+    object qryConsultaEntregaProdutosdescricaoproduto: TStringField
+      DisplayLabel = 'Descri'#231#227'o do Produto'
+      FieldName = 'descricaoproduto'
+      Size = 100
+    end
+    object qryConsultaEntregaProdutossaldo_quantidade: TFloatField
+      DisplayLabel = 'Quantidade'
+      FieldName = 'saldo_quantidade'
+      DisplayFormat = '0.00'
+    end
+    object qryConsultaEntregaProdutosdataentrega: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Data da Entrega'
+      FieldName = 'dataentrega'
+      DisplayFormat = 'dd/MM/yyyy'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryConsultaEntregaProdutoshoraentrega: TTimeField
+      Alignment = taCenter
+      DisplayLabel = 'Hora da Entrega'
+      FieldName = 'horaentrega'
+      DisplayFormat = 'HH:mm'
+      EditMask = '99:99;1; '
+    end
+    object qryConsultaEntregaProdutosperiodoentrega: TIntegerField
+      FieldName = 'periodoentrega'
+    end
+    object qryConsultaEntregaProdutosdescricaoperiodoentrega: TStringField
+      FieldName = 'descricaoperiodoentrega'
+      Size = 30
+    end
+    object qryConsultaEntregaProdutosestado: TStringField
+      DisplayLabel = 'UF'
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryConsultaEntregaProdutosnomecidade: TStringField
+      DisplayLabel = 'Cidade'
+      FieldName = 'nomecidade'
+      Size = 72
+    end
+    object qryConsultaEntregaProdutoscep: TIntegerField
+      DisplayLabel = 'Cep'
+      FieldName = 'cep'
+      DisplayFormat = '##-###.###'
+    end
+    object qryConsultaEntregaProdutosnomebairro: TStringField
+      DisplayLabel = 'Nome do Bairro'
+      FieldName = 'nomebairro'
+      Size = 80
+    end
+    object qryConsultaEntregaProdutosrua: TStringField
+      DisplayLabel = 'Rua'
+      FieldName = 'rua'
+      Size = 100
+    end
+    object qryConsultaEntregaProdutosendnumero: TIntegerField
+      DisplayLabel = 'Nr'#176' '
+      FieldName = 'endnumero'
+    end
+    object qryConsultaEntregaProdutosendcomplemento: TStringField
+      DisplayLabel = 'Complemento'
+      FieldName = 'endcomplemento'
+      Size = 50
+    end
+    object qryConsultaEntregaProdutosdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryConsultaEntregaProdutosdescricaoperiodoentrega_: TStringField
+      FieldKind = fkLookup
+      FieldName = 'descricaoperiodoentrega_'
+      LookupDataSet = qryPeriodosEntrega
+      LookupKeyFields = 'codigo'
+      LookupResultField = 'descricao'
+      KeyFields = 'periodoentrega'
+      Size = 30
+      Lookup = True
+    end
+    object qryConsultaEntregaProdutosfilialnf: TIntegerField
+      FieldName = 'filialnf'
+    end
+    object qryConsultaEntregaProdutosserie: TStringField
+      FieldName = 'serie'
+      Size = 50
+    end
+    object qryConsultaEntregaProdutosnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryConsultaEntregaProdutosdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+    object qryConsultaEntregaProdutosproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryConsultaEntregaProdutosauxdataentrega: TDateField
+      Alignment = taCenter
+      FieldName = 'auxdataentrega'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryConsultaEntregaProdutosauxhoraentrega: TTimeField
+      Alignment = taCenter
+      FieldName = 'auxhoraentrega'
+      EditMask = '99:99;1; '
+    end
+    object qryConsultaEntregaProdutosauxperiodoentrega: TIntegerField
+      FieldName = 'auxperiodoentrega'
+    end
+    object qryConsultaEntregaProdutosfornecedor_transporte: TIntegerField
+      FieldName = 'fornecedor_transporte'
+    end
+    object qryConsultaEntregaProdutosnomefornecedortransporte: TStringField
+      FieldName = 'nomefornecedortransporte'
+      Required = True
+      Size = 60
+    end
+    object qryConsultaEntregaProdutosregiao: TStringField
+      FieldName = 'regiao'
+      Size = 10
+    end
+    object qryConsultaEntregaProdutosnomeregiao: TStringField
+      FieldName = 'nomeregiao'
+      Size = 30
+    end
+    object qryConsultaEntregaProdutosentregas: TFloatField
+      FieldName = 'entregas'
+      DisplayFormat = '0.00'
+    end
+    object qryConsultaEntregaProdutosendereco: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'endereco'
+      Size = 200
+      Calculated = True
+    end
+    object qryConsultaEntregaProdutoscontratonota: TStringField
+      FieldName = 'contratonota'
+      Size = 200
+    end
+    object qryConsultaEntregaProdutoslimitequantidade: TIntegerField
+      FieldName = 'limitequantidade'
+      DisplayFormat = '#####'
+    end
+    object qryConsultaEntregaProdutosromaneio: TIntegerField
+      FieldName = 'romaneio'
+    end
+  end
+  object dsrConsultaEntregaProdutos: TtecDataSource
+    DataSet = qryConsultaEntregaProdutos
+    OnDataChange = dsrConsultaEntregaProdutosDataChange
+    Left = 160
+    Top = 40
+  end
+  object qryPeriodosEntrega: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pe.*,'
+      '       false as marcar'
+      'from periodosentrega pe'
+      'order by pe.codigo')
+    RequestLive = True
+    Active = True
+    Left = 112
+    Top = 128
+    object qryPeriodosEntregacodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryPeriodosEntregadescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryPeriodosEntregahorapadrao: TTimeField
+      Alignment = taCenter
+      FieldName = 'horapadrao'
+      EditMask = '99:99;1; '
+    end
+    object qryPeriodosEntregainativo: TDateField
+      Alignment = taCenter
+      FieldName = 'inativo'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryPeriodosEntregainicio: TTimeField
+      Alignment = taCenter
+      FieldName = 'inicio'
+      DisplayFormat = 'HH:mm'
+      EditMask = '99:99;1; '
+    end
+    object qryPeriodosEntregafim: TTimeField
+      Alignment = taCenter
+      FieldName = 'fim'
+      DisplayFormat = 'HH:mm'
+      EditMask = '99:99;1; '
+    end
+    object qryPeriodosEntregamarcar: TBooleanField
+      FieldName = 'marcar'
+    end
+  end
+  object dsrPeriodosEntrega: TtecDataSource
+    DataSet = qryPeriodosEntrega
+    Left = 144
+    Top = 144
+  end
+  object qryAtualizar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 320
+    Top = 40
+  end
+end

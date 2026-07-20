@@ -1,0 +1,357 @@
+unit fmgerarsintegraemarquivo;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  //Repositorio
+  fmajudabt, ComCtrls, Buttons, ExtCtrls, StdCtrls, Mask,
+  Grids, DBGrids, cpdbgrid, cpdata, cpdbfindcontrols,
+  fmconsultabasica, fmconsultaporcampo, ZQuery, clparametrossistema,
+  //CLX
+  Windows,
+  //Biblio
+  ctconstantes, biblio,
+  //Projeto
+  dmgerarsintegraemarquivo, cpdbradiogroup, ToolWin, CheckLst;
+
+
+type
+  TfrmGerarSintegraEmArquivo = class(TfrmAjudaBt)
+    sbnGerarArquivo: TSpeedButton;
+    pnlFundoJanela: TPanel;
+    gbxFundoJanela: TGroupBox;
+    lblArquivo1: TLabel;
+    lblArquivo: TLabel;
+    sbnArquivo: TSpeedButton;
+    gbxFiliais: TGroupBox;
+    sbnMarcarFiliais: TSpeedButton;
+    sbnDesmarcarFiliais: TSpeedButton;
+    clbFiliais: TCheckListBox;
+    gbxGrupodeFiliais: TGroupBox;
+    sbnmarcarGrupodeFiliais: TSpeedButton;
+    sbnDesmarcarGrupodeFiliais: TSpeedButton;
+    clbGrupodeFiliais: TCheckListBox;
+    dlgArquivoaExportar: TSaveDialog;
+    gbxPeriodo: TGroupBox;
+    lblDataInicial: TLabel;
+    edtDataInicial: TEditData;
+    lblDataFinal: TLabel;
+    edtDataFinal: TEditData;
+    gbxAgentes: TGroupBox;
+    sbnMarcarAgentes: TSpeedButton;
+    sbnDesmarcarAgentes: TSpeedButton;
+    clbAgentes: TCheckListBox;
+    gbxCodigosFiscais: TGroupBox;
+    edfCodigoFiscalEntradaInicial: TtecDbEditFind;
+    edfCodigoFiscalEntradaFinal: TtecDbEditFind;
+    edfCodigoFiscalSaidaInicial: TtecDbEditFind;
+    edfCodigoFiscalSaidaFinal: TtecDbEditFind;
+    lbl_a1: TLabel;
+    lbl_a2: TLabel;
+    lblEntrada: TLabel;
+    lblSaida: TLabel;
+    sbnConsultaCodigoFiscalEntradaInicial: TSpeedButton;
+    sbnConsultaCodigoFiscalSaidaInicial: TSpeedButton;
+    sbnConsultaCodigoFiscalEntradaFinal: TSpeedButton;
+    sbnConsultaCodigoFiscalSaidaFinal: TSpeedButton;
+    rgpFinalidade: TRadioGroup;
+    gbxEstado: TGroupBox;
+    edfEstado: TtecDbEditFind;
+    sbnconsultaestado: TSpeedButton;
+    procedure sbnGerarArquivoClick(Sender: TObject);
+    procedure sbnArquivoClick(Sender: TObject);
+    procedure sbnMarcarFiliaisClick(Sender: TObject);
+    procedure sbnDesmarcarFiliaisClick(Sender: TObject);
+    procedure sbnmarcarGrupodeFiliaisClick(Sender: TObject);
+    procedure sbnDesmarcarGrupodeFiliaisClick(Sender: TObject);
+    procedure clbFiliaisClickCheck(Sender: TObject);
+    procedure clbGrupodeFiliaisClickCheck(Sender: TObject);
+    procedure sbnMarcarAgentesClick(Sender: TObject);
+    procedure sbnDesmarcarAgentesClick(Sender: TObject);
+    procedure sbnConsultaCodigoFiscalEntradaInicialClick(Sender: TObject);
+    procedure sbnConsultaCodigoFiscalSaidaInicialClick(Sender: TObject);
+    procedure sbnConsultaCodigoFiscalEntradaFinalClick(Sender: TObject);
+    procedure sbnConsultaCodigoFiscalSaidaFinalClick(Sender: TObject);
+    procedure sbnconsultaestadoClick(Sender: TObject);
+  protected
+    procedure GerarArquivo;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  ValidarCamposSelecao: Boolean;
+    function InternoPesquisar(Titulo: String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    function PesquisaHabilitada: Boolean;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure ObterLista(Origem: TStrings; Destino: TCheckListBox);
+
+  end;
+
+var
+  frmGerarSintegraEmArquivo: TfrmGerarSintegraEmArquivo;
+  TipoPesquisa: TTecPesquisa;
+
+
+implementation
+
+
+{$R *.dfm}
+
+{ TfrmGerarSintegraEmArquivo }
+
+constructor TfrmGerarSintegraEmArquivo.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmGerarsintegraEmArquivo := TdtmGerarSintegraEmArquivo.Create(Self);
+  ObterLista(dtmGerarsintegraemArquivo.ListaFiliais, clbFiliais);
+  ObterLista(dtmGerarSintegraEmArquivo.ListaGruposFiliais, clbGrupodeFiliais);
+  ObterLista(dtmGerarSintegraEmArquivo.ListaAgentes, clbAgentes);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.GerarArquivo;
+begin
+  if ValidarCamposSelecao then begin
+    with dtmGerarsintegraEmArquivo do
+    begin
+     R10_11_NatOperacoes := 3;
+     case rgpFinalidade.ItemIndex of
+     0: R10_12_Finalidade := 1;
+     1: R10_12_Finalidade := 2;
+     2: R10_12_Finalidade := 3;
+     3: R10_12_Finalidade := 5;
+     end;
+
+     DataInicial := edtDataInicial.Text;
+     DataFinal := edtDataFinal.Text;
+     MontarSQL;
+
+     MontarFiltroFiliais(clbFiliais);
+     MontarFiltroGrupoFiliais(clbGrupodeFiliais);
+     GerarArquivo(lblArquivo.Caption, false);
+     MensagemAviso(format(ctARQUIVOGERADOSUCESSO,['(s):'+dtmGerarsintegraEmArquivo.CodigosFiliaisGerados]));
+    end;
+  end;
+end;
+
+procedure TfrmGerarSintegraEmArquivo.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Shift = []) and (Key = VK_F6) then
+    GerarArquivo
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnGerarArquivoClick(Sender: TObject);
+begin
+  inherited;
+  GerarArquivo
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnArquivoClick(Sender: TObject);
+begin
+  inherited;
+  if dlgArquivoaExportar.Execute then
+   lblarquivo.Caption:=trim(dlgArquivoaExportar.FileName);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.ObterLista(Origem: TStrings;
+  Destino: TCheckListBox);
+begin
+  Destino.Items.AddStrings(Origem);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnMarcarFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliais, True);
+  MarcarLista(clbGrupodeFiliais, False);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnDesmarcarFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliais, False);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbGrupodeFiliais, True);
+  MarcarLista(clbFiliais, False);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnDesmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbGrupodeFiliais, False);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.clbFiliaisClickCheck(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbGrupodeFiliais, False);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.clbGrupodeFiliaisClickCheck(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliais, False);
+end;
+
+function TfrmGerarSintegraEmArquivo.ValidarCamposSelecao: Boolean;
+begin
+   Result := (edtDataInicial.DataValida and edtDataFinal.DataValida);
+   if Result then
+   begin
+    if (not dataembranco(edtDataInicial.text) and not dataembranco(edtDataFinal.text)) then
+      Result:=StrToDate(edtDataInicial.Text) <= StrToDate(edtDataFinal.Text);
+    if result then
+    begin
+      Result:=(not dataembranco(edtDataInicial.text) or not dataembranco(edtDataFinal.text));
+      if Result then
+        Result := OperadorTernario((Trim(edfCodigoFiscalEntradaInicial.Text) <> ''), edfCodigoFiscalEntradaInicial.Exist, True) and
+                  OperadorTernario((Trim(edfCodigoFiscalEntradaFinal.Text) <> ''), edfCodigoFiscalEntradaFinal.Exist, True) and
+                  OperadorTernario((Trim(edfCodigoFiscalSaidaInicial.Text) <> ''), edfCodigoFiscalSaidaInicial.Exist, True) and
+                  OperadorTernario((Trim(edfCodigoFiscalSaidaFinal.Text) <> ''), edfCodigoFiscalSaidaFinal.Exist, True) and
+                  OperadorTernario((Trim(edfEstado.Text) <> ''), edfEstado.Exist, True)
+      else
+      begin
+       MensagemAviso(ctDATAINVALIDA);
+       edtDataInicial.SetFocus;
+      end;
+    end
+    else
+    begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      edtDataInicial.SetFocus;
+    end;
+   end;
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnMarcarAgentesClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbAgentes, True);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnDesmarcarAgentesClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbAgentes, False);
+end;
+
+function TfrmGerarSintegraEmArquivo.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmGerarSintegraemArquivo do
+    case TipoPesquisa of
+      pesCODIGOFISCALENTRADAINICIAL,
+      pesCODIGOFISCALENTRADAFINAL  : Result := ExisteCodigoFiscalEntrada(NomeCampo, Value);
+      pesCODIGOFISCALSAIDAINICIAL,
+      pesCODIGOFISCALSAIDAFINAL  : Result := ExisteCodigoFiscalSaida(NomeCampo, Value);
+      pesESTADOS : Result := ExisteEstado(NomeCampo, Value);
+    else
+      Result:= False;
+    end;
+end;
+
+function TfrmGerarSintegraEmArquivo.InternoPesquisar(
+  Titulo: String): Integer;
+begin
+  if PesquisaHabilitada then
+    with dtmgerarsintegraemarquivo do
+    begin
+      AbreTabelaPesquisa(TipoPesquisa);
+      Result := inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FechaTabelaPesquisa(TipoPesquisa);
+    end
+  else
+    Result := 0;
+end;
+
+function TfrmGerarSintegraEmArquivo.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa:= True;
+end;
+
+function TfrmGerarSintegraEmArquivo.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmGerarSintegraemArquivo do
+    case TipoPesquisa of
+      pesCODIGOFISCALENTRADAINICIAL,
+      pesCODIGOFISCALENTRADAFINAL  : Result := consultacodigosfiscaisEntrada;
+      pesCODIGOFISCALSAIDAINICIAL,
+      pesCODIGOFISCALSAIDAFINAL  : Result := consultacodigosfiscaisSaida;
+      pesESTADOS : Result := consultaestado;
+    end;
+end;
+
+function TfrmGerarSintegraEmArquivo.PesquisaHabilitada: Boolean;
+begin
+  Result:= False;
+  if (CtrlOn) and (ActiveControl is TtecDBEditFind) then
+  begin
+    if edfCodigoFiscalEntradaInicial.Focused then
+      TipoPesquisa := pesCODIGOFISCALENTRADAINICIAL
+    else
+    if edfCodigoFiscalEntradaFinal.Focused then
+      TipoPesquisa := pesCODIGOFISCALENTRADAFINAL
+    else
+    if edfCodigoFiscalSaidaInicial.Focused then
+      TipoPesquisa := pesCODIGOFISCALSAIDAINICIAL
+    else
+    if edfCodigoFiscalSaidaFinal.Focused then
+      TipoPesquisa := pesCODIGOFISCALSAIDAFINAL
+    else
+    if edfEstado.focused then
+      TipoPesquisa := pesESTADOS;
+    Result:= True;
+  end;
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnConsultaCodigoFiscalEntradaInicialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfCodigoFiscalEntradaInicial, ctCODIGOFISCAL);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnConsultaCodigoFiscalSaidaInicialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfCodigoFiscalSaidaInicial, ctCODIGOFISCAL);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnConsultaCodigoFiscalEntradaFinalClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfCodigoFiscalEntradaFinal, ctCODIGOFISCAL);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnConsultaCodigoFiscalSaidaFinalClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfCodigoFiscalSaidaFinal, ctCODIGOFISCAL);
+end;
+
+procedure TfrmGerarSintegraEmArquivo.sbnconsultaestadoClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfEstado, ctESTADO);
+end;
+
+end.

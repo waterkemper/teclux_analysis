@@ -1,0 +1,110 @@
+inherited frmCadastroProdutosCargos: TfrmCadastroProdutosCargos
+  Left = 670
+  Top = 191
+  ActiveControl = fraConsultaCodigoProduto
+  Caption = 'Cadastro de Produtos por Cargo'
+  ClientHeight = 154
+  ClientWidth = 546
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    Left = 0
+    Top = 40
+    Width = 546
+    Height = 114
+    Align = alClient
+    Visible = True
+    object gbxProduto: TGroupBox
+      Left = 8
+      Top = 8
+      Width = 529
+      Height = 42
+      Caption = 'Produto'
+      TabOrder = 0
+      inline fraConsultaCodigoProduto: TfraConsultaCodigo
+        Left = 5
+        Top = 15
+        Width = 519
+        Height = 24
+        HorzScrollBar.Range = 518
+        VertScrollBar.Range = 23
+        AutoScroll = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        inherited sbnProcura: TSpeedButton
+          Left = 120
+          OnClick = fraConsultaCodigoProdutosbnProcuraClick
+        end
+        inherited dtxDescricao: TtecDBText
+          Left = 144
+          Width = 374
+          DataField = 'descricao'
+          DataSource = fraConsultaCodigoProduto.dsrProcuraItemProdutos
+        end
+        inherited edfCodigo: TtecDBFindLookup
+          Width = 121
+          DataaFieldInterno = 'produto'
+          DataaFieldVisual = 'produtovisual'
+          DataField = 'produtodigitado'
+          DataSource = dtmCadastroTabelasCrediario.dsrprodutosporCargo
+          MaxLength = 30
+          OnExit = fraConsultaCodigoProdutoedfCodigoExit
+          OnFound = fraConsultaCodigoProdutoedfCodigoFound
+          LookupaFieldinterno = 'produto'
+          LookupaFieldVisual = 'produtovisual'
+          LookupField = 'produtovisual'
+          LookupSource = fraConsultaCodigoProduto.dsrProcuraItemProdutos
+          LookupQueryParameter = 'produtovisual'
+          LookupParametersLabel = 'produto'
+          LookupParameters = 'produtovisual'
+          LocateParameters = 'produtovisual'
+          Parameter = ' '
+          ActiveSetControls = False
+          DenyInsert = True
+          NoSetControls = <>
+          SetControls = <>
+          LookupParameter = 'produtovisual'
+        end
+      end
+    end
+    object gbxmarkup: TGroupBox
+      Left = 8
+      Top = 50
+      Width = 159
+      Height = 44
+      Caption = 'Markup (%)'
+      TabOrder = 1
+      object edtMarkup: TDBEditNumero
+        Left = 5
+        Top = 16
+        Width = 148
+        Height = 24
+        MaxLength = -1
+        TabOrder = 0
+        Text = 'edtMarkup'
+        OnKeyDown = edtMarkupKeyDown
+        Mascara = True
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = False
+        Tamanho = 9
+        DataField = 'markup'
+        DataSource = dtmCadastroTabelasCrediario.dsrprodutosporCargo
+      end
+    end
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 546
+    inherited tblBarra: TToolBar
+      Width = 321
+    end
+  end
+end

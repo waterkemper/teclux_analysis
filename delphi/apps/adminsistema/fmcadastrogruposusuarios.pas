@@ -1,0 +1,170 @@
+unit fmcadastrogruposusuarios;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, Buttons, DBCtrls, Mask,
+  //Terceiros
+  ZQuery,
+  //componentes
+  cpdbfindcontrols, cptexto, cpdbtext,
+  //Repositorio
+  fmcadastropadrao, fmconsultabasica, ComCtrls, ToolWin;
+
+type
+  TfrmCadastroGruposUsuarios = class(TfrmCadastroPadrao)
+    gbxPerfil: TGroupBox;
+    ckbAnalistaCredito: TDBCheckBox;
+    ckbReservaProdutos: TDBCheckBox;
+    ckbVendedor: TDBCheckBox;
+    ckbCobranca: TDBCheckBox;
+    ckbAtendimento: TDBCheckBox;
+    ckbCaixa: TDBCheckBox;
+    ckbPagamento: TDBCheckBox;
+    lblGrupoPostgreSQL: TLabel;
+    edfCodigoGrupo: TtecDbEditFind;
+    edtNomeGrupo: TDBEditTexto;
+    flkGrupoPostgreSQL: TtecDBFindLookup;
+    chkDescontoExtra: TDBCheckBox;
+    chkAlterarPrecoContrato: TDBCheckBox;
+    chkDevolucaoProduto: TDBCheckBox;
+    pnlFundoJanela: TPanel;
+    gbxFundoJanela: TGroupBox;
+    dtxGrupoPostgreSQL: TtecDBText;
+    sbnGrupoPostgreSQL: TSpeedButton;
+    chkDevolucaoNumerario: TDBCheckBox;
+    chkITecLux: TDBCheckBox;
+    chkAlterarFilial: TDBCheckBox;
+    chkGerenteEstoque: TDBCheckBox;
+    chkAlterarDadosContabeis: TDBCheckBox;
+    chkMontador: TDBCheckBox;
+    chkConfirmarTransferenciaItem: TDBCheckBox;
+    ckbRestringirFicheCliente: TDBCheckBox;
+    ckbEmissorNotaFiscal: TDBCheckBox;
+    ckbGerenteCaixa: TDBCheckBox;
+    chkTrocaProduto: TDBCheckBox;
+    gbxCodigo: TGroupBox;
+    gbxNomeGrupo: TGroupBox;
+    procedure sbnGrupoPostgreSQLClick(Sender: TObject);
+  protected
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroGruposUsuarios: TfrmCadastroGruposUsuarios;
+
+implementation
+
+uses
+  //Biblio
+  ctconstantes, biblio,
+  //Projeto
+  dmcadastrosinternos, fmnavcontroles, fmconsultaporcampo;
+
+{$R *.dfm}
+
+{ TfrmCadastroGruposUsuarios }
+
+constructor TfrmCadastroGruposUsuarios.Create(AOwner: TComponent);
+begin
+  inherited;
+  if Not Assigned(dtmCadastrosInternos) then
+    dtmCadastrosInternos := TdtmCadastrosInternos.Create(self);
+  DataSet := dtmCadastrosInternos.TabelaGrupoUsuarios;
+  dtmCadastrosInternos.Abre(ctTabelaGruposUsuarios);
+end;
+
+destructor TfrmCadastroGruposUsuarios.Destroy;
+begin
+  inherited;
+  frmCadastroGruposUsuarios := nil
+end;
+
+function TfrmCadastroGruposUsuarios.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  if CtrlOn then
+    Result := dtmCadastrosInternos.ExisteGrupoPostgreSQL(NomeCampo, Value)
+  else
+    Result := dtmCadastrosInternos.ExisteGrupoUsuarios(NomeCampo, Value)
+end;
+
+function TfrmCadastroGruposUsuarios.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result and not CtrlOn then
+   Result := dtmCadastrosInternos.ExcluirGrupoUsuario;
+end;
+
+function TfrmCadastroGruposUsuarios.InternoGravar: Boolean;
+begin
+  Result := dtmCadastrosInternos.GravarGrupoUsuario
+end;
+
+function TfrmCadastroGruposUsuarios.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result and not CtrlOn then
+    Result := dtmCadastrosInternos.IncluirGrupoUsuarios
+end;
+
+function TfrmCadastroGruposUsuarios.InternoPesquisar(Titulo: String): Integer;
+var
+  Tabela: Integer;
+begin
+  if CtrlOn then begin
+    if flkGrupoPostgreSQL.Focused then begin
+      Titulo := ctGRUPOPOSTGRESQL;
+      Tabela := ctTabelaConsultaGrupoPostgreSQL;
+    end else
+      Tabela := 0
+  end else begin
+    Titulo := ctGRUPOUSUARIOS;
+    Tabela := ctTabelaConsultaGrupoUsuarios;
+  end;
+  if Tabela = 0 then
+    Result := mrNONE
+  else begin
+    dtmCadastrosInternos.Abre(Tabela);
+    Result := inherited InternoPesquisar(Titulo);
+    if Result = mrok then
+      if Tabela = ctTabelaConsultaGrupoPostgreSQL then
+        dtmCadastrosInternos.SelecionarGrupoPostgreSQL
+      else
+        dtmCadastrosInternos.SelecionarGrupoUsuario;
+    dtmCadastrosInternos.Fecha(Tabela);
+  end
+end;
+
+function TfrmCadastroGruposUsuarios.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+end;
+
+procedure TfrmCadastroGruposUsuarios.sbnGrupoPostgreSQLClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkGrupoPostgreSQL, ctGRUPOUSUARIOS)
+end;
+
+function TfrmCadastroGruposUsuarios.TabelaDePesquisa: TZDataSet;
+begin
+  if CtrlOn then
+    Result := dtmCadastrosInternos.TabelaConsultaGrupoPostgreSQL
+  else
+    Result := dtmCadastrosInternos.TabelaConsultaGrupoUsuarios
+end;
+
+end.

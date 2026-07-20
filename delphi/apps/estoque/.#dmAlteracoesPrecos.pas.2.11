@@ -1,0 +1,928 @@
+unit dmAlteracoesPrecos;
+
+interface
+
+uses
+  SysUtils, Classes, dmBasico, dmTecsoft, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, FxDB, FxCommon, FxStore, FxHtml, DBClient, Provider,
+  windows, forms, biblio;
+
+type
+  TdtmAlteracoesPrecos = class(TdtmBasico)
+    dsrAlteracoesPrecos: TtecDataSource;
+    qryAlteracoesPrecos: TtecQuery;
+    qryAlteracoesPrecosproduto: TLargeintField;
+    qryAlteracoesPrecosdescricao_produto: TStringField;
+    qryAlteracoesPrecosdata: TDateField;
+    qryAlteracoesPrecospreco: TIntegerField;
+    qryAlteracoesPrecosdescricao_preco: TStringField;
+    qryAlteracoesPrecosvalor: TFloatField;
+    qryAlteracoesPrecosmarkup: TFloatField;
+    qryAlteracoesPrecoscargo: TStringField;
+    qryAlteracoesPrecosvalorprodutocargo: TFloatField;
+    qryAlteracoesPrecosprodutovisual: TStringField;
+    qryAlteracoesPrecosprodutovisualdescricao: TStringField;
+    qryAlteracoesPrecostrigger_user: TStringField;
+    qryAlteracoesPrecosCargos: TtecQuery;
+    dsrAlteracoesPrecosCargos: TtecDataSource;
+    qryAlteracoesPrecosCargos_Auxiliar: TtecQuery;
+    qryAlteracoesPrecosCargos_Auxiliar_por_Cargo: TtecQuery;
+    qryAlteracoesPrecosCargosVisaoParalela_Auxiliar: TtecQuery;
+    qryAlteracoesPrecosCargosVisaoParalela: TtecQuery;
+    dsrAlteracoesPrecosCargosVisaoParalela: TtecDataSource;
+    qryConsultaEstoques: TtecQuery;
+    qryConsultaEstoquesproduto: TLargeintField;
+    qryConsultaEstoquesprodutovisual: TStringField;
+    qryConsultaEstoquesfilial: TIntegerField;
+    qryConsultaEstoquesminimo: TFloatField;
+    qryConsultaEstoqueslocalizacao: TStringField;
+    qryConsultaEstoquesmaximo: TFloatField;
+    qryConsultaEstoquescaracteristica: TLargeintField;
+    qryConsultaEstoquespreco: TIntegerField;
+    qryConsultaEstoquesdescproduto: TStringField;
+    qryConsultaEstoquesreferencia: TStringField;
+    qryConsultaEstoquesdescmarca: TStringField;
+    qryConsultaEstoquesprecosemicms: TFloatField;
+    qryConsultaEstoquesprecocomicms: TFloatField;
+    qryConsultaEstoquesdatacompra: TDateField;
+    qryConsultaEstoquesqtdecompra: TFloatField;
+    qryConsultaEstoquesultimaentrada: TDateField;
+    qryConsultaEstoquesultimavenda: TDateField;
+    qryConsultaEstoquespreconormal: TIntegerField;
+    qryConsultaEstoquesprecopromocao: TIntegerField;
+    qryConsultaEstoquesemestoque: TFloatField;
+    qryConsultaEstoquesreservado: TFloatField;
+    qryConsultaEstoquesdemonstracao: TFloatField;
+    qryConsultaEstoquestransito: TFloatField;
+    qryConsultaEstoquesconserto: TFloatField;
+    qryConsultaEstoquesdanificada: TFloatField;
+    qryConsultaEstoquesfuturo: TFloatField;
+    qryConsultaEstoquesestoquevenda: TFloatField;
+    qryConsultaEstoquesestoquetotal: TFloatField;
+    qryConsultaEstoquesprodutoempromocao: TBooleanField;
+    qryConsultaEstoquesfinanceiro: TFloatField;
+    qryConsultaEstoquescustomedio: TFloatField;
+    qryConsultaEstoquesaliquotaipi: TFloatField;
+    qryConsultaEstoqueslinha: TStringField;
+    qryConsultaEstoquescoluna: TStringField;
+    qryConsultaEstoquesgrade1: TIntegerField;
+    qryConsultaEstoquesgrade2: TIntegerField;
+    qryConsultaEstoquesvalorgrade1: TStringField;
+    qryConsultaEstoquesvalorgrade2: TStringField;
+    qryConsultaEstoquesdescricaocaracteristica: TStringField;
+    qryConsultaEstoquesnomefilial: TStringField;
+    qryConsultaEstoquesreservaprevia: TFloatField;
+    qryConsultaEstoquesestoquefisico: TFloatField;
+    qryConsultaEstoquesprodutoinativo: TBooleanField;
+    qryConsultaEstoquesprodutoforalinha: TBooleanField;
+    qryConsultaEstoquesincidencia: TStringField;
+    qryConsultaEstoquessequencia: TIntegerField;
+    qryConsultaEstoquescodigonotaentrada: TIntegerField;
+    qryConsultaEstoquesnomefornecedor: TStringField;
+    qryConsultaEstoquesfornecedornosimples: TBooleanField;
+    qryConsultaEstoquesunidade: TStringField;
+    qryConsultaEstoquesproducaopropria: TStringField;
+    qryConsultaEstoquesarredondamento: TStringField;
+    qryConsultaEstoquessituacaotributaria: TStringField;
+    qryConsultaEstoquescodigobarras: TStringField;
+    qryConsultaEstoquespeso: TFloatField;
+    qryConsultaEstoquescsosn: TStringField;
+    qryConsultaEstoquescst_nfentrada: TStringField;
+    qryConsultaEstoquescsosn_nfentrada: TStringField;
+    qryConsultaEstoquescst_nf: TStringField;
+    qryConsultaEstoquescsosn_nf: TStringField;
+    qryConsultaEstoquesultimacompra_com_icms: TFloatField;
+    qryConsultaEstoquescomposto: TBooleanField;
+    qryConsultaEstoquescomposto2: TBooleanField;
+    qryConsultaEstoquescest: TStringField;
+    qryConsultaEstoquesclassificacaofiscal: TStringField;
+    qryConsultaEstoquespreco_atual: TFloatField;
+    qryConsultaEstoquesgrupo: TStringField;
+    qryConsultaEstoquesdescricaogrupo: TStringField;
+    qryConsultaEstoquespromocao: TIntegerField;
+    qryConsultaEstoquesdescricaopromocao: TStringField;
+    qryConsultaEstoquessublocalizacao: TStringField;
+    qryConsultaEstoquesmodelos_agg: TStringField;
+    dsrConsultaEstoques: TtecDataSource;
+    qryPrecos: TtecQuery;
+    qryPrecosvalornormal: TFloatField;
+    qryPrecosvalorpromocao: TFloatField;
+    qryPrecosvalidade: TDateField;
+    qryPrecosalteracaopreconormal: TDateField;
+    qryPrecosdescricaopreco: TStringField;
+    dsrPrecos: TDataSource;
+    qryConsultaEstoquesvalorultimacompra: TFloatField;
+    qryPrecoscaracteristica: TLargeintField;
+    qryPrecospreco: TIntegerField;
+    procedure qryAlteracoesPrecosCalcFields(DataSet: TDataSet);
+    procedure qryAlteracoesPrecosCargosAfterOpen(DataSet: TDataSet);
+    procedure qryAlteracoesPrecosCargosAfterScroll(DataSet: TDataSet);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+
+    procedure AbrirConsulta(
+          DataInicial, DataFinal,
+          DataMovtoInicial, DataMovtoFinal,
+          DataNotaInicial, DataNotaFinal: String;
+
+          MargemLucro: String;
+          VariacaoPrecoAtualeAnterior: String;
+          ComparisonOperator: String;
+
+          ListadeItemProdutos, ListadeProdutos,
+          ListadeGrupos, ListadeClasses, ListadeMarcas,
+          ListaCodigosPromocao,
+          ListaCST, ListaCSOSN,
+          ParametroListasPadrao,
+          ListadeFornecedores,
+          ListaCondicionalNotasEntrada : String;
+
+          ProdutoEmLinha,
+          ProdutoForadeLinha,
+
+          ProdutoAtivo,
+          ProdutoInativo,
+
+          ProdutoComMontagem,
+          ProdutoSemMontagem,
+
+          ProdutoBrinde,
+          ProdutoNaoBrinde,
+
+          DisponivelnoSite,
+          NaoDisponivelnoSite,
+
+          SomenteComEstoque  : Boolean;
+
+          FilialMovimentacao,
+          TipoMovimentacao: String;
+
+          {
+          ColunadePreco,
+          FilialPreco : String;
+
+          TipoSelecaodePreco: byte;
+
+          PrecosDiferenciados : Boolean;
+          }
+
+          Compostos: Byte;
+          Ordenacao: byte );
+
+    function GetProduto: String;
+    function GetcodigoNotaProduto: int64;
+
+    procedure PosicionarTabela_AlteracoesPrecosCargos(vIdentificador: String);
+
+  end;
+
+var
+  dtmAlteracoesPrecos: TdtmAlteracoesPrecos;
+
+
+implementation
+
+
+
+{$R *.dfm}
+
+{ TdtmAlteracoesPrecos }
+
+procedure TdtmAlteracoesPrecos.AbrirConsulta(DataInicial, DataFinal,
+          DataMovtoInicial, DataMovtoFinal,
+          DataNotaInicial, DataNotaFinal: String;
+  MargemLucro: String;
+  VariacaoPrecoAtualeAnterior: String;
+  ComparisonOperator: String;
+
+  ListadeItemProdutos, ListadeProdutos, ListadeGrupos, ListadeClasses,
+  ListadeMarcas, ListaCodigosPromocao,
+  ListaCST, ListaCSOSN,
+  ParametroListasPadrao,
+  ListadeFornecedores,
+  ListaCondicionalNotasEntrada : String;
+
+          ProdutoEmLinha,
+          ProdutoForadeLinha,
+
+          ProdutoAtivo,
+          ProdutoInativo,
+
+          ProdutoComMontagem,
+          ProdutoSemMontagem,
+
+          ProdutoBrinde,
+          ProdutoNaoBrinde,
+
+          DisponivelnoSite,
+          NaoDisponivelnoSite,
+          SomenteComEstoque: Boolean;
+
+          FilialMovimentacao,
+          TipoMovimentacao: String;
+
+          {
+          ColunadePreco,
+          FilialPreco: String;
+          TipoSelecaodePreco: Byte;
+
+          PrecosDiferenciados : Boolean;
+          }
+
+          Compostos: Byte;
+          Ordenacao: Byte );
+
+var
+  i: integer;
+  CondicoesProdutos, vListaProduto, vListaCaracteristicaPreco,
+  SQLFiltrosNotas: String;
+
+  function  MontaCondicaoMovimentacao: String;
+  var SQLMovimentacao, SQLFiltroMovimento: String;
+  begin
+    SQLMovimentacao:= 'and (p.codigo in (Select m.produto from movimentos m where true ';
+
+    SQLFiltroMovimento:= '';
+
+    if FilialMovimentacao<>'' then
+      SQLFiltroMovimento:= SQLFiltroMovimento + ' and m.filial = '+ FilialMovimentacao ;
+
+    if TipoMovimentacao<>'' then
+      SQLFiltroMovimento:= SQLFiltroMovimento + 'and m.tipomovimento = ''''' + TipoMovimentacao + '''''';
+
+    if not DataEmBranco(DataMovtoInicial) and (DataEmBranco(DataMovtoFinal)) then
+      SQLFiltroMovimento:= SQLFiltroMovimento + 'and m.data >= '+''''''+FormatDateTime('yyyy-MM-dd',strtoDate(DataMovtoInicial))+''''''
+    else if DataEmBranco(DataMovtoInicial) and not (DataEmBranco(DataMovtoFinal)) then
+      SQLFiltroMovimento:= SQLFiltroMovimento + 'and m.data <= '+''''''+FormatDateTime('yyyy-MM-dd',strtoDate(DataMovtoFinal))+''''''
+    else if not (DataEmBranco(DataMovtoInicial)) and not (DataEmBranco(DataMovtoFinal)) then
+      SQLFiltroMovimento:= SQLFiltroMovimento + 'and m.data between '+''''''+FormatDateTime('yyyy-MM-dd',strtoDate(DataMovtoInicial))+''''''+' and '+
+                                                                 ''''''+FormatDateTime('yyyy-MM-dd',strtoDate(DataMovtoFinal))+'''''';
+
+    if SQLFiltroMovimento <> '' then
+    begin
+      SQLMovimentacao:= SQLMovimentacao + SQLFiltroMovimento + '))';
+      Result:= SQLMovimentacao;
+    end
+    else
+      Result:= '';
+  end;
+
+begin
+
+  qryAlteracoesPrecosCargos.sql.text := qryAlteracoesPrecosCargos_Auxiliar.sql.text;
+  qryAlteracoesPrecosCargosVisaoParalela.sql.text := qryAlteracoesPrecosCargosVisaoParalela_Auxiliar.sql.text;
+
+  if MargemLucro = '' then
+  begin
+    qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':MargemAtual_1')] := '''''''''';
+    qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':MargemAtual_2')] := '0';
+  end
+  else
+  begin
+    qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':MargemAtual_1')] := '''''0''''';
+    qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':MargemAtual_2')] :=  MargemLucro;
+  end;
+
+  if VariacaoPrecoAtualeAnterior = '' then
+  begin
+    qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':VariacaoPrecoAtualeAnterior_1')] := '''''''''';
+    qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':VariacaoPrecoAtualeAnterior_2')] := '0';
+  end
+  else
+  begin
+    qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':VariacaoPrecoAtualeAnterior_1')] := '''''0''''';
+    qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':VariacaoPrecoAtualeAnterior_2')] :=  VariacaoPrecoAtualeAnterior;
+  end;
+
+  qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':ComparisonOperator')] :=  ComparisonOperator;
+
+
+  while true do
+  begin
+    if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':DataInicial',false)<>-1 then
+      qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':DataInicial')] := ''''''+FormatDateTime('yyyy-MM-dd',strtoDate(DataInicial))+''''''
+    else
+      break;
+  end;
+  qryAlteracoesPrecosCargosVisaoParalela.parambyname('DataInicial').asDateTime := strtoDate(DataInicial);
+
+  while true do
+  begin
+    if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':DataFinal',false)<>-1 then
+      qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':DataFinal')] := ''''''+FormatDateTime('yyyy-MM-dd',strtoDate(DataFinal))+''''''
+    else
+      break;
+  end;
+  qryAlteracoesPrecosCargosVisaoParalela.parambyname('DataFinal').asDateTime := strtoDate(DataFinal);
+
+
+
+  while true do
+  begin
+    if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':DataAnterior',false)<>-1 then
+      qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, ':DataAnterior')] := ''''''+FormatDateTime('yyyy-MM-dd',strtoDate(DataInicial)-1)+''''''
+    else
+      break;
+  end;
+
+//  qryAlteracoesPrecosCargosVisaoParalela.parambyname('DataAnterior').asDateTime := strtoDate(DataFinal)-1;
+
+  if ListadeItemProdutos<>'' then
+  begin
+
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeItemProdutos',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeItemProdutos')] := ' and (' + trocar(ListadeItemProdutos,'''','''''') + ')'
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListadeItemProdutos').asString :=  ' and (' + ListadeItemProdutos + ')';
+
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeItemProdutos',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeItemProdutos')] := ''
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListadeItemProdutos').asString :=  '';
+  end;
+
+
+  if ListadeProdutos <> '' then
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeProdutos',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeProdutos')] := ' and (' + trocar(ListadeProdutos,'''','''''') + ')'
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListadeProdutos').asString :=  ' and (' + ListadeProdutos + ')';
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeProdutos',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeProdutos')] := ''
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListadeProdutos').asString :=  '';
+  end;
+
+
+  if ListadeGrupos <> '' then
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeGrupos',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeGrupos')] := ' and (' + trocar(ListadeGrupos,'''','''''') + ')'
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListadeGrupos').asString :=  ' and (' + ListadeGrupos + ')';
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeGrupos',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeGrupos')] := ''
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListadeGrupos').asString :=  '';
+  end;
+
+  if ListadeClasses <> '' then
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeClasses',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeClasses')] := ' and (' + trocar(ListadeClasses,'''','''''') + ')'
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListadeClasses').asString :=  ' and (' + ListadeClasses + ')';
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeClasses',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeClasses')] := ''
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListadeClasses').asString :=  '';
+  end;
+
+  if ListadeMarcas <> '' then
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeMarcas',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeMarcas')] := ' and (' + trocar(ListadeMarcas,'''','''''') + ')'
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListadeMarcas').asString :=  ' and (' + ListadeMarcas + ')';
+
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeMarcas',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeMarcas')] := ''
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListadeMarcas').asString :=  '';
+  end;
+
+
+  if ListaCodigosPromocao <> '' then
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCodigosPromocao',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCodigosPromocao')] := ' and (' + trocar(ListaCodigosPromocao,'''','''''') + ')'
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListaCodigosPromocao').asString :=  ' and (' + ListaCodigosPromocao + ')';
+
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCodigosPromocao',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCodigosPromocao')] := ''
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListaCodigosPromocao').asString :=  '';
+  end;
+
+  if ListaCST <> '' then
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCST',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCST')] := ' and (' + trocar(ListaCST,'''','''''') + ')'
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListaCST').asString :=  ' and (' + ListaCST + ')';
+
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCST',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCST')] := ''
+      else
+        break;
+    end;
+//    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListaCST').asString :=  '';
+  end;
+
+
+  if ListaCSOSN <> '' then
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCSOSN',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCSOSN')] := ' and (' + trocar(ListaCSOSN,'''','''''') + ')'
+      else
+        break;
+    end;
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCSOSN',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCSOSN')] := ''
+      else
+        break;
+    end;
+  end;
+
+  if ParametroListasPadrao <> '' then
+  begin
+
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ParametroListasPadrao',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ParametroListasPadrao')] :=
+
+        ' and (p.codigo in (select plp.produto '+
+                                          ' from produtoslistaspadrao plp '+
+                                          '      join listaspadrao lp '+
+                                          '      on plp.listapadrao = lp.codigo '+
+                                          ' where ' + trocar(ParametroListasPadrao,'''','''''') + '))'
+
+
+
+      else
+        break;
+    end;
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ParametroListasPadrao',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ParametroListasPadrao')] := ''
+      else
+        break;
+    end;
+
+  end;
+
+  if ListadeFornecedores <> '' then
+  begin
+
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeFornecedores',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeFornecedores')] :=
+        ' and (c.codigo in (select fp.caracteristica               '+
+        '                   from fornecedoresprodutos fp           '+
+        '                        join vfornecedores vf             '+
+        '                        on fp.fornecedor = vf.codigo      '+
+        '                        and vf.tipo = ''''F''''               '+
+        '                   where ' + trocar(ListadeFornecedores,'''','''''') + '))'
+      else
+        break;
+    end;
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeFornecedores',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListadeFornecedores')] := ''
+      else
+        break;
+    end;
+
+  end;
+
+
+  SQLFiltrosNotas := '';
+
+  if not DataEmBranco(DataNotaInicial) and (DataEmBranco(DataNotaFinal)) then
+    SQLFiltrosNotas:= SQLFiltrosNotas + 'and np.data >= '+''''''+FormatDateTime('yyyy-MM-dd',strtoDate(DataNotaInicial))+''''''
+  else if DataEmBranco(DataNotaInicial) and not (DataEmBranco(DataNotaFinal)) then
+    SQLFiltrosNotas:= SQLFiltrosNotas + 'and np.data <= '+''''''+FormatDateTime('yyyy-MM-dd',strtoDate(DataNotaFinal))+''''''
+  else if not (DataEmBranco(DataNotaInicial)) and not (DataEmBranco(DataNotaFinal)) then
+    SQLFiltrosNotas:= SQLFiltrosNotas + 'and np.data between '+''''''+FormatDateTime('yyyy-MM-dd',strtoDate(DataNotaInicial))+''''''+' and '+
+                                                               ''''''+FormatDateTime('yyyy-MM-dd',strtoDate(DataNotaFinal))+'''''';
+
+  if (ListaCondicionalNotasEntrada <> '') or (SQLFiltrosNotas<>'') then
+  begin
+    if ListaCondicionalNotasEntrada<>'' then
+        SQLFiltrosNotas := SQLFiltrosNotas + 'and ' + trocar(ListaCondicionalNotasEntrada,'''','''''');
+
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCondicionalNotasEntrada',false)<>-1 then
+      begin
+
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCondicionalNotasEntrada')] :=
+        ' and (p.codigo in (select pnp.produto                     '+
+        '                   from notaspag np                       '+
+        '                        join produtosnotaspag pnp         '+
+        '                        on np.codigo = pnp.codigonota     '+
+        '                   where true ' + SQLFiltrosNotas + '))'
+      end
+      else
+        break;
+    end;
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCondicionalNotasEntrada',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ListaCondicionalNotasEntrada')] := ''
+      else
+        break;
+    end;
+  end;
+
+
+
+  CondicoesProdutos := '';
+
+  if ProdutoEmLinha and not produtoForadeLinha then
+     CondicoesProdutos := CondicoesProdutos + ' and  not p.foralinhal and not c.foralinhal'
+  else
+  if produtoForadeLinha and not produtoemlinha then
+     CondicoesProdutos := CondicoesProdutos + ' and  (p.foralinhal or c.foralinhal)';
+
+  if ProdutoAtivo and not produtoInativo then
+     CondicoesProdutos := CondicoesProdutos + ' and  (not (p.inativo is not null))'
+  else
+  if produtoInativo and not produtoAtivo then
+     CondicoesProdutos := CondicoesProdutos + ' and  (p.inativo is not null)';
+
+  if ProdutoComMontagem and not ProdutoSemMontagem then
+     CondicoesProdutos := CondicoesProdutos + ' and (c.montagem)'
+  else
+  if ProdutoSemMontagem and not ProdutoComMontagem then
+     CondicoesProdutos := CondicoesProdutos + ' and not (c.montagem)';
+
+  if ProdutoBrinde and not ProdutoNaoBrinde then
+     CondicoesProdutos := CondicoesProdutos + ' and (c.brinde)'
+  else
+  if ProdutoNaoBrinde and not ProdutoBrinde then
+     CondicoesProdutos := CondicoesProdutos + ' and not (c.brinde)';
+
+  if DisponivelnoSite and not NaoDisponivelnoSite then
+     CondicoesProdutos := CondicoesProdutos + ' and (p.aparecernosite)'
+  else
+  if NaoDisponivelnoSite and not DisponivelnoSite then
+     CondicoesProdutos := CondicoesProdutos + ' and not (p.aparecernosite)';
+
+
+  if CondicoesProdutos <> '' then
+  begin
+
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%CondicoesProdutos',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%CondicoesProdutos')] :=  CondicoesProdutos
+      else
+        break;
+    end;
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%CondicoesProdutos',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%CondicoesProdutos')] := ''
+      else
+        break;
+    end;
+
+  end;
+
+  if SomenteComEstoque then
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%SomenteComEstoque',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%SomenteComEstoque')] :=
+          ' and (select sum(emestoque+reservado+conserto+demonstracao+reservaprevia+futuro) from estoques where estoques.produto=p.codigo)>0 '
+      else
+        break;
+    end;
+  end
+  else
+  begin
+    while true do
+    begin
+      if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%SomenteComEstoque',false)<>-1 then
+        qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%SomenteComEstoque')] :=
+          ' and (select sum(emestoque+reservado+conserto+demonstracao+reservaprevia+futuro) from estoques where estoques.produto=p.codigo)>0 '
+
+      else
+        break;
+    end;
+  end;
+
+  case compostos of
+   0: begin
+        while true do
+        begin
+          if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%Compostos',false)<>-1 then
+            qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%Compostos')] := ''
+          else
+            break;
+        end;
+      end;
+
+   1: begin
+        while true do
+        begin
+          if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%Compostos',false)<>-1 then
+            qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%Compostos')] :=
+              ' and not (coalesce(c.composto,false))'
+          else
+            break;
+        end;
+      end;
+
+
+   2: begin
+       while true do
+        begin
+          if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%Compostos',false)<>-1 then
+            qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%Compostos')] :=
+              ' and (coalesce(c.composto,false))'
+          else
+            break;
+        end;
+      end;
+
+  end;
+
+  if (FilialMovimentacao<>'') or
+     (TipoMovimentacao<>'') or
+     (DataMovtoInicial<>'') or
+     (DataMovtoFinal<>'') then
+  begin
+       while true do
+       begin
+          if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%Movimentacao',false)<>-1 then
+            qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%Movimentacao')] :=
+              MontaCondicaoMovimentacao
+          else
+            break;
+       end;
+  end
+  else
+  begin
+       while true do
+       begin
+         if NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%Movimentacao',false)<>-1 then
+           qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%Movimentacao')] := ''
+         else
+            break;
+       end;
+  end;
+
+  {
+  if ColunadePreco
+  }
+
+
+  case Ordenacao of
+     0: qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ordenacao')] := 'order by  produtovisual, produto, caracteristica, precoproduto, descricao_produto, preco, descricao_preco, cargo, descricao_cargo,  valoranterior, valoratual, data, valor ';
+     1: qryAlteracoesPrecosCargos.Sql[NumerodalinhanoTexto(qryAlteracoesPrecosCargos.sql, '%ordenacao')] := 'ORDER BY UPPER(TO_ASCII(descricao_produto,''''LATIN1'''')), produtovisual, produto, caracteristica, precoproduto, preco, descricao_preco, cargo, descricao_cargo,  valoranterior, valoratual, data, valor ';
+  end;
+
+  
+
+  qryAlteracoesPrecosCargos.close;
+  qryAlteracoesPrecosCargos.open;
+
+  vListaProduto := RetornarLista(qryAlteracoesPrecosCargos, qryAlteracoesPrecosCargos.fieldbyname('produto'),nil, true);
+
+  vListaCaracteristicaPreco := RetornarLista(qryAlteracoesPrecosCargos,
+                   [qryAlteracoesPrecosCargos.fieldbyname('caracteristica'),
+                    qryAlteracoesPrecosCargos.fieldbyname('preco')], nil, true);
+
+  if vListaProduto <> '' then
+  begin
+
+    qryAlteracoesPrecosCargosVisaoParalela.macrobyname('ListadeProdutos').asString :=  ' and p.codigo in (' + vListaProduto + ')';
+
+    qryAlteracoesPrecosCargosVisaoParalela.close;
+    qryAlteracoesPrecosCargosVisaoParalela.open;
+
+    qryConsultaEstoques.macrobyname('Filial').asString := 'and f.codigo = '+inttostr(filialbase);
+    qryConsultaEstoques.macrobyname('Produto').asString := 'and p.codigo in ('+vListaProduto+')';
+
+    qryPrecos.macrobyname('ListaCaracteristicas_e_Preco').asString :=
+
+    ' and (cp.caracteristica, cp.preco) in ('+vListaCaracteristicaPreco+')';
+
+    qryConsultaEstoques.close;
+    qryConsultaEstoques.open;
+
+    RefazConsultaPorNome(qryPrecos,['filial','colunanormal','colunapromocao'],
+                                     [filialbase,
+                                      preconormal,
+                                      precopromocao], false);
+  end;
+end;
+
+constructor TdtmAlteracoesPrecos.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+
+function TdtmAlteracoesPrecos.GetcodigoNotaProduto: int64;
+begin
+  result := 2147483647;
+end;
+
+function TdtmAlteracoesPrecos.GetProduto: String;
+begin
+  result := qryAlteracoesPrecosCargos.FieldByName('produto').asString;
+end;
+
+procedure TdtmAlteracoesPrecos.PosicionarTabela_AlteracoesPrecosCargos(
+  vIdentificador: String);
+begin
+  qryAlteracoesPrecosCargos.locate('identificador', vIdentificador, [])
+
+{  if qryAlteracoesPrecosCargos.locate('identificador', vIdentificador, []) then
+    if qryAlteracoesPrecosCargosVisaoParalela.locate('identificador', vIdentificador, []) then
+      qryAlteracoesPrecosCargosVisaoParalela.locate('identificador', vIdentificador, []);}
+
+
+end;
+
+procedure TdtmAlteracoesPrecos.qryAlteracoesPrecosCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryAlteracoesPrecosprodutovisualdescricao.asString := qryAlteracoesPrecosprodutovisual.asString + ' ' +
+          qryAlteracoesPrecosdescricao_produto.asString;
+end;
+
+
+procedure TdtmAlteracoesPrecos.qryAlteracoesPrecosCargosAfterOpen(
+  DataSet: TDataSet);
+var
+i:integer;
+begin
+  inherited;
+
+  {
+  qryAlteracoesPrecosCargos.fieldbyname('identificador').visible := false;
+  qryAlteracoesPrecosCargos.fieldbyname('identificador').Displaywidth := 0;
+
+  qryAlteracoesPrecosCargos.fieldbyname('produto').visible := false;
+  qryAlteracoesPrecosCargos.fieldbyname('produto').Displaywidth := 0;
+
+  qryAlteracoesPrecosCargos.fieldbyname('preco').visible := false;
+  qryAlteracoesPrecosCargos.fieldbyname('preco').Displaywidth := 0;
+
+  TFloatField(qryAlteracoesPrecosCargos.fieldbyname('valor')).displayformat := '###,##0.00';
+  TFloatField(qryAlteracoesPrecosCargos.fieldbyname('markup')).displayformat := '###,##0.00';
+
+  for i:=10 to qryAlteracoesPrecosCargos.fieldcount-1 do
+    TFloatField(qryAlteracoesPrecosCargos.fields[i]).displayformat := '###,##0.00';
+
+  }
+
+  qryAlteracoesPrecosCargos.fieldbyname('cargo').visible := false;
+  qryAlteracoesPrecosCargos.fieldbyname('precoproduto').visible := false;
+  qryAlteracoesPrecosCargos.fieldbyname('preco').visible := false;
+  qryAlteracoesPrecosCargos.fieldbyname('produto').visible := false;
+  qryAlteracoesPrecosCargos.fieldbyname('caracteristica').visible := false;
+  qryAlteracoesPrecosCargos.fieldbyname('identificador').visible := false;
+  qryAlteracoesPrecosCargos.fieldbyname('VariacaoPrecoAtualeAnterior').visible := false;
+
+end;
+
+procedure TdtmAlteracoesPrecos.qryAlteracoesPrecosCargosAfterScroll(
+  DataSet: TDataSet);
+  {
+var
+ vCodigo : String;
+   }
+{
+  var
+   vArrayProdutos : TVariantArray;
+   }
+
+begin
+  inherited;
+
+  {
+  with dtmConsultaEstoque do
+  begin
+
+     if qryConsultaEstoques.macrobyname('produto').asString <> 'and ( p.codigo = ' + qryAlteracoesPrecosCargos.fieldbyname('produto').asString + ' and e.filial = '+ inttostr(filialbase) +')' then
+     begin
+       qryConsultaEstoques.macrobyname('produto').asString := 'and ( p.codigo = ' + qryAlteracoesPrecosCargos.fieldbyname('produto').asString + ' and e.filial = '+ inttostr(filialbase) +')';
+       qryConsultaEstoques.close;
+       qryConsultaEstoques.open;
+
+
+      RefazConsultaPorNome(qryPrecos,['caracteristica','preco','filial','colunanormal','colunapromocao'],
+                                     [qryAlteracoesPrecosCargos.fieldByName('caracteristica').asString,
+                                      qryAlteracoesPrecosCargos.fieldByName('precoproduto').asString,
+                                      filialbase,
+                                      preconormal,
+                                      precopromocao], true);
+
+     end;
+
+  end;
+  }
+
+end;
+
+end.

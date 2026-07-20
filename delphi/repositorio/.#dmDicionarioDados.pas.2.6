@@ -1,0 +1,464 @@
+unit dmDicionarioDados;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, dmtecsoft, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, biblio, ctconstantes, grids, Controls;
+
+type
+  TdtmDicionarioDados = class(TDtmBasico)
+    qryQuestionarios: TtecQuery;
+    dsrQuestionarios: TtecDataSource;
+    qryConsultaQuestionarios: TtecQuery;
+    qryConsultaQuestionarioscodigo: TIntegerField;
+    qryConsultaQuestionariosdescricao: TStringField;
+    qryPerguntas: TtecQuery;
+    dsrPerguntas: TtecDataSource;
+    qryRespostas: TtecQuery;
+    dsrRespostas: TtecDataSource;
+    qryPerguntasProximo: TtecQuery;
+    qryQuestionariosProximo: TtecQuery;
+    qryRespostasProximo: TtecQuery;
+    qryPerguntascodigo: TIntegerField;
+    qryPerguntasquestionario: TIntegerField;
+    qryPerguntasdescricao: TStringField;
+    qryPerguntastipo: TStringField;
+    qryPerguntasjustificativa: TBooleanField;
+    qryPerguntassequencia: TIntegerField;
+    qryRespostascodigo: TIntegerField;
+    qryRespostaspergunta: TIntegerField;
+    qryRespostasresposta: TStringField;
+    qryRespostassequencia: TIntegerField;
+    qryQuestionarioscodigo: TIntegerField;
+    qryQuestionariosdescricao: TStringField;
+    qryQuestionariosdata_inicio: TDateTimeField;
+    qryQuestionariosdata_fim: TDateTimeField;
+    qryQuestionariosdisponivel: TBooleanField;
+    qryQuestionariosdata_inativo: TDateTimeField;
+    qryQuestionariosdescricao_text: TStringField;
+    qryQuestionariosrespondermaisdeumavez: TBooleanField;
+    qryQuestionariostipo: TStringField;
+    qryProdutosConferencia: TtecQuery;
+    dsrProdutosConferencia: TtecDataSource;
+    qryProdutosConferenciaprodutovisual: TStringField;
+    qryProdutosConferenciadescricaoproduto: TStringField;
+    qryProdutosConferenciatipo: TStringField;
+    qryProdutosConferenciacodigo: TStringField;
+    qryProdutosConferenciaproduto: TLargeintField;
+    qryProdutosConferencialido: TFloatField;
+    qryProdutosConferenciadigitado: TBooleanField;
+    qryProdutosConferenciadatahora_inclusao: TDateTimeField;
+    qryProdutosConferenciadatahora_alteracao: TDateTimeField;
+    qryProdutosConferencia_ProdutosContratos: TtecQuery;
+    qryProdutosConferencia_PedidosFiliais: TtecQuery;
+    procedure qryQuestionariosAfterScroll(DataSet: TDataSet);
+    procedure qryQuestionariosBeforeEdit(DataSet: TDataSet);
+    procedure qryQuestionariosAfterOpen(DataSet: TDataSet);
+    procedure qryPerguntasAfterOpen(DataSet: TDataSet);
+    procedure qryRespostasAfterOpen(DataSet: TDataSet);
+    procedure qryPerguntasAfterPost(DataSet: TDataSet);
+    procedure qryPerguntasAfterDelete(DataSet: TDataSet);
+    procedure qryRespostasAfterPost(DataSet: TDataSet);
+    procedure qryRespostasAfterDelete(DataSet: TDataSet);
+    procedure qryPerguntasAfterScroll(DataSet: TDataSet);
+    procedure qryPerguntasNewRecord(DataSet: TDataSet);
+    procedure qryQuestionariosNewRecord(DataSet: TDataSet);
+    procedure qryRespostasNewRecord(DataSet: TDataSet);
+    procedure dsrPerguntasDataChange(Sender: TObject; Field: TField);
+    procedure qryQuestionariosBeforeOpen(DataSet: TDataSet);
+    procedure qryConsultaQuestionariosBeforeOpen(DataSet: TDataSet);
+    procedure qryRespostasBeforeInsert(DataSet: TDataSet);
+  private
+    FAfterOpenQuestionarios: TNotifyEvent;
+    FAfterOpenPerguntas: TNotifyEvent;
+    FAfterOpenRespostas: TNotifyEvent;
+    fBeforeOpen: TtecBeforeOpen;
+    { Private declarations }
+    procedure Excluir(Tabela: TTecQuery);
+    function QuestionarioProximoCodigo: integer;
+    function PerguntasProximoCodigo: integer;
+    function RespostasProximoCodigo: integer;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); Override;
+    function AdicionarQuestionarios: Boolean;
+    procedure AdicionarPerguntas;
+    function AdicionarRespostas: boolean;
+
+    function ExcluirQuestionario: Boolean;
+    procedure ExcluirPerguntas;
+    procedure ExcluirRespostas;
+
+    function GravarQuestionarios: Boolean;
+
+    property AfterOpenQuestionarios: TNotifyEvent read FAfterOpenQuestionarios write FAfterOpenQuestionarios;
+    property AfterOpenPerguntas: TNotifyEvent read FAfterOpenPerguntas write FAfterOpenPerguntas;
+    property AfterOpenRespostas: TNotifyEvent read FAfterOpenRespostas write FAfterOpenRespostas;
+
+    property BeforeOpen: TtecBeforeOpen read fBeforeOpen write fBeforeOpen;
+
+  end;
+
+function VerificarProdutosNaoConferidos(Codigo: String; tipo: String): TModalResult;
+
+{
+var
+  dtmDicionarioDados: TdtmDicionarioDados;
+  }
+
+implementation
+
+uses fmmensagemgridprodutosconferencia, DateUtils;
+
+{$R *.dfm}
+
+procedure TdtmDicionarioDados.qryQuestionariosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryPerguntas,['questionario'],[qryQuestionarios.fieldbyname('codigo').asVariant]);
+  RefazConsultaPorNome(qryRespostas,['questionario'],[qryQuestionarios.fieldbyname('codigo').asVariant]);
+
+end;
+
+procedure TdtmDicionarioDados.qryQuestionariosBeforeEdit(
+  DataSet: TDataSet);
+begin
+  inherited;
+;
+end;
+
+procedure TdtmDicionarioDados.AdicionarPerguntas;
+begin
+  if qryPerguntas.CheckRequiredFields then
+    qryperguntas.append;
+end;
+
+procedure TdtmDicionarioDados.qryQuestionariosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if assigned(AfterOpenQuestionarios) then
+    AfterOpenQuestionarios(qryQuestionarios);
+end;
+
+procedure TdtmDicionarioDados.qryPerguntasAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if assigned(AfterOpenPerguntas) then
+    AfterOpenPerguntas(qryQuestionarios);
+
+end;
+
+procedure TdtmDicionarioDados.ExcluirPerguntas;
+begin
+  Excluir(qryPerguntas);
+end;
+
+procedure TdtmDicionarioDados.Excluir(Tabela: TTecQuery);
+begin
+  if MensagemConfirmacao('Confirma a exclusão deste registro') = smbOK then
+    Tabela.delete;
+end;
+
+procedure TdtmDicionarioDados.ExcluirRespostas;
+begin
+  Excluir(qryRespostas);
+end;
+
+function TdtmDicionarioDados.AdicionarRespostas: Boolean;
+begin
+  result := true;
+
+  if (qryPerguntas.state in [dsinsert, dsedit]) then
+  begin
+    result := qryPerguntas.CheckRequiredFields;
+    if result then
+      qryPerguntas.post;
+  end;
+
+  if result then
+  begin
+    if qryRespostas.CheckRequiredFields then
+      qryRespostas.append;
+  end;
+
+
+end;
+
+
+procedure TdtmDicionarioDados.qryRespostasAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if assigned(AfterOpenRespostas) then
+    AfterOpenRespostas(qryRespostas);
+
+end;
+
+procedure TdtmDicionarioDados.qryPerguntasAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryQuestionarios.edit;
+
+  if qryPerguntastipo.asString = 'texto' then
+  begin
+    if qryRespostas.IsEmpty then
+    begin
+      qryRespostas.append;
+      qryRespostasresposta.asString := 'Resposta';
+      qryRespostas.post;
+    end;
+  end;
+  
+end;
+
+procedure TdtmDicionarioDados.qryPerguntasAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  qryQuestionarios.edit;
+end;
+
+procedure TdtmDicionarioDados.qryRespostasAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryQuestionarios.edit;
+
+
+end;
+
+procedure TdtmDicionarioDados.qryRespostasAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  qryQuestionarios.edit;
+end;
+
+function TdtmDicionarioDados.GravarQuestionarios: boolean;
+begin
+  result := qryQuestionarios.CheckRequiredFields;
+
+  if result then
+    result := qryPerguntas.CheckRequiredFields;
+
+  if result then
+    result := qryRespostas.CheckRequiredFields;
+
+  if result then
+  begin
+    if qryQuestionarios.CheckRequiredFields then
+    begin
+      qryQuestionarios.post;
+
+      result := Perpetrar([qryQuestionarios, qryPerguntas, qryRespostas]);
+    end;
+  end;  
+end;
+
+procedure TdtmDicionarioDados.qryPerguntasAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  if assigned(AfterOpenRespostas) then
+    AfterOpenRespostas(qryRespostas);
+
+end;
+
+procedure TdtmDicionarioDados.qryPerguntasNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryPerguntas.fieldbyname('justificativa').asBoolean := false;
+  qryPerguntas.fieldbyname('questionario').asinteger := qryQuestionarios.fieldbyname('codigo').asInteger;
+  qryPerguntas.fieldbyname('codigo').asinteger := PerguntasProximoCodigo;
+  qryperguntas.fieldbyname('sequencia').asInteger := qryperguntas.recordcount + 1;
+
+  if assigned(AfterOpenPerguntas) then
+    AfterOpenPerguntas(qryQuestionarios);
+
+end;
+
+constructor TdtmDicionarioDados.Create(AOwner: TComponent);
+begin
+  inherited;
+  
+end;
+
+function TdtmDicionarioDados.AdicionarQuestionarios: Boolean;
+begin
+  result := true;
+  qryQuestionarios.append;
+end;
+
+function TdtmDicionarioDados.QuestionarioProximoCodigo: integer;
+begin
+
+ qryQuestionariosProximo.close;
+ qryQuestionariosProximo.open;
+
+ result := qryQuestionariosProximo.fieldbyname('codigo').asinteger;
+
+end;
+
+procedure TdtmDicionarioDados.qryQuestionariosNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryQuestionarios.fieldbyname('codigo').asInteger := QuestionarioProximoCodigo;
+  qryQuestionariostipo.ASsTRING :=  'CheckList';
+  qryQuestionariosdata_inicio.asDateTime := DataHoraServidor;
+  qryQuestionariosdata_fim.asDateTime := IncYear(DataHoraServidor, 1);
+
+  if assigned(AfterOpenQuestionarios) then
+    AfterOpenQuestionarios(qryQuestionarios);
+  
+
+  
+end;
+
+function TdtmDicionarioDados.PerguntasProximoCodigo: integer;
+begin
+  qryPerguntasProximo.close;
+  qryPerguntasProximo.open;
+  result := qryPerguntasProximo.fieldbyname('codigo').asinteger;
+end;
+
+function TdtmDicionarioDados.RespostasProximoCodigo: integer;
+begin
+  qryRespostasProximo.close;
+  qryRespostasProximo.open;
+  result := qryRespostasProximo.fieldbyname('codigo').asinteger;
+
+end;
+
+procedure TdtmDicionarioDados.qryRespostasNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryRespostas.fieldbyname('pergunta').asinteger := qryPerguntas.fieldbyname('codigo').asinteger;
+  qryRespostas.fieldbyname('codigo').asinteger := RespostasProximocodigo;  
+  qryRespostas.fieldbyname('sequencia').asInteger := qryRespostas.recordcount + 1;
+
+  if assigned(AfterOpenRespostas) then
+    AfterOpenRespostas(qryRespostas);
+  
+end;
+
+function TdtmDicionarioDados.ExcluirQuestionario: boolean;
+begin
+  result := false;
+  if MensagemConfirmacao('A Exclusão deste registo?') = smbOK then
+  begin
+    qryQuestionarios.delete;
+    result := perpetrar([qryQuestionarios]);
+  end;
+end;
+
+    {
+initialization
+ dtmDicionarioDados := TdtmDicionarioDados.Create(nil);
+}
+
+procedure TdtmDicionarioDados.dsrPerguntasDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if field = qryPerguntasdescricao then
+  begin
+    ;
+  end;
+
+end;
+
+function VerificarProdutosNaoConferidos(Codigo: String; tipo: String): TModalResult;
+var
+  dtmDicionarioDados : TdtmDicionarioDados;
+
+begin
+  dtmDicionarioDados := TdtmDicionarioDados.create(nil);
+
+  result := mrNone;
+
+  with dtmDicionarioDados do
+  begin
+
+    if tipo = 'CTR' then
+    begin
+
+      qryProdutosConferencia.sql.text := qryProdutosConferencia_ProdutosContratos.sql.text;
+      qryProdutosConferencia.MacroByName('codigo').asString := Codigo;
+      qryProdutosConferencia.paramByName('tipo').asString := Tipo;
+      qryProdutosConferencia.MacroByName('Condicao').AsString := 'and pc.quantidade > coalesce(pcf.lido,0)';
+
+      qryProdutosConferencia.close;
+      qryProdutosConferencia.open;
+
+    end
+    else
+    if tipo = 'TRF' then
+    begin
+
+      qryProdutosConferencia.sql.text := qryProdutosConferencia_PedidosFiliais.sql.text;
+
+      qryProdutosConferencia.MacroByName('codigo').asString := Codigo;
+      qryProdutosConferencia.paramByName('tipo').asString := Tipo;
+      qryProdutosConferencia.MacroByName('Condicao').AsString := ' and ((coalesce(pf.qtderecebida,0) <> coalesce(pcf.lido,0)) or coalesce(pf.qtderecebida,0)=0) ';
+
+      qryProdutosConferencia.close;
+      qryProdutosConferencia.open;
+
+    end;
+
+
+
+    if qryProdutosConferencia.recordcount <> 0 then
+    begin
+
+      frmmensagemgridprodutosconferencia := Tfrmmensagemgridprodutosconferencia.Create(frmmensagemgridprodutosconferencia);
+      frmmensagemgridprodutosconferencia.lblTitulo.caption := 'LISTA DE PRODUTOS NÃO CONFERIDOS!';
+      frmmensagemgridprodutosconferencia.lblTitulo.font.size := -11;
+
+      qryProdutosConferenciaprodutovisual.visible := True;
+      qryProdutosConferenciadescricaoproduto.visible := True;
+      qryProdutosConferenciatipo.visible := false;
+      qryProdutosConferenciacodigo.visible := false;
+      qryProdutosConferenciaproduto.visible := false;
+      qryProdutosConferencialido.visible := false;
+      qryProdutosConferenciadigitado.visible := false;
+      qryProdutosConferenciadatahora_inclusao.visible := false;
+      qryProdutosConferenciadatahora_alteracao.visible := false;
+
+      frmmensagemgridprodutosconferencia.dsrListaErros.DataSet := qryProdutosConferencia;
+      frmmensagemgridprodutosconferencia.TipoOrigem := ProdutosConferencia;
+      frmmensagemgridprodutosconferencia.dbgMensagem.Options := frmmensagemgridprodutosconferencia.dbgMensagem.Options + [goVertLine];
+      frmmensagemgridprodutosconferencia.ShowModal;
+
+      result := frmmensagemgridprodutosconferencia.modalresult;
+
+    end;
+
+  end;
+
+end;
+
+procedure TdtmDicionarioDados.qryQuestionariosBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if assigned(BeforeOpen) then
+    BeforeOpen(DataSet);
+end;
+
+procedure TdtmDicionarioDados.qryConsultaQuestionariosBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if assigned(BeforeOpen) then
+    BeforeOpen(DataSet);
+
+end;
+
+procedure TdtmDicionarioDados.qryRespostasBeforeInsert(DataSet: TDataSet);
+begin
+  inherited;
+  if (qryPerguntas.state in [dsinsert, dsedit]) then
+    if qryPerguntas.CheckRequiredFields then
+      qryPerguntas.post;
+end;
+
+end.

@@ -1,0 +1,441 @@
+unit fmCadastroChequeFrenteCaixa;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, {Qete,}
+  DBCtrls, Buttons, Mask, DB,
+  //Repositorio
+  frcgcoucpf, frendereco, frenderecoeditor, fmnavcontroles, frtelefone,
+  //Componentes
+  cptexto, cpdbfindcontrols, cpdata, cpeditioncontrolvalidation, ComCtrls,
+  frconsulta, frconsultacodigo, cpdocumento, cpdbdata, Windows, ToolWin,
+  fmcadastropadrao, ExtCtrls, ctconstantes, cpnumero, frcmc7;
+
+type
+  TfrmCadastroChequeFrenteCaixa = class(TfrmCadastroPadrao)
+    fraEnderecoEditor: TfraEnderecoEditor;
+    fraFone: TfraTelefone;
+    fracgcoucpf: Tfracgcoucpf;
+    gbxIdNumero: TGroupBox;
+    fraCelular: TfraTelefone;
+    gbxEmail: TGroupBox;
+    edtDocumento: TDBEditDocumento;
+    gbxSite: TGroupBox;
+    edtemail: TDBEditTexto;
+    edtsite: TDBEditTexto;
+    gbxNascto: TGroupBox;
+    edtdatanascto: TDBEditData;
+    Panel1: TPanel;
+    Bevel1: TBevel;
+    GroupBox1: TGroupBox;
+    edfCodigoCliente: TtecDbEditFind;
+    edtCliente: TDBEditTexto;
+    fraCMC7: TfraCMC7;
+    gbxDataVencto: TGroupBox;
+    edtDataVencimento: TEditData;
+    gbxValorCheque: TGroupBox;
+    edtValorCheque: TEditNumero;
+    gbxTitular: TGroupBox;
+    edtTitularCheque: TEdit;
+    ecvSalvar: TtecEditionControlValidation;
+    ecvImprimirCheque: TtecEditionControlValidation;
+    sbnImprimirCheque: TSpeedButton;
+    procedure edfCodigoClienteExit(Sender: TObject);
+    procedure fracgcoucpfedtCPFCNPJExit(Sender: TObject);
+    procedure fracgcoucpfrgbTipoPessoaChange(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+//  procedure bbnOKClick(Sender: TObject);
+//    procedure bbnCancelarClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure fraEnderecoEditoredtCEPKeyPress(Sender: TObject;
+      var Key: Char);
+    procedure fraEnderecoEditorsbnRuaClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure edfCodigoClienteEnter(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure edfCodigoClienteKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure fraCMC7edtCMC7Exit(Sender: TObject);
+    procedure fraCMC7edtManual1Exit(Sender: TObject);
+    procedure fraCMC7edtManual2Exit(Sender: TObject);
+    procedure fraCMC7edtManual3Exit(Sender: TObject);
+    procedure sbnImprimirChequeClick(Sender: TObject);
+  private
+    FOntecClose: TtecProcedure;
+    function getValorCheque: String;
+    procedure setValorCheque(const Value: String);
+  protected
+    CodClienteAnt: Integer;
+
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function InternoIncluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoExcluir: Boolean; override;
+    procedure AlterarEstadoBotoes; override;
+
+
+  public
+    ConsultaClientes: TfraConsultaCodigo;
+    constructor Create(Aowner: TComponent); override;
+    destructor  Destroy; override;
+    procedure AbrirClientes;
+    property  OntecClose: TtecProcedure read FOntecClose write FOntecClose;
+    function VerificarCheque: boolean;
+    property ValorCheque: String read getValorCheque write setValorCheque;
+  end;
+
+var
+  FrmCadastroChequeFrenteCaixa: TfrmCadastroChequeFrenteCaixa;
+  origem : String;
+
+implementation
+
+{$R *.dfm}
+
+Uses
+  //Biblio
+  biblio, climpressorachequepadrao, clparametrossistema,
+  // Repositorio
+  fmconsultaporcampo, clusuario,
+  //Projeto
+  dmfrentecaixa, dmbasico;
+
+constructor TfrmCadastroChequeFrenteCaixa.Create(Aowner: TComponent);
+begin
+  Inherited;
+
+  DataSet := dtmFrenteCaixa.qryCliente;
+  if not Assigned(ConsultaClientes) then
+    ConsultaClientes := TfraConsultaCodigo.Create(self);
+  ConsultaClientes.edfCodigo.ActiveSetControls := false;
+  ConsultaClientes.edfCodigo.DataSource := dtmFrenteCaixa.dsrCliente;
+  ConsultaClientes.edfCodigo.DataField := 'codigo';
+  ConsultaClientes.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaClientes.AbrirTabelaProcura := false;
+  ConsultaClientes.TipoPesquisa := pesCLIENTES;
+  ConsultaClientes.TipoCliente:= 'C';
+  dtmFrenteCaixa.AbreClientes;
+{
+  if origem = 'Frente de Caixa' then
+    InternoIncluir;
+ }
+
+//  self.WindowState := tForm(AOwner).WindowState;
+
+{
+  FormOrigemBloqueio := Aowner.name;
+  BloquearFormularios(self.name);
+  }
+
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.edfCodigoClienteExit(Sender: TObject);
+begin
+  inherited;
+  edtCliente.ReadOnly := Trim(edfCodigoCliente.Text) <> '';
+  fracgcoucpf.edtCPFCNPJ.Tipo := dtmFrenteCaixa.TipoPessoa;
+
+  if ((CodClienteAnt <> dtmFrenteCaixa.qryclienteCodigo.asinteger) or
+     ((CodClienteAnt=0) and (dtmFrenteCaixa.qryclienteCodigo.asinteger<>0))) and
+     parsistema.AnalisarFichaFinanceiraFrentedeCaixa then
+  begin
+    dtmFrenteCaixa.ExibirFicha(ClassName);
+    edfCodigoCliente.setfocus;
+    edfCodigoCliente.selectall;
+  end;
+
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.fracgcoucpfedtCPFCNPJExit(Sender: TObject);
+begin
+  inherited;
+  if dtmFrenteCaixa.ExisteCPFCNPJ then
+    fracgcoucpf.edtCPFCNPJ.SetFocus
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.fracgcoucpfrgbTipoPessoaChange(Sender: TObject);
+begin
+  inherited;
+  fracgcoucpf.edtCPFCNPJ.Tipo := dtmFrenteCaixa.TipoPessoa;
+  if dtmFrenteCaixa.TipoPessoa = 'F' then
+  begin
+    gbxIdNumero.Caption := 'RG';
+    edtDocumento.Tipo := Identidade;
+  end
+  else if dtmFrenteCaixa.TipoPessoa = 'J' then
+  begin
+    gbxIdNumero.Caption := 'Insc. Estadual';
+    edtDocumento.Tipo   := InscricaoEstadual;
+  end;
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+//  if edfCodigoCliente.Focused and (Shift = [ssCtrl]) and (Key = VK_F9) then
+  if not CtrlOn and  (Key = VK_F9) then
+  begin
+    ConsultaClientes.InternoPesquisar(ctCLIENTES);
+    AbrirClientes;
+    self.SetFocus;
+  end;
+
+  if Key = VK_ESCAPE then
+    ModalResult := mrAbort;
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.FormKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_F5 then
+  begin
+    if sbnSalvar.enabled then
+      internogravar;
+  end
+  else
+  begin
+    if (not (edfCodigoCliente.Focused) and (Key = VK_F9)) or
+       ((Shift = [ssCtrl]) and (Key = VK_F9)) then
+    begin
+      inherited sbnProcurarClick(Self);
+      edtCliente.SetFocus;
+      edtTitularCheque.SetFocus;
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaClientes.InternoPesquisar(ctCLIENTES);
+  AbrirClientes;
+  self.SetFocus;
+//  fraConsultaCliente.sbnProcuraClick(Self);
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.fraEnderecoEditoredtCEPKeyPress(
+  Sender: TObject; var Key: Char);
+begin
+  inherited;
+  {
+  if key = #13 then
+  begin
+    bbnOKClick(self);
+  end;
+  }
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.fraEnderecoEditorsbnRuaClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraEnderecoEditor.sbnRuaClick(Sender);
+
+end;
+
+destructor TfrmCadastroChequeFrenteCaixa.Destroy;
+begin
+  if Assigned(OntecClose) then
+    OntecClose;
+  inherited;
+  frmCadastroChequeFrenteCaixa:= nil;
+end;
+
+
+procedure TfrmCadastroChequeFrenteCaixa.AbrirClientes;
+begin
+  edfCodigoCliente.Text:= ConsultaClientes.ValorSelecionado;
+  with dtmFrenteCaixa do
+    RefazConsultaPorNome(qryCliente,['codigo'],[ConsultaClientes.ValorSelecionado]);
+end;
+
+function TfrmCadastroChequeFrenteCaixa.InternoIncluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then
+  begin
+    Result:= inherited InternoIncluir;
+    if Result then
+    begin
+      if not (dtmFrenteCaixa.qryCliente.State = dsinsert) then
+        dtmFrenteCaixa.qryCliente.Insert;
+    end;
+  end;
+end;
+
+function TfrmCadastroChequeFrenteCaixa.InternoGravar: Boolean;
+var
+  Ctrl: TWinControl;
+begin
+{
+  if fracgcoucpf.edtCPFCNPJ.Focused then
+    keybd_event(VK_RETURN,0,0,0);
+}
+  Result:= inherited InternoGravar;
+
+  if Result then
+  begin
+    if ecvSalvar.Verify(Self, Ctrl) then
+    begin
+      if Trim(edtCliente.Text) = '' then
+      begin
+        MensagemAviso('O Cliente não esta preenchido.');
+        edfCodigoCliente.SetFocus
+      end
+      else
+      if ParSistema.CPF_CNPJObrigatorio and (Trim(fracgcoucpf.edtCPFCNPJ.Text) = '') then begin
+        MensagemAviso('O CPF/CNPJ não esta preenchido.');
+        fracgcoucpf.edtCPFCNPJ.SetFocus
+      end
+      else
+      begin
+        if Trim(fraEnderecoEditor.mmoRua.Text) = '' then
+        begin
+          fraEnderecoEditor.edtCEP.Field.AsString := dtmFrenteCaixa.CEPFilialBase;
+          fraEnderecoEditor.edtCEPExit(Self);
+          fraEnderecoEditor.mmoRua.Field.AsString := dtmFrenteCaixa.RuaFilialBase;
+          fraEnderecoEditor.edtNumeroEndereco.Field.AsString := dtmFrenteCaixa.NumeroFilialBase;
+          fraEnderecoEditor.edtComplemento.Field.AsString := dtmFrenteCaixa.ComplementoFilialBase;
+          fraEnderecoEditor.edtBairro.Field.AsString := dtmFrenteCaixa.CodigoBairroFilialBase;
+          fraEnderecoEditor.edtBairro.DataSource.DataSet.FieldByName('nomebairro').AsString := dtmFrenteCaixa.BairroFilialBase;
+          fraEnderecoEditor.edtCidade.Field.AsString := dtmFrenteCaixa.CodigoCidadeFilialBase;
+          fraEnderecoEditor.edtCidade.DataSource.DataSet.FieldByName('nomecidade').AsString := dtmFrenteCaixa.CidadeFilialBase;
+          fraEnderecoEditor.edtEstado.Field.AsString := dtmFrenteCaixa.EstadoFilialBase;
+        end;
+        if dtmFrenteCaixa.IncluirClienteCheque(fraCMC7.NumeroCheque, edtDataVencimento.Text, edtValorCheque.ValorSemFormatacao, edtTitularCheque.Text) then
+          ModalResult := mrOK;
+      end;
+    end;
+  end;
+
+end;
+
+function TfrmCadastroChequeFrenteCaixa.InternoExcluir: Boolean;
+begin
+  dtmFrenteCaixa.CancelarClienteCheque;
+  ModalResult := mrCancel
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.AlterarEstadoBotoes;
+begin
+  inherited;
+  sbnSalvar.Enabled := not dtmfrentecaixa.qrycliente.isempty;
+  sbnProcurar.enabled := true;
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.FormShow(Sender: TObject);
+begin
+  inherited;
+  sbnProcurar.enabled := true;
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  DesbloquearFormularios;
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.edfCodigoClienteEnter(Sender: TObject);
+begin
+  inherited;
+  CodClienteAnt := dtmFrenteCaixa.qryclienteCodigo.asinteger;
+
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+  {
+  Canclose := true;
+  if parsistema.ObrigaCadastroChequeFrenteCaixa then
+    Canclose := dtmfrentecaixa.clientevenda<>0;
+    }
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.edfCodigoClienteKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    if edtCliente.CanFocus then
+      edtCliente.setfocus;
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.fraCMC7edtCMC7Exit(Sender: TObject);
+begin
+  inherited;
+  fraCMC7.edtCMC7Exit(Sender);
+  VerificarCheque;
+
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.fraCMC7edtManual1Exit(
+  Sender: TObject);
+begin
+  inherited;
+  fraCMC7.edtManual1Exit(Sender);
+
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.fraCMC7edtManual2Exit(
+  Sender: TObject);
+begin
+  inherited;
+  fraCMC7.edtManual2Exit(Sender);
+
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.fraCMC7edtManual3Exit(
+  Sender: TObject);
+begin
+  inherited;
+  fraCMC7.edtManual3Exit(Sender);
+  VerificarCheque
+
+end;
+
+function TfrmCadastroChequeFrenteCaixa.VerificarCheque: boolean;
+begin
+  if fraCMC7.ChequeValido then
+    if dtmFrenteCaixa.ChequeCadastrado(fraCMC7.NumeroCheque) then begin
+      MensagemAviso(ctNUMEROCHEQUECADASTRADO);
+      fraCMC7.LimparCampos;
+    end else
+      fraCMC7.edtBanco.ReadOnly := True;
+
+end;
+
+function TfrmCadastroChequeFrenteCaixa.getValorCheque: String;
+begin
+  Result := edtValorCheque.ValorSemFormatacao
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.setValorCheque(
+  const Value: String);
+begin
+  edtValorCheque.Text := Value;
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.sbnImprimirChequeClick(
+  Sender: TObject);
+var
+  Ctrl: TWinControl;
+begin
+  inherited;
+  if ecvImprimirCheque.Verify(Self, Ctrl) then
+    if Assigned(ImpChequePadrao) then begin
+      ImpChequePadrao.CodigoBanco := fraCMC7.edtBanco.Text;
+      ImpChequePadrao.Data        := edtDataVencimento.Text;
+      ImpChequePadrao.Valor       := edtValorCheque.ValorSemFormatacao;
+      ImpChequePadrao.Imprimir;
+    end
+end;
+
+end.

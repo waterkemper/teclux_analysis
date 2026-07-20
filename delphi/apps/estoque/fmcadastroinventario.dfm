@@ -1,0 +1,2291 @@
+inherited frmCadastroInventario: TfrmCadastroInventario
+  Left = 227
+  Top = 177
+  ActiveControl = dbgProdutosInventario
+  BorderIcons = [biSystemMenu, biMinimize, biMaximize]
+  Caption = 'Cadastro de Invent'#225'rio'
+  ClientHeight = 677
+  ClientWidth = 1054
+  FormStyle = fsMDIChild
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    Left = 0
+    Top = 45
+    Width = 1054
+    Height = 632
+    Align = alClient
+    BevelOuter = bvNone
+    Visible = True
+    inherited bvlBotoesEd: TBevel
+      Left = 0
+      Top = 632
+      Width = 1054
+      Height = 0
+      Align = alBottom
+    end
+    object pgcInventario: TPageControl
+      Left = 0
+      Top = 0
+      Width = 1054
+      Height = 632
+      ActivePage = tstCadastro
+      Align = alClient
+      TabOrder = 0
+      OnChange = pgcInventarioChange
+      object tstParametros: TTabSheet
+        Hint = 'Defini'#231#227'o dos filtros para sele'#231#227'o de produtos'
+        Caption = '   &Par'#226'metros'
+        object pnlTop: TPanel
+          Left = 0
+          Top = 0
+          Width = 1046
+          Height = 183
+          Align = alTop
+          BevelOuter = bvNone
+          TabOrder = 0
+          object pnlTopLeft: TPanel
+            Left = 0
+            Top = 0
+            Width = 1046
+            Height = 183
+            Align = alClient
+            BevelOuter = bvNone
+            TabOrder = 0
+            object gbxLocalizacao: TGroupBox
+              Left = 8
+              Top = 42
+              Width = 436
+              Height = 36
+              Caption = 'LOCALIZA'#199#195'O'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -9
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 1
+              object edtLocalizacao: TEditTexto
+                Left = 2
+                Top = 10
+                Width = 431
+                Height = 24
+                Hint = 'Defini'#231#227'o da localiza'#231#227'o dos produtos'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -13
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                MaxLength = -1
+                ParentFont = False
+                TabOrder = 0
+                CharCasenoDefault = False
+                Alignment = taLeftJustify
+              end
+            end
+            object pnlFornecedor: TPanel
+              Left = 0
+              Top = 0
+              Width = 1046
+              Height = 44
+              Align = alTop
+              BevelOuter = bvNone
+              TabOrder = 0
+              object gbxFornecedor: TGroupBox
+                Left = 8
+                Top = 0
+                Width = 435
+                Height = 40
+                Caption = 'FORNECEDOR'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -9
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 0
+                inline fraConsultaFornecedor: TfraConsultaCodigo
+                  Left = 3
+                  Top = 14
+                  Width = 431
+                  Height = 24
+                  HorzScrollBar.Range = 429
+                  HorzScrollBar.Visible = False
+                  VertScrollBar.Range = 24
+                  VertScrollBar.Visible = False
+                  AutoScroll = False
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clBlack
+                  Font.Height = -11
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  ParentFont = False
+                  TabOrder = 0
+                  inherited sbnProcura: TSpeedButton
+                    Hint = 'Procurar fornecedor'
+                    Font.Height = -13
+                  end
+                  inherited dtxDescricao: TtecDBText
+                    Width = 341
+                    Height = 24
+                    Hint = 'Nome ou raz'#227'o social do fornecedor'
+                    DataField = 'nome'
+                    DataSource = fraConsultaFornecedor.dsrProcuraCliente
+                    Font.Height = -13
+                  end
+                  inherited edfCodigo: TtecDBFindLookup
+                    Left = -1
+                    Hint = 'C'#243'digo do fornecedor'
+                    DataField = 'codigo'
+                    DataSource = fraConsultaFornecedor.dsrProcuraCliente
+                    Font.Height = -13
+                    Group = 'fornecedor'
+                    MaxLength = 6
+                    OnFound = nil
+                    Operacao = opPESQUISA
+                    Parameter = 'codigo'
+                    ActiveSetControls = False
+                    DenyInsert = True
+                    NoSetControls = <>
+                    SetControls = <>
+                  end
+                end
+              end
+            end
+            object GroupBox1: TGroupBox
+              Left = 8
+              Top = 80
+              Width = 436
+              Height = 36
+              Caption = 'DESCRI'#199#195'O DE PRODUTOS'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -9
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 2
+              object edtDescricaodeProdutos: TEditTexto
+                Left = 2
+                Top = 10
+                Width = 431
+                Height = 24
+                Hint = 'parte da descri'#231#227'o de um produto'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -13
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                MaxLength = -1
+                ParentFont = False
+                TabOrder = 0
+                CharCasenoDefault = False
+                Alignment = taLeftJustify
+              end
+            end
+            object GroupBox2: TGroupBox
+              Left = 8
+              Top = 118
+              Width = 435
+              Height = 58
+              Caption = 'Produtos'
+              TabOrder = 3
+              object ckbProdutoEmLinha: TCheckBox
+                Left = 8
+                Top = 14
+                Width = 120
+                Height = 23
+                Caption = '&Em Linha'
+                Checked = True
+                State = cbChecked
+                TabOrder = 0
+              end
+              object ckbProdutoForadeLinha: TCheckBox
+                Left = 136
+                Top = 14
+                Width = 120
+                Height = 23
+                Caption = '&Fora de Linha'
+                Checked = True
+                State = cbChecked
+                TabOrder = 1
+              end
+              object ckbProdutoInativo: TCheckBox
+                Left = 136
+                Top = 33
+                Width = 120
+                Height = 23
+                Caption = '&Inativo'
+                Checked = True
+                State = cbChecked
+                TabOrder = 3
+              end
+              object ckbProdutoAtivo: TCheckBox
+                Left = 8
+                Top = 33
+                Width = 120
+                Height = 23
+                Caption = '&Ativo'
+                Checked = True
+                State = cbChecked
+                TabOrder = 2
+              end
+            end
+          end
+          inline fraListaGrupoFornecedores: TfraListaGrupoFornecedores
+            Left = 449
+            Top = 0
+            Width = 321
+            Height = 177
+            TabOrder = 1
+            inherited gbxGrupoFornecedores: TGroupBox
+              Width = 321
+              Height = 177
+              Caption = '&GRUPOS DE FORNECEDORES'
+              Font.Color = clBlack
+              Font.Height = -9
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              ParentFont = False
+              inherited bvllimitatortabajara: TBevel
+                Top = 14
+                Width = 317
+                Height = 1
+              end
+              inherited clbgrupofornecedores: TCheckListBox
+                Top = 15
+                Width = 291
+                Height = 160
+                Hint = 'Grupos de fornecedores'
+                Font.Color = clBlack
+                Font.Height = -9
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                ParentFont = False
+              end
+              inherited pnldireito: TPanel
+                Left = 293
+                Top = 15
+                Height = 160
+                inherited sbnDesmarcar: TSpeedButton
+                  Hint = 'Desmarcar os grupos assinalados'
+                end
+                inherited sbnMarcar: TSpeedButton
+                  Hint = 'Assinalar todos os grupos'
+                end
+              end
+            end
+          end
+        end
+        object pnlBottom: TPanel
+          Left = 0
+          Top = 183
+          Width = 868
+          Height = 98
+          BevelOuter = bvNone
+          TabOrder = 1
+        end
+        inline fraMultiplaSelecaoAleatoria1: TfraMultiplaSelecaoAleatoria
+          Left = 0
+          Top = 183
+          Width = 1046
+          Height = 418
+          Align = alClient
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          inherited pgcMultiplaSelecaoAleatoria: TtecPageControl
+            Width = 1046
+            Height = 418
+            ActivePage = fraMultiplaSelecaoAleatoria1.tstItemdeProduto
+            Font.Pitch = fpVariable
+            inherited tstItemdeProduto: TTabSheet
+              Font.Pitch = fpVariable
+              inherited fraSelecaoAleatoriaItemdeProdutos: TfraSelecaoAleatoriaItemdeProdutos
+                Width = 1038
+                Height = 388
+                inherited fraSelecaoAleatoriaItemdeProduto: TfraSelecaoAleatoria
+                  Width = 1038
+                  Height = 364
+                  inherited Splitter1: TSplitter
+                    Left = 1035
+                    Height = 350
+                  end
+                  inherited dbgSelecaoAleatoria: TtecDBGrid
+                    Width = 575
+                    Height = 350
+                  end
+                  inherited pnlLabels: TPanel
+                    Left = 575
+                    Width = 460
+                    Height = 350
+                  end
+                  inherited pnlAbaixo: TPanel
+                    Top = 350
+                    Width = 1038
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 1007
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+                inherited pnlParametros: TPanel
+                  Top = 364
+                  Width = 1038
+                  Font.Pitch = fpVariable
+                  inherited ckbProdutosComAgendamento: TCheckBox
+                    Font.Pitch = fpVariable
+                  end
+                end
+              end
+            end
+            inherited tstProduto: TTabSheet
+              inherited fraSelecaoAleatoriaprodutos: TfraSelecaoAleatoriaprodutos
+                inherited fraSelecaoAleatoriaProduto: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 1008
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaGrupoProduto: TTabSheet
+              inherited fraSelecaoaleatoriagruposprodutos: TfraSelecaoaleatoriagruposprodutos
+                inherited fraSelecaoAleatoriaGrupoProduto: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 1008
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaClasseProduto: TTabSheet
+              inherited fraSelecaoaleatoriaclassesprodutos: TfraSelecaoaleatoriaclassesprodutos
+                inherited fraSelecaoAleatoriaClasseProduto: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 1008
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaMarcaProduto: TTabSheet
+              inherited fraSelecaoAleatoriamarcasProdutos: TfraSelecaoAleatoriamarcasProdutos
+                inherited fraSelecaoAleatoriamarcasProduto: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 1008
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriamodelosProduto: TTabSheet
+              inherited fraSelecaoAleatoriamodelosProdutos1: TfraSelecaoAleatoriamodelosProdutos
+                inherited fraSelecaoAleatoriamodelosProduto: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 1008
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaespecificacoesmodelos: TTabSheet
+              inherited fraSelecaoAleatoriaespecificacoesmodelos1: TfraSelecaoAleatoriaespecificacoesmodelos
+                inherited fraSelecaoAleatoriaespecificacoesmodelos: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaPromocoes: TTabSheet
+              inherited fraSelecaoaleatoriapromocoes: TfraSelecaoaleatoriapromocoes
+                inherited fraSelecaoAleatoriapromocoes: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 1008
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstCST: TTabSheet
+              inherited fraSelecaoAleatoriacst: TfraSelecaoAleatoriacst
+                inherited fraSelecaoAleatoriacst: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstCSOSN: TTabSheet
+              inherited fraSelecaoAleatoriacsosn: TfraSelecaoAleatoriacsosn
+                inherited fraSelecaoAleatoriacsosn: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstListaPadronizada: TTabSheet
+              inherited fraSelecaoaleatorialistaspadronizadas: TfraSelecaoaleatorialistaspadronizadas
+                inherited fraSelecaoAleatoriaListasPadronizadas: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaLocalizacoesEstoques: TTabSheet
+              inherited fraSelecaoaleatorialocalizacaoestoque1: TfraSelecaoaleatorialocalizacaoestoque
+                inherited fraSelecaoAleatoriaLocalizacaoEstoque: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaLotes: TTabSheet
+              inherited fraSelecaoAleatorialotes1: TfraSelecaoAleatorialotes
+                inherited fraSelecaoAleatorialotes: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaMarketPlace: TTabSheet
+              inherited fraSelecaoaleatoriamarketplace1: TfraSelecaoaleatoriamarketplace
+                inherited fraSelecaoAleatoriamarketplace: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 1007
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstAtributos: TTabSheet
+              inherited fraSelecaoAleatoriaatributos1: TfraSelecaoAleatoriaatributos
+                inherited fraSelecaoAleatoriaatributos: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 1007
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+            inherited tstSelecaoAleatoriaServicos: TTabSheet
+              inherited fraSelecaoaleatoriaservicos1: TfraSelecaoaleatoriaservicos
+                inherited fraSelecaoAleatoriaservicos: TfraSelecaoAleatoria
+                  inherited pnlAbaixo: TPanel
+                    Font.Pitch = fpVariable
+                    inherited lblOrientacao: TLabel
+                      Font.Pitch = fpVariable
+                    end
+                    inherited pnlAbaixoDireita: TPanel
+                      Left = 1007
+                      Font.Pitch = fpVariable
+                    end
+                  end
+                end
+              end
+            end
+          end
+          inherited Timer1: TTimer
+            OnTimer = fraMultiplaSelecaoAleatoria1Timer1Timer
+          end
+        end
+        object btnIncluirReservasPreviasInconsistentes: TButton
+          Left = 742
+          Top = 510
+          Width = 297
+          Height = 25
+          Caption = 'Incluir Reservas Pr'#233'vias Inconsistentes'
+          TabOrder = 3
+          OnClick = btnIncluirReservasPreviasInconsistentesClick
+        end
+        object btnIncluirResevasFuturoInconsistentes: TButton
+          Left = 742
+          Top = 534
+          Width = 297
+          Height = 25
+          Caption = 'Incluir Reserva/Futuro inconsistentes'
+          TabOrder = 4
+          OnClick = btnIncluirResevasFuturoInconsistentesClick
+        end
+      end
+      object tstCadastro: TTabSheet
+        Tag = -1
+        Hint = 'Planilha de digita'#231#227'o do invent'#225'rio'
+        Caption = '    &Invent'#225'rio'
+        ImageIndex = 1
+        object gbxProdutos: TGroupBox
+          Tag = -1
+          Left = 0
+          Top = 65
+          Width = 1046
+          Height = 536
+          Align = alClient
+          Caption = 'PRODUTOS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 0
+          object Bevel1: TBevel
+            Left = 2
+            Top = 16
+            Width = 1042
+            Height = 1
+            Align = alTop
+            Shape = bsSpacer
+          end
+          object pnlOpcoesProdutos: TPanel
+            Left = 1010
+            Top = 17
+            Width = 34
+            Height = 359
+            Align = alRight
+            BevelOuter = bvNone
+            TabOrder = 0
+            object sbnIncluirProduto: TSpeedButton
+              Left = 1
+              Top = 1
+              Width = 23
+              Height = 22
+              Hint = 'Incluir produto'
+              Flat = True
+              Glyph.Data = {
+                36060000424D3606000000000000360000002800000020000000100000000100
+                18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDC7F7F7F7F7F7F7F7F7F8080808080807F7F7F7F7F7F7F7F7F7F7F
+                7F808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFFFFFFFFF
+                FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC0000000000000000000000000000000000000000000000000000000000
+                00808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F
+                7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+                007F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+                007F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+                007F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+                007F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+                00808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+                00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+                DCDCDCDCDCFFFFFFFFFFFFFFFFFF7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000000000000
+                00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+                DCDC7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFF000000DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+                DCDC7F7F7FFFFFFFDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFF000000DCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+                DCDC7F7F7FFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF000000000000DCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFFFFFFFFFFFFFFF
+                FFFF7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC000000000000000000000000000000000000DCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F
+                7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+              NumGlyphs = 2
+              OnClick = sbnIncluirProdutoClick
+            end
+            object sbnExcluirProduto: TSpeedButton
+              Left = 1
+              Top = 23
+              Width = 23
+              Height = 22
+              Hint = 'Excluir produto'
+              Flat = True
+              Glyph.Data = {
+                36060000424D3606000000000000360000002800000020000000100000000100
+                18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                A0A0A00000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDC0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFFF
+                FFFFDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF808080DCDCDCDCDCDCDCDCDC
+                0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DC0000000000FFDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FFF
+                FFFFDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF808080DCDCDCDCDCDCDCDCDCDCDCDC
+                0000FF0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC0000
+                000000FF808080DCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FFF
+                FFFFFFFFFFDCDCDCDCDCDCFFFFFF808080808080DCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC0000FF0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDC0000000000
+                FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+                7F7FFFFFFFDCDCDCFFFFFF808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDC0000FF0000FF0000FF000000DCDCDCDCDCDC0000000000FF0000
+                FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+                7F7FFFFFFFFFFFFF808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDC0000FF0000FF0000FF0000000000000000FF0000FF8080
+                80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+                7F7F7F7F7F808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000FF0000FF0000FF808080DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F80
+                80807F7F7F808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDC0000000000FF0000FF0000FF0000FFDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F
+                7F7F7F7F7F7F7F7F808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDC0000000000000000FF0000FF0000FF000000DCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF8080808080807F
+                7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC0000000000FF0000FF0000FF0000FF0000FF0000FF000000DCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF80808080808080808080
+                80807F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC0000FF
+                0000FF0000FF0000FF0000FF0000FF808080DCDCDC7F7F7F0000FF000000DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF808080808080808080808080808080DC
+                DCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC0000FF
+                0000FF0000FF0000FF0000FF808080DCDCDCDCDCDCDCDCDC8080800000FF0000
+                00DCDCDCDCDCDCDCDCDCDCDCDC808080808080808080808080808080DCDCDCDC
+                DCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCA0A0A0
+                0000FF0000FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC0000
+                FF0000FF000000DCDCDCDCDCDC808080808080808080808080DCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+              NumGlyphs = 2
+              OnClick = sbnExcluirProdutoClick
+            end
+            object sbnGerarProdutosSemInventario: TSpeedButton
+              Left = 1
+              Top = 61
+              Width = 23
+              Height = 22
+              Hint = 'Gerar produtos n'#227'o inventariados, mas com estoque'
+              Flat = True
+              Glyph.Data = {
+                36060000424D3606000000000000360000002800000020000000100000000100
+                18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+                5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+                FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+                DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+                80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+                5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                00000000FFFF00FFFF00FFFF000000DCDCDC00000000FFFF00FFFF00FFFF0000
+                00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCDCDCDCDCDCDC585858DC
+                DCDC585858FFFFFFDCDCDCDCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+                80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+                5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+                DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+                FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+                5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+              Layout = blGlyphTop
+              NumGlyphs = 2
+              Spacing = 0
+              OnClick = sbnGerarProdutosSemInventarioClick
+            end
+            object sbnExcluirProdutosSemInventario: TSpeedButton
+              Left = 1
+              Top = 87
+              Width = 23
+              Height = 22
+              Hint = 'Excluir produtos n'#227'o inventariados, mas com estoque'
+              Flat = True
+              Glyph.Data = {
+                36060000424D3606000000000000360000002800000020000000100000000100
+                18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                A0A0A00000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDC0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFFF
+                FFFFDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF808080DCDCDCDCDCDCDCDCDC
+                0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DC0000000000FFDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FFF
+                FFFFDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF808080DCDCDCDCDCDCDCDCDCDCDCDC
+                0000FF0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC0000
+                000000FF808080DCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FFF
+                FFFFFFFFFFDCDCDCDCDCDCFFFFFF808080808080DCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC0000FF0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDC0000000000
+                FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+                7F7FFFFFFFDCDCDCFFFFFF808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDC0000FF0000FF0000FF000000DCDCDCDCDCDC0000000000FF0000
+                FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+                7F7FFFFFFFFFFFFF808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDC0000FF0000FF0000FF0000000000000000FF0000FF8080
+                80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+                7F7F7F7F7F808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000FF0000FF0000FF808080DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F80
+                80807F7F7F808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDC0000000000FF0000FF0000FF0000FFDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F
+                7F7F7F7F7F7F7F7F808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDC0000000000000000FF0000FF0000FF000000DCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF8080808080807F
+                7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC0000000000FF0000FF0000FF0000FF0000FF0000FF000000DCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF80808080808080808080
+                80807F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC0000FF
+                0000FF0000FF0000FF0000FF0000FF808080DCDCDC7F7F7F0000FF000000DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF808080808080808080808080808080DC
+                DCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC0000FF
+                0000FF0000FF0000FF0000FF808080DCDCDCDCDCDCDCDCDC8080800000FF0000
+                00DCDCDCDCDCDCDCDCDCDCDCDC808080808080808080808080808080DCDCDCDC
+                DCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCA0A0A0
+                0000FF0000FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC0000
+                FF0000FF000000DCDCDCDCDCDC808080808080808080808080DCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+              NumGlyphs = 2
+              OnClick = sbnExcluirProdutosSemInventarioClick
+            end
+            object sbnCopiarProdutos: TSpeedButton
+              Left = 1
+              Top = 129
+              Width = 23
+              Height = 23
+              Hint = 'Copiar produtos de outro inventario'
+              Flat = True
+              Glyph.Data = {
+                AA030000424DAA03000000000000360000002800000011000000110000000100
+                18000000000074030000120B0000120B00000000000000000000DCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDC800000800000800000800000800000800000800000
+                800000800000DCDCDC00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC80
+                0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800000DCDCDC00DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000FFFFFF00000000000000
+                0000000000000000FFFFFF800000DCDCDC00DCDCDC0000000000000000000000
+                00000000000000800000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF80
+                0000DCDCDC00DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800000FFFF
+                FF000000000000000000000000000000FFFFFF800000DCDCDC00DCDCDC000000
+                FFFFFF000000000000000000000000800000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+                FFFFFFFFFFFFFF800000DCDCDC00DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF
+                FFFFFF800000FFFFFF000000000000DCDCDC800000800000800000800000DCDC
+                DC00DCDCDC000000FFFFFF000000000000000000000000800000FFFFFFFFFFFF
+                FFFFFFFFFFFF800000FFFFFF800000DCDCDCDCDCDC00DCDCDC000000FFFFFFFF
+                FFFFFFFFFFFFFFFFFFFFFF800000FFFFFFFFFFFFFFFFFFFFFFFF800000800000
+                DCDCDCDCDCDCDCDCDC00DCDCDC000000FFFFFF000000000000FFFFFF00000080
+                0000800000800000800000800000800000DCDCDCDCDCDCDCDCDCDCDCDC00DCDC
+                DC000000FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFF000000DCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDC000000FFFFFFFFFFFFFFFF
+                FFFFFFFF000000000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDC00DCDCDC000000000000000000000000000000000000DCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC00DCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDC00}
+              OnClick = sbnCopiarProdutosClick
+            end
+            object sbnGerarProdutosParametros: TSpeedButton
+              Left = 4
+              Top = 237
+              Width = 23
+              Height = 22
+              Hint = 'Gerar produtos de acordo com os par'#226'metros'
+              Flat = True
+              Glyph.Data = {
+                36060000424D3606000000000000360000002800000020000000100000000100
+                18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+                5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+                FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+                DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+                80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+                5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                00000000FFFF00FFFF00FFFF000000DCDCDC00000000FFFF00FFFF00FFFF0000
+                00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCDCDCDCDCDCDC585858DC
+                DCDC585858FFFFFFDCDCDCDCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+                80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+                5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+                DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+                FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+                5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+              Layout = blGlyphTop
+              NumGlyphs = 2
+              Spacing = 0
+              OnClick = sbnGerarProdutosParametrosClick
+            end
+            object sbnVisualizarFoto: TSpeedButton
+              Left = 5
+              Top = 305
+              Width = 24
+              Height = 24
+              Hint = 'Visualizar a imagem relacionada no site da empresa'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              Glyph.Data = {
+                360C0000424D360C000000000000360000002800000020000000200000000100
+                180000000000000C000000000000000000000000000000000000007F7F007F7F
+                FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF007F7F007F7F007F7F007F7F007F7F007F
+                7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF007F7F007F7F007F7F007F7F007F7F00
+                7F7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF007F7F007F7F007F7F007F7F
+                007F7F007F7F000000000000007F7F007F7F007F7F007F7F007F7F007F7F007F
+                7F007F7F000000000000000000007F7F007F7F007F7F007F7F007F7F007F7F00
+                7F7F007F7F000000000000007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F000000000000000000007F7F007F7F007F7F007F7F007F7F007F
+                7F007F7F000000000000000000007F7F007F7F007F7F007F7F007F7F007F7F00
+                7F7F000000000000000000007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F007F7F000000000000000000007F7F007F7F007F7F007F7F007F
+                7F007F7F000000000000000000007F7F007F7F007F7F007F7F007F7F007F7F00
+                0000000000000000007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F007F7F007F7F000000000000000000007F7F007F7F007F7F007F
+                7F007F7F000000000000000000007F7F007F7F007F7F007F7F007F7F00000000
+                0000000000007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F007F7F007F7F007F7F000000000000000000007F7F007F7F007F
+                7F007F7F000000000000000000007F7F007F7F007F7F007F7F00000000000000
+                0000007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F007F7F007F7F007F7F007F7F000000000000000000007F7F007F
+                7F007F7F000000000000000000007F7F007F7F007F7F00000000000000000000
+                7F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F007F7F007F7F007F7F007F7F007F7F000000000000000000007F
+                7F007F7F000000000000000000007F7F007F7F000000000000000000007F7F00
+                7F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F0000000000000000
+                00007F7F000000000000000000007F7F000000000000000000007F7F007F7F00
+                7F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F0000000000
+                00000000000000000000000000000000000000000000007F7F007F7F007F7F00
+                7F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F0000
+                00000000000000000000000000000000000000007F7F007F7F007F7F007F7F00
+                7F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F
+                7F000000000000000000000000000000007F7F007F7F007F7F007F7F007F7F00
+                7F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000007F7F007F7F007F7F007F7F007F7F000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000007F7F007F7F007F7F007F7F000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000007F7F007F7F007F7F007F7F000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                000000007F7F7F7F7F7F7F7F7F7F7F7F7F7F7F00000000000000000000000000
+                0000000000000000000000000000000000007F7F007F7F007F7F007F7F000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                007F7F7F7F7F7F0000000000000000007F7F7F7F7F7F00000000000000000000
+                0000000000000000000000000000000000007F7F007F7F007F7F007F7F000000
+                0000000000000000000000000000000000000000000000000000000000007F7F
+                7F7F7F7F000000FFFFFFFFFFFFFFFFFF0000007F7F7F7F7F7F00000000000000
+                0000000000000000000000000000000000007F7F007F7F007F7F007F7F000000
+                000000000000000000BFBFBFBFBFBF0000000000000000000000000000007F7F
+                7F000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000007F7F7F00000000000000
+                0000000000000000000000000000000000007F7F007F7F007F7F007F7F000000
+                000000000000000000BFBFBFBFBFBF0000000000000000000000000000007F7F
+                7F000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000007F7F7F00000000000000
+                0000000000000000000000000000000000007F7F007F7F007F7F007F7F000000
+                000000000000000000BFBFBFBFBFBF0000000000000000000000000000007F7F
+                7F7F7F7F000000FFFFFFFFFFFFFFFFFF0000007F7F7F7F7F7F00000000000000
+                0000000000000000000000000000000000007F7F007F7F007F7F007F7F000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                007F7F7F7F7F7F0000000000000000007F7F7F7F7F7F00000000000000000000
+                0000000000000000000000000000000000007F7F007F7F007F7F007F7F000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                000000007F7F7F7F7F7F7F7F7F7F7F7F7F7F7F00000000000000000000000000
+                0000000000000000000000000000000000007F7F007F7F007F7F007F7F000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000007F7F007F7F007F7F007F7F000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                00BFBFBF000000000000000000000000000000BFBFBF00000000000000000000
+                0000000000000000000000000000000000007F7F007F7F007F7F007F7F000000
+                000000BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
+                BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
+                BFBFBFBFBFBFBFBFBFBFBF000000000000007F7F007F7F007F7F007F7F007F7F
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000007F7F007F7F007F7F007F7F007F7F000000
+                000000000000000000000000000000007F7F000000000000007F7F0000000000
+                00BFBFBF000000000000000000000000000000BFBFBF000000000000007F7F00
+                0000000000000000000000007F7F007F7F007F7F007F7F007F7F007F7F000000
+                000000000000000000000000000000007F7F000000000000007F7F007F7F0000
+                00000000BFBFBF000000000000000000BFBFBF000000000000007F7F007F7F00
+                0000000000000000000000007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F
+                7F000000000000BFBFBFBFBFBFBFBFBF000000000000007F7F007F7F007F7F00
+                7F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F
+                7F007F7F000000000000000000000000000000007F7F007F7F007F7F007F7F00
+                7F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F
+                007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F
+                7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F00
+                7F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F007F7F}
+              ParentFont = False
+              OnClick = sbnVisualizarFotoClick
+            end
+          end
+          object dbgProdutosInventario: TtecDBGrid
+            Tag = -1
+            Left = 2
+            Top = 17
+            Width = 1008
+            Height = 359
+            Align = alClient
+            DataSource = dtmCadastroInventario.dsrInventarioProduto
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -11
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 1
+            TitleFont.Charset = DEFAULT_CHARSET
+            TitleFont.Color = clBlack
+            TitleFont.Height = -13
+            TitleFont.Name = 'Arial'
+            TitleFont.Pitch = fpVariable
+            TitleFont.Style = []
+            OnDrawColumnCell = dbgProdutosInventarioDrawColumnCell
+            OnDblClick = dbgProdutosInventarioDblClick
+            OnKeyDown = dbgProdutosInventarioKeyDown
+            RowWrap = 60
+            Large = False
+            DoubleRowColor = False
+            MsgDelete = 'o PRODUTO DO INVENT'#193'RIO'
+            TitleMinHeight = 100
+            CellHeights = 100
+            StrippedColor = 16054260
+            CanDelete = False
+            CanNotInsertFromGrid = False
+            PostOnEnter = False
+            PostOnSetUpDown = False
+            DenySort = False
+            DefaultRowHeight = 18
+            ExibirNumerodaLinha = False
+            NaoAtribuirDadosaTabelaaoDigitar = False
+            ShowWhenFieldInvisible = False
+            CanClickWhenEditing = False
+            Columns = <
+              item
+                Expanded = False
+                FieldName = 'sequencia'
+                Title.Alignment = taCenter
+                Title.Caption = 'N'#186
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 32
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'produtodigitado'
+                Title.Alignment = taCenter
+                Title.Caption = 'C'#211'DIGO'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 135
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'descricao'
+                Title.Alignment = taCenter
+                Title.Caption = 'DESCRI'#199#195'O'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 246
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'gerenciarloteevalidade'
+                Title.Alignment = taCenter
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 38
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'valorgrade1'
+                Title.Alignment = taCenter
+                Title.Caption = 'LINHA'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'valorgrade2'
+                Title.Alignment = taCenter
+                Title.Caption = 'COLUNA'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'localizacao'
+                Title.Caption = 'LOCALIZA'#199#195'O'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 80
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'sublocalizacao'
+                Title.Caption = 'SUBLOCALIZA'#199#195'O'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 100
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'quantidade'
+                Title.Alignment = taCenter
+                Title.Caption = 'INVENT'#193'RIO'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'emestoque'
+                Title.Alignment = taCenter
+                Title.Caption = 'ESTOQUE'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 55
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'reservado'
+                Title.Alignment = taCenter
+                Title.Caption = 'RESERVA'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 55
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'reservaprevia'
+                Title.Alignment = taCenter
+                Title.Caption = 'RESERVA PR'#201'VIA'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 85
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'transito'
+                Title.Alignment = taCenter
+                Title.Caption = 'TR'#194'NSITO'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 55
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'diferenca'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clRed
+                Font.Height = -13
+                Font.Name = 'Arial'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Title.Alignment = taCenter
+                Title.Caption = 'DIFEREN'#199'A'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 60
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'movimentado'
+                Title.Caption = 'MOVIMENTADO'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'saldoaposprocessamento'
+                Title.Caption = 'SALDO AP'#211'S PR.'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'demonstracao'
+                Title.Alignment = taCenter
+                Title.Caption = 'DEMONSTRA'#199#195'O'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'conserto'
+                Title.Alignment = taCenter
+                Title.Caption = 'CONSERTO'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 60
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'danificada'
+                Title.Alignment = taCenter
+                Title.Caption = 'DANIFICADA'
+                Title.Font.Charset = DEFAULT_CHARSET
+                Title.Font.Color = clBlack
+                Title.Font.Height = -11
+                Title.Font.Name = 'Arial'
+                Title.Font.Pitch = fpVariable
+                Title.Font.Style = []
+                Width = 65
+                Visible = True
+              end>
+          end
+          object pnlLegenda: TPanel
+            Left = 2
+            Top = 376
+            Width = 1042
+            Height = 49
+            Align = alBottom
+            BevelOuter = bvNone
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -11
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 2
+            object shIncluirNaNota: TShape
+              Left = 5
+              Top = 2
+              Width = 11
+              Height = 11
+              Brush.Color = clBlue
+              Pen.Width = 0
+            end
+            object lblInventarioProdutosGerados: TLabel
+              Left = 24
+              Top = 2
+              Width = 249
+              Height = 12
+              Caption = 'PRODUTOS N'#195'O INVENTARIADOS, MAS COM ESTOQUE'
+              Color = clBtnFace
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlue
+              Font.Height = -9
+              Font.Name = 'Arial'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentColor = False
+              ParentFont = False
+            end
+            object shpAlteradosAposInclusao: TShape
+              Left = 285
+              Top = 2
+              Width = 11
+              Height = 11
+              Brush.Color = 10790143
+              Pen.Width = 0
+            end
+            object lblAlteradosAposInclusao: TLabel
+              Left = 304
+              Top = 2
+              Width = 216
+              Height = 12
+              Caption = 'PRODUTOS MOVIMENTADOS AP'#211'S A INCLUS'#195'O'
+              Color = clBtnFace
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clRed
+              Font.Height = -9
+              Font.Name = 'Arial'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentColor = False
+              ParentFont = False
+            end
+            object gbxArquivo: TGroupBox
+              Left = 4
+              Top = 13
+              Width = 586
+              Height = 37
+              Caption = 'ARQUIVO PARA IMPORTA'#199#195'O'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -11
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = [fsBold]
+              ParentFont = False
+              TabOrder = 0
+              object lblArquivo: TLabel
+                Tag = -1
+                Left = 4
+                Top = 13
+                Width = 469
+                Height = 19
+                AutoSize = False
+                Color = clSilver
+                ParentColor = False
+              end
+              object sbnArquivo: TSpeedButton
+                Left = 478
+                Top = 12
+                Width = 75
+                Height = 22
+                Caption = 'Arqui&vo '
+                Flat = True
+                Glyph.Data = {
+                  76010000424D7601000000000000760000002800000020000000100000000100
+                  04000000000000010000120B0000120B00001000000010000000000000000000
+                  800000800000008080008000000080008000808000007F7F7F00BFBFBF000000
+                  FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00555555555555
+                  55555555FFFFFFFFFF55555000000000055555577777777775F55500B8B8B8B8
+                  B05555775F555555575F550F0B8B8B8B8B05557F75F555555575550BF0B8B8B8
+                  B8B0557F575FFFFFFFF7550FBF0000000000557F557777777777500BFBFBFBFB
+                  0555577F555555557F550B0FBFBFBFBF05557F7F555555FF75550F0BFBFBF000
+                  55557F75F555577755550BF0BFBF0B0555557F575FFF757F55550FB700007F05
+                  55557F557777557F55550BFBFBFBFB0555557F555555557F55550FBFBFBFBF05
+                  55557FFFFFFFFF7555550000000000555555777777777755555550FBFB055555
+                  5555575FFF755555555557000075555555555577775555555555}
+                NumGlyphs = 2
+                OnClick = sbnArquivoClick
+              end
+              object sbnProcessarArquivoImportacao: TSpeedButton
+                Left = 552
+                Top = 12
+                Width = 28
+                Height = 22
+                Hint = 'Processar importa'#231#227'o do arquivo'
+                Flat = True
+                Glyph.Data = {
+                  36060000424D3606000000000000360000002800000020000000100000000100
+                  18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+                  5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+                  FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+                  DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+                  80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+                  5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                  00000000FFFF00FFFF00FFFF000000DCDCDC00000000FFFF00FFFF00FFFF0000
+                  00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCDCDCDCDCDCDC585858DC
+                  DCDC585858FFFFFFDCDCDCDCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                  80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+                  80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+                  5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+                  DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+                  FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+                  5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+                NumGlyphs = 2
+                OnClick = sbnProcessarArquivoImportacaoClick
+              end
+            end
+          end
+          object pnlMovimentosNegativoPosteriores: TPanel
+            Left = 2
+            Top = 425
+            Width = 1042
+            Height = 109
+            Align = alBottom
+            BevelOuter = bvNone
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -11
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 3
+            Visible = False
+            object gbxMovimentosNegativoPosteriores: TGroupBox
+              Left = 0
+              Top = 7
+              Width = 657
+              Height = 102
+              Caption = 'PRODUTOS COM ESTOQUE NEGATIVO'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -11
+              Font.Name = 'Arial'
+              Font.Pitch = fpVariable
+              Font.Style = [fsBold]
+              ParentFont = False
+              TabOrder = 0
+              object sbnExcluirItensNegativos: TSpeedButton
+                Left = 480
+                Top = 72
+                Width = 169
+                Height = 23
+                Hint = 'Exclui todos os itens com saldo negativo'
+                Caption = '   Excluir itens'
+                Flat = True
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'Arial'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Glyph.Data = {
+                  36060000424D3606000000000000360000002800000020000000100000000100
+                  18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  A0A0A00000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDC0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFFF
+                  FFFFDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF808080DCDCDCDCDCDCDCDCDC
+                  0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DC0000000000FFDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FFF
+                  FFFFDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF808080DCDCDCDCDCDCDCDCDCDCDCDC
+                  0000FF0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC0000
+                  000000FF808080DCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FFF
+                  FFFFFFFFFFDCDCDCDCDCDCFFFFFF808080808080DCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC0000FF0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDC0000000000
+                  FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+                  7F7FFFFFFFDCDCDCFFFFFF808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDC0000FF0000FF0000FF000000DCDCDCDCDCDC0000000000FF0000
+                  FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+                  7F7FFFFFFFFFFFFF808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDC0000FF0000FF0000FF0000000000000000FF0000FF8080
+                  80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+                  7F7F7F7F7F808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000FF0000FF0000FF808080DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F80
+                  80807F7F7F808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDC0000000000FF0000FF0000FF0000FFDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F
+                  7F7F7F7F7F7F7F7F808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDC0000000000000000FF0000FF0000FF000000DCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF8080808080807F
+                  7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC0000000000FF0000FF0000FF0000FF0000FF0000FF000000DCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF80808080808080808080
+                  80807F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC0000FF
+                  0000FF0000FF0000FF0000FF0000FF808080DCDCDC7F7F7F0000FF000000DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF808080808080808080808080808080DC
+                  DCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC0000FF
+                  0000FF0000FF0000FF0000FF808080DCDCDCDCDCDCDCDCDC8080800000FF0000
+                  00DCDCDCDCDCDCDCDCDCDCDCDC808080808080808080808080808080DCDCDCDC
+                  DCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCA0A0A0
+                  0000FF0000FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC0000
+                  FF0000FF000000DCDCDCDCDCDC808080808080808080808080DCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+                NumGlyphs = 2
+                ParentFont = False
+                Spacing = 0
+                OnClick = sbnExcluirItensNegativosClick
+              end
+              object sbnCopiarItensNegativos: TSpeedButton
+                Left = 479
+                Top = 44
+                Width = 170
+                Height = 23
+                Hint = 'Copiar itens para um Novo Inventario'
+                Caption = '  Copiar itens'
+                Flat = True
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'Arial'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Glyph.Data = {
+                  36060000424D3606000000000000360000002800000020000000100000000100
+                  18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+                  5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+                  FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+                  DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+                  80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+                  5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                  00000000FFFF00FFFF00FFFF000000DCDCDC00000000FFFF00FFFF00FFFF0000
+                  00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCDCDCDCDCDCDC585858DC
+                  DCDC585858FFFFFFDCDCDCDCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                  80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+                  80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+                  5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+                  DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+                  FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+                  5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+                  DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+                NumGlyphs = 2
+                ParentFont = False
+                Spacing = 0
+                OnClick = sbnCopiarItensNegativosClick
+              end
+              object dbgMovimentosNegativoPosteriores: TtecDBGrid
+                Tag = -1
+                Left = 1
+                Top = 14
+                Width = 472
+                Height = 89
+                DataSource = dtmCadastroInventario.dsrMovimentosNegativoPosteriores
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'Arial'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                ParentFont = False
+                ReadOnly = True
+                TabOrder = 0
+                TitleFont.Charset = DEFAULT_CHARSET
+                TitleFont.Color = clBlack
+                TitleFont.Height = -11
+                TitleFont.Name = 'Arial'
+                TitleFont.Pitch = fpVariable
+                TitleFont.Style = [fsBold]
+                RowWrap = 60
+                Large = False
+                DoubleRowColor = False
+                TitleMinHeight = 100
+                CellHeights = 100
+                StrippedColor = 16054260
+                CanDelete = False
+                CanNotInsertFromGrid = False
+                PostOnEnter = False
+                PostOnSetUpDown = False
+                DenySort = False
+                DefaultRowHeight = 18
+                ExibirNumerodaLinha = False
+                NaoAtribuirDadosaTabelaaoDigitar = False
+                ShowWhenFieldInvisible = False
+                CanClickWhenEditing = False
+                Columns = <
+                  item
+                    Expanded = False
+                    FieldName = 'data'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'DATA'
+                    Title.Font.Charset = DEFAULT_CHARSET
+                    Title.Font.Color = clBlack
+                    Title.Font.Height = -11
+                    Title.Font.Name = 'Arial'
+                    Title.Font.Pitch = fpVariable
+                    Title.Font.Style = []
+                    Width = 70
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'emestoque'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'EM ESTOQUE'
+                    Title.Font.Charset = DEFAULT_CHARSET
+                    Title.Font.Color = clBlack
+                    Title.Font.Height = -11
+                    Title.Font.Name = 'Arial'
+                    Title.Font.Pitch = fpVariable
+                    Title.Font.Style = []
+                    Width = 120
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'reservado'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'RESERVADO'
+                    Title.Font.Charset = DEFAULT_CHARSET
+                    Title.Font.Color = clBlack
+                    Title.Font.Height = -11
+                    Title.Font.Name = 'Arial'
+                    Title.Font.Pitch = fpVariable
+                    Title.Font.Style = []
+                    Width = 120
+                    Visible = True
+                  end
+                  item
+                    Expanded = False
+                    FieldName = 'reservaprevia'
+                    Title.Alignment = taCenter
+                    Title.Caption = 'RESERVA PR'#201'VIA'
+                    Title.Font.Charset = DEFAULT_CHARSET
+                    Title.Font.Color = clBlack
+                    Title.Font.Height = -11
+                    Title.Font.Name = 'Arial'
+                    Title.Font.Pitch = fpVariable
+                    Title.Font.Style = []
+                    Width = 120
+                    Visible = True
+                  end>
+              end
+              object ckbVisualizarItensNegativos: TCheckBox
+                Tag = -1
+                Left = 480
+                Top = 16
+                Width = 145
+                Height = 23
+                Hint = 'Visualizar/N'#227'o Visualizar os itens com saldo negativo'
+                Caption = 'Filtrar itens'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'Arial'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 1
+                OnClick = ckbVisualizarItensNegativosClick
+              end
+            end
+          end
+        end
+        object gbxInventario: TGroupBox
+          Tag = -1
+          Left = 0
+          Top = 0
+          Width = 1046
+          Height = 65
+          Align = alTop
+          Caption = 'INVENT'#193'RIO'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 1
+          object gbxSequencia: TGroupBox
+            Left = 10
+            Top = 23
+            Width = 71
+            Height = 36
+            Caption = 'N'#218'MERO'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            object edfNumero: TtecDbEditFind
+              Tag = -1
+              Left = 2
+              Top = 10
+              Width = 65
+              Height = 24
+              Hint = 'N'#186' seq'#252'encial do invent'#225'rio'
+              Alignment = taLeftJustify
+              DataField = 'numero'
+              DataSource = dtmCadastroInventario.dsrInventario
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              Group = 'Numero'
+              MaxLength = 6
+              Maximo = 0
+              Minimo = 37353
+              Adicional = 0
+              Opcional = True
+              ParentFont = False
+              TabOrder = 0
+              PermitirZero = False
+              PermitirNulo = False
+              Operacao = opATRIBUICAO
+              Parameter = 'numero'
+              ActiveSetControls = False
+              DenyInsert = False
+              NoSetControls = <>
+              SetControls = <
+                item
+                  Control = gbxFilial
+                end
+                item
+                  Control = gbxData
+                end
+                item
+                  Control = gbxProdutos
+                end>
+            end
+          end
+          object gbxFilial: TGroupBox
+            Left = 84
+            Top = 23
+            Width = 325
+            Height = 36
+            Caption = 'FILIAL'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+            inline fraConsultaFilial: TfraConsultaCodigo
+              Left = 2
+              Top = 10
+              Width = 319
+              Height = 24
+              HorzScrollBar.Range = 329
+              HorzScrollBar.Visible = False
+              VertScrollBar.Range = 23
+              VertScrollBar.Visible = False
+              AutoScroll = False
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -11
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 0
+              inherited sbnProcura: TSpeedButton
+                Hint = 'Procurar filial'
+              end
+              inherited dtxDescricao: TtecDBText
+                Tag = -1
+                Width = 230
+                Height = 24
+                Hint = 'Nome ou raz'#227'o social da filial'
+                DataField = 'nome'
+                DataSource = fraConsultaFilial.dsrProcuraFiliais
+                Font.Height = -13
+              end
+              inherited edfCodigo: TtecDBFindLookup
+                Tag = -1
+                Height = 24
+                Hint = 'C'#243'digo da filial inventariada'
+                DataField = 'filial'
+                DataSource = dtmCadastroInventario.dsrInventario
+                Font.Height = -13
+                MaxLength = 4
+                OnExit = fraConsultaFilialedfCodigoExit
+                OnKeyDown = fraConsultaFilialedfCodigoKeyDown
+                LookupField = 'codigo'
+                LookupSource = fraConsultaFilial.dsrProcuraFiliais
+                LookupQueryParameter = 'codigo'
+                Parameter = ' '
+                ActiveSetControls = False
+                DenyInsert = True
+                NoSetControls = <>
+                SetControls = <>
+                LookupParameter = 'codigo'
+              end
+              inherited qryProcuraFiliais: TtecQuery
+                ParamData = <
+                  item
+                    DataType = ftString
+                    Name = 'codigo'
+                    ParamType = ptUnknown
+                  end>
+              end
+            end
+          end
+          object gbxSituacao: TGroupBox
+            Left = 606
+            Top = 22
+            Width = 254
+            Height = 37
+            Caption = 'SITUA'#199#195'O'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 2
+            object dtxSituacao: TtecDBText
+              Tag = -1
+              Left = 2
+              Top = 12
+              Width = 247
+              Height = 23
+              Hint = 'Situa'#231#227'o do invent'#225'rio (ABERTO, PROCESSADO ou TRANSFERIDO)'
+              TabStop = False
+              Color = clBtnFace
+              DataField = 'DescricaoSituacao'
+              DataSource = dtmCadastroInventario.dsrInventario
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = [fsBold]
+              ParentFont = False
+              ReadOnly = True
+              TabOrder = 0
+              Alignment = taLeftJustify
+            end
+          end
+          object gbxDatas: TGroupBox
+            Left = 414
+            Top = 9
+            Width = 187
+            Height = 53
+            Caption = 'DATAS'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 3
+            object Label1: TLabel
+              Left = 8
+              Top = 9
+              Width = 3
+              Height = 12
+            end
+            object gbxData: TGroupBox
+              Left = 4
+              Top = 10
+              Width = 84
+              Height = 40
+              Caption = 'INVENT'#193'RIO'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -9
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 0
+              object edtData: TDBEditData
+                Tag = -1
+                Left = 4
+                Top = 12
+                Width = 76
+                Height = 24
+                Hint = 'Data em que foi efetuado o invent'#225'rio'
+                Alignment = taCenter
+                DataField = 'data'
+                DataSource = dtmCadastroInventario.dsrInventario
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -13
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                MaxLength = -1
+                Maximo = 0
+                Minimo = 37353
+                Adicional = 0
+                ParentFont = False
+                TabOrder = 0
+                Opcional = True
+              end
+            end
+            object gbxProcessamento: TGroupBox
+              Left = 90
+              Top = 10
+              Width = 94
+              Height = 40
+              Caption = 'PROCESSAMENTO'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -9
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 1
+              object edtProcessamento: TDBEditData
+                Tag = -1
+                Left = 7
+                Top = 12
+                Width = 81
+                Height = 24
+                Hint = 'Data em que foi efetuado o invent'#225'rio'
+                Alignment = taCenter
+                DataField = 'processamento'
+                DataSource = dtmCadastroInventario.dsrInventario
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -13
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                MaxLength = -1
+                Maximo = 0
+                Minimo = 37353
+                Adicional = 0
+                ParentFont = False
+                TabOrder = 0
+                Opcional = True
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 1054
+    inherited tblBarra: TToolBar
+      Width = 829
+      object sbnGerar: TSpeedButton
+        Left = 84
+        Top = 2
+        Width = 83
+        Height = 39
+        Hint = 'Processar os dados do invent'#225'rio'
+        Caption = 'Processar F8'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+          5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+          FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+          DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+          80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+          5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          00000000FFFF00FFFF00FFFF000000DCDCDC00000000FFFF00FFFF00FFFF0000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCDCDCDCDCDCDC585858DC
+          DCDC585858FFFFFFDCDCDCDCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+          80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+          5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+          DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+          FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+          5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        Layout = blGlyphTop
+        NumGlyphs = 2
+        Spacing = 0
+        OnClick = sbnGerarClick
+      end
+      object sbnImprimir: TSpeedButton
+        Left = 167
+        Top = 2
+        Width = 75
+        Height = 39
+        Hint = 'Visualizar como o relat'#243'rio ser'#225' impresso'
+        Caption = 'Imprimir F7'
+        Flat = True
+        Glyph.Data = {
+          F6030000424DF603000000000000360000002800000013000000100000000100
+          180000000000C0030000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDC00
+          0000000000000000000000000000000000000000000000000000000000000000
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000DCDCDCDCDCDC000000C0C7C0C0C7
+          C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0000000C0C7C0000000DC
+          DCDCDCDCDCDCDCDCDCDCDC000000DCDCDC000000000000000000000000000000
+          000000000000000000000000000000000000000000000000C0C7C0000000DCDC
+          DCDCDCDCDCDCDC000000DCDCDC000000C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0
+          C7C000FFFF00FFFF00FFFFC0C7C0C0C7C0000000000000000000DCDCDCDCDCDC
+          DCDCDC000000DCDCDC000000C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C08087
+          80808780808780C0C7C0C0C7C0000000C0C7C0000000DCDCDCDCDCDCDCDCDC00
+          0000DCDCDC000000000000000000000000000000000000000000000000000000
+          000000000000000000000000C0C7C0C0C7C0000000DCDCDCDCDCDC000000DCDC
+          DC000000C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0
+          C7C0000000C0C7C0000000C0C7C0000000DCDCDCDCDCDC000000DCDCDCDCDCDC
+          000000000000000000000000000000000000000000000000000000000000C0C7
+          C0000000C0C7C0000000000000DCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDC00
+          0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000C0C7C0
+          000000C0C7C0000000DCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDCDCDCDC0000
+          00FFFFFF000000000000000000000000000000FFFFFF00000000000000000000
+          0000DCDCDCDCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDCDCDCDC000000FFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000FFFFFF00
+          0000000000000000000000000000FFFFFF000000DCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000FFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000DCDCDCDCDCDCDCDCDCDCDCDC00
+          0000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000000000000000000000
+          000000000000000000000000000000DCDCDCDCDCDCDCDCDCDCDCDC000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000}
+        Layout = blGlyphTop
+        Spacing = 0
+        OnClick = sbnImprimirClick
+      end
+    end
+  end
+  object dlgArquivoaImportar: TSaveDialog
+    Title = 'Save As'
+    Left = 592
+    Top = 8
+  end
+end

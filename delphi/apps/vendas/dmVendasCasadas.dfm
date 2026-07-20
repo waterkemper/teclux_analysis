@@ -1,0 +1,741 @@
+inherited dtmVendasCasadas: TdtmVendasCasadas
+  OldCreateOrder = False
+  Left = 611
+  Top = 208
+  Height = 370
+  Width = 651
+  object dsrProdutosVendasCasadas: TtecDataSource
+    DataSet = qryProdutosVendasCasadas
+    Left = 104
+    Top = 32
+  end
+  object qryProdutosVendasCasadas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicaoItemdeproduto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicaoProduto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicaoGrupo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicaoClasse'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicaoMarca'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicaoPromocoes'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select sel.codigo_p1,'
+      '        p1.codigovisual as codigovisual_p1,'
+      '        p1.descricao as descricao_p1,'
+      '        c1.codigo as caracteristica_p1,'
+      '        c1.grupo as grupo_p1,'
+      '        c1.classe as classe_p1,'
+      '        c1.marca as marca_p1,'
+      '        estoques_preco(sel.codigo_p1, :filialbase) as preco_p1,'
+      
+        '        quantidadetotaldoestoque(sel.codigo_p1) as totalestoque_' +
+        'p1,'
+      '        sel.quantidade_p1,'
+      ''
+      '       sel.codigo_p2,'
+      '        p2.codigovisual as codigovisual_p2,'
+      '        p2.descricao as descricao_p2,'
+      ''
+      '        c2.codigo as caracteristica_p2,'
+      '        c2.grupo as grupo_p2,'
+      '        c2.classe as classe_p2,'
+      '        c2.marca as marca_p2,'
+      ''
+      '        estoques_preco(sel.codigo_p2, :filialbase) as preco_p2,'
+      
+        '        quantidadetotaldoestoque(sel.codigo_p2) as totalestoque_' +
+        'p2,'
+      '        sel.quantidade_p2,'
+      ''
+      '       sel.ocorrencias,'
+      ''
+      '       coalesce((select true'
+      '                 from cross_selling c_s'
+      '                 where c_s.caracteristica = c1.codigo'
+      
+        '                   and c_s.caracteristica_cross = c2.codigo),fal' +
+        'se) as marcar,'
+      ''
+      '       coalesce((select true'
+      '                 from cross_selling c_s'
+      '                 where c_s.caracteristica = c1.codigo'
+      
+        '                   and c_s.caracteristica_cross = c2.codigo),fal' +
+        'se) as marcarOriginal'
+      ''
+      ''
+      'from'
+      '('
+      ''
+      
+        'select codigo_p1, codigo_p2, count(*) as ocorrencias, sum(quanti' +
+        'dade_p1) as quantidade_p1, sum(quantidade_p2) as quantidade_p2'
+      'from'
+      '('
+      'select pc1.*, pc2.codigo_p2, pc2.quantidade_p2'
+      'from'
+      '('
+      
+        ' SELECT pc.contrato, pc.quantidade as quantidade_p1, pc.produto ' +
+        'as codigo_p1'
+      ' FROM  /*(*/ (produtoscontratos pc '
+      ' '
+      ' /*'
+      '      join (produtos p'
+      '           JOIN (((caracteristicas c '
+      '             JOIN (grupos g '
+      '                   left JOIN gruposagendamentos ga '
+      '                     ON g.codigo = ga.grupo)'
+      '             '
+      '             ON c.grupo = g.codigo)'
+      '          '
+      '          '
+      '           JOIN classes cl '
+      '           ON c.classe = cl.codigo)'
+      '          '
+      '           JOIN marcas m '
+      '           ON c.marca = m.codigo)'
+      '           '
+      '           on p.caracteristica = c.codigo)'
+      '           '
+      '           on pc.produto = p.codigo)'
+      '           */'
+      '                      '
+      '      JOIN contratos ct       '
+      '      ON pc.contrato = ct.numero)'
+      '      '
+      '      '
+      ''
+      ' WHERE pc.contrato=ct.numero'
+      '   AND ct.faturamento between :DataInicial and :DataFinal'
+      '   and ct.tipocliente <> '#39'L'#39
+      ''
+      '/*'
+      ' '
+      '  _ListaCondicaoItemdeproduto'
+      '  _ListaCondicaoProduto'
+      '  _ListaCondicaoGrupo'
+      '  _ListaCondicaoClasse'
+      '  _ListaCondicaoMarca'
+      '  _ListaCondicaoPromocoes'
+      '  '
+      '*/'
+      ''
+      ''
+      ''
+      ') as pc1'
+      ''
+      'join '
+      ''
+      '('
+      
+        ' SELECT pc.contrato, pc.quantidade as quantidade_p2, pc.produto ' +
+        'as codigo_p2'
+      ' FROM /*(*/ (produtoscontratos pc '
+      ' '
+      ' /*'
+      '      join (produtos p'
+      '           JOIN (((caracteristicas c'
+      '             JOIN (grupos g'
+      '                   left JOIN gruposagendamentos ga'
+      '                     ON g.codigo = ga.grupo)'
+      ''
+      '             ON c.grupo = g.codigo)'
+      ''
+      ''
+      '           JOIN classes cl'
+      '           ON c.classe = cl.codigo)'
+      ''
+      '           JOIN marcas m'
+      '           ON c.marca = m.codigo)'
+      ''
+      '           on p.caracteristica = c.codigo)'
+      '           on pc.produto = p.codigo)'
+      '           '
+      ' */'
+      ''
+      '      JOIN contratos ct       '
+      '      ON pc.contrato = ct.numero)'
+      '      '
+      ' WHERE pc.contrato=ct.numero'
+      '   AND ct.faturamento between :DataInicial and :DataFinal'
+      '   and ct.tipocliente <> '#39'L'#39
+      ''
+      '   '
+      '/*'
+      '  _ListaCondicaoItemdeproduto'
+      '  _ListaCondicaoProduto'
+      '  _ListaCondicaoGrupo'
+      '  _ListaCondicaoClasse'
+      '  _ListaCondicaoMarca'
+      '  _ListaCondicaoPromocoes'
+      '  '
+      '*/'
+      ''
+      ') as pc2'
+      ''
+      'on pc1.contrato = pc2.contrato'
+      'and pc1.codigo_p1 > pc2.codigo_p2'
+      ''
+      ') as tot'
+      '         '
+      'group by codigo_p1, codigo_p2'
+      ''
+      'having count(*) > :QtCasadosporProduto'
+      ') as sel join produtos p1'
+      '             JOIN (((caracteristicas c1'
+      '                    JOIN (grupos g1'
+      '                          left JOIN gruposagendamentos ga1'
+      '                          ON g1.codigo = ga1.grupo) '
+      '                    ON c1.grupo = g1.codigo)'
+      '                    '
+      '                    JOIN classes cl1 ON c1.classe = cl1.codigo)'
+      '                    JOIN marcas m1 ON c1.marca = m1.codigo)'
+      ''
+      '             on p1.caracteristica = c1.codigo'
+      '         on sel.codigo_p1 = p1.codigo'
+      ''
+      ''
+      '         join produtos p2'
+      '             JOIN (((caracteristicas c2'
+      '                    JOIN (grupos g2 '
+      '                         left JOIN gruposagendamentos ga2'
+      
+        '                         ON g2.codigo = ga2.grupo)              ' +
+        '      '
+      '                    ON c2.grupo = g2.codigo)'
+      ''
+      '                    JOIN classes cl2 ON c2.classe = cl2.codigo)'
+      '                    JOIN marcas m2 ON c2.marca = m2.codigo)'
+      ''
+      '             on p2.caracteristica = c2.codigo'
+      ''
+      '         on sel.codigo_p2 = p2.codigo'
+      ''
+      'where true'
+      ''
+      '  %ListaCondicaoItemdeproduto'
+      '  %ListaCondicaoProduto'
+      '  %ListaCondicaoGrupo'
+      '  %ListaCondicaoClasse'
+      '  %ListaCondicaoMarca'
+      '  %ListaCondicaoPromocoes'
+      ''
+      '  /*'
+      '   AND ('
+      '      g1.codigo = '#39'67'#39
+      '      OR g1.codigo = '#39'69'#39
+      '      or g2.codigo = '#39'67'#39
+      '      OR g2.codigo = '#39'69'#39')'
+      '      */'
+      ''
+      ''
+      ''
+      ''
+      '')
+    RequestLive = True
+    Left = 88
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'filialbase'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftString
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'1899-12-30'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'1899-12-30'#39
+      end
+      item
+        DataType = ftString
+        Name = 'QtCasadosporProduto'
+        ParamType = ptUnknown
+        Value = '5'
+      end>
+    object qryProdutosVendasCasadascodigo_p1: TLargeintField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo_p1'
+      Visible = False
+    end
+    object qryProdutosVendasCasadascodigovisual_p1: TStringField
+      DisplayLabel = 'Produto'
+      FieldName = 'codigovisual_p1'
+      Required = True
+      Size = 30
+    end
+    object qryProdutosVendasCasadasdescricao_p1: TStringField
+      DisplayLabel = 'Descri'#231#227'o Produto'
+      FieldName = 'descricao_p1'
+      Size = 100
+    end
+    object qryProdutosVendasCasadasgrupo_p1: TStringField
+      DisplayLabel = 'Grupo'
+      FieldName = 'grupo_p1'
+      Size = 4
+    end
+    object qryProdutosVendasCasadasclasse_p1: TStringField
+      DisplayLabel = 'Classe'
+      FieldName = 'classe_p1'
+      Size = 2
+    end
+    object qryProdutosVendasCasadasmarca_p1: TIntegerField
+      DisplayLabel = 'Marca'
+      FieldName = 'marca_p1'
+    end
+    object qryProdutosVendasCasadaspreco_p1: TFloatField
+      DisplayLabel = 'Pre'#231'o de Venda'
+      FieldName = 'preco_p1'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryProdutosVendasCasadastotalestoque_p1: TFloatField
+      DisplayLabel = 'em Estoque'
+      FieldName = 'totalestoque_p1'
+      DisplayFormat = '#######'
+    end
+    object qryProdutosVendasCasadasquantidade_p1: TFloatField
+      DisplayLabel = 'Vendido'
+      FieldName = 'quantidade_p1'
+      DisplayFormat = '########'
+    end
+    object qryProdutosVendasCasadascodigo_p2: TLargeintField
+      DisplayLabel = 'Codigo'
+      FieldName = 'codigo_p2'
+      Visible = False
+    end
+    object qryProdutosVendasCasadascodigovisual_p2: TStringField
+      DisplayLabel = 'Produto'
+      FieldName = 'codigovisual_p2'
+      Size = 30
+    end
+    object qryProdutosVendasCasadasdescricao_p2: TStringField
+      DisplayLabel = 'Descri'#231#227'o Produto'
+      FieldName = 'descricao_p2'
+      Size = 100
+    end
+    object qryProdutosVendasCasadasgrupo_p2: TStringField
+      DisplayLabel = 'Grupo'
+      FieldName = 'grupo_p2'
+      Size = 4
+    end
+    object qryProdutosVendasCasadasclasse_p2: TStringField
+      DisplayLabel = 'Classe'
+      FieldName = 'classe_p2'
+      Size = 2
+    end
+    object qryProdutosVendasCasadasmarca_p2: TIntegerField
+      DisplayLabel = 'Marca'
+      FieldName = 'marca_p2'
+    end
+    object qryProdutosVendasCasadaspreco_p2: TFloatField
+      DisplayLabel = 'Pre'#231'o de Venda'
+      FieldName = 'preco_p2'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryProdutosVendasCasadastotalestoque_p2: TFloatField
+      DisplayLabel = 'em Estoque'
+      FieldName = 'totalestoque_p2'
+      DisplayFormat = '#######'
+    end
+    object qryProdutosVendasCasadasquantidade_p2: TFloatField
+      DisplayLabel = 'Vendido'
+      FieldName = 'quantidade_p2'
+      DisplayFormat = '#######'
+    end
+    object qryProdutosVendasCasadasocorrencias: TLargeintField
+      DisplayLabel = 'Ocorr'#234'ncias'
+      FieldName = 'ocorrencias'
+    end
+    object qryProdutosVendasCasadasmarcar: TBooleanField
+      DisplayLabel = 'Marcar'
+      FieldName = 'marcar'
+    end
+    object qryProdutosVendasCasadasmarcaroriginal: TBooleanField
+      FieldName = 'marcaroriginal'
+      Visible = False
+    end
+    object qryProdutosVendasCasadascaracteristica_p1: TLargeintField
+      FieldName = 'caracteristica_p1'
+    end
+    object qryProdutosVendasCasadascaracteristica_p2: TLargeintField
+      FieldName = 'caracteristica_p2'
+    end
+  end
+  object qrycross_selling: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select c_s.*'
+      'from cross_selling c_s'
+      'where (c_s.caracteristica, c_s.caracteristica_cross)'
+      'in  ((0,0))')
+    RequestLive = True
+    Left = 264
+    Top = 72
+    object qrycross_sellingcaracteristica: TLargeintField
+      FieldName = 'caracteristica'
+      Required = True
+    end
+    object qrycross_sellingcaracteristica_cross: TLargeintField
+      FieldName = 'caracteristica_cross'
+      Required = True
+    end
+  end
+  object qrycross_selling_repository: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select c_s.*'
+      'from cross_selling c_s'
+      'where (c_s.caracteristica, c_s.caracteristica_cross)'
+      'in  ')
+    RequestLive = False
+    Left = 376
+    Top = 40
+  end
+  object qryGruposCasados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicaoItemdeproduto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicaoProduto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicaoGrupo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicaoClasse'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicaoMarca'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicaoPromocoes'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select  '
+      ''
+      '        c1.grupo as grupo_p1,'
+      '        g1.descricao as descricaogrupo_p1,'
+      '        c1.classe as classe_p1,'
+      '        c1.marca as marca_p1,'
+      ''
+      '        c2.grupo as grupo_p2,'
+      '        g2.descricao as descricaogrupo_p2,'
+      '        c2.classe as classe_p2,'
+      '        c2.marca as marca_p2,'
+      ''
+      '        cast(sum(sel.ocorrencias) as bigint) as ocorrencias,'
+      ''
+      '       coalesce((select true'
+      '                 from crossgrupo_selling cg_s'
+      '                 where cg_s.grupo = c1.grupo'
+      
+        '                   and cg_s.grupo_cross = c2.grupo),false) as ma' +
+        'rcar'
+      ''
+      'from'
+      '('
+      ''
+      
+        'select codigo_p1, codigo_p2, count(*) as ocorrencias, sum(quanti' +
+        'dade_p1) as quantidade_p1, sum(quantidade_p2) as quantidade_p2'
+      'from'
+      '('
+      'select pc1.*, pc2.codigo_p2, pc2.quantidade_p2'
+      'from'
+      '('
+      
+        ' SELECT pc.contrato, pc.quantidade as quantidade_p1, pc.produto ' +
+        'as codigo_p1'
+      ' FROM  (produtoscontratos pc '
+      '                       '
+      '      JOIN contratos ct       '
+      '      ON pc.contrato = ct.numero)'
+      '      '
+      '      '
+      '      '
+      ' WHERE pc.contrato=ct.numero'
+      '   AND ct.faturamento between :DataInicial and :DataFinal'
+      '   and ct.tipocliente <> '#39'L'#39
+      '   '
+      ') as pc1'
+      ''
+      'join '
+      ''
+      '('
+      
+        ' SELECT pc.contrato, pc.quantidade as quantidade_p2, pc.produto ' +
+        'as codigo_p2'
+      ' FROM (produtoscontratos pc '
+      ' '
+      '      JOIN contratos ct'
+      '      ON pc.contrato = ct.numero)'
+      ''
+      ' WHERE pc.contrato=ct.numero'
+      '   AND ct.faturamento between :DataInicial and :DataFinal'
+      '   and ct.tipocliente <> '#39'L'#39
+      ''
+      ') as pc2'
+      ''
+      'on pc1.contrato = pc2.contrato'
+      'and pc1.codigo_p1 > pc2.codigo_p2'
+      ''
+      ') as tot'
+      '         '
+      'group by codigo_p1, codigo_p2'
+      ''
+      'having count(*) > :QtCasadosporProduto'
+      ') as sel join produtos p1'
+      '             JOIN (((caracteristicas c1'
+      '                    JOIN (grupos g1'
+      '                          left JOIN gruposagendamentos ga1'
+      '                          ON g1.codigo = ga1.grupo) '
+      '                    ON c1.grupo = g1.codigo)'
+      '                    '
+      '                    JOIN classes cl1 ON c1.classe = cl1.codigo)'
+      '                    JOIN marcas m1 ON c1.marca = m1.codigo)'
+      ''
+      '             on p1.caracteristica = c1.codigo'
+      '         on sel.codigo_p1 = p1.codigo'
+      ''
+      ''
+      '         join produtos p2'
+      '             JOIN (((caracteristicas c2'
+      '                    JOIN (grupos g2 '
+      '                         left JOIN gruposagendamentos ga2'
+      
+        '                         ON g2.codigo = ga2.grupo)              ' +
+        '      '
+      '                    ON c2.grupo = g2.codigo)'
+      ''
+      '                    JOIN classes cl2 ON c2.classe = cl2.codigo)'
+      '                    JOIN marcas m2 ON c2.marca = m2.codigo)'
+      ''
+      '             on p2.caracteristica = c2.codigo'
+      ''
+      '         on sel.codigo_p2 = p2.codigo'
+      ''
+      'where true'
+      ''
+      '  %ListaCondicaoItemdeproduto'
+      '  %ListaCondicaoProduto'
+      '  %ListaCondicaoGrupo'
+      '  %ListaCondicaoClasse'
+      '  %ListaCondicaoMarca'
+      '  %ListaCondicaoPromocoes'
+      ''
+      'group by c1.grupo,'
+      '         g1.descricao,'
+      '         c1.classe,'
+      '         c1.marca,'
+      '         c2.grupo,'
+      '         g2.descricao,'
+      '         c2.classe,'
+      '         c2.marca'
+      ''
+      '')
+    RequestLive = True
+    Left = 56
+    Top = 200
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'1899-12-30'#39
+      end
+      item
+        DataType = ftString
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'1899-12-30'#39
+      end
+      item
+        DataType = ftString
+        Name = 'QtCasadosporProduto'
+        ParamType = ptUnknown
+        Value = '5'
+      end>
+    object qryGruposCasadosgrupo_p1: TStringField
+      DisplayLabel = 'Grupo '
+      FieldName = 'grupo_p1'
+      Size = 4
+    end
+    object qryGruposCasadosdescricaogrupo_p1: TStringField
+      DisplayLabel = 'Descri'#231#227'o do Grupo'
+      FieldName = 'descricaogrupo_p1'
+      Size = 30
+    end
+    object qryGruposCasadosclasse_p1: TStringField
+      DisplayLabel = 'Classe'
+      FieldName = 'classe_p1'
+      Size = 2
+    end
+    object qryGruposCasadosmarca_p1: TIntegerField
+      DisplayLabel = 'Marca'
+      FieldName = 'marca_p1'
+    end
+    object qryGruposCasadosgrupo_p2: TStringField
+      DisplayLabel = 'Grupo'
+      FieldName = 'grupo_p2'
+      Size = 4
+    end
+    object qryGruposCasadosdescricaogrupo_p2: TStringField
+      DisplayLabel = 'Descri'#231#227'o do Grupo'
+      FieldName = 'descricaogrupo_p2'
+      Size = 30
+    end
+    object qryGruposCasadosclasse_p2: TStringField
+      DisplayLabel = 'Classe'
+      FieldName = 'classe_p2'
+      Size = 2
+    end
+    object qryGruposCasadosmarca_p2: TIntegerField
+      DisplayLabel = 'Marca'
+      FieldName = 'marca_p2'
+    end
+    object qryGruposCasadosocorrencias: TLargeintField
+      DisplayLabel = 'Ocorr'#234'ncias'
+      FieldName = 'ocorrencias'
+    end
+    object qryGruposCasadosmarcar: TBooleanField
+      DisplayLabel = 'Marcar'
+      FieldName = 'marcar'
+    end
+  end
+  object dsrGruposCasados: TtecDataSource
+    DataSet = qryGruposCasados
+    Left = 96
+    Top = 176
+  end
+  object qrycrossgrupo_selling: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cg_s.*'
+      'from crossgrupo_selling cg_s'
+      'where (cg_s.grupo, cg_s.grupo_cross)'
+      'in  (('#39'0'#39','#39'0'#39'))')
+    RequestLive = True
+    Left = 264
+    Top = 192
+    object qrycrossgrupo_sellinggrupo: TStringField
+      FieldName = 'grupo'
+      Required = True
+      Size = 4
+    end
+    object qrycrossgrupo_sellinggrupo_cross: TStringField
+      FieldName = 'grupo_cross'
+      Required = True
+      Size = 4
+    end
+  end
+  object qrycrossgrupo_selling_repository: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cg_s.*'
+      'from crossgrupo_selling cg_s'
+      'where (cg_s.grupo, cg_s.grupo_cross)'
+      'in  ')
+    RequestLive = False
+    Left = 376
+    Top = 176
+  end
+end

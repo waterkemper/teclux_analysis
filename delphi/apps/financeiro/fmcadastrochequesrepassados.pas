@@ -1,0 +1,90 @@
+unit fmcadastrochequesrepassados;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, frcmc7, biblio,
+  ToolWin;
+
+type
+  TfrmCadastroChequesRepassados = class(TfrmCadastroPadrao)
+    fraCMC71: TfraCMC7;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+
+  end;
+
+var
+  frmCadastroChequesRepassados: TfrmCadastroChequesRepassados;
+
+implementation
+
+uses dmrepassecheques;
+
+{$R *.dfm}
+
+{ TfrmCadastroChequesRepassados }
+
+constructor TfrmCadastroChequesRepassados.Create(AOwner: TComponent);
+begin
+  inherited;
+  DataSet := dtmrepassecheques.qryChequesRepassados;
+end;
+
+destructor TfrmCadastroChequesRepassados.Destroy;
+begin
+
+  inherited;
+end;
+
+function TfrmCadastroChequesRepassados.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+    begin
+      dtmrepassecheques.IncluirChequesRepassados;
+    end;
+  end;
+      
+end;
+
+function TfrmCadastroChequesRepassados.InternoGravar: Boolean;
+var
+  vNumeroCheque : String;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+  begin
+    with fraCMC71 do
+//      vNumeroCheque := edtBanco.Text+edtAgencia.Text+edtConta.Text+edtCheque.Text;
+      vNumeroCheque := edtManual1.Text+edtManual2.Text+edtManual3.Text;
+
+    if vNumeroCheque<>'' then
+      dtmrepassecheques.GravarChequesRepassados(vNumeroCheque)
+    else
+      MensagemAviso('Número do cheque não preenchido');  
+  end;
+end;
+
+function TfrmCadastroChequesRepassados.InternoIncluir: Boolean;
+begin
+  dtmrepassecheques.IncluirChequesRepassados;
+  with fraCMC71 do
+  begin
+    edtCMC7.clear;
+    edtManual1.Clear;
+    edtManual2.clear;
+    edtManual3.clear;
+  end;
+end;
+
+end.

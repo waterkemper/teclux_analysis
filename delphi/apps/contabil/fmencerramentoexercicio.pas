@@ -1,0 +1,201 @@
+unit fmencerramentoexercicio;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmajudabt, ComCtrls, Buttons, ExtCtrls, frconsulta, frconsultacodigo,
+  StdCtrls, Mask, cpdata, clparametrossistema, ctconstantes, DBCtrls,
+  cpdbtext, Windows, {Qete,} DB, ZQuery, ZPgSqlQuery, cpquery, DateUtils, clusuario,
+  biblio, math, dmlancamentocontabilidade, dmencerramentoexercicio,
+  frconsultacontabil, frconsultacodigocontabil, ToolWin;
+
+type
+  TfrmEncerramentoExercicio = class(TfrmAjudaBt)
+    gbxContaResultadoSintetica: TGroupBox;
+    gbxContaResultadoAnalitica: TGroupBox;
+    gbxHistorico: TGroupBox;
+    pnlFilialMes: TPanel;
+    gbxFilial: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigo;
+    gbxMes: TGroupBox;
+    edtMesAno: TEditMesAno;
+    fraConsultaContaResultadoSintetica: TfraConsultaCodigoContabil;
+    dtxClassificacaoContaResultadoSintetica: TtecDBText;
+    dtxClassificacaoContaResultadoAnalitica: TtecDBText;
+    fraConsultaContaResultadoAnalitica: TfraConsultaCodigoContabil;
+    fraConsultaHistorico: TfraConsultaCodigoContabil;
+    sbnGerar: TSpeedButton;
+    sbnExcluir: TSpeedButton;
+    procedure fraConsultaFilialedfCodigoExit(Sender: TObject);
+    procedure fraConsultaContaResultadoSinteticaedfCodigoExit(
+      Sender: TObject);
+    procedure edtMesAnoExit(Sender: TObject);
+    procedure fraConsultaContaResultadoAnaliticaedfCodigoExit(
+      Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure sbnExcluirClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure ExibirMesAnoExercicioFilial(Found: Boolean);
+    procedure VerificarCamposPreenchidos;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); Override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmEncerramentoExercicio: TfrmEncerramentoExercicio;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmEncerramentoExercicio }
+
+constructor TfrmEncerramentoExercicio.Create(AOwner: TComponent);
+begin
+  dtmEncerramentoExercicio := TdtmEncerramentoExercicio.Create(self);
+  inherited;
+  fraConsultaFilial.SomenteFiliaisUsuario :=
+      ParSistema.RelatorioSomenteFiliaisAutorizadas;
+  fraConsultaFilial.OnFound := ExibirMesAnoExercicioFilial;
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+  fraConsultaContaResultadoSintetica.TipoContaContabilDebitoSelecionavel := 'S';
+  fraConsultaContaResultadoSintetica.TipoPesquisa := pesCONTADEBITO;
+  fraConsultaContaResultadoAnalitica.TipoContaContabilCreditoSelecionavel := 'A';
+  fraConsultaContaResultadoAnalitica.TipoPesquisa := pesCONTACREDITO;
+  fraConsultaHistorico.TipoPesquisa := pesHISTORICOCONTABIL;
+  edtMesAno.Text := '12/'+inttostr(ParSistema.EXERCICIOCONTABILIDADE);
+end;
+
+destructor TfrmEncerramentoExercicio.Destroy;
+begin
+  inherited;
+  if assigned(dtmlancamentocontabilidade) then
+    dtmLancamentoContabilidade := nil;
+  frmEncerramentoExercicio := nil;
+end;
+
+procedure TfrmEncerramentoExercicio.ExibirMesAnoExercicioFilial(Found: Boolean);
+begin
+  edtMesAno.Text := '12/'+fraConsultaFilial.edfCodigo.DataSource.DataSet.fieldbyname('exercicio').asstring;
+  fraConsultaContaResultadoSintetica.edfCodigo.Text := fraConsultaFilial.edfCodigo.DataSource.DataSet.fieldbyname('ResultadoSintetica').asstring;
+  if fraConsultaContaResultadoSintetica.edfCodigo.Text <> '' then
+    fraConsultaContaResultadoSintetica.edfCodigo.Exist;
+
+  fraConsultaContaResultadoAnalitica.edfCodigo.Text := fraConsultaFilial.edfCodigo.DataSource.DataSet.fieldbyname('ResultadoAnalitica').asstring;
+  if fraConsultaContaResultadoAnalitica.edfCodigo.Text<> '' then
+    fraConsultaContaResultadoAnalitica.edfCodigo.exist;
+
+  fraConsultaHistorico.edfCodigo.Text := fraConsultaFilial.edfCodigo.DataSource.DataSet.fieldbyname('HistoricoEncerramento').asstring;
+  if fraConsultaHistorico.edfCodigo.Text <> '' then
+    fraConsultaHistorico.edfCodigo.exist;
+  VerificarCamposPreenchidos;  
+end;
+
+procedure TfrmEncerramentoExercicio.VerificarCamposPreenchidos;
+begin
+  sbngerar.Enabled := (fraConsultaFilial.edfCodigo.Text<>'') and
+                         (fraConsultaContaResultadoSintetica.edfCodigo.Text<>'') and
+                         (fraConsultaContaResultadoAnalitica.edfCodigo.Text<>'') and
+                         (length(trim(edtMesAno.Text))=7);
+  sbnexcluir.enabled := sbngerar.enabled;                         
+end;
+
+procedure TfrmEncerramentoExercicio.fraConsultaFilialedfCodigoExit(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaFilial.edfCodigoExit(Sender);
+  VerificarCamposPreenchidos;
+end;
+
+procedure TfrmEncerramentoExercicio.fraConsultaContaResultadoSinteticaedfCodigoExit(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaContaResultadoSintetica.edfCodigoExit(Sender);
+  VerificarCamposPreenchidos;
+end;
+
+procedure TfrmEncerramentoExercicio.edtMesAnoExit(Sender: TObject);
+begin
+  inherited;
+  VerificarCamposPreenchidos;
+end;
+
+procedure TfrmEncerramentoExercicio.fraConsultaContaResultadoAnaliticaedfCodigoExit(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaContaResultadoAnalitica.edfCodigoExit(Sender);
+  VerificarCamposPreenchidos;
+end;
+
+procedure TfrmEncerramentoExercicio.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  case key of
+  VK_F5: if sbnGerar.Enabled then sbnGerarClick(nil);
+  VK_F6: if sbnExcluir.Enabled then sbnExcluirClick(nil);
+  end;
+end;
+
+procedure TfrmEncerramentoExercicio.sbnGerarClick(Sender: TObject);
+var
+ dia, mes, ano: word;
+begin
+  if not assigned(dtmlancamentocontabilidade) then
+    dtmLancamentoContabilidade := TdtmLancamentoContabilidade.Create(self);
+
+  if dtmLancamentoContabilidade.ObterAutorizacaodoUsuario then
+  begin
+    try
+      Refresh;
+      sbnGerar.Enabled := false;
+      decodedate(strtodate('01/'+edtMesAno.Text), ano, mes, dia);
+      dia := DaysInMonth(EncodeDate(ano,mes,dia));
+
+      dtmEncerramentoExercicio.GerarLancamentos(strtoint(fraConsultaFilial.edfCodigo.text),
+                                                  EncodeDate(ano,mes,dia),
+                                                  strtoint(fraConsultaContaResultadoSintetica.edfCodigo.text),
+                                                  strtoint(fraConsultaContaResultadoAnalitica.edfCodigo.text),
+                                                  fraConsultaHistorico.qryProcuraHistoricocodigo.AsInteger);
+    finally
+      dtmLancamentoContabilidade.atualizarparametros(
+                    dtmEncerramentoExercicio.qryGerarLancamentosEncerramento.ParamByName('filial').AsInteger,
+                    dtmEncerramentoExercicio.qryGerarLancamentosEncerramento.ParamByName('ResultadoSintetica').AsInteger,
+                    dtmEncerramentoExercicio.qryGerarLancamentosEncerramento.ParamByName('ResultadoAnalitica').AsInteger,
+                    dtmEncerramentoExercicio.qryGerarLancamentosEncerramento.ParamByName('Historico').asinteger);
+      sbnGerar.Enabled := true;
+    end;
+  end
+end;
+
+procedure TfrmEncerramentoExercicio.sbnExcluirClick(Sender: TObject);
+var
+ dia, mes, ano: word;
+begin
+  if not assigned(dtmlancamentocontabilidade) then
+    dtmLancamentoContabilidade := TdtmLancamentoContabilidade.Create(self);
+
+  if dtmLancamentoContabilidade.ObterAutorizacaodoUsuario then
+  begin
+    try
+      Refresh;
+      sbnExcluir.Enabled := false;
+      decodedate(strtodate('01/'+edtMesAno.Text), ano, mes, dia);
+      dia := DaysInMonth(EncodeDate(ano,mes,dia));
+      dtmEncerramentoExercicio.ExcluirLancamentos(strtoint(fraConsultaFilial.edfCodigo.text),EncodeDate(ano,mes,dia));
+    finally
+      sbnExcluir.Enabled := true;
+    end;
+  end
+end;
+
+
+end.

@@ -1,0 +1,390 @@
+unit fmGerarCobrancaBancaria;
+
+interface
+
+uses
+  SysUtils, Windows, FileCtrl, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Grids, DBGrids,  ComCtrls, Buttons, {Qete,}
+  //Repositorio
+  fmAjudaBt,
+  //Projeto
+  dmGerarCobrancaBancaria, frlancamentocontabilidade, dmlancamentocontabilidade,
+  //Tecsoft
+  cpdbgrid, cpdata, frconsulta, frconsultacodigo,
+  //Biblio
+  ACBrBoleto,
+  Biblio, ctconstantes, ExtCtrls, cptexto, cpdbradiogroup, ToolWin,
+  DBCtrls, cpdbtext, Mask, cpdbfindcontrols, clParametrosSistema;
+
+type
+  TfrmGerarCobrancaBancaria = class(TfrmAjudaBt)
+    gbxPeriodo: TGroupBox;
+    edtPeriodoInicial: TEditData;
+    edtPeriodoFinal: TEditData;
+    gbxEmpreendimento: TGroupBox;
+    fraConsultaEmpreendimento: TfraConsultaCodigo;
+    sbnGravar: TSpeedButton;
+    sbnGerarParcelas: TSpeedButton;
+    gbxDiretorio: TGroupBox;
+    sbnDiretorioArquivos: TSpeedButton;
+    lblDiretorio: TLabel;
+    pnlMensagens: TPanel;
+    ckbSelecionartodos: TCheckBox;
+    OdgArquivoRetorno: TOpenDialog;
+    pgcGrids: TPageControl;
+    tstDadosGerados: TTabSheet;
+    tstDadosRetorno: TTabSheet;
+    dbgClientesSelecao: TtecDBGrid;
+    dbgDadosRetorno: TtecDBGrid;
+    pnlCampoMaior: TPanel;
+    pnlEndereco: TPanel;
+    lblEndereco40Caracteres: TLabel;
+    lblA: TLabel;
+    rgpFuncao: TtecDBRadioGroup;
+    rbnRemessa: TtecRadioButton;
+    rbnRetorno: TtecRadioButton;
+    sbnImprimirContrato: TSpeedButton;
+    pnlParcela: TPanel;
+    gbxParcelas: TGroupBox;
+    pnlCores: TPanel;
+    pnlErro: TPanel;
+    pnlOutrasOperacoes: TPanel;
+    lblErro: TLabel;
+    lblOutrasOperacoes: TLabel;
+    pnlParametros: TPanel;
+    gbxConta: TGroupBox;
+    sbnProcurarConta: TSpeedButton;
+    Label4: TLabel;
+    edfConta: TtecDbEditFind;
+    dtxDigito: TtecDBText;
+    gbxSiglaBanco: TGroupBox;
+    dtxSigla: TtecDBText;
+    gbxNomeAgencia: TGroupBox;
+    dtxNomeAgencia: TtecDBText;
+    procedure sbnGerarParcelasClick(Sender: TObject);
+    procedure sbnDiretorioArquivosClick(Sender: TObject);
+    procedure sbnGravarClick(Sender: TObject);
+    procedure dbgClientesSelecaoDblClick(Sender: TObject);
+    procedure ckbSelecionartodosClick(Sender: TObject);
+    procedure dbgClientesSelecaoDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgDadosRetornoDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure rbnRemessaClick(Sender: TObject);
+    procedure rbnRetornoClick(Sender: TObject);
+    procedure sbnImprimirContratoClick(Sender: TObject);
+    procedure dbgDadosRetornoDblClick(Sender: TObject);
+  private
+    FDataInicial: String;
+    FDataFinal: String;
+    FEmpreendimento: String;
+    FNomeEmpreendimento: String;
+    FAcao: String;
+    LancamentosContabeis : TfraLancamentoContabilidade;
+    function Validardata(DF, DI : String): String;
+    { Private declarations }
+  protected
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    property Empreendimento : String read FEmpreendimento write FEmpreendimento;
+    property NomeEmpreendimento : String read FNomeEmpreendimento write FNomeEmpreendimento;
+    property DataInicial : String read FDataInicial write FDataInicial;
+    property DataFinal : String read FDataFinal write FDataFinal;
+    property Acao      : String read FAcao write FAcao;
+  end;
+
+var
+  frmGerarCobrancaBancaria: TfrmGerarCobrancaBancaria;
+
+implementation
+
+uses DB, dmbasico;
+
+{$R *.dfm}
+
+{ TfrmGerarCobrancaBancaria }
+
+constructor TfrmGerarCobrancaBancaria.Create(AOwner: TComponent);
+begin
+  dtmGerarCobrancaBancaria:= TdtmGerarCobrancaBancaria.Create(Self);
+  inherited;
+  dtmGerarCobrancaBancaria.Abre(ctConsultaTabelas);
+  edtPeriodoInicial.Text:= DateToStr(PrimeiroDiaMes(DataLocal));
+  edtPeriodoFinal.  Text:= DateToStr(UltimoDiaMes  (DataLocal));
+  fraConsultaEmpreendimento.TipoPesquisa := pesEMPREENDIMENTOS;
+  lblDiretorio.Caption:= ExtractFilePath(Application.ExeName) + 'Remessa\';
+  sbnGravar.Enabled:= False;
+  sbnImprimirContrato.Enabled:= False;
+  FAcao:= 'G';
+
+  pgcGrids.     ActivePage:= tstDadosGerados;
+  pnlCores.     Visible   := False;
+  pnlCampoMaior.Visible   := False;
+
+  with dtmGerarCobrancaBancaria do begin
+     RefazConsulta(qryContas,  [0], [ParSistema.ContaEmissaoBoleto]);
+     ReFazConsulta(qryFiliais, [0], [FilialBase]);
+  end;
+
+end;
+
+
+
+procedure TfrmGerarCobrancaBancaria.sbnGerarParcelasClick(Sender: TObject);
+var Arquivo, Datas: String;
+    CodigoBanco: Integer;
+begin
+   inherited;
+   Arquivo:= lblDiretorio.Caption;
+   if rbnRemessa.Checked then with dtmGerarCobrancaBancaria do begin
+      FDataInicial:= edtPeriodoInicial.Text;
+      FDataFinal  := edtPeriodoFinal.  Text;
+      DataInicial := edtPeriodoInicial.Text;
+      DataFinal   := edtPeriodoFinal.  Text;
+
+      FEmpreendimento    := fraConsultaEmpreendimento.edfCodigo.Text;
+      FNomeEmpreendimento:= fraConsultaEmpreendimento.qryProcuraEmpreendimentosnome.AsString;
+      Datas:= Validardata(FDataFinal, FDataInicial);
+      if Datas = 'OK' then begin
+         if not ConsultarClientes(FEmpreendimento, FDataInicial, FDataFinal) then begin
+            MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']));
+            fraConsultaEmpreendimento.edfCodigo.SetFocus;
+         end
+         else pnlCampoMaior.Visible:= ExisteEnderecoTamanhoMaior40;
+      end
+      else if Datas = 'B' then begin
+              MensagemAviso(ctDATAEMBRACO);
+              edtPeriodoInicial.SetFocus;
+           end
+           else if Datas = 'M' then begin
+                   MensagemAviso(Format(ctDATAMENOR,['Final','Inicial']));
+                   edtPeriodoInicial.SetFocus;
+                end;
+      sbnGravar.Enabled:=  not dtmGerarCobrancaBancaria.qryContratosParcelas.IsEmpty;
+   end
+   else if rbnRetorno.Checked then with dtmGerarCobrancaBancaria do begin
+           if FileExists(Arquivo) then begin
+              CodigoBanco:= qryContasBanco.AsInteger;
+              case qryContasBanco.AsInteger of
+                104: ProcessarArquivoRetornoCEF (Arquivo);          {CEF - Caixa Econômica Ferderal}
+                341: ProcessarArquivoRetornoACBr(Arquivo);          {Banco ITAÚ}
+             end;
+             sbnGravar.          Enabled:= not qryDadosRetorno.IsEmpty;
+             sbnImprimirContrato.Enabled:= not qryDadosRetorno.IsEmpty;
+           end
+           else MensagemAviso(ctARQUIVOINEXISTENTE);
+        end;
+end; {sbnGerarParcelasClick}
+
+
+
+
+procedure TfrmGerarCobrancaBancaria.sbnDiretorioArquivosClick(Sender: TObject);
+var Dir : String;
+begin
+   inherited;
+   if FAcao = 'G' then begin
+      if SelectDirectory('Selecionar diretório para' + CrLf +
+                         'armazenar o arquivo de remessa:', '', Dir) then begin
+         Dir:= DIR;
+         lblDiretorio.Caption:= Dir + '\';
+      end;
+      edtPeriodoInicial.SetFocus;
+   end
+   else if FAcao = 'R' then begin
+           OdgArquivoRetorno.InitialDir:= ExtractFilePath(Application.ExeName) + 'Retorno';
+           if OdgArquivoRetorno.Execute then begin
+              sbnGerarParcelas.Enabled:= True;
+              lblDiretorio.Caption:= OdgArquivoRetorno.FileName;
+              sbnGerarParcelasClick(Self);
+           end;
+        end;
+end;
+
+procedure TfrmGerarCobrancaBancaria.sbnGravarClick(Sender: TObject);
+var Arquivo:     String;
+    NomeArquivo: String;
+    Msg:         String;
+    PadraoCNAB:  TACBrLayoutRemessa;
+
+begin
+   inherited;
+   Arquivo:= lblDiretorio.Caption;
+   if rbnRemessa.Checked then
+   with dtmGerarCobrancaBancaria do
+   begin
+      case qryContasBanco.AsInteger of
+         104:  begin                                                 {CEF - Caixa Econômica Federal}
+                  if FileExists(lblDiretorio.Caption)
+                  then if MessageDlg('O arquivo  ' + lblDiretorio.Caption + ' já existe. Recriá-lo?',
+                                      mtConfirmation, mbYesNoCancel, 0) <> mrYes
+                       then Exit;
+                  GerarArquivosRemessa(Arquivo, FNomeEmpreendimento);
+               end;
+
+          else begin
+                  if qryContasPadraoCNAB.AsString = '2' then PadraoCNAB:= c240
+                                                        else PadraoCNAB:= c400;
+                  case qryContasBanco.AsInteger of
+                  341: GerarArquivoACBrCNAB(PadraoCNAB, lblDiretorio.Caption);                {Itaú}
+                  end;
+               end;
+      end;
+   end
+   else if rbnRetorno.Checked then begin
+           if dtmGerarCobrancaBancaria.GravarParcelas then begin
+              NomeArquivo:= ExtractFileName(OdgArquivoRetorno.FileName);
+              NomeArquivo:= ChangeFileExt(NomeArquivo,'.PRC');
+              if not (RenameFile(OdgArquivoRetorno.FileName, NomeArquivo))
+              then raise Exception.Create('Não foi possível renomear o arquivo');
+              sbnGravar.       Enabled:= False;
+              sbnGerarParcelas.Enabled:= False;
+
+              if dtmGerarCobrancaBancaria.NrErrosDetectados = 0
+              then MensagemAviso('Arquivo de retorno processado com sucesso!')
+              else if dtmGerarCobrancaBancaria.NrErrosDetectados = 1
+                   then MensagemErro('Foi detectado 1 erro no processamento')
+                   else MensagemErro('Foram detectados ' +
+                                     IntToStr(dtmGerarCobrancaBancaria.NrErrosDetectados) +
+                                     ' erros no processamento');
+           end;
+        end;
+end;
+
+procedure TfrmGerarCobrancaBancaria.dbgClientesSelecaoDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmGerarCobrancaBancaria.MarcarSelecionados(ckbSelecionartodos.Checked, False);
+end;
+
+procedure TfrmGerarCobrancaBancaria.ckbSelecionartodosClick(Sender: TObject);
+begin
+  inherited;
+  dtmGerarCobrancaBancaria.MarcarSelecionados(ckbSelecionartodos.Checked, True);
+end;
+
+procedure TfrmGerarCobrancaBancaria.dbgClientesSelecaoDrawColumnCell(Sender: TObject;
+const Rect: TRect; DataCol: Integer; Column: TColumn;State: TGridDrawState);
+begin
+  inherited;
+  if TDBGrid(Sender).DataSource.DataSet.FieldByName('campomaior').AsBoolean then
+  begin
+    TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    TDBGrid(Sender).Canvas.Font.Style  := [fsBold];
+  end;
+
+  if TDBGrid(Sender).DataSource.DataSet.FieldByName('selecionado').AsBoolean then
+  begin
+    TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmGerarCobrancaBancaria.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = VK_F6 then
+    sbnGerarParcelasClick(Self);
+  if key = VK_F5 then
+  begin
+    if sbnGravar.Enabled then
+      sbnGravarClick(Self);
+  end
+end;
+
+procedure TfrmGerarCobrancaBancaria.dbgDadosRetornoDrawColumnCell(Sender: TObject;
+const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+begin
+  inherited;
+  if (TDBGrid(Sender).DataSource.DataSet.FieldByName('erro').AsBoolean)  then
+  begin
+    TDBGrid(Sender).Canvas.Brush.Color := clRed;
+    TDBGrid(Sender).Canvas.Font.Color  := clWhite;
+  end
+  else if (TDBGrid(Sender).DataSource.DataSet.FieldByName('Outras').AsBoolean)  then
+  begin
+    TDBGrid(Sender).Canvas.Brush.Color := $0095C2D9;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmGerarCobrancaBancaria.rbnRemessaClick(Sender: TObject);
+begin
+  inherited;
+  FAcao:= 'G';
+  lblDiretorio.Caption:= ExtractFilePath(Application.ExeName)+'Remessa\';
+  gbxDiretorio.Caption:= ' DIRETÓRIO ';
+  gbxEmpreendimento.Enabled:= True;
+  ckbSelecionartodos.Visible:= True;
+  pnlCores.Visible:= False;
+  pnlCampoMaior.Visible:= True;
+  if dtmGerarCobrancaBancaria.qryContratosParcelas.RecordCount > 0 then
+    sbnGravar.Enabled:= True
+  else
+    sbnGravar.Enabled:= False;
+  sbnGerarParcelas.Enabled:= True;
+  fraConsultaEmpreendimento.Enabled:= True;
+  gbxPeriodo.Enabled:= True;
+  sbnImprimirContrato.Enabled:= false;
+  pgcGrids.ActivePage:= tstDadosGerados;
+  sbnDiretorioArquivos.Caption:= ' DIRETÓRIO ';
+end;
+
+procedure TfrmGerarCobrancaBancaria.rbnRetornoClick(Sender: TObject);
+begin
+  inherited;
+  FAcao:= 'R';
+  sbnGravar.Enabled:= False;
+  sbnGerarParcelas.Enabled:= True;
+  gbxDiretorio.Caption:= ' ARQUIVO DE RETORNO ';
+  fraConsultaEmpreendimento.Enabled:= False;
+  gbxPeriodo.Enabled:= False;
+  gbxEmpreendimento.Enabled:= False;
+  ckbSelecionartodos.Visible:= False;
+  pnlCores.Visible:= True;
+  pnlCampoMaior.Visible:= False;
+  pgcGrids.ActivePage:= tstDadosRetorno;
+  sbnDiretorioArquivos.Caption:= ' ARQUIVO ';
+end;
+
+procedure TfrmGerarCobrancaBancaria.sbnImprimirContratoClick(Sender: TObject);
+begin
+  inherited;
+  dtmGerarCobrancaBancaria.ImprimirRelatorio;
+end;
+
+procedure TfrmGerarCobrancaBancaria.dbgDadosRetornoDblClick(Sender: TObject);
+begin
+  inherited;
+  with dtmGerarCobrancaBancaria do
+  begin
+    qryDadosRetorno.DisableControls;
+    if (qryDadosRetornoerro.AsBoolean) then
+      MensagemErro(qryDadosRetornodescerro.AsString)
+    else if (qryDadosRetornooutras.AsBoolean) then
+      MensagemAviso(qryDadosRetornodescerro.AsString+#10#13+
+                    'Operação: '+qryDadosRetornodesccricaomov.AsString);
+    qryDadosRetorno.EnableControls;
+  end;
+
+end;
+
+function TfrmGerarCobrancaBancaria.Validardata(DF, DI: String): String;
+begin
+  Result:= 'OK';
+  if not ((DI <> '') and (DF <> '')) then
+    Result:= 'B'
+  else if (strtodate(DF) < strtodate(DI)) then
+    Result:= 'M';
+end;
+
+
+
+end.

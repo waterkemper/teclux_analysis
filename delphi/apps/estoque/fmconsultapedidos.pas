@@ -1,0 +1,432 @@
+unit fmconsultapedidos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Grids, DBGrids, Buttons, Mask, DBCtrls, ExtCtrls, Windows,
+  DateUtils,
+  // Repositorio
+  fmajudabt, fmconsultaporcampo, fmconsultabasica,
+  // Constantes
+  ctconstantes, biblio,
+  // Terceiros
+  ZQuery, clparametrossistema,
+  // Componentes
+  cpnumero, cpdbfindcontrols, cpdbgrid, cpdbtext, cpdata,
+  cpeditioncontrolvalidation, ComCtrls, cpdbradiogroup, ToolWin,
+  frselecaoaleatoriaclientes, frselecaoaleatoriagruposfornecedores,
+  frmultiplaselecaoaleatoria, fmPrincipalBasico, CheckLst, frlistafiliais;
+
+type
+  TfrmConsultaPedidos = class(TfrmAjudaBt)
+    sbnGerar: TSpeedButton;
+    ecvValida: TtecEditionControlValidation;
+    Shape2: TShape;
+    pnlFundoJanela: TPanel;
+    dbgPedidos: TtecDBGrid;
+    dbgNotasPag: TtecDBGrid;
+    gbxSituacoes: TGroupBox;
+    shpPromocao: TShape;
+    lblLegendaPromocao: TLabel;
+    Shape3: TShape;
+    lblForaLinhaIntaivo: TLabel;
+    Shape4: TShape;
+    Label3: TLabel;
+    Shape1: TShape;
+    Label1: TLabel;
+    gbxNotasEntrada: TGroupBox;
+    Label11: TLabel;
+    Shape6: TShape;
+    pnlBottom: TPanel;
+    sttTotal: TStaticText;
+    DBText1: TDBText;
+    pgcConsultaPedidos: TPageControl;
+    tstDados: TTabSheet;
+    tstParametros: TTabSheet;
+    gbxPeriodo: TGroupBox;
+    lblDataInicial: TLabel;
+    lblDataFinal: TLabel;
+    edtDataInicial: TEditData;
+    edtDataFinal: TEditData;
+    rgbOrdenar: TtecDBRadioGroup;
+    ckbPedido: TtecRadioButton;
+    cknFornecedor: TtecRadioButton;
+    ckbProduto: TtecRadioButton;
+    ckbEmissao: TtecRadioButton;
+    ckbSituacao: TtecRadioButton;
+    pnlTopParametros: TPanel;
+    gbxSelecoesAleatorias: TGroupBox;
+    pgcMultiplasSelecoes: TPageControl;
+    tstMultiplasSelecoesProdutos: TTabSheet;
+    fraMultiplaSelecaoAleatoriAProdutos: TfraMultiplaSelecaoAleatoria;
+    tstMultiplasSelecoesFornecedores: TTabSheet;
+    fraSelecaoAleatoriaFornecedores: TfraSelecaoAleatoriaClientes;
+    tstMultiplasSelecoesGrupoFornecedores: TTabSheet;
+    fraSelecaoAleatoriagruposfornecedores: TfraSelecaoAleatoriagruposfornecedores;
+    sbnImprimir: TSpeedButton;
+    lblLegenda: TLabel;
+    ckbSelecionarTodos: TCheckBox;
+    sbnAbrirPedido: TSpeedButton;
+    Timer1: TTimer;
+    ckbSituacoes: TCheckListBox;
+    gbxSituacao: TGroupBox;
+    fraListaFiliais1: TfraListaFiliais;
+    procedure sbnGerarClick(Sender: TObject);
+    procedure edfProdutosEnter(Sender: TObject);
+    procedure dbgPedidosTitleClick(Column: TColumn);
+    procedure edtDataFinalEnter(Sender: TObject);
+    procedure dbgPedidosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure pgcConsultaPedidosChange(Sender: TObject);
+    procedure ckbSelecionarTodosClick(Sender: TObject);
+    procedure dbgPedidosDblClick(Sender: TObject);
+    procedure dbgPedidosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure sbnAbrirPedidoClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+  private
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+  protected
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; value: variant): Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  ValidarControles: Boolean;
+    procedure MarcarSelecionados(Todos: Boolean);
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmConsultaPedidos: TfrmConsultaPedidos;
+  ControleValido: TWinControl;
+  TipoPesquisa: TtecConsultaPedidos;
+  Ctr1, Ctr2: Integer;
+
+implementation
+
+uses dmconsultamodulopedidos, dmconsultaestoque, dmconsultacompras;
+
+{$R *.dfm}
+
+constructor TfrmConsultaPedidos.Create(AOwner: TComponent);
+begin
+  dtmConsultaPedidos := TdtmConsultaPedidos.Create(Self);
+  inherited;
+  edtDataInicial.Text := DateToStr(SemanaPassada(Date));
+  edtDataFinal.Text   := DateToStr(Date);
+  Ctr1:= 1;
+  Ctr2:= 1;
+  dbgPedidos.Columns[6].Visible := ParSistema.UsarGradesProdutos;
+  dbgPedidos.Columns[7].Visible := ParSistema.UsarGradesProdutos;
+  dtmConsultaPedidos.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  dbgPedidos.Columns[8].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  fraSelecaoAleatoriaFornecedores.fraSelecaoAleatoriaCliente.ConsultaSelecaoAleatoria.TipoCliente := 'F';
+
+  sbnImprimir.Enabled := False;
+  sbnAbrirPedido.Enabled := False;
+
+
+  SetarActivePage(self);
+end;
+
+destructor TfrmConsultaPedidos.Destroy;
+begin
+  dtmConsultaPedidos:=nil;
+  inherited;
+  frmConsultaPedidos := nil;
+end;
+
+function TfrmConsultaPedidos.InternoPesquisar(Titulo:String): Integer;
+begin
+  Result:= mrNone;
+  with dtmConsultaPedidos do begin
+    if CtrlOn then
+        TipoPesquisa:= tpcNENHUM;
+        
+    if TipoPesquisa <> tpcNENHUM then begin
+      AbrirTabelas(TipoPesquisa);
+      Result := inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FecharTabelas(TipoPesquisa);
+    end;
+  end
+end;
+
+function TfrmConsultaPedidos.JanelaPesquisa;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  if TipoPesquisa = tpcCARACTERISTICA then
+       TfrmConsultaPorCampo(Result).ConsultaInterativa := False
+  else TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+end;
+
+function TfrmConsultaPedidos.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoPesquisa of
+     tpcCARACTERISTICA: Result:= dtmConsultaPedidos.ExisteCaracteristica(NomeCampo, Value);
+         tpcFORNECEDOR: Result:= dtmConsultaPedidos.ExisteFornecedor(NomeCampo, Value);
+         else           Result:= False;
+  end;
+end;
+
+function TfrmConsultaPedidos.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoPesquisa of
+     tpcCARACTERISTICA: Result:= dtmConsultaPedidos.ConsultarCaracteristica;
+         tpcFORNECEDOR: Result:= dtmConsultaPedidos.ConsultarFornecedor;
+         else           Result:= Nil;
+  end;
+end;
+
+function TfrmConsultaPedidos.ValidarControles: Boolean;
+begin
+  {
+  Result := False;
+  if ecvValida.Verify(gbxPedidos,ControleValido) then begin
+    Result:= OperadorTernario(edfProdutos.Text <> '',edfProdutos.Exist, True) and
+             OperadorTernario(edfFornecedor.Text <> '', edfFornecedor.Exist, True)
+  end;
+  }
+  result := true;
+end;
+
+procedure TfrmConsultaPedidos.sbnGerarClick(Sender: TObject);
+  function RetornarSituacoesmarcadas: String;
+  var
+    i: integer;
+  begin
+    result := '';
+    for i:=0 to ckbSituacoes.count-1 do
+    begin
+      if ckbSituacoes.Checked[i] then
+      begin
+        case i of
+        0: result := result + QuotedStr('A')+',';
+        1: result := result + QuotedStr('P')+',';
+        2: result := result + QuotedStr('Q')+',';
+        3: result := result + QuotedStr('L')+',';
+        4: result := result + QuotedStr('C')+',';
+        end;
+      end;
+    end;
+
+    if result <> '' then
+      delete(result, length(result),1)
+  end;
+
+begin
+  if ValidarControles then
+  with dtmConsultaPedidos do
+  begin
+    Fornecedor := fraSelecaoAleatoriaFornecedores.ListaCondicional;
+
+    ItemdeProdutos := fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional;
+    produtos := fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriaprodutos.ListaCondicional;
+    gruposprodutos := fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatoriagruposprodutos.ListaCondicional;
+    classesprodutos := fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatoriaclassesprodutos.ListaCondicional;
+    marcasProdutos := fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriamarcasProdutos.ListaCondicional;
+    GruposFornecedores := fraSelecaoAleatoriaGruposFornecedores.ListaCondicional;
+    promocoes := fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatoriapromocoes.ListaCondicional;
+    ListadeFiliais := fraListaFiliais1.ListaSelecionada;
+
+    DataInicial:= edtDataInicial.Text;
+    DataFinal  := edtDataFinal.Text;
+
+    Situacao   := RetornarSituacoesMarcadas;
+
+    Ordenacao  := rgbOrdenar.ItemIndex;
+    
+    if ConsultarPedido then
+      MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']))
+    else
+    begin
+      pgcConsultaPedidos.activepage := tstdados;
+      pgcConsultaPedidosChange(nil);
+      ckbSelecionarTodos.checked := False;
+      dbgPedidos.SetFocus;
+    end;
+  end;
+end;
+
+procedure TfrmConsultaPedidos.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+       VK_F6: if sbnGerar.enabled    then sbnGerar.Click;
+       VK_F7: if sbnImprimir.enabled then sbnImprimir.Click;
+       VK_F8: if sbnAbrirPedido.enabled then sbnAbrirPedido.Click;
+   VK_Escape: dtmConsultaPedidos.FecharTabelaConsulta;
+  end;
+  inherited;
+end;
+
+procedure TfrmConsultaPedidos.edfProdutosEnter(Sender: TObject);
+begin
+  if Assigned(dtmConsultaPedidos)then
+    dtmConsultaPedidos.Fecha(ctConsultaPedidos);
+end;
+
+procedure TfrmConsultaPedidos.dbgPedidosTitleClick(Column: TColumn);
+begin
+  inherited;
+  if AltOn then
+  begin
+    if Column.Index = 1 then begin
+      if Ctr1 = 1 then
+           Inc(Ctr1)
+      else Ctr1:= 1;
+      case Ctr1 of
+        1: begin
+             dbgPedidos.Columns[1].Title.Caption:= 'Emissão...';
+             dbgPedidos.Columns[1].FieldName    := 'emissao';
+           end;
+        2: begin
+             dbgPedidos.Columns[1].Title.Caption:= 'Entrega...';
+             dbgPedidos.Columns[1].FieldName    := 'entrega';
+           end;
+      end
+    end
+    else if Column.Index = 7 then begin
+      if Ctr2 = 1 then
+           Inc(Ctr2)
+      else Ctr2:= 1;
+      case Ctr2 of
+        1: begin
+             dbgPedidos.Columns[8].Title.Caption:= 'Qtde...';
+             dbgPedidos.Columns[8].FieldName    := 'quantidade';
+           end;
+        2: begin
+             dbgPedidos.Columns[8].Title.Caption:= 'Rec...';
+             dbgPedidos.Columns[8].FieldName    := 'recebido';
+           end;
+      end
+    end;
+  end;
+
+end;
+
+procedure TfrmConsultaPedidos.edtDataFinalEnter(Sender: TObject);
+begin
+  inherited;
+  if edtDataInicial.Text <> '' then
+    edtDataFinal.Minimo:= DaysBetween(dtmConsultaPedidos.DataServidor,StrToDate(edtDataInicial.Text))
+end;
+
+procedure TfrmConsultaPedidos.AfterScrollLinhaColunaGrade(Sender: TObject);
+begin
+  dbgPedidos.Columns[6].Title.Caption := dtmConsultaPedidos.LinhadaGrade;
+  dbgPedidos.Columns[7].Title.Caption := dtmConsultaPedidos.ColunadaGrade;
+end;
+
+procedure TfrmConsultaPedidos.dbgPedidosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  with dtmConsultaPedidos do
+  begin
+    if SituacaoProduto = 'A' then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clWhite;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else if SituacaoProduto = 'P' then
+    begin
+     TDBGrid(Sender).Canvas.Brush.Color := clAqua;
+     TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else if SituacaoProduto = 'L' then
+    begin
+     TDBGrid(Sender).Canvas.Brush.Color := $007FAA55;
+     TDBGrid(Sender).Canvas.Font.Color  := clBlack
+    end
+    else if SituacaoProduto = 'C' then
+    begin
+     TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+     TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else if SituacaoProduto = 'Q' then
+    begin
+     TDBGrid(Sender).Canvas.Brush.Color := clGray;
+     TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end;
+
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+procedure TfrmConsultaPedidos.pgcConsultaPedidosChange(Sender: TObject);
+begin
+  inherited;
+  sbnGerar.enabled := pgcConsultaPedidos.ActivePage = tstParametros;
+  sbnImprimir.enabled := (pgcConsultaPedidos.ActivePage = tstDados) and (dtmConsultaPedidos.QtdeMarcados <> 0);
+  sbnAbrirPedido.enabled := (pgcConsultaPedidos.ActivePage = tstDados) and (dtmConsultaPedidos.qrypedidos.RecordCount <> 0);
+end;
+
+procedure TfrmConsultaPedidos.ckbSelecionarTodosClick(Sender: TObject);
+begin
+  inherited;
+  MarcarSelecionados(True);
+//  dtmConsultaPedidos.MarcarSelecionados(ckbSelecionarTodos.Checked,True);
+//  AtualizarContadores(True);
+
+end;
+
+procedure TfrmConsultaPedidos.MarcarSelecionados(Todos: Boolean);
+begin
+  dtmConsultaPedidos.MarcarSelecionados(ckbSelecionarTodos.Checked, Todos);
+  sbnImprimir.enabled := (pgcConsultaPedidos.ActivePage = tstDados) and (dtmConsultaPedidos.QtdeMarcados <> 0);
+
+end;
+
+procedure TfrmConsultaPedidos.dbgPedidosDblClick(Sender: TObject);
+begin
+  inherited;
+  MarcarSelecionados(False);
+//  AtualizarContadores(True);
+
+end;
+
+procedure TfrmConsultaPedidos.dbgPedidosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_SPACE then
+    if Shift = [ssCtrl] then
+      MarcarSelecionados(False);
+end;
+
+procedure TfrmConsultaPedidos.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  dtmConsultaPedidos.ImprimirPedidos;
+end;
+
+procedure TfrmConsultaPedidos.sbnAbrirPedidoClick(Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Abrir',
+    dtmConsultaPedidos.qryPedidosNumero.asInteger], 'TfrmCadastroPedidos', True);
+end;
+
+procedure TfrmConsultaPedidos.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  tstMultiplasSelecoesProdutos.Highlighted := fraMultiplaSelecaoAleatoriaProdutos.tstItemdeProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaGrupoProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaClasseProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaMarcaProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaPromocoes.Highlighted;
+
+  tstMultiplasSelecoesFornecedores.Highlighted := (fraSelecaoAleatoriaFornecedores.fraSelecaoAleatoriaCliente.qryselecaoaleatoria.recordcount <> 0);
+  tstMultiplasSelecoesGrupoFornecedores.Highlighted := (fraSelecaoAleatoriagruposfornecedores.fraSelecaoAleatoriaGruposFornecedores.qryselecaoaleatoria.recordcount <> 0);
+
+end;
+
+end.

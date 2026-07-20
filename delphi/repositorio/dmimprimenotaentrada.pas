@@ -1,0 +1,354 @@
+unit dmimprimenotaentrada;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  DB,
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Biblio
+  biblio, ctconstantes,
+  //Repositorio
+  dmbasico, dmtecsoft,
+  //Componentes
+  cpquery, ZTransact, frxClass, frxDBSet;
+
+type
+
+  TdtmImprimeNotaEntrada = class(TdtmBasico)
+    qryProdutos: TtecQuery;
+    qryNotasPag: TtecQuery;
+    qrySeriesFiliais: TtecQuery;
+    qrySeriesFiliaisfilial: TIntegerField;
+    qrySeriesFiliaisvalor: TStringField;
+    qrySeriesFiliaisnumeroinicial: TIntegerField;
+    qrySeriesFiliaisnumerofinal: TIntegerField;
+    qrySeriesFiliaismodelonota: TIntegerField;
+    qryModelosNotas: TtecQuery;
+    qryModelosNotascabecalho: TStringField;
+    qryModelosNotasvencimento: TStringField;
+    qryModelosNotasproduto: TStringField;
+    qryModelosNotasrodape: TStringField;
+    qryProdutosproduto: TLargeintField;
+    qryProdutosprodutodescricao: TStringField;
+    qryProdutosfilial: TIntegerField;
+    qryProdutosunidade: TStringField;
+    qryProdutosquantidade: TFloatField;
+    qryProdutosprecovenda: TFloatField;
+    qryProdutosprecototal: TFloatField;
+    qryProdutosaliquotaicms: TFloatField;
+    qryNotasPagserie: TStringField;
+    qryNotasPagnumeronota: TIntegerField;
+    qryNotasPagfilial: TIntegerField;
+    qryNotasPagruafilial: TStringField;
+    qryNotasPagcidadefilial: TStringField;
+    qryNotasPagbairrofilial: TStringField;
+    qryNotasPagcepfilial: TStringField;
+    qryNotasPagestadofilial: TStringField;
+    qryNotasPagdddfilial: TStringField;
+    qryNotasPagfonefilial: TStringField;
+    qryNotasPagdddfaxfilial: TStringField;
+    qryNotasPagfonefaxfilial: TStringField;
+    qryNotasPagcnpjfilial: TStringField;
+    qryNotasPagnatureza: TStringField;
+    qryNotasPagcodigofiscal: TIntegerField;
+    qryNotasPaginscricaoestadualfilial: TStringField;
+    qryNotasPagnome: TStringField;
+    qryNotasPagcliente: TIntegerField;
+    qryNotasPagpessoanumero: TStringField;
+    qryNotasPagdata: TDateField;
+    qryNotasPagrua: TStringField;
+    qryNotasPagbairronome: TStringField;
+    qryNotasPagcep: TStringField;
+    qryNotasPagdatasaida: TDateField;
+    qryNotasPagcidadenome: TStringField;
+    qryNotasPagfoneddd: TStringField;
+    qryNotasPagfonenumero: TStringField;
+    qryNotasPagestado: TStringField;
+    qryNotasPagdocumento: TStringField;
+    qryNotasPagbaseicms: TFloatField;
+    qryNotasPagvaloricms: TFloatField;
+    qryNotasPagvalorfrete: TFloatField;
+    qryNotasPagseguro: TFloatField;
+    qryNotasPagvalortotal: TFloatField;
+    qryNotasPagrazaofornecedor: TStringField;
+    qryNotasPagfrete: TStringField;
+    qryNotasPagplaca: TStringField;
+    qryNotasPagestadoplaca: TStringField;
+    qryNotasPagnumerofornecedor: TStringField;
+    qryNotasPagruafornecedor: TStringField;
+    qryNotasPagcidadefornecedor: TStringField;
+    qryNotasPagestadofornecedor: TStringField;
+    qryNotasPaginscricaoestadualfornecedor: TStringField;
+    qryNotasPagvolumes: TStringField;
+    qryNotasPagespecietransporte: TStringField;
+    qryNotasPagmarca: TStringField;
+    qryNotasPagnumeracao: TStringField;
+    qryNotasPagpesobruto: TStringField;
+    qryNotasPagpesoliquido: TStringField;
+    qryNotasPagvendedor: TStringField;
+    qryNotasPagnomevendedor: TStringField;
+    qryNotasPagcontrato: TStringField;
+    qryNotasPagcupomfiscal: TStringField;
+    qryModelosNotascanhoto: TStringField;
+    qryNotasPagobservacoes: TStringField;
+    qryNotasPagacrescimo: TFloatField;
+    qryNotasPagdesconto: TFloatField;
+    qryModelosNotasconfigurar: TStringField;
+    qryModelosNotasrodapedesconto: TStringField;
+    qryModelosNotasrodapeacrescimo: TStringField;
+    qryModelosNotasrodapepagina: TStringField;
+    qryNotasPagvalorvista: TFloatField;
+    qryNotasPagavalista: TIntegerField;
+    qryProdutosreferencia: TStringField;
+    qryProdutoslocalizacao: TStringField;
+    qryNotasPagbaseissqn: TFloatField;
+    qryNotasPagvalorissqn: TFloatField;
+    qryNotasPagtotalservico: TFloatField;
+    qryNotasPagtipofornecedor: TStringField;
+    qryNotasPagcodigo: TIntegerField;
+    qryProdutoscodigonota: TIntegerField;
+    qryNotasPagvaloripi: TFloatField;
+    qryNotasPagdespesasacessorias: TFloatField;
+    qryProdutosclassificacaofiscal: TStringField;
+    qryProdutosipi: TStringField;
+    qryNotasPagbaseicmsproprio: TStringField;
+    qryNotasPagbasesubstituicao: TStringField;
+    qryNotasPagvalorsubstituicao: TStringField;
+    qryNotasPagruabairrofilial: TStringField;
+    qryNotasPagcidadeestadofilial: TStringField;
+    qryNotasPagimpostoretido1: TStringField;
+    qryNotasPagimpostoretido2: TStringField;
+    qryNotasPagimpostoretido3: TStringField;
+    qryNotasPagimpostoretido4: TStringField;
+    qryNotasPagvaloricmsproprio: TStringField;
+    qryNotasPagcfps: TStringField;
+    qryNotasPaganexotres: TStringField;
+    qryNotasPagfilialvendanome: TStringField;
+    qryProdutosvaloripi: TFloatField;
+    qryNotasPagtotalbaseicmssubstituicao: TStringField;
+    qryNotasPagtotalvaloricmssubstituicao: TStringField;
+    qryProdutosprodutocliente: TStringField;
+    qryProdutoscodigofiscal: TIntegerField;
+    qryNotasPagcfopnota: TStringField;
+    qryCodigosFiscais: TtecQuery;
+    qryCodigosFiscaiscodigofiscal: TIntegerField;
+    qryProdutosnumero: TIntegerField;
+    qryProdutoscodigovisual: TStringField;
+    qryProdutossequenciaipi: TStringField;
+    qryProdutosaliquotaipi: TFloatField;
+    qryProdutosorigem: TIntegerField;
+    qryProdutosincidencia: TStringField;
+    qryProdutosporLocalizacao: TtecQuery;
+    frpProdutosPorLocalizacao: TfrxReport;
+    frxDBProdutosPorLocalizacao: TfrxDBDataset;
+    frxDBProdutosPorLocalizacao_: TfrxDBDataset;
+    qryProdutosporLocalizacaolocalizacao: TStringField;
+    qryProdutosporLocalizacaosublocalizacao: TStringField;
+    qryProdutosporLocalizacaoprodutovisual: TStringField;
+    qryProdutosporLocalizacaodescricao: TStringField;
+    qryProdutosporLocalizacaofilial: TIntegerField;
+    qryProdutosporLocalizacaovalorgrade1: TStringField;
+    qryProdutosporLocalizacaovalorgrade2: TStringField;
+    qryProdutosporLocalizacaovendedor: TIntegerField;
+    qryProdutosporLocalizacaonomevendedor: TStringField;
+    qryProdutosporLocalizacaolistanotas: TMemoField;
+    qryProdutosporLocalizacaoquantidade: TFloatField;
+  protected
+    function  ImprimirNota: Boolean;
+    procedure ObterComplementosNotasPag;
+    function  ObterDadosNotasPag(Codigo: Integer): Boolean;
+    function  CFOPNota: String;
+  public
+    function  ImprimirNotasPag(Codigo: Integer; Impressora: String = ''): Boolean;
+    procedure ImprimirListaProdutosporLocalizacao(Lista: String);
+  end;
+
+var
+  dtmImprimeNotaEntrada: TdtmImprimeNotaEntrada;
+
+implementation
+
+Uses
+  //Componentes
+  cltextprinter, clparametrossistema;
+
+{$R *.dfm}
+
+{ TdtmImprimeNota }
+
+procedure TdtmImprimeNotaEntrada.ObterComplementosNotasPag;
+begin
+  RefazConsulta(qryProdutos,[0],[qryNotasPagcodigo.AsInteger]);
+end;
+
+function TdtmImprimeNotaEntrada.ObterDadosNotasPag(Codigo: Integer): Boolean;
+begin
+  RefazConsulta(qryNotasPag,[0],[Codigo]);
+  ReFazConsulta(qrySeriesFiliais, [0,1], [FilialBase, SerieSugestao]);
+  ReFazConsulta(qryModelosNotas, [0], [qrySeriesFiliaismodelonota.AsInteger]);
+  if qrySeriesFiliais.RecordCount = 0 then begin
+    MensagemAviso(format(ctFILIALSEMSERIE, [FilialBase, 'mercadorias']));
+    Result := False;
+  end else if qrySeriesFiliaismodelonota.IsNull then begin
+    MensagemAviso(ctSERIESUGESTAOSEMMODELO);
+    Result := False;
+  end else
+    Result := True;
+end;
+
+function TdtmImprimeNotaEntrada.ImprimirNotasPag(Codigo: Integer; Impressora: String = ''): Boolean;
+begin
+  Result := False;
+  if ObterDadosNotasPag(Codigo) then
+    try
+      if not qryNotasPag.IsEmpty then begin
+        if Impressora = '' then
+           NomeImpressoraEscolhida:= parsistema.NomeImpressoraNotaMercadorias
+        else
+           NomeImpressoraEscolhida:= Impressora;
+
+        ObterComplementosNotasPag;
+        Result := ImprimirNota;
+      end;
+    except
+      raise
+    end;
+end;
+
+function TdtmImprimeNotaEntrada.ImprimirNota: Boolean;
+var
+  Count,
+  ProdPag,
+  ProdAux,
+  Pagina,
+  QtdadePag: Integer;
+  BandProd: String;
+begin
+  Pagina  := 1;
+  ProdAux := 0;
+  Result  := False;
+  with TextPrinter do begin
+    BeginDoc(qryModelosNotasconfigurar.AsString);
+    ProdPag      := ProductPerPage(qryModelosNotasconfigurar.AsString);
+    if qryNotasPagdesconto.AsFloat > 0 then
+      Inc(ProdAux);
+    if qryNotasPagacrescimo.AsFloat > 0 then
+      Inc(ProdAux);
+    if (qryProdutos.RecordCount + ProdAux) <= ProdPag then
+      QtdadePag := 1
+    else begin
+      QtdadePag  := ((qryProdutos.RecordCount + ProdAux) div ProdPag);
+      if ((qryProdutos.RecordCount + ProdAux) mod ProdPag) > 0 then
+        Inc(QtdadePag)
+    end;
+    repeat
+      if not (qryNotasPag.State in [dsedit]) then
+          qryNotasPag.Edit;
+        qryNotasPagcfopnota.asString:= cfopNota;
+        qryNotasPag.Post;
+
+      BandString := qryModelosNotascabecalho.AsString;
+      BreakToLine;
+      WriteBand(qryNotasPag.Fields, [' ','X',qryNotasPagcodigofiscal.AsInteger]);
+      if qryProdutos.RecordCount > 0 then begin
+        BandString := qryModelosNotasproduto.AsString;
+        BreakToLine;
+        BandProd := BandString;
+        if Pagina = 1 then
+          qryProdutos.First;
+        Count := 0;
+        while not qryProdutos.Eof do begin
+          WriteBand(qryProdutos.Fields);
+          BreakLine(1);
+          qryProdutos.Next;
+          Inc(Count);
+          if Count = ProdPag then
+            Break;
+        end;
+        if Pagina = QtdadePag then begin
+          if qryNotasPagdesconto.AsFloat > 0 then begin
+             BandString := qryModelosNotasrodapedesconto.AsString;
+            WriteBand(qryNotasPag.Fields);
+          end;
+          if qryNotasPagacrescimo.AsFloat > 0 then begin
+            BandString := qryModelosNotasrodapeacrescimo.AsString;
+            WriteBand(qryNotasPag.Fields);
+          end;
+          BandString := qryModelosNotasRODAPE.AsString;
+        end else
+          BandString := qryModelosNotasrodapepagina.AsString;
+      end;
+      BreakToLine;
+      if QtdadePag = 1 then
+        WriteBand(qryNotasPag.Fields)
+      else if Pagina < QtdadePag then
+        WriteBand(qryNotasPag.Fields, [Pagina, QtdadePag])
+      else
+        WriteBand(qryNotasPag.Fields, ['  Pagina ', Pagina, ' de ', QtdadePag]);
+      BandString := qryModelosNotascanhoto.AsString;
+      BreakToLine;
+      WriteBand(qryNotasPag.Fields);
+      FormFeed;
+      {$IFNDEF LINUX}
+         if Pagina < QtdadePag then
+           WriteTextln('',0);
+      {$ENDIF}
+      Inc(Pagina);
+    until Pagina > QtdadePag;
+    EndDoc('TecLUX - Nota Fiscal de Entrada.');
+  end;
+end;
+
+function TdtmImprimeNotaEntrada.CFOPNota: String;
+Var NotaPag: Integer;
+    Campo: String;
+begin
+  NotaPag:= qryNotasPagcodigo.AsInteger;
+
+  ReFazConsulta(qryCodigosFiscais,[0],[NotaPag]);
+
+  if (qryCodigosFiscais.RecordCount > 1) and
+     (qryCodigosFiscais.RecordCount <= 3)  then
+  begin
+    qryCodigosFiscais.First;
+    while not qryCodigosFiscais.Eof do
+    begin
+      Campo:= Campo + qryCodigosFiscaiscodigofiscal.AsString + ',';
+      qryCodigosFiscais.Next;
+    end;
+    Result:= Copy(Campo,1,(Length(Campo)-1));
+  end
+  else if (qryCodigosFiscais.RecordCount > 3) then
+  begin
+    Result:= qryCodigosFiscaiscodigofiscal.AsString + '...';
+  end
+  else
+    Result:= qryCodigosFiscaiscodigofiscal.AsString;
+end;
+
+procedure TdtmImprimeNotaEntrada.ImprimirListaProdutosporLocalizacao(
+  Lista: String);
+var
+  PV: TfrxComponent;
+begin
+
+  qryProdutosporLocalizacao.MacroByName('ListasdeNotas').AsString := 'and np.codigo in (' + Lista +')';
+  qryProdutosporLocalizacao.close;
+  qryProdutosporLocalizacao.open;
+
+
+  if FileExists(LogotipoFilialBase) then
+  begin
+    PV := frpProdutosPorLocalizacao.FindObject('fpvLogo');
+    if (PV is TfrxPictureView) then
+      TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+  end;
+
+//  frpProdutosPorLocalizacao.DesignReport;
+  frpProdutosPorLocalizacao.ShowReport;
+
+end;
+
+end.

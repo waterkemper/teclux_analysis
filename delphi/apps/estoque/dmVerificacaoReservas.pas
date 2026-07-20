@@ -1,0 +1,257 @@
+unit dmVerificacaoReservas;
+
+interface
+
+uses
+  SysUtils, Classes, DB, ZQuery, ZPgSqlQuery, cpquery, cpdatasource,
+  dmbasico, dmtecsoft, biblio;
+
+type
+  TdtmVerificacaoReservas = class(TdtmBasico)
+    dsrReservasPrevias: TtecDataSource;
+    qryReservasPrevias: TtecQuery;
+    qryReservadoFuturo: TtecQuery;
+    dsrReservadoFuturo: TtecDataSource;
+    qryReservasPreviasproduto: TLargeintField;
+    qryReservasPreviasdescricao: TStringField;
+    qryReservasPreviasresultadocurvaabc: TStringField;
+    qryReservasPreviasfilial: TIntegerField;
+    qryReservasPreviasemestoque: TFloatField;
+    qryReservadoFuturoproduto: TLargeintField;
+    qryReservadoFuturodescricao: TStringField;
+    qryReservadoFuturoresultadocurvaabc: TStringField;
+    qryReservadoFuturofilial: TIntegerField;
+    qryReservadoFuturoemestoque: TFloatField;
+    qryReservadoFuturoreservado: TFloatField;
+    qryReservadoFuturofuturo: TFloatField;
+    qryReservadoFuturopendentes_emissao: TFloatField;
+    qryReservasPreviasprodutovisual: TStringField;
+    qryReservadoFuturoprodutovisual: TStringField;
+    qryReservadoFuturoSaldoReservadoFuturo: TFloatField;
+    qryReservasPreviasmarcar: TBooleanField;
+    qryReservadoFuturomarcar: TBooleanField;
+    qryReservasPreviasidentificacao: TStringField;
+    qryReservasPreviasquantidade: TFloatField;
+    qryReservasPreviasquantidadepf: TFloatField;
+    qryReservasPreviassaldo: TFloatField;
+    procedure DataModuleCreate(Sender: TObject);
+    procedure qryReservasPreviasCalcFields(DataSet: TDataSet);
+    procedure qryReservadoFuturoCalcFields(DataSet: TDataSet);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+
+    procedure AbrirConsulta(LitadeFiliais,
+          ListadeItemProdutos, ListadeProdutos,
+          ListadeGrupos, ListadeClasses,
+          ListadeMarcas: String;
+
+          CurvaABC_A,
+          CurvaABC_B,
+          CurvaABC_C,
+          CurvaABC_NaoDefinido: Boolean
+
+
+          );
+
+    procedure SelecionarProdutosReservaPrevia(Marcar,Todos: Boolean);
+    procedure SelecionarProdutosReservadoFuturo(Marcar,Todos: Boolean);
+
+  end;
+
+var
+  dtmVerificacaoReservas: TdtmVerificacaoReservas;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmVerificacaoReservas }
+
+procedure TdtmVerificacaoReservas.AbrirConsulta(LitadeFiliais,
+  ListadeItemProdutos, ListadeProdutos, ListadeGrupos, ListadeClasses,
+  ListadeMarcas: String;
+
+  CurvaABC_A,
+  CurvaABC_B,
+  CurvaABC_C,
+  CurvaABC_NaoDefinido : Boolean  );
+
+var
+  SQLCurvaABC  : String;
+
+
+begin
+  if LitadeFiliais <> '' then
+    qryReservasPrevias.macrobyname('CondicaoFilial').asString := 'and f.codigo in ('+LitadeFiliais+')'
+  else
+    qryReservasPrevias.macrobyname('CondicaoFilial').asString := '';
+
+  if ListadeItemProdutos <> '' then
+    qryReservasPrevias.macrobyname('CondicaoProduto').asString := 'and ('+ListadeItemProdutos+')'
+  else
+    qryReservasPrevias.macrobyname('CondicaoProduto').asString := '';
+
+  if ListadeProdutos <> '' then
+    qryReservasPrevias.macrobyname('CondicaoCaracteristica').asString := 'and ('+ListadeProdutos+')'
+  else
+    qryReservasPrevias.macrobyname('CondicaoCaracteristica').asString := '';
+
+  if ListadeGrupos <> '' then
+    qryReservasPrevias.macrobyname('CondicaoGrupo').asString := 'and ('+ ListadeGrupos + ')'
+  else
+    qryReservasPrevias.macrobyname('CondicaoGrupo').asString := '';
+
+  if ListadeClasses <> '' then
+    qryReservasPrevias.macrobyname('CondicaoClasse').asString := 'and ('+ ListadeClasses +')'
+  else
+    qryReservasPrevias.macrobyname('CondicaoClasse').asString := '';
+
+  if ListadeMarcas <> '' then
+    qryReservasPrevias.macrobyname('CondicaoMarca').asString := 'and ('+ ListadeMarcas +')'
+  else
+    qryReservasPrevias.macrobyname('CondicaoMarca').asString := '';
+
+
+  SQLCurvaABC := '';
+  if CurvaABC_A then
+     SQLCurvaABC := SQLCurvaABC + ' p.resultadocurvaabc = ''A''';
+
+  if CurvaABC_B then
+    if (length(SQLCurvaABC)<>0) then
+      SQLCurvaABC := SQLCurvaABC + ' or  p.resultadocurvaabc = ''B'''
+    else
+      SQLCurvaABC := ' p.resultadocurvaabc = ''B''';
+
+  if CurvaABC_C then
+    if (length(SQLCurvaABC)<>0) then
+      SQLCurvaABC := SQLCurvaABC + ' or p.resultadocurvaabc = ''C'''
+    else
+      SQLCurvaABC := ' p.resultadocurvaabc = ''C''';
+
+  if CurvaABC_NaoDefinido then
+    if (length(SQLCurvaABC)<>0) then
+      SQLCurvaABC := SQLCurvaABC + ' or  coalesce(p.resultadocurvaabc,'''') = '''''
+    else
+      SQLCurvaABC := ' coalesce(p.resultadocurvaabc,'''') = ''''';
+
+  if (length(SQLCurvaABC)<>0) then
+  begin
+    SQLCurvaABC := SQLCurvaABC + ')';
+    Insert(' and (', SQLCurvaABC, 0)
+  end;
+
+  if (length(SQLCurvaABC)<>0) then
+    qryReservasPrevias.MacroByName('resultadocurvaabc').AsString := SQLCurvaABC
+  else
+    qryReservasPrevias.MacroByName('resultadocurvaabc').AsString := '';
+
+  qryReservadoFuturo.macros := qryReservasPrevias.macros;
+
+  qryReservadoFuturo.close;
+  qryReservasPrevias.close;
+
+  qryReservadoFuturo.OPen;
+  qryReservasPrevias.Open;
+
+end;
+
+constructor TdtmVerificacaoReservas.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+procedure TdtmVerificacaoReservas.DataModuleCreate(Sender: TObject);
+begin
+  inherited;
+  RemoveDataModule(Self);
+end;
+
+procedure TdtmVerificacaoReservas.qryReservasPreviasCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryReservasPreviasSaldo.asFloat :=
+    qryReservasPreviasquantidade.asFloat -
+    qryReservasPreviasquantidadepf.asFloat;
+
+
+end;
+
+procedure TdtmVerificacaoReservas.qryReservadoFuturoCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryReservadoFuturoSaldoReservadoFuturo.asFloat :=
+    (qryReservadoFuturoreservado.AsFloat +
+     qryReservadoFuturofuturo.AsFloat) -
+     qryReservadoFuturopendentes_emissao.asFloat;
+
+
+end;
+
+procedure TdtmVerificacaoReservas.SelecionarProdutosReservaPrevia(Marcar,
+  Todos: Boolean);
+begin
+ if qryReservasPrevias.Active then
+ begin
+   if Todos then
+    begin
+      try
+        GuardarRegistroAtual(qryReservasPrevias,false);
+        qryReservasPrevias.First;
+        while not qryReservasPrevias.Eof do
+        begin
+          qryReservasPrevias.Edit;
+          qryReservasPreviasmarcar.Asboolean:= Marcar;
+          qryReservasPrevias.Post;
+          qryReservasPrevias.Next;
+        end;
+      finally
+        VoltarRegistroAtual(qryReservasPrevias);
+      end;
+    end
+    else
+    begin
+      qryReservasPrevias.Edit;
+      qryReservasPreviasmarcar.asBoolean := not qryReservasPreviasmarcar.asBoolean;
+      qryReservasPrevias.Post;
+    end;
+  end;
+
+end;
+
+procedure TdtmVerificacaoReservas.SelecionarProdutosReservadoFuturo(Marcar,
+  Todos: Boolean);
+begin
+  if qryReservadoFuturo.Active then
+  begin
+    if Todos then
+    begin
+       try
+         GuardarRegistroAtual(qryReservadoFuturo,false);
+         qryReservadoFuturo.First;
+         while not qryReservadoFuturo.Eof do
+         begin
+           qryReservadoFuturo.Edit;
+           qryReservadoFuturomarcar.Asboolean:= Marcar;
+           qryReservadoFuturo.Post;
+           qryReservadoFuturo.Next;
+         end;
+       finally
+         VoltarRegistroAtual(qryReservadoFuturo);
+       end;
+    end
+    else
+    begin
+      qryReservadoFuturo.Edit;
+      qryReservadoFuturomarcar.asBoolean := not qryReservadoFuturomarcar.asBoolean;
+      qryReservadoFuturo.Post;
+    end;
+  end;
+end;
+
+end.

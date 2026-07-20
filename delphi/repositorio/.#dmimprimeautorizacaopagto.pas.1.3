@@ -1,0 +1,132 @@
+unit dmimprimeautorizacaopagto;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, fr_dset, fr_dbset, fr_class, fmpreviewpadrao;
+
+type
+  TdtmImprimeAutorizacaoPagto = class(TdtmBasico)
+    frpAutorizacaoPagto: TfrReport;
+    fdsAutorizacaoPagto: TfrDBDataSet;
+    qryDuplicatas: TtecQuery;
+    qryDuplicatasdocumentopag: TIntegerField;
+    qryDuplicatasdatavencto: TDateField;
+    qryDuplicatasvalorvencto: TFloatField;
+    qryDuplicatasvalordesconto: TFloatField;
+    qryDuplicatastipojuros: TStringField;
+    qryDuplicatasjuros: TFloatField;
+    qryDuplicatastipomulta: TStringField;
+    qryDuplicatasmulta: TFloatField;
+    qryDuplicatasnumero: TIntegerField;
+    qryDuplicatasprevisao: TFloatField;
+    qryDuplicatasfornecedor: TIntegerField;
+    qryDuplicatastipofornecedor: TStringField;
+    qryDuplicatasautorizado: TBooleanField;
+    qryDuplicatasselecionar: TBooleanField;
+    qryDuplicatasfilialemissao: TIntegerField;
+    qryDuplicatasdescricaofilialemissao: TStringField;
+    qryDuplicatasrua: TStringField;
+    qryDuplicatasnomebairro: TStringField;
+    qryDuplicatascep: TIntegerField;
+    qryDuplicatasnomecidade: TStringField;
+    qryDuplicatasestado: TStringField;
+    qryDuplicatasemissao: TDateField;
+    qryDuplicatasdatalancto: TDateField;
+    qryDuplicatasvalornota: TFloatField;
+    qryDuplicatasreferencia: TStringField;
+    qryDuplicatasordem: TStringField;
+    qryDuplicatascomplemento: TStringField;
+    qryDuplicatasnome: TStringField;
+    qryDuplicatasdataautorizacaopagto: TDateField;
+    frpRecibo: TfrReport;
+    qryDuplicatasdatapagto: TDateField;
+    qryDuplicatasvalorpagto: TFloatField;
+    qryDuplicatasvalorpagtoextenso: TMemoField;
+    qryDuplicatasobservacao: TStringField;
+    procedure frpAutorizacaoPagtoBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpReciboBeforePrint(Memo: TStringList; View: TfrView);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure ImprimirAutorizacao(ListadeDuplicatas: String);
+    procedure ImprimirRecibo(ListadeDuplicatas: String);
+
+
+  end;
+
+var
+  dtmImprimeAutorizacaoPagto: TdtmImprimeAutorizacaoPagto;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmImprimeAutorizacaoPagto }
+
+procedure TdtmImprimeAutorizacaoPagto.ImprimirAutorizacao(ListadeDuplicatas: String);
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  qryduplicatas.MacroByName('ListadeDuplicatas').AsString := ListadeDuplicatas;
+  frVariables['Titulo']:= 'AUTORIZAÇÃO DE PAGAMENTO DE FORNECEDORES';
+//  frpAutorizacaoPagto.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3;
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   frmPreview.frCompositeReport.Reports.Add(frpAutorizacaoPagto);
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+   frmPreview.ShowModal;
+  finally
+   frmPreview.Free;
+  end;
+
+end;
+
+procedure TdtmImprimeAutorizacaoPagto.frpAutorizacaoPagtoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpAutorizacaoPagto, view);
+
+end;
+
+procedure TdtmImprimeAutorizacaoPagto.ImprimirRecibo(
+  ListadeDuplicatas: String);
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  qryduplicatas.MacroByName('ListadeDuplicatas').AsString := ListadeDuplicatas;
+//  frVariables['Titulo']:= 'AUTORIZAÇÃO DE PAGAMENTO DE FORNECEDORES';
+//  frpRecibo.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3;
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   frmPreview.frCompositeReport.Reports.Add(frpRecibo);
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+   frmPreview.ShowModal;
+  finally
+   frmPreview.Free;
+  end;
+
+end;
+
+procedure TdtmImprimeAutorizacaoPagto.frpReciboBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRecibo, view);
+end;
+
+end.

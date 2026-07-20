@@ -1,0 +1,159 @@
+unit fmJustificativaEntrega;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmcadastropadrao, ComCtrls, Buttons, ToolWin, ExtCtrls,
+  StdCtrls, DBCtrls, cpdbmemo, dmcadastroromaneios, fmPrincipalBasico, fmConsultaEntregaProdutos, dmbasico,
+  biblio, db, frconsulta, frconsultacodigo, ctconstantes;
+
+type
+  TfrmJustificativaEntrega = class(TFrmCadastroPadrao)
+    sbnAtendimento: TSpeedButton;
+    gbxObservacoes: TGroupBox;
+    mmoObservacoes: TtecDBMemo;
+    sbnReagendarEntrega: TSpeedButton;
+    gbxMotivoEntrega: TGroupBox;
+    fraConsultaMotivoNaoEntrega: TfraConsultaCodigo;
+    ckbLimparCampos: TCheckBox;
+    procedure sbnAtendimentoClick(Sender: TObject);
+    procedure sbnReagendarEntregaClick(Sender: TObject);
+    procedure ckbLimparCamposClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure AtribuirDadosMotivosNaoEntrega;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    function  InternoGravar: Boolean; override;
+    
+  end;
+
+var
+  frmJustificativaEntrega: TfrmJustificativaEntrega;
+
+implementation
+
+{$R *.dfm}
+
+constructor TfrmJustificativaEntrega.Create(AOwner: TComponent);
+begin
+  inherited;
+  DataSet := dtmCadastroRomaneios.qryItensRomaneio;
+  fraConsultaMotivoNaoEntrega.TipoPesquisa := pesmotivos;
+  fraConsultaMotivoNaoEntrega.qryConsultaMotivos.ParamByname('tipomotivo').asString := 'E';
+  fraConsultaMotivoNaoEntrega.qryProcuraMotivos.ParamByname('tipomotivo').asString := 'E';
+  fraConsultaMotivoNaoEntrega.OnFound := AtribuirDadosMotivosNaoEntrega;
+
+  ckbLimparCampos.checked := false;
+
+end;
+
+destructor TfrmJustificativaEntrega.Destroy;
+begin
+  inherited;
+  frmJustificativaEntrega := nil;
+end;
+
+function TfrmJustificativaEntrega.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+  begin
+    if not ckbLimparCampos.checked then
+    begin
+      result := (mmoObservacoes.text<>'');
+      if result then
+        result := (fraConsultaMotivoNaoEntrega.edfCodigo.text<>'')
+    end;
+
+
+    if result then
+    begin
+      dtmCadastroRomaneios.qryItensRomaneio.post;
+//      dtmCadastroRomaneios.GravarItensRomaneio; dúvidas
+      dtmCadastroRomaneios.qryitensRomaneiodata_hora_recebimento.readonly := true; {Já define que a data não pode ser mais preenchida}
+    end
+    else
+    begin
+      if fraConsultaMotivoNaoEntrega.edfCodigo.text='' then
+      begin
+        fraConsultaMotivoNaoEntrega.edfCodigo.setfocus;
+        MensagemAviso('Informe o motivo da entrega não efetuada.');
+      end
+      else
+      if (mmoObservacoes.text='') then
+      begin
+        mmoObservacoes.setfocus;
+        MensagemAviso('Informe a observação sobre a entrega.');
+      end;
+
+    end;
+  end;
+
+end;
+
+procedure TfrmJustificativaEntrega.sbnAtendimentoClick(Sender: TObject);
+begin
+  inherited;
+  if (mmoObservacoes.text<>'') and
+     not (dtmCadastroRomaneios.qryItensRomaneio.state = dsedit) then
+     
+       AbrirTelaAtendimentos(['IncluirFollowupRomaneio',
+                               dtmCadastroRomaneios.clientedadofiscal,
+                               dtmCadastroRomaneios.tipoclientedadofiscal,
+                               'E', { Entrega }
+                               dtmCadastroRomaneios.qryItensRomaneioromaneio.asinteger,
+                               dtmCadastroRomaneios.qryItensRomaneiodadofiscal.asinteger,
+                               dtmCadastroRomaneios.qryItensRomaneiojustificativa_entrega.asString],
+                               True)
+
+     (*
+     TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['IncluirFollowupRomaneio',
+                                                                     dtmCadastroRomaneios.clientedadofiscal,
+                                                                     dtmCadastroRomaneios.tipoclientedadofiscal,
+                                                                     'E', { Entrega }
+                                                                     dtmCadastroRomaneios.qryItensRomaneioromaneio.asinteger,
+                                                                     dtmCadastroRomaneios.qryItensRomaneiodadofiscal.asinteger,
+                                                                     dtmCadastroRomaneios.qryItensRomaneiojustificativa_entrega.asString],
+                                                                     'TfrmCadastroAtendimento', True)
+     *)
+  else
+  begin
+    mmoObservacoes.setfocus;
+    MensagemAviso('Informe a observação sobre a entrega.');
+  end;
+end;
+
+procedure TfrmJustificativaEntrega.sbnReagendarEntregaClick(
+  Sender: TObject);
+begin
+  inherited;
+  AbrirConsultaEntregaProdutos(['Consultar entrega romaneio',
+                                  dtmCadastroRomaneios.qryItensRomaneioromaneio.asinteger,
+                                  dtmCadastroRomaneios.qryItensRomaneiodadofiscal.asinteger]);
+
+end;
+
+procedure TfrmJustificativaEntrega.ckbLimparCamposClick(Sender: TObject);
+begin
+  inherited;
+  if ckbLimparCampos.checked then
+  begin
+    dtmCadastroRomaneios.qryItensRomaneio.edit;
+    dtmCadastroRomaneios.qryItensRomaneiomotivoentrega.clear;
+    dtmCadastroRomaneios.qryItensRomaneiojustificativa_entrega.clear;
+  end;  
+end;
+
+procedure TfrmJustificativaEntrega.AtribuirDadosMotivosNaoEntrega;
+begin
+  dtmCadastroRomaneios.qryItensRomaneiodescricaomotivoentrega.asString :=
+    fraConsultaMotivoNaoEntrega.qryProcuraMotivosdescricao.asString;
+end;
+
+end.

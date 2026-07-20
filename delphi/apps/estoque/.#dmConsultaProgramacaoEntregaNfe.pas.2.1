@@ -1,0 +1,123 @@
+unit dmConsultaProgramacaoEntregaNfe;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft;
+
+type
+  TdtmConsultaProgramacaoEntregaNfe = class(TdtmBasico)
+    qryProgramacaoEntregaNfe: TtecQuery;
+    dsrProgramacaoEntregaNfe: TtecDataSource;
+    qryProgramacaoEntregaNfepedido: TIntegerField;
+    qryProgramacaoEntregaNfeentrega: TDateField;
+    qryProgramacaoEntregaNfefilial: TIntegerField;
+    qryProgramacaoEntregaNfenomefilial: TStringField;
+    qryProgramacaoEntregaNfefornecedor: TIntegerField;
+    qryProgramacaoEntregaNfenomefornecedor: TStringField;
+    qryProgramacaoEntregaNfeserie: TStringField;
+    qryProgramacaoEntregaNfenrnfe: TIntegerField;
+    qryProgramacaoEntregaNfedhemi: TDateTimeField;
+    qryProgramacaoEntregaNfechnfe: TStringField;
+    qryProgramacaoEntregaNfeqvol: TIntegerField;
+    qryProgramacaoEntregaNfenomefornecedortransporte: TStringField;
+    qryProgramacaoEntregaNferecebido: TBooleanField;
+    qryProgramacaoEntregaNferaiz_cnpjfornecedortransporte: TMemoField;
+    qryProgramacaoEntregaNferaiz_nomefornecedortransporte: TStringField;
+    qryAtualizarPedidoRecebido: TtecQuery;
+    procedure DataModuleCreate(Sender: TObject);
+  private
+    FDataInicial: String;
+    FDataFinal: String;
+    { Private declarations }
+  public
+    { Public declarations }
+
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    
+    property DataInicial: String read FDataInicial write FDataInicial;
+    property DataFinal: String read FDataFinal write FDataFinal;
+
+    function GerarConsulta: Boolean;
+
+    procedure MarcarRecebido(Recebido: Boolean);
+
+  end;
+
+ {
+var
+  dtmConsultaProgramacaoEntregaNfe: TdtmConsultaProgramacaoEntregaNfe;
+}  
+
+implementation
+
+{$R *.dfm}
+
+constructor TdtmConsultaProgramacaoEntregaNfe.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+procedure TdtmConsultaProgramacaoEntregaNfe.DataModuleCreate(
+  Sender: TObject);
+begin
+  inherited;
+  RemoveDataModule(Self);
+end;
+
+destructor TdtmConsultaProgramacaoEntregaNfe.Destroy;
+begin
+
+  inherited;
+end;
+
+function TdtmConsultaProgramacaoEntregaNfe.GerarConsulta: Boolean;
+begin
+  if (DataInicial<>'') and (datafinal<>'') then
+    qryProgramacaoEntregaNfe.MacroByName('IntervaloEntregas').asString :=
+    format(' and pe.entrega between %s and %s',
+      [quotedstr(FormatDateTime('yyyy-MM-dd',strtodate(datainicial))),
+       quotedstr(FormatDateTime('yyyy-MM-dd',strtodate(datafinal)))])
+  else
+  if (DataInicial<>'') and (datafinal='') then
+    qryProgramacaoEntregaNfe.MacroByName('IntervaloEntregas').asString :=
+    format(' and pe.entrega >= %s ',
+      [quotedstr(FormatDateTime('yyyy-MM-dd',strtodate(datainicial)))])
+  else
+  if (DataInicial='') and (datafinal<>'') then
+    qryProgramacaoEntregaNfe.MacroByName('IntervaloEntregas').asString :=
+    format(' and pe.entrega <= %s ',
+      [quotedstr(FormatDateTime('yyyy-MM-dd',strtodate(datafinal)))])
+  else
+  if (DataInicial='') and (datafinal='') then
+    qryProgramacaoEntregaNfe.MacroByName('IntervaloEntregas').asString := '';
+
+  qryProgramacaoEntregaNfe.close;
+  qryProgramacaoEntregaNfe.open;
+
+  result := qryProgramacaoEntregaNfe.recordcount <> 0;  
+
+
+
+end;
+
+procedure TdtmConsultaProgramacaoEntregaNfe.MarcarRecebido(
+  Recebido: Boolean);
+begin
+  qryProgramacaoEntregaNfe.edit;
+  qryProgramacaoEntregaNferecebido.asBoolean := not qryProgramacaoEntregaNferecebido.asBoolean;
+  qryProgramacaoEntregaNfe.post;
+
+  qryAtualizarPedidoRecebido.ParamByName('Recebido').AsBoolean := Recebido;
+  qryAtualizarPedidoRecebido.ParamByName('pedido').AsInteger := qryProgramacaoEntregaNfepedido.asInteger;
+  qryAtualizarPedidoRecebido.ExecSql;
+  perpetrar([qryAtualizarPedidoRecebido]);
+
+
+
+end;
+
+end.

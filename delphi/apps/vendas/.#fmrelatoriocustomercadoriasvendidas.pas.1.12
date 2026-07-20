@@ -1,0 +1,788 @@
+unit fmrelatoriocustomercadoriasvendidas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, cpdata, DBCtrls, cpdbtext,
+  Mask, cpdbfindcontrols, ComCtrls, cppagecontrol, Buttons, biblio,
+  ctconstantes, cpeditioncontrolvalidation, fmrelatoriopadrao, ZQuery,
+  fmconsultabasica,
+  fmconsultaporcampo, CheckLst, Grids, DBGrids, cpdbgrid,
+  frlistagruposfiliais, frlistafiliais, ToolWin, frselecaoaleatoria, db,
+  frConsultaCodigo, windows, frconsulta, frselecaoaleatoriavendedores;
+
+type
+  Tfrmrelatoriocustomercadoriasvendidas = class(TfrmRelatorioPadrao)
+    gbxCustoMercadoriasVendidas: TGroupBox;
+    pgcProdutos: TtecPageControl;
+    tstItemProduto: TTabSheet;
+    sbnConsultaItemProdutoInicial: TSpeedButton;
+    edfItemProdutoInicial: TtecDbEditFind;
+    dtxItemProdutoInicial: TtecDBText;
+    tstProdutos: TTabSheet;
+    sbnConsultaProdutosInicial: TSpeedButton;
+    edfProdutoInicial: TtecDbEditFind;
+    dtxProdutoInicial: TtecDBText;
+    tstGrupodeProdutos: TTabSheet;
+    sbnConsultaGrupoProdutoInicial: TSpeedButton;
+    edfGrupoProdutoInicial: TtecDbEditFind;
+    dtxGrupoProdutoInicial: TtecDBText;
+    tstClasses: TTabSheet;
+    sbnConsultaClasseInicial: TSpeedButton;
+    edfClasseInicial: TtecDbEditFind;
+    dtxClasseInicial: TtecDBText;
+    gbxPeriodo: TGroupBox;
+    lblDataInicial: TLabel;
+    edtDataInicial: TEditData;
+    lblDataFinal: TLabel;
+    edtDataFinal: TEditData;
+    gbxProdutos: TGroupBox;
+    ckbProdutoEmLinha: TCheckBox;
+    ckbProdutoForadeLinha: TCheckBox;
+    ckbProdutoComMontagem: TCheckBox;
+    ckbProdutoSemMontagem: TCheckBox;
+    ckbProdutoNaoBrinde: TCheckBox;
+    ckbProdutoBrinde: TCheckBox;
+    gbxListar: TGroupBox;
+    ckbListarVendas: TCheckBox;
+    ckbListarDevolucoesdoPeriodo: TCheckBox;
+    rgpOrdenacao: TRadioGroup;
+    rgpTotalizacao: TRadioGroup;
+    rgpTipodeResumo: TRadioGroup;
+    rgpResumo: TRadioGroup;
+    gbxMostrar: TGroupBox;
+    ckbMostrarPlanos: TCheckBox;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparGrupoFilial: TCheckBox;
+    ckbAgruparFilial: TCheckBox;
+    gbxClientes: TGroupBox;
+    sbnConsultaClienteFinal: TSpeedButton;
+    sbnConsultaClienteInicial: TSpeedButton;
+    lblInicial: TLabel;
+    lblFinal: TLabel;
+    dtxClienteInicial: TtecDBText;
+    dtxClienteFinal: TtecDBText;
+    edfClienteInicial: TtecDbEditFind;
+    edfClienteFinal: TtecDbEditFind;
+    lblProdutoFinal: TLabel;
+    edfProdutoFinal: TtecDbEditFind;
+    sbnConsultaProdutosFinal: TSpeedButton;
+    dtxProdutoFinal: TtecDBText;
+    lblProdutoInicial: TLabel;
+    lblGrupoProdutoInicial: TLabel;
+    lblGrupoProdutoFinal: TLabel;
+    edfGrupoProdutoFinal: TtecDbEditFind;
+    sbnConsultaGrupoProdutoFinal: TSpeedButton;
+    dtxGrupoProdutoFinal: TtecDBText;
+    lblClasseProdutoInicial: TLabel;
+    lblClasseProdutoFinal: TLabel;
+    edfClasseFinal: TtecDbEditFind;
+    sbnConsultaClasseFinal: TSpeedButton;
+    dtxClasseFinal: TtecDBText;
+    lblItemProdutoInicial: TLabel;
+    lblItemProdutoFinal: TLabel;
+    edfItemProdutoFinal: TtecDbEditFind;
+    sbnConsultaItemProdutoFinal: TSpeedButton;
+    dtxItemProdutoFinal: TtecDBText;
+    rgpSelecaoClientes: TRadioGroup;
+    ckbAgruparCliente: TCheckBox;
+    rgpSelecaoProduto: TRadioGroup;
+    ckbListarDevolucoesAnteriores: TCheckBox;
+    fraListaFiliais1: TfraListaFiliais;
+    fraListaGruposFiliais1: TfraListaGruposFiliais;
+    gbxMaquinas: TGroupBox;
+    fraSelecaoAleatoriaRegioes: TfraSelecaoAleatoria;
+    gbxConceitos: TGroupBox;
+    sbnMarcarConceitos: TSpeedButton;
+    sbnDesmarcarConceitos: TSpeedButton;
+    clbConceitos: TCheckListBox;
+    ckbAgruparConceitos: TCheckBox;
+    gbxFornecedor: TGroupBox;
+    fraConsultaFornecedor: TfraConsultaCodigo;
+    gbxListaCondicionalVendedores: TGroupBox;
+    fraSelecaoAleatoriavendedores: TfraSelecaoAleatoriavendedores;
+    procedure sbnConsultaFilialClick(Sender: TObject);
+    procedure sbnConsultaGrupoFilialClick(Sender: TObject);
+    procedure sbnConsultaItemProdutoInicialClick(Sender: TObject);
+    procedure sbnConsultaProdutosInicialClick(Sender: TObject);
+    procedure sbnConsultaGrupoProdutoInicialClick(Sender: TObject);
+    procedure sbnConsultaClasseInicialClick(Sender: TObject);
+    procedure pgcProdutosChange(Sender: TObject);
+    procedure sbnConsultaItemProdutoFinalClick(Sender: TObject);
+    procedure sbnConsultaProdutosFinalClick(Sender: TObject);
+    procedure sbnConsultaGrupoProdutoFinalClick(Sender: TObject);
+    procedure sbnConsultaClasseFinalClick(Sender: TObject);
+    procedure sbnConsultaClienteInicialClick(Sender: TObject);
+    procedure sbnConsultaClienteFinalClick(Sender: TObject);
+    procedure ckbProdutoForadeLinhaClick(Sender: TObject);
+    procedure ckbProdutoEmLinhaClick(Sender: TObject);
+    procedure ckbProdutoComMontagemClick(Sender: TObject);
+    procedure ckbProdutoSemMontagemClick(Sender: TObject);
+    procedure ckbProdutoBrindeClick(Sender: TObject);
+    procedure ckbProdutoNaoBrindeClick(Sender: TObject);
+    procedure fraListaFiliais1clbFiliaisClickCheck(Sender: TObject);
+    procedure fraListaFiliais1sbnMarcarFiliaisClick(Sender: TObject);
+    procedure fraListaGruposFiliais1clbGrupodeFiliaisClickCheck(
+      Sender: TObject);
+    procedure fraListaGruposFiliais1sbnmarcarGrupodeFiliaisClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaRegioesqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaRegioessbnProcuraClick(Sender: TObject);
+    procedure fraSelecaoAleatoriaRegioesdbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaRegioesdbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+  private
+    { Private declarations }
+    procedure ObterLista(Origem: TStrings; Destino: TCheckListBox);
+    procedure AcionarPesquisaGradeRegioes;
+    procedure AtribuirDadosRegioes;
+    
+  protected
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  TabelaDePesquisa: TZdataSet; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    procedure InternoImpressao; override;
+  public
+    { Public declarations  }
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+    procedure MontaPesquisa;
+    function  ValidarCamposSelecao: Boolean;
+  end;
+
+var
+  frmrelatoriocustomercadoriasvendidas: Tfrmrelatoriocustomercadoriasvendidas;
+  TipoPesquisa               : TtecRelatorioVendas;
+
+
+implementation
+uses dmrelatoriocustomercadoriasvendidas;
+
+{$R *.dfm}
+
+{ Tfrmrelatoriocustomercadoriasvendidas }
+
+constructor Tfrmrelatoriocustomercadoriasvendidas.Create(
+  Aowner: Tcomponent);
+begin
+  dtmrelatoriocustoMercadoriasVendidas := TdtmrelatoriocustoMercadoriasVendidas.Create(Self);
+  inherited;
+  dtmrelatoriocustoMercadoriasVendidas.Abre(ctTabelas);
+  edtDataInicial.Text := DateToStr(PrimeiroDiaMesPassado(0));
+  edtDataFinal.Text := DateToStr(DataLocal);
+
+  fraSelecaoAleatoriaRegioes.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaRegioes.qrySelecaoAleatoria.Open;
+  with fraSelecaoAleatoriaRegioes do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoriaRegioes';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 4;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraRegioes;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesRegioes;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosRegioes;
+  end;
+
+  ObterLista(dtmrelatoriocustoMercadoriasVendidas.ListaConceitos, clbConceitos);
+
+  fraConsultaFornecedor.qryProcuraCliente.ParamByName('NaoConsiderarTipoCliente').asBoolean := false;
+  fraConsultaFornecedor.TipoPesquisa := pesFORNECEDORES;
+  fraConsultaFornecedor.TipoCliente := 'F';
+  fraConsultaFornecedor.Tipovfornecedor := 'F';
+
+end;
+
+destructor Tfrmrelatoriocustomercadoriasvendidas.Destroy;
+begin
+  dtmrelatoriocustoMercadoriasVendidas:=nil;
+  inherited;
+  frmrelatoriocustoMercadoriasVendidas:=nil;
+end;
+
+function Tfrmrelatoriocustomercadoriasvendidas.ExisteInformacao(
+  Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmrelatoriocustomercadoriasvendidas do
+    case tipoPesquisa of
+      rvITEMPRODUTOSINICIAL,
+      rvITEMPRODUTOSFINAL    : result := ExisteItemProdutos(NomeCampo, Value);
+      rvGRUPOPRODUTOSINICIAL,
+      rvGRUPOPRODUTOSFINAL   : result := ExisteGrupoProdutos(NomeCampo, Value);
+      rvPRODUTOSINICIAL,
+      rvPRODUTOSFINAL        : result := ExisteProdutos(NomeCampo, Value);
+      rvCLASSESINICIAL,
+      rvCLASSESFINAL         : result := ExisteClasses(NomeCampo, Value);
+      rvCLIENTESINICIAL,
+      rvCLIENTESFINAL        : result := ExisteCliente(NomeCampo, Value);
+    else
+      result := false;
+    end;
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.InternoImpressao;
+begin
+  inherited;
+  MontaPesquisa;
+end;
+
+function Tfrmrelatoriocustomercadoriasvendidas.InternoPesquisar(
+  Titulo: String): Integer;
+begin
+  Result := mrNone;
+  if ActiveControl is TtecFindCustom then
+  begin
+   if CtrlOn then
+   begin
+    if ActiveControl=edfItemProdutoInicial then
+      TipoPesquisa := rvITEMPRODUTOSINICIAL
+    else if ActiveControl=edfItemProdutoFinal then
+      TipoPesquisa := rvITEMPRODUTOSFINAL
+    else if ActiveControl=edfGrupoProdutoInicial then
+      TipoPesquisa := rvGRUPOPRODUTOSINICIAL
+    else if ActiveControl=edfGrupoProdutoFinal then
+      TipoPesquisa := rvGRUPOPRODUTOSFINAL
+    else if ActiveControl=edfProdutoInicial then
+      TipoPesquisa := rvPRODUTOSINICIAL
+    else if ActiveControl=edfProdutoFinal then
+      TipoPesquisa := rvPRODUTOSFINAL
+    else if ActiveControl=edfClasseInicial then
+      TipoPesquisa := rvCLASSESINICIAL
+    else if ActiveControl=edfClasseFinal then
+      TipoPesquisa := rvCLASSESFINAL
+    else if ActiveControl = edfClienteInicial then
+      TipoPesquisa := rvCLIENTESINICIAL
+    else if ActiveControl = edfClienteFinal then
+      TipoPesquisa := rvCLIENTESFINAL;
+    with dtmrelatoriocustomercadoriasvendidas do
+    begin
+       AbreTabelaPesquisa(TipoPesquisa);
+       Result:= inherited InternoPesquisar(Titulo);
+       if Result = mrOK then
+         Selecionar(TipoPesquisa);
+       FechaTabelaPesquisa(TipoPesquisa);
+    end;
+   end;
+  end;
+end;
+
+function Tfrmrelatoriocustomercadoriasvendidas.JanelaPesquisa: TfrmConsultaBasica;
+var
+  Jan: TfrmConsultaPorCampo;
+
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := Not (TipoPesquisa in [rvCLIENTESINICIAL, rvCLIENTESFINAL,
+
+                                                  rvITEMPRODUTOSINICIAL, rvITEMPRODUTOSFINAL,
+
+                                                  rvPRODUTOSINICIAL, rvPRODUTOSFINAL]) and CtrlOn;
+
+  Jan.UsarParametrosDaTabela := False;
+
+  Result := Jan
+
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.MontaPesquisa;
+begin
+  if ValidarCamposSelecao then begin
+    with dtmrelatoriocustomercadoriasvendidas do
+    begin
+      ParametroCabecalho :='';
+      DataInicial        := edtDataInicial.Text;
+      DataFinal          := edtDataFinal.Text;
+      Filial            := fraListaFiliais1.ListaSelecionada;
+      GrupoFilial       := fraListaGruposFiliais1.ListaSelecionada;
+      if GrupoFilial<>'' then
+        ParametroCabecalho:=ParametroCabecalho+' Grupo de Filiais: '+GrupoFilial
+      else
+      if Filial<>'' then
+        ParametroCabecalho:=ParametroCabecalho+' Filiais: '+Filial;
+      MontarFiltroConceitos(clbConceitos);
+      ListadeRegioes := fraSelecaoAleatoriaRegioes.StringSelecionada;
+      ListaCondicionalVendedores := fraSelecaoAleatoriavendedores.ListaCondicional;
+
+      ParametroSelecaoProdutos   := rgpSelecaoProduto.ItemIndex;
+      ParametroCodigoItemInicial := edfItemProdutoInicial.Text;
+      ParametroCodigoItemFinal   := edfItemProdutoFinal.Text;
+      ParametroCodigoInicial     := edfProdutoInicial.Text;
+      ParametroCodigoFinal       := edfProdutoFinal.Text;
+      ParametroGrupoInicial      := edfGrupoProdutoInicial.Text;
+      ParametroGrupoFinal        := edfGrupoProdutoFinal.Text;
+      ParametroClasseInicial     := edfClasseInicial.Text;
+      ParametroClasseFinal       := edfClasseFinal.Text;
+      ParametroSelecaoClientes   := rgpSelecaoClientes.ItemIndex;
+      ParametroClienteInicial    := edfClienteInicial.Text;
+      ParametroClienteFinal      := edfClienteFinal.Text;
+
+      ParametroFornecedor(fraConsultaFornecedor.qryProcuraClientecodigo.asString, fraConsultaFornecedor.qryProcuraClientetipo.asString);
+
+      ProdutoEmLinha     := ckbProdutoEmLinha.checked;
+      ProdutoForadeLinha := ckbProdutoForadeLinha.checked;
+      ProdutoComMontagem := ckbProdutoComMontagem.Checked;
+      ProdutoSemMontagem := ckbProdutoSemMontagem.Checked;
+      ProdutoBrinde      := ckbProdutoBrinde.Checked;
+      ProdutoNaoBrinde   := ckbProdutoNaoBrinde.Checked;
+      ListarVendas       := ckbListarVendas.Checked;
+      ListarDevolucoesdoPeriodo  := ckbListarDevolucoesdoPeriodo.Checked;
+      ListarDevolucoesAnteriores  := ckbListarDevolucoesAnteriores.Checked;
+      MostrarPlanos      := ckbMostrarPlanos.Checked;
+      TipodeResumo       := rgpTipodeResumo.ItemIndex;
+      Resumo             := rgpResumo.ItemIndex;
+      AgruparGrupoFilial := ckbAgruparGrupoFilial.Checked;
+      AgruparFilial      := ckbAgruparFilial.Checked;
+      AgruparConceito    := ckbAgruparConceitos.checked;
+      AgruparCliente     := ckbAgruparCliente.Checked;
+      Ordenacao          := rgpOrdenacao.ItemIndex;
+      Totalizacao        := rgpTotalizacao.ItemIndex;
+      MontarSQL;
+      MontaDatas;
+      MontarOrdenacao;
+      qryrelatoriocustomercvendidas.Open;
+      if not (qryrelatoriocustomercvendidas.IsEmpty) then
+       ImprimirRelatorio('CUSTO DE MERCADORIAS VENDIDAS')
+      else
+       MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+    end;
+  end;
+end;
+
+function Tfrmrelatoriocustomercadoriasvendidas.TabelaDePesquisa: TZdataSet;
+begin
+  with dtmrelatoriocustomercadoriasvendidas do
+    case TipoPesquisa of
+             rvITEMPRODUTOSINICIAL,
+             rvITEMPRODUTOSFINAL  : Result := ConsultaItemProdutos;
+             rvGRUPOPRODUTOSINICIAL,
+             rvGRUPOPRODUTOSFINAL : Result := ConsultaGrupoProdutos;
+             rvCLASSESINICIAL,
+             rvCLASSESFINAL       : Result := ConsultaClasses;
+             rvPRODUTOSINICIAL,
+             rvPRODUTOSFINAL      : Result := ConsultaProdutos;
+             rvCLIENTESINICIAL,
+             rvCLIENTESFINAL      : Result := ConsultaClientes;
+    else
+             Result:= nil;
+    end;
+end;
+
+function Tfrmrelatoriocustomercadoriasvendidas.ValidarCamposSelecao: Boolean;
+begin
+ Result:=(ckbProdutoEmLinha.Checked or ckbProdutoForadeLinha.Checked) and
+         (ckbProdutoComMontagem.Checked or ckbProdutoSemMontagem.Checked) and
+         (ckbProdutoBrinde.Checked or ckbProdutoNaoBrinde.Checked);
+ if Result then
+ begin
+  Result:=(ckbListarVendas.Checked or
+           ckbListarDevolucoesdoPeriodo.Checked or
+           ckbListarDevolucoesAnteriores.Checked);
+  if Result then
+  begin
+   Result := (edtDataInicial.DataValida and edtDataFinal.DataValida);
+   if Result then
+   begin
+    if (not dataembranco(edtDataInicial.text) and not dataembranco(edtDataFinal.text)) then
+      Result:=StrToDate(edtDataInicial.Text) <= StrToDate(edtDataFinal.Text);
+    if result then
+    begin
+      Result:=(not dataembranco(edtDataInicial.text) or not dataembranco(edtDataFinal.text));
+      if Result then
+      Result := OperadorTernario((Trim(edfItemProdutoInicial.Text) <> ''), edfItemProdutoInicial.Exist, True) and
+                OperadorTernario((Trim(edfProdutoInicial.Text) <> ''), edfProdutoInicial.Exist, True) and
+                OperadorTernario((Trim(edfGrupoProdutoInicial.text) <> ''), edfGrupoProdutoInicial.Exist, True) and
+                OperadorTernario((Trim(edfClasseInicial.Text) <> ''), edfClasseInicial.Exist, True)
+      else
+      begin
+       MensagemAviso(ctPARAMETROSINEXISTENTES);
+       edtDataInicial.SetFocus;
+      end;
+    end
+    else
+    begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      edtDataInicial.SetFocus;
+    end;
+   end;
+  end
+  else
+  begin
+   MensagemAviso(ctPARAMETROSINEXISTENTES);
+   ckbListarVendas.SetFocus;
+  end;
+ end
+ else
+ begin
+   MensagemAviso(ctPARAMETROSINEXISTENTES);
+   ckbProdutoEmLinha.SetFocus;
+ end;
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.sbnConsultaFilialClick(
+  Sender: TObject);
+begin
+  inherited;
+//InternoPesquisar(edfFilial, ctFILIAIS);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.sbnConsultaGrupoFilialClick(
+  Sender: TObject);
+begin
+  inherited;
+//InternoPesquisar(edfGrupoFilial, ctGRUPOFILIAIS);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.sbnConsultaItemProdutoInicialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfItemProdutoInicial, ctITEMPRODUTO);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.sbnConsultaProdutosInicialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfProdutoInicial, ctPRODUTO);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.sbnConsultaGrupoProdutoInicialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfGrupoProdutoInicial, ctGRUPO);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.sbnConsultaClasseInicialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfClasseInicial, ctCLASSES);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.pgcProdutosChange(
+  Sender: TObject);
+begin
+  inherited;
+  if pgcProdutos.ActivePage = tstItemProduto then
+  begin
+   edfProdutoInicial.Clear;
+   edfProdutoInicial.Exist;
+   edfProdutoFinal.Clear;
+   edfProdutoFinal.Exist;
+   edfGrupoProdutoInicial.Clear;
+   edfGrupoProdutoInicial.Exist;
+   edfGrupoProdutoFinal.Clear;
+   edfGrupoProdutoFinal.Exist;
+   edfClasseInicial.Clear;
+   edfClasseInicial.Exist;
+   edfClasseFinal.Clear;
+   edfClasseFinal.Exist;
+   edfItemProdutoInicial.setFocus;
+  end
+  else if pgcProdutos.ActivePage = tstProdutos then
+  begin
+   edfItemProdutoInicial.Clear;
+   edfItemProdutoInicial.Exist;
+   edfItemProdutoFinal.Clear;
+   edfItemProdutoFinal.Exist;
+   edfGrupoProdutoInicial.Clear;
+   edfGrupoProdutoInicial.Exist;
+   edfGrupoProdutoFinal.Clear;
+   edfGrupoProdutoFinal.Exist;
+   edfClasseInicial.Clear;
+   edfClasseInicial.Exist;
+   edfClasseFinal.Clear;
+   edfClasseFinal.Exist;
+   edfProdutoInicial.SetFocus;
+  end
+  else if pgcProdutos.ActivePage = tstGrupodeProdutos then
+  begin
+   edfItemProdutoInicial.Clear;
+   edfItemProdutoInicial.Exist;
+   edfItemProdutoFinal.Clear;
+   edfItemProdutoFinal.Exist;
+   edfProdutoInicial.Clear;
+   edfProdutoInicial.Exist;
+   edfProdutoFinal.Clear;
+   edfProdutoFinal.Exist;
+   edfClasseInicial.Clear;
+   edfClasseInicial.Exist;
+   edfClasseFinal.Clear;
+   edfClasseFinal.Exist;
+   edfGrupoProdutoInicial.SetFocus;
+  end
+  else if pgcProdutos.ActivePage = tstClasses then
+  begin
+   edfItemProdutoInicial.Clear;
+   edfItemProdutoInicial.Exist;
+   edfItemProdutoFinal.Clear;
+   edfItemProdutoFinal.Exist;
+   edfProdutoInicial.Clear;
+   edfProdutoInicial.Exist;
+   edfProdutoFinal.Clear;
+   edfProdutoFinal.Exist;
+   edfGrupoProdutoInicial.Clear;
+   edfGrupoProdutoInicial.Exist;
+   edfGrupoProdutoFinal.Clear;
+   edfGrupoProdutoFinal.Exist;
+   edfClasseInicial.SetFocus;
+  end;
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.ObterLista(
+  Origem: TStrings; Destino: TCheckListBox);
+begin
+  Destino.Items.AddStrings(Origem);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.sbnConsultaItemProdutoFinalClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfItemProdutoFinal, ctITEMPRODUTO);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.sbnConsultaProdutosFinalClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfProdutoFinal, ctPRODUTO);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.sbnConsultaGrupoProdutoFinalClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfGrupoProdutoFinal, ctGRUPO);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.sbnConsultaClasseFinalClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfClasseFinal, ctCLASSES);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.sbnConsultaClienteInicialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfClienteInicial, ctCLIENTES);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.sbnConsultaClienteFinalClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfClienteFinal, ctCLIENTES);
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.ckbProdutoForadeLinhaClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoForadeLinha.Checked and
+     not ckbProdutoEmLinha.Checked then
+     ckbProdutoEmLinha.Checked := True;
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.ckbProdutoEmLinhaClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoForadeLinha.Checked and
+     not ckbProdutoEmLinha.Checked then
+     ckbProdutoforadelinha.Checked := True;
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.ckbProdutoComMontagemClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoComMontagem.Checked and
+     not ckbProdutoSemMontagem.Checked then
+     ckbProdutoSemMontagem.Checked := True;
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.ckbProdutoSemMontagemClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoComMontagem.Checked and
+     not ckbProdutoSemMontagem.Checked then
+     ckbProdutoComMontagem.Checked := True;
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.ckbProdutoBrindeClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoBrinde.Checked and
+     not ckbProdutoNaoBrinde.Checked then
+     ckbProdutoNaoBrinde.Checked := True;
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.ckbProdutoNaoBrindeClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoBrinde.Checked and
+     not ckbProdutoNaoBrinde.Checked then
+     ckbProdutoBrinde.Checked := True;
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.fraListaFiliais1clbFiliaisClickCheck(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaGruposFiliais1.sbnDesmarcarGrupodeFiliaisClick(self);
+
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.fraListaFiliais1sbnMarcarFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaFiliais1.sbnMarcarFiliaisClick(Sender);
+  fraListaGruposFiliais1.sbnDesmarcarGrupodeFiliaisClick(self);
+
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.fraListaGruposFiliais1clbGrupodeFiliaisClickCheck(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaFiliais1.sbnDesmarcarFiliaisClick(Sender);
+
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.fraListaGruposFiliais1sbnmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaGruposFiliais1.sbnmarcarGrupodeFiliaisClick(Sender);
+  fraListaFiliais1.sbnDesmarcarFiliaisClick(Sender);
+
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.fraSelecaoAleatoriaRegioesqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+var nc: integer;
+  
+begin
+  inherited;
+  with fraSelecaoAleatoriaRegioes do begin
+     for nc:= 0 to qrySelecaoAleatoria.FieldCount - 1 do
+         qrySelecaoAleatoria.Fields[nc].Visible := false;
+
+     qrySelecaoAleatoria.FieldByName('codigo').visible := true;
+     qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'CÓDIGO';
+     qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+     qrySelecaoAleatoria.FieldByName('nome').visible := true;
+     qrySelecaoAleatoria.FieldByName('nome').DisplayLabel := 'NOME';
+     qrySelecaoAleatoria.FieldByName('nome').ReadOnly := true;
+
+     qrySelecaoAleatoria.Append;
+     qrySelecaoAleatoria.Post;
+
+     with dbgSelecaoAleatoria do
+          for nc:= 0 to 1 do with Columns[nc].Title do begin
+              Alignment:= taCenter;
+              Font.Name:= 'helvetica';
+              Font.Height:= -9;
+          end;
+  end;
+
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.fraSelecaoAleatoriaRegioessbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGradeRegioes;
+
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.fraSelecaoAleatoriaRegioesdbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGradeRegioes;
+
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.fraSelecaoAleatoriaRegioesdbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     fraSelecaoAleatoriaRegioes.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or fraSelecaoAleatoriaRegioes.ConsultaSelecaoAleatoria.CtrlOn then
+                       AcionarPesquisaGradeRegioes
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaRegioes.dbgSelecaoAleatoria.SelectedIndex = 0  then
+                begin
+                  fraSelecaoAleatoriaRegioes.ConsultaSelecaoAleatoria.edfCodigo.DoExit;
+                  if not fraSelecaoAleatoriaRegioes.ConsultaSelecaoAleatoria.qryProcuraRegioes.IsEmpty then
+                    AtribuirDadosRegioes
+                  else
+                  begin
+                    key := 0;
+                    fraSelecaoAleatoriaRegioes.dbgSelecaoAleatoria.SelectedIndex := 0;
+                    fraSelecaoAleatoriaRegioes.dbgSelecaoAleatoria.SetFocus;
+                  end;
+                end;
+  end;
+  inherited;
+
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.AcionarPesquisaGradeRegioes;
+begin
+  with fraSelecaoAleatoriaRegioes do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar('Regiões');
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+
+end;
+
+procedure Tfrmrelatoriocustomercadoriasvendidas.AtribuirDadosRegioes;
+begin
+  with fraSelecaoAleatoriaRegioes do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraRegioescodigo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('nome').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraRegioesnome.AsString;
+
+    qrySelecaoAleatoria.Post;
+  end;
+
+end;
+
+end.

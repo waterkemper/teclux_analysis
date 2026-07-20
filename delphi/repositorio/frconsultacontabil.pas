@@ -1,0 +1,1694 @@
+unit frconsultacontabil;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  zquery, cpdbfindcontrols, Windows, DB, cpdatasource,
+  ZPgSqlQuery, cpquery, dmtecsoft, dmbasico, ctconstantes, clparametrossistema,
+  clusuario, ZTransact, biblio, fmconsultabasica, fmconsultaporcampo, TypInfo, Contnrs,
+  lstConsultaPorCampoItens;
+
+type
+  TfraConsultaContabil = class(TFrame)
+    qryConsultaHistorico: TtecQuery;
+    qryConsultaHistoricodescricao: TStringField;
+    qryConsultaHistoricocodigo: TIntegerField;
+    dsrProcuraHistorico: TtecDataSource;
+    qryProcuraHistorico: TtecQuery;
+    qryProcuraHistoricodescricao: TStringField;
+    qryProcuraHistoricocodigo: TIntegerField;
+    qryConsultaConta: TtecQuery;
+    qryConsultaContadescricaoedentada: TStringField;
+    qryConsultaContadescricao: TStringField;
+    qryConsultaContaclassificacao: TStringField;
+    qryConsultaContacodigo: TIntegerField;
+    qryConsultaContatipo: TStringField;
+    dsrProcuraDebitar: TtecDataSource;
+    qryProcuraDebitar: TtecQuery;
+    qryProcuraDebitarcodigo: TIntegerField;
+    qryProcuraDebitarclassificacao: TStringField;
+    qryProcuraDebitardescricao: TStringField;
+    qryProcuraCreditar: TtecQuery;
+    qryProcuraCreditarcodigo: TIntegerField;
+    qryProcuraCreditarclassificacao: TStringField;
+    qryProcuraCreditardescricao: TStringField;
+    dsrProcuraCreditar: TtecDataSource;
+    qryProcuraDebitartipo: TStringField;
+    qryProcuraCreditartipo: TStringField;
+    qryProcuraEventos: TtecQuery;
+    dsrProcuraEventos: TtecDataSource;
+    qryConsultaEventos: TtecQuery;
+    qryConsultaEventoscodigo: TIntegerField;
+    qryConsultaEventosclassificacao: TStringField;
+    qryConsultaEventosdescricao: TStringField;
+    qryConsultaEventosinativo: TDateField;
+    qryConsultaEventostipo: TStringField;
+    qryProcuraPlanoReferencial: TtecQuery;
+    qryConsultaPlanoReferencial: TtecQuery;
+    dsrProcuraPlanoReferencial: TtecDataSource;
+    qryProcuraPlanoReferencialcodigo: TIntegerField;
+    qryProcuraPlanoReferencialclassificacao: TStringField;
+    qryProcuraPlanoReferencialdescricao: TStringField;
+    qryProcuraPlanoReferencialtipo: TStringField;
+    qryProcuraPlanoReferencialvalidodesde: TDateField;
+    qryProcuraPlanoReferencialvalidoate: TDateField;
+    qryConsultaPlanoReferencialdescricaoedentada: TStringField;
+    qryConsultaPlanoReferencialdescricao: TStringField;
+    qryConsultaPlanoReferencialclassificacao: TStringField;
+    qryConsultaPlanoReferencialcodigo: TIntegerField;
+    qryConsultaPlanoReferencialtipo: TStringField;
+    qryConsultaEventostipoevento: TStringField;
+    qryProcuraModeloDoctosFiscais: TtecQuery;
+    dsrProcuraModeloDoctosFiscais: TtecDataSource;
+    qryConsultaModeloDoctosFiscais: TtecQuery;
+    qryConsultaModeloDoctosFiscaiscodigo: TStringField;
+    qryConsultaModeloDoctosFiscaisdescricao: TStringField;
+    qryConsultaModeloDoctosFiscaismodelo: TStringField;
+    qryProcuraModeloDoctosFiscaiscodigo: TStringField;
+    qryProcuraModeloDoctosFiscaisdescricao: TStringField;
+    qryProcuraModeloDoctosFiscaismodelo: TStringField;
+    qryProcuraICMSObrigacoes: TtecQuery;
+    dsrProcuraICMSObrigacoes: TtecDataSource;
+    qryConsultaICMSObrigacoes: TtecQuery;
+    qryProcuraICMSObrigacoescodigo: TStringField;
+    qryProcuraICMSObrigacoesdescricao: TStringField;
+    qryConsultaICMSObrigacoescodigo: TStringField;
+    qryConsultaICMSObrigacoesdescricao: TStringField;
+    qryProcuraAjusteICMS: TtecQuery;
+    dsrProcuraAjusteICMS: TtecDataSource;
+    qryConsultaAjusteICMS: TtecQuery;
+    qryProcuraAjusteICMScodigo: TStringField;
+    qryProcuraAjusteICMSdescricao: TStringField;
+    qryProcuraAjusteICMSvalidodesde: TDateField;
+    qryConsultaAjusteICMScodigo: TStringField;
+    qryConsultaAjusteICMSdescricao: TStringField;
+    qryConsultaAjusteICMSvalidodesde: TDateField;
+    qryProcuraInstRespAdmCadastro: TtecQuery;
+    dsrProcuraInstRespAdmCadastro: TtecDataSource;
+    qryConsultaInstRespAdmCadastro: TtecQuery;
+    qryProcuraInstRespAdmCadastrocodigo: TStringField;
+    qryProcuraInstRespAdmCadastrodescricao: TStringField;
+    qryConsultaInstRespAdmCadastrocodigo: TStringField;
+    qryConsultaInstRespAdmCadastrodescricao: TStringField;
+    qryProcuraQualificacao: TtecQuery;
+    dsrProcuraQualificacao: TtecDataSource;
+    qryConsultaQualificacao: TtecQuery;
+    qryConsultaQualificacaocodigo: TStringField;
+    qryConsultaQualificacaodescricao: TStringField;
+    qryProcuraQualificacaocodigo: TStringField;
+    qryProcuraQualificacaodescricao: TStringField;
+    qryProcuraECD: TtecQuery;
+    dsrProcuraECD: TtecDataSource;
+    qryConsultaECD: TtecQuery;
+    qryProcuraECDexercicio: TStringField;
+    qryProcuraECDnomearquivo: TStringField;
+    qryProcuraECDdata: TDateTimeField;
+    qryProcuraECDsituacao: TStringField;
+    qryProcuraECDfilial: TIntegerField;
+    qryProcuraECDnum_ord: TIntegerField;
+    qryProcuraECDnatureza: TStringField;
+    qryConsultaECDexercicio: TStringField;
+    qryConsultaECDnomearquivo: TStringField;
+    qryConsultaECDdata: TDateTimeField;
+    qryConsultaECDsituacao: TStringField;
+    qryConsultaECDfilial: TIntegerField;
+    qryConsultaECDnum_ord: TIntegerField;
+    qryConsultaECDnatureza: TStringField;
+    qryProcuraEFD: TtecQuery;
+    dsrProcuraEFD: TtecDataSource;
+    qryConsultaEFD: TtecQuery;
+    qryConsultaEFDperiodo: TStringField;
+    qryConsultaEFDnomearquivo: TStringField;
+    qryConsultaEFDdata: TDateTimeField;
+    qryConsultaEFDtipo: TStringField;
+    qryConsultaEFDfilial: TIntegerField;
+    qryConsultaEFDdatainventario: TDateField;
+    qryProcuraEFDperiodo: TStringField;
+    qryProcuraEFDnomearquivo: TStringField;
+    qryProcuraEFDdata: TDateTimeField;
+    qryProcuraEFDtipo: TStringField;
+    qryProcuraEFDfilial: TIntegerField;
+    qryProcuraEFDdatainventario: TDateField;
+    qryConsultaAjusteIPI: TtecQuery;
+    qryConsultaAjusteIPIcodigo: TStringField;
+    qryConsultaAjusteIPIdescricao: TStringField;
+    qryConsultaAjusteIPInatureza: TStringField;
+    dsrProcuraAjusteIPI: TtecDataSource;
+    qryProcuraAjusteIPI: TtecQuery;
+    qryProcuraAjusteIPIcodigo: TStringField;
+    qryProcuraAjusteIPIdescricao: TStringField;
+    qryProcuraAjusteIPInatureza: TStringField;
+    qryProcuraCSOSN: TtecQuery;
+    dsrProcuraCSOSN: TtecDataSource;
+    qryConsultaCSOSN: TtecQuery;
+    qryProcuraCSOSNcodigo: TStringField;
+    qryProcuraCSOSNdescricao: TStringField;
+    qryConsultaCSOSNcodigo: TStringField;
+    qryConsultaCSOSNdescricao: TStringField;
+    qryProcuraCodigosFiscais: TtecQuery;
+    dsrProcuraCodigosFiscais: TtecDataSource;
+    qryProcuraCodigosFiscaiscodigo: TIntegerField;
+    qryProcuraCodigosFiscaisdescricao: TStringField;
+    qryProcuraCodigosFiscaisdetalhes: TStringField;
+    qryProcuraCodigosFiscaishistorico: TIntegerField;
+    qryProcuraCodigosFiscaisdebitoconta: TIntegerField;
+    qryProcuraCodigosFiscaiscreditoconta: TIntegerField;
+    qryProcuraCodigosFiscaistipo: TStringField;
+    qryProcuraCodigosFiscaisvalidoate: TDateField;
+    qryProcuraCodigosFiscaisvalidoapos: TDateField;
+    qryProcuraCodigosFiscaisbasefaturamento: TBooleanField;
+    qryProcuraCodigosFiscaisbasepis: TBooleanField;
+    qryProcuraCodigosFiscaisbasecofins: TBooleanField;
+    qryProcuraCodigosFiscaisbasecssl: TBooleanField;
+    qryProcuraCodigosFiscaisdestacaripi: TBooleanField;
+    qryConsultaCodigosFiscais: TtecQuery;
+    qryConsultaCodigosFiscaisdescricao: TStringField;
+    qryConsultaCodigosFiscaiscodigo: TIntegerField;
+    qryConsultaCentrodeCusto: TtecQuery;
+    dsrProcuraCentrodeCusto: TtecDataSource;
+    qryProcuraCentrodeCusto: TtecQuery;
+    qryProcuraCentrodeCustodescricao: TStringField;
+    qryProcuraCentrodeCustocodigo: TIntegerField;
+    qryConsultaCentrodeCustodescricao: TStringField;
+    qryConsultaCentrodeCustocodigo: TIntegerField;
+    qryProcuraDIPJ_IPI: TtecQuery;
+    dsrProcuraDIPJ_IPI: TtecDataSource;
+    qryProcuraDIPJ_IPIexercicio: TStringField;
+    qryProcuraDIPJ_IPInomearquivo: TStringField;
+    qryProcuraDIPJ_IPIdata: TDateTimeField;
+    qryProcuraDIPJ_IPIfilial: TIntegerField;
+    qryConsultaDIPJ_IPI: TtecQuery;
+    qryConsultaDIPJ_IPIexercicio: TStringField;
+    qryConsultaDIPJ_IPInomearquivo: TStringField;
+    qryConsultaDIPJ_IPIdata: TDateTimeField;
+    qryConsultaDIPJ_IPIfilial: TIntegerField;
+    qryProcuraClassificacaoIPI: TtecQuery;
+    dsrProcuraClassificacaoIPI: TtecDataSource;
+    qryConsultaClassificacaoIPI: TtecQuery;
+    qryProcuraClassificacaoIPIcodigo: TStringField;
+    qryProcuraClassificacaoIPIclassificacao: TStringField;
+    qryProcuraClassificacaoIPItipo: TStringField;
+    qryConsultaClassificacaoIPIcodigo: TStringField;
+    qryConsultaClassificacaoIPIclassificacao: TStringField;
+    qryConsultaClassificacaoIPItipo: TStringField;
+    qryProcuraFCont: TtecQuery;
+    dsrProcuraFCont: TtecDataSource;
+    qryConsultaFCont: TtecQuery;
+    qryConsultaFContexercicio: TStringField;
+    qryConsultaFContnomearquivo: TStringField;
+    qryConsultaFContdata: TDateTimeField;
+    qryConsultaFContfilial: TIntegerField;
+    qryConsultaFContnum_ord: TIntegerField;
+    qryConsultaFContnatureza: TStringField;
+    qryProcuraFContexercicio: TStringField;
+    qryProcuraFContnomearquivo: TStringField;
+    qryProcuraFContdata: TDateTimeField;
+    qryProcuraFContfilial: TIntegerField;
+    qryProcuraFContsituacao: TIntegerField;
+    qryProcuraFContIND_SIT_INI_PER: TIntegerField;
+    qryProcuraFContnum_ord: TIntegerField;
+    qryProcuraFContnatureza: TStringField;
+    qryProcuraFContTIPO_ESCRIT: TIntegerField;
+    qryProcuraFContNro_Rec_Anterior: TStringField;
+    qryProcuraFContId_escr_Per_ant: TStringField;
+    qryProcuraFContsIT_sLD_PER_ANT: TStringField;
+    qryProcuraFContInd_lcto_ini_sld: TIntegerField;
+    qryConsultaFContsituacao: TIntegerField;
+    qryProcuraEPC: TtecQuery;
+    dsrProcuraEPC: TtecDataSource;
+    qryConsultaEPC: TtecQuery;
+    qryProcuraEPCperiodo: TStringField;
+    qryProcuraEPCnomearquivo: TStringField;
+    qryProcuraEPCdata: TDateTimeField;
+    qryProcuraEPCsituacao: TStringField;
+    qryProcuraEPCfilial: TIntegerField;
+    qryProcuraEPCnum_ord: TIntegerField;
+    qryProcuraEPCnatureza: TStringField;
+    qryProcuraEPCtipo: TStringField;
+    qryProcuraEPCCOD_INC_TRIB: TIntegerField;
+    qryProcuraEPCIND_APRO_CRED: TIntegerField;
+    qryProcuraEPCCOD_TIPO_CONT: TIntegerField;
+    qryProcuraEPCIND_REG_CUM: TIntegerField;
+    qryProcuraEPCREC_BRU_NCUM_TRIB_MI: TFloatField;
+    qryProcuraEPCREC_BRU_NCUM_NT_MI: TFloatField;
+    qryProcuraEPCREC_BRU_NCUM_EXP: TFloatField;
+    qryProcuraEPCREC_BRU_CUM: TFloatField;
+    qryConsultaEPCperiodo: TStringField;
+    qryConsultaEPCnomearquivo: TStringField;
+    qryConsultaEPCdata: TDateTimeField;
+    qryConsultaEPCfilial: TIntegerField;
+    qryConsultaEPCtipo: TStringField;
+    qryConsultaTributosICMS: TtecQuery;
+    qryConsultaTributosICMScodigo: TStringField;
+    qryConsultaTributosICMSdescricao: TStringField;
+    dsrProcuraTributosICMS: TtecDataSource;
+    qryProcuraTributosICMS: TtecQuery;
+    qryProcuraTributosICMScodigo: TStringField;
+    qryProcuraTributosICMSdescricao: TStringField;
+    qryConsultatributosipi: TtecQuery;
+    qryConsultatributosipicodigo: TStringField;
+    qryConsultatributosipidescricao: TStringField;
+    dsrProcuratributosipi: TtecDataSource;
+    qryProcuratributosipi: TtecQuery;
+    qryProcuratributosipicodigo: TStringField;
+    qryProcuratributosipidescricao: TStringField;
+    qryConsultatributoscofins: TtecQuery;
+    qryConsultatributoscofinscodigo: TStringField;
+    qryConsultatributoscofinsdescricao: TStringField;
+    dsrProcuratributoscofins: TtecDataSource;
+    qryProcuratributoscofins: TtecQuery;
+    qryProcuratributoscofinscodigo: TStringField;
+    qryProcuratributoscofinsdescricao: TStringField;
+    qryConsultatributospis: TtecQuery;
+    qryConsultatributospiscodigo: TStringField;
+    qryConsultatributospisdescricao: TStringField;
+    dsrProcuratributospis: TtecDataSource;
+    qryProcuratributospis: TtecQuery;
+    qryProcuratributospiscodigo: TStringField;
+    qryProcuratributospisdescricao: TStringField;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    dsrProcuraFiliais: TtecDataSource;
+    qryProcuraFiliais: TtecQuery;
+    qryProcuraFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisnome: TStringField;
+    qryProcuraFiliaisexercicio: TStringField;
+    qryProcuraFiliaisresultadosintetica: TStringField;
+    qryProcuraFiliaisresultadoanalitica: TStringField;
+    qryProcuraFiliaishistoricoencerramento: TStringField;
+    qryProcuraGrupoFiliaisSomenteUsuario: TtecQuery;
+    qryProcuraGrupoFiliaisTodas: TtecQuery;
+    IntegerField3: TIntegerField;
+    StringField3: TStringField;
+    qryConsultaGrupoFiliaisSomenteUsuario: TtecQuery;
+    qryConsultaGrupoFiliaisTodas: TtecQuery;
+    qryProcuraFiliaisSomenteUsuario: TtecQuery;
+    qryProcuraFiliaisTodas: TtecQuery;
+    qryConsultaFiliaisSomenteUsuario: TtecQuery;
+    qryConsultaFiliaisTodas: TtecQuery;
+    qryConsultaGrupoFiliais: TtecQuery;
+    qryConsultaGrupoFiliaisdescricao: TStringField;
+    qryConsultaGrupoFiliaiscodigo: TIntegerField;
+    dsrProcuraGrupoFiliais: TtecDataSource;
+    qryProcuraGrupoFiliais: TtecQuery;
+    qryProcuraGrupoFiliaiscodigo: TIntegerField;
+    qryProcuraGrupoFiliaisdescricao: TStringField;
+    qryProcuraPISCOFINS_T436: TtecQuery;
+    dsrProcuraPISCOFINS_T436: TtecDataSource;
+    qryConsultaPISCOFINS_T436: TtecQuery;
+    qryProcuraPISCOFINS_T436codigo: TIntegerField;
+    qryProcuraPISCOFINS_T436descricao: TStringField;
+    qryConsultaPISCOFINS_T436codigo: TIntegerField;
+    qryConsultaPISCOFINS_T436descricao: TStringField;
+    qryProcuraPISCOFINS_T435: TtecQuery;
+    dsrProcuraPISCOFINS_T435: TtecDataSource;
+    qryConsultaPISCOFINS_T435: TtecQuery;
+    qryProcuraPISCOFINS_T435descricao: TStringField;
+    qryConsultaPISCOFINS_T435descricao: TStringField;
+    qryProcuraPISCOFINS_T435codigo: TStringField;
+    qryConsultaPISCOFINS_T435codigo: TStringField;
+    qryProcuraefd_t53: TtecQuery;
+    qryConsultaefd_t53: TtecQuery;
+    dsrProcuraefd_t53: TtecDataSource;
+    qryProcuraefd_t53codigo: TStringField;
+    qryProcuraefd_t53descricao: TStringField;
+    qryProcuraefd_t53validodesde: TDateField;
+    qryProcuraefd_t53validoate: TDateField;
+    qryConsultaefd_t53codigo: TStringField;
+    qryConsultaefd_t53descricao: TStringField;
+    qryConsultaefd_t53validodesde: TDateField;
+    qryConsultaefd_t53validoate: TDateField;
+    qryProcuraPISCOFINS_T511: TtecQuery;
+    dsrProcuraPISCOFINS_T511: TtecDataSource;
+    qryConsultaPISCOFINS_T511: TtecQuery;
+    qryProcuraPISCOFINS_T511codigo: TStringField;
+    qryProcuraPISCOFINS_T511descricao: TStringField;
+    qryProcuraPISCOFINS_T511ncm: TStringField;
+    qryProcuraPISCOFINS_T511aliquota: TFloatField;
+    qryProcuraPISCOFINS_T511inicio_escrituracao: TDateField;
+    qryConsultaPISCOFINS_T511codigo: TStringField;
+    qryConsultaPISCOFINS_T511descricao: TStringField;
+    qryConsultaPISCOFINS_T511ncm: TStringField;
+    qryConsultaPISCOFINS_T511aliquota: TFloatField;
+    qryConsultaPISCOFINS_T511inicio_escrituracao: TDateField;
+    qryProcuraEFD_CodigosdeReceita: TtecQuery;
+    dsrProcuraEFD_CodigosdeReceita: TtecDataSource;
+    qryConsultaEFD_CodigosdeReceita: TtecQuery;
+    qryProcuraEFD_CodigosdeReceitacodigo: TStringField;
+    qryProcuraEFD_CodigosdeReceitadescricao: TStringField;
+    qryProcuraEFD_CodigosdeReceitavalidodesde: TDateField;
+    qryProcuraEFD_CodigosdeReceitavalidoate: TDateField;
+    qryConsultaEFD_CodigosdeReceitacodigo: TStringField;
+    qryConsultaEFD_CodigosdeReceitadescricao: TStringField;
+    qryConsultaEFD_CodigosdeReceitavalidodesde: TDateField;
+    qryConsultaEFD_CodigosdeReceitavalidoate: TDateField;
+    qryProcuraTributosISSQN: TtecQuery;
+    dsrProcuraTributosISSQN: TtecDataSource;
+    qryConsultaTributosISSQN: TtecQuery;
+    qryProcuraTributosISSQNcodigo: TIntegerField;
+    qryProcuraTributosISSQNdescricao: TStringField;
+    qryConsultaTributosISSQNcodigo: TIntegerField;
+    qryConsultaTributosISSQNdescricao: TStringField;
+    qryProcurapis_tdctf: TtecQuery;
+    dsrProcurapis_tdctf: TtecDataSource;
+    qryConsultapis_tdctf: TtecQuery;
+    qryProcurapis_tdctfcodigo: TStringField;
+    qryProcurapis_tdctfperiodicidade: TStringField;
+    qryProcurapis_tdctfperiodo_apuracao: TStringField;
+    qryProcurapis_tdctfdenominacao: TStringField;
+    qryConsultapis_tdctfcodigo: TStringField;
+    qryConsultapis_tdctfperiodicidade: TStringField;
+    qryConsultapis_tdctfperiodo_apuracao: TStringField;
+    qryConsultapis_tdctfdenominacao: TStringField;
+    qryProcuracofins_tdctf: TtecQuery;
+    dsrProcuracofins_tdctf: TtecDataSource;
+    qryConsultacofins_tdctf: TtecQuery;
+    qryProcuracofins_tdctfcodigo: TStringField;
+    qryProcuracofins_tdctfperiodicidade: TStringField;
+    qryProcuracofins_tdctfperiodo_apuracao: TStringField;
+    qryProcuracofins_tdctfdenominacao: TStringField;
+    qryConsultacofins_tdctfcodigo: TStringField;
+    qryConsultacofins_tdctfperiodicidade: TStringField;
+    qryConsultacofins_tdctfperiodo_apuracao: TStringField;
+    qryConsultacofins_tdctfdenominacao: TStringField;
+    qryConsultaTiposPlanosreferenciais: TtecQuery;
+    qryProcuraTiposPlanosreferenciais: TtecQuery;
+    dsrProcuraTiposPlanosreferenciais: TtecDataSource;
+    qryConsultaTiposPlanosreferenciaistipoplano: TIntegerField;
+    qryConsultaTiposPlanosreferenciaisdescricao: TStringField;
+    qryConsultaTiposPlanosreferenciaisblocos: TStringField;
+    qryConsultaTiposPlanosreferenciaisativo: TBooleanField;
+    qryProcuraTiposPlanosreferenciaistipoplano: TIntegerField;
+    qryProcuraTiposPlanosreferenciaisdescricao: TStringField;
+    qryProcuraTiposPlanosreferenciaisblocos: TStringField;
+    qryProcuraTiposPlanosreferenciaisativo: TBooleanField;
+    qryProcuraPlanoReferencialorientacoes: TStringField;
+    qryProcuraECF: TtecQuery;
+    dsrProcuraECF: TtecDataSource;
+    qryConsultaECF: TtecQuery;
+    qryProcuraECFnomearquivo: TStringField;
+    qryProcuraECFdata: TDateTimeField;
+    qryProcuraECFfilial: TIntegerField;
+    qryProcuraECFnum_ord: TIntegerField;
+    qryProcuraECFnatureza: TStringField;
+    qryProcuraECFind_sit_ini_per: TStringField;
+    qryProcuraECFsit_especial: TStringField;
+    qryProcuraECFpat_reman_cis: TFloatField;
+    qryProcuraECFdt_sit_esp: TDateField;
+    qryProcuraECFdt_ini: TDateField;
+    qryProcuraECFdt_fin: TDateField;
+    qryProcuraECFretificadora: TStringField;
+    qryProcuraECFnum_rec: TStringField;
+    qryProcuraECFtip_ecf: TStringField;
+    qryProcuraECFcod_scp: TStringField;
+    qryConsultaECFnomearquivo: TStringField;
+    qryConsultaECFdata: TDateTimeField;
+    qryConsultaECFfilial: TIntegerField;
+    qryProcuraECFexercicio: TIntegerField;
+    qryConsultaECFexercicio: TIntegerField;
+    qryProcuraProcessoJudicialReinf: TtecQuery;
+    dsrProcuraProcessoJudicialReinf: TtecDataSource;
+    qryConsultaProcessoJudicialReinf: TtecQuery;
+    qryProcuraProcessoJudicialReinfnumero: TIntegerField;
+    qryProcuraProcessoJudicialReinftpproc: TIntegerField;
+    qryProcuraProcessoJudicialReinfnrproc: TStringField;
+    qryProcuraProcessoJudicialReinfinivalid: TStringField;
+    qryProcuraProcessoJudicialReinffimvalid: TStringField;
+    qryProcuraProcessoJudicialReinfindautoria: TIntegerField;
+    qryProcuraProcessoJudicialReinfobservacoes: TStringField;
+    qryProcuraProcessoJudicialReinfdatahoraexclusao: TDateTimeField;
+    qryProcuraProcessoJudicialReinfdatahoraalteracao: TDateTimeField;
+    qryConsultaProcessoJudicialReinfnumero: TIntegerField;
+    qryConsultaProcessoJudicialReinfnrproc: TStringField;
+    qryConsultaProcessoJudicialReinfinivalid: TStringField;
+    qryConsultaProcessoJudicialReinffimvalid: TStringField;
+    qryProcuraSuspensaoExibilidadeTributos: TtecQuery;
+    dsrProcuraSuspensaoExibilidadeTributos: TtecDataSource;
+    qryConsultaSuspensaoExibilidadeTributos: TtecQuery;
+    qryConsultaSuspensaoExibilidadeTributoscodsusp: TStringField;
+    qryConsultaSuspensaoExibilidadeTributosindsusp: TStringField;
+    qryConsultaSuspensaoExibilidadeTributosdtdecisao: TDateField;
+    qryConsultaSuspensaoExibilidadeTributosinddeposito: TStringField;
+    qryConsultaSuspensaoExibilidadeTributosufvara: TStringField;
+    qryConsultaSuspensaoExibilidadeTributoscodmunic: TIntegerField;
+    qryConsultaSuspensaoExibilidadeTributosidvara: TStringField;
+    qryConsultaSuspensaoExibilidadeTributosnomecidade: TStringField;
+    qryProcuraSuspensaoExibilidadeTributosprocessojudicial: TIntegerField;
+    qryProcuraSuspensaoExibilidadeTributosnumero: TIntegerField;
+    qryProcuraSuspensaoExibilidadeTributoscodsusp: TStringField;
+    qryProcuraSuspensaoExibilidadeTributosindsusp: TStringField;
+    qryProcuraSuspensaoExibilidadeTributosdtdecisao: TDateField;
+    qryProcuraSuspensaoExibilidadeTributosinddeposito: TStringField;
+    qryProcuraSuspensaoExibilidadeTributosufvara: TStringField;
+    qryProcuraSuspensaoExibilidadeTributoscodmunic: TIntegerField;
+    qryProcuraSuspensaoExibilidadeTributosidvara: TStringField;
+    qryProcuraSuspensaoExibilidadeTributosdatahoraexclusao: TDateTimeField;
+    qryProcuraSuspensaoExibilidadeTributosnomecidade: TStringField;
+    qryConsultaSuspensaoExibilidadeTributosnrproc: TStringField;
+    qryConsultaSuspensaoExibilidadeTributosprocessojudicial: TIntegerField;
+    qryConsultaSuspensaoExibilidadeTributosnumero: TIntegerField;
+    qryConsultaSuspensaoExibilidadeTributosdatahoraexclusao: TDateTimeField;
+    qryProcuraSuspensaoExibilidadeTributosnrproc: TStringField;
+    qryProcuraMaoObraFornecedor: TtecQuery;
+    dsrProcuraMaoObraFornecedor: TtecDataSource;
+    qryConsultaMaoObraFornecedor: TtecQuery;
+    qryConsultaMaoObraFornecedorcno: TStringField;
+    qryConsultaMaoObraFornecedordescricao: TStringField;
+    qryProcuraMaoObraFilial: TtecQuery;
+    dsrProcuraMaoObraFilial: TtecDataSource;
+    qryConsultaMaoObraFilial: TtecQuery;
+    qryProcuraMaoObraFilialcno: TStringField;
+    qryProcuraMaoObraFilialdescricao: TStringField;
+    qryConsultaMaoObraFilialcno: TStringField;
+    qryConsultaMaoObraFilialdescricao: TStringField;
+    qryProcuraMaoObraFornecedorcliente2: TIntegerField;
+    qryProcuraMaoObraFornecedortipocliente2: TStringField;
+    qryProcuraMaoObraFornecedorcno2: TStringField;
+    qryProcuraMaoObraFornecedortpinscestabindobra: TIntegerField;
+    qryProcuraMaoObraFornecedordescricao2: TStringField;
+    qryConsultaMaoObraFornecedorcliente: TIntegerField;
+    qryConsultaMaoObraFilialcliente: TIntegerField;
+    qryProcuraMaoObraFilialcliente: TIntegerField;
+    qryProcuraMaoObraFilialtipocliente: TStringField;
+    qryProcuraMaoObraFilialtpinscestabindobra: TIntegerField;
+    qryConsultaEventosdescricaoedentada: TStringField;
+    qryConsultaEventostipomovimentacao: TStringField;
+    procedure qryConsultaEventosBeforeOpen(DataSet: TDataSet);
+    procedure qryProcuraEventosBeforeOpen(DataSet: TDataSet);
+    procedure qryProcuraFiliaisBeforeOpen(DataSet: TDataSet);
+    procedure qryConsultaFiliaisBeforeOpen(DataSet: TDataSet);
+    procedure qryProcuraGrupoFiliaisBeforeOpen(DataSet: TDataSet);
+    procedure qryConsultaGrupoFiliaisBeforeOpen(DataSet: TDataSet);
+    procedure qryProcuraPISCOFINS_T511BeforeOpen(DataSet: TDataSet);
+    procedure qryConsultaPISCOFINS_T511BeforeOpen(DataSet: TDataSet);
+    procedure qryConsultaPlanoReferencialBeforeOpen(DataSet: TDataSet);
+    procedure qryProcuraPlanoReferencialBeforeOpen(DataSet: TDataSet);
+    procedure qryProcuraMaoObraFornecedorBeforeOpen(DataSet: TDataSet);
+    procedure qryConsultaMaoObraFornecedorBeforeOpen(DataSet: TDataSet);
+    procedure qryConsultaMaoObraFilialBeforeOpen(DataSet: TDataSet);
+    procedure qryProcuraMaoObraFilialBeforeOpen(DataSet: TDataSet);
+
+  private
+    FSomenteFiliaisUsuario: Boolean;
+    FActiveControl: TWinControl;
+    FTipoPesquisa: TTecPesquisa;
+    FTipoContaContabilDebitoSelecionavel: String;
+    FListaContasContabeisDebitosSelecionaveis: String;
+    FTipoContaContabilCreditoSelecionavel: String;
+    FTipoContaContabilConsultaSelecionavel: String;
+    FListaContasContabeisCreditosSelecionaveis: String;
+    FListaContasContabeisConsultaSelecionaveis: String;
+    FAbrirTabelaProcura: Boolean;
+    FSerie: String;
+    FListaItemProdutoConsultaJaSelecionados: String;
+    FCondicoesdaConsulta: TTecProcedure;
+    FTipovfornecedor: String;
+//    FFilialSelecionada: Variant;
+    FSomenteProdutosdoCliente: Boolean;
+    FTipoContaReferencialSelecionavel: String;
+    FTipoContaReferencialConsultaSelecionavel: String;
+    FConsultarTodos: Boolean;
+    fJan: TfrmConsultaPorCampo;
+    fListaJan: TfrmConsultaPorCampoItens;
+    fAbrirTipoPesquisa: Boolean;
+    procedure SetActiveControl(const Value: TWinControl);
+    procedure SetTipoPesquisa(const Value: TTecPesquisa);
+    procedure SetTipoContaContabilDebitoSelecionavel(const Value: String);
+    procedure SetListaContasContabeisDebitosSelecionaveis(const Value: String);
+    procedure SetTipoContaContabilCreditoSelecionavel(const Value: String);
+    procedure SetTipoContaContabilConsultaSelecionavel(
+      const Value: String);
+    procedure SetListaContasContabeisConsultaSelecionaveis(
+      const Value: String);
+    procedure SetListaContasContabeisCreditosSelecionaveis(
+      const Value: String);
+    procedure SetTipoContaReferencialConsultaSelecionavel(
+      const Value: String);
+    procedure SetTipoContaReferencialSelecionavel(const Value: String);
+    function Getjan: TfrmConsultaPorCampo;
+    { Private declarations }
+  protected
+    dmbasico : TdtmBasico;
+    ActCTrl: TWinControl;
+//    Jan: TfrmConsultaPorCampo;
+
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; virtual;
+    function  TabelaDoParametro(Parametro: Integer): TZDataSet; virtual;
+    function  TabelaDePesquisa: TZDataSet; virtual;
+    function  TabelaDePesquisaSecundaria: TZDataSet; virtual;
+    function  JanelaPesquisa: TfrmConsultaBasica; virtual;
+    function  InternoPesquisar(Titulo: String): Integer; overload; virtual;
+    function  InternoPesquisar(Control: TtecFindCustom; Titulo: String = ''): Integer; overload; virtual;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var continuar: Boolean); virtual;
+    procedure ProximoControle(Ind: Integer); virtual;
+    procedure SelecionarImpressora(Tipo: Char);
+    procedure SetFocusFindCustom(Habilitar: Boolean);
+    procedure KeyDown(var Key: Word; Shift: TShiftState); virtual;
+//    function  NavegacaoNoControleValida: Boolean;
+
+
+
+  public
+    { Public declarations }
+    CtrlOn: Boolean;
+    AbrirMoedaPadrao: Boolean;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property ActiveControl: TWinControl read FActiveControl write SetActiveControl;
+
+    function ExisteHistoricoContabil(Campo, Codigo: String): Boolean;
+    function ExisteCentrodeCusto(Campo, Codigo: String): Boolean;
+    function ExisteContaDebito(Campo, Codigo: String): Boolean;
+    function ExisteContaCredito(Campo, Codigo: String): Boolean;
+    function ExisteContaReferencial(Campo, Codigo: String): Boolean;
+    function ExisteEvento(Campo, Codigo: String): Boolean;
+    function ExisteFilial(Campo, Codigo: String): Boolean;
+    function ExisteGrupoFilial(Campo, Codigo: String): Boolean;
+
+
+    function ExisteTRIBUTOSPIS(Campo, Codigo: String): Boolean;
+    function ExisteTRIBUTOSISSQN(Campo, Codigo: String): Boolean;
+
+    function ExistePISCOFINS_T435(Campo, Codigo: String): Boolean;
+    function Existepis_tdctf(Campo, Codigo: String): Boolean;
+    function Existecofins_tdctf(Campo, Codigo: String): Boolean;
+
+    function ExistePISCOFINS_T436(Campo, Codigo: String): Boolean;
+
+    function ExistePISCOFINS_T511(Campo, Codigo: String): Boolean;
+
+    function ExisteEFD_T53(Campo, codigo: String): Boolean;
+    function ExisteTiposPlanosreferenciais(Campo, codigo: String): Boolean;
+    function ExisteTRIBUTOSCOFINS(Campo, Codigo: String): Boolean;
+    function ExisteTRIBUTOSIPI(Campo, Codigo: String): Boolean;
+    function ExisteTRIBUTOSICMS(Campo, Codigo: String): Boolean;
+
+    function ExisteProcuraProcessoJudicialReinf(Campo, codigo: String): Boolean;
+    function ExisteSuspensaoExibilidadeTributos(Campo, codigo: String): Boolean;
+    function ExisteMaoObraFornecedor(Campo, codigo: String): Boolean;
+    function ExisteMaoObraFilial(Campo, codigo: String): Boolean;
+
+
+    procedure AbreTabelaConsulta(TipoPesquisa: TtecPesquisa);
+    procedure AbreTabelaProcura(TipoPesquisa: TtecPesquisa);
+
+    procedure Selecionar(TipoPesquisa: TTecPesquisa);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+    property AbrirTipoPesquisa: Boolean read fAbrirTipoPesquisa write fAbrirTipoPesquisa;
+    property TipoPesquisa: TTecPesquisa read FTipoPesquisa write SetTipoPesquisa;
+    property SomenteFiliaisUsuario: Boolean read FSomenteFiliaisUsuario write FSomenteFiliaisUsuario;
+    property SomenteProdutosdoCliente: Boolean read FSomenteProdutosdoCliente write FSomenteProdutosdoCliente;
+    property TipoContaContabilDebitoSelecionavel: String read FTipoContaContabilDebitoSelecionavel write SetTipoContaContabilDebitoSelecionavel;
+    property TipoContaContabilCreditoSelecionavel: String read FTipoContaContabilCreditoSelecionavel write SetTipoContaContabilCreditoSelecionavel;
+    property TipoContaContabilConsultaSelecionavel: String read FTipoContaContabilConsultaSelecionavel write SetTipoContaContabilConsultaSelecionavel;
+
+    property TipoContaReferencialSelecionavel: String read FTipoContaReferencialSelecionavel write SetTipoContaReferencialSelecionavel;
+    property TipoContaReferencialConsultaSelecionavel: String read FTipoContaReferencialConsultaSelecionavel write SetTipoContaReferencialConsultaSelecionavel;
+
+    property ListaContasContabeisDebitosSelecionaveis: String read FListaContasContabeisDebitosSelecionaveis write SetListaContasContabeisDebitosSelecionaveis;
+    property ListaContasContabeisCreditosSelecionaveis: String read FListaContasContabeisCreditosSelecionaveis write SetListaContasContabeisCreditosSelecionaveis;
+    property ListaContasContabeisConsultaSelecionaveis: String read FListaContasContabeisConsultaSelecionaveis write SetListaContasContabeisConsultaSelecionaveis;
+    property AbrirTabelaProcura: Boolean read FAbrirTabelaProcura write FAbrirTabelaProcura;
+    property CondicoesdaConsulta: TTecProcedure read FCondicoesdaConsulta write FCondicoesdaConsulta;
+    property ConsultarTodos: Boolean read FConsultarTodos write FConsultarTodos;
+
+    property jan: TfrmConsultaPorCampo read Getjan write fJan;
+    property ListaJan: TfrmConsultaPorCampoItens read fListaJan write fListaJan;
+
+
+  end;
+
+implementation
+
+uses fmselecionarimpressoras;
+
+{$R *.dfm}
+
+{ TfraConsultaContabil }
+
+function TfraConsultaContabil.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoPesquisa of
+    pesHISTORICOCONTABIL   : Result := ExisteHistoricoContabil(NomeCampo, Value);
+    pesCENTRODECUSTO       : Result := ExisteCentrodeCusto(NomeCampo, Value);
+    pesCONTADEBITO         : Result := ExisteContaDebito(NomeCampo, Value);
+    pesCONTACREDITO        : Result := ExisteContaCredito(NomeCampo, Value);
+    pesCONTAREFERENCIAL    : Result := ExisteContaReferencial(NomeCampo, Value);
+    pesEVENTO              : Result := ExisteEvento(NomeCampo, Value);
+    pesMODELODOCTOSFISCAIS : Result := dmbasico.ExisteCodigo(qryConsultaModeloDoctosFiscais, Nomecampo, Value);
+    pesICMSOBRIGACOES      : Result := dmbasico.ExisteCodigo(qryConsultaICMSObrigacoes, Nomecampo, Value);
+    pesCODIGODERECEITAS    : Result := dmbasico.ExisteCodigo(qryConsultaEFD_CodigosdeReceita, Nomecampo, Value);
+
+    pesTABELAAJUSTEICMS    : Result := dmbasico.ExisteCodigo(qryConsultaAjusteICMS, Nomecampo, Value);
+    pesTABELAAJUSTEIPI     : Result := dmbasico.ExisteCodigo(qryConsultaAjusteIPI, Nomecampo, Value);
+    pesINSTRESPADMCADASTRO : Result := dmbasico.ExisteCodigo(qryConsultaInstRespAdmCadastro, Nomecampo, Value);
+    pesQUALIFICACAO        : Result := dmbasico.existecodigo(qryConsultaQualificacao, NomeCampo, Value);
+    pesCSOSN               : Result := dmbasico.existecodigo(qryConsultaCSOSN, NomeCampo, Value);
+    pesECD                 : Result := dmbasico.existecodigo(qryConsultaecd, NomeCampo, Value);
+    pesECF                 : Result := dmbasico.existecodigo(qryConsultaecf, NomeCampo, Value);
+
+    pesFCONT               : Result := dmbasico.existecodigo(qryConsultafcont, NomeCampo, Value);
+    pesDIPJ_IPI            : Result := dmbasico.existecodigo(qryConsultaDIPJ_IPI, NomeCampo, Value);
+    pesCLASSIFICACAOIPI    : Result := dmbasico.existecodigo(qryConsultaClassificacaoIPI, NomeCampo, Value); 
+    pesEFD                 : Result := dmbasico.existecodigo(qryConsultaefd, NomeCampo, Value);
+    pesEPC                 : Result := dmbasico.existecodigo(qryConsultaepc, NomeCampo, Value);
+    pesCODIGOFISCAL        : Result := dmbasico.existecodigo(qryConsultaCodigosFiscais, NomeCampo, Value);
+
+    pesFILIAIS             : Result := ExisteFilial(NomeCampo, Value);
+    pesGRUPOSFILIAIS     : Result := ExisteGrupoFilial(NomeCampo, Value);
+
+    pesTRIBUTOSPIS         : Result := ExisteTRIBUTOSPIS(NomeCampo, Value);
+    pesTRIBUTOSISSQN       : Result := ExisteTRIBUTOSISSQN(NomeCampo, Value);
+
+    pesPISCOFINS_T435      : REsult := ExistePISCOFINS_T435(NomeCampo, Value);
+    pespis_tdctf     : REsult := Existepis_tdctf(NomeCampo, Value);
+    pescofins_tdctf     : REsult := Existecofins_tdctf(NomeCampo, Value);
+
+    pesPISCOFINS_T436      : REsult := ExistePISCOFINS_T436(NomeCampo, Value);
+    pesPISCOFINS_T511      : REsult := ExistePISCOFINS_T511(NomeCampo, Value);
+
+
+    pesEFD_T53             : REsult := ExisteEFD_T53(NomeCampo, Value);
+
+    pesTRIBUTOSCOFINS      : Result := ExisteTRIBUTOSCOFINS(NomeCampo, Value);
+    pesTRIBUTOSIPI         : Result := ExisteTRIBUTOSIPI(NomeCampo, Value);
+    pesTRIBUTOSICMS        : Result := ExisteTRIBUTOSICMS(NomeCampo, Value);
+    pesTiposPlanosreferenciais : REsult := ExisteTiposPlanosreferenciais(NomeCampo, Value);
+    pesProcessoJudicialReinf : REsult := ExisteProcuraProcessoJudicialReinf(NomeCampo, Value);
+    pesSuspensaoExibilidadeTributos : Result := ExisteSuspensaoExibilidadeTributos(NomeCampo, Value);
+    pesMaoObraFornecedor : Result := ExisteMaoObraFornecedor(NomeCampo, Value);
+    pesMaoObraFilial : Result := ExisteMaoObraFilial(NomeCampo, Value);
+
+
+  else
+    Result := False;
+  end;
+end;
+
+function TfraConsultaContabil.InternoPesquisar(Titulo: String): Integer;
+//var procurar: TfrmConsultaBasica;
+begin
+(*
+  procurar := JanelaPesquisa;
+  if Assigned(procurar) then
+    try
+      procurar.ExisteCodigo := ExisteInformacao;
+//    procurar.ConsultaInterativa := True;
+      procurar.DataSet := TabelaDePesquisa;
+      procurar.TabelaParametro := TabelaDoParametro;
+      procurar.ProximoControle := ProximoControle;
+      if procurar.UsarParametrosDaTabela then
+        procurar.PosicionarTabelaDoParametro:= PosicionarTabelaNoParametro;
+      Result := procurar.ShowModal(Titulo);
+    finally
+	  procurar := nil;
+      procurar.Free;
+//      SetFocus;  // FAZ COM Q O FOCO DO FORMULARIO SEJA PERDIDO
+      CtrlOn:= False;
+    end
+  else
+    Result := mrNone
+*)
+
+      JanelaPesquisa;
+      try
+        jan.ExisteCodigo := ExisteInformacao;
+        jan.DataSet := TabelaDePesquisa;
+        jan.TabelaParametro := TabelaDoParametro;
+        jan.ProximoControle := ProximoControle;
+        if jan.UsarParametrosDaTabela then
+          jan.PosicionarTabelaDoParametro:= PosicionarTabelaNoParametro;
+
+        Result := jan.ShowModal(Titulo);
+        Jan.PesquisaIniciada := true;
+
+      finally
+        CtrlOn:= False;
+      end;
+
+end;
+
+function TfraConsultaContabil.InternoPesquisar(Control: TtecFindCustom;
+  Titulo: String): Integer;
+begin
+  CtrlOn := True;
+  ActiveControl := Control;
+  ActiveControl.SetFocus;
+  Result := InternoPesquisar(Titulo);
+end;
+
+function TfraConsultaContabil.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := nil;
+end;
+
+procedure TfraConsultaContabil.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  Case Key of
+    VK_F9     : begin
+                   CtrlOn := Shift = [ssCtrl];
+                   if (Shift = []) or CtrlOn then
+                     InternoPesquisar('');
+                 end;
+    VK_Escape : {if fsModal in FormState then
+                   ModalResult := mrCancel
+                 else GG}
+                   SetFocusFindCustom(True);
+{
+    VK_Return,
+    VK_Enter: if [ssShift] = Shift then
+               begin
+                 if ActiveControl is TCustomMemo then
+                   Key := 0;
+                 SelectNext(ActiveControl, False, True);
+               end
+               else if ([ssCtrl] = Shift) then
+               begin
+                 if (dgEditing in TDBGrid(ActiveControl).Options) then
+                   SelectNext(ActiveControl, True, True);
+               end
+               else if [] = Shift then
+               begin
+                 if ActiveControl is TCustomMemo then
+                   Key := 0;
+                 if NavegacaoNoControleValida then
+                   SelectNext(ActiveControl, True, True)
+               end
+               else if (Shift = [ssCtrl]) then
+               begin
+                if WindowState = wsMaximized then
+                  WindowState := wsNormal
+                else
+                 if windowstate = wsnormal then
+                   WindowState := wsMaximized;
+               end
+               else if ([ssAlt] = Shift) and Not (ActiveControl is TCustomMemo) then
+                 Key := 0
+}
+  end;
+end;
+
+{
+function TfraConsultaContabil.NavegacaoNoControleValida: Boolean;
+  function ParentTCustomGrid: Boolean;
+  var
+    Par: TControl;
+  begin
+    Result := False;
+    if Assigned(ActiveControl) then begin
+      Par := ActiveControl.Parent;
+      while Assigned(Par) do begin
+        if Par is TCustomGrid then begin
+          Result := True;
+          break
+        end;
+        Par := Par.Parent
+      end
+    end
+  end;
+
+begin
+  Result := Not (((ActiveControl Is TDBGrid) and
+                  (Not (dgRowSelect in TDBGrid(ActiveControl).Options))
+                   or ParentTCustomGrid
+                   ));
+end;
+}
+
+procedure TfraConsultaContabil.PosicionarTabelaNoParametro(Ind: Integer;
+  var continuar: Boolean);
+begin
+end;
+
+procedure TfraConsultaContabil.ProximoControle(Ind: Integer);
+begin
+{
+  case TipoPesquisa of
+  end;
+}
+end;
+
+procedure TfraConsultaContabil.SelecionarImpressora(Tipo: Char);
+begin
+  frmSelecionarImpressoras:= TfrmSelecionarImpressoras.Create(Self, Tipo);
+  frmSelecionarImpressoras.ShowModal;
+  frmSelecionarImpressoras.Free;
+end;
+
+procedure TfraConsultaContabil.SetActiveControl(const Value: TWinControl);
+begin
+  FActiveControl := Value;
+end;
+
+procedure TfraConsultaContabil.SetFocusFindCustom(Habilitar: Boolean);
+var
+  Ctrl: TtecFindCustom;
+
+  function ProcurarControle(Ctrl: TWinControl): TtecFindCustom;
+  var
+    a: Integer;
+  begin
+    Result := nil;
+    for a := 0 to Ctrl.ControlCount - 1 do
+      if Ctrl.Controls[a] is TtecDbEditFind then begin
+        Result := TtecDbEditFind(Ctrl.Controls[a]);
+        if Result.CanFocus then
+          break
+      end else if Ctrl.Controls[a] is TtecDBFindLookup then begin
+        Result := TtecDBFindLookup(Ctrl.Controls[a]);
+        if Result.CanFocus then
+          break
+      end;
+    if Not Assigned(Result) then
+      for a := 0 to Ctrl.ControlCount - 1 do
+        if Ctrl.Controls[a] is TWinControl then begin
+          Result := ProcurarControle(TWinControl(Ctrl.Controls[a]));
+          if Assigned(Result) and Result.CanFocus then
+           break
+        end
+  end;
+begin
+  Ctrl := ProcurarControle(Self);
+  if Assigned(Ctrl) then begin
+    Ctrl := Ctrl.FirtsControl;
+    if Ctrl.CanFocus then
+      Ctrl.SetFocus
+    else if Habilitar then begin
+      Ctrl.Enabled := True;
+      Ctrl.SetFocus
+    end
+  end
+end;
+
+function TfraConsultaContabil.TabelaDePesquisa: TZDataSet;
+begin
+    case TipoPesquisa of
+      pesHISTORICOCONTABIL : Result := qryConsultaHistorico;
+      pesCENTRODECUSTO : Result := qryConsultaCentrodeCusto;
+      pesCONTADEBITO,
+      pesCONTACREDITO : Result := qryConsultaConta;
+      pesCONTAREFERENCIAL  : Result := qryConsultaPlanoReferencial;
+      pesEVENTO       : Result := qryConsultaEventos;
+      pesMODELODOCTOSFISCAIS : Result := qryConsultaModeloDoctosFiscais;
+      pesICMSOBRIGACOES : Result := qryConsultaICMSObrigacoes;
+      pesCODIGODERECEITAS : Result := qryConsultaEFD_CodigosdeReceita;
+
+      pesTABELAAJUSTEICMS : Result := qryConsultaAjusteICMS;
+      pesTABELAAJUSTEIPI : Result := qryConsultaAjusteIPI;
+      pesINSTRESPADMCADASTRO : Result := qryConsultaInstRespAdmCadastro;
+      pesQUALIFICACAO        : Result := qryConsultaQualificacao;
+      pesCSOSN               : Result := qryConsultaCSOSN;
+      pesECD                 : Result := qryConsultaECD;
+      pesECF                 : Result := qryConsultaECF;
+      pesFCont               : Result := qryConsultaFCont;
+      pesDIPJ_IPI            : Result := qryConsultaDIPJ_IPI;
+      pesCLASSIFICACAOIPI    : Result := qryConsultaClassificacaoIPI;
+      pesEFD                 : Result := qryConsultaEFD;
+      pesEPC                 : Result := qryConsultaEPC;
+      pesCODIGOFISCAL        : Result := qryConsultaCodigosFiscais;
+      pesTRIBUTOSPIS: Result := qryConsultatributospis;
+      pesTRIBUTOSISSQN: Result := qryConsultaTributosISSQN;
+
+
+      pesPISCOFINS_T435 : Result := qryConsultaPISCOFINS_T435;
+      pespis_tdctf : Result := qryConsultapis_tdctf;
+      pescofins_tdctf : Result := qryConsultacofins_tdctf;
+
+      pesPISCOFINS_T436 : Result := qryConsultaPISCOFINS_T436;
+      pesPISCOFINS_T511 : Result := qryConsultaPISCOFINS_T511;
+
+      pesEFD_T53        : REsult := qryConsultaefd_t53;
+
+      pesTRIBUTOSCOFINS: Result := qryConsultatributoscofins;
+      pesTRIBUTOSIPI       : Result := qryConsultatributosipi;
+      pesTRIBUTOSICMS      : Result := qryConsultaTributosICMS;
+      pesFILIAIS      : Result := qryConsultaFiliais;
+      pesGRUPOSFILIAIS: Result := qryConsultaGrupoFiliais;
+      pesTiposPlanosreferenciais : REsult := qryConsultaTiposPlanosreferenciais;
+      pesProcessoJudicialReinf : REsult := qryConsultaProcessoJudicialReinf;
+      pesSuspensaoExibilidadeTributos : REsult := qryConsultaSuspensaoExibilidadeTributos;
+      pesMaoObraFornecedor : REsult := qryConsultaMaoObraFornecedor;
+      pesMaoObraFilial : REsult := qryConsultaMaoObraFilial;
+
+
+
+    else  Result:= nil;
+    end;
+end;
+
+function TfraConsultaContabil.TabelaDePesquisaSecundaria: TZDataSet;
+begin
+  Result := nil
+end;
+
+function TfraConsultaContabil.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+{
+  Result := nil;
+  case TipoPesquisa of
+   pesESTADOCIDADES:
+   begin
+      case Parametro of
+       0: Result := qryConsultaEstados;
+      -1: Result := qryConsultaEstadoCidades;
+       else Result := nil;
+      end;
+   end;
+   pesCONTRATOS: result := qryConsultaClientes;
+   pesPEDIDOSSAIDA: result := qryConsultaClientes;
+   pesOSP: result := qryConsultaClientes;
+   pesCONTRATOSIMOVEIS: Result:= qryConsultaClientes;
+   pesNOTASFILIAIS: result := qryConsultaClientes;
+  end;
+}  
+end;
+
+
+
+procedure TfraConsultaContabil.AbreTabelaConsulta(TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+     pesHISTORICOCONTABIL : qryConsultaHistorico.Open;
+     pesCENTRODECUSTO : qryConsultaCentrodeCusto.Open;
+
+     pesCONTADEBITO,
+     pesCONTACREDITO:
+     begin
+       qryconsultaconta.Params[0].asinteger := 0;
+       qryConsultaConta.Open;
+     end;
+
+     pesCONTAREFERENCIAL: qryConsultaPlanoReferencial.Open;
+
+     pesEVENTO             : qryConsultaEventos.Open;
+     pesMODELODOCTOSFISCAIS : qryConsultaModeloDoctosFiscais.Open;
+     pesICMSOBRIGACOES : qryConsultaICMSObrigacoes.Open;
+     pesCODIGODERECEITAS : qryConsultaEFD_CodigosdeReceita.Open;
+
+     pesTABELAAJUSTEICMS : qryConsultaAjusteICMS.Open;
+     pesTABELAAJUSTEIPI : qryConsultaAjusteIPI.Open;
+     pesINSTRESPADMCADASTRO : qryConsultaInstRespAdmCadastro.Open;
+     pesQUALIFICACAO        : qryConsultaQualificacao.Open;
+     pesCSOSN               : qryConsultaCSOSN.Open;
+     pesECD                 : qryconsultaecd.Open;
+     pesECF                 : qryconsultaecf.Open;
+
+     pesFCont               : qryconsultafcont.Open;
+     pesDIPJ_IPI            : qryConsultaDIPJ_IPI.Open;
+     pesCLASSIFICACAOIPI    : qryConsultaClassificacaoIPI.Open;
+     pesEFD                 : qryconsultaefd.Open;
+     pesEPC                 : qryconsultaepc.Open;
+     pesCODIGOFISCAL        : qryConsultaCodigosFiscais.Open;
+
+     pesTRIBUTOSPIS: qryConsultatributospis.Open;
+     pesTRIBUTOSISSQN: qryConsultaTributosISSQN.Open;
+
+
+     pesPISCOFINS_T435 : qryConsultaPISCOFINS_T435.Open;
+     pespis_tdctf : qryConsultapis_tdctf.Open;
+     pescofins_tdctf : qryConsultacofins_tdctf.Open;
+
+     pesPISCOFINS_T436 : qryConsultaPISCOFINS_T436.Open;
+     pesPISCOFINS_T511 : qryConsultaPISCOFINS_T511.Open;
+
+
+     pesEFD_T53        : qryConsultaefd_t53.Open;
+     pesTiposPlanosreferenciais : qryConsultaTiposPlanosreferenciais.Open;
+     pesProcessoJudicialReinf : qryConsultaProcessoJudicialReinf.Open;
+     pesSuspensaoExibilidadeTributos : qryConsultaSuspensaoExibilidadeTributos.Open;
+     pesMaoObraFornecedor : qryConsultaMaoObraFornecedor.Open;
+     pesMaoObraFilial : qryConsultaMaoObraFilial.Open;
+
+     pesTRIBUTOSCOFINS: qryConsultatributoscofins.Open;
+     pesTRIBUTOSIPI       : qryConsultatributosipi.Open;
+     pesTRIBUTOSICMS      : qryConsultaTributosICMS.Open;
+
+     pesFILIAIS           :
+     begin
+       if SomenteFiliaisUsuario then
+       begin
+         qryConsultaFiliais.Sql.Text := qryConsultaFiliaisSomenteUsuario.Sql.Text;
+         qryConsultaFiliais.parambyname('usuario').asinteger := UsuarioLogin.codigousuario;
+       end
+       else
+         qryConsultaFiliais.Sql.Text := qryConsultaFiliaisTodas.Sql.Text;
+       qryConsultaFiliais.Open;
+     end;
+
+     pesGRUPOSFILIAIS     :
+     begin
+       if SomenteFiliaisUsuario then
+       begin
+         qryConsultaGrupoFiliais.Sql.Text := qryConsultaGrupoFiliaisSomenteUsuario.sql.text;
+         qryConsultaGrupoFiliais.parambyname('usuario').asinteger := UsuarioLogin.codigousuario;
+       end
+       else
+         qryConsultaGrupoFiliais.Sql.Text := qryConsultaGrupoFiliaisTodas.sql.text;
+       qryConsultaGrupoFiliais.Open;
+     end;
+
+
+  end;
+
+end;
+
+procedure TfraConsultaContabil.Selecionar(TipoPesquisa: TTecPesquisa);
+var Filial: Integer;
+begin
+  case TipoPesquisa of
+    pesHISTORICOCONTABIL : dmbasico.ReFazConsulta(qryProcuraHistorico,[0],[qryConsultaHistoricocodigo.AsVariant]);
+    pesCENTRODECUSTO : dmbasico.ReFazConsulta(qryProcuraCentrodeCusto,[0],[qryConsultaCentrodeCustocodigo.AsVariant]);
+    pesCONTADEBITO  : dmbasico.ReFazConsulta(qryProcuraDebitar,[0,1],[qryConsultaContacodigo.AsVariant,0]);
+    pesCONTACREDITO : dmbasico.ReFazConsulta(qryProcuraCreditar,[0,1],[qryConsultaContacodigo.AsVariant,0]);
+    pesCONTAREFERENCIAL : dmbasico.ReFazConsulta(qryProcuraPlanoReferencial,[0],[qryConsultaPlanoReferencialcodigo.AsVariant]);
+    pesEVENTO       : dmbasico.ReFazConsulta(qryProcuraEventos,[0],[qryConsultaEventoscodigo.AsVariant]);
+    pesMODELODOCTOSFISCAIS : dmbasico.ReFazConsulta(qryProcuraModeloDoctosFiscais, [0], [qryConsultaModeloDoctosFiscaiscodigo.AsVariant]);
+    pesICMSOBRIGACOES : dmbasico.ReFazConsulta(qryProcuraICMSObrigacoes, [0], [qryConsultaICMSObrigacoescodigo.AsVariant]);
+    pesCODIGODERECEITAS : dmbasico.ReFazConsulta(qryProcuraEFD_CodigosdeReceita, [0], [qryConsultaEFD_CodigosdeReceitacodigo.AsVariant]);
+
+    pesTABELAAJUSTEICMS : dmbasico.ReFazConsulta(qryProcuraAjusteICMS, [0], [qryConsultaAjusteICMScodigo.AsVariant]);
+    pesTABELAAJUSTEIPI : dmbasico.ReFazConsulta(qryProcuraAjusteIPI, [0], [qryConsultaAjusteIPIcodigo.AsVariant]);
+    pesINSTRESPADMCADASTRO : dmbasico.ReFazConsulta(qryProcuraInstRespAdmCadastro,[0],[qryConsultaInstRespAdmCadastrocodigo.AsVariant]);
+    pesQUALIFICACAO : dmbasico.ReFazConsulta(qryProcuraQualificacao,[0],[qryConsultaQualificacaocodigo.asvariant]);
+    pesCSOSN        : dmbasico.ReFazConsulta(qryProcuraCSOSN,[0],[qryConsultaCSOSNcodigo.asvariant]);
+    pesECD          : dmbasico.ReFazConsulta(qryProcuraECD,[0,1],[qryConsultaecdfilial.asvariant, qryConsultaecdexercicio.asvariant]);
+    pesECF          : dmbasico.ReFazConsulta(qryProcuraECF,[0,1],[qryConsultaecffilial.asvariant, qryConsultaecfexercicio.asvariant]);
+
+    pesFCONT        : dmbasico.ReFazConsulta(qryProcuraFCont,[0,1],[qryConsultafcontfilial.asvariant, qryConsultafcontexercicio.asvariant]);
+    pesEFD          : dmbasico.ReFazConsulta(qryProcuraEFD,[0,1],[qryConsultaefdfilial.asvariant, qryConsultaEFDperiodo.asvariant]);
+    pesEPC          : dmbasico.ReFazConsulta(qryProcuraEPC,[0,1],[qryConsultaepcfilial.asvariant, qryConsultaEPCperiodo.asvariant]);
+    pesDIPJ_IPI     : dmbasico.ReFazConsulta(qryProcuraDIPJ_IPI,[0,1],[qryConsultaDIPJ_IPIfilial.asvariant, qryConsultaDIPJ_IPIexercicio.asvariant]);
+    pesCLASSIFICACAOIPI : dmbasico.ReFazConsulta(qryProcuraClassificacaoIPI,[0],[qryConsultaClassificacaoIPIcodigo.asvariant]);
+    pesCODIGOFISCAL : dmbasico.ReFazConsulta(qryProcuraCodigosFiscais,[0],[qryConsultaCodigosFiscaiscodigo.asvariant]);
+    pesTRIBUTOSPIS  : dmbasico.RefazConsulta(qryProcuratributospis,[0],[qryConsultatributospiscodigo.AsVariant]);
+    pesTRIBUTOSISSQN : dmbasico.RefazConsulta(qryProcuraTributosISSQN,[0],[qryConsultaTributosISSQNcodigo.AsVariant]);
+
+    pesPISCOFINS_T435 : dmbasico.RefazConsulta(qryProcuraPISCOFINS_T435,[0],[qryConsultaPISCOFINS_T435codigo.AsVariant]);
+    pespis_tdctf : dmbasico.RefazConsulta(qryProcurapis_tdctf,[0],[qryConsultapis_tdctfcodigo.AsVariant]);
+    pescofins_tdctf : dmbasico.RefazConsulta(qryProcuracofins_tdctf,[0],[qryConsultacofins_tdctfcodigo.AsVariant]);
+
+    pesPISCOFINS_T436 : dmbasico.RefazConsulta(qryProcuraPISCOFINS_T436,[0],[qryConsultaPISCOFINS_T436codigo.AsVariant]);
+    pesPISCOFINS_T511 : dmbasico.RefazConsulta(qryProcuraPISCOFINS_T511,[0],[qryConsultaPISCOFINS_T511codigo.AsVariant]);
+
+    pesEFD_T53        : dmbasico.RefazConsulta(qryProcuraefd_t53,[0],[qryConsultaefd_t53codigo.AsVariant]);
+
+    pesTRIBUTOSCOFINS: dmbasico.RefazConsulta(qryProcuratributoscofins,[0],[qryConsultatributoscofinscodigo.AsVariant]);
+    pesTRIBUTOSIPI       : dmbasico.RefazConsulta(qryProcuratributosipi,[0],[qryConsultatributosipicodigo.AsVariant]);
+    pesTRIBUTOSICMS      : dmbasico.RefazConsulta(qryProcuraTributosICMS,[0],[qryConsultaTributosICMScodigo.AsVariant]);
+    pesFILIAIS      : begin
+                        dmbasico.refazconsulta(qryProcurafiliais,[0],[qryConsultaFiliaiscodigo.AsVariant]);
+                        qryProcuraFiliaiscodigo.FocusControl;
+                      end;
+
+    pesGRUPOSFILIAIS: dmbasico.refazconsulta(qryProcuragrupofiliais,[0],[qryConsultaGrupoFiliaiscodigo.AsVariant]);
+    pesTiposPlanosreferenciais : dmbasico.RefazConsulta(qryProcuraTiposPlanosreferenciais,[0],[qryConsultaTiposPlanosreferenciaistipoplano.AsVariant]);
+    pesProcessoJudicialReinf : dmbasico.RefazConsultaporNome(qryProcuraProcessoJudicialReinf,['numero'],[qryConsultaProcessoJudicialReinfnumero.AsVariant]);
+
+    pesSuspensaoExibilidadeTributos : dmbasico.RefazConsultapornome(qryProcuraSuspensaoExibilidadeTributos,['numero'],[qryConsultaSuspensaoExibilidadeTributosnumero.AsVariant]);
+
+    pesMaoObraFornecedor : dmbasico.RefazConsultapornome(qryProcuraMaoObraFornecedor,['fornecedor','cno'],
+         [qryConsultaMaoObraFornecedorcliente.AsInteger, qryConsultaMaoObraFornecedorcno.AsString]);
+
+    pesMaoObraFilial : dmbasico.RefazConsultapornome(qryProcuraMaoObraFilial,['filial','cno'],
+         [qryConsultaMaoObraFilialcliente.AsInteger, qryConsultaMaoObraFilialcno.AsString]);
+
+
+  end;
+end;
+
+procedure TfraConsultaContabil.FechaTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+     pesHISTORICOCONTABIL       : qryConsultaHistorico.Close;
+     pesCENTRODECUSTO           : qryConsultaCentrodeCusto.Close;
+     pesCONTADEBITO,
+     pesCONTACREDITO            : qryConsultaConta.Close;
+     pesCONTAREFERENCIAL        : qryConsultaPlanoReferencial.Close;
+     pesEVENTO                  : qryConsultaEventos.Close;
+     pesMODELODOCTOSFISCAIS     : qryConsultaModeloDoctosFiscais.Close;
+     pesICMSOBRIGACOES          : qryConsultaICMSObrigacoes.Close;
+     pesCODIGODERECEITAS        : qryConsultaEFD_CodigosdeReceita.Close;
+
+     pesTABELAAJUSTEICMS        : qryConsultaAjusteICMS.Close;
+     pesTABELAAJUSTEIPI        : qryConsultaAjusteIPI.Close;
+     pesINSTRESPADMCADASTRO     : qryConsultaInstRespAdmCadastro.Close;
+     pesQUALIFICACAO            : qryConsultaQualificacao.Close;
+     pesCSOSN                   : qryConsultaCSOSN.Close;
+     pesECD                     : qryConsultaECD.Close;
+     pesECF                     : qryConsultaECF.Close;
+
+     pesFCont                   : qryConsultaFCont.Close;
+     pesDIPJ_IPI                : qryConsultaDIPJ_IPI.Close;
+     pesCLASSIFICACAOIPI        : qryConsultaClassificacaoIPI.Close;
+     pesEFD                     : qryConsultaEFD.Close;
+     pesEPC                     : qryConsultaEPC.Close;
+     pesCODIGOFISCAL            : qryConsultaCodigosFiscais.Close;
+     pesTRIBUTOSPIS      : qryConsultatributospis.close;
+     pesTRIBUTOSISSQN      : qryConsultaTributosISSQN.close;
+
+
+     pesPISCOFINS_T435 : qryConsultaPISCOFINS_T435.Close;
+     pespis_tdctf : qryConsultapis_tdctf.close;
+     pescofins_tdctf : qryConsultacofins_tdctf.close;
+
+     pesPISCOFINS_T436 : qryConsultaPISCOFINS_T436.Close;
+
+     pesPISCOFINS_T511 : qryConsultaPISCOFINS_T511.Close;
+
+
+     pesEFD_T53        : qryConsultaefd_t53.Close;
+
+     pesTRIBUTOSCOFINS      : qryConsultatributoscofins.close;
+     pesTRIBUTOSIPI             : qryConsultatributosipi.close;
+     pesTRIBUTOSICMS            : qryConsultaTributosICMS.close;
+     pesFILIAIS                 : qryConsultaFiliais.Close;
+     pesGRUPOSFILIAIS           : qryConsultaGrupoFiliais.Close;
+     pesTiposPlanosreferenciais : qryConsultaTiposPlanosreferenciais.Close;
+     pesProcessoJudicialReinf : qryConsultaProcessoJudicialReinf.Close;
+     pesSuspensaoExibilidadeTributos : qryConsultaSuspensaoExibilidadeTributos.Close;
+     pesMaoObraFornecedor : qryConsultaMaoObraFornecedor.close;
+     pesMaoObraFilial : qryConsultaMaoObraFilial.close;
+
+
+  end;
+end;
+
+
+procedure TfraConsultaContabil.AbreTabelaProcura(TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+     pesHISTORICOCONTABIL   : dmbasico.refazconsulta(qryProcuraHistorico,[],[]);
+     pesCENTRODECUSTO   : dmbasico.refazconsulta(qryProcuraCentrodeCusto,[],[]);
+     pesCONTADEBITO         : dmbasico.ReFazConsulta(qryProcuraDebitar,[],[]);
+     pesCONTACREDITO        : dmbasico.ReFazConsulta(qryProcuraCreditar,[],[]);
+     pesCONTAREFERENCIAL    : dmbasico.ReFazConsulta(qryProcuraPlanoReferencial,[],[]);
+     pesEVENTO              : dmbasico.ReFazConsulta(qryProcuraEventos,[],[]);
+     pesMODELODOCTOSFISCAIS : dmbasico.ReFazConsulta(qryProcuraModeloDoctosFiscais, [], []);
+     pesICMSOBRIGACOES      : dmbasico.ReFazConsulta(qryProcuraICMSObrigacoes, [], []);
+     pesCODIGODERECEITAS    : dmbasico.ReFazConsulta(qryProcuraEFD_CodigosdeReceita, [], []);
+
+     pesTABELAAJUSTEICMS    : dmbasico.ReFazConsulta(qryProcuraAjusteICMS, [], []);
+     pesTABELAAJUSTEIPI    : dmbasico.ReFazConsulta(qryProcuraAjusteIPI, [], []);
+     pesINSTRESPADMCADASTRO : dmbasico.ReFazConsulta(qryProcuraInstRespAdmCadastro,[],[]);
+     pesQUALIFICACAO        : dmbasico.ReFazConsulta(qryProcuraqualificacao,[],[]);
+     pesCSOSN               : dmbasico.ReFazConsulta(qryProcuraCSOSN,[],[]);
+     pesECD                 : dmbasico.ReFazConsulta(qryProcuraECD,[],[]);
+     pesECF                 : dmbasico.ReFazConsulta(qryProcuraECF,[],[]);
+
+     pesFCONT               : dmbasico.ReFazConsulta(qryProcuraFCont,[],[]);
+     pesEFD                 : dmbasico.ReFazConsulta(qryProcuraEFD,[],[]);
+     pesEPC                 : dmbasico.ReFazConsulta(qryProcuraEPC,[],[]);
+     pesDIPJ_IPI            : dmbasico.ReFazConsulta(qryProcuraDIPJ_IPI,[],[]);
+     pesCLASSIFICACAOIPI    : dmbasico.ReFazConsulta(qryProcuraClassificacaoIPI,[],[]);
+     pesCODIGOFISCAL        : dmbasico.ReFazConsulta(qryProcuraCodigosFiscais,[],[]);
+
+     pesTRIBUTOSPIS      : dmbasico.refazconsulta(qryprocuratributospis,[],[]);
+     pesTRIBUTOSISSQN      : dmbasico.refazconsulta(qryProcuraTributosISSQN,[],[]);
+
+     pesPISCOFINS_T435 : dmbasico.refazconsulta(qryProcuraPISCOFINS_T435,[],[]);
+     pespis_tdctf : dmbasico.refazconsulta(qryProcurapis_tdctf,[],[]);
+     pescofins_tdctf : dmbasico.refazconsulta(qryProcuracofins_tdctf,[],[]);
+
+     pesPISCOFINS_T436 : dmbasico.refazconsulta(qryProcuraPISCOFINS_T436,[],[]);
+     pesPISCOFINS_T511 : dmbasico.refazconsulta(qryProcuraPISCOFINS_T511,[],[]);
+
+
+     pesEFD_T53             : dmbasico.refazconsulta(qryProcuraefd_t53,[],[]);
+
+     pesTRIBUTOSCOFINS      : dmbasico.refazconsulta(qryprocuratributoscofins,[],[]);
+     pesTRIBUTOSIPI             : dmbasico.refazconsulta(qryprocuratributosipi,[],[]);
+     pesTRIBUTOSICMS            : dmbasico.refazconsulta(qryprocuraTributosICMS,[],[]);
+     pesFILIAIS           : begin
+                              if SomenteFiliaisUsuario then
+                              begin
+                                qryProcuraFiliais.sql.text := qryProcuraFiliaisSomenteUsuario.sql.text;
+                                qryprocurafiliais.parambyname('usuario').asinteger := UsuarioLogin.codigousuario;
+                              end
+                              else
+                                qryProcuraFiliais.sql.text := qryProcuraFiliaisTodas.sql.text;
+                              dmbasico.refazconsulta(qryProcurafiliais,[],[]);
+                            end;
+     pesGRUPOSFILIAIS     : dmbasico.refazconsulta(qryProcuragrupofiliais,[],[]);
+     pesTiposPlanosreferenciais : dmbasico.refazconsulta(qryProcuraTiposPlanosreferenciais,[],[]);
+     pesProcessoJudicialReinf : dmbasico.refazconsulta(qryProcuraProcessoJudicialReinf,[],[]);
+     pesSuspensaoExibilidadeTributos : dmbasico.refazconsulta(qryProcuraSuspensaoExibilidadeTributos,[],[]);
+     pesMaoObraFornecedor : dmbasico.refazconsulta(qryProcuraMaoObraFornecedor,[],[]);
+     pesMaoObraFilial : dmbasico.refazconsulta(qryProcuraMaoObraFilial,[],[]);
+
+  end;
+end;
+
+constructor TfraConsultaContabil.Create(AOwner: TComponent);
+begin
+  inherited;
+  AbrirTabelaProcura := true;
+  ListaJan := TfrmConsultaPorCampoItens.create(true);
+  
+end;
+
+
+function TfraConsultaContabil.ExisteHistoricoContabil(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaHistorico, campo, codigo);
+end;
+
+function TfraConsultaContabil.ExisteContaCredito(Campo, Codigo: String): Boolean;
+begin
+  if campo = 'descricaoedentada' then
+    Result := dmbasico.ExisteCodigo(qryConsultaConta, 'descricao', codigo)
+  else
+    Result := dmbasico.ExisteCodigo(qryConsultaConta, campo, codigo);
+end;
+
+function TfraConsultaContabil.ExisteContaDebito(Campo, Codigo: String): Boolean;
+begin
+  if campo = 'descricaoedentada' then
+    Result:= dmbasico.ExisteCodigo(qryConsultaConta, 'descricao', codigo)
+  else
+    Result:= dmbasico.ExisteCodigo(qryConsultaConta, campo, codigo);
+end;
+
+procedure TfraConsultaContabil.SetTipoContaContabilDebitoSelecionavel(
+  const Value: String);
+const
+  SQLListatipo = 'and tipo = %s';
+begin
+  FTipoContaContabilDebitoSelecionavel := Value;
+  if value<>'' then
+    qryProcuraDebitar.macrobyname('SQLListatipo').AsString := format(SQLListatipo,[quotedstr(FTipoContaContabilDebitoSelecionavel)])
+  else
+    qryProcuraDebitar.macrobyname('SQLListatipo').AsString := '';
+end;
+
+
+
+procedure TfraConsultaContabil.SetListaContasContabeisDebitosSelecionaveis(
+  const Value: String);
+const
+  SQLLista = 'and codigo in (%s)';
+begin
+  FListaContasContabeisDebitosSelecionaveis := Value;
+  if value<>'' then
+    qryProcuraDebitar.MacroByName('SQLListaContaContabil').AsString := format(SQLLista,[value])
+  else
+    qryProcuraDebitar.MacroByName('SQLListaContaContabil').AsString := '';
+end;
+
+procedure TfraConsultaContabil.SetTipoContaContabilCreditoSelecionavel(
+  const Value: String);
+const
+  SQLListatipo = 'and tipo = %s';
+begin
+  FTipoContaContabilCreditoSelecionavel := Value;
+  if value<>'' then
+    qryProcuraCreditar.macrobyname('SQLListatipo').AsString := format(SQLListatipo,[quotedstr(FTipoContaContabilCreditoSelecionavel)])
+  else
+    qryProcuraCreditar.macrobyname('SQLListatipo').AsString := '';
+end;
+
+
+procedure TfraConsultaContabil.SetTipoContaContabilConsultaSelecionavel(
+  const Value: String);
+const
+  SQLListatipo = 'and tipo = %s';
+begin
+  FTipoContaContabilConsultaSelecionavel := Value;
+  if value<>'' then
+  begin
+    qryConsultaConta.macrobyname('SQLListatipo').AsString := format(SQLListatipo,[quotedstr(FTipoContaContabilConsultaSelecionavel)]);
+    qryconsultaconta.FieldByName('descricaoedentada').Visible := false;
+    qryconsultaconta.FieldByName('descricao').Visible := true;
+    qryConsultaConta.sql[qryConsultaConta.sql.Count-1] := 'order by UPPER(TO_ASCII(Descricao,''LATIN1'')), classificacao';
+  end
+  else
+  begin
+    qryConsultaConta.macrobyname('SQLListatipo').AsString := '';
+    qryconsultaconta.FieldByName('descricaoedentada').Visible := true;
+    qryconsultaconta.FieldByName('descricao').Visible := false;
+    qryConsultaConta.sql[qryConsultaConta.sql.Count-1] := 'order by classificacao, UPPER(TO_ASCII(Descricao,''LATIN1'')), codigo';
+  end;
+end;
+
+
+procedure TfraConsultaContabil.SetListaContasContabeisConsultaSelecionaveis(
+  const Value: String);
+const
+  SQLLista = 'and codigo in (%s)';
+begin
+  FListaContasContabeisConsultaSelecionaveis := Value;
+  if value<>'' then
+    qryConsultaConta.MacroByName('SQLListaContaContabil').AsString := format(SQLLista,[value])
+  else
+    qryConsultaConta.MacroByName('SQLListaContaContabil').AsString := '';
+end;
+
+
+procedure TfraConsultaContabil.SetListaContasContabeisCreditosSelecionaveis(
+  const Value: String);
+const
+  SQLLista = 'and codigo in (%s)';
+begin
+  FListaContasContabeisCreditosSelecionaveis := Value;
+  if value<>'' then
+    qryProcuraCreditar.MacroByName('SQLListaContaContabil').AsString := format(SQLLista,[value])
+  else
+    qryProcuraCreditar.MacroByName('SQLListaContaContabil').AsString := '';
+end;
+
+
+function TfraConsultaContabil.ExisteEvento(Campo, Codigo: String): Boolean;
+const
+  SQL = 'and (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+
+//  Result := dmbasico.ExisteCodigo(qryConsultaEventos, campo, codigo);
+
+  if campo = 'descricaoedentada' then
+   campo := 'descricao';
+
+  Campo:= 'e.' + Campo;
+  qryConsultaEventos.MacrobyName('SQL').AsString := Format(SQL, [Campo, ANSIUpperCase(Codigo), '%']);
+
+  qryConsultaEventos.Close;
+  qryConsultaEventos.Open;
+
+  Result := qryConsultaEventos.RecordCount > 0;
+
+end;
+
+procedure TfraConsultaContabil.qryProcuraEventosBeforeOpen(DataSet: TDataSet);
+begin
+  if assigned(FCondicoesdaConsulta) then
+    FCondicoesdaConsulta;
+end;
+
+procedure TfraConsultaContabil.qryConsultaEventosBeforeOpen(DataSet: TDataSet);
+begin
+  if assigned(FCondicoesdaConsulta) then
+    FCondicoesdaConsulta;
+end;
+
+procedure TfraConsultaContabil.SetTipoContaReferencialConsultaSelecionavel(
+  const Value: String);
+const
+  SQLListatipo = 'and tipo = %s';
+begin
+  FTipoContaReferencialConsultaSelecionavel := Value;
+  if value<>'' then
+  begin
+    qryConsultaPlanoReferencial.macrobyname('SQLListatipo').AsString :=
+      format(SQLListatipo,[quotedstr(FTipoContaReferencialConsultaSelecionavel)]);
+    qryConsultaPlanoReferencialdescricaoedentada.Visible := false;
+    qryConsultaPlanoReferencialdescricao.Visible := true;
+    qryConsultaPlanoReferencial.sql[qryConsultaPlanoReferencial.sql.Count-1] :=
+      'order by pr.classificacao, UPPER(TO_ASCII(pr.Descricao,''LATIN1'')), pr.codigo';
+  end
+  else
+  begin
+    qryConsultaPlanoReferencial.macrobyname('SQLListatipo').AsString := '';
+    qryconsultaPlanoReferencial.FieldByName('descricaoedentada').Visible := true;
+    qryconsultaPlanoReferencial.FieldByName('descricao').Visible := false;
+    qryConsultaPlanoReferencial.sql[qryConsultaPlanoReferencial.sql.Count-1] :=
+      'order by pr.classificacao, UPPER(TO_ASCII(pr.Descricao,''LATIN1'')), pr.codigo';
+  end;
+end;
+
+
+procedure TfraConsultaContabil.SetTipoContaReferencialSelecionavel(
+  const Value: String);
+const
+  SQLListatipo = 'and tipo = %s';
+begin
+  FTipoContaReferencialSelecionavel := Value;
+  if value<>'' then
+    qryProcuraPlanoReferencial.macrobyname('SQLListatipo').AsString :=
+      format(SQLListatipo,[quotedstr(FTipoContaReferencialSelecionavel)])
+  else
+    qryProcuraPlanoReferencial.macrobyname('SQLListatipo').AsString := '';
+end;
+
+
+function TfraConsultaContabil.ExisteContaReferencial(Campo,
+  Codigo: String): Boolean;
+begin
+  if campo = 'descricaoedentada' then
+    Result:= dmbasico.ExisteCodigo(qryConsultaPlanoReferencial, 'descricao', codigo)
+  else
+    Result:= dmbasico.ExisteCodigo(qryConsultaPlanoReferencial, campo, codigo);
+
+end;
+
+procedure TfraConsultaContabil.SetTipoPesquisa(const Value: TTecPesquisa);
+begin
+  FTipoPesquisa := Value;
+  if AbrirTipoPesquisa then
+    AbreTabelaProcura(FTipoPesquisa);
+end;
+
+
+
+function TfraConsultaContabil.ExisteCentrodeCusto(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaCentrodeCusto, campo, codigo);
+end;
+
+function TfraConsultaContabil.ExisteFilial(Campo, Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaFiliais, campo, codigo);
+end;
+
+function TfraConsultaContabil.ExisteTRIBUTOSPIS(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultatributospis, campo, codigo);
+end;
+
+function TfraConsultaContabil.ExisteTRIBUTOSCOFINS(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultatributoscofins, campo, codigo);
+end;
+
+function TfraConsultaContabil.ExisteTRIBUTOSIPI(Campo, Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultatributosipi, campo, codigo);
+end;
+
+function TfraConsultaContabil.ExisteTRIBUTOSICMS(Campo, Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaTributosICMS, campo, codigo);
+end;
+
+
+function TfraConsultaContabil.ExisteGrupoFilial(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaGrupoFiliais, campo, codigo);
+end;
+
+procedure TfraConsultaContabil.qryProcuraFiliaisBeforeOpen(
+  DataSet: TDataSet);
+begin
+  if assigned(FCondicoesdaConsulta) then
+    FCondicoesdaConsulta;
+
+end;
+
+procedure TfraConsultaContabil.qryConsultaFiliaisBeforeOpen(
+  DataSet: TDataSet);
+begin
+  if assigned(FCondicoesdaConsulta) then
+    FCondicoesdaConsulta;
+
+end;
+
+procedure TfraConsultaContabil.qryProcuraGrupoFiliaisBeforeOpen(
+  DataSet: TDataSet);
+begin
+  if assigned(FCondicoesdaConsulta) then
+    FCondicoesdaConsulta;
+
+end;
+
+procedure TfraConsultaContabil.qryConsultaGrupoFiliaisBeforeOpen(
+  DataSet: TDataSet);
+begin
+  if assigned(FCondicoesdaConsulta) then
+    FCondicoesdaConsulta;
+
+end;
+
+function TfraConsultaContabil.ExistePISCOFINS_T436(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaPISCOFINS_T436, campo, codigo);
+end;
+
+function TfraConsultaContabil.ExistePISCOFINS_T435(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaPISCOFINS_T435, campo, codigo);
+end;
+
+function TfraConsultaContabil.ExisteEFD_T53(Campo, Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaefd_t53, campo, codigo);
+end;
+
+function TfraConsultaContabil.ExistePISCOFINS_T511(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaPISCOFINS_T511, campo, codigo);
+end;
+
+procedure TfraConsultaContabil.qryProcuraPISCOFINS_T511BeforeOpen(
+  DataSet: TDataSet);
+begin
+  if assigned(FCondicoesdaConsulta) then
+    FCondicoesdaConsulta;
+end;
+
+procedure TfraConsultaContabil.qryConsultaPISCOFINS_T511BeforeOpen(
+  DataSet: TDataSet);
+begin
+  if assigned(FCondicoesdaConsulta) then
+    FCondicoesdaConsulta;
+end;
+
+function TfraConsultaContabil.ExisteTRIBUTOSISSQN(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaTributosISSQN, campo, codigo);
+end;
+
+function TfraConsultaContabil.Existepis_tdctf(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultapis_tdctf, campo, codigo);
+end;
+
+function TfraConsultaContabil.Existecofins_tdctf(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultacofins_tdctf, campo, codigo);
+end;
+
+
+function TfraConsultaContabil.ExisteTiposPlanosreferenciais(Campo,
+  codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaTiposPlanosreferenciais, campo, codigo);
+end;
+
+procedure TfraConsultaContabil.qryConsultaPlanoReferencialBeforeOpen(
+  DataSet: TDataSet);
+begin
+  qryConsultaPlanoReferencial.ParamByName('TipoPlano').AsString := parsistema.TiposPlanosReferenciais;
+end;
+
+procedure TfraConsultaContabil.qryProcuraPlanoReferencialBeforeOpen(
+  DataSet: TDataSet);
+begin
+  qryProcuraPlanoReferencial.ParamByName('TipoPlano').AsString := parsistema.TiposPlanosReferenciais;
+end;
+
+function TfraConsultaContabil.ExisteProcuraProcessoJudicialReinf(Campo,
+  codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaProcessoJudicialReinf, campo, codigo);
+end;
+
+function TfraConsultaContabil.ExisteSuspensaoExibilidadeTributos(Campo,
+  codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaSuspensaoExibilidadeTributos, campo, codigo);
+end;
+
+function TfraConsultaContabil.ExisteMaoObraFornecedor(Campo,
+  codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaMaoObraFornecedor, campo, codigo);
+end;
+
+procedure TfraConsultaContabil.qryProcuraMaoObraFornecedorBeforeOpen(
+  DataSet: TDataSet);
+begin
+  if assigned(FCondicoesdaConsulta) then
+    FCondicoesdaConsulta;
+end;
+
+procedure TfraConsultaContabil.qryConsultaMaoObraFornecedorBeforeOpen(
+  DataSet: TDataSet);
+begin
+  if assigned(FCondicoesdaConsulta) then
+    FCondicoesdaConsulta;
+end;
+
+function TfraConsultaContabil.ExisteMaoObraFilial(Campo,
+  codigo: String): Boolean;
+begin
+  Result := dmbasico.ExisteCodigo(qryConsultaMaoObraFilial, campo, codigo);
+end;
+
+procedure TfraConsultaContabil.qryConsultaMaoObraFilialBeforeOpen(
+  DataSet: TDataSet);
+begin
+  if assigned(FCondicoesdaConsulta) then
+    FCondicoesdaConsulta;
+
+end;
+
+procedure TfraConsultaContabil.qryProcuraMaoObraFilialBeforeOpen(
+  DataSet: TDataSet);
+begin
+  if assigned(FCondicoesdaConsulta) then
+    FCondicoesdaConsulta;
+
+end;
+
+destructor TfraConsultaContabil.Destroy;
+begin
+  if assigned(fJan) then
+    fJan := nil;
+
+  inherited;
+end;
+
+function TfraConsultaContabil.Getjan: TfrmConsultaPorCampo;
+var
+vNomeComponente : String;
+I: integer;
+begin
+  vNomeComponente := 'Jan_'+GetEnumName(TypeInfo(TTecPesquisa), integer(TipoPesquisa));
+
+  if (fjan <> nil) and (fjan.name <> vNomeComponente) then
+  begin
+    fJan := nil;
+    for I := ListaJan.Count-1 downto 0 do
+    begin
+      if ListaJan.Items[i].Name = vNomeComponente then
+      begin
+        fJan := TfrmConsultaPorCampo(ListaJan.Items[i]);
+        break;
+      end;
+    end;
+  end;
+
+  if fjan = nil then
+  begin
+    fJan := ListaJan.New(vNomeComponente);
+    fJan.name := vNomeComponente;
+    fJan.PesquisaIniciada := false;
+  end;
+
+  result := fJan;
+
+end;
+
+end.

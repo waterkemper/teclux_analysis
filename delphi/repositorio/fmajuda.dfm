@@ -1,0 +1,26 @@
+object frmAjuda: TfrmAjuda
+  Left = 916
+  Top = 749
+  Width = 160
+  Height = 109
+  BorderWidth = 2
+  Caption = 'frmAjuda'
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clBlack
+  Font.Height = -13
+  Font.Name = 'helvetica'
+  Font.Pitch = fpVariable
+  Font.Style = []
+  KeyPreview = True
+  OldCreateOrder = True
+  Position = poMainFormCenter
+  Scaled = False
+  ShowHint = True
+  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 16
+end

@@ -1,0 +1,103 @@
+select	distinct 
+	ct.numero as contrato,
+	ct.data data_contrato,
+	ct.filialvenda,
+	ct.datareservado,
+	ct.faturamento,
+	ct.pedidocliente,
+	ct.cliente,
+	ct.tipocliente,
+	formatar_cpf_cnpj(ct.pessoanumero) as pessoanumero,
+	ct.cliente as codigo_cliente,
+	ct.nome as nome_cliente,
+	ct.estado,
+	ct.situacao,
+	cast
+	(case
+		when ct.situacao = 'O' then 'ORÇADO'
+		when ct.situacao = 'R' then 'RESERVADO'
+		when ct.situacao = 'F' then 'FATURADO'
+		when ct.situacao = 'P' then 'NOTA PARCIAL'
+		when ct.situacao = 'N' then 'NOTA FISCAL'
+		when ct.situacao = 'C' then 'CANCELADO'
+	end as varchar) as NomeSituacao,
+	vficha_situacaocontrato(ct.numero) as situacaocontrato,
+	contratos_emaberto(ct.numero) as aberto,
+	contratos_quitado(ct.numero) as quitado,
+	(
+	select
+		c2.numero
+	from
+		contratos c2
+	where
+		c2.origem = ct.numero) as renegociado,
+	pl.descricao as plano,
+	ct.vendedor,
+	cast(cast(ct.vendedor as varchar)|| ' - ' ||(select u.nome from usuarios u where u.codigo = ct.vendedor) as varchar) as vendedornome,
+	ct.valorprazo,
+	ct.valorvista,
+	ct.desconto,
+	ct.frete,
+	ct.seguro,
+	ct.valoricmssubstituicao,
+	ct.creditotroca,
+	(
+	select
+		sum(pc1.quantidade*pc1.precovenda)
+	from
+		produtoscontratos pc1
+	where
+		pc1.contrato = ct.numero) as totalItens,
+	ct.nome,
+	ct.emitirnotadepoisde,
+	upper(to_ascii(ct.nome, 'latin1')) as auxNome,
+	cast(ct.numero as bigint) as auxnumero,
+	(
+	select
+		contrato_atual(ct.numero)) as contrato_atual,
+	ct.consideracoes,
+	coalesce(ct.os, false) as os,
+	(
+	select
+		ps.codigo_pedido_marketplace
+	from
+		pedidos_site ps
+	where
+		ps.contrato = ct.numero) as codigo_pedido_marketplace,
+	false as selecionar
+from
+	((contratos ct
+left join (usuarios u
+left join GruposUsuarios gu on
+	u.grupo = gu.codigo) on
+	ct.vendedor = u.codigo)
+left join (produtoscontratos pc
+join (produtos p
+left join promocoes pro on
+	p.promocao = pro.codigo)
+join (((caracteristicas c
+join grupos g on
+	g.codigo = c.grupo)
+join classes cl on
+	cl.codigo = c.classe)
+join marcas m on
+	m.codigo = c.marca) on
+	p.caracteristica = c.codigo on
+	pc.produto = p.codigo) on
+	ct.numero = pc.contrato)
+left join planos pl on
+	ct.plano = pl.codigo
+where
+	situacao in ('O', 'R', 'F', 'P', 'N', 'C')
+	and ((contratos_emaberto(ct.numero)) = true and not and not contratos_renegociado(ct.numero))
+	and ((ct.situacao not in ('C', 'O', 'R')))
+	and (ct.data between ('01/01/2020') and current_date)
+	and (ct.plano not in (34, 23, 24))
+	and (ct.filialvenda in (1,3,8,10,11,14,16,17))
+	and ( not coalesce(ct.os, false)
+	or (coalesce(ct.os, false)
+	and ( (coalesce(ct.os_garantia, false) )
+	or coalesce(ct.os_cortesia, false)) ))
+order by
+	cast(ct.numero as bigint),
+	ct.data

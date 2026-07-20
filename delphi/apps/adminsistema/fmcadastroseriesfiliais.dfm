@@ -1,0 +1,406 @@
+inherited frmCadastroSeriesFilial: TfrmCadastroSeriesFilial
+  Left = 376
+  Top = 237
+  Caption = 'Cadastro s'#233'ries filial'
+  ClientHeight = 197
+  ClientWidth = 422
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    Width = 274
+    inherited bvlBotoesEd: TBevel
+      Left = 200
+    end
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 422
+    TabOrder = 2
+    inherited tblBarra: TToolBar
+      Width = 197
+      inherited sbnProcurar: TSpeedButton
+        Width = 64
+        Visible = False
+      end
+      inherited sbnAjuda: TSpeedButton
+        Left = 64
+        Action = actAbilitar
+      end
+      inherited tbnDivisor: TToolButton
+        Left = 65
+      end
+    end
+  end
+  object pnlFundoJanela: TPanel
+    Left = 0
+    Top = 40
+    Width = 422
+    Height = 157
+    Align = alClient
+    BevelOuter = bvNone
+    BorderWidth = 3
+    TabOrder = 1
+    object ckbSerieAtiva: TDBCheckBox
+      Left = 277
+      Top = 13
+      Width = 48
+      Height = 18
+      Caption = 'Ativa'
+      DataField = 'ativa'
+      DataSource = dtmCadastrosInternos.dsrSeriesFiliais
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 2
+      ValueChecked = 'True'
+      ValueUnchecked = 'False'
+    end
+    object gbxSerie: TGroupBox
+      Left = 10
+      Top = 6
+      Width = 45
+      Height = 36
+      Caption = 'S'#201'RIE'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      object edtSerieFilial: TDBEditTexto
+        Left = 2
+        Top = 10
+        Width = 40
+        Height = 23
+        DataField = 'valor'
+        DataSource = dtmCadastrosInternos.dsrSeriesFiliais
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = 14
+        ParentFont = False
+        TabOrder = 0
+        OnExit = edtSerieFilialExit
+        CharCasenoDefault = False
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxNumeracao: TGroupBox
+      Left = 68
+      Top = 6
+      Width = 168
+      Height = 48
+      Caption = 'NUMERA'#199#195'O'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      object gbxNrInicial: TGroupBox
+        Left = 0
+        Top = 12
+        Width = 85
+        Height = 36
+        Caption = 'N'#186' INICIAL'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        object edtNumeroInicial: TDBEditNumero
+          Left = 2
+          Top = 10
+          Width = 80
+          Height = 23
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = -1
+          ParentFont = False
+          TabOrder = 0
+          Text = 'edtNumeroInicial'
+          Mascara = True
+          Alignment = taLeftJustify
+          TipoMascara = tmGERAL
+          NrDecimal = 2
+          Decimais = False
+          Negativo = False
+          Tamanho = 6
+          DataField = 'numeroinicial'
+          DataSource = dtmCadastrosInternos.dsrSeriesFiliais
+        end
+      end
+      object gbxNrFinal: TGroupBox
+        Left = 83
+        Top = 12
+        Width = 85
+        Height = 36
+        Caption = 'N'#186' FINAL'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        object edtNumeroFinal: TDBEditNumero
+          Left = 2
+          Top = 10
+          Width = 80
+          Height = 23
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = -1
+          ParentFont = False
+          TabOrder = 0
+          Text = 'edtNumeroFinal'
+          Mascara = True
+          Alignment = taLeftJustify
+          TipoMascara = tmGERAL
+          NrDecimal = 2
+          Decimais = False
+          Negativo = False
+          Tamanho = 6
+          DataField = 'numerofinal'
+          DataSource = dtmCadastrosInternos.dsrSeriesFiliais
+        end
+      end
+    end
+    object gbxModelNota: TGroupBox
+      Left = 10
+      Top = 62
+      Width = 400
+      Height = 36
+      Caption = 'MODELO DE NOTA'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 4
+      object sbnProcuraModeloNota: TSpeedButton
+        Left = 70
+        Top = 10
+        Width = 23
+        Height = 22
+        Flat = True
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDC800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC800000800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000
+          00800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000
+          00800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000008000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+          FFFFDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDC0000FF800000800000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDC
+          DCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC7F
+          7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFFFFFFFFFFFFDCDCDCDCDCDCDC
+          DCDCFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA858800000DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDCFFFFFFFFFFFF7F
+          7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        ParentFont = False
+        OnClick = sbnProcuraModeloNotaClick
+      end
+      object flkModeloNota: TtecDBFindLookup
+        Left = 2
+        Top = 10
+        Width = 67
+        Height = 23
+        Alignment = taLeftJustify
+        DataField = 'modelonota'
+        DataSource = dtmCadastrosInternos.dsrSeriesFiliais
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = 3
+        Maximo = 0
+        Minimo = 37353
+        Adicional = 0
+        Opcional = True
+        ParentFont = False
+        TabOrder = 0
+        PermitirZero = False
+        PermitirNulo = False
+        Operacao = opATRIBUICAO
+        LookupField = 'codigo'
+        LookupSource = dtmCadastrosInternos.dsrProcuraModelosNotasFiscais
+        LookupQueryParameter = 'codigo'
+        Parameter = ' '
+        ActiveSetControls = False
+        DenyInsert = False
+        NoSetControls = <>
+        SetControls = <>
+        LookupParameter = 'codigo'
+      end
+      object dtxModeloNota: TtecDBText
+        Left = 94
+        Top = 10
+        Width = 303
+        Height = 23
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'descricao'
+        DataSource = dtmCadastrosInternos.dsrProcuraModelosNotasFiscais
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 1
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxModDoctoFiscal: TGroupBox
+      Left = 10
+      Top = 107
+      Width = 400
+      Height = 36
+      Caption = 'MODELO DE DOCUMENTO FISCAL'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 5
+      inline fraConsultaModeloDoctoFiscal: TfraConsultaCodigoContabil
+        Left = 2
+        Top = 11
+        Width = 497
+        Height = 23
+        HorzScrollBar.Range = 497
+        VertScrollBar.Range = 23
+        AutoScroll = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        inherited dtxDescricao: TtecDBText
+          Width = 306
+          DataField = 'descricao'
+          DataSource = fraConsultaModeloDoctoFiscal.dsrProcuraModeloDoctosFiscais
+        end
+        inherited edfCodigo: TtecDBFindLookup
+          DataField = 'modelodoctofiscal'
+          DataSource = dtmCadastrosInternos.dsrSeriesFiliais
+          MaxLength = 2
+          LookupField = 'codigo'
+          LookupSource = fraConsultaModeloDoctoFiscal.dsrProcuraModeloDoctosFiscais
+          LookupQueryParameter = 'codigo'
+          Parameter = ' '
+          ActiveSetControls = False
+          DenyInsert = False
+          NoSetControls = <>
+          SetControls = <>
+          LookupParameter = 'codigo'
+        end
+      end
+    end
+    object ckbRequerConfirmacao: TDBCheckBox
+      Left = 277
+      Top = 37
+      Width = 132
+      Height = 18
+      Caption = 'Requer Confirma'#231#227'o'
+      DataField = 'requerconfirmacao'
+      DataSource = dtmCadastrosInternos.dsrSeriesFiliais
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 3
+      ValueChecked = 'True'
+      ValueUnchecked = 'False'
+    end
+  end
+  object aclAbilitar: TActionList
+    Left = 408
+    Top = 8
+    object actAbilitar: TAction
+      Caption = 'actAbilitar'
+      OnUpdate = actAbilitarUpdate
+    end
+  end
+end

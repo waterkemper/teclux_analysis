@@ -1,0 +1,201 @@
+unit fmcadastrounidades;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Zquery,
+  StdCtrls, fmcadastropadrao, DBCtrls, cptexto, Mask, cpdbfindcontrols,
+  ComCtrls, Buttons, ExtCtrls, Biblio, ctconstantes, fmconsultabasica,
+  fmconsultaporcampo, dmcadastrounidades, cpdbdata, ToolWin;
+
+type
+  TfrmCadastroUnidades = class(TfrmCadastroPadrao)
+    gbxTiposUnidades: TGroupBox;
+    gbxCodigo: TGroupBox;
+    edfNumeroUnidade: TtecDbEditFind;
+    gbxDescricao: TGroupBox;
+    edtDescricaoUnidade: TDBEditTexto;
+    gbxInativo: TGroupBox;
+    edtInativo: TDBEditData;
+    gbxSigla: TGroupBox;
+    edtSigla: TDBEditTexto;
+    procedure edfNumeroUnidadeFound(Found: Boolean);
+  private
+    { Private declarations }
+  protected
+    function PermitirProcura: Boolean;
+    function GetTitulo: String;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    function InternoPesquisar(Titulo:String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    function TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+
+  public
+    { Public declarations }
+    TipoPesquisa : TtecPesquisa;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroUnidades: TfrmCadastroUnidades;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmCadastroUnidades }
+
+constructor TfrmCadastroUnidades.Create(AOwner: TComponent);
+begin
+  dtmCadastroUnidades:= TdtmCadastroUnidades.Create(Self);
+  inherited;
+  DataSet:= dtmCadastroUnidades.qryTiposUnidades;
+end;
+
+destructor TfrmCadastroUnidades.Destroy;
+begin
+  dtmCadastroUnidades:= nil;
+  inherited;
+  frmCadastroUnidades:= nil;
+end;
+
+procedure TfrmCadastroUnidades.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+  edfNumeroUnidade.SetFocus;
+  edfNumeroUnidade.Text:= Value[0];
+  dtmcadastrounidades.RefazConsultaTiposUnidades(Value[0]);
+  edfNumeroUnidadeFound(True);
+
+  if (high(Value)=2) then
+  begin
+    application.ProcessMessages;
+    close;
+  end;
+end;
+
+procedure TfrmCadastroUnidades.edfNumeroUnidadeFound(Found: Boolean);
+begin
+  inherited;
+  edtSigla.SetFocus;
+end;
+
+function TfrmCadastroUnidades.GetTitulo: String;
+begin
+  case TipoPesquisa of
+    pesTIPOSUNIDADES   : Result:= 'Tipos de Unidades';
+    pesEMPREENDIMENTOS : Result:= 'Empreendimentos';
+  end;
+end;
+
+function TfrmCadastroUnidades.InternoExcluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then
+  begin
+    Result:= inherited InternoExcluir;
+    if Result then
+    begin
+      dtmcadastrounidades.ExcluirTiposUnidades;
+    end;
+  end;
+end;
+
+function TfrmCadastroUnidades.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    dtmcadastrounidades.GravarTiposUnidades;
+  edtDescricaoUnidade.SetFocus;
+end;
+
+function TfrmCadastroUnidades.InternoIncluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then
+  begin
+    Result:= inherited InternoIncluir;
+    if Result then
+    begin
+      dtmcadastrounidades.IncluirTiposUnidades;
+      edtSigla.SetFocus;
+    end;
+  end;
+end;
+
+function TfrmCadastroUnidades.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result:= mrCancel;
+  with dtmcadastrounidades do
+  begin
+    if PermitirProcura then
+    begin
+      AbreTabelasConsulta(TipoPesquisa);
+      Result := inherited InternoPesquisar(GetTitulo);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FechaTabelasConsulta(TipoPesquisa);
+    end;
+  end;
+end;
+
+function TfrmCadastroUnidades.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  case TipoPesquisa of
+    pesTIPOSUNIDADES :
+      begin
+        TfrmConsultaPorCampo(Result).ConsultaInterativa := False;
+        TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+      end;
+  end;
+end;
+
+function TfrmCadastroUnidades.PermitirProcura: Boolean;
+begin
+  Result:= True;
+  TipoPesquisa:= pesTIPOSUNIDADES;
+end;
+
+
+function TfrmCadastroUnidades.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmcadastrounidades do
+  begin
+    case TipoPesquisa of
+      pesTIPOSUNIDADES : Result:= ExisteTipoUnidade(NomeCampo, Value);
+    end;
+  end;
+end;
+
+function TfrmCadastroUnidades.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmcadastrounidades do
+  begin
+    case TipoPesquisa of
+      pesTIPOSUNIDADES : Result:= qryConsultaTiposUnidades;
+    end;
+  end;
+end;
+
+function TfrmCadastroUnidades.TabelaDoParametro(
+  Parametro: Integer): TZDataSet;
+begin
+  Result := nil;
+
+  with dtmcadastrounidades do
+  begin
+    case TipoPesquisa of
+      pesTIPOSUNIDADES : Result:= qryConsultaTiposUnidades;
+    end;
+  end;
+end;
+
+end.

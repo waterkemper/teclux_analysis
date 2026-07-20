@@ -1,0 +1,1735 @@
+unit fmcadastroprodutoscontrato;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, Buttons, DBCtrls, Mask, ComCtrls, Windows,
+  //Biblio
+  ctconstantes,
+  //Componentes
+  cpdbtext, cpnumero, cpdbfindcontrols, cpdbradiogroup,
+  //Terceiros
+  ZQuery,
+  //Repositorio
+  fmcadastropadrao, fmconsultabasica, cptexto, ActnList, Grids, DBGrids,
+  cpdbgrid, cpdbmemo, ToolWin, IdBaseComponent, IdComponent,
+  IdTCPConnection, IdTCPClient, IdHTTP, fmVisualizarImageURL, vclfixes,
+  AdvDateTimePicker, AdvDBDateTimePicker, db, dmcadastrocontratos, AdvEdit,
+  AdvEdBtn, DBPlannerDatePicker, PCheck, PDBCheck, fmPrincipalBasico,
+  DBLup2, AdvObj, BaseGrid, AdvGrid, DBAdvGrid, frconsultacontabil,
+  frconsultacodigocontabil, DBAdvEd, frconsulta, frconsultacodigo,
+  frmctrllink, DBMaplistCombobox, PlannerDatePicker, PlannerDBDatePicker, cpquery,
+  fmcadastropadraonavegacao;
+
+type
+  TfrmCadastroProdutosContrato = class(TfrmCadastroPadraoNav)
+    lblPrecoProduto: TLabel;
+    flkCodigoProduto: TtecDBFindLookup;
+    edtQuantidade: TDBEditNumero;
+    dtxUnidade: TtecDBText;
+    dtxDescricaoProduto: TtecDBText;
+    edtPreco: TDBEditNumero;
+    flkFilial: TtecDBFindLookup;
+    dtxNomeFilial: TtecDBText;
+    flkReserva: TtecDBFindLookup;
+    dtxReserva: TtecDBText;
+    sbnConsultaProduto: TSpeedButton;
+    sbnConsultaFilial: TSpeedButton;
+    sbnConsultaReserva: TSpeedButton;
+    pnlFundoJanela: TPanel;
+    gbxFundoJanela: TGroupBox;
+    dtxPrecoProduto: TtecDBText;
+    sbnAlterarPreco: TSpeedButton;
+    lblDecricaoAlteracaoPreco: TLabel;
+    edtDescricaoPrecoVenda: TDBEditTexto;
+    rgpMontagem: TtecDBRadioGroup;
+    rbnMontagemSIM: TtecRadioButton;
+    rbnMontagemNAO: TtecRadioButton;
+    flkVendedor: TtecDBFindLookup;
+    dtxNomeVendedor: TtecDBText;
+    sbnProcurarVendedor: TSpeedButton;
+    ckbProdutoLista: TDBCheckBox;
+    aclHabilitar: TActionList;
+    actHabilitarControles: TAction;
+    dtxEmEstoque: TtecDBText;
+    lblQtdeCopiar: TLabel;
+    edtQtdeCopiar: TDBEditNumero;
+    dbgDepositos: TtecDBGrid;
+    lblPromocao: TLabel;
+    dbgSimilares: TtecDBGrid;
+    rgbEntrega: TtecDBRadioGroup;
+    rbnEntregaSIM: TtecRadioButton;
+    rbnEntregaNAO: TtecRadioButton;
+    dtxPrecoNormal: TtecDBText;
+    lblPrecoNormal: TLabel;
+    lblDescricaoPreco: TLabel;
+    dtxDescricaoPreco: TtecDBText;
+    rgpBrinde: TtecDBRadioGroup;
+    rbnBrindeSIM: TtecRadioButton;
+    rbnBrindeNAO: TtecRadioButton;
+    edtDias: TDBEditTexto;
+    Label1: TLabel;
+    lbldesconto: TLabel;
+    edtvalordescontoitem: TDBEditNumero;
+    gbxExibicaoPrecos: TGroupBox;
+    gbxQuantidade: TGroupBox;
+    gbxItemProduto: TGroupBox;
+    gbxFILIAL: TGroupBox;
+    gbxEmEstoque: TGroupBox;
+    gbxPreco: TGroupBox;
+    gbxVendedor: TGroupBox;
+    gbxReserva: TGroupBox;
+    gbxDepositos: TGroupBox;
+    Bevel1: TBevel;
+    dtxPrecoAtualdoCliente: TtecDBText;
+    dtxAlteracaoPrecoCliente: TtecDBText;
+    gbxUltimaVenda: TGroupBox;
+    gbxDataUltimaVenda: TGroupBox;
+    dtxDataUltimaVenda: TtecDBText;
+    gbxValorUltimaVenda: TGroupBox;
+    dtxValorUltimaVenda: TtecDBText;
+    gbxUltimoOrcamento: TGroupBox;
+    gbxDataUltimoOrcamento: TGroupBox;
+    dtxDataUltimoOrcamento: TtecDBText;
+    gbxValorUltimoOrcamento: TGroupBox;
+    dtxValorUltimoOrcamento: TtecDBText;
+    gbxPrecodoCliente: TGroupBox;
+    gbxPrecoCliente: TGroupBox;
+    gbxAlteracaoValornoCliente: TGroupBox;
+    GroupBox1: TGroupBox;
+    GroupBox2: TGroupBox;
+    dtxPrecoNormalCliente: TtecDBText;
+    pnlCentral: TPanel;
+    gbxProdCliente: TGroupBox;
+    edtProduto: TDBEditTexto;
+    gbxPartNumber: TGroupBox;
+    edtPN: TDBEditNumero;
+    gbxFinalidade: TGroupBox;
+    edtFinalidade: TDBEditTexto;
+    pnlTop: TPanel;
+    pnlProduto: TPanel;
+    gbxQuantidadeacopiar: TGroupBox;
+    pnlDesconto: TPanel;
+    pgcExtraProdutos: TPageControl;
+    tstProdutosSimilares: TTabSheet;
+    tstModelodeProdutos: TTabSheet;
+    dbgModelos: TtecDBGrid;
+    mmoObservacaoModelo: TtecDBMemo;
+    gbxXPed: TGroupBox;
+    edtXPed: TDBEditTexto;
+    sbnProcurarListaCasamento: TSpeedButton;
+    flkListaCasamento: TtecDBFindLookup;
+    dtxNomeNoivo2: TtecDBText;
+    dtxNomeNoivo1: TtecDBText;
+    gbxListadeCasamento: TGroupBox;
+    rgpMonstruario: TtecDBRadioGroup;
+    rbnMonstruarioSIM: TtecRadioButton;
+    rbnMonstruarioNAO: TtecRadioButton;
+    pnlRGPs: TPanel;
+    gbxNItemPed: TGroupBox;
+    edtnItemPed: TDBEditNumero;
+    sbnVisualizarFoto: TSpeedButton;
+    tstObservacoesVenda: TTabSheet;
+    mmoObsProdVenda: TtecDBMemo;
+    Timer1: TTimer;
+    tstPrecosCargos: TTabSheet;
+    dbgprecoscargos: TtecDBGrid;
+    tstEstoque: TTabSheet;
+    dbgEstoque: TtecDBGrid;
+    tstPedidos: TTabSheet;
+    dbgProdutosPedidos: TtecDBGrid;
+    tstFornecedores: TTabSheet;
+    dbgFornecedor: TtecDBGrid;
+    pnlDescontoCupomDesconto: TPanel;
+    Label2: TLabel;
+    edtdescontoCupomDesconto: TDBEditNumero;
+    dtxAlteracao: TtecDBText;
+    lblValidade: TLabel;
+    pnlDescontoRateado: TPanel;
+    Label3: TLabel;
+    edtDescontoRateado: TDBEditNumero;
+    edtpercentualvalordescontoitem: TDBEditNumero;
+    StaticText2: TStaticText;
+    lblGrupo: TLabel;
+    dtxCodigoGrupo: TtecDBText;
+    dtxDescricaoGrupo: TtecDBText;
+    Label4: TLabel;
+    dtxcodigopromocao: TtecDBText;
+    dtxDescricaoPromocao: TtecDBText;
+    pnlProdutosCentral: TPanel;
+    gbxLembrarEm: TGroupBox;
+    edttpDataEntrega: TDBPlannerDatePicker;
+    GroupBox3: TGroupBox;
+    edttpHoraEntrega: TAdvDBDateTimePicker;
+    ckbDBDefinirEntregaParaTodos: TPDBCheck;
+    sbnVisualizarEntregasProdutos: TSpeedButton;
+    DBLPeriodo: TDBLookupComboPlus;
+    GroupBox4: TGroupBox;
+    DBAdvGridLotes: TDBAdvGrid;
+    gbxLotesdoProduto: TGroupBox;
+    GroupBox5: TGroupBox;
+    sbnExcluirLotes: TSpeedButton;
+    sbnIncluirLotes: TSpeedButton;
+    FormControlEditLink1: TFormControlEditLink;
+    pnlEdicaoDados: TPanel;
+    fraConsultaContabil: TfraConsultaCodigoContabil;
+    fraConsulta_: TfraConsultaCodigo;
+    PlannerDBDatePicker1: TPlannerDBDatePicker;
+    DBAdvEdit: TDBAdvEdit;
+    DBAdvEditFloat: TDBAdvMaskEdit;
+    DBCheckBoxBoolean: TDBCheckBox;
+    DBMaplistCombobox1: TDBMaplistCombobox;
+    tstProdutosporCliente: TTabSheet;
+    DBAdvGridProdutosporCliente: TDBAdvGrid;
+    sbnSugerirQuantidadeLotes: TSpeedButton;
+    gbxSituacaoProdutos: TGroupBox;
+    lblAtendidos: TLabel;
+    lblParcialmenteAtendidos: TLabel;
+    lblNaoAtendidos: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    procedure edtDescricaoPrecoVendaExit(Sender: TObject);
+    procedure edtPrecoExit(Sender: TObject);
+    procedure flkCodigoProdutoEnter(Sender: TObject);
+    procedure flkCodigoProdutoExit(Sender: TObject);
+    procedure flkCodigoProdutoMessage(var Msg: String);
+    procedure flkExit(Sender: TObject);
+    procedure flkFilialEnter(Sender: TObject);
+    procedure flkReservaEnter(Sender: TObject);
+    procedure flkReservaMessage(var Msg: String);
+    procedure sbnAlterarPrecoClick(Sender: TObject);
+    procedure sbnConsultaFilialClick(Sender: TObject);
+    procedure sbnConsultaProdutoClick(Sender: TObject);
+    procedure sbnConsultaReservaClick(Sender: TObject);
+    procedure sbnProcurarVendedorClick(Sender: TObject);
+    procedure ckbProdutoListaClick(Sender: TObject);
+    procedure actHabilitarControlesUpdate(Sender: TObject);
+    procedure edtQtdeCopiarExit(Sender: TObject);
+    procedure flkVendedorEnter(Sender: TObject);
+    procedure flkFilialMessage(var Msg: String);
+    procedure dbgSimilaresDblClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure flkCodigoProdutoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtQuantidadeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure flkCodigoProdutoFound(Found: Boolean);
+    procedure flkFilialFound(Found: Boolean);
+    procedure rbnEntregaSIMClick(Sender: TObject);
+    procedure sbnProcurarListaCasamentoClick(Sender: TObject);
+    procedure flkListaCasamentoEnter(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure sbnVisualizarFotoClick(Sender: TObject);
+    procedure pgcExtraProdutosDrawTab(Control: TCustomTabControl;
+      TabIndex: Integer; const Rect: TRect; Active: Boolean);
+    procedure Timer1Timer(Sender: TObject);
+    procedure SetarTabProduto;
+    procedure AdvDBDateTimePicker1CloseUp(Sender: TObject);
+    procedure pgcExtraProdutosChange(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure ckbDBDefinirEntregaParaTodosClick(Sender: TObject);
+    procedure sbnVisualizarEntregasProdutosClick(Sender: TObject);
+    procedure DBAdvGridLotesGetEditorType(Sender: TObject; ACol,
+      ARow: Integer; var AEditor: TEditorType);
+    procedure DBAdvGridLotesCheckRequiredFields(Sender: TObject;
+      var Allow: Boolean);
+    procedure DBAdvGridLotesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormControlEditLink1SetEditorFocus(Sender: TObject;
+      Grid: TAdvStringGrid; AControl: TWinControl);
+    procedure sbnIncluirLotesClick(Sender: TObject);
+    procedure sbnExcluirLotesClick(Sender: TObject);
+    procedure DBAdvGridLotesEnter(Sender: TObject);
+    procedure DBAdvGridLotesCellValidate(Sender: TObject; ACol,
+      ARow: Integer; var Value: String; var Valid: Boolean);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure sbnSugerirQuantidadeLotesClick(Sender: TObject);
+    procedure DBAdvGridLotesColorSelect(Sender: TObject; ACol,
+      ARow: Integer; Color: TColor; Value: String);
+    procedure DBAdvGridLotesGetCellColor(Sender: TObject; ARow,
+      ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+  private
+    procedure AfterScrollLinhaColunaGradeSimilares(Sender: TObject);
+    procedure AfterChangeProdutosContratosLotes(Sender: TObject);
+    procedure SetDataModulo (Dtm: TdtmCadastroContratos);
+    procedure CondicoesdaConsultaLotes;
+    procedure AtribuirDadosProdutosContratosLotes;
+    procedure AtualizarParametrosGridLoteProdutos;
+    procedure AtribuirParametros(TipoPesquisa: TtecPesquisa; NomedoCampo: String);
+    procedure SugerirQuantidadeLotes;
+    function TotalProdutoLotes: Real;
+    function TotalPendenteProdutoLotes: Real;
+  protected
+    tabObservacoesVendaNaoSetado : boolean;
+    TipoConsulta: TtecConsultaProdutosContratos;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function InternoCancelar: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AlterarEstadoBotoes; override;
+
+
+  public
+    constructor Create(AOwner: TComponent; dtm: TdtmCadastroContratos); reintroduce;
+    destructor  Destroy; override;
+
+  end;
+
+var
+  frmCadastroProdutosContrato: TfrmCadastroProdutosContrato;
+
+implementation
+
+uses
+  //Biblio
+  biblio, clusuario, clparametrossistema,
+  //Repositorio
+  fmconsultaporcampo,
+  //Projeto
+  dmbasico, dmcadastrocontratosauxiliar, fmajudabt;
+
+{$R *.dfm}
+
+{ TfrmCadastroProdutosContrato }
+
+procedure TfrmCadastroProdutosContrato.actHabilitarControlesUpdate(Sender: TObject);
+begin
+  inherited;
+//  ckbProdutoLista.Enabled         := dtmCadastroContratos.ComLista;
+//  ckbIncluirListaCasamento.Enabled:= dtmCadastroContratos.ComLista and not ckbProdutoLista.Checked;
+
+  gbxQuantidadeacopiar.Visible    := dtmCadastroContratos.MarcarProdutoCopiar;
+  lblQtdeCopiar.Visible           := dtmCadastroContratos.MarcarProdutoCopiar;
+  edtQtdeCopiar.Visible           := dtmCadastroContratos.MarcarProdutoCopiar;
+  lblPromocao.Visible             := dtmCadastroContratos.ProdutoEmPromocao;
+  lblPrecoNormal.Visible          := dtmCadastroContratos.ProdutoEmPromocao;
+  dtxPrecoNormal.Visible          := dtmCadastroContratos.ProdutoEmPromocao;
+
+  gbxLotesdoProduto.enabled := dtmCadastroContratos.qryProdutosContratosgerenciarloteevalidade.AsBoolean;
+
+  if not dtmCadastroContratos.PermiteDescontoProduto then
+  begin
+    {
+    if sbnAlterarPreco.visible then
+      sbnAlterarPreco.enabled := false;
+      }
+
+    edtpercentualvalordescontoitem.readonly := true;
+    edtvalordescontoitem.readonly := true;
+  end
+  else
+  begin
+  {
+    if sbnAlterarPreco.visible then
+      sbnAlterarPreco.enabled := true;
+      }
+      
+    edtpercentualvalordescontoitem.readonly := false;
+    edtvalordescontoitem.readonly := false;
+  end;
+
+end;
+
+constructor TfrmCadastroProdutosContrato.Create(AOwner: TComponent; dtm: TdtmCadastroContratos);
+begin
+  inherited Create(AOwner);
+  SetDataModulo(dtm);
+  if (ParSistema.ValordaQuantidade > 0) then
+  begin
+    Self.ActiveControl:=flkCodigoProduto;
+    flkCodigoProduto.SelectAll;
+  end
+  else
+  begin
+    Self.ActiveControl := edtQuantidade;
+//    edtQuantidade.SetFocus;
+    edtQuantidade.SelectAll;
+  end;
+//  edtQuantidade.Tamanho := ParSistema.TamanhoMascaraQuantidade + 3;
+  DataSet := dtmCadastroContratos.TabelaProdutoContratos;
+  sbnAlterarPreco.Visible := ParSistema.PermiteAlterarPreco;
+  pnlDesconto.Visible     := sbnAlterarPreco.Visible and UsuarioLogin.AlterarPrecoContrato;
+  rgpMontagem.Enabled     := dtmCadastroContratos.ProdutoMontavel;
+  flkVendedor.Enabled     := not UsuarioLogin.Vendedor or not ParSistema.NaoPermitirAlteraroVendedornosProdutosdoContrato;
+  if UsuarioLogin.Vendedor or ParSistema.NaoPermitirAlteraroVendedornosProdutosdoContrato then
+  begin
+    dtxNomeVendedor.Width := dtxNomeVendedor.Width + dtxNomeVendedor.Left - flkVendedor.Left;
+    dtxNomeVendedor.Left  := flkVendedor.Left;
+    dtxNomeVendedor.BringToFront;
+  end;
+
+  if ParSistema.SoVisualizarEstoqueDeposito then
+    gbxDepositos.Caption := uppercase(ctDEPOSITOS)
+  else gbxDepositos.Caption := uppercase(ctFILIAIS);
+
+  gbxDepositos.Visible := Not (ParSistema.FiliaisIndependentes);
+  dbgDepositos.Visible      := Not (ParSistema.FiliaisIndependentes);
+  gbxFILIAL.Visible    := Not (ParSistema.FiliaisIndependentes);
+  flkFilial.Visible         := Not (ParSistema.FiliaisIndependentes);
+  sbnConsultaFilial.Visible := Not (ParSistema.FiliaisIndependentes);
+  dtxNomeFilial.Visible     := Not (ParSistema.FiliaisIndependentes);
+  dbgSimilares.Columns[2].Visible := ParSistema.UsarGradesProdutos;
+  dbgSimilares.Columns[3].Visible := ParSistema.UsarGradesProdutos;
+  if dbgSimilares.Columns[4].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgSimilares.Columns[4].Width := ParSistema.TamanhoMascaraQuantidade;
+  if dbgSimilares.Columns[5].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgSimilares.Columns[5].Width := ParSistema.TamanhoMascaraQuantidade;
+  if not ParSistema.UsarGradesProdutos then
+    dbgsimilares.Columns[1].Width := dbgsimilares.Columns[1].Width+
+                                     dbgsimilares.Columns[2].Width+
+                                     dbgsimilares.Columns[3].Width;
+  dtmCadastroContratosAuxiliar.OnScrollLinhaColunaGradeSimilares := AfterScrollLinhaColunaGradeSimilares;
+  dtmCadastroContratos.AfterChangeProdutosContratosLotes := AfterChangeProdutosContratosLotes; 
+
+  gbxItemProduto.Caption := flkCodigoProduto.FParameterLabel;
+  dbgSimilares.Enabled:=ParSistema.MostrarSimilaresContrato;
+  rbnBrindeSIM.Enabled := ParSistema.PermitirAlterarBrindenoContrato;
+  rbnBrindeNAO.Enabled := ParSistema.PermitirAlterarBrindenoContrato;
+  dtmCadastroContratos.ConsultaExecutada:= False;
+
+  gbxExibicaoPrecos.Visible := ParSistema.PrecoParaCliente;
+  if not gbxExibicaoPrecos.Visible then
+  begin
+//    gbxFundoJanela.Height := gbxFundoJanela.Height - gbxExibicaoPrecos.Height;
+//    pgcExtraProdutos.Top      := pgcExtraProdutos.Top - gbxExibicaoPrecos.Height;
+//    self.Height := self.Height - gbxExibicaoPrecos.Height;
+
+    gbxProdCliente.Visible := false;
+    gbxPartNumber.Visible := false;
+    gbxFinalidade.Visible := false;
+  end;
+
+  flkCodigoProduto.exist;
+
+  tstModelodeProdutos.TabVisible := parsistema.LiberarVisualizacaodeModelosProdutos;
+  tstObservacoesVenda.TabVisible := trim((dtmCadastroContratos.qryProcuraProdutoobservacoesvenda.asstring))<>'';
+
+  if tstObservacoesVenda.TabVisible then
+    pgcExtraProdutos.TabIndex := 0
+  else
+    pgcExtraProdutos.TabIndex := 1;
+
+  tabObservacoesVendaNaoSetado :=  false;   
+
+
+  gbxXPed.Visible := ParSistema.ClientePessoaJuridica;
+  if gbxXPed.Visible then
+  begin
+    gbxFILIAL.Width := 246;
+    dtxNomeFilial.Width := 178;
+  end
+  else
+  begin
+    gbxFILIAL.Width := 381;
+    dtxNomeFilial.Width := 314;
+  end;
+
+  ckbProdutoLista.Visible := ParSistema.UtilizarListaCasamento;
+  flkListaCasamento.ReadOnly := not ParSistema.UtilizarListaCasamento;
+  flkListaCasamento.TabStop := ParSistema.UtilizarListaCasamento;
+  gbxListadeCasamento.Visible := ParSistema.UtilizarListaCasamento;
+
+  rgpMonstruario.visible := Parsistema.Percentualdacomissaoparaprodutosdomonstruario <> 0;
+
+//  if not rgpMonstruario.Visible then
+//    pnlCentral.Height := pnlCentral.Height - 19;
+
+//  Timer1Timer(nil);
+
+  tabObservacoesVendaNaoSetado :=  (dtmCadastroContratos.qryProcuraProdutoobservacoesvenda.asstring)<>'';
+
+  pgcExtraProdutos.OwnerDraw := true;
+
+//  AdvDBDateTimePicker1.MinDate := dtmCadastroContratos.qryContratosdata.AsDateTime;
+
+  dbgEstoque.ColumnByName('customedio').visible := UsuarioLogin.GerenteEstoque;
+  dbgEstoque.ColumnByName('precosemicms').visible := UsuarioLogin.GerenteEstoque;
+  dbgEstoque.ColumnByName('precocomicms').visible := UsuarioLogin.GerenteEstoque;
+  dbgEstoque.ColumnByName('valorultimacompra').visible := UsuarioLogin.GerenteEstoque;
+  dbgEstoque.ColumnByName('ultimacompra_com_icms').visible := UsuarioLogin.GerenteEstoque;
+
+{  tstFornecedores.tabvisible := UsuarioLogin.GerenteEstoque;}
+
+  edttpDataEntrega.Calendar.MinDate.Use := true;
+  edttpDAtaEntrega.Calendar.MinDate.Date := dtmCadastroContratos.qryContratosdata.asDateTime;
+
+  pnlEdicaoDados.visible := false;
+
+  AtualizarParametrosGridLoteProdutos;
+
+  DBAdvGridProdutosporCliente.Bands.active := true;
+  DBAdvGridProdutosporCliente.Bands.PrimaryColor :=  TColor(strtoint(parsistema.CorZebradoRelatorio));
+
+end;
+
+destructor TfrmCadastroProdutosContrato.Destroy;
+begin
+  dtmCadastroContratos.fraConsulta_ := nil;
+  inherited;
+
+  frmCadastroProdutosContrato := nil;
+end;
+
+procedure TfrmCadastroProdutosContrato.edtDescricaoPrecoVendaExit(Sender: TObject);
+begin
+  inherited;
+  edtDescricaoPrecoVenda.Enabled := False;
+end;
+
+procedure TfrmCadastroProdutosContrato.edtPrecoExit(Sender: TObject);
+begin
+  inherited;
+  edtPreco.SendToBack;
+end;
+
+function TfrmCadastroProdutosContrato.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  if TipoConsulta = cpcPRODUTOS then
+    Result := dtmCadastroContratos.ExisteProduto(NomeCampo, Value)
+  else if TipoConsulta = cpcFILIAIS then
+    Result := dtmCadastroContratos.ExisteFilialProduto(NomeCampo, Value)
+  else if TipoConsulta = cpcRESERVAS then
+    Result := dtmCadastroContratos.ExisteReserva(NomeCampo, Value)
+  else if TipoConsulta = cpcVENDEDOR then
+    Result := dtmCadastroContratos.ExisteVendedores(NomeCampo, Value)
+  else if TipoConsulta = cpcLISTADECASAMENTO then
+    Result := dtmCadastroContratos.ExisteListaCasamento(NomeCampo, Value)
+  else
+    Result := False
+end;
+
+procedure TfrmCadastroProdutosContrato.flkCodigoProdutoEnter(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.vListaCasamentoAux := flkListaCasamento.text;
+  TipoConsulta := cpcPRODUTOS;
+end;
+
+procedure TfrmCadastroProdutosContrato.flkCodigoProdutoExit(Sender: TObject);
+begin
+  inherited;
+  rgpMontagem.Enabled := dtmCadastroContratos.ProdutoMontavel;
+  {
+  if pnldesconto.Visible then
+    if not edtpercentualvalordescontoitem.Focused then
+      edtpercentualvalordescontoitem.SetFocus;
+  }    
+end;
+
+procedure TfrmCadastroProdutosContrato.flkCodigoProdutoMessage(var Msg: String);
+begin
+  inherited;
+  Msg := 'Produto não foi encontrado. Verifique se:'        + #13#10 +
+         '- está CADASTRADO no ESTOQUE desta filial ou'     + #13#10 +
+         '- está com o PREÇO DE VENDA diferente de zero ou' + #13#10 +
+         '- o campo ''SISTEMA'' esta marcado no CADASTRO DE PRODUTOS' + #13#10 +
+         '- já está INCLUIDO no CONTRATO ou'
+end;
+
+procedure TfrmCadastroProdutosContrato.flkExit(Sender: TObject);
+begin
+  inherited;
+  TipoConsulta := cpcNENHUM
+end;
+
+procedure TfrmCadastroProdutosContrato.flkFilialEnter(Sender: TObject);
+begin
+  inherited;
+  TipoConsulta := cpcFILIAIS
+end;
+
+procedure TfrmCadastroProdutosContrato.flkReservaEnter(Sender: TObject);
+begin
+  inherited;
+  TipoConsulta := cpcRESERVAS
+end;
+
+procedure TfrmCadastroProdutosContrato.flkReservaMessage(var Msg: String);
+begin
+  inherited;
+  Msg := 'A reserva não foi encontrada. Verifique se: ' + #13#10 +
+         '- a reserva existe ou' + #13#10 +
+
+         '- já foi finalizada ou' + #13#10 +
+
+         '- item/filial pertencem a reserva ou' + #13#10 +
+
+         '- vendedor que fez a reserva é o mesmo que está vendendo.'
+
+end;
+
+procedure TfrmCadastroProdutosContrato.flkVendedorEnter(Sender: TObject);
+begin
+  inherited;
+  TipoConsulta := cpcVENDEDOR;
+end;
+
+function TfrmCadastroProdutosContrato.InternoExcluir: Boolean;
+begin
+  Result := dtmCadastroContratos.ExcluirProduto
+end;
+
+function TfrmCadastroProdutosContrato.InternoGravar: Boolean;
+var
+  Copia,
+  Qtdade: Real;
+  Editando: Boolean;
+begin
+
+  editando := dtmCadastroContratos.EditandoProdutosContratos;
+
+  try
+    Qtdade := StrToFloat(edtQuantidade.Text);
+  except
+    Qtdade := 0;
+  end;
+
+  try
+    Copia  := StrToFloat(edtQtdeCopiar.Text);
+  except
+    Copia  := 0;
+  end;
+
+  Result := False;
+  if Qtdade > 0 then
+  begin
+    if Copia > Qtdade then begin
+      MensagemAviso('A quantidade à ser copiada não pode ser maior' + #10#13 +
+                    'que a quantidade do produto.');
+      edtQtdeCopiar.SetFocus;
+    end
+    else
+    begin
+
+      dtmCadastroContratos.GravandoItensContratos := true;
+      Result := dtmCadastroContratos.GravarProdutoContrato(self);
+      dtmCadastroContratos.GravandoItensContratos := true;
+      if Result and not Editando then
+      begin
+        if ParSistema.AbrirConsultaAutomaticamente then
+        begin
+          InternoIncluir;
+          CtrlOn:= True;
+          TipoConsulta:= cpcPRODUTOS;
+          InternoPesquisar('Produtos');
+        end;
+      end;
+
+    end;
+  end
+  else
+  begin
+    MensagemAviso(ctQUANTIDADEPRODUTOSMAIORZERO);
+    edtQuantidade.SetFocus;
+  end
+
+end;
+
+function TfrmCadastroProdutosContrato.InternoIncluir: Boolean;
+begin
+
+  Result := dtmCadastroContratos.IncluirProdutosContrato;
+  //flkCodigoProduto.SetFocus
+  flkCodigoProdutoEnter(nil);
+  AtualizarParametrosGridLoteProdutos;
+
+  if (ParSistema.ValordaQuantidade > 0) then
+    flkCodigoProduto.SetFocus
+  else
+    edtQuantidade.SetFocus;
+end;
+
+function TfrmCadastroProdutosContrato.InternoPesquisar(Titulo: String): Integer;
+var
+  Tabela: Integer;
+//  parametroAnterior, locateanterior: String;
+begin
+
+  if CtrlOn and (TipoConsulta <> cpcNENHUM) then
+  begin
+    if TipoConsulta = cpcFILIAIS then
+    begin
+      Titulo := ctFILIAL;
+      Tabela := ctVendaTabelaConsultaFilialProduto;
+    end else if TipoConsulta = cpcRESERVAS then begin
+      Titulo := ctRESERVAS;
+      Tabela := ctVendaTabelaConsultaReservas;
+    end else if Tipoconsulta = cpcVENDEDOR then begin
+      Titulo := ctVENDEDORES;
+      Tabela := ctVendaTabelaConsultaVendedores;
+    end else if Tipoconsulta = cpcLISTADECASAMENTO then begin
+      Titulo := ctLISTACASAMENTO;
+      Tabela := ctVendaTabelaConsultaListaCasamento;
+    end else
+      Tabela := 0;
+
+    if TipoConsulta = cpcPRODUTOS then
+    begin
+      Titulo := ctPRODUTO;
+      dtmCadastroContratos.AbreConsultaProdutos(ckbProdutoLista.Checked);
+      Tabela := ctVendaTabelaConsultaProdutos;
+    end else
+      dtmCadastroContratos.Abre(Tabela);
+
+    try
+      dtmCadastroContratos.ConsultaExecutada:= False;
+      Result := inherited InternoPesquisar(Titulo);
+      if Result = mrOK then begin
+        if TipoConsulta = cpcPRODUTOS then
+        begin
+          if ParSistema.GravarProdutoContratoAutomaticamente then
+          begin
+            {
+            parametroAnterior := flkCodigoProduto.LookupQueryParameter;
+            locateanterior := flkCodigoProduto.LocateQueryParameter;
+
+            if parsistema.PermitirProdutoAlfanumerico then
+            begin
+              flkCodigoProduto.LookupQueryParameter := 'produtovisual';
+              flkCodigoProduto.LocateQueryParameter := 'produtovisual';
+            end
+            else
+            begin
+              flkCodigoProduto.LookupQueryParameter := 'produto';
+              flkCodigoProduto.LocateQueryParameter := 'produto';
+            end;
+            }
+
+            dtmCadastroContratos.SelecionarProdutoContratoConsulta;
+            dtmCadastroContratos.IncluindoouEditandoProduto := false;
+
+            flkCodigoProduto.Exist;
+            flkcodigoproduto.Modified := true;
+            flkCodigoProduto.DoExit;
+            dtmCadastroContratos.IncluindoouEditandoProduto := true;
+            //flkCodigoProduto.DoExit; {estava trocando a filial}
+
+            {
+            flkCodigoProduto.LookupQueryParameter := parametroAnterior;
+            flkCodigoProduto.LocateQueryParameter := locateanterior;
+            }
+          end;
+          if not dtmCadastroContratos.ConsultaExecutada then
+          begin
+            dtmCadastroContratos.SelecionarProdutoContratoConsulta;
+            flkCodigoProdutoFound(true);
+          end;
+        end
+        else if TipoConsulta = cpcFILIAIS then
+        begin
+          dtmCadastroContratos.SelecionarFilial;
+          flkFilialFound(true);
+        end
+        else if TipoConsulta = cpcRESERVAS then
+          dtmCadastroContratos.SelecionarReserva
+        else if TipoConsulta = cpcVENDEDOR then
+          dtmCadastroContratos.SelecionarVendedoresProduto
+        else if TipoConsulta = cpcLISTADECASAMENTO then
+          dtmCadastroContratos.SelecionarListaCasamento;
+
+        dtmCadastroContratos.Fecha(Tabela);
+      end;
+    finally
+      dtmCadastroContratos.Fecha(Tabela);
+    end
+  end else
+    Result := mrNONE
+
+end;
+
+function TfrmCadastroProdutosContrato.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := (TipoConsulta <> cpcPRODUTOS) or
+                                                      ((TipoConsulta = cpcPRODUTOS) and
+                                                         ((dtmCadastroContratos.ComLista and ckbProdutoLista.Checked) or
+                                                          ParSistema.UsarConsultaInterativa));
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+end;
+
+procedure TfrmCadastroProdutosContrato.sbnAlterarPrecoClick(Sender: TObject);
+var
+  UsuarioAut: TtecUsuarios;
+  AlterarPreco: Boolean;
+begin
+  inherited;
+  if dtmCadastroContratos.ProdutoComposto then
+    AlterarPreco := False
+  else
+  if UsuarioLogin.AlterarPrecoContrato and dtmCadastroContratos.PermiteDescontoProduto then
+    AlterarPreco := True
+  else
+  begin
+    try
+      UsuarioAut := dtmCadastroContratos.ObterAutorizacao(taLOGIN, ctALTERARPRECOVENDA,
+         ifthen_(not dtmCadastroContratos.PermiteDescontoProduto, ctGERENTEVENDAS, ctAUTORIZADO));
+      try
+        if Assigned(UsuarioAut) then
+        begin
+          if not dtmCadastroContratos.PermiteDescontoProduto then
+            AlterarPreco := UsuarioAut.GerenteVendas
+          else
+            AlterarPreco := UsuarioAut.AlterarPrecoContrato
+        end
+        else
+        begin
+          AlterarPreco := False;
+          MensagemAviso(Format(ctUSUARIOSEMCADASTRO, ['']))
+        end;
+      finally
+        if Assigned(UsuarioAut) then
+          UsuarioAut.Free;
+      end
+    except
+      AlterarPreco := False
+    end
+  end;
+
+  if AlterarPreco then
+  begin
+    edtPreco.BringToFront;
+    edtPreco.SetFocus;
+    edtDescricaoPrecoVenda.Enabled := True;
+  end else begin
+    MensagemAviso(Format(ctUSUARIONAOAUTORIZADO, [ctMODIFICAPRECO]));
+    if Assigned(ActiveControl) then
+      ActiveControl.SetFocus
+    else
+      edtQuantidade.SetFocus
+  end
+
+end;
+
+procedure TfrmCadastroProdutosContrato.sbnConsultaFilialClick(Sender: TObject);
+begin
+  inherited;
+  TipoConsulta := cpcFILIAIS;
+  InternoPesquisar(flkFilial, ctFILIAL)
+end;
+
+procedure TfrmCadastroProdutosContrato.sbnConsultaProdutoClick(Sender: TObject);
+begin
+  inherited;
+  TipoConsulta := cpcPRODUTOS;
+  InternoPesquisar(flkCodigoProduto, ctPRODUTO)
+end;
+
+procedure TfrmCadastroProdutosContrato.sbnConsultaReservaClick(Sender: TObject);
+begin
+  inherited;
+  TipoConsulta := cpcRESERVAS;
+  InternoPesquisar(flkReserva, ctRESERVAS);
+end;
+
+procedure TfrmCadastroProdutosContrato.sbnProcurarVendedorClick(Sender: TObject);
+begin
+  inherited;
+  TipoConsulta := cpcVENDEDOR;
+  InternoPesquisar(flkVendedor, ctVENDEDORES);
+end;
+
+function TfrmCadastroProdutosContrato.TabelaDePesquisa: TZDataSet;
+begin
+  if TipoConsulta = cpcPRODUTOS then
+    Result := dtmCadastroContratos.TabelaConsultaProdutos
+  else if TipoConsulta = cpcFILIAIS then
+    Result := dtmCadastroContratos.TabelaConsultaFilialProduto
+  else if TipoConsulta = cpcRESERVAS then
+    Result := dtmCadastroContratos.TabelaConsultaReservas
+  else if TipoConsulta = cpcVENDEDOR then
+    Result := dtmCadastroContratos.TabelaConsultaVendedores
+  else if TipoConsulta = cpcLISTADECASAMENTO then
+    Result := dtmCadastroContratos.TabelaConsultaListaCasamento
+  else
+    Result := nil
+end;
+
+procedure TfrmCadastroProdutosContrato.ckbProdutoListaClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.SelecionarProdutosListaCasamento(ckbProdutoLista.Checked, ckbProdutoLista.Checked);
+end;
+
+
+procedure TfrmCadastroProdutosContrato.edtQtdeCopiarExit(Sender: TObject);
+begin
+  inherited;
+  if StrToFloat(edtQtdeCopiar.Text) > StrToFloat(edtQuantidade.Text) then begin
+    MensagemAviso('A quantidade à ser copiada não pode ser maior' + #10#13 +
+                  'que a quantidade do produto.');
+    edtQtdeCopiar.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroProdutosContrato.flkFilialMessage(var Msg: String);
+begin
+  inherited;
+  Msg := 'Filial inválida. Verifique se:'        + #13#10 +
+         '- está cadastrada ou'     + #13#10 +
+         '- está inativa ou' + #13#10 +
+         '- se o produto já está incluído no contrato com a mesma filial.'
+end;
+
+procedure TfrmCadastroProdutosContrato.AfterScrollLinhaColunaGradeSimilares(
+  Sender: TObject);
+begin
+  if self.Visible then
+  begin
+    dbgSimilares.Columns[2].Title.Caption := dtmCadastroContratos.LinhadaGradeSimilares;
+    dbgSimilares.Columns[3].Title.Caption := dtmCadastroContratos.ColunadaGradeSimilares;
+
+    AtualizarParametrosGridLoteProdutos;
+
+  end;
+end;
+
+procedure TfrmCadastroProdutosContrato.dbgSimilaresDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.TrocaProdutoContratoporSimilar;
+  if ParSistema.ProdutoVendaFutura then
+  begin
+    if not dtmCadastroContratos.ValidarProdutosContratos then
+      edtQuantidade.SetFocus;
+  end
+  else
+    dtmCadastroContratos.SelecionarProdutoContratoProcura;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.FormShow(Sender: TObject);
+begin
+  inherited;
+  tstPrecosCargos.TabVisible := ParSistema.PrecosporCargo;
+  
+  if (dtmCadastroContratos.IncluindoProdutosContratos) and
+      ParSistema.AbrirConsultaAutomaticamente then
+    sbnConsultaProdutoClick(self);
+end;
+
+procedure TfrmCadastroProdutosContrato.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  case key of
+    VK_Return: if Shift = [] then
+               begin
+                 if ((ActiveControl = flkCodigoProduto) and (ParSistema.GravarProdutoContratoAutomaticamente)) then
+                 begin
+                   dtmCadastroContratos.IncluindoouEditandoProduto := false;
+                   inherited;
+                   if InternoGravar then
+                   begin
+//                     flkcodigoproduto.Clear;
+                     flkCodigoProduto.setfocus;
+                     flkCodigoProduto.selectall;
+                   end;
+                   dtmCadastroContratos.IncluindoouEditandoProduto := true;
+                   dtmCadastroContratos.AbrirDadosprodutos;
+                 end
+                 else inherited;
+               end;
+    else inherited;
+  end
+end;
+
+procedure TfrmCadastroProdutosContrato.flkCodigoProdutoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  gbxItemProduto.Caption := flkCodigoProduto.FParameterLabel;
+end;
+
+procedure TfrmCadastroProdutosContrato.edtQuantidadeKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    VK_return :
+    {bloqueado a linha abaixo devido ao fato que ao voltar do produto para a
+     quantidade, mesmo alterando a quantidade o valor fica 1 pois
+     esta editando e não incluindo}
+//      if dtmCadastroContratos.IncluindoProdutosContratos then
+        flkCodigoProduto.ConfirmarQuantidade := true;
+  end;
+end;
+
+procedure TfrmCadastroProdutosContrato.flkCodigoProdutoFound(
+  Found: Boolean);
+begin
+  inherited;
+  if found {and not dtmCadastroContratos.ConsultaExecutada} then
+  begin
+
+    dtmCadastroContratos.ConsultaExecutada := true;
+
+    if ParSistema.ProdutoVendaFutura then
+    begin
+      if not dtmCadastroContratos.ValidarProdutosContratos then
+        edtQuantidade.SetFocus;
+    end
+    else
+      dtmCadastroContratos.SelecionarProdutoContratoProcura;
+
+    actHabilitarControlesUpdate(nil);
+    dtmCadastroContratos.RefazConsultaPrecoParaCliente;
+
+
+    if parsistema.GravarProdutoContratoAutomaticamente then
+    begin
+      flkCodigoProduto.setfocus;
+      flkCodigoProduto.SelectAll;
+    end
+    else
+    if pnldesconto.Visible then
+    begin
+      edtpercentualvalordescontoitem.SetFocus;
+      edtpercentualvalordescontoitem.selectall;
+    end;
+
+  end;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.flkFilialFound(Found: Boolean);
+begin
+  inherited;
+  if found then
+    dtmCadastroContratos.SelecionarFilialContratoProcura;
+end;
+
+procedure TfrmCadastroProdutosContrato.rbnEntregaSIMClick(Sender: TObject);
+begin
+  inherited;
+  if (self.Showing) then
+    edtDias.SetFocus;
+end;
+
+procedure TfrmCadastroProdutosContrato.sbnProcurarListaCasamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  TipoConsulta := cpcLISTADECASAMENTO;
+  InternoPesquisar(flkListaCasamento, ctLISTACASAMENTO)
+end;
+
+procedure TfrmCadastroProdutosContrato.flkListaCasamentoEnter(
+  Sender: TObject);
+begin
+  inherited;
+  TipoConsulta:= cpcLISTADECASAMENTO;
+end;
+
+procedure TfrmCadastroProdutosContrato.Button1Click(Sender: TObject);
+
+begin
+  inherited;
+//  DownloadJPG('http://www.santaapolonia.com.br/fotos/4540005122011103405.jpg', Image1);
+end;
+
+procedure TfrmCadastroProdutosContrato.sbnVisualizarFotoClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarImageURL(self, dtmCadastroContratos.GetProduto);
+end;
+
+procedure TfrmCadastroProdutosContrato.pgcExtraProdutosDrawTab(
+  Control: TCustomTabControl; TabIndex: Integer; const Rect: TRect;
+  Active: Boolean);
+begin
+  inherited;
+  Control.Canvas.Font.Color := clBlack;
+
+  if (pgcExtraProdutos.Pages[TabIndex] = tstObservacoesVenda) and tstObservacoesVenda.tabvisible then
+  begin
+    if (dtmCadastroContratos.qryProcuraProdutoobservacoesvenda.asstring)<>'' then
+    begin
+      Control.Canvas.Font.Color := clWhite;
+      Control.Canvas.Brush.Color := clRed;
+    end;
+  end;
+
+  if tstObservacoesVenda.tabvisible then
+  begin
+    Control.Canvas.TextOut(Rect.left+5,Rect.top+3,pgcExtraProdutos.Pages[tabindex].Caption);
+    pgcExtraProdutos.Pages[TabIndex].Font.Color :=  Control.Canvas.Font.Color;
+  end
+  else
+  begin
+    Control.Canvas.TextOut(Rect.left+5,Rect.top+3,pgcExtraProdutos.Pages[tabindex + 1].Caption);
+    pgcExtraProdutos.Pages[TabIndex + 1].Font.Color := Control.Canvas.Font.Color;
+  end;
+
+  tstObservacoesVenda.font.color := clRed;
+
+  SetarTabProduto;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  if trim((dtmCadastroContratos.qryProcuraProdutoobservacoesvenda.asstring))<>'' then
+  begin
+    tstObservacoesVenda.tabvisible := true;
+    pgcExtraProdutos.OwnerDraw := true;
+  end
+  else
+  begin
+    tstObservacoesVenda.tabvisible := false;
+    tabObservacoesVendaNaoSetado := true;
+    pgcExtraProdutos.OwnerDraw := false;
+  end;
+end;
+
+procedure TfrmCadastroProdutosContrato.SetarTabProduto;
+begin
+  if tabObservacoesVendaNaoSetado then
+  begin
+    pgcExtraProdutos.tabindex := 0;
+    tabObservacoesVendaNaoSetado := false;
+  end;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.AdvDBDateTimePicker1CloseUp(
+  Sender: TObject);
+begin
+  inherited;
+  edtDias.SetFocus;
+end;
+
+procedure TfrmCadastroProdutosContrato.pgcExtraProdutosChange(
+  Sender: TObject);
+begin
+  inherited;
+  if (pgcExtraProdutos.ActivePage = tstFornecedores) and tstFornecedores.tabvisible then
+  begin
+    dtmCadastroContratos.VisualizandoFornecedoresProdutos := true;
+    dtmCadastroContratos.AbrirFornecedoresProdutos;
+  end
+  else
+  if (pgcExtraProdutos.ActivePage = tstProdutosporCliente) and tstProdutosporCliente.tabvisible then
+  begin
+    dtmCadastroContratos.VisualizandoProdutosporCliente := true;
+    dtmCadastroContratos.AbrirProdutosporCliente;
+  end
+  else
+  begin
+    dtmCadastroContratos.VisualizandoFornecedoresProdutos := false;
+    dtmCadastroContratos.VisualizandoProdutosporCliente := false;
+  end;
+end;
+
+procedure TfrmCadastroProdutosContrato.AlterarEstadoBotoes;
+begin
+  inherited;
+  if flkCodigoProduto.confirmarquantidade then
+    if dataset.State = dsbrowse then
+      flkCodigoProduto.confirmarquantidade := false;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.FormActivate(Sender: TObject);
+begin
+  inherited;
+//  pnlRGPs.top := pnlProduto.top + gbxEmEstoque.height;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.SetDataModulo(
+  Dtm: TdtmCadastroContratos);
+begin
+  dtmCadastroContratos := dtm;
+  dtxDataUltimaVenda.DataSource := dtmCadastroContratos.dsrClientesProdutos;
+  dtxValorUltimaVenda.DataSource := dtmCadastroContratos.dsrClientesProdutos;
+  dtxDataUltimoOrcamento.DataSource := dtmCadastroContratos.dsrClientesProdutos;
+  dtxValorUltimoOrcamento.DataSource := dtmCadastroContratos.dsrClientesProdutos;
+  dtxPrecoAtualdoCliente.DataSource := dtmCadastroContratos.dsrClientesProdutos ;
+  dtxAlteracaoPrecoCliente.DataSource := dtmCadastroContratos.dsrClientesProdutos;
+  dtxAlteracao.DataSource := dtmCadastroContratos.dsrProdutoEstoque;
+  dtxPrecoNormalCliente.DataSource := dtmCadastroContratos.dsrProdutoEstoque;
+  dtxPrecoProduto.DataSource := dtmCadastroContratos.dsrProdutosContratos;
+  flkVendedor.DataSource := dtmCadastroContratos.dsrProdutosContratos;
+  flkVendedor.LookupSource := dtmCadastroContratos.dsrProcuraVendedorProduto;
+  dtxNomeVendedor.DataSource := dtmCadastroContratos.dsrProcuraVendedorProduto;
+  flkReserva.DataSource := dtmCadastroContratos.dsrProdutosContratos;
+  flkReserva.LookupSource := dtmCadastroContratos.dsrProcuraReservaProduto               ;
+  dtxReserva.DataSource := dtmCadastroContratos.dsrProcuraReservaProduto                  ;
+  edtPreco.DataSource := dtmCadastroContratos.dsrProdutosContratos                         ;
+  dtxDescricaoPreco.DataSource := dtmCadastroContratos.dsrProdutoEstoque                    ;
+  edtDescricaoPrecoVenda.DataSource := dtmCadastroContratos.dsrProdutosContratos             ;
+  edtvalordescontoitem.DataSource := dtmCadastroContratos.dsrProdutosContratos                         ;
+  edtDescontoRateado.DataSource := dtmCadastroContratos.dsrProdutosContratos ;
+  edtdescontoCupomDesconto.DataSource := dtmCadastroContratos.dsrProdutosContratos ;
+  edtpercentualvalordescontoitem.DataSource := dtmCadastroContratos.dsrProdutosContratos ;
+  edtQuantidade.DataSource := dtmCadastroContratos.dsrProdutosContratos ;
+  dtxUnidade.DataSource := dtmCadastroContratos.dsrProdutosContratos     ;
+  ckbProdutoLista.DataSource := dtmCadastroContratos.dsrProdutosContratos ;
+  dbgDepositos.DataSource := dtmCadastroContratos.dsrEstoque               ;
+  edtQtdeCopiar.DataSource := dtmCadastroContratos.dsrProdutosContratos     ;
+  flkCodigoProduto.DataSource := dtmCadastroContratos.dsrProdutosContratos   ;
+  flkCodigoProduto.LookupSource := dtmCadastroContratos.dsrProcuraProduto     ;
+  flkCodigoProduto.LookupQueryParameter := 'produtovisual';
+  dtxDescricaoProduto.DataSource := dtmCadastroContratos.dsrProcuraProduto     ;
+  dtxCodigoGrupo.DataSource := dtmCadastroContratos.dsrProcuraProduto;
+  dtxDescricaoGrupo.DataSource := dtmCadastroContratos.dsrProcuraProduto;
+
+  dtxcodigopromocao.DataSource := dtmCadastroContratos.dsrProcuraProduto;
+  dtxDescricaoPromocao.DataSource := dtmCadastroContratos.dsrProcuraProduto;
+
+  edtProduto.DataSource := dtmCadastroContratos.dsrClientesProdutos             ;
+  flkFilial.DataSource := dtmCadastroContratos.dsrProdutosContratos       ;
+  flkFilial.LookupSource := dtmCadastroContratos.dsrProcuraFilialProduto   ;
+  dtxNomeFilial.DataSource := dtmCadastroContratos.dsrProcuraFilialProduto  ;
+  edtPN.DataSource := dtmCadastroContratos.dsrClientesProdutos               ;
+  edtFinalidade.DataSource := dtmCadastroContratos.dsrClientesProdutos        ;
+  dtxEmEstoque.DataSource := dtmCadastroContratos.dsrProdutoEstoque            ;
+  edtXPed.DataSource := dtmCadastroContratos.dsrProdutosContratos      ;
+  edtnItemPed.DataSource := dtmCadastroContratos.dsrProdutosContratos   ;
+  flkListaCasamento.DataSource := dtmCadastroContratos.dsrProdutosContratos;
+  flkListaCasamento.LookupSource := dtmCadastroContratos.dsrProcuraListaCasamento;
+  dtxNomeNoivo2.DataSource := dtmCadastroContratos.dsrProcuraListaCasamento   ;
+  dtxNomeNoivo1.DataSource := dtmCadastroContratos.dsrProcuraListaCasamento    ;
+  mmoObsProdVenda.DataSource := dtmCadastroContratos.dsrProcuraProduto          ;
+  dbgSimilares.DataSource := dtmCadastroContratos.dsrProdutosSimilares           ;
+  dbgprecoscargos.DataSource := dtmCadastroContratos.dsrPrecosCargos              ;
+  dbgEstoque.DataSource := dtmCadastroContratos.dsrConsultaEstoques                ;
+  dbgProdutosPedidos.DataSource := dtmCadastroContratos.dsrConsultaProdutosPedidos  ;
+  dbgFornecedor.DataSource := dtmCadastroContratos.dsrFornecedoresProdutos           ;
+  dbgModelos.DataSource := dtmCadastroContratos.dsrModelosCaracteristicas    ;
+  mmoObservacaoModelo.DataSource := dtmCadastroContratos.dsrModelosCaracteristicas;
+  rgpBrinde.DataSource := dtmCadastroContratos.dsrProdutosContratos            ;
+  rgpMontagem.DataSource := dtmCadastroContratos.dsrProdutosContratos          ;
+  rgpMonstruario.DataSource := dtmCadastroContratos.dsrProdutosContratos        ;
+  rgbEntrega.DataSource := dtmCadastroContratos.dsrProdutosContratos           ;
+  edtDias.DataSource := dtmCadastroContratos.dsrProdutosContratos  ;
+//  AdvDBDateTimePicker1.DataSource := dtmCadastroContratos.dsrProdutosContratos;
+  edttpDataEntrega.DataSource := dtmCadastroContratos.dsrProdutosContratos;
+  edttpHoraEntrega.DataSource := dtmCadastroContratos.dsrProdutosContratos;
+  DBLPeriodo.datasource := dtmCadastroContratos.dsrProdutosContratos;
+  DBLPeriodo.lookupsource := dtmCadastroContratos.dtmCadastroContratosAuxiliar.dsrPeriodosEntrega;
+
+  ckbDBDefinirEntregaParaTodos.datasource := dtmCadastroContratos.dsrContratos;
+
+  DBAdvGridLotes.datasource := dtmCadastroContratos.dsrProdutosContratosLotes;
+
+  DBAdvGridProdutosporCliente.datasource := dtmCadastroContratos.dtmCadastroContratosAuxiliar.dsrProdutosporCliente;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.FormCreate(Sender: TObject);
+begin
+  inherited;
+  tstFornecedores.tabvisible := UsuarioLogin.GerenteEstoque;
+end;
+
+procedure TfrmCadastroProdutosContrato.ckbDBDefinirEntregaParaTodosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.qryprodutoscontratos.edit;
+end;
+
+procedure TfrmCadastroProdutosContrato.sbnVisualizarEntregasProdutosClick(
+  Sender: TObject);
+begin
+  inherited;
+  AbrirConsultaEntregaProdutos(['Consultar entregas em aberto']);
+end;
+
+procedure TfrmCadastroProdutosContrato.DBAdvGridLotesGetEditorType(
+  Sender: TObject; ACol, ARow: Integer; var AEditor: TEditorType);
+begin
+  inherited;
+  DBAdvEditFloat.visible := false;
+  fraConsulta_.visible := false;
+
+  if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'nrlote') and (TDBAdvGrid(Sender).Columns[Acol].Field.AsString='') then
+  begin
+    fraConsulta_.Width := TDBAdvGrid(Sender).Columns[Acol].Width - 5;
+    AtribuirParametros(pesESTOQUESLOTESPRODUTOS, TDBAdvGrid(Sender).Columns[Acol].fieldname);
+    fraConsulta_.visible := true;
+  end
+  else
+  if (TDBAdvGrid(Sender).Columns[Acol].Field.DataType = ftFloat) or
+     (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'quantidade') then
+  begin
+
+
+    AtribuirParametros(pesESTOQUESLOTESPRODUTOS, 'nrlote');
+
+    DBAdvEditFloat.datasource := dtmCadastroContratos.dsrProdutosContratosLotes;
+    DBAdvEditFloat.datafield := TDBAdvGrid(Sender).Columns[Acol].Fieldname;
+    DBAdvEditFloat.visible := true;
+    DBAdvEditFloat.width :=  TDBAdvGrid(Sender).Columns[Acol].Width -  5;
+
+//    DBAdvGridLotes.datasource.dataset.edit;
+
+
+    
+
+  end;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.DBAdvGridLotesCheckRequiredFields(
+  Sender: TObject; var Allow: Boolean);
+begin
+  inherited;
+  Allow := dtmCadastroContratos.qryProdutosContratosLotes.CheckRequiredFields(false, true, true, self, true);
+  AtualizarParametrosGridLoteProdutos;
+end;
+
+procedure TfrmCadastroProdutosContrato.DBAdvGridLotesKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      TeclaEditarRegistro :
+      begin
+        if sbnIncluirLotes.enabled then
+        begin
+          DBAdvGridLotes.setfocus;
+//          DBAdvGridLotes.datasource.dataset.edit;
+        end;
+      end;
+      TeclaInserirRegistro:
+        begin
+           if sbnIncluirLotes.enabled then
+             DBAdvGridLotes.datasource.dataset.append;
+        end;
+      VK_F9:
+      begin
+        if (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'nrlote') then
+        begin
+          DBAdvGridLotes.ShowInplaceEdit;
+          fraConsulta_.sbnProcuraClick(sender)
+        end;
+      end;
+
+    end;
+  end
+  else
+  if key = vk_return then
+  begin
+    if DBAdvGridLotes.ColumnByFieldName['quantidade'].Index =
+       DBAdvGridLotes.Col then
+      DBAdvGridLotes.ShowInplaceEdit;
+  end
+
+
+end;
+
+procedure TfrmCadastroProdutosContrato.FormControlEditLink1SetEditorFocus(
+  Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+begin
+  inherited;
+  if (TDBAdvGrid(Grid).Columns[Grid.col].Field.DataType = ftFloat) or
+     (TDBAdvGrid(grid).Columns[grid.col].FieldName = 'quantidade') then
+  begin
+//    DBAdvGridLotes.datasource.dataset.edit;
+    DBAdvEditFloat.setfocus;
+  end
+  else
+  if fraconsulta_.visible then
+  begin
+//    DBAdvGridLotes.datasource.dataset.edit;
+    fraConsulta_.edfcodigo.setfocus;
+  end;
+end;
+
+procedure TfrmCadastroProdutosContrato.sbnIncluirLotesClick(
+  Sender: TObject);
+begin
+  inherited;
+  DBAdvGridLotes.datasource.dataset.append;
+end;
+
+procedure TfrmCadastroProdutosContrato.sbnExcluirLotesClick(
+  Sender: TObject);
+begin
+  inherited;
+  try
+
+    if not DBAdvGridLotes.datasource.dataset.isempty then
+      DBAdvGridLotes.datasource.dataset.delete;
+  finally
+    AtualizarParametrosGridLoteProdutos;
+  end;
+end;
+
+procedure TfrmCadastroProdutosContrato.CondicoesdaConsultaLotes;
+begin
+  fraconsulta_.qryProcuraEstoquesLotesProdutos.parambyname('produto').asString :=
+    dtmCadastroContratos.qryProdutosContratosproduto.asstring;
+
+  fraconsulta_.qryProcuraEstoquesLotesProdutos.parambyname('filial').asString :=
+    dtmCadastroContratos.qryProdutosContratosfilial.asstring;
+
+  fraconsulta_.qryProcuraEstoquesLotesProdutos.parambyname('contrato').asString :=
+    dtmCadastroContratos.qryContratosNumero.asstring;
+
+    
+
+  fraconsulta_.qryConsultaEstoquesLotesProdutos.parambyname('produto').asString :=
+    dtmCadastroContratos.qryProdutosContratosproduto.asstring;
+
+    {
+  DBAdvGridLotes.ColumnDistinct()
+
+  fraconsulta_.qryConsultaEstoquesLotesProdutos.MacroByName('SQLCondicaoJaCadastrados').asString :=
+    'and l.nrlote not in ('+
+    }
+
+  fraconsulta_.qryConsultaEstoquesLotesProdutos.parambyname('filial').asString :=
+    dtmCadastroContratos.qryProdutosContratosfilial.asstring;
+
+  fraconsulta_.qryConsultaEstoquesLotesProdutos.parambyname('nrlote').asString :=
+    dtmCadastroContratos.qryProdutosContratosLotesnrlote.asstring;
+
+  fraconsulta_.qryConsultaEstoquesLotesProdutos.parambyname('contrato').asString :=
+    dtmCadastroContratos.qryContratosNumero.asstring;
+
+
+end;
+
+procedure TfrmCadastroProdutosContrato.DBAdvGridLotesEnter(
+  Sender: TObject);
+begin
+  inherited;
+  tipoconsulta := cpcNENHUM;
+end;
+
+procedure TfrmCadastroProdutosContrato.AtualizarParametrosGridLoteProdutos;
+begin
+  with DBAdvGridLotes do
+  begin
+  {
+    FloatingFooter.ColumnCalc[ColumnByFieldName['quantidade'].Index] := acNONE;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['devolvidos'].Index] := acNONE;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['trocados'].Index] := acNONE;
+
+
+
+    FloatingFooter.Visible := False;
+    FloatingFooter.Invalidate;
+
+    FloatingFooter.Visible := True;
+    }
+    FloatingFooter.ColumnCalc[ColumnByFieldName['quantidade'].Index] := acSum;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['devolvidos'].Index] := acSum;
+    FloatingFooter.ColumnCalc[ColumnByFieldName['trocados'].Index] := acSum;
+                   {
+    CalcFooter(ColumnByFieldName['quantidade'].Index);
+    CalcFooter(ColumnByFieldName['devolvidos'].Index);
+    CalcFooter(ColumnByFieldName['trocados'].Index);
+    }
+
+    CalcFooter(-1);
+
+    {
+    FloatingFooter.Invalidate;
+    Refresh;
+
+    CalcFooter(-1);
+
+    FloatingFooter.Invalidate;
+    Refresh;
+    }
+
+
+
+
+  end;
+end;
+
+procedure TfrmCadastroProdutosContrato.AtribuirDadosProdutosContratosLotes;
+begin
+  if DBAdvGridLotes.GetDistinctValues(1, DBAdvGridLotes.row, true ).indexof(fraConsulta_.qryProcuraEstoquesLotesProdutosnrlote.asString)<>-1 then
+  begin
+    MensagemAviso('Número de lote já cadastrado!');
+    dtmCadastroContratos.qryProdutosContratosLotes.cancel;
+  end
+  else
+  begin
+
+    {Existe alteração de contrato reservado para produtos com lotes?}
+    {Existe. ver campo QuantidadeLoteOriginal}
+
+    if fraConsulta_.qryProcuraEstoquesLotesProdutosSaldoEstoque.AsFloat >=
+       TotalPendenteProdutoLotes then
+       dtmCadastroContratos.qryProdutosContratosLotesquantidade.asFloat :=
+          TotalPendenteProdutoLotes
+    else
+       dtmCadastroContratos.qryProdutosContratosLotesquantidade.asFloat :=
+          fraConsulta_.qryProcuraEstoquesLotesProdutosSaldoEstoque.AsFloat;
+
+    dtmCadastroContratos.qryProdutosContratosLotesprodutoscontratoslotes_situacao.asString := 'A';
+    dtmCadastroContratos.qryProdutosContratosLotesquantidadeantesalterar.asFloat :=
+      dtmCadastroContratos.qryProdutosContratosLotesquantidade.asFloat;
+
+    dtmCadastroContratos.qryProdutosContratosLotesSaldoEstoque.asFloat :=
+      fraConsulta_.qryProcuraEstoquesLotesProdutosSaldoEstoque.AsFloat;
+
+
+  end;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.DBAdvGridLotesCellValidate(
+  Sender: TObject; ACol, ARow: Integer; var Value: String;
+  var Valid: Boolean);
+begin
+  inherited;
+  DBAdvGridLotes.Refresh;
+  DBAdvGridLotes.FloatingFooter.Invalidate;
+end;
+
+procedure TfrmCadastroProdutosContrato.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  CanClose := dtmCadastroContratos.ValidarProdutosContratosLotes(self, false);
+  
+  if canclose then
+    inherited;
+
+end;
+
+function TfrmCadastroProdutosContrato.InternoCancelar: Boolean;
+begin
+(*
+  result := {dtmCadastroContratos.qryProdutosContratos.CheckRequiredFields(false, false, true, self, true) and }
+            dtmCadastroContratos.ValidarProdutosContratosLotes(self, false);
+            *)
+
+//  if result then
+    inherited InternoCancelar;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.sbnSugerirQuantidadeLotesClick(
+  Sender: TObject);
+var
+  vContinuar: Boolean;
+begin
+  inherited;
+
+  vContinuar := True;
+  if not dtmCadastroContratos.qryProdutosContratosLotes.isempty then
+    if MensagemConfirmacao('As quantidades dos lotes serão refeitas considerando a data de validade mais antiga.'+chr(13)+
+                           'Confirma?')=smbCancel then
+      vContinuar := false;
+
+  if vContinuar then
+  begin
+    AtribuirParametros(pesESTOQUESLOTESPRODUTOS, 'nrlote');
+    SugerirQuantidadeLotes;
+  end;  
+end;
+
+procedure TfrmCadastroProdutosContrato.AtribuirParametros(
+  TipoPesquisa: TtecPesquisa; NomedoCampo: String);
+begin
+  case TipoPesquisa of
+    pesESTOQUESLOTESPRODUTOS:
+    begin
+
+      With fraConsulta_ do
+      begin
+        TipoConsulta := cpcNENHUM;
+
+//        fraConsulta_.Width := TDBAdvGrid(Sender).Columns[Acol].Width - 5;
+        fraConsulta_.edfcodigo.Width := fraConsulta_.Width-23;
+        fraConsulta_.sbnprocura.left := fraConsulta_.edfcodigo.Width;
+
+//        fraConsulta_.edfCodigo.text := dtmCadastroContratos.dsrProdutosContratosLotes.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+        fraConsulta_.edfCodigo.text := dtmCadastroContratos.dsrProdutosContratosLotes.dataset.fieldbyname(NomedoCampo).asString;
+        fraConsulta_.edfCodigo.modified := true;
+
+        fraConsulta_.edfCodigo.Operacao := opATRIBUICAO;
+        fraConsulta_.edfCodigo.MaxLength := 20;
+        fraConsulta_.edfCodigo.DataSource := dtmCadastroContratos.dsrProdutosContratosLotes;
+        fraConsulta_.edfCodigo.DataaFieldInterno := 'lote';
+//        fraConsulta_.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+        fraConsulta_.edfCodigo.DataaFieldVisual := NomedoCampo;
+//        fraConsulta_.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+        fraConsulta_.edfCodigo.DataField := NomedoCampo;
+
+        fraConsulta_.edfCodigo.LookupSource := fraConsulta_.dsrProcuraEstoquesLotesProdutos;
+        fraConsulta_.edfCodigo.LookupaFieldinterno := 'lote';
+        fraConsulta_.edfCodigo.LookupaFieldvisual := 'nrlote';
+        fraConsulta_.edfCodigo.LookupQueryParameter := 'nrlote';
+        fraConsulta_.edfCodigo.LookupField := 'nrlote';
+
+        fraConsulta_.CondicoesdaConsulta := CondicoesdaConsultaLotes;
+        fraConsulta_.OnFound := AtribuirDadosProdutosContratosLotes;
+
+        TipoPesquisa := pesESTOQUESLOTESPRODUTOS;
+
+      end;
+
+      dtmCadastroContratos.fraconsulta_ := self.fraConsulta_;
+
+    end;
+  end;
+
+
+end;
+
+procedure TfrmCadastroProdutosContrato.DBAdvGridLotesColorSelect(
+  Sender: TObject; ACol, ARow: Integer; Color: TColor; Value: String);
+begin
+  inherited;
+
+  if (ACol = TDBAdvGrid(sender).ColumnByFieldName['produtoscontratoslotes_situacao'].Index) then
+  begin
+    if TDBAdvGrid(sender).cells[Acol, ARow] = 'A' then
+      Color := lblAtendidos.font.color
+    else
+    if TDBAdvGrid(sender).cells[Acol, ARow] = 'P' then
+      Color := lblAtendidos.font.color
+    else
+    if TDBAdvGrid(sender).cells[Acol, ARow] = 'N' then
+      Color := lblNaoAtendidos.font.color
+    else
+      Color := clBlack;
+
+  end;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.DBAdvGridLotesGetCellColor(
+  Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState;
+  ABrush: TBrush; AFont: TFont);
+begin
+  inherited;
+  if (ACol = TDBAdvGrid(sender).ColumnByFieldName['produtoscontratoslotes_situacao'].Index) then
+  begin
+    if TDBAdvGrid(sender).cells[Acol, ARow] = 'A' then
+      AFont.Color := lblAtendidos.font.color
+    else
+    if TDBAdvGrid(sender).cells[Acol, ARow] = 'P' then
+      AFont.Color := lblAtendidos.font.color
+    else
+    if TDBAdvGrid(sender).cells[Acol, ARow] = 'N' then
+      AFont.Color := lblNaoAtendidos.font.color
+    else
+      AFont.Color := clBlack;
+
+  end;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.SugerirQuantidadeLotes;
+var
+  vQuantidade, vQuantidadeLote : Real;
+ { v_produtoscontratoslotes_situacao : String;}
+begin
+  try
+  DBAdvGridLotes.EditPostMode := epRow;
+  with dtmCadastroContratos do
+  begin
+    DBAdvGridLotes.datasource.dataset.first;
+
+   {Quando contrato na situação Orçado...sem problemas e recomeçar apagando tudo...não há processamento....
+   Mas...quando reservado?}
+
+    while not DBAdvGridLotes.datasource.dataset.eof do
+      DBAdvGridLotes.datasource.dataset.delete;
+
+    vQuantidade := qryProdutosContratosquantidade.asFloat;
+    vQuantidadeLote := 0;
+
+    with fraConsulta_ do
+    begin
+      qryConsultaEstoquesLotesProdutos.close;
+      qryConsultaEstoquesLotesProdutos.open;
+      qryConsultaEstoquesLotesProdutos.first;
+
+      while not qryConsultaEstoquesLotesProdutos.eof and (vQuantidade<>0) do
+      begin
+
+        if qryConsultaEstoquesLotesProdutosSaldoEstoque.asFloat <> 0 then
+        begin
+          if qryConsultaEstoquesLotesProdutosSaldoEstoque.asFloat >= vQuantidade then
+          begin
+            vQuantidadeLote := vQuantidade;
+//            v_produtoscontratoslotes_situacao := 'A';
+          end
+          else
+          begin
+//            v_produtoscontratoslotes_situacao := 'A';
+            vQuantidadeLote := qryConsultaEstoquesLotesProdutosSaldoEstoque.asFloat;
+          end;
+
+          vQuantidade := vQuantidade - vQuantidadeLote;
+
+          if vQuantidadeLote <> 0 then
+          begin
+
+            DBAdvGridLotes.datasource.dataset.append;
+//            if not (DBAdvGridLotes.datasource.dataset.state = dsinsert) then
+//              DBAdvGridLotes.datasource.dataset.edit;
+
+
+//            qryProdutoscontratoslotes.Append;
+            qryProdutosContratosLoteslote.asString := qryConsultaEstoquesLotesProdutoslote.asString;
+            qryProdutosContratosLotesloteoriginal.asString := qryProdutosContratosLoteslote.asString;
+
+            qryProdutosContratosLotesnrlote.asString := qryConsultaEstoquesLotesProdutosnrlote.AsString;
+            qryProdutosContratosLotesquantidade.asfloat := vQuantidadeLote;
+            qryProdutosContratosLotesquantidadeantesalterar.asFloat := qryProdutosContratosLotesquantidade.asFloat;
+
+//            qryProdutosContratosLotesquantidadeoriginal.asfloat := vQuantidadeLote;
+            qryProdutosContratosLotesprodutoscontratoslotes_situacao.asString :=  'A';
+{              v_produtoscontratoslotes_situacao;}
+
+            DBAdvGridLotes.datasource.dataset.Post;
+
+          end;
+        end;
+        qryConsultaEstoquesLotesProdutos.next;
+      end;
+    end;
+  end;
+
+  finally
+    AtualizarParametrosGridLoteProdutos;
+    DBAdvGridLotes.EditPostMode := epCell;
+  end;
+
+end;
+
+function TfrmCadastroProdutosContrato.TotalProdutoLotes: Real;
+begin
+  result := strtofloat(DBAdvGridLotes.cells[DBAdvGridLotes.ColumnByFieldName['quantidade'].Index, DBAdvGridLotes.rowcount-1]);
+end;
+
+function TfrmCadastroProdutosContrato.TotalPendenteProdutoLotes: Real;
+begin
+  result := dtmCadastroContratos.qryProdutosContratosquantidade.asFloat -
+            TotalProdutoLotes;
+
+end;
+
+procedure TfrmCadastroProdutosContrato.AfterChangeProdutosContratosLotes(
+  Sender: TObject);
+begin
+  AtualizarParametrosGridLoteProdutos;
+end;
+
+end.

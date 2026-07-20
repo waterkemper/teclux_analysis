@@ -1,0 +1,80 @@
+inherited frmLerData: TfrmLerData
+  Left = 722
+  Top = 314
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  ClientHeight = 103
+  ClientWidth = 200
+  PixelsPerInch = 96
+  TextHeight = 16
+  object pnlFundoJanela: TPanel
+    Left = 0
+    Top = 0
+    Width = 200
+    Height = 103
+    Align = alClient
+    BevelOuter = bvNone
+    BorderWidth = 3
+    TabOrder = 0
+    object gbxFundoJanela: TGroupBox
+      Left = 3
+      Top = 3
+      Width = 194
+      Height = 97
+      Align = alClient
+      TabOrder = 0
+      object bbnCancelar: TBitBtn
+        Left = 94
+        Top = 60
+        Width = 80
+        Height = 25
+        Caption = '&Cancelar'
+        TabOrder = 1
+        TabStop = False
+        Kind = bkCancel
+      end
+      object bbnOK: TBitBtn
+        Left = 7
+        Top = 60
+        Width = 80
+        Height = 25
+        Caption = '&OK'
+        TabOrder = 0
+        TabStop = False
+        Kind = bkOK
+      end
+      object gbxData: TGroupBox
+        Left = 51
+        Top = 14
+        Width = 80
+        Height = 36
+        Caption = 'DATA'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        object edtData: TEditData
+          Left = 2
+          Top = 10
+          Width = 75
+          Height = 23
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = 10
+          ParentFont = False
+          TabOrder = 0
+          Minimo = 37353
+          Maximo = 0
+        end
+      end
+    end
+  end
+end

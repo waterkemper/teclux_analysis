@@ -1,0 +1,369 @@
+unit fmclientescontrato;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, Windows,
+  DBCtrls, ComCtrls, Buttons, Mask, {Qete,}
+  //Repositorio
+  fmnavcontroles, frendereco, frenderecoeditor, frtelefone , frcgcoucpf,
+  //Componentes
+  cptexto, cpdbfindcontrols, cpdbtext, ExtCtrls, fmcadastropadrao,
+  frconsulta, frconsultacodigo, ToolWin, DB, cpdatasource, dmbasico,
+  ZQuery, ZPgSqlQuery, cpquery, cpdbdata, cpdocumento, cpdbradiogroup,
+  frfoneramal;
+
+type
+  TfrmClientesContrato = class(TfrmNavControles)
+    fracgcoucpf1: Tfracgcoucpf;
+    fraFoneRamal1: TfraFoneRamal;
+    lblCliente: TLabel;
+    fraEnderecoEditor: TfraEnderecoEditor;
+    edtNomeCliente: TDBEditTexto;
+    tblBarra: TToolBar;
+    sbnExcluir: TSpeedButton;
+    sbnSalvar: TSpeedButton;
+    sbnProcurar: TSpeedButton;
+    tbnDivisor: TToolButton;
+    edfCodigoCliente: TtecDbEditFind;
+    gbxCargo: TGroupBox;
+    fraConsultaCargo: TfraConsultaCodigo;
+    gbxConceito: TGroupBox;
+    fraConsultaConceito: TfraConsultaCodigo;
+    edtEmail: TDBEditTexto;
+    gbxEmail: TGroupBox;
+    qryClienteCadastrado: TtecQuery;
+    qryClienteCadastradocodigo: TIntegerField;
+    qryClienteCadastradonome: TStringField;
+    gbxIdentificacao: TGroupBox;
+    lblDocumento: TLabel;
+    lblOrgao: TLabel;
+    lblEstado: TLabel;
+    lblEmissao: TLabel;
+    edtClientesIdDocumento: TDBEditDocumento;
+    edtClientesIdData: TDBEditData;
+    edtClientesIdOrgao: TDBEditTexto;
+    fraConsultaEstado: TfraConsultaCodigo;
+    rgpSexo: TtecDBRadioGroup;
+    rbnMasculino: TtecRadioButton;
+    rbnFeminino: TtecRadioButton;
+    rbnEmpresa: TtecRadioButton;
+    rgpClientesCivil: TtecDBRadioGroup;
+    rbnCasado: TtecRadioButton;
+    rbnSolteiro: TtecRadioButton;
+    rbnDivorciado: TtecRadioButton;
+    rbnViuvo: TtecRadioButton;
+    rbnOutros: TtecRadioButton;
+    fraFoneRamal2: TfraFoneRamal;
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure sbnExcluirClick(Sender: TObject);
+    procedure fracgcoucpfrgbTipoPessoaChange(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure fraEnderecoEditorsbnRuaClick(Sender: TObject);
+    procedure edfCodigoClienteExit(Sender: TObject);
+    procedure sbnSalvarClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure fracgcoucpfedtCPFCNPJExit(Sender: TObject);
+    procedure fracgcoucpf1rbnFisicaClick(Sender: TObject);
+    procedure fracgcoucpf1rbnJuridicaClick(Sender: TObject);
+  private
+    fdtmCadCli: TdtmBasico;
+    fDataSource: TtecDataSource;
+    procedure SetDataSource(const Value: TtecDataSource);
+    { Private declarations }
+    function  ClienteJaCadastrado(Numero: String): Boolean;
+
+
+
+  protected
+    procedure ConsultaCliente;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  public
+    { Public declarations }
+    constructor Create(Aowner: TComponent); override;
+    destructor  Destroy; override;
+    property dtmCadCli: TdtmBasico read fdtmCadCli write fdtmCadCli;
+    property DataSource : TtecDataSource read fDataSource write SetDataSource;
+  end;
+
+var
+  frmClientesContrato: TfrmClientesContrato;
+
+implementation
+
+{$R *.dfm}
+
+Uses
+  //Projeto
+  {dmcadastrocontratos,} fmconsultaporcampo, ctconstantes, biblio,
+  clparametrossistema;
+
+procedure TfrmClientesContrato.ConsultaCliente;
+var
+  Procurar: TfrmConsultaPorCampo;
+begin
+  Procurar := TfrmConsultaPorCampo.Create(nil);
+  try
+    procurar.ExisteCodigo    := ExisteInformacao;
+    procurar.DataSet         := dtmCadCli.TabelaConsultaClientes;
+    dtmCadCli.AbreConsultaClientes;
+    if procurar.ShowModal(ctCLIENTES) = mrOK then
+      dtmCadCli.SelecionarCliente;
+  finally
+    procurar := nil;
+//    procurar.Free;
+  end;
+  SetFocus;
+end;
+
+procedure TfrmClientesContrato.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaCliente;
+end;
+
+procedure TfrmClientesContrato.sbnExcluirClick(Sender: TObject);
+begin
+  inherited;
+  ModalResult := mrCancel;
+end;
+
+procedure TfrmClientesContrato.sbnSalvarClick(Sender: TObject);
+begin
+  if (Trim(edtNomeCliente.Text) = '') and (not edfCodigoCliente.Exist) then begin
+    MensagemAviso('O Cliente não esta preenchido.');
+    edfCodigoCliente.SetFocus
+  end else if ParSistema.CPF_CNPJObrigatorio and (Trim(fracgcoucpf1.edtCPFCNPJ.Text) = '') then begin
+    MensagemAviso('O CPF/CNPJ não esta preenchido.');
+    fracgcoucpf1.edtCPFCNPJ.SetFocus
+  end else
+  begin
+    if Trim(fraEnderecoEditor.mmoRua.Text) = '' then
+    begin
+      fraEnderecoEditor.edtCEP.Field.AsString := dtmCadCli.CEPFilialBase;
+      fraEnderecoEditor.edtCEPExit(Self);
+      fraEnderecoEditor.mmoRua.Field.AsString := dtmCadCli.RuaFilialBase;
+      fraEnderecoEditor.edtNumero.Field.AsString := dtmCadCli.NumeroFilialBase;
+      fraEnderecoEditor.edtComplemento.Field.AsString := dtmCadCli.ComplementoFilialBase;
+      fraEnderecoEditor.edtBairro.Field.AsString := dtmCadCli.CodigoBairroFilialBase;
+      fraEnderecoEditor.edtBairro.DataSource.DataSet.FieldByName('nomebairro').AsString := dtmCadCli.BairroFilialBase;
+      fraEnderecoEditor.edtCidade.Field.AsString := dtmCadCli.codigoCidadeFilialBase;
+      fraEnderecoEditor.edtCidade.DataSource.DataSet.FieldByName('nomecidade').AsString :=dtmCadCli.CidadeFilialBase;
+      fraEnderecoEditor.edtEstado.Field.AsString := dtmCadCli.EstadoFilialBase;
+    end;
+
+    if (Trim(edfCodigoCliente.Text) = '') then
+    begin
+      if dtmCadCli.GravarCliente then
+        ModalResult := mrOk
+        
+    end
+    else
+      ModalResult := mrOk;
+  end
+end;
+
+procedure TfrmClientesContrato.fracgcoucpfrgbTipoPessoaChange(
+  Sender: TObject);
+begin
+  inherited;
+//  fracgcoucpf1.edtCPFCNPJ.Tipo := dtmCadCli.GetTipoPessoa;
+end;
+
+procedure TfrmClientesContrato.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    VK_F5: sbnSalvarClick(Self);
+    VK_F6: sbnExcluirClick(Self);
+  end;
+end;
+
+function TfrmClientesContrato.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := dtmCadCli.ExisteCliente(NomeCampo, Value)
+end;
+
+constructor TfrmClientesContrato.Create(Aowner: TComponent);
+begin
+  inherited;
+//  dsrClientes.DataSet.Open;
+  fraConsultaCargo.TipoPesquisa    := pesCARGOS;
+  fraConsultaConceito.TipoPesquisa := pesCONCEITOS;
+  fraConsultaEstado.TipoPesquisa   := pesESTADOS;
+
+end;
+
+procedure TfrmClientesContrato.fraEnderecoEditorsbnRuaClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraEnderecoEditor.sbnRuaClick(Sender);
+end;
+
+procedure TfrmClientesContrato.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if edfCodigoCliente.Focused and (Key = VK_F9) then
+    ConsultaCliente;
+  if Key = VK_ESCAPE then
+    ModalResult := mrAbort;
+end;
+
+procedure TfrmClientesContrato.edfCodigoClienteExit(Sender: TObject);
+begin
+  inherited;
+  if (Trim(edfCodigoCliente.Text) = '') then begin
+    edtNomeCliente.ReadOnly := False;
+  end
+  else begin
+    edtNomeCliente.ReadOnly := True;
+    if fracgcoucpf1.edtCPFCNPJ.CanFocus then
+    begin
+      fracgcoucpf1.edtCPFCNPJ.SetFocus;
+      fracgcoucpf1.edtCPFCNPJ.SelectAll;
+    end;
+  end;
+
+  fracgcoucpf1.edtCPFCNPJ.Tipo := dtmCadCli.GetTipoPessoa;
+
+  if edfCodigoCliente.Text <> '' then
+  begin
+     if dtmCadCli.GetTipoPessoa = 'F' then begin
+        fracgcoucpf1.rbnFisica.Enabled   := True;
+        fracgcoucpf1.rbnFisica.Checked   := True;
+        fracgcoucpf1.rbnJuridica.Enabled := False;
+        fracgcoucpf1.edtCPFCNPJ.ReadOnly := True;
+     end
+     else begin
+        fracgcoucpf1.rbnJuridica.Enabled := True;
+        fracgcoucpf1.edtCPFCNPJ.ReadOnly := False;
+        fracgcoucpf1.rbnFisica.Enabled   := False;
+        fracgcoucpf1.rbnFisica.Checked   := False;
+     end;
+  end
+  else
+  begin
+    if not fracgcoucpf1.rbnFisica.Checked and
+       not fracgcoucpf1.rbnJuridica.checked then
+    begin
+      fracgcoucpf1.rbnFisica.Enabled   := True;
+      fracgcoucpf1.rbnFisica.Checked   := True;
+      fracgcoucpf1.rbnJuridica.Enabled := True;
+      fracgcoucpf1.edtCPFCNPJ.ReadOnly := False;
+    end;
+  end;
+end;
+
+destructor TfrmClientesContrato.Destroy;
+begin
+  inherited;
+  frmClientesContrato := nil;
+end;
+
+procedure TfrmClientesContrato.FormShow(Sender: TObject);
+begin
+  inherited;
+  edfCodigoCliente.SetFocus;
+end;
+
+procedure TfrmClientesContrato.SetDataSource(const Value: TtecDataSource);
+begin
+  fDataSource := Value;
+  edfCodigoCliente.dataSource := Value;
+  edtNomeCliente.dataSource := Value;
+  fracgcoucpf1.rgbTipoPessoa.dataSource := Value;
+  fracgcoucpf1.edtCPFCNPJ.dataSource := Value;
+  fraFoneRamal1.edtDDD.dataSource := value;
+  fraFoneRamal1.edtNumero.dataSource := Value;
+  fraFoneRamal1.edtFoneRamal.dataSource := Value;
+
+  fraFoneRamal2.edtDDD.dataSource := value;
+  fraFoneRamal2.edtNumero.dataSource := Value;
+  fraFoneRamal2.edtFoneRamal.dataSource := Value;
+
+  fraEnderecoEditor.mmoRua.dataSource := value;
+  fraEnderecoEditor.edtnumero.dataSource := value;
+  fraEnderecoEditor.edtcomplemento.dataSource := value;
+  fraEnderecoEditor.edtbairro.dataSource := value;
+  fraEnderecoEditor.edtbairro.LookupSource := value;
+  fraEnderecoEditor.edtcep.dataSource := value;
+  fraEnderecoEditor.edtCidade.dataSource := value;
+  fraEnderecoEditor.edtCidade.LookupSource := Value;
+  fraEnderecoEditor.edtEstado.dataSource := value;
+  fraConsultaCargo.edfCodigo.dataSource := value;
+  fraConsultaConceito.edfCodigo.dataSource := value;
+  edtEmail.dataSource := Value;
+
+  edtClientesIdDocumento.dataSource := value;
+  edtClientesIdOrgao.dataSource := value;
+
+  fraConsultaEstado.edfcodigo.dataSource := value;
+  edtClientesIdData.dataSource := value;
+
+  rgpSexo.dataSource := value;
+  rgpClientesCivil.dataSource := value;
+
+end;
+
+procedure TfrmClientesContrato.fracgcoucpfedtCPFCNPJExit(Sender: TObject);
+begin
+  inherited;
+  if ClienteJaCadastrado(fracgcoucpf1.edtCPFCNPJ.Text) then
+    if fracgcoucpf1.edtCPFCNPJ.CanFocus then
+      fracgcoucpf1.edtCPFCNPJ.SetFocus;
+
+end;
+
+function TfrmClientesContrato.ClienteJaCadastrado(Numero: String): Boolean;
+begin
+  Result:= False;
+  if (ParSistema.CPF_CNPJObrigatorio and not (datasource.dataset.FieldByName('estado').AsString = '.') or (datasource.dataset.FieldByName('pessoanumero').AsString <> '')) then
+    if datasource.dataset.State in [dsEdit, dsInsert] then begin
+      qryClienteCadastrado.Sql[02]:= 'Where (pessoanumero = ' + '''' + Numero + '''' + ')';
+      if datasource.dataset.State in [dsInsert] then
+        qryClienteCadastrado.Sql[03]:= ''
+      else if datasource.dataset.State in [dsEdit] then
+        qryClienteCadastrado.Sql[03]:= 'and (codigo <> ' + datasource.dataset.FieldByName('codigo').AsString + ')';
+      qryClienteCadastrado.Open;
+      Result:= not qryClienteCadastrado.IsEmpty;
+      if Result then begin
+        if MensagemConfirmacao(format(ctCLIENTEJACADASTRADO,['cliente',qryClienteCadastradoNome.AsString])) = smbOk then
+        begin
+          edfCodigoCliente.text := qryClienteCadastradoCodigo.AsString;
+          edfCodigoCliente.exist;
+{          ReFazConsulta(qryClientes,[0],[qryClienteCadastradoCodigo.AsInteger])}
+        end
+        else
+          datasource.dataset.FieldByName('pessoanumero').Clear;
+      end;
+    end;
+
+end;
+
+procedure TfrmClientesContrato.fracgcoucpf1rbnFisicaClick(Sender: TObject);
+begin
+  inherited;
+  fracgcoucpf1.rbnFisicaClick(Sender);
+  lblDocumento.Caption:= 'Documento';
+  if rbnEmpresa.checked then
+    rbnMasculino.checked := true;
+
+end;
+
+procedure TfrmClientesContrato.fracgcoucpf1rbnJuridicaClick(
+  Sender: TObject);
+begin
+  inherited;
+  fracgcoucpf1.rbnJuridicaClick(Sender);
+  lblDocumento.Caption:= 'Insc. Est.';
+  rbnEmpresa.Checked := true;
+  rbnOutros.Checked := true;
+
+end;
+
+end.

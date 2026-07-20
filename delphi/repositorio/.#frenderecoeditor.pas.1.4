@@ -1,0 +1,418 @@
+unit frenderecoeditor;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Buttons, Mask, DBCtrls, db, Windows,
+  //Terceiros
+  ZQuery,
+  //Biblio
+  ctconstantes, cpdoubledts, cptexto, cpnumero, cpcep, cpdbmemo,
+  //Repositorio
+  frendereco, dmconsultaenderecos, fmcadastropadrao, fmconsultaporcampo,
+  ExtCtrls, ActnList, biblio;
+
+type
+
+  TfraEnderecoEditor = class(TfraEndereco)
+    sbnRua: TSpeedButton;
+    sbnBairro: TSpeedButton;
+    actRotulos: TActionList;
+    ectTrocarLabels: TAction;
+    SpeedButton1: TSpeedButton;
+    procedure sbnRuaClick(Sender: TObject);
+    procedure sbnBairroClick(Sender: TObject);
+    procedure mmoRuaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edtBairroKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edtCEPExit(Sender: TObject);
+    procedure edtCEPEnter(Sender: TObject);
+    procedure mmoRuaExit(Sender: TObject);
+    procedure mmoRuaKeyPress(Sender: TObject; var Key: Char);
+    procedure ectTrocarLabelsUpdate(Sender: TObject);
+  private
+    FCampoCidadeIBGE: TIntegerField;
+  protected
+    TextAnt: String;
+    tipo: TtecEndereco;
+    dtmConsultaEnderecos: TdtmConsultaEnderecos;
+    procurar: TfrmConsultaPorCampo;
+    procedure AtribuirBairros;
+
+    procedure AtribuirCidades;
+
+
+    procedure AtribuirRuas;
+    function Consultar: Integer;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; inf: Variant): boolean;
+    function getReadOnly: Boolean;
+    function  JanelaPrincipal: TfrmCadastroPadrao;
+    procedure PosicionarTabelaDoParametro(Ind: Integer; var continuar: Boolean);
+    procedure ProximoControleBairros(Parametro: Integer);
+    procedure ProximoControleRuas(Parametro: Integer);
+    procedure ControleAtual(Parametro: Integer);
+    procedure setReadOnly(const Value: Boolean);
+    function TabelaDoParametro(Parametro: Integer): TZDataSet;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    property ReadOnly: Boolean read getReadOnly write setReadOnly;
+    property CampoCidadeIBGE: TIntegerField read FCampoCidadeIBGE write FCampoCidadeIBGE;
+  end;
+
+implementation
+
+Uses
+  //CLX
+  {Qete,} dmbasico;
+
+{$R *.dfm}
+
+procedure TfraEnderecoEditor.AtribuirBairros;
+begin
+  if Assigned(edtBairro.Field) then begin
+    edtBairro.Field.DataSet.Edit;
+    edtBairro.Field.AsInteger      := dtmConsultaEnderecos.CodigoBairro;
+    edtBairro.FieldLookup.AsString := dtmConsultaEnderecos.NomeBairro;
+    AtribuirCidades;
+  end else
+    raise Exception.Create(Format(ctCAMPOESTANULO, [edtBairro.Name]))
+end;
+
+procedure TfraEnderecoEditor.AtribuirCidades;
+begin
+  if Assigned(edtCidade.Field) then begin
+    edtEstado.Field.AsString       := dtmConsultaEnderecos.CodigoEstado;
+    edtCidade.Field.AsInteger      := dtmConsultaEnderecos.CodigoCidade;
+    edtCidade.FieldLookup.AsString := dtmConsultaEnderecos.NomeCidade;
+    if assigned(CampoCidadeIBGE) then
+    begin
+      CampoCidadeIBGE.AsInteger      := dtmConsultaEnderecos.CodigoCidadeIBGE;
+      if CampoCidadeIBGE.AsInteger=0 then
+        CampoCidadeIBGE.clear;
+    end;
+
+    edtCEP.Field.AsString          := dtmConsultaEnderecos.CEP;
+  end else
+    raise Exception.Create(Format(ctCAMPOESTANULO, [edtCidade.Name]))
+end;
+
+procedure TfraEnderecoEditor.AtribuirRuas;
+{
+var
+  Pos: TCaretPos;
+  }
+begin
+  if Assigned(edtBairro.Field) then begin
+    mmoRua.Field.DataSet.Edit;
+    mmoRua.Field.AsString          := dtmConsultaEnderecos.NomeRua;
+    {
+    Pos.Line                       := TMemo(mmoRua).Lines.Count - 1;
+    Pos.Col                        := Length(TMemo(mmoRua).Lines.Strings[mmoRua.CaretPos.Line]);
+    mmoRua.CaretPos                := Pos;
+    }
+    mmoRua.SetFocus;
+    edtBairro.Field.AsInteger      := dtmConsultaEnderecos.CodigoBairroRua;
+    edtBairro.FieldLookup.AsString := dtmConsultaEnderecos.NomeBairroRua;
+    
+    AtribuirCidades;
+  end else
+    raise Exception.Create(Format(ctCAMPOESTANULO, [edtBairro.Name]))
+end;
+
+function TfraEnderecoEditor.Consultar: Integer;
+var
+  Jan: TfrmCadastroPadrao;
+  titulo: String;
+begin
+  inherited;
+  if Assigned(mmoRua.DataSource) and
+     Assigned(mmoRua.DataSource.DataSet) and
+     Not TZDataset(mmoRua.DataSource.DataSet).ReadOnly and
+     Not ReadOnly
+  then begin
+    dtmConsultaEnderecos.Abre(ctTabelasConsultaEnderecos);
+    procurar := TfrmConsultaPorCampo.Create(nil);
+    procurar.ConsultaInterativa := True;
+    procurar.ExisteCodigo := ExisteInformacao;
+    procurar.PosicionarTabelaDoParametro := PosicionarTabelaDoParametro;
+    case tipo of
+      endBAIRRO: begin
+                   procurar.DataSet := dtmConsultaEnderecos.ConsultarBairro;
+                   procurar.ProximoControle := ProximoControleBairros;
+                   Titulo := 'Bairro';
+                 end;
+      endRUA:    begin
+                   procurar.DataSet := dtmConsultaEnderecos.ConsultarRua;
+                   procurar.ProximoControle := ProximoControleRuas;
+                   procurar.OnControleEnter := ControleAtual;
+                   Titulo := 'Endereço';
+                 end;
+    end;
+    procurar.TabelaParametro := TabelaDoParametro;
+    Result := procurar.ShowModal(Titulo);
+    Jan := JanelaPrincipal;
+    if Result = mrOk then
+      case tipo of
+        endBAIRRO: AtribuirBairros;
+        endRUA:    AtribuirRuas;
+      end;
+    if Assigned(Jan) then begin
+      Jan.SetFocus;
+      Jan.SetCtrlOn(False);
+    end;
+    dtmConsultaEnderecos.Fecha(ctTabelasConsultaEnderecos);
+  end else
+    Result := mrNONE
+end;
+
+procedure TfraEnderecoEditor.ControleAtual(Parametro: Integer);
+begin
+  procurar.ConsultaInterativa := Parametro <> -1
+end;
+
+constructor TfraEnderecoEditor.Create(AOwner: TComponent);
+begin
+  inherited;
+  if not Assigned(dtmConsultaEnderecos) then
+    dtmConsultaEnderecos := TdtmConsultaEnderecos.Create(Self);
+  sbnRua.Caption := '';    
+end;
+
+destructor TfraEnderecoEditor.Destroy;
+begin
+  dtmConsultaEnderecos.Free;
+  inherited;
+end;
+
+procedure TfraEnderecoEditor.edtCEPEnter(Sender: TObject);
+begin
+  inherited;
+  TextAnt := somentenumero(edtCEP.Text);
+end;
+
+procedure TfraEnderecoEditor.edtCEPExit(Sender: TObject);
+begin
+  inherited;
+  if Assigned(edtCEP.Field) then
+    if (trim(edtCEP.Field.asstring) <> '') and (TextAnt <> edtCEP.Field.asstring) then begin
+//      dtmConsultaEnderecos.Abre(ctTabelasConsultaEnderecos);
+      if dtmConsultaEnderecos.ProcurarCEP(edtCEP.Field.AsInteger) then
+        AtribuirRuas;
+      dtmConsultaEnderecos.Fecha(ctTabelasConsultaEnderecos);
+  end
+end;
+
+function TfraEnderecoEditor.ExisteInformacao(Parametro: Integer; NomeCampo:
+  String; inf: Variant): boolean;
+begin
+  case Parametro of
+   -1: if tipo = endBAIRRO then
+         Result := dtmConsultaEnderecos.ExisteBairro(NomeCampo, inf)
+       else if tipo = endRUA then
+         Result := dtmConsultaEnderecos.ExisteRua(NomeCampo, inf)
+       else
+         Result := False;
+    0: Result := dtmConsultaEnderecos.ExisteEstado(NomeCampo, inf);
+    1: Result := dtmConsultaEnderecos.ExisteCidade(NomeCampo, inf);
+  else
+    Result := False;
+  end
+end;
+
+function TfraEnderecoEditor.JanelaPrincipal: TfrmCadastroPadrao;
+var
+  Par: TWinControl;
+begin
+  Result := nil;
+  Par := Parent;
+  while Assigned(Par) do begin
+    if Par is TfrmCadastroPadrao then begin
+      Result := TfrmCadastroPadrao(Par);
+      break
+    end;
+    Par := Par.Parent;
+  end;
+end;
+
+procedure TfraEnderecoEditor.PosicionarTabelaDoParametro(Ind: Integer; var continuar: Boolean);
+var
+  Str: String;
+begin
+  case Ind of
+    0: begin
+         if edtEstado.Text = '' then
+           Str := dtmConsultaEnderecos.EstadoFilialBase
+         else
+           Str := edtEstado.Text;
+         Continuar := dtmConsultaEnderecos.PosicionarEstado(Str);
+       end;
+    1: begin
+         if (edtCidade.Field.AsString = '') then
+           Str := dtmConsultaEnderecos.CodigoCidadeFilialBase
+         else
+           Str := edtCidade.Field.AsString;
+         Continuar := dtmConsultaEnderecos.PosicionarCidade(Str);
+         if continuar then
+           dtmConsultaEnderecos.PosicionarBairros(edtBairro.DataSource.DataSet.FieldByName(edtBairro.DataField).AsString)
+       end
+  end
+end;
+
+procedure TfraEnderecoEditor.ProximoControleBairros(Parametro: Integer);
+begin
+  case Parametro of
+    0: dtmConsultaEnderecos.RefazConsultaCidades;
+    1: dtmConsultaEnderecos.RefazConsultaBairros;
+  end
+end;
+
+procedure TfraEnderecoEditor.ProximoControleRuas(Parametro: Integer);
+begin
+  case Parametro of
+    0: dtmConsultaEnderecos.RefazConsultaCidades;
+    1: dtmConsultaEnderecos.RefazConsultaRuas;
+  end
+end;
+
+procedure TfraEnderecoEditor.sbnBairroClick(Sender: TObject);
+begin
+  inherited;
+  tipo := endBAIRRO;
+  Consultar
+end;
+
+procedure TfraEnderecoEditor.sbnRuaClick(Sender: TObject);
+begin
+  inherited;
+  tipo := endRUA;
+  Consultar
+end;
+
+function TfraEnderecoEditor.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+  case Parametro of
+    0: begin
+         procurar.ConsultaInterativa := True;
+         Result := dtmConsultaEnderecos.ConsultarEstado;
+       end;
+    1: begin
+         procurar.ConsultaInterativa := True;
+         Result := dtmConsultaEnderecos.ConsultarCidade;
+       end;
+  else 
+    Result := nil;
+  end
+end;
+
+procedure TfraEnderecoEditor.mmoRuaExit(Sender: TObject);
+  function NomeCampo: String;
+  begin
+
+  end;
+
+begin
+  inherited;
+  if mmoRua.Text = '' then begin
+    if not edtBairro.Field.IsNull then begin
+      edtBairro.DataSource.DataSet.FieldByName(edtBairro.Field.FieldName).Clear;
+      edtBairro.LookupSource.DataSet.FieldByName(edtBairro.FieldLookup.FieldName).Clear;
+    end;
+    if not edtCidade.Field.IsNull then begin
+      edtCidade.DataSource.DataSet.FieldByName(edtCidade.Field.FieldName).Clear;
+      edtCidade.LookupSource.DataSet.FieldByName(edtCidade.FieldLookup.FieldName).Clear;
+    end;
+    if not edtEstado.Field.IsNull then
+      edtEstado.DataSource.DataSet.FieldByName(edtEstado.Field.FieldName).Clear;
+    if not edtCEP.Field.IsNull then
+      edtCep.DataSource.DataSet.FieldByName(edtCep.Field.FieldName).Clear;
+  end;
+end;
+
+procedure TfraEnderecoEditor.mmoRuaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+case key of
+    VK_F9      : if (Shift = [ssCtrl]) then
+                    sbnRuaClick(nil);
+{
+    VK_DOWN: if mmoRua.CaretPos.Line = 1 then
+                Beep;
+
+    VK_Return,
+    VK_Return  : begin//if TMemo(mmoRua).Lines.Count = 2 then begin
+                    if QMultiLineEdit_numLines(mmoRua.Handle) = 2 then begin
+                      if mmoRua.CaretPos.Line = 0 then
+                        Key := VK_DOWN
+                      else if mmoRua.CaretPos.Line = 1 then begin
+                        Key:= MAXWORD;
+                        if (Shift = [ssCtrl]) then
+                          SelectNext(mmoRua, False, True)
+                        else
+                          SelectNext(mmoRua, True, True);
+                      end
+                    end else if mmoRua.CaretPos.Line = 1 then begin
+                      Key:= MAXWORD;
+                      if (Shift = [ssCtrl]) then
+                        SelectNext(mmoRua, False, True)
+                      else
+                        SelectNext(mmoRua, True, True);
+                    end;
+                  end;
+}
+    VK_NEXT,
+    VK_PRIOR  : Key:= MAXWORD;
+  end;
+  inherited;
+end;
+
+procedure TfraEnderecoEditor.mmoRuaKeyPress(Sender: TObject; var Key: Char);
+begin
+  inherited;
+  Key:= UpCase(Key);
+end;
+
+procedure TfraEnderecoEditor.edtBairroKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case KEY of
+    VK_F9     : if (Shift = [ssCtrl]) then
+                   sbnBairroClick(nil);
+  end;
+end;
+
+function TfraEnderecoEditor.getReadOnly: Boolean;
+begin
+  Result := mmoRua.ReadOnly;
+end;
+
+procedure TfraEnderecoEditor.setReadOnly(const Value: Boolean);
+begin
+  mmoRua.ReadOnly := Value;
+  edtCEP.ReadOnly := Value
+end;
+
+
+procedure TfraEnderecoEditor.ectTrocarLabelsUpdate(Sender: TObject);
+begin
+  inherited;
+  if edtEstado.DataSource.DataSet.FieldByName(edtEstado.DataField).AsString = '.' then
+  begin
+    lblCidade_.Caption := 'PAÍS';
+    lblUF_.Visible := false;
+    edtEstado.Visible := false;
+    edtCidade.Width := 305 + 31 + 1;
+    lblBairro_.Caption := 'CIDADE';
+  end
+  else
+  begin
+    lblCidade_.Caption := 'CIDADE';
+    lblUF_.Visible := true;
+    edtEstado.Visible := true;
+    edtCidade.Width := 305;
+    lblBairro_.Caption := 'BAIRRO';
+  end
+end;
+
+end.
+

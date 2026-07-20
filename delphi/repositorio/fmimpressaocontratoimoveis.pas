@@ -1,0 +1,122 @@
+unit fmimpressaocontratoimoveis;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, cpdbradiogroup, cpdata, ExtCtrls, Buttons,
+  biblio, {Qete,} ctconstantes,
+  //REpositorio
+  fmnavcontroles;
+
+type
+  Tfrmimpressaocontratoimoveis = class(TfrmNavControles)
+    gbxFundoJanela: TGroupBox;
+    bbnOK: TBitBtn;
+    bbnCancelar: TBitBtn;
+    gbxExtrato: TGroupBox;
+    gbxData: TGroupBox;
+    edtData: TEditData;
+    rgpSelecionar: TtecDBRadioGroup;
+    rbnExtrato: TtecRadioButton;
+    rbnContrato: TtecRadioButton;
+    pnlHorizontal: TPanel;
+    rbnRecibo: TtecRadioButton;
+    rbnParaCliente: TtecRadioButton;
+    rbnSimplificado: TtecRadioButton;
+    rbnCompleto: TtecRadioButton;
+    procedure bbnOKClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    FImprimir: String;
+    FDataAlteracao: Word;
+    FDataContrato: Word;
+    function GetImprimir: String;
+    function GetData: String;
+//    function GetRelatorioCompleto: Boolean;
+    { Private declarations }
+  public
+    destructor  Destroy; override;
+
+    property Imprimir: String read GetImprimir write FImprimir;
+    property Data    : String read GetData;
+//    property RelatorioCompleto : Boolean read GetRelatorioCompleto;
+    function TipoExtrato : TTecTipoExtratoContratoImoveis;
+    property DataAlteracao: Word read FDataAlteracao write FDataAlteracao;
+    property DataContrato: Word read FDataContrato write FDataContrato;
+    { Public declarations }
+  end;
+
+var
+  frmimpressaocontratoimoveis: Tfrmimpressaocontratoimoveis;
+
+implementation
+
+{$R *.dfm}
+
+{ Tfrmimpressaocontratoimoveis }
+
+function Tfrmimpressaocontratoimoveis.GetData: String;
+begin
+  Result:= edtData.Text;
+end;
+
+function Tfrmimpressaocontratoimoveis.GetImprimir: String;
+begin
+  if rbnExtrato.Checked then
+    FImprimir:= 'E'
+  else if rbnContrato.Checked then
+    FImprimir:= 'C'
+  else if rbnRecibo.Checked then
+    FImprimir:= 'R';
+  Result:= FImprimir;
+end;
+
+{
+function Tfrmimpressaocontratoimoveis.GetRelatorioCompleto: Boolean;
+begin
+  if ckbCompleto.Checked then
+    Result:= True
+  else
+    Result:= False;
+end;
+}
+
+procedure Tfrmimpressaocontratoimoveis.bbnOKClick(Sender: TObject);
+begin
+  ModalResult:= mrOk;
+end;
+
+procedure Tfrmimpressaocontratoimoveis.FormShow(Sender: TObject);
+begin
+  inherited;
+  if FDataAlteracao > 0 then
+  begin
+    edtData.Maximo:= FDataAlteracao;
+    edtData.Minimo:= FDataContrato;
+    edtData.Text:= datetostr(FDataAlteracao);
+  end
+  else
+    edtData.Text:= datetostr(DataLocal);
+
+  edtData.SetFocus;
+end;
+
+destructor Tfrmimpressaocontratoimoveis.Destroy;
+begin
+  frmimpressaocontratoimoveis := nil;
+  inherited;
+end;
+
+function Tfrmimpressaocontratoimoveis.TipoExtrato: TTecTipoExtratoContratoImoveis;
+begin
+  if rbnParaCliente.Checked then result := ParaCliente
+  else
+  if rbnSimplificado.Checked then result := Simplificado
+  else
+  if rbnCompleto.Checked then result := Completo;
+end;
+
+
+
+end.

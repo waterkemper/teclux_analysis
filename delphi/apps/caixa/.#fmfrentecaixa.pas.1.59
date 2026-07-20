@@ -1,0 +1,2168 @@
+unit fmfrentecaixa;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, Windows, Mask,
+  ExtCtrls, StdCtrls, Buttons, ComCtrls, DBCtrls, Grids, DBGrids,
+  //Biblio
+  biblio,
+  clparametrossistema, fmconsultabasica, fmconsultaporcampo, ZQuery,
+  //Componentes
+  cpnumero, cpdbgrid, cpdbtext, cpdbfindcontrols,
+  //Repositorio
+  fmnavcontroles, fmajuda, cppagecontrol, ctconstantes, fmfechamentocaixa,
+  fmautenticacoes, fmtrococaixa, fmtelatroco, Menus, fmmetavendas, fmcomandosecf, fmprincipalbasico,
+  cptexto, ACBrDevice, clecf, frconsulta, frconsultacodigo, cltefdiscado,  db;
+
+
+type
+  { Usado no edit finalização para saber que tipo de pesquisa deve ser executada }
+  TfrmFrenteCaixa = class(TfrmNavControles)
+    tmrMensagemGrande: TTimer;
+    pnlVenda: TPanel;
+    pnlLancamento: TPanel;
+    gbxVenda: TGroupBox;
+    lblMarcarProdutos: TLabel;
+    pnlOperacoes: TPanel;
+    pnlValores: TPanel;
+    lblDescontoItem: TLabel;
+    edtDescontoItem: TEditTexto;
+    lblQtdade: TLabel;
+    edtProduto: TEditTexto;
+    pnlLogo: TPanel;
+    ImgLogoLancamento: TImage;
+    pnlFechamento: TPanel;
+    Panel10: TPanel;
+    pnlPagamentos: TPanel;
+    Label3: TLabel;
+    lblValorSubTotal: TLabel;
+    Label5: TLabel;
+    lblValorDesconto: TLabel;
+    Label7: TLabel;
+    lblValorAcrescimo: TLabel;
+    lblSaldoRestante: TLabel;
+    lblValorTroco: TLabel;
+    lblMensagemGrande: TLabel;
+    pnlRodape: TPanel;
+    lblTotalCompra: TLabel;
+    lblTotCompra: TLabel;
+    dtxCliente: TtecDBText;
+    lblCliente: TLabel;
+    lblVendedor: TLabel;
+    dtxVendedor: TtecDBText;
+    lblMensagemPequena: TLabel;
+    tecDBGrid1: TtecDBGrid;
+    pnlProdutos: TPanel;
+    dbgProdutosVendidos: TDBGrid;
+    sbnCancelarItem: TSpeedButton;
+    sbnCancelarVenda: TSpeedButton;
+    sbnCliente: TSpeedButton;
+    sbnVendedor: TSpeedButton;
+    sbnAutenticacoes: TSpeedButton;
+    sbnFechamento: TSpeedButton;
+    sbnFinalizarVenda: TSpeedButton;
+    edtQtdade: TEditNumero;
+    lblTotalQtdade: TLabel;
+    sbnMeta: TSpeedButton;
+    sbnComandosECF: TSpeedButton;
+    lblMensagemDesconto: TLabel;
+    lblDescontoComposto: TLabel;
+    edtTotalQtdade: TLabel;
+    lblParaEntregar: TLabel;
+    edtNumeroNotaVinculada: TMaskEdit;
+    lblListaCasamento: TLabel;
+    lblCasamento: TLabel;
+    fraConsultaListaCasamento: TfraConsultaCodigo;
+    fraConsultaOrcamento: TfraConsultaCodigo;
+    lblOrcamento: TLabel;
+    sbnConsultartem: TSpeedButton;
+    fraConsultaOrdemServico: TfraConsultaCodigo;
+    dtxEquipamento: TtecDBText;
+    lblOS: TLabel;
+    lblObservacao: TLabel;
+    edtObservacao: TEditTexto;
+    procedure dbgProdutosVendidosDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer;
+      Column: TColumn; State: TGridDrawState);
+    procedure dbgProdutosVendidosExit(Sender: TObject);
+    procedure dbgProdutosVendidosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormShow(Sender: TObject);
+    procedure sbnVendedorClick(Sender: TObject);
+    procedure sbnGerenciarClienteClick(Sender: TObject);
+    procedure tmrMensagemGrandeTimer(Sender: TObject);
+    procedure edtProdutoKeyPress(Sender: TObject; var Key: Char);
+//    procedure edtFinalizacaoKeyPress(Sender: TObject; var Key: Char);
+    procedure sbnFinalizarVendaClick(Sender: TObject);
+    procedure sbnAutenticacoesClick(Sender: TObject);
+    procedure sbnFechamentoClick(Sender: TObject);
+    procedure sbnClienteClick(Sender: TObject);
+    procedure sbnCancelarItemClick(Sender: TObject);
+    procedure sbnCancelarVendaClick(Sender: TObject);
+    procedure sbnDescontoReaisClick(Sender: TObject);
+    procedure sbnDescontoPorcentagemClick(Sender: TObject);
+    procedure sbnAcrescimoReaisClick(Sender: TObject);
+    procedure sbnAcrescimoPorcentagemClick(Sender: TObject);
+{    procedure edtTotalQtdadEnter(Sender: TObject);
+    procedure edtTotalQtdadExit(Sender: TObject);
+    procedure edtTotalQtdadClick(Sender: TObject);
+}    procedure sbnMetaClick(Sender: TObject);
+    procedure sbnComandosECFClick(Sender: TObject);
+    procedure sbnConsultartemClick(Sender: TObject);
+    procedure fraConsultaOrdemServicoedfCodigoFound(Found: Boolean);
+    procedure edtNumeroNotaVinculadaChange(Sender: TObject);
+    procedure fraConsultaOrcamentosbnProcuraClick(Sender: TObject);
+  private
+    vPrevious_key : Char;
+    vLimpar : boolean;
+    ThreadsRunning: Integer;
+    FExibirMensagemVendaConcluida : Boolean;
+    FTelaAtiva    : TPanel;
+    FEmFechamento : Boolean;
+//    FVendaInciada : Boolean;
+    FEmPagamento  : Integer;
+    FObrigaVendedorNessaVenda : Boolean;
+//    FValorTroco: String;
+
+    procedure MaximizarFrenteCaixa;
+    function CapturaValor(Titulo:String;ValorInicial:Double): Double;
+    function VenderItem(RetornoFluxoTelaCliente: boolean = false): boolean;
+    procedure CancelarCupomnaOrigem;
+  protected
+    { procedures }
+//    procedure EfetuarPagamento(TipoPagamento:String;Titulo:String); overload;
+//    procedure TotalizarVenda(Caracter:char;Tipo:String = 'V');
+    JanelaProduto : TfrmConsultaPorCampo;
+    procedure TrocaTela(Fechamento: boolean);
+    procedure FinalizaSistema; // Inicia o processo de finalização do sistema.
+    procedure setInicioSistema; // Seta todas as variaveis globais do sistema.
+    procedure setInicioVenda; // Seta as variaveis para o inicio de uma venda.
+    procedure setFinalVenda;  // Seta as variaveis no final da venda.
+    procedure zeraVariaveis;  // Zera o valor de todas as variaveis. Este método é usado tanto no setInicioSistema quanto no setInicioVenda.
+    procedure zeraVariaveisLancamento; // Zera as váriaveis pertinentes ao processo de lançamento de produtos.
+    procedure zeraVariaveisFechamento; // Zera as variaveis pertinentes ao processo de fechamento da venda.
+    procedure iniciaFechamentoVenda; // Inicia o processo de fechamento da venda, passando para a próxima tela (P2) que trata do fechamento da venda.
+    procedure retornaLancamento;  // Retorna para o processo de lançamento de itens. Não apaga as condições de pagamento e quando retornar
+                                  // ao processo de fehcmento deve perguntar se o usuário deseja manter as condições já informadas ou informalas novemente.
+                                  // Se ele desar informar novamente o sistema dece zerar as variaceis de fechamento.
+    procedure retornaFechamentoVenda; // Retorna ao processo de fechamento de venda.
+    procedure CancelarVenda; // Este processo é dispado apartido quando é precionado o ESC no edtproduto.
+    procedure addMensagemGrande(Text:string; internitente:Boolean); //  Este método coloca no label lblDescricao alinhado ao topo do formulário uma mensagem. Coloque este nome porque o label tem fonte grande.
+    procedure addMensagemPequena(Text:string; internitente:Boolean); // Está mensagem fica localizada no campo inferior esquerdo dos edits produto e finalização. Pode se colocar textos de até 40 caracteres.
+
+    function SelecionarProduto: boolean;
+
+    procedure ForcaSetFocusEdtProduto; // Este procedimento força o foco no edtProduto, porque o kylix tem alguns problemas com este controle.
+    procedure ForcaSetFocusEdtFinalizacao;
+    procedure AdicionaQuantidade(Valor:String); // Ismael em 23/05/2006
+    procedure AdicionaDescontoItem(Valor:String; DescontoeHPercentual: Boolean); // Ismael em 26/06/2006
+//    procedure AdicionaDescontoTotal; // Ismael 27/06/2006
+//    procedure AdicionaAcrescimoTotal; // Ismael 27/06/2006
+    procedure displayValores;
+    procedure autenticacao;
+    procedure fechamentoCaixa;
+    { functions }
+    function ConsultarProdutos: Boolean;
+    function ConsultarVendedor: Boolean;
+    function validaVendedor:Boolean;
+
+    procedure CancelarItem;
+    procedure AtualizarData;
+
+    procedure EfeturarDesconto;
+
+    function ExisteVendedor(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function InternoPesquisar(Titulo: String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TabelaDePesquisa: TZDataSet; override;
+
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure CalculoDoTroco;
+    procedure AplicarCores;
+    procedure AtribuirDadosListaCasamento;
+    procedure AtribuirDadosOrcamento;
+    procedure AtribuirDadosOrdemServico;
+    procedure CondicoesdaConsultaOrcamentos;
+    procedure CondicoesdaConsultaOrdemServico;
+
+    procedure ExibirMsgOperador(msg: STring);
+
+
+  public
+    constructor Create(Aowner: TComponent); override;
+    destructor Destroy; override;
+    procedure AfterAlteracaoValores(Sender: TObject);
+    procedure AfterAlteracaoSituacaoCupom(Sender: TObject);
+    procedure RetornarFluxoVendaItem(Sender: TObject);
+    procedure MaximizarJanela(Sender: TObject);
+  protected
+     procedure OnTecCloseAutenticacoesCaixa;
+     procedure OnTecCloseFechamentoCaixa;
+  end;
+
+implementation
+
+{$R *.dfm}
+
+Uses
+  //Biblio
+  clusuario,
+  //Repositorio
+  fmlervalor, fmlernumero,
+  //Projetos
+  dmfrentecaixa, fmclientefrentecaixa, 
+  fmcadastrochequefrentecaixa;
+
+var
+  TipoPesquisa : String;
+  naoExecutarKeyPess : Boolean;
+//  Troco: Currency;
+//  frmLerValor: TfrmLerValor;
+
+procedure TfrmFrenteCaixa.AtualizarData;
+var
+  Str: String;
+begin
+  DateTimeToString(Str, 'dd/mmm/yy hh:nn', Now);
+  UsuarioLogin.Vendedor
+end;
+
+procedure TfrmFrenteCaixa.CancelarItem;
+begin
+  if not FEmFechamento then
+  begin
+    dtmFrenteCaixa.CancelarItem;
+    displayValores;
+    ForcaSetFocusEdtProduto;
+  end;
+end;
+
+procedure TfrmFrenteCaixa.CancelarVenda;
+begin
+  if dtmFrenteCaixa.VendaAberta then
+  begin
+//    if dtmFrenteCaixa.VendaAberta then
+//    begin
+      if MensagemConfirmacao(ctCONFIRMECANCELAMENTOVENDA) = smbOK then
+      begin
+        if dtmFrenteCaixa.CancelarVenda then
+        begin
+          zeraVariaveis;
+        end;
+      end;
+//    end;
+  end
+  else
+  begin
+    MensagemAviso('Não existe uma venda iniciada.');
+  end;
+end;
+
+
+function TfrmFrenteCaixa.ConsultarProdutos: Boolean;
+begin
+  Result := False;
+  if InternoPesquisar(ctPRODUTO) = mrOK then
+    Result := True;
+end;
+
+function TfrmFrenteCaixa.ConsultarVendedor: Boolean;
+begin
+  Result := InternoPesquisar(ctVENDEDORES) = mrOk;
+end;
+
+constructor TfrmFrenteCaixa.Create(Aowner: TComponent);
+begin
+  inherited;
+  sbnMeta.Visible:=ParSistema.ExibirMetasdeVenda;
+  sbnComandosECF.Visible := dtmFrenteCaixa.ECFInstalado;
+  edtProduto.Alignment := taRightJustify;
+  edtQtdade.Alignment := taRightJustify;
+  edtDescontoItem.Alignment := taRightJustify;
+//  edtFinalizacao.Alignment := taRightJustify;
+  dtmFrenteCaixa.AfterAlteracaoValores := AfterAlteracaoValores;
+  dtmFrenteCaixa.AfterAlteracaoSituacaoCupom := AfterAlteracaoSituacaoCupom;
+  
+  fraConsultaListaCasamento.TipoPesquisa := pesLISTACASAMENTO;
+  fraConsultaListaCasamento.OnFound := AtribuirDadosListaCasamento;
+
+  fraConsultaOrcamento.TipoPesquisa := pesORCAMENTO;
+  fraConsultaOrcamento.CondicoesdaConsulta := CondicoesdaConsultaOrcamentos;
+  fraConsultaOrcamento.OnFound := AtribuirDadosOrcamento;
+  fraConsultaOrcamento.AbrirTabelaProcura := false;
+
+  fraConsultaOrdemServico.ConsultarTodos := true;
+  fraConsultaOrdemServico.TipoPesquisa := PesOrdemServico;
+  fraConsultaOrdemServico.CondicoesdaConsulta := CondicoesdaConsultaOrdemServico;
+  fraConsultaOrdemServico.OnFound := AtribuirDadosOrdemServico;
+  fraConsultaOrdemServico.AbrirTabelaProcura := false;
+
+  dtmfrenteCaixa.RetornarFluxoVendaItem := RetornarFluxoVendaItem;
+  dtmfrenteCaixa.MaximizarJanela := MaximizarJanela;
+
+  ThreadsRunning := 2;
+
+  if assigned(tefpadrao) then
+    tefpadrao.OnExibirMsgOperador := ExibirMsgOperador
+
+end;
+
+procedure TfrmFrenteCaixa.dbgProdutosVendidosDrawColumnCell(Sender: TObject; const Rect: TRect;
+  DataCol: Integer; Column: TColumn; State: TGridDrawState);
+begin
+  inherited;
+  if dtmFrenteCaixa.Cancelado then begin
+    TDBGrid(Sender).Canvas.Brush.Color := $000055FF;
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+  end else if dtmFrenteCaixa.Selecionado then begin
+    TDBGrid(Sender).Canvas.Brush.Color := $00FFAA00;
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+  end else if dtmFrenteCaixa.ParaEntregar then begin
+    TDBGrid(Sender).Canvas.Brush.Color := $00FDDBC7;
+    TDBGrid(Sender).Canvas.Font.Color := lblParaEntregar.Font.Color;
+  end;
+  edtTotalQtdade.Height := 32;
+  AplicarCores;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmFrenteCaixa.dbgProdutosVendidosExit(Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.DesmarcarTodos
+end;
+
+procedure TfrmFrenteCaixa.dbgProdutosVendidosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_SPACE) and (Shift = []) then
+    dtmFrenteCaixa.SelecionarItem;
+end;
+
+destructor TfrmFrenteCaixa.Destroy;
+begin
+//  frmParcelasRecebimentosFrenteCaixa := nil;
+//  dtmFrenteCaixa := nil;
+//  FrmClienteFrenteCaixa := nil;
+  if assigned(frmCadastroChequeFrenteCaixa)  then
+    frmCadastroChequeFrenteCaixa.free;
+
+  if assigned(FrmClienteFrenteCaixa)  then
+    FrmClienteFrenteCaixa.free;
+
+  dtmFrenteCaixa.free;
+  inherited;
+end;
+
+
+
+function TfrmFrenteCaixa.ExisteVendedor(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := dtmFrenteCaixa.ExisteVendedor(NomeCampo, Value)
+end;
+
+procedure TfrmFrenteCaixa.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+//var Htaskbar: THandle;
+begin
+  inherited;
+  CanClose := (Not dtmFrenteCaixa.VendaAberta) or (MensagemConfirmacao(ctINFORMACOESSERAOPERDIDAS) = smbOk);
+  if CanClose then begin
+//     htaskbar := FindWindow('Shell_TrayWnd',Nil);  // Torna visivel a barra de ferramentas do windows
+//     ShowWindow(Htaskbar, Sw_Normal);
+    if ehFrenteCaixa then
+      Application.Terminate;
+  end;
+end;
+
+procedure TfrmFrenteCaixa.FormShow(Sender: TObject);
+//var Htaskbar: THandle;
+begin
+//  htaskbar := FindWindow('Shell_TrayWnd',Nil);  //Esconde a barra de ferramentas do windows
+//  ShowWindow(Htaskbar, Sw_Hide);
+
+  inherited;
+
+  //WindowState := wsMaximized;
+  if FileExists(ParSistema.DiretorioImagens+'logoautomacao.bmp') then
+  begin
+    ImgLogoLancamento.Picture.LoadFromFile(ParSistema.DiretorioImagens+'logoautomacao.bmp');
+//    ImgLogoFechamento.Picture.LoadFromFile(ParSistema.DiretorioImagens+'logoautomacao.bmp');
+  end;
+
+  lblListaCasamento.visible := ParSistema.UtilizarListaCasamento;
+  lblCasamento.visible := ParSistema.UtilizarListaCasamento;
+  fraConsultaListaCasamento.visible := ParSistema.UtilizarListaCasamento;
+
+  setInicioSistema;
+end;
+
+
+procedure TfrmFrenteCaixa.KeyDown(var Key: Word; Shift: TShiftState);
+var
+  UsusAut: TtecUsuarios;
+begin
+  if Shift = [] then
+  begin
+    case Key of
+      VK_F2: FinalizaSistema;
+      VK_F3: sbnFinalizarVendaClick(nil); {if (FVendaInciada) then iniciaFechamentoVenda}
+      VK_F4: autenticacao;
+      VK_F5: fechamentoCaixa;
+      VK_F6: ConsultarVendedor;
+      VK_F7: if sbnCliente.Enabled then
+             begin
+                 dtmFrenteCaixa.ConsultarClientes;
+//                 self.setfocus;
+             end;
+      VK_F8: CancelarItem;
+      VK_F9: if not (FEmFechamento) then
+             begin
+               if ConsultarProdutos then
+                 keybd_event(VK_RETURN,0,0,0);
+             end;
+      VK_F10: begin key:=0;  sbnMeta.Click; end; 
+      VK_F11: if dtmFrenteCaixa.ECFInstalado then
+                 sbnComandosECF.Click;
+    end
+  end
+  else
+  begin
+    if Shift = [ssCtrl] then
+    begin
+
+      if (Key = VK_M) then
+      begin
+        naoExecutarKeyPess := true;
+        UsusAut := dtmFrenteCaixa.ObterAutorizacao(taLOGIN, ctMENUPRINCIPAL, ctADMINISTRADOR);
+        if Assigned(UsusAut) and ((UsusAut.NomeUsuario = UsuarioLogin.NomeUsuario) or UsusAut.Administrador) then
+        begin
+          TfrmAjuda(FormExists('TfrmTecsoft')).OperacaoPadrao([]);
+          Key := 0;
+          naoExecutarKeyPess := True;
+        end
+        else
+        begin
+          naoExecutarKeyPess := True;
+          MensagemAviso(ctUSUARIOSEMPERMISSAO)
+        end;
+      end
+      else
+      begin
+        if (Key = VK_F) then
+        begin
+          sbnFinalizarVendaClick(self);
+{          iniciaFechamentoVenda;}
+        end
+        else
+        begin
+          if (Key = VK_E) and lblParaEntregar.Visible then
+          begin
+            if dtmFrenteCaixa.CodigoCliente = 0 then
+            begin
+              MensagemAviso('Será necessário um cliente para marcar para entregar.');
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmFrenteCaixa.sbnVendedorClick(Sender: TObject);
+begin
+  inherited;
+  ConsultarVendedor;
+end;
+
+
+
+
+function TfrmFrenteCaixa.SelecionarProduto: boolean;
+var
+  Qtdade: Currency;
+  {Ok,} Texto: Boolean;
+  ValorDescItem : Currency;
+
+begin
+  {OK := true;}
+
+  result := false;
+  Qtdade := 1*0;
+  Texto := False;
+  edtProduto.Text := Trim(edtProduto.Text);
+  try
+    Qtdade := StrToInt64(edtProduto.Text)
+  except
+    Qtdade := 0;
+    Texto  := True;
+  end;
+
+  {
+  if Texto then
+    Ok := ConsultarProdutos
+  else
+    OK := True;
+  }
+
+
+  while true do
+  begin
+
+
+    if edtProduto.Text <> '' then
+    begin
+      result := dtmFrenteCaixa.ExisteProduto(edtProduto.Text);
+
+      if result then
+      begin
+        if dtmFrenteCaixa.produtoPromocao then
+          addMensagemGrande(dtmFrenteCaixa.Descricao, True)
+        else
+          addMensagemGrande(dtmFrenteCaixa.Descricao, False);
+
+        if edtQtdade.Text = '' then
+          edtQtdade.Text := '1';
+
+        edtDescontoItem.Text := Trim(edtDescontoItem.Text);
+
+        try
+          edtDescontoItem.Text := Trim(edtDescontoItem.Text);
+          ValorDescItem := StrToCurr(trocar(edtDescontoItem.Text,'%',''));
+        except
+          ValorDescItem := 0;
+        end;
+
+        try
+          Qtdade := edtQtdade.ValorSemFormatacao;
+        except
+          Qtdade := 0;
+        end;
+
+        if (Qtdade > 0) and (Trim(edtProduto.Text) <> '') then
+          result := dtmFrenteCaixa.GuardarItem(Qtdade, ValorDescItem, (pos('%',edtDescontoItem.Text)<>0) );
+
+        break;
+
+      end
+      else
+      begin
+        if not texto then
+        begin
+          addMensagemGrande('O Produto '''+edtProduto.Text+''' não foi encontrado', True);
+          edtProduto.Clear;
+        end
+        else
+        begin
+          result := ConsultarProdutos;
+
+          if not result then
+            break;
+
+        end;
+      end;
+    end
+    else
+    begin
+      result := ConsultarProdutos;
+
+      if not result then
+        break;
+    end;
+  end;
+  ForcaSetFocusEdtProduto;
+
+
+end;
+
+procedure TfrmFrenteCaixa.ForcaSetFocusEdtProduto;
+begin
+  // Ismael em 09/05/2006 - Este evendo foi criado porque quando que era chamada uma
+  //                        outra tela no retorno perdia o foco do campo edtProduto.
+//  edtQtdade.SetFocus;
+  edtProduto.SetFocus;
+end;
+
+procedure TfrmFrenteCaixa.CalculoDoTroco;
+begin
+  inherited;
+  if dtmFrenteCaixa.SubTotal > 0 then
+  begin
+    frmTrocoCaixa := TfrmTrocoCaixa.Create(frmTrocoCaixa);
+    try
+      frmTrocoCaixa.PagoEmDinheiro := dtmFrenteCaixa.ValorTotalCompra;
+      frmTrocoCaixa.ShowModal
+    finally
+      //FTroco:= frmTrocoCaixa.Troco;
+      frmTrocoCaixa.Free
+    end
+  end
+end;
+
+
+// Ismael em 09/05/2006 - BUG #1800.
+procedure TfrmFrenteCaixa.setFinalVenda;
+//var
+//  frmTelaTroco: TfrmTelatroco;
+begin
+  displayValores;
+  if (FExibirMensagemVendaConcluida and not dtmFrenteCaixa.Excecao) then
+  begin
+    //if ParSistema.ExibirTelaCalculoTroco then
+   //   CalculoDoTroco;
+    if dtmFrenteCaixa.SaldoRestante < 0 { Troco > 0} then
+    begin
+      frmTelaTroco:= Tfrmtelatroco.Create(frmTelaTroco);
+      try
+        frmTelaTroco.Troco:= abs(dtmFrenteCaixa.SaldoRestante); //dtmFrenteCaixa.Troco;
+        frmTelaTroco.ShowModal;
+      finally
+        frmTelaTroco.Free;
+      end;
+    end;
+    addMensagemGrande('VENDA CONCLUÍDA', False);
+    self.setfocus;
+    MensagemAviso('VENDA CONCLUÍDA');
+    dtmFrenteCaixa.SituacaoCupom := scFechado;
+  end
+  else
+    MensagemAviso('Problemas na conclusão da venda, tente novamente!');
+  zeraVariaveis;
+
+  fraConsultaListaCasamento.edfCodigo.Clear;
+  fraConsultaListaCasamento.dtxDescricao.Clear;
+
+  dtmFrenteCaixa.ListadeCasamento := 0;
+
+end;
+
+// Ismael em 09/05/2006 - BUG #1800.
+procedure TfrmFrenteCaixa.setInicioVenda;
+begin
+//  FVendaInciada := True;
+end;
+
+function TfrmFrenteCaixa.InternoPesquisar(Titulo: String): Integer;
+begin
+  TipoPesquisa := Titulo;
+  if TipoPesquisa = ctPRODUTO then
+    dtmFrenteCaixa.AbreConsultaProduto(edtProduto.Text);
+
+  if TipoPesquisa = ctVENDEDORES then
+    dtmFrenteCaixa.AbreConsultaVendedor;
+
+  Result := inherited InternoPesquisar(TipoPesquisa);
+  if Result = mrOK then
+  begin
+    if TipoPesquisa = ctPRODUTO then
+    begin
+      edtProduto.Text := dtmFrenteCaixa.CodigoProdutoConsulta;
+      Application.ProcessMessages;
+    end;
+    if TipoPesquisa = ctVENDEDORES then
+    begin
+      dtmFrenteCaixa.SelecionarVendedor(Not Result = mrOk, 0);
+    end;
+  end
+  else
+    edtProduto.Text := '';
+
+  if TipoPesquisa = ctPRODUTO then
+  begin
+    dtmFrenteCaixa.FechaConsultaProduto;
+    JanelaProduto.PesquisaIniciada := true;
+  end;
+
+  if TipoPesquisa = ctVENDEDORES then
+    dtmFrenteCaixa.FechaConsultaVendedores;
+
+  if FEmFechamento then
+    ForcaSetFocusEdtFinalizacao
+  else
+    ForcaSetFocusEdtProduto;
+end;
+
+function TfrmFrenteCaixa.JanelaPesquisa: TfrmConsultaBasica;
+var
+  Jan : TfrmConsultaPorCampo;
+begin
+  if TipoPesquisa = ctPRODUTO then
+  begin
+    if not assigned(JanelaProduto) then
+      JanelaProduto := TfrmConsultaPorCampo.Create(nil);
+
+    JanelaProduto.UsarParametrosDaTabela := False;
+    JanelaProduto.ConsultaInterativa := False;
+
+    JanelaProduto.UsarParametrodaPesquisa := true;
+    JanelaProduto.ParametrodaPesquisa := edtProduto.Text;
+
+    JanelaProduto.ManterParametros := true;
+    JanelaProduto.ExibirUltimoParametro := true;
+//    JanelaProduto.ReabrirFormulario := true;
+
+    Result := JanelaProduto;
+
+  end
+  else
+  begin
+    Jan := TfrmConsultaPorCampo.Create(nil);
+    Jan.UsarParametrosDaTabela := False;
+    Jan.ConsultaInterativa := True;
+    Result := Jan;
+  end;
+
+
+end;
+
+function TfrmFrenteCaixa.TabelaDePesquisa: TZDataSet;
+begin
+  Result := inherited TabelaDePesquisa;
+  if TipoPesquisa = ctPRODUTO then
+    Result := dtmFrenteCaixa.TabelaConsultarProduto;
+  if TipoPesquisa = ctVENDEDORES then
+    Result := dtmFrenteCaixa.TabelaConsultarVendedor;
+end;
+
+procedure TfrmFrenteCaixa.sbnGerenciarClienteClick(Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.ConsultarClientes;
+//  self.setfocus;
+end;
+
+procedure TfrmFrenteCaixa.EfeturarDesconto;
+begin
+   if dtmFrenteCaixa.EfetuarDesconto then
+   begin
+     addMensagemGrande('Desconto  ' + FloatToStrF(dtmFrenteCaixa.ValorDesconto, ffNumber, 11, 2)+'%', False);
+     //lblValorDesconto.Caption := FloatToStrF(dtmFrenteCaixa.ValorDesconto, ffNumber  , 11, 2)+'%';
+     //lblValorRecebido.Caption := FloatToStrF(dtmFrenteCaixa.ValorAReceber, ffCurrency, 11, 2);
+   end;
+   ForcaSetFocusEdtProduto;
+end;
+
+procedure TfrmFrenteCaixa.tmrMensagemGrandeTimer(Sender: TObject);
+begin
+  inherited;
+//  Enabled := False;
+  if   lblMensagemGrande.Font.Color = clRed then
+    lblMensagemGrande.Font.Color := TPanel(lblMensagemGrande.Parent).Color
+  else
+    lblMensagemGrande.Font.Color := clRed;
+//  Enabled := True;
+
+end;
+
+
+procedure TfrmFrenteCaixa.edtProdutoKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  inherited;
+//  if not naoExecutarKeyPess then
+  begin
+    if Key = #13 then
+    begin
+      vLimpar := false;
+      if dtmFrenteCaixa.vContinuarLeituraCodigoBarras then
+      begin
+        if SelecionarProduto then
+        begin
+          if dtmFrenteCaixa.CondicaoVenderItem then
+          begin
+
+            if vLogMessageFrenteCaixa then
+              ShowMessage('1 - entrando em CondicaoVenderItem');
+
+            vLimpar := true;
+            if not dtmfrentecaixa.qryProdutosVendidos.IsEmpty then
+            begin
+            
+              if vLogMessageFrenteCaixa then
+                ShowMessage('2 - not dtmfrentecaixa.qryProdutosVendidos.IsEmpty');
+
+              edtProduto.Clear;
+              edtQtdade.Text         := '1';
+              edtDescontoItem.Text   := '';
+              vLimpar := false;
+            end;
+  //          BloquearTeclado(false);
+
+            if vLogMessageFrenteCaixa then
+                ShowMessage('3 - VenderItem');
+                
+            VenderItem;
+                                     {
+            dtmFrenteCaixa.VenderItem;
+
+            if vlimpar then
+            begin
+              edtProduto.Clear;
+              edtQtdade.Text         := '1';
+              edtDescontoItem.Text   := '';
+            end;
+
+            displayValores;
+
+            ForcaSetFocusEdtProduto;}
+
+
+
+          end
+          else
+          begin
+            edtProduto.Clear;
+            edtQtdade.Text         := '1';
+            edtDescontoItem.Text   := '';
+            dtmfrentecaixa.LogSituacaoErroFrenteCaixa('edtProdutoKeyPress CondicaoVenderItem: [(not qryProdutosDigitados in [Edit,Insert]) and  (qryProdutosDigitados.recordcount <> 0) ]');
+            ForcaSetFocusEdtProduto;
+          end;
+        end;
+      end
+      else
+      begin
+        edtProduto.clear;
+        edtQtdade.Text         := '1';
+        Key := #0;
+      end;
+    end;
+
+    if Key = '*' then
+    begin
+      Key := #0;
+      AdicionaQuantidade(edtProduto.Text);
+    end;
+
+    if key = #27 then  // ESC
+    begin
+      Key := #0;
+      CancelarVenda;
+    end;
+
+    if (Key = 'd') or (Key = 'D') then
+    begin
+      try
+        StrToCurr(trocar(trocar(edtProduto.Text,'p',''),'P',''));
+        Key := #0;
+        AdicionaDescontoItem(edtProduto.Text, ((vPrevious_key = 'p') or
+                                               (vPrevious_key = 'P')) );
+      except
+      end;
+    end
+    else
+    if (Key = 'p') or (Key = 'P') then
+      vPrevious_key := key
+    else
+      vPrevious_key := #0;
+
+
+  end;
+
+end;
+
+procedure TfrmFrenteCaixa.AdicionaQuantidade(Valor:String);
+var
+  text : String;
+  valorQTDE : Currency;
+begin
+  text := Valor;
+  // Está opção é para quando é precionado o * sem algum valor ou zero. Estão ele colocará 1.
+  if (text = '') or (text = '0') then
+    text := '1';
+
+  if text <> '' then
+  begin
+    // Agora converte o valor para curreny para verificar se é uma quantidade válida.
+    // e este try/except para se não for um número.
+    try
+      valorQTDE := StrToCurr(text);
+    except
+      valorQTDE := 1;
+    end;
+    text := CurrToStr(Abs(valorQTDE));
+    edtQtdade.Text := text;
+    edtProduto.Text := '';
+    ForcaSetFocusEdtProduto;
+  end;
+end;
+
+(*
+procedure TfrmFrenteCaixa.edtFinalizacaoKeyPress(Sender: TObject;
+  var Key: Char);
+var
+{  PodeEfetuaPagamento : Boolean;}
+  TipoPesquisa: String;
+begin
+  inherited;
+  if not naoExecutarKeyPess then
+  begin
+    if key = #27 then  // ESC
+    begin
+      if dtmFrenteCaixa.SituacaoCupom = scTotalizado then
+        CancelarVenda
+      else
+      begin
+        Key := #0;
+        if (dtmFrenteCaixa.SituacaoCupom < scTotalizado) and (FEmPagamento = -1) then // EFETUOU NENHUM PAGAMENTO AINDA
+          retornaLancamento
+        else
+        if FEmPagamento > 0 then  // CANCELAR A FORMA DE PAGAMENTO ESCOLHIDA
+        begin
+          FEmPagamento := -1;
+          dtmFrenteCaixa.SituacaoCupom := scTotalizado;
+//          EdtFinalizacao.Text := '';
+          addMensagemGrande('FINALIZANDO A VENDA', False);
+          ForcaSetFocusEdtFinalizacao;
+        end
+        else
+          CancelarVenda;
+      end;
+    end
+    else
+    if key = #13 then   // ENTER
+    begin
+      Key := #0;
+
+//      PodeEfetuaPagamento := True;
+      TipoPesquisa := ANSIUpperCase(copy(EdtFinalizacao.Text,0,3));
+      { Inicia pesquisa pelo nome do cliente }
+      if ANSIUpperCase(copy(EdtFinalizacao.Text,0,3)) = 'CPF' then
+      begin
+//        PodeEfetuaPagamento := False;
+        dtmFrenteCaixa.consultaClienteCPF(copy(EdtFinalizacao.Text,4, Length(EdtFinalizacao.Text)-3));
+        EdtFinalizacao.Text := '';
+      end
+      else
+      begin
+        TipoPesquisa := ANSIUpperCase(copy(EdtFinalizacao.Text,0,2));
+        { Inicia pesquisa pelo código do vendedor }
+        if TipoPesquisa = 'CV' then
+        begin
+//          PodeEfetuaPagamento := False;
+          dtmFrenteCaixa.consultaVendedorCodigo(StrToInt(copy(EdtFinalizacao.Text,3, Length(EdtFinalizacao.Text)-2)));
+          EdtFinalizacao.Text := '';
+        end
+        else
+        { Inicia pesquisa pelo código do cliente }
+        if TipoPesquisa = 'CC' then
+        begin
+//          PodeEfetuaPagamento := False;
+          dtmFrenteCaixa.consultaClienteCodigo(StrToInt(copy(EdtFinalizacao.Text,3, Length(EdtFinalizacao.Text)-2) ) );
+          EdtFinalizacao.Text := '';
+        end
+        else
+        { Inicia pesquisa pelo código do cliente }
+        if TipoPesquisa = 'VN' then
+        begin
+//          PodeEfetuaPagamento := False;
+          dtmFrenteCaixa.consultaVendedorNome(copy(EdtFinalizacao.Text,3, Length(EdtFinalizacao.Text)-2));
+          InternoPesquisar('');
+          EdtFinalizacao.Text := '';
+        end
+        else
+        { Inicia pesquisa pelo nome do cliente }
+        if TipoPesquisa = 'CN' then
+        begin
+//          PodeEfetuaPagamento := False;
+          EdtFinalizacao.Text := '';
+        end;
+      end;
+
+      (*
+      if PodeEfetuaPagamento then
+      begin
+        if dtmFrenteCaixa.SituacaoCupom = scPagamento then
+          EfetuarPagamento(EdtFinalizacao.Text)
+        else
+//        if dtmFrenteCaixa.SituacaoCupom = scTotalizado then
+          SelecionarFormaPagto(EdtFinalizacao.Text);
+      end;
+      *)
+//    end;
+    (*
+    else
+    { Adiciona desconto sobre o valor total da venda }
+
+    if (key = 'd') or (key = 'D') then
+    begin
+      if dtmFrenteCaixa.SituacaoCupom < scTotalizado then
+      begin
+        try
+          StrToCurr(EdtFinalizacao.Text);
+          AdicionaDescontoTotal;
+          Key := #0;
+          EdtFinalizacao.Text := '';
+        except
+          if copy(EdtFinalizacao.Text, length(EdtFinalizacao.Text),1) = 'P' then
+          begin
+            try
+              StrToInt(copy(EdtFinalizacao.Text, 0, length(EdtFinalizacao.Text)-1));
+              AdicionaDescontoTotal;
+              Key := #0;
+              EdtFinalizacao.Text := '';
+            except
+            end;
+          end;
+        end;
+      end
+      else
+        MensagemAviso('Cupom já totalizado!')
+    end
+    else
+    { Adiciona Acrescimo sobre o valor total da venda }
+    if (key = 'a') or (key = 'A') then
+    begin
+      if dtmFrenteCaixa.SituacaoCupom < scTotalizado then
+      begin
+        try
+          StrToCurr(EdtFinalizacao.Text);
+          AdicionaAcrescimoTotal;
+          Key := #0;
+          EdtFinalizacao.Text := '';
+        except
+          if copy(EdtFinalizacao.Text, length(EdtFinalizacao.Text),1) = 'P' then
+          begin
+            try
+              StrToInt(copy(EdtFinalizacao.Text, 0, length(EdtFinalizacao.Text)-1));
+              AdicionaAcrescimoTotal;
+              Key := #0;
+              EdtFinalizacao.Text := '';
+            except
+            end;
+          end;
+        end;
+      end
+      else
+         MensagemAviso('Cupom já totalizado!')
+    end;
+    *)
+(*
+  end
+  else
+    naoExecutarKeyPess := True;
+end;
+*)
+
+procedure TfrmFrenteCaixa.setInicioSistema;
+begin
+
+{$IFNDEF LINUX}
+//  BorderStyle := fbsNone;
+  WindowState := wsNormal;
+{$ENDIF}
+  Constraints.MaxHeight:= 0;
+  Constraints.MaxWidth := 0;
+  Constraints.MinHeight:= 0;
+  Constraints.MinWidth := 0;
+  dtmFrenteCaixa       := TdtmFrenteCaixa.Create(Self);
+{  if not dtmFrenteCaixa.qryLogotipos.IsEmpty then
+  if not FileExists(ParSistema.DiretorioImagens+dtmFrenteCaixa.NomeLogotipo) then
+    MensagemAviso('Logotipo '+dtmFrenteCaixa.NomeLogotipo+' não existe.')
+  else begin
+} if FileExists(ParSistema.DiretorioImagens+dtmFrenteCaixa.NomeLogotipo) then
+  begin
+    ImgLogoLancamento.Picture.LoadFromFile(ParSistema.DiretorioImagens+dtmFrenteCaixa.NomeLogotipo);
+//    ImgLogoFechamento.Picture.LoadFromFile(ParSistema.DiretorioImagens+dtmFrenteCaixa.NomeLogotipo);
+  end;
+  zeraVariaveis;
+end;
+
+procedure TfrmFrenteCaixa.zeraVariaveis;
+begin
+  addMensagemGrande('CAIXA LIVRE', False);
+//  FVendaInciada         := False;
+  FEmFechamento         := False;
+//  pnlLancamento.Visible := False;
+  pnlFechamento.Visible := False;
+  TrocaTela(false);
+  lblMensagemGrande.Font.Color := clRed;
+  lblTotCompra.Caption   := '';
+  edtTotalQtdade.Caption := '';
+  edtDescontoItem.Text   := '';
+//  edtFinalizacao.Text    := '';
+  edtProduto.Text        := '';
+  zeraVariaveisLancamento;
+  zeraVariaveisFechamento;
+  lblMensagemPequena.Transparent := True;
+  lblMensagemPequena.Caption     := '';
+  dtmFrenteCaixa.LimpaItensVendidos;
+  dtmFrenteCaixa.LimpaPagamentoTMP;
+  dtmFrenteCaixa.zeraVariaveis;
+  ForcaSetFocusEdtProduto;
+  naoExecutarKeyPess          := False;
+  FObrigaVendedorNessaVenda   := True;
+  lblDescontoComposto.Visible := False;
+  edtNumeroNotaVinculada.Text:='';
+  with dtmFrenteCaixa do
+  begin
+    SaldoRestante := 0;
+    ValorDesconto := 0;
+    ValorAcrescimo := 0;
+    qryCliente.close;
+    clienteVenda := 0;
+    nomeclienteVenda := '';
+    qryOrcamentos.close;
+    qryProdutosOrcamentos.close;
+    fraConsultaOrcamento.edfCodigo.Clear;
+    fraConsultaOrcamento.dtxDescricao.Clear;
+
+    qryContratos.close;
+    qryProdutosContratos.close;
+    fraConsultaOrdemServico.edfCodigo.Clear;
+    fraConsultaOrdemServico.dtxDescricao.Clear;
+    dtxEquipamento.clear;
+
+  end;
+
+end;
+
+procedure TfrmFrenteCaixa.iniciaFechamentoVenda;
+begin
+  zeraVariaveisFechamento;
+  FEmFechamento := True;
+  TrocaTela(true);
+//  EdtFinalizacao.SetFocus;
+  addMensagemGrande('FINALIZANDO A VENDA', False);
+  displayValores;
+
+  FExibirMensagemVendaConcluida := True;
+  dtmFrenteCaixa.ObsCupomFiscal := edtObservacao.text;
+
+  if dtmFrenteCaixa.EfetuarMultiplosPagamentos then
+  begin
+    self.setfocus;
+    setFinalVenda // Ismael em 09/05/2006 - BUG #1800.
+  end
+  else
+  if assigned(ecfpadrao) and (ecfpadrao.Estado = estLivre) then
+  begin
+    zeraVariaveis;
+    zeraVariaveisFechamento;
+    TrocaTela(false);
+    addMensagemGrande('VENDA CANCELADA', False);
+    MensagemAviso('VENDA CANCELADA');
+    dtmFrenteCaixa.SituacaoCupom := scFechado;
+  end
+  else
+  begin
+    if not assigned(ecfpadrao) and (dtmFrenteCaixa.SituacaoCupom = scFechado) then
+    begin
+      zeraVariaveis;
+      zeraVariaveisFechamento;
+      TrocaTela(false);
+      addMensagemGrande('VENDA CANCELADA', False);
+      MensagemAviso('VENDA CANCELADA');
+      dtmFrenteCaixa.SituacaoCupom := scFechado;
+    end
+    else
+    begin
+      zeraVariaveisFechamento;
+      TrocaTela(false);
+    end;
+  end;
+  displayValores;
+
+end;
+
+procedure TfrmFrenteCaixa.retornaLancamento;
+begin
+  zeraVariaveisFechamento;
+  TrocaTela(false);
+  ForcaSetFocusEdtProduto;
+end;
+
+procedure TfrmFrenteCaixa.zeraVariaveisFechamento;
+begin
+  dtmFrenteCaixa.zeraFormaPagamento;
+  if FEmFechamento then
+    addMensagemGrande('AGUARDANDO PRÓXIMO PRODUTO', False);
+  FEmFechamento := False;
+  FEmPagamento := -1;
+end;
+
+procedure TfrmFrenteCaixa.zeraVariaveisLancamento;
+begin
+  edtQtdade.Text := '1';
+end;
+
+procedure TfrmFrenteCaixa.retornaFechamentoVenda;
+begin
+
+end;
+
+procedure TfrmFrenteCaixa.TrocaTela(fechamento: boolean);
+begin
+  if fechamento then
+  begin
+    pnlFechamento.Visible := true;
+    pnlfechamento.BringToFront;
+    pnlFechamento.Repaint;
+    gbxvenda.Visible := false;
+    gbxvenda.SendToBack;
+  end
+  else
+  begin
+    pnlFechamento.Visible := false;
+    pnlfechamento.SendToBack;
+    gbxvenda.Visible := true;
+    gbxvenda.BringToFront;
+    gbxvenda.Repaint;
+  end;
+end;
+
+procedure TfrmFrenteCaixa.FinalizaSistema;
+begin
+  Close;
+  {
+  if FrenteCaixa then
+    Application.Terminate;
+    }
+end;
+
+procedure TfrmFrenteCaixa.addMensagemPequena(Text: string;
+  internitente: Boolean);
+begin
+
+end;
+
+procedure TfrmFrenteCaixa.addMensagemGrande(Text: string;
+  internitente: Boolean);
+begin
+  if lblMensagemGrande.Caption <> Text then
+  begin
+    lblMensagemGrande.Caption := Text;
+    if internitente then
+      tmrMensagemGrande.Enabled := true
+    else
+    begin
+      tmrMensagemGrande.Enabled := false;
+      lblMensagemGrande.Font.Color := clRed;
+    end;
+
+//    Application.ProcessMessages;
+  end;  
+end;
+
+procedure TfrmFrenteCaixa.ForcaSetFocusEdtFinalizacao;
+begin
+  tecDBGrid1.SetFocus;
+//  EdtFinalizacao.SetFocus;
+end;
+
+
+
+function TfrmFrenteCaixa.validaVendedor: Boolean;
+  function selecionaVendedor:Boolean;
+  begin
+    Result := ConsultarVendedor;
+  end;
+
+  function sugerirUsuarioComoVendedor:Boolean;
+  begin
+    if ParSistema.SugerirUsuariOComoVendedorFCx then
+    begin
+      if dtmFrenteCaixa.qryVendedorcodigo.isNull then
+      begin
+        if UsuarioLogin.Vendedor then
+        begin
+          //if MensagemSelecionaOpcao('Não existe um vendedor selecionado. Usar o usuário atual?') = smbYes then
+          //begin
+            dtmFrenteCaixa.SelecionarVendedor(False, UsuarioLogin.CodigoUsuario);
+            Result :=  True;
+          //end
+          //else
+          //begin
+           // Result := selecionaVendedor;
+          //end;
+        end
+        else
+        begin
+          if MensagemConfirmacao('O usuário logado não é um vendedor. Deseja selecionar um vendedor?') = smbOK then
+          begin
+            Result := selecionaVendedor;
+          end
+          else
+          begin
+            if ParSistema.ObrigaVendedorFrenteCaixa then
+            begin
+              if MensagemConfirmacao('Para realizar uma venda no crediário é necessário informar os dados do vendedor.'+#13+'Deseja informar agora?') = smbOK then
+                Result := selecionaVendedor
+              else
+                Result := False;
+            end
+            else
+            begin
+              Result := True;
+              FObrigaVendedorNessaVenda := ParSistema.ObrigaVendedorFrenteCaixa;
+            end;
+          end;
+        end;
+      end
+      else
+        Result := True;
+    end
+    else
+      Result := False;
+  end;
+
+begin
+  Result := true;
+  if ParSistema.FrenteCaixaComVendedor then
+  begin
+    if ParSistema.ObrigaVendedorFrenteCaixa and ParSistema.SugerirUsuarioComoVendedorFCx then
+    begin
+      Result := sugerirUsuarioComoVendedor;
+    end
+    else
+    begin
+      if ParSistema.ObrigaVendedorFrenteCaixa then
+      begin
+        if dtmFrenteCaixa.qryVendedorcodigo.isNull then
+          Result := selecionaVendedor
+        else
+          Result := True;
+      end
+      else
+      begin
+        if ParSistema.SugerirUsuariOComoVendedorFCx then
+        begin
+          Result := sugerirUsuarioComoVendedor;
+        end
+        else
+        begin
+          if dtmFrenteCaixa.qryVendedorcodigo.isNull  then
+            Result := selecionaVendedor
+          else
+            Result := True;
+        end;
+      end;
+    end;
+  end;
+  {
+  else
+  begin
+    if (EdtFinalizacao.Text = '1') or (EdtFinalizacao.Text = '2') or (EdtFinalizacao.Text = '3') then
+      Result := True
+    else
+      Result := False;
+  end;
+  }
+end;
+
+procedure TfrmFrenteCaixa.AdicionaDescontoItem(Valor: String; DescontoeHPercentual: Boolean);
+var
+  text : String;
+  valorDesc : Currency;
+begin
+  text := Valor;
+  // Está opção é para quando é precionado o * sem algum valor. Estão ele colocará 1.
+  if text = '' then
+    text := '0';
+
+  if text <> '' then
+  begin
+    // Agora converte o valor para curreny para verificar se é uma quantidade válida.
+    // e este try/except para se não for um número.
+    try
+      valorDesc := StrToCurr(trocar(trocar(Text,'p',''),'P',''));
+    except
+      valorDesc := 1;
+    end;
+    text := CurrToStr(Abs(valorDesc));
+    edtDescontoItem.Text := text;
+    if DescontoeHPercentual then
+      edtDescontoItem.Text := edtDescontoItem.Text + '%';
+
+    edtProduto.Text := '';
+    ForcaSetFocusEdtProduto;
+  end;
+end;
+
+(*
+procedure TfrmFrenteCaixa.AdicionaAcrescimoTotal;
+var
+  valor : Currency;
+  percentual : Boolean;
+begin
+  percentual := False;
+  if dtmFrenteCaixa.getValorJaInformado = dtmFrenteCaixa.TotalPagar-dtmFrenteCaixa.ValorTotalDescontoItem then
+  begin
+    try
+      EdtFinalizacao.Text := Trim(EdtFinalizacao.Text);
+      valor := StrToCurr(EdtFinalizacao.Text);
+      EdtFinalizacao.Text := '';
+    except
+      if copy(EdtFinalizacao.Text, length(EdtFinalizacao.Text),1) = 'P' then
+      begin
+        try
+          EdtFinalizacao.Text := Trim(copy(EdtFinalizacao.Text, 0, length(EdtFinalizacao.Text)-1));
+          valor := StrToCurr(EdtFinalizacao.Text);
+          EdtFinalizacao.Text := '';
+          percentual := True;
+        except
+          valor := 0;
+        end;
+      end
+      else
+        valor := 0;
+    end;
+    Valor := Abs(Valor);
+    if percentual then
+      dtmFrenteCaixa.AdicionarAcrescimo(valor, 'P')
+    else
+      dtmFrenteCaixa.AdicionarAcrescimo(valor);
+
+    displayValores;
+  end
+  else
+    MensagemAviso('Não é permitido desconto/acréscimo após informada alguma forma de pagamento.');
+end;
+
+procedure TfrmFrenteCaixa.AdicionaDescontoTotal;
+var
+  valor : Currency;
+  percentual : Boolean;
+begin
+  percentual := False;
+  if dtmFrenteCaixa.getValorJaInformado = dtmFrenteCaixa.TotalPagar-dtmFrenteCaixa.ValorTotalDescontoItem then
+  begin
+    try
+      EdtFinalizacao.Text := Trim(EdtFinalizacao.Text);
+      valor := StrToCurr(EdtFinalizacao.Text);
+      EdtFinalizacao.Text := '';
+    except
+      if copy(EdtFinalizacao.Text, length(EdtFinalizacao.Text),1) = 'P' then
+      begin
+        try
+          EdtFinalizacao.Text := Trim(copy(EdtFinalizacao.Text, 0, length(EdtFinalizacao.Text)-1));
+          valor := StrToCurr(EdtFinalizacao.Text);
+          EdtFinalizacao.Text := '';
+          percentual := True;
+        except
+          valor := 0;
+        end;
+      end
+      else
+        valor := 0;
+    end;
+    valor := Abs(valor);
+    if percentual then
+      dtmFrenteCaixa.AdicionarDesconto(valor, 'P')
+    else
+      dtmFrenteCaixa.AdicionarDesconto(valor);
+    displayValores;
+  end
+  else
+    MensagemAviso('Não é permitido desconto/acréscimo após informada alguma forma de pagamento.');
+end;
+*)
+
+procedure TfrmFrenteCaixa.displayValores;
+begin
+  lblValorDesconto.Visible := True;
+  lblValorDesconto.Caption := FloatToStrF(dtmFrenteCaixa.ValorDesconto , ffCurrency, 11, 2);
+  if dtmFrenteCaixa.TemComposto then
+  begin
+    lblValorDesconto.Visible    := False;
+    lblDescontoComposto.Visible := True;
+    lblDescontoComposto.Caption := FloatToStrF((dtmFrenteCaixa.DescontoProdutoComposto+dtmFrenteCaixa.ValorDesconto) , ffCurrency, 11, 2);
+  end;
+  lblValorAcrescimo.Caption := FloatToStrF(dtmFrenteCaixa.ValorAcrescimo, ffCurrency, 11, 2);
+  if dtmFrenteCaixa.SaldoRestante > 0 then
+    lblSaldoRestante.Caption := 'Saldo'
+  else
+    lblSaldoRestante.Caption := 'Troco';
+  lblValorTroco.Caption      := FloatToStrF(abs(dtmFrenteCaixa.SaldoRestante), ffCurrency, 11, 2);
+  lblValorSubTotal.Caption   := FloatToStrF(dtmFrenteCaixa.SubTotal      , ffCurrency, 11, 2);
+  lblTotCompra.Caption       := FloatToStrF(dtmFrenteCaixa.ValorTotalCompra, ffCurrency, 11, 2);
+  edtTotalQtdade.Caption     := CurrToStr(dtmFrenteCaixa.ValorTotalQuantidade);
+
+end;
+
+procedure TfrmFrenteCaixa.autenticacao;
+begin
+  inherited;
+  if UsuarioLogin.CaixaAberto then
+  begin
+    if Assigned(frmAutenticacoesCaixa) then
+      frmAutenticacoesCaixa.SetFocus
+    else
+      frmAutenticacoesCaixa := TfrmAutenticacoesCaixa.Create(nil);
+    frmAutenticacoesCaixa.OntecClose := OnTecCloseAutenticacoesCaixa;
+    //frmAutenticacoesCaixa.ShowModal;
+  end;
+end;
+
+function TfrmFrenteCaixa.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := False;
+  if TipoPesquisa = ctPRODUTO then
+  begin
+    Result := dtmFrenteCaixa.ExistePesquisaProduto(NomeCampo, Value);
+  end;
+
+  if TipoPesquisa = ctVENDEDORES then
+  begin
+    Result := dtmFrenteCaixa.ExisteVendedor(NomeCampo, Value);
+  end;
+
+end;
+
+procedure TfrmFrenteCaixa.fechamentoCaixa;
+begin
+  inherited;
+  if UsuarioLogin.CaixaAberto then
+  begin
+    if Assigned(frmFechamentoCaixa) then
+      frmFechamentoCaixa.Free;
+    frmFechamentoCaixa := TfrmFechamentoCaixa.Create(nil);
+    frmFechamentoCaixa.OntecClose := OnTecCloseFechamentoCaixa;
+    //    frmFechamentoCaixa.ShowModal;
+  end;
+end;
+
+
+
+procedure TfrmFrenteCaixa.sbnFinalizarVendaClick(Sender: TObject);
+begin
+  inherited;
+  if not dtmFrenteCaixa.qryProdutosVendidos.IsEmpty then
+    if not dtmFrenteCaixa.TransferenciaNaoConfirmada then
+    begin
+      if dtmFrenteCaixa.SituacaoCupom = scProdutos then
+        if validaVendedor then
+          iniciaFechamentoVenda;
+    end
+    else
+      MensagemAviso(ctCAIXATRANSFERENCIANAOCONFIRMADA)
+  else
+    MensagemAviso(ctNENHUMPRODUTOADICIONADO);
+end;
+
+procedure TfrmFrenteCaixa.sbnAutenticacoesClick(Sender: TObject);
+begin
+  inherited;
+  Autenticacao;
+end;
+
+procedure TfrmFrenteCaixa.sbnFechamentoClick(Sender: TObject);
+begin
+  inherited;
+  FechamentoCaixa;
+
+end;
+
+procedure TfrmFrenteCaixa.sbnClienteClick(Sender: TObject);
+begin
+  inherited;
+//  FormOrigemBloqueio := self.name;
+  dtmFrenteCaixa.ConsultarClientes;
+//  self.setfocus;
+end;
+
+procedure TfrmFrenteCaixa.sbnCancelarItemClick(Sender: TObject);
+begin
+  inherited;
+  if not dtmFrenteCaixa.TransferenciaNaoConfirmada then
+    CancelarItem
+  else
+    MensagemAviso(ctCAIXATRANSFERENCIANAOCONFIRMADA);
+end;
+
+procedure TfrmFrenteCaixa.sbnCancelarVendaClick(Sender: TObject);
+begin
+  inherited;
+  if not dtmFrenteCaixa.TransferenciaNaoConfirmada then
+    CancelarVenda
+  else
+    MensagemAviso(ctCAIXATRANSFERENCIANAOCONFIRMADA);
+end;
+
+procedure TfrmFrenteCaixa.sbnDescontoReaisClick(Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.AdicionarDesconto(CapturaValor('Desconto',0));
+  displayValores;
+end;
+
+procedure TfrmFrenteCaixa.sbnDescontoPorcentagemClick(Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.AdicionarDesconto(CapturaValor('Desconto Percentual',0),'P');
+  displayValores;
+end;
+
+
+procedure TfrmFrenteCaixa.sbnAcrescimoReaisClick(Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.AdicionarAcrescimo(CapturaValor('Acréscimo',0));
+  displayValores;
+end;
+
+procedure TfrmFrenteCaixa.sbnAcrescimoPorcentagemClick(Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.AdicionarAcrescimo(CapturaValor('Acréscimo Percentual',0),'P');
+  displayValores;
+end;
+{
+procedure TfrmFrenteCaixa.TotalizarVenda(Caracter:char;Tipo:String);
+var
+  OK: Boolean;
+  Valor: Currency;
+  Titulo: String;
+begin
+  if Caracter = 'D' then
+    if Tipo = 'V' then
+      Titulo := 'Desconto'
+    else
+      Titulo := Titulo + ' Percentual'
+  else
+    if Tipo = 'V' then
+      Titulo := 'Acréscimo'
+    else
+      Titulo := Titulo + ' Percentual';
+
+  frmLerValor := TfrmLerValor.Create(Self,Titulo);
+  try
+    OK := False;
+    frmLerValor.Numero := 0;
+    OK := frmLerValor.ShowModal = mrOK;
+    if OK then
+    begin
+      Valor := frmLerValor.Numero;
+      if (Tipo='P') then
+        Valor := ValorDoPercentualSobreTotal(dtmFrenteCaixa.TotalPagar,Valor);
+      EdtFinalizacao.Text:=FloatToStr(Valor);
+      EdtFinalizacaoKeyPress(edtfinalizacao,Caracter);
+    end;
+  finally
+    frmLerValor.Free;
+    EdtFinalizacao.SetFocus;
+  end;
+end;
+}
+{
+procedure TfrmFrenteCaixa.EfetuarPagamento(TipoPagamento: String;Titulo:String);
+var
+ Enter: char;
+ frmLerValor: TfrmLerValor;
+ OK: Boolean;
+ Valor, Valor1: Currency;
+begin
+  if not dtmFrenteCaixa.TransferenciaNaoConfirmada then
+  begin
+    frmLerValor := TfrmLerValor.Create(Self,Titulo);
+    OK := False;
+    try
+      frmLerValor.Numero := dtmFrenteCaixa.SaldoRestante;
+      OK := (frmLerValor.ShowModal = mrOK);
+      if OK then
+      begin
+        dtmFrenteCaixa.SituacaoCupom := scPagamento;
+//         Valor1 := 0;
+//         Valor1 := frmLerValor.Numero;
+         //if (Valor1 <= dtmFrenteCaixa.SaldoRestante) then
+         //begin                                            //---- Carlos 06/03/2007 ----------
+             Valor := frmLerValor.Numero;
+             Enter:=#13;
+             EdtFinalizacao.Text:=Tipopagamento;
+             EdtFinalizacaoKeyPress(EdtFinalizacao,Enter);
+             EdtFinalizacao.Text:=FloatToStr(Valor);
+        // end
+        // else
+         //MensagemAviso('Valor tem que ser menor ou igual ao total da compra'); //-- Carlos 07/03/2007
+      end;
+  // if ParSistema.ExibirTelaCalculoTroco then
+  //   CalculoDoTroco;
+
+    finally
+      frmLerValor.Free;
+      if OK then
+      begin
+        Enter:=#13;
+        EdtFinalizacaoKeyPress(EdtFinalizacao,Enter);
+      end;
+    end;
+  end
+  else
+    MensagemAviso(ctCAIXATRANSFERENCIANAOCONFIRMADA);
+end;
+}
+{procedure TfrmFrenteCaixa.edtTotalQtdadEnter(Sender: TObject);
+begin
+  edtTotalQtdade.Color := $00FDDBC7;
+end;
+
+procedure TfrmFrenteCaixa.edtTotalQtdadExit(Sender: TObject);
+begin
+  edtTotalQtdade.Color := $00FDDBC7;
+end;
+
+procedure TfrmFrenteCaixa.edtTotalQtdadClick(Sender: TObject);
+begin
+  edtTotalQtdade.Color := $00FDDBC7;
+end;
+}
+procedure TfrmFrenteCaixa.sbnMetaClick(Sender: TObject);
+begin
+  inherited;
+  if (ParSistema.ExibirMetasdeVenda) then
+  begin
+        frmMetaVendas:= TfrmMetaVendas.Create(frmMetaVendas);
+        dtmFrenteCaixa.qryMetaVendas.First;
+        frmMetaVendas.ShowModal;
+        frmMetaVendas.Free;
+        SetFocus;
+  end;
+end;
+
+procedure TfrmFrenteCaixa.OnTecCloseAutenticacoesCaixa;
+begin
+  MaximizarFrenteCaixa;
+  ForcaSetFocusEdtProduto;
+end;
+
+procedure TfrmFrenteCaixa.MaximizarFrenteCaixa;
+begin
+
+  Self.WindowState := wsNormal;
+  if Self.WindowState <> wsMaximized then
+    Self.WindowState := wsMaximized;
+  ForcaSetFocusEdtProduto;  
+end;
+
+procedure TfrmFrenteCaixa.OnTecCloseFechamentoCaixa;
+begin
+  MaximizarFrenteCaixa;
+end;
+
+procedure TfrmFrenteCaixa.sbnComandosECFClick(Sender: TObject);
+
+  procedure ExibirComandosECF;
+  begin
+    frmComandosECF:= TfrmComandosECF.Create(frmComandosECF);
+    if ecfpadrao.CupomAberto then
+      frmComandosECF.CancelarCupomnaOrigem := self.CancelarCupomnaOrigem
+    else
+      frmComandosECF.CancelarCupomnaOrigem := nil;
+
+    frmComandosECF.ShowModal;
+    frmComandosECF.Free;
+    SetFocus;
+  end;
+
+var
+  UsuarioAut: TtecUsuarios;
+  Autorizado: Boolean;
+begin
+  inherited;
+  if (ParSistema.ExigirGerenteCaixaComandosECF) then
+  begin
+    try
+      UsuarioAut:= dtmFrenteCaixa.ObterAutorizacao(taLOGIN, ctAUTORIZACAOCOMANDOSECF, ctGERENTECAIXA);
+      try
+        if Assigned(UsuarioAut) then
+          Autorizado := UsuarioAut.GerenteCaixa
+        else
+          Autorizado := False;
+        finally
+          if Assigned(UsuarioAut) then
+            UsuarioAut.Free;
+        end;
+    except
+      Autorizado := False;
+    end;
+  end
+  else
+    Autorizado := True;
+  if Autorizado then
+  begin
+    ExibirComandosECF
+  end
+  else
+    MensagemAviso(format(ctUSUARIONAOAUTORIZADO,['executar comandos do ECF.']));
+end;
+
+procedure TfrmFrenteCaixa.AplicarCores;
+begin
+  //fundo
+  pnlVenda.Color     := stringtoColor(ParSistema.CorFundoFrenteCaixa);
+  pnlLancamento.Color:= stringtoColor(ParSistema.CorFundoFrenteCaixa);
+  pnlFechamento.Color:= stringtoColor(ParSistema.CorFundoFrenteCaixa);;
+  pnlValores.Color   := stringtoColor(ParSistema.CorFundoFrenteCaixa);
+  pnlOperacoes.Color := stringtoColor(ParSistema.CorFundoFrenteCaixa);
+  pnlLogo.Color      := stringtoColor(ParSistema.CorFundoFrenteCaixa);
+  pnlPagamentos.Color:= stringtoColor(ParSistema.CorFundoFrenteCaixa);
+//  Panel6.Color       := stringtoColor(ParSistema.CorFundoFrenteCaixa);
+  gbxVenda.color     := stringtoColor(ParSistema.CorFundoFrenteCaixa);
+//  Panel7.Color       := stringtoColor(ParSistema.CorFundoFrenteCaixa);
+  Panel10.Color      := stringtoColor(ParSistema.CorFundoFrenteCaixa);
+
+  //campos
+  lblDescontoComposto.Color:= stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  dtxCliente.Color         := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  dtxVendedor.Color        := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  edtDescontoItem.Color    := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  lblTotCompra.Color       := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  lblValorAcrescimo.Color  := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  edtDescontoItem.color    := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  lblValorDesconto.Color   := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  edtQtdade.Color          := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  lblValorSubTotal.Color   := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  lblValorTroco.Color      := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  dbgProdutosVendidos.Color:= stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  tecDBGrid1.Color         := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  edtTotalQtdade.Color     := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  fraConsultaOrcamento.dtxDescricao.color := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  dtxEquipamento.color := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  fraConsultaOrdemServico.dtxDescricao.color := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+  edtObservacao.color := stringtoColor(ParSistema.CorCamposFrenteCaixa);
+end;
+
+function TfrmFrenteCaixa.CapturaValor(Titulo:String;ValorInicial:Double): Double;
+begin
+  Result := 0;
+  frmLerValor := TfrmLerValor.Create(frmLerValor,Titulo);
+  try
+    frmLerValor.Numero := 0;
+    if frmLerValor.ShowModal = mrOK then
+      Result := frmLerValor.Numero;
+  finally
+    frmLerValor.Free;
+  end;
+end;
+
+procedure TfrmFrenteCaixa.AfterAlteracaoValores(Sender: TObject);
+begin
+  displayValores;
+end;
+
+procedure TfrmFrenteCaixa.AtribuirDadosListaCasamento;
+begin
+  dtmFrenteCaixa.listadeCasamento := fraConsultaListaCasamento.qryProcuraListadeCasamentocodigo.AsInteger;
+end;
+
+procedure TfrmFrenteCaixa.AtribuirDadosOrcamento;
+begin
+  if fraConsultaOrcamento.edfCodigo.ForeignFound = stFound then
+  begin
+    fraConsultaOrcamento.onfound := nil;
+    fraConsultaOrcamento.edfCodigo.SetFocus;
+    dtmFrenteCaixa.VenderItensdoOrcamento(fraConsultaOrcamento.qryProcuraOrcamentos.fieldbyname('codigo').asinteger);
+    ForcaSetFocusEdtProduto;
+    displayValores;
+    fraConsultaOrcamento.onfound := AtribuirDadosOrcamento;
+  end;  
+end;
+
+procedure TfrmFrenteCaixa.CondicoesdaConsultaOrcamentos;
+begin
+{
+   fraConsultaOrcamento.qryProcuraOrcamentos.MacroByName('SQL').AsString := 'and o.situacao in (''A'', ''P'') and o.tipocliente = ''C'' and o.validade >= current_date and coalesce(o.disponibilizarparavenda, false)';
+   fraConsultaOrcamento.qryConsultaOrcamentos.MacroByName('SQL').AsString := 'and o.situacao in (''A'', ''P'') and o.tipocliente = ''C'' and o.validade >= current_date and coalesce(o.disponibilizarparavenda, false)';
+}
+//   fraConsultaOrcamento.qryProcuraOrcamentos.close;
+   fraConsultaOrcamento.qryProcuraOrcamentos.MacroByName('SQL').AsString := 'and o.situacao in (''A'', ''P'') and o.validade >= current_date and coalesce(o.disponibilizarparavenda, false)';
+   fraConsultaOrcamento.qryConsultaOrcamentos.MacroByName('SQL').AsString := 'and o.situacao in (''A'', ''P'') and o.validade >= current_date and coalesce(o.disponibilizarparavenda, false)';
+
+end;
+
+
+
+procedure TfrmFrenteCaixa.AfterAlteracaoSituacaoCupom(Sender: TObject);
+begin
+  sbnCliente.Enabled           := dtmFrenteCaixa.SituacaoCupom = scFechado;
+  lblOrcamento.Enabled         := dtmFrenteCaixa.SituacaoCupom = scFechado;
+  fraConsultaOrcamento.Enabled := dtmFrenteCaixa.SituacaoCupom = scFechado;
+  lblOS.Enabled         := dtmFrenteCaixa.SituacaoCupom = scFechado;
+  fraConsultaOrdemServico.Enabled := dtmFrenteCaixa.SituacaoCupom = scFechado;
+end;
+
+procedure TfrmFrenteCaixa.sbnConsultartemClick(Sender: TObject);
+begin
+  inherited;
+  if not (FEmFechamento) then
+    if ConsultarProdutos then
+      keybd_event(VK_RETURN,0,0,0);
+end;
+
+function TfrmFrenteCaixa.VenderItem(RetornoFluxoTelaCliente: boolean = false): boolean;
+begin
+
+  if dtmFrenteCaixa.VendaAberta or dtmfrentecaixa.selecionarclientevenda(RetornoFluxoTelaCliente) then
+    if dtmFrenteCaixa.VendaAberta or dtmfrentecaixa.IniciarVenda then
+    begin
+
+      if vLogMessageFrenteCaixa then
+        ShowMessage('4 - cliente selecionado e VendaAberta... indo p/ thread VenderItemT');
+
+      dtmFrenteCaixa.VenderItemT;
+      if vlimpar then
+      begin
+        edtProduto.Clear;        edtQtdade.Text         := '1';
+        edtDescontoItem.Text   := '';
+      end;
+      displayValores;
+      ForcaSetFocusEdtProduto;
+    end;
+end;
+
+procedure TfrmFrenteCaixa.RetornarFluxoVendaItem(Sender: TObject);
+begin
+  ForcaSetFocusEdtProduto;
+  VenderItem(true);
+  ForcaSetFocusEdtProduto;
+  if dtmFrenteCaixa.vJanelaMaximizada then
+    MaximizarFrenteCaixa;
+  ForcaSetFocusEdtProduto;
+end;
+
+procedure TfrmFrenteCaixa.MaximizarJanela(Sender: TObject);
+begin
+  ForcaSetFocusEdtProduto;
+  MaximizarFrenteCaixa;
+  ForcaSetFocusEdtProduto;
+end;
+
+procedure TfrmFrenteCaixa.CondicoesdaConsultaOrdemServico;
+var
+  vEquipamento: String;
+
+begin
+  vEquipamento := quotedstr(fraConsultaOrdemServico.qryprocuraordemservico.parambyname('numero').asstring);
+
+  if fraConsultaOrdemServico.vEncontradoMultiplosRegistros then
+    fraConsultaOrdemServico.qryConsultaClientes.MacroByName('CondicaodaConsulta').AsString := ' and v.tipo = ''C'' and exists (select ct.numero ' +
+                                                                                              ' from contratos ct left join produtos p on ct.produto = p.codigo ' +
+                                                                                              ' where ct.cliente = v.codigo ' +
+                                                                                              ' and ct.tipocliente = ''C'' ' +
+                                                                                              ' and coalesce(ct.os,false) ' +
+                                                                                              ' and (ct.equipamento = '+ vEquipamento +
+                                                                                              ' or p.codigovisual = '+ vEquipamento +
+                                                                                              ' or ct.numero = '+ vEquipamento + ' )' +
+                                                                                              ' and ct.situacao = ''R'' limit 1) '
+  else
+    fraConsultaOrdemServico.qryConsultaClientes.MacroByName('CondicaodaConsulta').AsString := ' and v.tipo = ''C'' and exists (select ct.numero ' +
+                                                                                              ' from contratos ct ' +
+                                                                                              ' where ct.cliente = v.codigo ' +
+                                                                                              ' and ct.tipocliente = ''C'' ' +
+                                                                                              ' and coalesce(ct.os,false) ' +
+                                                                                              ' and ct.situacao = ''R'' limit 1) ';
+
+  if fraConsultaOrdemServico.qryConsultaClientes.recordcount > 1 then
+  begin
+    if fraConsultaOrdemServico.vEncontradoMultiplosRegistros then
+    begin
+      fraConsultaOrdemServico.qryConsultaEquipamentosClientes.MacroByName('CondicaodaConsultaCT').AsString := ' exists (select ct.numero ' +
+                                                                                                ' from contratos ct ' +
+                                                                                                ' where ct.equipamento = ec.equipamento ' +
+                                                                                                ' and ct.cliente = '+fraConsultaOrdemServico.qryConsultaClientescodigo.asstring +
+                                                                                                ' and ct.tipocliente = ''C'' ' +
+                                                                                                ' and coalesce(ct.os,false) ' +
+                                                                                                ' and (ct.equipamento = '+ vEquipamento +
+                                                                                                ' or ct.numero = '+ vEquipamento + ' )' +
+                                                                                                ' and ct.situacao = ''R'' limit 1) ';
+
+      fraConsultaOrdemServico.qryConsultaEquipamentosClientes.MacroByName('CondicaodaConsultaCT').AsString :=
+                                                                                                ' ct.cliente = '+fraConsultaOrdemServico.qryConsultaClientescodigo.asstring +
+                                                                                                ' and ct.tipocliente = '+quotedstr(fraConsultaOrdemServico.qryConsultaClientestipoorig.asstring) +
+                                                                                                ' and (p.codigovisual = '+vequipamento + 'or ct.numero = '+vequipamento+')';
+
+    end
+    else
+    begin
+      fraConsultaOrdemServico.qryConsultaEquipamentosClientes.MacroByName('CondicaodaConsulta').AsString := ' exists (select ct.numero ' +
+                                                                                                ' from contratos ct ' +
+                                                                                                ' where ct.equipamento = ec.equipamento ' +
+                                                                                                ' and ct.cliente = '+fraConsultaOrdemServico.qryConsultaClientescodigo.asstring +
+                                                                                                ' and ct.tipocliente = ''C'' ' +
+                                                                                                ' and coalesce(ct.os,false) ' +
+                                                                                                ' and ct.situacao = ''R'' limit 1) ';
+
+      fraConsultaOrdemServico.qryConsultaEquipamentosClientes.MacroByName('CondicaodaConsultaCT').AsString :=
+                                                                                                ' ct.cliente = '+fraConsultaOrdemServico.qryConsultaClientescodigo.asstring +
+                                                                                                ' and ct.tipocliente = '+quotedstr(fraConsultaOrdemServico.qryConsultaClientestipoorig.asstring);
+
+    end;
+  end
+  else
+  begin
+    if fraConsultaOrdemServico.vEncontradoMultiplosRegistros then
+    begin
+      fraConsultaOrdemServico.qryConsultaEquipamentosClientes.MacroByName('CondicaodaConsulta').AsString := ' exists (select ct.numero ' +
+                                                                                                ' from contratos ct ' +
+                                                                                                ' where ct.equipamento = ec.equipamento ' +
+                                                                                                ' and ct.tipocliente = ''C'' ' +
+                                                                                                ' and coalesce(ct.os,false) ' +
+                                                                                                ' and (ct.equipamento = '+vequipamento +' or ct.numero = '+vequipamento+')'+
+                                                                                                ' and ct.situacao = ''R'' limit 1) ';
+      fraConsultaOrdemServico.qryConsultaEquipamentosClientes.MacroByName('CondicaodaConsultaCT').AsString := ' (p.codigovisual = '+vequipamento + 'or ct.numero = '+vequipamento+')';
+    end
+    else
+    begin
+      fraConsultaOrdemServico.qryConsultaEquipamentosClientes.MacroByName('CondicaodaConsulta').AsString := ' exists (select ct.numero ' +
+                                                                                                ' from contratos ct ' +
+                                                                                                ' where ct.equipamento = ec.equipamento ' +
+                                                                                                ' and ct.tipocliente = ''C'' ' +
+                                                                                                ' and coalesce(ct.os,false) ' +
+                                                                                                ' and ct.situacao = ''R'' limit 1) ';
+
+      fraConsultaOrdemServico.qryConsultaEquipamentosClientes.MacroByName('CondicaodaConsultaCT').AsString := ' p.codigovisual is not null';
+
+    end;
+  end;
+  fraConsultaOrdemServico.qryProcuraOrdemservico.MacroByName('CondicaodaConsulta').AsString := 'and c.situacao = ''R'' and c.tipocliente = ''C''';
+  fraConsultaOrdemServico.qryConsultaOrdemServico.MacroByName('CondicaodaConsulta').AsString := 'and c.situacao = ''R'' and c.tipocliente = ''C''';
+
+end;
+
+procedure TfrmFrenteCaixa.AtribuirDadosOrdemServico;
+begin
+  if dtmFrenteCaixa.SituacaoCupom = scFechado then
+    if fraConsultaOrdemServico.edfCodigo.ForeignFound = stFound then
+      if fraConsultaOrdemServico.qryProcuraOrdemServico.recordcount = 1 then
+      begin
+  //      fraConsultaOrdemServico.onfound := nil;
+        fraConsultaOrdemServico.edfCodigo.SetFocus;
+        dtmFrenteCaixa.VenderItensdoContrato(fraConsultaOrdemServico.qryProcuraOrdemServico.fieldbyname('numero').asString);
+        ForcaSetFocusEdtProduto;
+        displayValores;
+  //      fraConsultaOrdemServico.onfound := AtribuirDadosOrdemServico;
+      end;
+end;
+
+procedure TfrmFrenteCaixa.fraConsultaOrdemServicoedfCodigoFound(
+  Found: Boolean);
+begin
+  inherited;
+//  fraConsultaOrdemServico.onfound := nil;
+  if fraConsultaOrdemServico.qryprocuraordemservico.recordcount >= 1 then
+  begin
+    if fraConsultaOrdemServico.qryprocuraordemservico.recordcount > 1 then
+    begin
+      fraConsultaOrdemServico.vEncontradoMultiplosRegistros := true;
+      if fraConsultaOrdemServico.InternoPesquisar('Ordem de Serviço') <>  mrOK then
+      begin
+        fraConsultaOrdemServico.edfcodigo.clear;
+        fraConsultaOrdemServico.dtxDescricao.Clear;
+        dtxEquipamento.clear;
+      end;
+    end;
+  end;
+
+  fraConsultaOrdemServico.qryconsultaclientes.close;
+  fraConsultaOrdemServico.qryConsultaEquipamentosClientes.close;
+  fraConsultaOrdemServico.vEncontradoMultiplosRegistros := false;
+//  fraConsultaOrdemServico.onfound := AtribuirDadosOrdemServico;
+
+end;
+
+procedure TfrmFrenteCaixa.CancelarCupomnaOrigem;
+begin
+  sbnCancelarVendaClick(nil);
+end;
+
+procedure TfrmFrenteCaixa.edtNumeroNotaVinculadaChange(Sender: TObject);
+begin
+  inherited;
+  if(trim(edtNumeroNotaVinculada.Text)<>'') then
+     dtmFrenteCaixa.NumeroNotaFiscalVinculada:=strtoint(trim(edtNumeroNotaVinculada.Text))
+  else
+     dtmFrenteCaixa.NumeroNotaFiscalVinculada:=0;
+end;
+
+procedure TfrmFrenteCaixa.ExibirMsgOperador(msg: STring);
+begin
+  addMensagemGrande(msg, true);
+end;
+
+procedure TfrmFrenteCaixa.fraConsultaOrcamentosbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaOrcamento.sbnProcuraClick(Sender);
+
+end;
+
+end.
+(*
+procedure TfrmFrenteCaixa.SelecionarProduto;
+var
+  Qtdade: Real;
+
+  TotalItem: Currency;
+  Ok, Texto: Boolean;                 
+  CodProd  : Real;
+begin
+  lblDescricao.Font.Color := clBlack;
+  Texto := False;
+  edtProduto.Text := Trim(edtProduto.Text);
+  if Length(edtProduto.Text) < 12 then
+  begin
+    try
+      Qtdade := StrToFloat(edtProduto.Text)
+    except
+      Qtdade := 0;
+      Texto  := True;
+    end;
+  end;
+  if Texto and (edtProduto.Text <> '') then
+
+    Ok := ConsultarProdutos
+  else
+    OK := True;
+  if Length(edtProduto.Text) = 12 then
+  begin
+    try
+      CodProd := StrToCurr(edtProduto.Text);
+      edtProduto.Text := '0'+edtProduto.Text;
+    except
+    end;
+  end;
+  if edtProduto.Text = '' then begin
+    lblDescricao.Caption := '';
+    lblPreco.Caption     := '';
+    lblTotalProd.Caption := '';
+  end else if OK then begin
+    if Not dtmFrenteCaixa.VendaAberta then begin
+      Ok := dtmFrenteCaixa.IniciarVenda;
+      if OK then begin
+        lblEmDinheiro.Caption       := '';
+        lblValorCheques.Caption     := '';
+        lblValorCartao.Caption      := '';
+        lblValorTroco.Caption       := '';
+        lblTotCompra.Caption        := '';
+        lblValorRecebido.Caption    := '';
+      end
+    end else
+      Ok := True;
+    if OK then begin
+      if dtmFrenteCaixa.ExisteProduto(edtProduto.Text) then begin
+        lblDescricao.Caption := dtmFrenteCaixa.Descricao;
+        lblPreco.Caption     := dtmFrenteCaixa.PrecoStr;
+        if edtQtdade.Text = '' then
+          edtQtdade.Text := '1';
+        edtQtdade.SelectAll;
+        Qtdade               := StrToFloat(edtQtdade.Text);
+        TotalItem            := Qtdade * dtmFrenteCaixa.Preco;
+        lblTotalProd.Caption := FloatToStrF(TotalItem, ffCurrency, 11, 2);
+        IncluirProduto
+      end else if (ParSistema.QtdadeMaxFrenteCaixa = 0) or ((0 < Qtdade) and (Qtdade <= ParSistema.QtdadeMaxFrenteCaixa)) then begin
+        edtQtdade.Text       := edtProduto.Text;
+        lblDescricao.Caption := '';
+        edtProduto.Clear;
+        edtProduto.SetFocus
+      end else begin
+        lblDescricao.Caption := 'O Produto '''+edtProduto.Text+''' não foi encontrato';
+        lblPreco.Caption     := '';
+        lblTotalProd.Caption := '';
+        edtProduto.Clear;
+        edtProduto.SetFocus;
+      end;
+    end;
+  end;
+end;*)

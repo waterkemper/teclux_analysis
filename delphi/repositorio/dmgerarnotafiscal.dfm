@@ -1,0 +1,295 @@
+inherited dtmGerarNotaFiscal: TdtmGerarNotaFiscal
+  Left = 278
+  Top = 471
+  Height = 127
+  Width = 759
+  object qryCalculosDadosFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeInsert = qryCalculosDadosFiscaisBeforeInsert
+    OnCalcFields = qryCalculosDadosFiscaisCalcFields
+    OnFilterRecord = qryCalculosDadosFiscaisFilterRecord
+    OnNewRecord = qryCalculosDadosFiscaisNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dadofiscal,'
+      '       numero,'
+      '       tipo,'
+      '       codigofiscal,'
+      '       codigonatureza,'
+      '       aliquota,'
+      '       base,'
+      '       isentas,'
+      '       outras,'
+      '       valor,'
+      '          cast ((case when tipo = '#39'M'#39' then '#39'ICMS'#39
+      '                           when tipo = '#39'P'#39' then '#39'IPI'#39
+      '                           when tipo = '#39'S'#39' then '#39'ISS'#39
+      '                  end) as varchar) as'
+      '          nomeimposto'
+      'from calculosdadosfiscais'
+      'where dadofiscal = :dadofiscal')
+    RequestLive = True
+    Left = 76
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'dadofiscal'
+        ParamType = ptUnknown
+      end>
+    object qryCalculosDadosFiscaisdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+    object qryCalculosDadosFiscaisnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryCalculosDadosFiscaistipo: TStringField
+      FieldName = 'tipo'
+      OnChange = qryCalculosDadosFiscaistipoChange
+      Size = 1
+    end
+    object qryCalculosDadosFiscaiscodigofiscal: TIntegerField
+      DisplayLabel = 'C'#243'digo fiscal'
+      FieldName = 'codigofiscal'
+      Required = True
+    end
+    object qryCalculosDadosFiscaiscodigonatureza: TIntegerField
+      DisplayLabel = 'C'#243'digo da natureza'
+      FieldName = 'codigonatureza'
+      Required = True
+    end
+    object qryCalculosDadosFiscaisaliquota: TFloatField
+      FieldName = 'aliquota'
+      DisplayFormat = '##0.00'
+    end
+    object qryCalculosDadosFiscaisbase: TFloatField
+      FieldName = 'base'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosDadosFiscaisisentas: TFloatField
+      FieldName = 'isentas'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosDadosFiscaisoutras: TFloatField
+      FieldName = 'outras'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosDadosFiscaisvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosDadosFiscaisnomeimposto: TStringField
+      FieldName = 'nomeimposto'
+      Size = 50
+    end
+    object qryCalculosDadosFiscaisTotal: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'Total'
+      DisplayFormat = '###,###,##0.00'
+      Calculated = True
+    end
+  end
+  object qryCalculosNotasPag: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeInsert = qryCalculosNotasPagBeforeInsert
+    AfterPost = qryCalculosNotasPagAfterPost
+    OnCalcFields = qryCalculosNotasPagCalcFields
+    OnNewRecord = qryCalculosNotasPagNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  cnp.codigonota,'
+      '        cnp.numero,'
+      '        cnp.tipo,'
+      '        cnp.codigofiscal,'
+      '        cnp.codigonatureza,'
+      '        cnp.aliquota,'
+      '        cnp.base,'
+      '        cnp.isentas,'
+      '        cnp.outras,'
+      '        cnp.valor,'
+      '        cast ((case when cnp.tipo = '#39'M'#39' then '#39'ICMS'#39
+      '                    when cnp.tipo = '#39'P'#39' then '#39'IPI'#39
+      '                    when cnp.tipo = '#39'S'#39' then '#39'ISS'#39
+      '        end) as varchar) as nomeimposto,'
+      ''
+      '        case when cnp.numero = (select max(cnp2.numero)'
+      '                                from calculosnotaspag cnp2'
+      
+        '                                where cnp2.codigonota = cnp.codi' +
+        'gonota'
+      '                                  and cnp2.tipo = cnp.tipo) then'
+      ''
+      '          case when cnp.tipo = '#39'M'#39' then'
+      '                 (select sum(cnp2.base+cnp2.isentas+cnp2.outras)'
+      '                  from calculosnotaspag cnp2'
+      '                  where cnp2.codigonota = cnp.codigonota'
+      '                    and cnp2.tipo = cnp.tipo)'
+      ''
+      '               when cnp.tipo = '#39'P'#39' then'
+      
+        '                 (select sum(cnp2.base+cnp2.valor+cnp2.isentas+c' +
+        'np2.outras)'
+      '                  from calculosnotaspag cnp2'
+      '                  where cnp2.codigonota = cnp.codigonota'
+      '                    and cnp2.tipo = cnp.tipo)'
+      '          end'
+      '        else'
+      '          cast(null as numeric(15,2))'
+      '        end as TotalTipo'
+      ''
+      'From    calculosnotaspag cnp'
+      'Where cnp.codigonota = :codigonota')
+    RequestLive = True
+    Left = 221
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigonota'
+        ParamType = ptUnknown
+      end>
+    object qryCalculosNotasPagcodigonota: TIntegerField
+      FieldName = 'codigonota'
+      DisplayFormat = '0'
+    end
+    object qryCalculosNotasPagnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryCalculosNotasPagtipo: TStringField
+      FieldName = 'tipo'
+      Required = True
+      OnChange = qryCalculosNotasPagtipoChange
+      Size = 1
+    end
+    object qryCalculosNotasPagcodigofiscal: TIntegerField
+      DisplayLabel = 'C'#243'digo fiscal'
+      FieldName = 'codigofiscal'
+      DisplayFormat = '0'
+    end
+    object qryCalculosNotasPagcodigonatureza: TIntegerField
+      DisplayLabel = 'C'#243'digo da natureza'
+      FieldName = 'codigonatureza'
+      DisplayFormat = '0'
+    end
+    object qryCalculosNotasPagaliquota: TFloatField
+      FieldName = 'aliquota'
+      Required = True
+      DisplayFormat = '##0.00'
+    end
+    object qryCalculosNotasPagbase: TFloatField
+      FieldName = 'base'
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosNotasPagisentas: TFloatField
+      FieldName = 'isentas'
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosNotasPagoutras: TFloatField
+      FieldName = 'outras'
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosNotasPagvalor: TFloatField
+      FieldName = 'valor'
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosNotasPagnomeimposto: TStringField
+      FieldName = 'nomeimposto'
+      Size = 50
+    end
+    object qryCalculosNotasPagTotal: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'Total'
+      DisplayFormat = '###,###,##0.00'
+      Calculated = True
+    end
+    object qryCalculosNotasPagtotaltipo: TFloatField
+      FieldName = 'totaltipo'
+      DisplayFormat = '###,###,##0.00'
+    end
+  end
+  object qryEstadosIPI: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select estado'
+      'from estadosipi'
+      'where ipi = :ipi'
+      '  and ativo')
+    RequestLive = False
+    Left = 338
+    Top = 15
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'ipi'
+        ParamType = ptUnknown
+      end>
+    object qryEstadosIPIestado: TStringField
+      FieldName = 'estado'
+      Required = True
+      Size = 2
+    end
+  end
+  object qryNaturezas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select n.codigo,'
+      '           n.icmssobreipi'
+      'from naturezas n'
+      'where n.codigo = :natureza')
+    RequestLive = False
+    Left = 440
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'natureza'
+        ParamType = ptUnknown
+      end>
+    object qryNaturezascodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryNaturezasicmssobreipi: TBooleanField
+      FieldName = 'icmssobreipi'
+    end
+  end
+end

@@ -1,0 +1,155 @@
+unit fmrelatoriosituacaoclientes;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmrelatoriopadrao, ExtCtrls, Buttons, ToolWin, ComCtrls,
+  frlistagruposfiliais, frlistafiliais, cppagecontrol, frconsulta,
+  frconsultacodigo, StdCtrls, cpdata, cpdbradiogroup, ctconstantes,
+  frlistaseriesfiliais;
+
+type
+  TfrmRelatorioSituacaoClientes = class(TfrmRelatorioPadrao)
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    fraListaFiliais1: TfraListaFiliais;
+    tstGrupoFilial: TTabSheet;
+    fraListaGruposFiliais1: TfraListaGruposFiliais;
+    gbxClientes: TGroupBox;
+    fraConsultaClientes: TfraConsultaCodigo;
+    gbxPesquisarDesde: TGroupBox;
+    edtDataInicial: TEditData;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparGrupoFilial: TCheckBox;
+    ckbAgruparFilial: TCheckBox;
+    rgbResumo: TtecDBRadioGroup;
+    rbnComresumo: TtecRadioButton;
+    rbnSemResumo: TtecRadioButton;
+    rbnSoResumo: TtecRadioButton;
+    gbxSituacaoEm: TGroupBox;
+    edtDataSituacao: TEditData;
+    gbxOpcoes: TGroupBox;
+    ckbDuplicataemAberto: TCheckBox;
+    ckbQuebraporCliente: TCheckBox;
+    fraListaSeriesFiliais1: TfraListaSeriesFiliais;
+    stxPesquisar: TStaticText;
+    stxSituacaoEm: TStaticText;
+    stxDesde: TStaticText;
+    stxEm: TStaticText;
+    stxSituacao: TStaticText;
+    ckbNao_incluir_duplicatas_estornadas: TCheckBox;
+    procedure fraListaFiliais1sbnMarcarFiliaisClick(Sender: TObject);
+    procedure fraListaFiliais1sbnDesmarcarFiliaisClick(Sender: TObject);
+    procedure fraListaGruposFiliais1sbnmarcarGrupodeFiliaisClick(
+      Sender: TObject);
+    procedure fraListaGruposFiliais1sbnDesmarcarGrupodeFiliaisClick(
+      Sender: TObject);
+  private
+    { Private declarations }
+  protected
+     procedure internoImpressao; Override;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    
+  end;
+
+var
+  frmRelatorioSituacaoClientes: TfrmRelatorioSituacaoClientes;
+
+implementation
+
+uses dmrelatoriosituacaoclientes;
+
+{$R *.dfm}
+
+procedure TfrmRelatorioSituacaoClientes.fraListaFiliais1sbnMarcarFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaFiliais1.sbnMarcarFiliaisClick(Sender);
+  fraListaGruposFiliais1.sbnDesmarcarGrupodeFiliaisClick(self);
+
+end;
+
+procedure TfrmRelatorioSituacaoClientes.fraListaFiliais1sbnDesmarcarFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaFiliais1.sbnDesmarcarFiliaisClick(Sender);
+
+end;
+
+procedure TfrmRelatorioSituacaoClientes.fraListaGruposFiliais1sbnmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaGruposFiliais1.sbnmarcarGrupodeFiliaisClick(Sender);
+  fraListaFiliais1.sbnDesmarcarFiliaisClick(Sender);
+
+end;
+
+procedure TfrmRelatorioSituacaoClientes.fraListaGruposFiliais1sbnDesmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaGruposFiliais1.sbnDesmarcarGrupodeFiliaisClick(Sender);
+
+end;
+
+procedure TfrmRelatorioSituacaoClientes.internoImpressao;
+begin
+  inherited;
+  dtmRelatorioSituacaoClientes.ImprimirRelatorio(
+     fraListaFiliais1.ListaSelecionada_int,
+     fraListaGruposFiliais1.ListaSelecionada_int,
+     fraListaSeriesFiliais1.ListaSelecionada,
+     fraConsultaClientes.qryProcuraClientecodigo.asinteger,
+     fraConsultaClientes.qryProcuraClientetipo.asString,
+     edtDataInicial.Text,
+     edtDataSituacao.text,
+     ckbDuplicataemAberto.checked,
+     ckbQuebraporCliente.checked,
+     ckbAgruparGrupoFilial.checked,
+     ckbNao_incluir_duplicatas_estornadas.checked,
+     ckbAgruparFilial.Checked,
+     rgbResumo.itemindex);
+end;
+
+constructor TfrmRelatorioSituacaoClientes.Create(AOwner: TComponent);
+var
+  Dia, Mes, Ano: Word;
+  Data: TDateTime;
+
+begin
+   inherited;
+   dtmRelatorioSituacaoClientes := TdtmRelatorioSituacaoClientes.Create(Self);
+
+   fraConsultaClientes.TipoPesquisa    := pesCLIENTES;
+   if fraConsultaClientes.TipoCliente = '' then
+     fraConsultaClientes.TipoCliente  := 'C';
+
+   DecodeDate(dtmRelatoriosituacaoclientes.DataServidor,Ano,Mes,Dia);
+   Data:= EncodeDate(Ano,Mes,01);
+   edtdatasituacao.Text:= DateToStr(Data-1);
+   DecodeDate(Data,Ano,Mes,Dia);
+   Data:= EncodeDate(Ano,Mes,01);
+   edtDataInicial.Text:= DateToStr(Data-90);
+
+   stxPesquisar.Height:= 12;
+   stxDesde.    Height:= 12;
+   stxSituacao. Height:= 12;
+   stxEm.       Height:= 12;
+end;
+
+destructor TfrmRelatorioSituacaoClientes.Destroy;
+begin
+  dtmRelatorioSituacaoClientes := nil;
+  inherited;
+  frmRelatorioSituacaoClientes := nil;
+end;
+
+end.

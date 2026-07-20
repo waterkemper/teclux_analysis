@@ -1,0 +1,1762 @@
+unit dmrenegociacao;
+
+interface
+
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, DB,
+  Math, DateUtils, Variants,
+  // Componentes
+  cpquery,
+  // Constantes
+  ctConstantes, biblio, clfinanceira, cpdatasource, clusuario, clparametrossistema,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Repositorio
+  dmtecsoft, dmbasico, ZTransact;
+ 
+
+type
+
+  TdtmRenegociacao = class(TdtmBasico)
+    qryContratos: TtecQuery;
+    dsrContratos: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryParcelas: TtecQuery;
+    dsrParcelas: TtecDataSource;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryParcelascontrato: TStringField;
+    qryParcelasnumero: TIntegerField;
+    qryParcelasdatavencto: TDateField;
+    qryParcelasvalorvencto: TFloatField;
+    qryParcelasdatapagto: TDateField;
+    qryParcelasvalorpagto: TFloatField;
+    qryParcelasfilialpagto: TIntegerField;
+    qryParcelastipopagto: TStringField;
+    qryParcelasdeventrada: TDateField;
+    qryParcelasdevcaixa: TDateField;
+    qryParcelasdevfilial: TIntegerField;
+    qryParcelasincobravel: TDateField;
+    qryParcelascopiapagto: TIntegerField;
+    qryProcuraAgentes: TtecQuery;
+    qryProcuraAgentescodigo: TIntegerField;
+    qryProcuraAgentesdescricao: TStringField;
+    dsrProcuraAgentes: TtecDataSource;
+    qryConsultaAgentes: TtecQuery;
+    qryConsultaAgentesdescricao: TStringField;
+    qryConsultaAgentescodigo: TIntegerField;
+    qryProcuraVendedor: TtecQuery;
+    dsrProcuraVendedor: TtecDataSource;
+    qryConsultaVendedores: TtecQuery;
+    qryProcuraAnalista: TtecQuery;
+    dsrProcuraAnalista: TtecDataSource;
+    qryProcuraAvalista: TtecQuery;
+    IntegerField1: TIntegerField;
+    dsrProcuraAvalista: TtecDataSource;
+    qryConsultaVendedoresnome: TStringField;
+    qryConsultaVendedorescodigo: TIntegerField;
+    qryProcuraAvalistanome: TStringField;
+    spcContratoProximoNumero: TtecQuery;
+    qryClienteTransferencia: TtecQuery;
+    dsrClienteTransferencia: TtecDataSource;
+    spcContratoProximoNumeronovocontrato: TStringField;
+    qryClienteTransferencianome: TStringField;
+    qryClienteTransferencianascto: TDateField;
+    qryClienteTransferenciaapelido: TStringField;
+    qryClienteTransferenciasexo: TStringField;
+    qryClienteTransferenciacivil: TStringField;
+    qryClienteTransferenciacivildata: TDateField;
+    qryClienteTransferenciaiddocumento: TStringField;
+    qryClienteTransferenciaidorgao: TStringField;
+    qryClienteTransferenciaiddata: TDateField;
+    qryClienteTransferenciaidestado: TStringField;
+    qryClienteTransferenciapessoatipo: TStringField;
+    qryClienteTransferenciapessoanumero: TStringField;
+    qryClienteTransferenciamae: TStringField;
+    qryClienteTransferenciapai: TStringField;
+    qryClienteTransferenciaconceito: TIntegerField;
+    qryClienteTransferencianaturalcidade: TIntegerField;
+    qryClienteTransferencianaturalestado: TStringField;
+    qryClienteTransferenciarua: TStringField;
+    qryClienteTransferenciaestado: TStringField;
+    qryClienteTransferenciacidade: TIntegerField;
+    qryClienteTransferenciabairro: TIntegerField;
+    qryClienteTransferenciacep: TIntegerField;
+    qryClienteTransferenciafonetipo: TStringField;
+    qryClienteTransferenciafoneddd: TIntegerField;
+    qryClienteTransferenciafonenumero: TIntegerField;
+    qryClienteTransferenciafoneramal: TStringField;
+    qryClienteTransferenciafone2ddd: TIntegerField;
+    qryClienteTransferenciafone2numero: TIntegerField;
+    qryClienteTransferenciafone2ramal: TStringField;
+    qryClienteTransferenciarestipo: TStringField;
+    qryClienteTransferenciaresonus: TFloatField;
+    qryClienteTransferenciarestempo: TDateField;
+    qryClienteTransferenciaempresa: TStringField;
+    qryClienteTransferenciaempadmissao: TDateField;
+    qryClienteTransferenciaempcep: TIntegerField;
+    qryClienteTransferenciaempcomprovado: TBooleanField;
+    qryClienteTransferenciaempfoneddd: TIntegerField;
+    qryClienteTransferenciaempfonenumero: TIntegerField;
+    qryClienteTransferenciaempfoneramal: TStringField;
+    qryClienteTransferenciaempoutrasdescricao: TStringField;
+    qryClienteTransferenciaempoutrasfaixa: TIntegerField;
+    qryClienteTransferenciaempoutrasvalor: TFloatField;
+    qryClienteTransferenciaemprendafaixa: TIntegerField;
+    qryClienteTransferenciaemprendavalor: TFloatField;
+    qryClienteTransferenciaemprua: TStringField;
+    qryClienteTransferenciaempestado: TStringField;
+    qryClienteTransferenciaempcidade: TIntegerField;
+    qryClienteTransferenciaempbairro: TIntegerField;
+    qryClienteTransferenciaempcargo: TIntegerField;
+    qryClienteTransferenciaconjuge: TIntegerField;
+    qryClienteTransferenciaconnome: TStringField;
+    qryClienteTransferenciaconadmissao: TDateField;
+    qryClienteTransferenciaconcep: TIntegerField;
+    qryClienteTransferenciaconempresa: TStringField;
+    qryClienteTransferenciaconfoneddd: TIntegerField;
+    qryClienteTransferenciaconfonenumero: TIntegerField;
+    qryClienteTransferenciaconfoneramal: TStringField;
+    qryClienteTransferenciaconnascto: TDateField;
+    qryClienteTransferenciaconrendafaixa: TIntegerField;
+    qryClienteTransferenciaconrendavalor: TFloatField;
+    qryClienteTransferenciaconrua: TStringField;
+    qryClienteTransferenciaconestado: TStringField;
+    qryClienteTransferenciaconcidade: TIntegerField;
+    qryClienteTransferenciaconbairro: TIntegerField;
+    qryClienteTransferenciaconcargo: TIntegerField;
+    qryClienteTransferenciareferencia: TStringField;
+    qryClienteTransferenciareftipo: TStringField;
+    qryClienteTransferenciarefrua: TStringField;
+    qryClienteTransferenciarefestado: TStringField;
+    qryClienteTransferenciarefcidade: TIntegerField;
+    qryClienteTransferenciarefbairro: TIntegerField;
+    qryClienteTransferenciarefcep: TIntegerField;
+    qryClienteTransferenciareffoneddd: TIntegerField;
+    qryClienteTransferenciareffonenumero: TIntegerField;
+    qryClienteTransferenciareffoneramal: TStringField;
+    qryClienteTransferenciareffone2ddd: TIntegerField;
+    qryClienteTransferenciareffone2numero: TIntegerField;
+    qryClienteTransferenciareffone2ramal: TStringField;
+    qryClienteTransferenciaobservacoes: TStringField;
+    qryClienteTransferenciaemail: TStringField;
+    qryClienteTransferenciaautomovel: TBooleanField;
+    qryClienteTransferenciacartaocredito: TBooleanField;
+    qryClienteTransferenciacartaoloja: TBooleanField;
+    qryClienteTransferenciacheque: TBooleanField;
+    qryClienteTransferenciachequeespecial: TBooleanField;
+    qryClienteTransferenciadependentes: TIntegerField;
+    qryClienteTransferenciaonus: TFloatField;
+    qryClienteTransferenciacliente: TIntegerField;
+    qryClientes: TtecQuery;
+    dsrClientes: TtecDataSource;
+    qryContratosPorCliente: TtecQuery;
+    dsrContratosPorCliente: TtecDataSource;
+    qryClientescodigo: TIntegerField;
+    qryClientesnome: TStringField;
+    qryContratosPorClientenumero: TStringField;
+    dsrProdutosContratos: TtecDataSource;
+    qryProdutosContratos: TtecQuery;
+    qryContratosExcluir: TtecQuery;
+    qryContratosExcluirparcelaspagas: TLargeintField;
+    qryContratosPorClientevalorprazo: TFloatField;
+    qryContratosPorClientetiporenegociacao: TStringField;
+    qryContratosPorClientesituacao: TStringField;
+    qryContratosPorClienteprimogenito: TStringField;
+    qryConsultaAnalista: TtecQuery;
+    qryClientestipo: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientesdescricaotipo: TStringField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryFornecedorTransferencia: TtecQuery;
+    qryFornecedorTransferenciacodigo: TIntegerField;
+    qryFornecedorTransferencianome: TStringField;
+    qryFornecedorTransferenciarazao: TStringField;
+    qryFornecedorTransferenciapessoatipo: TStringField;
+    qryFornecedorTransferenciapessoanumero: TStringField;
+    qryFornecedorTransferenciarua: TStringField;
+    qryFornecedorTransferenciabairro: TIntegerField;
+    qryFornecedorTransferenciacidade: TIntegerField;
+    qryFornecedorTransferenciaestado: TStringField;
+    qryFornecedorTransferenciacep: TIntegerField;
+    qryFornecedorTransferenciafoneddd: TIntegerField;
+    qryFornecedorTransferenciafonenumero: TIntegerField;
+    qryFornecedorTransferenciafaxddd: TIntegerField;
+    qryFornecedorTransferenciafaxnumero: TIntegerField;
+    qryFornecedorTransferenciainscricaoestadual: TStringField;
+    qryFornecedorTransferenciaobservacoes: TStringField;
+    qryFornecedorTransferenciaemail: TStringField;
+    qryFornecedorTransferenciaconceito: TIntegerField;
+    dsrFornecedorTransferencia: TtecDataSource;
+    qryNovoCliente: TtecQuery;
+    dsrNovoCliente: TtecDataSource;
+    qryNovoClientecodigo: TIntegerField;
+    qryNovoClientenome: TStringField;
+    qryNovoClientetipo: TStringField;
+    qryConsultaAnalistanome: TStringField;
+    qryConsultaAnalistacodigo: TIntegerField;
+    qryServicosContratos: TtecQuery;
+    dsrServicosContratos: TtecDataSource;
+    qryParcelasparcelaorigem: TStringField;
+    qryDiasAtrasado: TtecQuery;
+    qryDiasAtrasadonrdias: TFloatField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryParcelasparcelaadicional: TBooleanField;
+    qryParcelaspagamentoextracaixa: TBooleanField;
+    qryParcelasSPC: TtecQuery;
+    qryParcelasSPCcontrato: TStringField;
+    qryParcelasSPCnumero: TIntegerField;
+    qryParcelasSPCcartacliente: TIntegerField;
+    qryParcelasSPCcartanumerocliente: TIntegerField;
+    qryParcelasSPCspccliente: TIntegerField;
+    qryParcelasSPCcartaavalista: TIntegerField;
+    qryParcelasSPCcartanumeroavalista: TIntegerField;
+    qryParcelasSPCspcavalista: TIntegerField;
+    qryIncluirParcelasCartas: TtecQuery;
+    qryParcelascartacliente: TIntegerField;
+    qryParcelascartaavalista: TIntegerField;
+    qryContratosPorClientedata: TDateField;
+    qryTiposRecebimentos: TtecQuery;
+    qryTiposRecebimentoscodigo: TIntegerField;
+    qryTiposRecebimentosdescricao: TStringField;
+    qryTiposRecebimentostiporecebimento: TStringField;
+    qryParcelasformapagamento: TStringField;
+    qryParcelastiporeceb: TStringField;
+    qryParcelastiporecebimento: TIntegerField;
+    qryClienteTransferenciaendnumero: TIntegerField;
+    qryClienteTransferenciaendcomplemento: TStringField;
+    qryFornecedorTransferencianumero: TIntegerField;
+    qryFornecedorTransferenciacomplemento: TStringField;
+    qryParcelasfilialvenda: TIntegerField;
+    qryParcelasdiasatraso: TIntegerField;
+    qryContratosPorClientelistadetiposderecebimento: TStringField;
+    qryTiposRecebimentospermitirselecionar: TBooleanField;
+    procedure qryContratosPorClienteAfterScroll(DataSet: TDataSet);
+    procedure qryParcelasBeforeDelete(DataSet: TDataSet);
+    procedure qryParcelasAfterDelete(DataSet: TDataSet);
+    procedure qryContratosAfterScroll(DataSet: TDataSet);
+    procedure qryClientesBeforeOpen(DataSet: TDataSet);
+    procedure qryClientesAfterClose(DataSet: TDataSet);
+    procedure qryClientesBeforeClose(DataSet: TDataSet);
+    procedure qryProdutosContratosAfterScroll(DataSet: TDataSet);
+    procedure qryParcelasNewRecord(DataSet: TDataSet);
+    procedure qryProdutosContratosAfterOpen(DataSet: TDataSet);
+    procedure qryTiposRecebimentosFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+  private
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    fTipoRecebimento: integer;
+    fFixoDiaVencto: boolean;
+    fIntervalo: integer;
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+  protected
+    FNumeroParcela: Integer;
+    FJurosCobrado: Real;
+    FPrimeiraParcela: String;
+    FOnAfterScroll: TNotifyEvent;
+    FOperacao: TtecTipoOperacao;
+    procedure AtribuirDadosClientesNoContrato;
+    procedure AtribuirDadosFornecedorNoContrato;
+    procedure AcertarNumeroParcelas;
+    function  GetClienteContrato: Integer;
+    function  GetConsultaAgente: TtecQuery;
+    function  GetConsultaCliente: TtecQuery;
+    function  GetConsultaVendedor: TtecQuery;
+    function  GetConsultaAnalista: TtecQuery;
+    function  GetDataFaturamento: TDateTime;
+    function  GetExisteContrato: Boolean;
+    function  GetPodeAlterarParcela: boolean;
+    function GetPodeIncluirParcela: boolean;
+    function  GetPodeExcluir: Boolean;
+    function  GetPodeExcluirParcela: boolean;
+    function  GetProdutosPendentes: Boolean;
+    function  GetTabelaContrato: TtecQuery;
+    function  GetTabelaParcela: TtecQuery;
+    function  GetTipoCliente: String;
+    function  GetTipoNovoCliente: string;
+    function  GetContratoEditando: boolean;
+    function  GetNumeroParcelasValida: Integer;
+    function  GetVenctoPrimeiraParcela: Integer;
+    procedure SetOperacao(const Value: TtecTipoOperacao);
+    procedure SetJurosCobrado(const Value: Real);
+    procedure SetNumeroParcela(const Value: Integer);
+    procedure SetPrimeiraParcela(const Value: String);
+  public
+    procedure AbrirTabelas(Procura: TtecRenegociacao);
+    constructor Create(AOwner: TComponent); override;
+    procedure EditarContrato;
+    function  ExcluirContrato: Boolean;
+    procedure ExcluirParcelas;
+    function  ExisteAgente(NomeCampo, Value: Variant): Boolean;
+    function  ExisteCliente(NomeCampo, Value: Variant): Boolean;
+    function  ExisteVendedor(NomeCampo, Value: Variant): Boolean;
+    function  ExisteAnalista(NomeCampo, Value: Variant): Boolean;
+    procedure FecharTabelas(Procura: TtecRenegociacao);
+    function  GravarParcelas: Boolean;
+    function  GravarRenegociacao: Boolean;
+    function  IncluirParcelas(Editando: Boolean): Boolean;
+    procedure LimparTabelas;
+    function  NaoPodeRenegociar: Boolean;
+    function  ReCalcularTotalDivida: Currency;
+    procedure ReFazConsultaClienteTransferencia;
+    procedure ReFazConsultaContratos;
+    function  ReFazConsultaContratosPorCliente: Boolean;
+    procedure Renegociar(GerarParcelas: boolean = false);
+    procedure Selecionar(Procura: TtecRenegociacao);
+    property OnAfterScroll: TNotifyEvent read FOnAfterScroll write FOnAfterScroll;
+    property ClienteContrato: Integer read GetClienteContrato;
+    property ConsultaAgente: TtecQuery read GetConsultaAgente;
+    property ConsultaVendedor: TtecQuery read GetConsultaVendedor;
+    property ConsultaAnalista: TtecQuery read GetConsultaAnalista;
+    property ConsultaCliente: TtecQuery read GetConsultaCliente;
+    property TabelaContrato: TtecQuery read GetTabelaContrato;
+    property ExisteContrato: Boolean read GetExisteContrato;
+    property PodeExcluir: Boolean read GetPodeExcluir;
+    property Operacao: TtecTipoOperacao read FOperacao write SetOperacao;
+    property TabelaParcela: TtecQuery read GetTabelaParcela;
+    property PodeExcluirParcela: boolean read GetPodeExcluirParcela;
+    property PodeAlterarParcela: boolean read GetPodeAlterarParcela;
+    property PodeIncluirParcela: boolean read GetPodeIncluirParcela;
+    property DataFaturamento: TDateTime read GetDataFaturamento;
+    property ProdutosPendentes: Boolean read GetProdutosPendentes;
+    property TipoCliente: String read GetTipoCliente;
+    property TipoNovoCliente: string read GetTipoNovoCliente;
+    property ContratoEditando: boolean read GetContratoEditando;
+    procedure RecalcularParcelaOrigem;
+    property NumeroParcelasValida: Integer read GetNumeroParcelasValida;
+    property VenctoPrimeiraParcela: Integer read GetVenctoPrimeiraParcela;
+    property JurosCobrado: Real read FJurosCobrado write SetJurosCobrado;
+    property NumeroParcela: Integer read FNumeroParcela write SetNumeroParcela;
+    property TipoRecebimento: integer read fTipoRecebimento write fTipoRecebimento;
+    property PrimeiraParcela: String read FPrimeiraParcela write SetPrimeiraParcela;
+    procedure RetirarContratoSPC;
+    property  OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property LinhadaGrade: String read GetLinhadaGrade;
+    property ColunadaGrade: String read GetColunadaGrade;
+    procedure GerarParcelas(NP: Integer; Vencto: TDateTime; Intervalo: Integer);
+    procedure GerarParcelas_;
+    property FixoDiaVencto: boolean read fFixoDiaVencto write fFixoDiaVencto;
+    property Intervalo: integer read fIntervalo write fIntervalo;
+
+end;
+
+implementation
+
+{$R *.dfm}
+{ TdtmRenegociacao }
+// if (Procura = rgCLIENTE) then
+// qryConsultaClientes.Sql[11]:=
+// 'and (0 < (Select count(*) from contratos t ' +
+// 'Where (t.situacao in (''F'',''N''))       and '
+// '(not contratos_renegociado(t.numero)) and '
+// '(contratos_emaberto(t.numero))        and '
+// '(t.cliente = v.codigo)))
+
+
+procedure TdtmRenegociacao.AbrirTabelas(Procura: TtecRenegociacao);
+begin
+  case Procura of
+    rgCLIENTE,
+    rgAVALISTA,
+    rgTRANSFERENCIA: begin
+                       qryConsultaClientes.Sql[12]:= '(v.codigo = 0)';
+                        if (Procura = rgAVALISTA) then
+                             qryConsultaClientes.Sql[13]:= 'and v.tipo=''C'''
+                        else qryConsultaClientes.Sql[13]:= '';
+                       if (Procura <> rgCLIENTE) then
+                            qryConsultaClientes.Sql[14]:= 'and (v.codigo <> ' + qryClientescodigo.AsString + ')'
+                       else qryConsultaClientes.Sql[14]:= '';
+                       qryConsultaClientes.Open;
+                     end;
+    rgAGENTE       : Abre(ctCrediarioConsultaAgentes);
+    rgVENDEDOR     : Abre(ctCrediarioConsultaUsuarios);
+    rgANALISTA     : Abre(ctCrediarioConsultaAnalista);
+  end;
+end;
+
+procedure TdtmRenegociacao.AtribuirDadosClientesNoContrato;
+var
+ I: Integer;
+begin
+  ReFazConsulta(qryClienteTransferencia,[0],[qryNovoClientecodigo.AsInteger]);
+
+  for I:= 0 to (qryClienteTransferencia.FieldCount - 1) do
+    qryContratos.FieldByname(qryClienteTransferencia.Fields[i].fieldname).AsVariant := qryClienteTransferencia.Fields[I].AsVariant;
+
+  qryContratos.fieldbyname('cliente').AsInteger    := qryNovoClientecodigo.AsInteger;
+  qryContratos.fieldbyname('tipocliente').AsString := qryNovoClientetipo.AsString;
+end;
+
+procedure TdtmRenegociacao.AtribuirDadosFornecedorNoContrato;
+var
+  I: Integer;
+begin
+  ReFazConsulta(qryClienteTransferencia,[0],[0]);
+  for I:= 0 to (qryClienteTransferencia.FieldCount - 1) do
+    qryContratos.FieldByname(qryClienteTransferencia.Fields[i].fieldname).clear;
+
+  ReFazConsulta(qryFornecedorTransferencia,[0],[qryNovoClientecodigo.AsInteger]);
+  qryContratos.fieldbyname('cliente').AsInteger        := qryNovoClientecodigo.AsInteger;
+  qryContratos.FieldByName('tipocliente').AsString     := qryNovoClientetipo.AsString;
+  qryContratos.FieldByName('nome').AsString            := qryFornecedorTransferencianome.AsString;
+  qryContratos.FieldByName('sexo').AsString            := 'E';
+  qryContratos.FieldByName('civil').AsString           := 'O';
+  qryContratos.FieldByName('iddocumento').AsString     := qryFornecedorTransferenciainscricaoestadual.AsString;
+  qryContratos.FieldByName('pessoatipo').AsString      := qryFornecedorTransferenciapessoatipo.AsString;
+  qryContratos.FieldByName('pessoanumero').AsString    := qryFornecedorTransferenciapessoanumero.AsString;
+  if not qryFornecedorTransferenciaconceito.IsNull then
+    qryContratos.FieldByName('conceito').AsInteger       := qryFornecedorTransferenciaconceito.AsInteger;
+  qryContratos.FieldByName('rua').AsString             := qryFornecedorTransferenciarua.AsString;
+  qryContratos.FieldByName('endnumero').AsString       := qryFornecedorTransferencianumero.AsString;
+  qryContratos.FieldByName('Endcomplemento').AsString  := qryFornecedorTransferenciacomplemento.AsString;
+  qryContratos.FieldByName('estado').AsString          := qryFornecedorTransferenciaestado.AsString;
+  qryContratos.FieldByName('cidade').AsInteger         := qryFornecedorTransferenciacidade.AsInteger;
+  qryContratos.FieldByName('bairro').AsInteger         := qryFornecedorTransferenciabairro.AsInteger;
+  qryContratos.FieldByName('cep').AsInteger            := qryFornecedorTransferenciacep.AsInteger;
+  qryContratos.FieldByName('fonetipo').AsString        := 'P';
+  qryContratos.FieldByName('foneddd').AsInteger        := qryFornecedorTransferenciafoneddd.AsInteger;
+  qryContratos.FieldByName('fonenumero').AsInteger     := qryFornecedorTransferenciafonenumero.AsInteger;
+  qryContratos.FieldByName('fone2ddd').AsInteger       := qryFornecedorTransferenciafaxddd.AsInteger;
+  qryContratos.FieldByName('fone2numero').AsInteger    := qryFornecedorTransferenciafaxnumero.AsInteger;
+  qryContratos.FieldByName('restipo').AsString         := 'P';
+  qryContratos.FieldByName('empcomprovado').AsBoolean  := False;
+  qryContratos.FieldByName('observacoes').AsString     := qryFornecedorTransferenciaobservacoes.AsString;
+  qryContratos.FieldByName('email').AsString           := qryFornecedorTransferenciaemail.AsString;
+  qryContratos.FieldByName('automovel').AsBoolean      := False;
+  qryContratos.FieldByName('cartaocredito').AsBoolean  := False;
+  qryContratos.FieldByName('cartaoloja').AsBoolean     := False;
+  qryContratos.FieldByName('cheque').AsBoolean         := False;
+  qryContratos.FieldByName('chequeespecial').AsBoolean := False;
+end;
+
+constructor TdtmRenegociacao.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryClientes.Tag             := ctCrediarioClientes;
+  qryNovoCliente.Tag          := ctCrediarioClientesTransferencia;
+  qryConsultaClientes.Tag     := ctCrediarioConsultaClientes;
+  qryConsultaVendedores.Tag   := ctCrediarioConsultaUsuarios;
+  qryConsultaAnalista.Tag     := ctCrediarioConsultaAnalista;
+  qryConsultaAgentes.Tag      := ctCrediarioConsultaAgentes;
+  qryTiposRecebimentos.Tag    := ctTabelas;
+ 
+end;
+
+procedure TdtmRenegociacao.EditarContrato;
+begin
+  qryContratos.Edit;
+end;
+
+function TdtmRenegociacao.ExcluirContrato;
+var
+  Usuario: TtecUsuarios;
+begin
+  Result:= False;
+  if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['o CONTRATO'])) = smbok then begin
+    try
+      if UsuarioLogin.AnalistaCredito then
+           Usuario:= ObterAutorizacao(taSENHA)
+      else Usuario:= ObterAutorizacao(taLOGIN);
+      if Assigned(Usuario) and Usuario.AnalistaCredito then begin
+        qryParcelas.First;
+        while not qryParcelas.Eof do
+          qryParcelas.Delete;
+        qryProdutosContratos.First;
+        while not qryProdutosContratos.Eof do
+          qryProdutosContratos.Delete;
+        qryServicosContratos.First;
+        while not qryServicosContratos.Eof do
+          qryServicosContratos.Delete;
+        qryContratos.Delete;
+        Perpetrar([qryProdutosContratos, qryServicosContratos, qryParcelas, qryContratos]);
+        ReFazConsulta(qryContratosPorCliente,[0,1],
+                     [qryClientesCodigo.AsInteger,qryClientestipo.AsVariant]);
+        Result:= True;
+      end
+      else
+        MensagemAviso(Format(ctUSUARIONAOAUTORIZADO,['a Exclusão do Contrato.']));
+    except
+    end;
+  end;
+end;
+
+procedure TdtmRenegociacao.ExcluirParcelas;
+begin
+{  if (FOperacao in [tpTRANSFERENCIA, tpRENEGOCIACAO]) then begin}
+  if PodeExcluirParcela and
+    (FOperacao in [tpTRANSFERENCIA, tpRENEGOCIACAO, tpALTERACAO]) then
+  begin
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a PARCELA'])) = smbOk then
+    begin
+      qryParcelas.Delete;
+      RecalcularParcelaOrigem;
+    end;
+  end
+  else
+    MensagemAviso(ctPARCELANAOPODESEREXCLUIDA);
+end;
+
+function TdtmRenegociacao.ExisteAgente(NomeCampo, Value: Variant): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaAgentes, NomeCampo, Value);
+end;
+
+function TdtmRenegociacao.ExisteCliente(NomeCampo, Value: Variant): boolean;
+const
+  SQL = '(to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  if NomeCampo = 'nomecidade' then
+    NomeCampo:= 'c.nome'
+  else if NomeCampo = 'descricaotipo' then
+    NomeCampo := 'v.tipo'
+  else NomeCampo:= 'v.' + NomeCampo;
+  qryConsultaClientes.Sql[12]:= Format(SQL, [NomeCampo, ANSIUpperCase(Value), '%']);
+  qryConsultaClientes.Open;
+  Result := Not qryConsultaClientes.IsEmpty
+end;
+
+function TdtmRenegociacao.ExisteVendedor(NomeCampo, Value: Variant): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaVendedores, NomeCampo, Value);
+end;
+
+procedure TdtmRenegociacao.FecharTabelas(Procura: TtecRenegociacao);
+begin
+  case Procura of
+    rgAGENTE        : Fecha(ctCrediarioConsultaAgentes);
+    rgVENDEDOR      : Fecha(ctCrediarioConsultaUsuarios);
+    rgANALISTA      : Fecha(ctCrediarioConsultaAnalista);
+    rgCLIENTE,
+    rgTRANSFERENCIA,
+    rgAVALISTA      : Fecha(ctCrediarioConsultaClientes);
+  end;
+end;
+
+function TdtmRenegociacao.GetClienteContrato: Integer;
+begin
+  Result:= qryContratos.FieldByName('cliente').AsInteger;
+end;
+
+function TdtmRenegociacao.GetConsultaAgente: TtecQuery;
+begin
+  Result:= qryConsultaAgentes;
+end;
+
+function TdtmRenegociacao.GetConsultaCliente: TtecQuery;
+begin
+  Result:= qryConsultaClientes;
+end;
+
+function TdtmRenegociacao.GetConsultaVendedor: TtecQuery;
+begin
+  Result:= qryConsultaVendedores;
+end;
+
+function TdtmRenegociacao.GetDataFaturamento: TDateTime;
+begin
+  Result:= qryContratos.FieldByName('faturamento').AsDateTime;
+end;
+
+function TdtmRenegociacao.GetExisteContrato: Boolean;
+begin
+  Result:= not qryContratos.IsEmpty;
+end;
+
+function TdtmRenegociacao.GetPodeAlterarParcela: boolean;
+begin
+  Result:= (qryContratos.State in [dsEdit, dsInsert]) and
+           (qryParcelasdatapagto.AsDatetime = 0) and
+           (qryParcelascartacliente.AsString = '') and
+           (qryParcelascartaavalista.AsString = '');
+end;
+
+function TdtmRenegociacao.GetPodeExcluir: Boolean;
+begin
+
+
+  Result:= qryContratos.active and
+           (qryContratos.FieldByName('origem').AsString <> '') and
+           (qryContratosExcluir.FieldByName('parcelaspagas').AsInteger = 0);
+
+end;
+
+function TdtmRenegociacao.GetPodeExcluirParcela: boolean;
+begin
+  Result:= (qryContratos.State in [dsEdit,dsInsert])       and
+           (qryParcelasdatapagto.AsDateTime = 0) and
+           (qryParcelascartacliente.AsString = '') and
+           (qryParcelascartaavalista.AsString = '');
+end;
+
+function TdtmRenegociacao.GetProdutosPendentes: Boolean;
+begin
+  result := false;
+  
+  {
+  Result:= False;
+  if ((qryContratossituacao.AsString = 'F') or (qryContratossituacao.AsString = 'P')) then begin
+    MensagemAviso(format(ctCONTRATONAOPODERENEGOCIAR,[qryContratosNumero.AsString]));
+    Result:= True;
+  end;
+  }
+end;
+
+function TdtmRenegociacao.GetTabelaContrato: TtecQuery;
+begin
+  Result:= qryContratos;
+end;
+
+function TdtmRenegociacao.GetTabelaParcela: TtecQuery;
+begin
+  Result:= qryParcelas;
+end;
+
+function TdtmRenegociacao.GravarParcelas: Boolean;
+  procedure AtribuirValorVenctoDemaisParcelas;
+  var
+    Valor: Real;
+    Pos: TBookmark;
+  begin
+    Valor:= qryParcelasvalorvencto.AsCurrency;
+    Pos:= qryParcelas.GetBookmark;
+    qryParcelas.DisableControls;
+    try
+      while not qryParcelas.Eof do begin
+        if qryParcelasdatapagto.AsDateTime = 0 then begin
+          qryParcelas.Edit;
+          qryParcelasvalorvencto.AsCurrency:= Valor;
+          qryParcelas.Post;
+        end;
+        qryParcelas.Next;
+      end;
+    finally
+      qryParcelas.GotoBookmark(Pos);
+      qryParcelas.FreeBookmark(Pos);
+      qryParcelas.EnableControls
+    end;
+  end;
+
+  procedure AtribuirDataVenctoDemaisParcelas;
+  var
+    Data: TDateTime;
+    Pos: TBookmark;
+    NrMes: Integer;
+  begin
+    NrMes:= 0;
+    Data:= qryParcelasdatavencto.AsDateTime;
+    Pos:= qryParcelas.GetBookmark;
+    qryParcelas.DisableControls;
+    try
+      while not qryParcelas.Eof do begin
+        if qryParcelasdatapagto.AsDateTime = 0 then begin
+          qryParcelas.Edit;
+          qryParcelasdatavencto.AsDateTime:= IncMonth(Data,NrMes);
+          qryParcelas.Post;
+        end;
+        Inc(NrMes,1);
+        qryParcelas.Next;
+      end;
+    finally
+      qryParcelas.GotoBookmark(Pos);
+      qryParcelas.FreeBookmark(Pos);
+      qryParcelas.EnableControls
+    end;
+  end;
+
+begin
+  Result:= True;
+  qryParcelas.Post;
+  if not (qryContratos.State in [dsEdit, dsInsert]) then
+    qryContratos.Edit;
+
+//  AcertarNumeroParcelas;  BUG #2783  Pq alterar o numero da parcela se a ordenacao se da pela datavencto ou parcelaorigem?
+  RecalcularParcelaOrigem;
+
+  if FOperacao <> tpALTERACAO then
+  begin
+    if MensagemConfirmacao(ctALTERARDATAVENCTODEMAISPARCELAS) = smbOk then
+      AtribuirDataVenctoDemaisParcelas;
+    if MensagemConfirmacao(ctALTERARVALORVENCTODEMAISPARCELAS) = smbOk then
+      AtribuirValorVenctoDemaisParcelas;
+      
+    qryContratos.FieldByName('valorprazo').AsCurrency:= ReCalcularTotalDivida;
+  end;
+end;
+
+function TdtmRenegociacao.GravarRenegociacao: Boolean;
+var
+  Usuario: TtecUsuarios;
+  ValorPrazo,
+  ValorPrazoAnt: Currency;
+  Resultado : TMessageButton;
+  RetirardoSPC : Boolean;
+
+  AcrescimoRateado: Currency;
+
+
+
+  vprecovenda, vquantidade, vvalordescontoitem, vdescontogeral,
+  vvalordescontoitemcupomdesconto,
+  vvalorprazo, vvalorvista, vTotalProdutos, vresultado: Currency;
+
+
+begin
+  RetirardoSPC := False;
+  Result:= False;
+  case FOperacao of
+    tpTRANSFERENCIA: Result:= MensagemConfirmacao(format(ctTRANSFERENCIADIVIDA,[qryNovoClienteNome.AsString])) = smbok;
+    tpRENEGOCIACAO : Result:= MensagemConfirmacao(ctRENEGOCIACAODIVIDA) = smbok;
+    tpALTERACAO    : Result:= MensagemConfirmacao(ctALTERACAOCONTRATO) = smbok;
+  end;
+
+  if Result then begin
+    ValorPrazo   := qryContratos.FieldByName('valorprazo').AsCurrency;
+    ValorPrazoAnt:= qryContratosPorClientevalorprazo.AsCurrency;
+    if (FOperacao = tpALTERACAO) and (ReCalcularTotalDivida <> ValorPrazo) then begin
+      MensagemAviso(ctERROVALORESPARCELAS);
+      Result:= False;
+    end
+    else if not ((ReCalcularTotalDivida >= ValorPrazoAnt) or
+                  ParSistema.PermiteReducaoDivida) then begin
+      MensagemAviso(ctVALORCONTRATOMENORQUERENEGOCIACAO);
+      Result:= False;
+    end;
+
+    if (FOperacao in [tpRENEGOCIACAO]) then
+    begin
+      if not ParSistema.RetiraSPCRenegociados then
+      begin
+        if (qryParcelasSPCspccliente.AsString<>'') or
+           (qryParcelasSPCspcavalista.AsString<>'') then
+        begin
+           Resultado := MensagemSelecionaOpcao(ctCONTRATOSPC);
+           if Resultado = smbCancel then
+            Result := False
+           else if Resultado = smbYes then
+            RetirardoSPC := True;
+        end
+        else
+        begin
+         Resultado := MensagemSelecionaOpcao(ctCONTRATOCARTAS);
+         if Resultado = smbCancel then
+          Result := False
+         else if Resultado = smbYes then
+          RetirardoSPC := True;
+        end;
+      end
+      else
+       RetirardoSPC := True;
+    end
+    else
+    if (FOperacao in [tpTRANSFERENCIA]) then
+       RetirardoSPC := True;
+    if Result then begin
+      Result:= False;
+      {try}
+        if UsuarioLogin.AnalistaCredito then
+             Usuario:= ObterAutorizacao(taSENHA)
+        else Usuario:= ObterAutorizacao(taLOGIN, ctPARARENEGOCIACAOCONTRATO, ctANALISTACREDITO);
+
+        if Assigned(Usuario) then begin
+          if Usuario.AnalistaCredito then begin
+            if qryContratos.FieldByName('analista').AsInteger <> Usuario.CodigoUsuario then
+              qryContratos.FieldByName('analista').AsInteger:= Usuario.CodigoUsuario;
+
+            if (FOperacao in [tpRENEGOCIACAO, tpTRANSFERENCIA]) then
+            begin
+              spcContratoProximoNumero.Open;
+              qryContratos.FieldByName('Numero').AsString := spcContratoProximoNumeronovocontrato.AsString;
+              spcContratoProximoNumero.Close;
+              qryContratos.Post;
+
+              qryParcelas.DisableControls;
+              try
+                qryParcelas.First;
+                while not qryParcelas.Eof do begin
+                  qryParcelas.Edit;
+                  qryParcelascontrato.AsString:= qryContratos.FieldByName('numero').AsString;
+                  qryParcelas.Post;
+                  qryParcelas.Next;
+                end;
+              finally
+                qryParcelas.EnableControls;
+              end;
+
+              AcrescimoRateado := qryContratos.FieldByName('valorprazo').AsCurrency - qryContratos.FieldByName('valorvista').AsCurrency;
+
+              qryProdutosContratos.DisableControls;
+              try
+                qryProdutosContratos.First;
+                while not qryProdutosContratos.Eof do begin
+                  qryProdutosContratos.Edit;
+                  qryProdutosContratos.fieldbyname('contrato').AsString:= qryContratos.FieldByName('numero').AsString;
+
+                  if AcrescimoRateado > 0 then
+                  begin
+                    if qryProdutosContratos.recno = qryProdutosContratos.recordcount then
+                      qryProdutosContratos.FieldByName('acrescimo').AsCurrency := AcrescimoRateado
+                    else
+                    begin
+
+
+                      vprecovenda := qryProdutosContratos.FieldByName('precovenda').AsCurrency;
+                      vquantidade := qryProdutosContratos.FieldByName('quantidade').AsCurrency;
+                      vvalordescontoitem := qryProdutosContratos.FieldByName('valordescontoitem').AsCurrency;
+                      vdescontogeral := qryProdutosContratos.FieldByName('descontogeral').AsCurrency;
+                      vvalordescontoitemcupomdesconto :=  qryProdutosContratos.FieldByName('valordescontoitemcupomdesconto').AsCurrency;
+                      vvalorprazo := qryContratos.FieldByName('valorprazo').AsCurrency;
+                      vvalorvista := qryContratos.FieldByName('valorvista').AsCurrency;
+                      vTotalProdutos := qryContratos.FieldByName('TotalProdutos').AsCurrency;
+
+
+
+                      vresultado :=
+
+                                  Truncar((
+                                           ( (vprecovenda * vquantidade) -
+                                             (vvalordescontoitem + vdescontogeral + vvalordescontoitemcupomdesconto)
+                                            ) *
+
+                                           (vvalorprazo - vvalorvista) / vTotalProdutos) ,2);
+
+                      qryProdutosContratos.FieldByName('acrescimo').AsCurrency := vresultado;
+
+                      AcrescimoRateado := AcrescimoRateado - qryProdutosContratos.FieldByName('acrescimo').AsCurrency;
+                    end;
+                  end;
+
+                  qryProdutosContratos.Next;
+                end;
+              finally
+                qryProdutosContratos.EnableControls;
+              end;
+
+              qryServicosContratos.DisableControls;
+              try
+                qryServicosContratos.First;
+                while not qryServicosContratos.Eof do begin
+                  qryServicosContratos.Edit;
+                  qryServicosContratos.FieldByName('contrato').AsString:= qryContratos.FieldByName('numero').AsString;
+                  qryServicosContratos.Next;
+                end;
+              finally
+                qryServicosContratos.EnableControls;
+              end;
+            end;
+
+            if RetirardoSPC then
+              RetirarContratoSPC;
+            Perpetrar([qryContratos, qryParcelas, qryProdutosContratos, qryServicosContratos, qryIncluirParcelasCartas, qryParcelasSPC]);
+            ReFazConsulta(qryContratosPorCliente,[0,1],
+                         [qryClientesCodigo.AsInteger,qryClientestipo.AsVariant]);
+            ReFazConsulta(qryNovoCliente,[0,1],['',0]);
+            Result:= True;
+          end
+          else
+            MensagemAviso(Format(ctUSUARIONAOAUTORIZADO,['a Renegociação.']));
+        end
+      {except
+      end;}
+    end;
+  end;
+end;
+
+function TdtmRenegociacao.IncluirParcelas(Editando: Boolean): Boolean;
+begin
+  Result:= True;
+  if qryParcelas.State in [dsEdit, dsInsert] then
+    qryParcelas.Cancel;
+  if not Editando then
+    qryParcelas.Append;
+end;
+
+procedure TdtmRenegociacao.LimparTabelas;
+begin
+  qryNovoCliente.Close;
+  qryClienteTransferencia.Close;
+  qryFornecedorTransferencia.Close;
+  qryProdutosContratos.Close;
+  qryServicosContratos.Close;
+  qryParcelas.Close;
+  qryContratos.Close;
+  qryContratosPorCliente.Close;
+end;
+
+function TdtmRenegociacao.NaoPodeRenegociar: Boolean;
+Var
+  NrDias: Integer;
+begin
+  Result:= False;
+  if (Operacao <> tpALTERACAO) then begin
+    ReFazConsulta(qryDiasAtrasado,[0],[qryContratosPorClientenumero.AsString]);
+    if qryDiasAtrasado.IsEmpty then NrDias:= 0
+    else NrDias:= qryDiasAtrasadonrdias.AsInteger;
+    Result:= (NrDias < ParSistema.AtrasoMinimo);
+    if Result then
+      MensagemAviso(ctATRASOMINIMOPERMITIDO);
+  end;
+  if not Result then begin
+    Result:= False; //not qryClientesSPC.IsEmpty;
+    if Result then
+      MensagemAviso(Format(ctRENEGOCIACAOCLIENTESPC, [qryClientesnome.AsString]));
+  end;
+end;
+
+procedure TdtmRenegociacao.qryContratosPorClienteAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  if not qryContratosPorCliente.IsEmpty then begin
+    ReFazConsulta(qryContratos,        [0],[qryContratosPorClienteNumero.AsString]);
+    ReFazConsulta(qryParcelas,         [0],[qryContratosPorClienteNumero.AsString]);
+    ReFazConsulta(qryProdutosContratos,[0],[qryContratosPorClienteNumero.AsString]);
+    ReFazConsulta(qryServicosContratos,[0],[qryContratosPorClienteNumero.AsString]);
+//    ReFazConsulta(qryClientesSPC,      [0,1],[qryClientescodigo.ASInteger, qryClientestipo.AsString]);
+    ReFazConsulta(qryContratosExcluir, [0],[qryContratosPorClienteNumero.AsString]);
+    if Assigned(FOnAfterScroll) then
+      FOnAfterScroll(qryContratosPorCliente);
+  end;
+end;
+
+procedure TdtmRenegociacao.qryParcelasAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if (FOperacao <> tpEXCLUSAO) then begin
+    if not (qryContratos.State in [dsEdit, dsInsert]) then
+      qryContratos.Edit;
+    if FOperacao <> tpALTERACAO then
+      qryContratos.FieldByName('valorPrazo').AsCurrency := ReCalcularTotalDivida;
+  end;
+end;
+
+procedure TdtmRenegociacao.qryParcelasBeforeDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if (not (qryContratos.State in [dsEdit, dsInsert]) and
+          (FOperacao <> tpEXCLUSAO)) or
+     ((FOperacao = tpAlTERACAO) and not ParSistema.PermitirAlterarQuantidadeParcelas) then begin
+      MensagemAviso(ctPARCELANAOPODESEREXCLUIDA);
+      Abort;
+    end
+end;
+
+function TdtmRenegociacao.ReCalcularTotalDivida: Currency;
+var
+  TotalParcelas: Currency;
+  Pos: TBookmark;
+begin
+  inherited;
+  TotalParcelas:= 0;
+  Pos:= qryParcelas.GetBookmark;
+  qryParcelas.DisableControls;
+  try
+    qryParcelas.First;
+    while not qryParcelas.Eof do begin
+      if ((qryParcelastipopagto.AsString   <> 'P')  and
+          (qryParcelastipopagto.AsString   <> 'X')  and
+          (not qryParcelasparcelaadicional.AsBoolean)) then
+          TotalParcelas:= TotalParcelas + qryParcelasvalorvencto.AsCurrency;
+      qryParcelas.Next;
+    end;
+  finally
+    qryParcelas.GotoBookmark(Pos);
+    qryParcelas.FreeBookmark(Pos);
+    qryParcelas.EnableControls;
+  end;
+  Result:= RoundTo(TotalParcelas,-2);
+end;
+
+procedure TdtmRenegociacao.ReFazConsultaClienteTransferencia;
+begin
+   if not qryNovoCliente.IsEmpty then
+    ReFazConsulta(qryNovoCliente,[0,1],['',0]);
+end;
+
+function TdtmRenegociacao.ReFazConsultaContratosPorCliente: Boolean;
+begin
+  ReFazConsulta(qryContratosPorCliente,[0,1],[qryClientesCodigo.AsInteger,qryClientestipo.AsString]);
+  Result:= qryContratosPorCliente.IsEmpty;
+  if Result then
+    LimparTabelas;
+end;
+
+procedure TdtmRenegociacao.Renegociar(GerarParcelas: boolean);
+
+var
+  vTotalProdutos : Currency;
+
+  SaldoDevedor    : Currency;
+  qryOLDParcela,
+  qryOLDContrato,
+  qryOLDProduto,
+  qryOLDServico   : TtecQuery;
+  procedure CopiarContrato;     // Copia o Contrato atual para uma query temporária
+  begin
+    qryOLDContrato:= TtecQuery.Create(Nil);
+    qryOLDContrato.Database           := qryContratos.Database;
+    qryOLDContrato.SQL                := qryContratos.Sql;
+    qryOLDContrato.Params[0].AsString := qryContratos.Params[0].AsString;
+    qryOLDContrato.Open;
+
+  end;
+
+  procedure CopiarParcelas;     // Copia as Parcelas atual para uma query temporária
+  begin
+    ReFazConsulta(qryParcelas,[0],[qryContratosPorClientenumero.AsString]);
+    qryOLDParcela:= TtecQuery.Create(Nil);
+    qryOLDParcela.Database           := qryParcelas.Database;
+    qryOLDParcela.SQL                := qryParcelas.Sql;
+    qryOLDParcela.Params[0].AsString := qryParcelas.Params[0].AsString;
+    qryOLDParcela.Open;
+  end;
+
+  procedure CopiarProdutos;     // Copia as Produtos atual para uma query temporária
+  begin
+    ReFazConsulta(qryProdutosContratos,[0],[qryContratosPorClientenumero.AsString]);
+    qryOLDProduto:= TtecQuery.Create(Nil);
+    qryOLDProduto.Database           := qryProdutosContratos.Database;
+    qryOLDProduto.SQL                := qryProdutosContratos.Sql;
+    qryOLDProduto.Params[0].AsString := qryProdutosContratos.Params[0].AsString;
+    qryOLDProduto.Open;
+  end;
+
+  procedure CopiarServicos;
+  begin
+    ReFazConsulta(qryServicosContratos,[0],[qryContratosPorClientenumero.AsString]);
+    qryOLDServico:= TtecQuery.Create(Nil);
+    qryOLDServico.Database           := qryServicosContratos.Database;
+    qryOLDServico.SQL                := qryServicosContratos.Sql;
+    qryOLDServico.Params[0].AsString := qryServicosContratos.Params[0].AsString;
+    qryOLDServico.Open;
+  end;
+
+  procedure InserirNovoContrato; // Cria um Novo Contrato com os valores do Contrato anterior
+  var
+    I: Integer;
+  begin
+    // A ordem dos Fields referente as dados do cliente na tabela CONTRATOS deve ser a mesma
+    // na tabela CLIENTES.
+
+
+    qryContratos.Insert;
+    if FOperacao = tpTRANSFERENCIA then begin
+      for I:= 0 to {34} (qryOLDContrato.FieldCount - 1) do begin
+        qryContratos.Fields[I].AsVariant := qryOLDContrato.Fields[I].AsVariant;
+      end;
+      if qryNovoClientetipo.AsString = 'C' then
+           AtribuirDadosClientesNoContrato
+      else AtribuirDadosFornecedorNoContrato;
+    end
+    else if (FOperacao in [tpRENEGOCIACAO{, tpALTERACAO}]) then begin
+      for I:= 0 to (qryOLDContrato.FieldCount - 1) do begin
+        qryContratos.Fields[I].AsVariant := qryOLDContrato.Fields[I].AsVariant;
+      end;
+    end;
+
+    qryContratos.FieldByName('origem').AsString := qryContratosPorClientenumero.AsString;
+    if (qryContratosPorClienteprimogenito.AsString = '') then
+      qryContratos.FieldByName('primogenito').AsString:= qryContratosPorClientenumero.AsString;
+    qryContratos.FieldByName('renegociacao').AsDateTime := DataServidor;
+
+    case FOperacao of
+      tpRENEGOCIACAO,
+      tpTRANSFERENCIA: qryContratos.FieldByName('tiporenegociacao').AsString:= 'R';
+    end;
+  end;
+
+  procedure InserirParcelas;
+  Var
+    I,J,A        : Integer;
+    TaxaDiaria   : Real;
+    TaxaAcumulada: Real;
+    procedure LerParametros;
+    begin
+      with tecFinanceira do begin
+        DiasAtraso1       := ParSistema.DiasAtraso1;
+        DiasAtraso2       := ParSistema.DiasAtraso2;
+        PercentualMultas1 := ParSistema.PercentualAtrasoMultas1;
+        PercentualMultas2 := ParSistema.PercentualAtrasoMultas2;
+        TaxaJuros1        := ParSistema.PercentualAtrasoJuros1;
+        TaxaJuros2        := ParSistema.PercentualAtrasoJuros2;
+        Juros             := ParSistema.TaxaJuros;
+        JurosSimples      := ParSistema.UtilizarJurosSimples;
+      end;
+    end;
+
+  begin
+    LerParametros;
+    qryParcelas.Close;
+    qryParcelas.Params[0].AsString:= '';
+    qryParcelas.Open;
+
+    qryOLDParcela.First;
+
+
+    if gerarparcelas then
+    begin
+      for I:= 1 to qryOLDParcela.RecordCount do begin
+        if (qryOLDParcela.FieldByName('datapagto').AsDateTime <> 0) then begin
+         // Insere as Parcelas já quitadas;
+          qryParcelas.Append;
+          for J:= 0 to qryOLDParcela.FieldCount - 3 do
+            qryParcelas.Fields[J].AsVariant:= qryOLDParcela.Fields[J].AsVariant;
+          qryParcelascopiapagto.AsInteger:= qryOLDParcela.FieldByName('numero').AsInteger;
+          qryParcelas.Post;
+        end
+        else begin
+         // Calcula Saldo Devedor
+          SaldoDevedor := SaldoDevedor + qryOLDParcela.FieldByName('valorvencto').AsCurrency;
+          if ParSistema.CobrarMultasJuros then
+            SaldoDevedor := SaldoDevedor + tecFinanceira.CalcularJuros(qryOLDParcela.FieldByName('valorvencto').AsCurrency,
+                                                                       qryOLDParcela.FieldByName('datavencto').AsDateTime,
+                                                                       DataServidor,
+                                                                       qryOLDParcela.FieldByName('filialvenda').asInteger
+                                                                       );
+        end;
+        qryOLDParcela.Next;
+      end;
+      // Calcula Novas Parcelas
+
+      if (SaldoDevedor > 0) then
+      begin
+        TaxaDiaria   := Power(1 + (FJurosCobrado / 100), (1/30));
+  //      TaxaDiaria   := Power(1 + (StrToFloat(Juros)/100), (1/30));
+        TaxaAcumulada:= 0;
+        for A:= 1 to FNumeroParcela do begin
+  //      for A:= 1 to StrToInt(Parcela) do begin
+  //        TaxaAcumulada := TaxaAcumulada + 1/(Power(TaxaDiaria,DaysBetween(Date,IncMonth(StrToDate(Data),A-1))));
+          TaxaAcumulada := TaxaAcumulada + 1/(Power(TaxaDiaria,
+                                                    DaysBetween(Date,IncMonth(StrToDate(FPrimeiraParcela),A-1))));
+          if TaxaAcumulada = 0 then
+            TaxaAcumulada:= 1;
+        end;
+
+        for A:= 1 to FNumeroParcela do begin
+  //      for A:= 1 to StrToInt(Parcela) do begin
+          qryParcelas.Append;
+
+        if not FixoDiaVencto then
+          qryParcelasdatavencto.AsDateTime := SomarDia(StrToDate(PrimeiraParcela),((A-1) * Intervalo),'S')
+        else
+          qryParcelasdatavencto.AsDateTime  := IncMonth(StrToDate(FPrimeiraParcela),A-1);
+
+  //        qryParcelasdatavencto.AsDateTime  := IncMonth(StrToDate(Data),A-1);
+          qryParcelasvalorvencto.AsCurrency := RoundTo((SaldoDevedor / TaxaAcumulada),-2);
+          qryParcelasvalorvencto.AsCurrency := Multiplo(qryParcelasvalorvencto.AsCurrency,ParSistema.ArredondamentoJurosCaixa);
+          qryParcelasparcelaadicional.AsBoolean := False;
+          qryParcelaspagamentoextracaixa.AsBoolean := False;
+          qryParcelastiporecebimento.AsInteger := TipoRecebimento;
+
+          qryParcelas.Post;
+        end;
+
+      end;
+
+  //    AcertarNumeroParcelas;  BUG #2783  Pq alterar o numero da parcela se a ordenacao se da pela datavencto ou parcelaorigem?
+      RecalcularParcelaOrigem;
+      qryContratos.FieldByName('valorprazo').AsCurrency := ReCalcularTotalDivida;
+
+    end
+    else
+    begin
+      CopiarRegistros(qryOLDParcela, qryParcelas);
+    end;
+
+  end;
+
+  procedure InserirProdutos;
+  var
+    I,J : Integer;
+  begin
+    qryProdutosContratos.Close;
+    qryProdutosContratos.Params[0].AsString:= '';
+    qryProdutosContratos.Open;
+    // Insere as Produtos do Contrato;
+    qryOLDProduto.First;
+    for I:= 1 to qryOLDProduto.RecordCount do begin
+      qryProdutosContratos.Append;
+      for J:= 0 to qryOLDProduto.FieldCount - 1 do
+        qryProdutosContratos.Fields[J].AsString:= qryOLDProduto.Fields[J].AsString;
+      qryProdutosContratos.Post;
+      qryOLDProduto.Next;
+    end
+  end;
+
+  procedure InserirServicos;
+  var
+    I,J : Integer;
+  begin
+    qryServicosContratos.Close;
+    qryServicosContratos.Params[0].AsString:= '';
+    qryServicosContratos.Open;
+
+    // Insere os Servicos do Contrato;
+    qryOLDServico.First;
+    for I:= 1 to qryOLDServico.RecordCount do begin
+      qryServicosContratos.Append;
+      for J:= 0 to qryOLDServico.FieldCount - 1 do
+        qryServicosContratos.Fields[J].AsVariant:= qryOLDServico.Fields[J].AsVariant;
+      qryServicosContratos.Post;
+      qryOLDServico.Next;
+    end
+  end;
+
+(*  procedure PosicionarPrimeiraParcelaEmAberto;
+  var
+    I: Integer;
+  begin
+    qryParcelas.DisableControls;
+    try
+      qryParcelas.First;
+      for I:= 1 to qryParcelas.RecordCount do begin
+        if not (qryParcelasdatapagto.AsDateTime <> 0) then
+          Break;
+        qryParcelas.Next;
+      end;
+    finally
+      qryParcelas.EnableControls;
+    end;
+  end;  *)
+
+begin
+  SaldoDevedor := 0;
+  if qryContratos.State in [dsEdit,dsInsert] then begin
+    qryParcelas.Cancel;
+    qryContratos.Cancel;
+  end;
+//  qryContratos.Edit;
+
+  RefazConsulta(qryparcelasspc,[0],[qryContratos.FieldByName('numero').AsString]);
+  CopiarContrato;
+
+  vTotalProdutos := qryOldContrato.FieldByName('TotalProdutos').AsCurrency;
+
+  InserirNovoContrato;
+  CopiarParcelas;
+  InserirParcelas;
+  CopiarProdutos;
+  InserirProdutos;
+  CopiarServicos;
+  InserirServicos;
+  qryOLDContrato.Close;
+  qryOLDParcela.Close;
+  qryOLDProduto.Close;
+  qryOLDServico.Close;
+  qryOLDContrato.Free;
+  qryOLDParcela.Free;
+  qryOLDProduto.Free;
+  qryOLDServico.Free;
+//  PosicionarPrimeiraParcelaEmAberto;
+end;
+
+
+
+procedure TdtmRenegociacao.Selecionar(Procura: TtecRenegociacao);
+begin
+  case Procura of
+    rgCLIENTE      : begin
+                       if qryClientes.Active then
+                         qryClientes.Close;
+                       qryClientes.Params[0].AsInteger:= qryConsultaClientesCodigo.AsInteger;
+                       qryClientes.Params[1].AsString := qryConsultaClientestipo.AsString;
+                       qryClientes.Open;
+                     end;
+    rgTRANSFERENCIA: begin
+                       if qryNovoCliente.Active then
+                         qryNovoCliente.Close;
+                       qryNovoCliente.Params[0].AsString := qryConsultaClientestipo.AsString;
+                       qryNovoCliente.Params[1].AsInteger:= qryConsultaClientescodigo.AsInteger;
+                       qryNovoCliente.Open;
+                     end;
+    rgAGENTE       : begin
+                       qryContratos.edit;
+                       qryContratos.FieldByName('agente').AsInteger:= qryConsultaAgentescodigo.AsInteger;
+                     end;
+    rgVENDEDOR     : begin
+                       qryContratos.Edit;
+                       qryContratos.FieldByName('vendedor').AsInteger:= qryConsultaVendedorescodigo.AsInteger;
+                     end;
+    rgANALISTA     : begin
+                       qryContratos.Edit;
+                       qryContratos.FieldByName('analista').AsInteger:= qryConsultaAnalistacodigo.AsInteger;
+                     end;
+    rgAVALISTA     : begin
+                       qryContratos.Edit;
+                       qryContratos.FieldByName('avalista').AsInteger:= qryConsultaClientescodigo.AsInteger;
+                     end;
+  end;
+end;
+
+procedure TdtmRenegociacao.SetOperacao(const Value: TtecTipoOperacao);
+begin
+  if FOperacao <> Value then
+    FOperacao := Value;
+  if FOperacao = tpTRANSFERENCIA then begin
+    qryNovoCliente.Sql[06]:= 'and (codigo <> ' + qryClientescodigo.AsString + ')';
+    qryNovoCliente.Open;
+  end;
+  qryContratos.ReadOnly:= (FOperacao in [tpNENHUM, tpRETIRASPC]);
+end;
+
+procedure TdtmRenegociacao.qryContratosAfterScroll(DataSet: TDataSet);
+Var
+  DataContrato : TDateTime;
+begin
+  inherited;
+  if(qryContratos.FieldByName('data').AsString = '') then DataContrato:= DataServidor
+  else                                     DataContrato:= qryContratos.FieldByName('data').AsDateTime;
+  qryProcuraAgentes.ParamByName('datacontrato').AsDatetime := DataContrato;
+  qryConsultaAgentes.ParamByName('datacontrato').AsDatetime:= DataContrato;
+  if (qryContratos.FieldByName('agente').AsInteger<>0) then begin
+    RefazConsulta(qryProcuraAgentes, [0,1,2], [qryContratos.FieldByName('agente').AsInteger,
+                                               qryContratos.FieldByName('data').AsDateTime,
+                                               qryContratos.FieldByName('agente').AsInteger]);
+    qryConsultaAgentes.ParamByName('codigoinativo').AsInteger :=qryContratos.FieldByName('agente').AsInteger;
+  end;
+
+  qryProcuraVendedor.ParamByName('datacontrato').AsDatetime   := DataContrato;
+  qryConsultaVendedores.ParamByName('datacontrato').AsDatetime:= DataContrato;
+  if (qryContratos.FieldByName('vendedor').AsInteger <> 0) then begin
+    RefazConsulta(qryProcuraVendedor, [0,1,2], [qryContratos.FieldByName('vendedor').AsInteger,
+                                                qryContratos.FieldByName('data').AsDateTime,
+                                                qryContratos.FieldByName('vendedor').AsInteger]);
+    qryConsultaVendedores.ParamByName('codigoinativo').AsInteger:= qryContratos.FieldByName('vendedor').AsInteger;
+  end;
+
+  qryConsultaAnalista.ParamByName('datacontrato').AsDatetime:= DataContrato;
+  qryProcuraAnalista.ParamByName('datacontrato').AsDatetime := DataContrato;
+  if (qryContratos.FieldByName('analista').AsInteger <> 0) then begin
+    RefazConsulta(qryProcuraAnalista, [0,1,2], [qryContratos.FieldByName('analista').AsInteger,
+                                                qryContratos.FieldByName('data').AsDateTime,
+                                                qryContratos.FieldByName('analista').AsInteger]);
+    qryConsultaAnalista.ParamByName('codigoinativo').AsInteger := qryContratos.FieldByName('analista').AsInteger;
+  end;
+end;
+
+
+function TdtmRenegociacao.ExisteAnalista(NomeCampo, Value: Variant): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaAnalista, NomeCampo, Value);
+end;
+
+function TdtmRenegociacao.GetConsultaAnalista: TtecQuery;
+begin
+  Result:= qryConsultaAnalista;
+end;
+
+procedure TdtmRenegociacao.qryClientesBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if (qryClientes.Params[1].AsString = '') then
+      qryClientes.Params[1].AsString:= 'C';
+end;
+
+procedure TdtmRenegociacao.AcertarNumeroParcelas;
+var
+  I: Integer;
+  Pos: TBookmark;
+  Function MaiorNumeroParcela: Integer;
+  begin
+    result := 0;
+    qryparcelas.First;
+    while not qryParcelas.Eof do
+    begin
+      if not podealterarparcela then
+      begin
+        if qryParcelasnumero.AsInteger > result then
+          result := qryParcelasnumero.AsInteger
+      end;
+      qryParcelas.Next;
+    end;
+  end;
+
+begin
+  Pos:= qryParcelas.GetBookmark;
+  qryParcelas.DisableControls;
+  qryParcelas.SortByField('datavencto');
+  try
+    I := MaiorNumeroParcela + 1;
+    qryParcelas.First;
+    while
+    not qryParcelas.Eof do
+    begin
+      if podealterarparcela then
+      begin
+        qryParcelas.Edit;
+        qryParcelasnumero.AsInteger := I;
+        qryParcelas.Post;
+        Inc(I);
+      end;
+      qryParcelas.Next;
+    end;
+  finally
+    qryParcelas.EnableControls;
+    qryParcelas.GotoBookmark(Pos);
+    qryParcelas.FreeBookmark(Pos);
+  end;
+end;
+
+function TdtmRenegociacao.GetTipoCliente: String;
+begin
+  if qryClientes.Active then
+       Result:= qryClientestipo.AsString
+  else Result:= 'C';
+end;
+
+function TdtmRenegociacao.GetTipoNovoCliente: string;
+begin
+  if qryNovoCliente.Active then
+       Result:= qryNovoClientetipo.AsString
+  else Result:= 'C';     
+end;
+
+procedure TdtmRenegociacao.ReFazConsultaContratos;
+begin
+  qryNovoCliente.Close;
+  ReFazConsulta(qryContratos,        [0],[qryContratosPorClienteNumero.AsString]);
+  ReFazConsulta(qryParcelas,         [0],[qryContratosPorClienteNumero.AsString]);
+  ReFazConsulta(qryProdutosContratos,[0],[qryContratosPorClienteNumero.AsString]);
+  ReFazConsulta(qryServicosContratos,[0],[qryContratosPorClienteNumero.AsString]);
+//  ReFazConsulta(qryClientesSPC,      [0,1],[qryClientescodigo.ASInteger, qryClientestipo.AsString]);
+  ReFazConsulta(qryContratosExcluir, [0],[qryContratosPorClienteNumero.AsString]);
+end;
+
+procedure TdtmRenegociacao.qryClientesAfterClose(DataSet: TDataSet);
+begin
+  inherited;
+  LimparTabelas;
+end;
+
+procedure TdtmRenegociacao.qryClientesBeforeClose(DataSet: TDataSet);
+begin
+  inherited;
+  qryContratos.ReadOnly:= False;
+end;
+
+function TdtmRenegociacao.GetContratoEditando: boolean;
+begin
+  Result:= qryContratos.State = dsEdit;
+end;
+
+procedure TdtmRenegociacao.RecalcularParcelaOrigem;
+const
+ Numero = 1;
+ Vencimento = 2;
+var
+ Pos: TBookmark;
+ RegistroAtual: TBookmark;
+ ParcelasAuxiliar: array[1..2] of TStringList;
+ A,B, QTP, NP : integer;
+ Vencto : STring;
+begin
+ RegistroAtual := qryParcelas.GetBookmark;
+ ParcelasAuxiliar[Numero] := TStringList.Create;
+ ParcelasAuxiliar[Vencimento] := TStringList.Create;
+
+ Pos:= qryParcelas.GetBookmark;
+ qryparcelas.DisableControls;
+ try
+   qryparcelas.First;
+   while not qryparcelas.Eof do
+   begin
+    ParcelasAuxiliar[Vencimento].Append(qryParcelasdatavencto.AsString);
+    ParcelasAuxiliar[Numero].Append(inttostr(qryParcelasnumero.Asinteger));
+    qryParcelas.Next;
+   end;
+
+   for A := 1 to ParcelasAuxiliar[Vencimento].Count - 1 do
+   begin
+    B := A;
+    While strtodatetime(ParcelasAuxiliar[Vencimento].Strings[B])<
+          strtodatetime(ParcelasAuxiliar[Vencimento].Strings[B-1]) do
+    begin
+     ParcelasAuxiliar[Vencimento].Move(B,B-1);
+     ParcelasAuxiliar[Numero].Move(B,B-1);
+     if B=1 then
+       break
+     else
+       B := B-1;
+    end;
+   end;
+
+   QTP:= 0;
+   Vencto := '';
+   for A := 0 to ParcelasAuxiliar[Vencimento].Count - 1 do
+   if ParcelasAuxiliar[Vencimento].Strings[A] <> Vencto then
+   begin
+     QTP := QTP + 1;
+     Vencto := ParcelasAuxiliar[Vencimento].Strings[A];
+   end;
+
+   NP:= 0;
+   Vencto := '';
+   for A := 0 to ParcelasAuxiliar[Vencimento].Count - 1 do
+   begin
+     if ParcelasAuxiliar[Vencimento].Strings[A] <> Vencto then
+     begin
+       NP := NP + 1;
+       Vencto := ParcelasAuxiliar[Vencimento].Strings[A];
+     end;
+
+     qryparcelas.First;
+     while not qryParcelas.Eof do
+     begin
+       if qryParcelasdatavencto.AsString = ParcelasAuxiliar[Vencimento].Strings[A] then
+       begin
+         qryparcelas.Edit;
+         qryParcelasparcelaorigem.AsString := inttostr(NP)+'/'+inttostr(QTP);
+         qryparcelas.Post;
+       end;
+       qryParcelas.Next;
+     end;
+   end;
+
+   ParcelasAuxiliar[Vencimento].free;
+   ParcelasAuxiliar[Numero].free;
+   qryParcelas.GotoBookmark(RegistroAtual);
+ finally
+   qryParcelas.GotoBookmark(Pos);
+   qryParcelas.FreeBookmark(Pos);
+   qryparcelas.EnableControls;
+ end;
+end;
+
+function TdtmRenegociacao.GetNumeroParcelasValida: Integer;
+begin
+  Result:= ParSistema.MaximoParcelasRenegociacao;
+end;
+
+function TdtmRenegociacao.GetVenctoPrimeiraParcela: Integer;
+begin
+  Result:= ParSistema.VenctoPrimeiraParcela;
+end;
+
+procedure TdtmRenegociacao.SetJurosCobrado(const Value: Real);
+begin
+  if FJurosCobrado <> Value then
+    FJurosCobrado:= Value;
+end;
+
+procedure TdtmRenegociacao.SetNumeroParcela(const Value: Integer);
+begin
+  if FNumeroParcela <> Value then
+    FNumeroParcela:= Value;
+end;
+
+procedure TdtmRenegociacao.SetPrimeiraParcela(const Value: String);
+begin
+  if FPrimeiraParcela <> Value then
+    FPrimeiraParcela:= Value;
+end;
+
+
+procedure TdtmRenegociacao.RetirarContratoSPC;
+begin
+ qryParcelasSPC.First;
+ while not qryParcelasSPC.Eof do
+ begin
+  if qryParcelasSPCcartacliente.AsString<>'' then
+  begin
+    qryIncluirParcelasCartas.Params[0].AsInteger := qryParcelasSPCcartacliente.AsInteger;
+    qryIncluirParcelasCartas.Params[1].AsInteger := qryParcelasSPCcartanumerocliente.AsInteger;
+    qryIncluirParcelasCartas.Params[2].AsString := qryParcelasSPCcontrato.AsString;
+    qryIncluirParcelasCartas.Params[3].asinteger := qryParcelasSPCnumero.asinteger;
+    qryIncluirParcelasCartas.Params[4].Value     := qryParcelasSPCspccliente.asvariant;
+    qryIncluirParcelasCartas.Params[5].AsInteger := 3;
+    qryIncluirParcelasCartas.ExecSql;
+    qryParcelasSPC.Edit;
+    qryParcelasSPCcartacliente.AsVariant := null;
+    qryParcelasSPCcartanumerocliente.AsVariant := null;
+    qryParcelasSPCspccliente.AsVariant := null;
+    qryParcelasSPC.Post;
+  end;
+  if qryParcelasSPCcartaavalista.AsString<>'' then
+  begin
+    qryIncluirParcelasCartas.Params[0].AsInteger := qryParcelasSPCcartaavalista.AsInteger;
+    qryIncluirParcelasCartas.Params[1].AsInteger := qryParcelasSPCcartanumeroavalista.AsInteger;
+    qryIncluirParcelasCartas.Params[2].AsString := qryParcelasSPCcontrato.AsString;
+    qryIncluirParcelasCartas.Params[3].asinteger := qryParcelasSPCnumero.asinteger;
+    qryIncluirParcelasCartas.Params[4].Value := qryParcelasSPCspcavalista.asvariant;
+    qryIncluirParcelasCartas.Params[5].AsInteger := 3;
+    qryIncluirParcelasCartas.ExecSql;
+    qryParcelasSPC.Edit;
+    qryParcelasSPCcartaavalista.AsVariant := null;
+    qryParcelasSPCcartanumeroavalista.AsVariant := null;
+    qryParcelasSPCspcavalista.AsVariant := null;
+    qryParcelasSPC.Post;
+  end;
+  qryParcelasSPC.Next;
+ end;
+end;
+
+function TdtmRenegociacao.GetPodeIncluirParcela: boolean;
+begin
+  Result:= (qryContratos.State in [dsEdit, dsInsert])
+end;
+
+function TdtmRenegociacao.GetColunadaGrade: String;
+begin
+
+end;
+
+function TdtmRenegociacao.GetLinhadaGrade: String;
+begin
+
+end;
+procedure TdtmRenegociacao.qryProdutosContratosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(FOnScrollLinhaColunaGrade) then
+  FOnScrollLinhaColunaGrade(DataSet)
+end;
+procedure TdtmRenegociacao.qryParcelasNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+
+  if FOperacao = tpALTERACAO then
+  begin
+    qryParcelascontrato.AsString:= qryContratosPorClientenumero.AsString;
+  end;
+
+
+  qryParcelasparcelaadicional.AsBoolean := False;
+  qryParcelaspagamentoextracaixa.AsBoolean := False;
+  qryParcelasformapagamento.AsString := 'D';
+end;
+
+procedure TdtmRenegociacao.GerarParcelas(NP: Integer; Vencto: TDateTime;
+  Intervalo: Integer);
+var
+  I: Integer;
+  SaldoParcelas, Dif: Currency;
+begin
+  qryParcelas.DisableControls;
+  try
+    if not qryParcelas.IsEmpty then
+    begin
+      qryParcelas.First;
+      for I:= 1 to qryParcelas.RecordCount do
+        if PodeExcluirParcela then
+          qryParcelas.Delete;
+    end;
+
+    SaldoParcelas := qryContratosPorClientevalorprazo.AsCurrency - ReCalcularTotalDivida;
+
+    if SaldoParcelas = 0 then
+      MensagemAviso('Não existe saldo para ser recalculado.')
+    else
+    begin
+      if not (qryContratos.State in [dsEdit, dsInsert]) then
+        qryContratos.Edit;
+
+      for I:= 0 to NP-1 do begin
+        qryParcelas.Append;
+        qryParcelasdatavencto.AsDateTime := SomarDia(Vencto,(I * Intervalo),'S');
+        qryParcelasvalorvencto.AsCurrency:= RoundTo((SaldoParcelas) / NP,-2);
+
+        qryParcelas.Post;
+      end;
+
+      // Atribui dferenca para a 1 parcela que pode ser alterada.
+      Dif := qryContratosPorClientevalorprazo.AsCurrency - ReCalcularTotalDivida;
+      if Dif <> 0 then
+      begin
+        qryParcelas.first;
+        while not qryParcelas.eof do
+        begin
+          if podealterarparcela then
+            break;
+          qryParcelas.Next;
+        end;
+        qryParcelas.Edit;
+        qryParcelasvalorvencto.AsCurrency:= (qryParcelasvalorvencto.AsCurrency + Dif);
+        qryParcelas.Post;
+      end;
+//      AcertarNumeroParcelas;  BUG #2783  Pq alterar o numero da parcela se a ordenacao se da pela datavencto ou parcelaorigem?
+      RecalcularParcelaOrigem
+    end;
+  finally
+    qryParcelas.EnableControls;
+  end;
+end;
+
+procedure TdtmRenegociacao.GerarParcelas_;
+var
+  I, A: Integer;
+  SaldoParcelas, Dif: Currency;
+begin
+  qryParcelas.DisableControls;
+  try
+    if not qryParcelas.IsEmpty then
+    begin
+      qryParcelas.First;
+      for I:= 1 to qryParcelas.RecordCount do
+        if PodeExcluirParcela then
+          qryParcelas.Delete;
+    end;
+
+    SaldoParcelas := qryContratosPorClientevalorprazo.AsCurrency - ReCalcularTotalDivida;
+
+    if SaldoParcelas = 0 then
+      MensagemAviso('Não existe saldo para ser recalculado.')
+    else
+    begin
+      if not (qryContratos.State in [dsEdit, dsInsert]) then
+        qryContratos.Edit;
+
+      for A:= 1 to NumeroParcela do
+      begin
+        qryParcelas.Append;
+        if not FixoDiaVencto then
+          qryParcelasdatavencto.AsDateTime := SomarDia(StrToDate(PrimeiraParcela),((A-1) * Intervalo),'S')
+        else
+          qryParcelasdatavencto.AsDateTime  := IncMonth(StrToDate(PrimeiraParcela),A-1);
+
+        qryParcelasvalorvencto.AsCurrency:= RoundTo((SaldoParcelas) / NumeroParcela,-2);
+
+        qryParcelastiporecebimento.asinteger := TipoRecebimento; 
+        qryParcelas.Post;
+      end;
+
+      // Atribui dferenca para a 1 parcela que pode ser alterada.
+      Dif := qryContratosPorClientevalorprazo.AsCurrency - ReCalcularTotalDivida;
+      if Dif <> 0 then
+      begin
+        qryParcelas.first;
+        while not qryParcelas.eof do
+        begin
+          if podealterarparcela then
+            break;
+          qryParcelas.Next;
+        end;
+        qryParcelas.Edit;
+        qryParcelasvalorvencto.AsCurrency:= (qryParcelasvalorvencto.AsCurrency + Dif);
+        qryParcelas.Post;
+      end;
+//      AcertarNumeroParcelas;  BUG #2783  Pq alterar o numero da parcela se a ordenacao se da pela datavencto ou parcelaorigem?
+      RecalcularParcelaOrigem
+    end;
+  finally
+    qryParcelas.EnableControls;
+  end;
+end;
+
+procedure TdtmRenegociacao.qryProdutosContratosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  TCurrencyField(qryProdutosContratos.fieldbyname('quantidade')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+end;
+
+procedure TdtmRenegociacao.qryTiposRecebimentosFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  Accept := qryTiposRecebimentospermitirselecionar.asBoolean or
+            (pos(','+qryTiposRecebimentoscodigo.asString+',', qryContratosPorClientelistadetiposderecebimento.asString)<>0);
+end;
+
+end.

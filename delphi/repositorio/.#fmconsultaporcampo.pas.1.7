@@ -1,0 +1,152 @@
+unit fmconsultaporcampo;
+
+interface
+
+uses
+  //VCL/RTL
+  SysUtils, Classes, DB, Grids, DBGrids, StdCtrls, Buttons, Controls, Graphics,
+  ExtCtrls, Forms, Windows,
+  //Componentes
+  cpdbgrid, cpdatasource, biblio, ctconstantes,
+  //repositorio
+  fmconsultabasica, cptexto, ComCtrls,
+  Dialogs;
+
+type
+  TfrmConsultaPorCampo = class(TfrmConsultaBasica)
+  procedure FormShow(Sender: TObject);
+  private
+  protected
+//    FConsultaInterativa: Boolean;
+    function ControleEdicaoParametroAtual: TEditTexto; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor destroy; override;
+{
+    property jan: TfrmConsultaPorCampo read Getjan write fJan;
+    property ListaJan: TfrmConsultaPorCampoItens read fListaJan write fListaJan;
+    }
+
+
+
+  end;
+             {
+  TfrmConsultaPorCampoItens = class(TObjectList)
+  private
+    function GetItem(Index: integer): TfrmConsultaPorCampo;
+    procedure SetItem(Index: integer; const Value: TfrmConsultaPorCampo);
+  public
+    function New(NomeForm: String): TfrmConsultaPorCampo;
+    property Items[Index: integer]: TfrmConsultaPorCampo read GetItem write SetItem;
+  end;
+  }
+
+
+var
+  frmConsultaPorCampo: TfrmConsultaPorCampo;
+
+
+implementation
+
+{$R *.dfm}
+
+function TfrmConsultaPorCampo.ControleEdicaoParametroAtual: TEditTexto;
+begin
+  Result := inherited ControleEdicaoParametroAtual;
+  if Result = nil then
+    Result := GetControleProcura;
+end;
+
+constructor TfrmConsultaPorCampo.Create(AOwner: TComponent);
+begin
+  if Aowner <> NIL then
+    Aowner.insertcomponent(self);
+
+  inherited create(AOwner);
+end;
+
+destructor TfrmConsultaPorCampo.destroy;
+begin
+//  self := nil;
+  SalvarConfiguracoesFormulario;
+  inherited;
+end;
+
+procedure TfrmConsultaPorCampo.FormShow(Sender: TObject);
+begin
+  inherited;
+  if GetControleProcura.Focused then
+    ProcuraEnter(nil)
+  else if Assigned(ControleAtual) and ControleAtual.CanFocus then
+    ControleAtual.SetFocus;
+end;
+
+
+procedure TfrmConsultaPorCampo.KeyDown(var Key: Word; Shift: TShiftState);
+var
+  nomeCampo: String;
+begin
+  if Key = VK_Return then
+  begin
+    if not ConsultaInterativa and (DataSet.RecordCount > 0) and (GetControleProcura.Text = '') then
+    begin
+      bbnOK.Enabled := ControleEdicaoParametroAtual.Name = 'edtProcura';
+      DimensionaFormularioConsulta;
+     {
+    end
+    else
+      if not ConsultaInterativa and (GetControleProcura.Text <> '')then begin
+        nomeCampo := FieldName;
+        // as duas linhas abaixo foram colocadas por daniel, para corrigir
+        // erros na procura de ruas por bairro.
+        // TEM DE SER MUITO TESTADO AINDA, PARA TERMOS CERTEZA DE QUE
+        // NÃO ESTÁ OCASIONANDO BUGS!
+        if nomeCampo='nomebairro' then nomeCampo := 'b.nome';
+        if nomeCampo='cep' then nomeCampo:='r.cep';
+
+        if not ExisteCodigo(-1, NomeCampo, GetControleProcura.Text) then begin
+          if FMsg <> '' then
+               MensagemAviso(FMsg)
+          else MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['registro']));
+          AlteraTituloGrid;
+        end
+        else begin
+          bbnOK.Enabled := ControleEdicaoParametroAtual.Name = 'edtProcura';
+          DimensionaFormularioConsulta;
+        end;
+    }
+      end;
+  end;
+  inherited
+end;
+
+
+{ TfrmConsultaPorCampoItens }
+
+(*
+
+function TfrmConsultaPorCampoItens.GetItem(
+  Index: integer): TfrmConsultaPorCampo;
+begin
+  Result := (inherited GetItem(index) as TfrmConsultaPorCampo);
+end;
+
+function TfrmConsultaPorCampoItens.New(NomeForm: String): TfrmConsultaPorCampo;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  result.name := NomeForm;
+  result.CarregarConfiguracoesFormulario(True);
+
+  Add(Result);
+end;
+
+procedure TfrmConsultaPorCampoItens.SetItem(Index: integer;
+  const Value: TfrmConsultaPorCampo);
+begin
+ inherited SetItem(index, Value);
+end;
+*)
+
+
+end.

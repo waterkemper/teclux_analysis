@@ -1,0 +1,62 @@
+program monitorNfe;
+
+uses
+
+
+  shellapi, ctconstantes,
+  SysUtils,
+  Forms,
+  fmMonitorNFeEntradaSefaz in '..\..\repositorio\fmMonitorNFeEntradaSefaz.pas' {frmMonitorNFeEntradaSefaz},
+//  Style,
+  fmsplash,
+  dmbasico,
+//  fmhelpviewer,
+  versao in 'versao.pas';
+ // fmdescricaoteclux in 'fmdescricaoteclux.pas' {frmDescricaoTecLUX};
+
+
+{$R *.res}
+
+begin
+//  Application.Initialize;
+//  Application.CreateForm(TfrmMonitorNFeEntradaSefaz, frmMonitorNFeEntradaSefaz);
+//  Application.Run;
+
+
+  Application.Initialize;
+//  Application.Icon.LoadFromFile('teclux.ico'); 
+  try
+//    Application.CreateForm(TfrmMonitorNFeEntradaSefaz, frmMonitorNFeEntradaSefaz);
+    Application.Title := 'tecLUX - Monitor Nfe Sefaz';
+    frmSplash := TfrmSplash.Create(Application);
+    frmSplash.setVersao(GetVersao);
+    frmSplash.Show;
+
+    if LerConfiguracaoSistema(frmSplash.Notificacao, true, true) then
+    begin
+      VersaoBanco := TdtmBasico.VersaoBanco;
+      TdtmBasico.SetVersaoTecLUX(GetVersao);
+//      Application.CreateForm(TfrmTecsoft, frmTecsoft);
+      Application.CreateForm(TfrmMonitorNFeEntradaSefaz, frmMonitorNFeEntradaSefaz);
+      frmMonitorNFeEntradaSefaz.visible := false;
+
+//      RegisterHelpViewer;
+//      VerificarECF(frmSplash.Notificacao);
+      {$IFDEF MSWINDOWS}
+//      PendenciasTEF(frmSplash.Notificacao);
+      {$ENDIF}
+//      PendenciaNFe(frmSplash.Notificacao);
+    end
+  finally
+
+    frmSplash.Free;
+    if Assigned(frmMonitorNFeEntradaSefaz) then
+      frmMonitorNFeEntradaSefaz.visible := true;
+      
+    Application.Run;
+
+
+  end;
+
+end.
+

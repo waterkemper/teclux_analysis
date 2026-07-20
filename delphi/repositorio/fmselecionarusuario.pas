@@ -1,0 +1,37 @@
+unit fmselecionarusuario;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmnavcontroles, StdCtrls, Buttons, frconsulta, frconsultacodigo,
+  ctconstantes;
+
+type
+  TfrmSelecionarUsuario = class(TfrmNavControles)
+    gbxFundoJanela: TGroupBox;
+    bbnCancelar: TBitBtn;
+    bbnOK: TBitBtn;
+    gbxUsuario: TGroupBox;
+    fraConsultaUsuarios: TfraConsultaCodigo;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(Aowner:Tcomponent);override;
+  end;
+
+var
+  frmSelecionarUsuario: TfrmSelecionarUsuario;
+
+implementation
+
+{$R *.dfm}
+
+constructor TfrmSelecionarUsuario.Create(Aowner: Tcomponent);
+begin
+  inherited;
+  fraConsultaUsuarios.TipoPesquisa := pesUSUARIOS;
+end;
+
+end.

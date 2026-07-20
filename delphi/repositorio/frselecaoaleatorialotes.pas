@@ -1,0 +1,253 @@
+unit frselecaoaleatorialotes;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, ComCtrls, 
+  Dialogs, frselecaoaleatoria, db, frConsulta, frConsultaCodigo, cpdbfindcontrols,
+  ctconstantes, biblio;
+
+type
+  TfraSelecaoAleatorialotes = class(TFrame)
+    fraSelecaoAleatorialotes: TfraSelecaoAleatoria;
+    procedure fraSelecaoAleatorialotesdbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatorialotesdbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure fraSelecaoAleatorialotesbnProcuraClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatorialotesqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatorialotesqrySelecaoAleatoriaNewRecord(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatorialotesbnIncluirItemClick(
+      Sender: TObject);
+  private
+    { Private declarations }
+    procedure AcionarPesquisaGrade;
+    procedure AtribuirDadoslotes(Found: Boolean);
+    function GetListaCondicional: String;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    property ListaCondicional: String read GetListaCondicional;
+
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TfraSelecaoAleatorialotes }
+
+procedure TfraSelecaoAleatorialotes.AcionarPesquisaGrade;
+begin
+  with fraSelecaoAleatorialotes do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar('Lotes de Produtos');
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+constructor TfraSelecaoAleatorialotes.Create(AOwner: TComponent);
+begin
+  inherited;
+//  if ((owner is TTabSheet) and  TTabSheet(owner).tabvisible) or not (owner is TTabSheet) then
+  begin
+    fraSelecaoAleatorialotes.qrySelecaoAleatoria.Sql.Text :=
+  //     'SELECT  Codigo, descricao FROM lotes WHERE false';
+       'SELECT  cast(null as bigint) as lote, '+
+              ' cast(null as char(20)) as nrlote, '+
+              ' cast(null as date) as fabricacao, '+
+              ' cast(null as date) as validade, '+
+              ' cast(null as varchar(11)) as campo, '+
+              ' cast(null as varchar(20)) as opcomparacao, '+
+              ' cast(null as varchar(2)) as oplogico ';
+
+
+    fraSelecaoAleatorialotes.CampoParaLista := 'lote';
+
+
+    with fraSelecaoAleatorialotes do
+    begin
+      ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+      ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoria';
+      ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 20;
+      ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+      ConsultaSelecaoAleatoria.edfCodigo.DataField := 'nrlote';
+      ConsultaSelecaoAleatoria.edfCodigo.DataaFieldInterno := 'lote';
+      ConsultaSelecaoAleatoria.edfCodigo.DataaFieldVisual := 'nrlote';
+
+      ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+      ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraLotesProdutos;
+      ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'nrlote';
+      ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'nrlote';
+      ConsultaSelecaoAleatoria.edfCodigo.LookupaFieldinterno := 'lote';
+      ConsultaSelecaoAleatoria.edfCodigo.LookupaFieldVisual := 'nrlote';
+      ConsultaSelecaoAleatoria.edfCodigo.NaoExecutarLookupFound := true;
+
+      ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+  //    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+      ConsultaSelecaoAleatoria.TipoPesquisa := pesLOTESPRODUTOS;
+      ConsultaSelecaoAleatoria.OnFound := AtribuirDadoslotes;
+      fraSelecaoAleatorialotes.ConsultaSelecaoAleatoria.edfCodigo.ExibirMensagem := false;
+
+    end;
+
+    fraSelecaoAleatorialotes.UtilizarCamparacaoeLogica := true;
+
+  end;
+end;
+
+procedure TfraSelecaoAleatorialotes.fraSelecaoAleatorialotesdbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  if (fraSelecaoAleatorialotes.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatorialotes.qrySelecaoAleatoria.FieldByName('nrlote')) then
+    acionarPesquisaGrade;
+
+end;
+
+procedure TfraSelecaoAleatorialotes.fraSelecaoAleatorialotesdbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     if (fraSelecaoAleatorialotes.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatorialotes.qrySelecaoAleatoria.FieldByName('nrlote')) then
+                     begin
+                       fraSelecaoAleatorialotes.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                       if (Shift = []) or fraSelecaoAleatorialotes.ConsultaSelecaoAleatoria.CtrlOn then
+                         AcionarPesquisaGrade
+                     end;
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if (fraSelecaoAleatorialotes.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatorialotes.qrySelecaoAleatoria.FieldByName('nrlote')) then
+                begin
+                  fraSelecaoAleatorialotes.ConsultaSelecaoAleatoria.qryProcuraLotesProdutos.close;
+                  fraSelecaoAleatorialotes.ConsultaSelecaoAleatoria.qryProcuraLotesProdutos.parambyname('produto').value := null;
+                  fraSelecaoAleatorialotes.ConsultaSelecaoAleatoria.edfCodigo.text := fraSelecaoAleatorialotes.qrySelecaoAleatoria.FieldByName('nrlote').asString;
+                  fraSelecaoAleatorialotes.ConsultaSelecaoAleatoria.edfCodigo.modified := true;
+                  fraSelecaoAleatorialotes.ConsultaSelecaoAleatoria.edfCodigo.exist;
+                  if (fraSelecaoAleatorialotes.ConsultaSelecaoAleatoria.qryProcuraLotesProdutos.recordcount = 1) then
+                    AtribuirDadoslotes(true)
+                  else
+                  if (fraSelecaoAleatorialotes.ConsultaSelecaoAleatoria.qryProcuraLotesProdutos.recordcount > 1) then
+                  begin
+                     fraSelecaoAleatorialotes.ConsultaSelecaoAleatoria.qryConsultaLotesProdutos.Macrobyname('SQLCondicao').asString :=
+                        ' and l.nrlote = '+quotedstr(fraSelecaoAleatorialotes.ConsultaSelecaoAleatoria.edfCodigo.text);
+                    AcionarPesquisaGrade;
+                  end
+                  else  
+                  begin
+                    key := 0;
+                    fraSelecaoAleatorialotes.dbgSelecaoAleatoria.SelectedIndex := 0;
+                    fraSelecaoAleatorialotes.dbgSelecaoAleatoria.SetFocus;
+                  end;
+
+                end;
+  end;
+
+end;
+
+procedure TfraSelecaoAleatorialotes.fraSelecaoAleatorialotesbnProcuraClick(
+  Sender: TObject);
+begin
+  AcionarPesquisaGrade;
+
+end;
+
+procedure TfraSelecaoAleatorialotes.fraSelecaoAleatorialotesqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+begin
+  with fraSelecaoAleatorialotes do
+  begin
+
+    qrySelecaoAleatoria.FieldByName('lote').visible := false;
+
+    qrySelecaoAleatoria.FieldByName('nrlote').DisplayLabel := 'N° Lote';
+    qrySelecaoAleatoria.FieldByName('nrlote').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('fabricacao').DisplayLabel := 'Fabricado em';
+    qrySelecaoAleatoria.FieldByName('fabricacao').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('validade').DisplayLabel := 'Válido até';
+    qrySelecaoAleatoria.FieldByName('validade').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('oplogico').DisplayLabel := 'Lógica';
+    qrySelecaoAleatoria.FieldByName('oplogico').ReadOnly := false;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+  end;
+
+end;
+
+procedure TfraSelecaoAleatorialotes.fraSelecaoAleatorialotesqrySelecaoAleatoriaNewRecord(
+  DataSet: TDataSet);
+begin
+  with fraSelecaoAleatorialotes do
+  begin
+    qrySelecaoAleatoria.FieldByName('campo').asString := 'nrlote';
+    qrySelecaoAleatoria.FieldByName('opcomparacao').asString := '= Igual a';
+    qrySelecaoAleatoria.FieldByName('oplogico').asString := 'ou';
+  end;
+end;
+
+procedure TfraSelecaoAleatorialotes.AtribuirDadoslotes(Found: Boolean);
+begin
+  with fraSelecaoAleatorialotes do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('lote').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraLotesProdutoslote.AsString;
+
+    qrySelecaoAleatoria.FieldByName('nrlote').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraLotesProdutosnrlote.AsString;
+
+
+    if not ConsultaSelecaoAleatoria.qryProcuraLotesProdutosfabricacao.isnull then
+      qrySelecaoAleatoria.FieldByName('fabricacao').AsDateTime :=
+          ConsultaSelecaoAleatoria.qryProcuraLotesProdutosfabricacao.AsDateTime;
+
+    if not ConsultaSelecaoAleatoria.qryProcuraLotesProdutosvalidade.isnull then
+      qrySelecaoAleatoria.FieldByName('validade').AsDateTime :=
+        ConsultaSelecaoAleatoria.qryProcuraLotesProdutosvalidade.AsDateTime;
+
+    if qrySelecaoAleatoria.FieldByName('campo').asString = '' then
+      qrySelecaoAleatoria.FieldByName('campo').asString := 'nrlote';
+
+    if qrySelecaoAleatoria.FieldByName('opcomparacao').asString = '' then
+      qrySelecaoAleatoria.FieldByName('opcomparacao').asString := '= Igual a';
+
+    if qrySelecaoAleatoria.FieldByName('oplogico').asString = '' then
+      qrySelecaoAleatoria.FieldByName('oplogico').asString := 'ou';
+
+    qrySelecaoAleatoria.Post;
+
+  end;
+end;
+
+function TfraSelecaoAleatorialotes.GetListaCondicional: String;
+begin
+  result := trocar(fraSelecaoAleatorialotes.ListaCondicional, 'nrlote', 'l.nrlote');
+  result := trocar(result, 'fabricacao','l.fabricacao');
+  result := trocar(result, 'validade','l.validade');
+end;
+
+procedure TfraSelecaoAleatorialotes.fraSelecaoAleatorialotesbnIncluirItemClick(
+  Sender: TObject);
+begin
+  fraSelecaoAleatorialotes.sbnIncluirItemClick(Sender);
+
+end;
+
+end.

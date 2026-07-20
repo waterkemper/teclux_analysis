@@ -1,0 +1,130 @@
+unit fmrelatoriosaldocredito;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmrelatoriopadrao, ExtCtrls, Buttons, biblio,
+  frconsultaippgcm, frconsulta, frconsultacodigo, ctconstantes,
+  frconsultacontabil, frconsultacodigocontabil,
+  frconsultafilialgrupofilial, dmrelatoriosaldocredito, ComCtrls,
+  cppagecontrol, cpdbdata, cpdata, ToolWin;
+
+type
+  Tfrmrelatoriosaldocredito = class(TfrmRelatorioPadrao)
+    fraConsultaFilialGrupoFilial: TfraConsultaFilialGrupoFilial;
+    GroupBox1: TGroupBox;
+    fraConsultaClientes: TfraConsultaCodigo;
+    gbxEventos: TGroupBox;
+    fraConsultaEventos: TfraConsultaCodigoContabil;
+    gbxUsuarios: TGroupBox;
+    fraConsultaUsuarios: TfraConsultaCodigo;
+    ckbSomenteAvulsos: TCheckBox;
+    gbxTipo: TGroupBox;
+    ckbEntradas: TCheckBox;
+    ckbSaidas: TCheckBox;
+    tecPageControl1: TtecPageControl;
+    tstProdutos: TTabSheet;
+    tstGrupos: TTabSheet;
+    tstClasses: TTabSheet;
+    fraConsultaProdutos: TfraConsultaCodigo;
+    fraConsultaGrupos: TfraConsultaCodigo;
+    fraConsultaClasses: TfraConsultaCodigo;
+    ckbClientescomSaldo: TCheckBox;
+    gbxData: TGroupBox;
+    gbxDataInicial: TGroupBox;
+    edtDataInicial: TEditData;
+    gbxDataFinal: TGroupBox;
+    edtDataFinal: TEditData;
+  private
+    { Private declarations }
+  protected
+    procedure InternoImpressao; override;
+  public
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+    procedure MontarPesquisa;
+    function SelecionarTipo: Integer;
+    { Public declarations }
+  end;
+
+var
+  frmrelatoriosaldocredito: Tfrmrelatoriosaldocredito;
+
+implementation
+
+{$R *.dfm}
+
+{ Tfrmrelatoriosaldocredito }
+
+constructor Tfrmrelatoriosaldocredito.Create(Aowner: Tcomponent);
+begin
+  inherited;
+  dtmRelatorioSaldoCredito:= TdtmRelatorioSaldoCredito.Create(Self);
+  fraConsultaFilialGrupoFilial.fraConsultaFilial.TipoPesquisa      := pesFILIAIS;
+  fraConsultaFilialGrupoFilial.fraConsultaGrupoFilial.TipoPesquisa := pesGRUPOSFILIAIS;
+  fraConsultaFilialGrupoFilial.MultiplosFiltros := False;
+  fraConsultaClientes.TipoCliente  := 'C';
+  fraConsultaClientes.TipoPesquisa := pesCLIENTES;
+  fraConsultaEventos.TipoPesquisa  := pesEVENTO;
+  fraConsultaUsuarios.TipoPesquisa := pesUSUARIOS;
+  fraConsultaProdutos.TipoPesquisa := pesPRODUTOS;
+  fraConsultaClasses.TipoPesquisa  := pesCLASSES;
+  fraConsultaGrupos.TipoPesquisa   := pesGRUPOS;
+end;
+
+destructor Tfrmrelatoriosaldocredito.Destroy;
+begin
+  dtmRelatorioSaldoCredito := nil;
+  frmrelatoriosaldocredito := nil;
+  inherited;
+end;
+
+procedure Tfrmrelatoriosaldocredito.InternoImpressao;
+begin
+  inherited;
+  MontarPesquisa;
+end;
+
+procedure Tfrmrelatoriosaldocredito.MontarPesquisa;
+begin
+  with dtmrelatoriosaldocredito do
+  begin
+    ParametroCabecalho:= '';
+    Filiais:= fraConsultaFilialGrupoFilial.fraConsultaFilial.edfCodigo.Text;
+    GrupoFiliais:= fraConsultaFilialGrupoFilial.fraConsultaGrupoFilial.edfCodigo.Text;
+    Cliente:= fraConsultaClientes.edfCodigo.Text;
+    TipoCliente := fraConsultaClientes.qryProcuraClientetipo.asString;
+    ItemProduto:= fraConsultaProdutos.edfCodigo.Text;
+    Grupo:= fraConsultaGrupos.edfCodigo.Text;
+    Classe:= fraConsultaClasses.edfCodigo.Text;
+    Evento:= fraConsultaEventos.edfCodigo.Text;
+    Usuario:= fraConsultaUsuarios.edfCodigo.Text;
+    SomenteLancamentosAvulsos:= ckbSomenteAvulsos.Checked;
+    SomenteClientescomSaldo  := ckbClientescomSaldo.Checked;
+    Tipo:= SelecionarTipo;
+    DataInicial := edtDataInicial.Text;
+    DataFinal := edtDataFinal.Text;
+
+    MontarSQL;
+
+    if AbrirRelatorio then
+      ImprimirRelatorio
+    else
+      MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']));
+  end;
+end;
+
+function Tfrmrelatoriosaldocredito.SelecionarTipo: Integer;
+begin
+  if ckbEntradas.Checked and ckbSaidas.Checked then
+    Result:= 0
+  else if ckbEntradas.Checked and not ckbSaidas.Checked then
+    Result:= 1
+  else if not ckbEntradas.Checked and ckbSaidas.Checked then
+    Result:= 2
+  else if not ckbEntradas.Checked and not ckbSaidas.Checked then
+    Result:= 3;
+end;
+
+end.

@@ -1,0 +1,457 @@
+unit fmquestionarios;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmcadastropadrao, ComCtrls, Buttons, ToolWin, ExtCtrls, dmDicionarioDados,
+  StdCtrls, DBCtrls, cpdbmemo, Mask, cpdbfindcontrols, DBEditDateTimePicker,
+  PCheck, PDBCheck, frconsulta, frconsultacodigo, ctconstantes, biblio,
+  Grids, AdvObj, BaseGrid, AdvGrid, DBAdvGrid,db, cpQuery,
+  DBMaplistCombobox, AdvDateTimePicker, AdvDBDateTimePicker, DateUtils;
+
+type
+  TfrmQuestionarios = class(TfrmCadastroPadrao)
+    lblQuestionario: TStaticText;
+    edfCodigoQuestionario: TtecDbEditFind;
+    lblDescricao: TStaticText;
+    mmoDescricao: TtecDBMemo;
+    ckbDisponivel: TPDBCheck;
+    StaticText1: TStaticText;
+    mmoDescricao_Text: TtecDBMemo;
+    PDBCheck1: TPDBCheck;
+    gbxDataHoraINicialValidade: TGroupBox;
+    gbxDataHoraFinallValidade: TGroupBox;
+    gbxDataHoraInativacaoValidade: TGroupBox;
+    dbgPerguntas: TDBAdvGrid;
+    dbgRespostas: TDBAdvGrid;
+    gbxPerguntas: TGroupBox;
+    gbxRespostas: TGroupBox;
+    pnlOpcoesPerguntas: TPanel;
+    btnIncluirPerguntas: TSpeedButton;
+    btnExcluirPerguntas: TSpeedButton;
+    sbnDeslocarPerguntasParaCima: TSpeedButton;
+    sbnDeslocarPerguntasRegistroParaBaixo: TSpeedButton;
+    pnlOpcoesRespostas: TPanel;
+    btnIncluirRespostas: TSpeedButton;
+    btnExcluirRespostas: TSpeedButton;
+    sbnDeslocarRespostasParaCima: TSpeedButton;
+    sbnDeslocarRespostasRegistroParaBaixo: TSpeedButton;
+    DBMTipoQuestionario: TDBMaplistCombobox;
+    lblTipoQuesstionario: TStaticText;
+    AdvDBDateTimePickerDataHoraInicial: TAdvDBDateTimePicker;
+    AdvDBDateTimePickerDataHoraFinal: TAdvDBDateTimePicker;
+    AdvDBDateTimePickerDataHoraInativacao: TAdvDBDateTimePicker;
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure sbnDeslocarPerguntasParaCimaClick(Sender: TObject);
+    procedure sbnDeslocarPerguntasRegistroParaBaixoClick(Sender: TObject);
+    procedure edtDataFimKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtDataFimKeyPress(Sender: TObject; var Key: Char);
+    procedure edtDataFimEnter(Sender: TObject);
+    procedure btnIncluirPerguntasClick(Sender: TObject);
+    procedure btnExcluirPerguntasClick(Sender: TObject);
+    procedure btnExcluirRespostasClick(Sender: TObject);
+    procedure btnIncluirRespostasClick(Sender: TObject);
+    procedure sbnDeslocarRespostasParaCimaClick(Sender: TObject);
+    procedure sbnDeslocarRespostasRegistroParaBaixoClick(Sender: TObject);
+    procedure dbgPerguntasCanAddRow(Sender: TObject; var CanAdd: Boolean);
+    procedure dbgRespostasCanAddRow(Sender: TObject; var CanAdd: Boolean);
+    procedure dbgRespostasCanInsertRow(Sender: TObject; ARow: Integer;
+      var CanInsert: Boolean);
+    procedure dbgRespostasCellValidate(Sender: TObject; ACol,
+      ARow: Integer; var Value: String; var Valid: Boolean);
+    procedure dbgRespostasCheckRequiredFields(Sender: TObject;
+      var Allow: Boolean);
+    procedure dbgPerguntasCheckRequiredFields(Sender: TObject;
+      var Allow: Boolean);
+    procedure dbgPerguntasKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgPerguntasAutoAdvance(Sender: TObject; OldRow,
+      OldCol: Integer; var NewRow, NewCol: Integer; var Allow: Boolean);
+    procedure dbgPerguntasCanClickCell(Sender: TObject; ARow,
+      ACol: Integer; var Allow: Boolean);
+    procedure dbgPerguntasRowMove(Sender: TObject; ARow: Integer;
+      var Allow: Boolean);
+    procedure dbgPerguntasRowMoving(Sender: TObject; ARow: Integer;
+      var Allow: Boolean);
+    procedure dbgPerguntasSelectCell(Sender: TObject; ACol, ARow: Integer;
+      var CanSelect: Boolean);
+
+  private
+    { Private declarations }
+  protected
+    dtmDicionarioDados: TdtmDicionarioDados;
+    ConsultaQuestionarios: TfraConsultaCodigo;
+
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AfterOpenQuestionarios(Sender: TObject);
+    procedure AfterOpenPerguntas(Sender: TObject);
+    procedure AfterOpenRespostas(Sender: TObject);
+    procedure DefinirMinDate;
+
+
+  public
+    { Public declarations }
+     constructor Create(AOwner: TComponent); Override;
+     destructor  Destroy; override;
+
+  end;
+
+var
+  frmQuestionarios: TfrmQuestionarios;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmQuestionarios }
+
+constructor TfrmQuestionarios.Create(AOwner: TComponent);
+begin
+  try
+    if not assigned(dtmDicionarioDados) then
+    begin
+      dtmDicionarioDados := TdtmDicionarioDados.Create(self);
+      dtmDicionarioDados.name := 'dtmDicionarioDados';
+    end;
+
+//    dtmDicionarioDados.owner := self;
+    inherited;
+    DataSet:= dtmDicionarioDados.qryQuestionarios;
+    dtmDicionarioDados.AfterOpenQuestionarios := AfterOpenQuestionarios;
+    dtmDicionarioDados.AfterOpenPerguntas := AfterOpenPerguntas;
+    dtmDicionarioDados.AfterOpenRespostas := AfterOpenRespostas;
+    dtmDicionarioDados.qryQuestionarios.open;
+
+    ConsultaQuestionarios := TfraConsultaCodigo.Create(self);
+    ConsultaQuestionarios.dtmDicionarioDados := dtmDicionarioDados;
+
+    ConsultaQuestionarios.edfCodigo.DataSource := dtmDicionarioDados.dsrQuestionarios;
+    ConsultaQuestionarios.edfCodigo.DataField := 'codigo';
+    ConsultaQuestionarios.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaQuestionarios.AbrirTabelaProcura := false;
+    ConsultaQuestionarios.TipoPesquisa := pesQuestionarios;
+    ConsultaQuestionarios.OnFound := DefinirMinDate;
+    ConsultaQuestionarios.Name := 'fraConsultaQuestionarios';
+
+//    edfCodigoQuestionario.SetFocus;
+
+{
+  AdvDBDateTimePickerDataHoraInicial.date := dtmDicionarioDados.DataServidor;
+  AdvDBDateTimePickerDataHoraInicial.time := dtmDicionarioDados.HoraServidor;
+  AdvDBDateTimePickerDataHoraInicial.datetime := dtmDicionarioDados.DataHoraServidor;
+  }
+
+  AdvDBDateTimePickerDataHoraInicial.MinDate := PrimeiroDiaAno(yearof(dtmDicionarioDados.DataServidor));
+
+   {
+  AdvDBDateTimePickerDataHoraFinal.date := dtmDicionarioDados.DataServidor;
+  AdvDBDateTimePickerDataHoraFinal.time := dtmDicionarioDados.HoraServidor;
+  AdvDBDateTimePickerDataHoraFinal.datetime := dtmDicionarioDados.DataHoraServidor;
+  }
+
+  AdvDBDateTimePickerDataHoraFinal.mindate := UltimoDiaAno(yearof(dtmDicionarioDados.DataServidor));
+
+  {
+  AdvDBDateTimePickerDataHoraInativacao.date := dtmDicionarioDados.DataServidor;
+  AdvDBDateTimePickerDataHoraInativacao.time := dtmDicionarioDados.HoraServidor;
+  AdvDBDateTimePickerDataHoraInativacao.datetime := dtmDicionarioDados.DataHoraServidor;
+  }
+
+  AdvDBDateTimePickerDataHoraInativacao.mindate := UltimoDiaAno(yearof(dtmDicionarioDados.DataServidor)+3);
+
+
+
+
+  except
+       on E: Exception do ShowMessage(E.Message);
+  end;
+end;
+
+destructor TfrmQuestionarios.Destroy;
+begin
+  freeandnil(dtmDicionarioDados);
+  inherited;
+  frmQuestionarios := nil;
+end;
+
+function TfrmQuestionarios.InternoExcluir: Boolean;
+begin
+  dtmDicionarioDados.ExcluirQuestionario;
+end;
+
+function TfrmQuestionarios.InternoGravar: Boolean;
+begin
+  result := dtmDicionarioDados.GravarQuestionarios;
+end;
+
+function TfrmQuestionarios.InternoIncluir: Boolean;
+begin
+
+  if dtmDicionarioDados.AdicionarQuestionarios then
+    DBMTipoQuestionario.setfocus;
+
+
+end;
+
+procedure TfrmQuestionarios.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key =VK_F9) then
+      if sbnProcurar.Enabled then
+         sbnProcurarClick(nil);
+  end;
+
+end;
+
+procedure TfrmQuestionarios.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  if ConsultaQuestionarios.InternoPesquisar('') = mrOK then
+    edfCodigoQuestionario.SetFocus;
+
+end;
+
+procedure TfrmQuestionarios.sbnDeslocarPerguntasParaCimaClick(Sender: TObject);
+
+//  dbgPerguntas.pagemode := false;
+//  dtmDicionarioDados.qryPerguntas.MoveBy(-1);
+//  dtmDicionarioDados.qryPerguntas.Refresh;
+
+//  dbgPerguntas.MoveRow(dbgPerguntas.row, dbgPerguntas.row-1 );
+//  dbgPerguntas.Refresh;
+//  dbgPerguntas.pagemode := true;
+
+//  dbgPerguntas.AutoNumberCol(0);
+//  dbgPerguntas.AutoNumberRow(0);
+
+begin
+  inherited;
+  DeslocarRegistroParaCima(dtmDicionarioDados.qryPerguntas, 'sequencia');
+end;
+
+procedure TfrmQuestionarios.sbnDeslocarPerguntasRegistroParaBaixoClick(
+  Sender: TObject);
+begin
+  inherited;
+  DeslocarRegistroParaBaixo(dtmDicionarioDados.qryPerguntas, 'sequencia');
+end;
+
+procedure TfrmQuestionarios.edtDataFimKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  {
+  if (Shift = [ssShift]) then
+    if key = vk_tab then
+      SelectNext(ActiveControl, False, True);
+      }
+end;
+
+procedure TfrmQuestionarios.edtDataFimKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmQuestionarios.edtDataFimEnter(Sender: TObject);
+begin
+  inherited;
+//  self.ActiveControl := edtDataFim;
+end;
+
+procedure TfrmQuestionarios.btnIncluirPerguntasClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmDicionarioDados.AdicionarPerguntas;
+  dbgPerguntas.setfocus;
+end;
+
+procedure TfrmQuestionarios.AfterOpenQuestionarios(Sender: TObject);
+begin
+  DefinirMinDate;
+end;
+
+procedure TfrmQuestionarios.AfterOpenPerguntas(Sender: TObject);
+begin
+  dbgPerguntas.AutoNumberCol(0);
+  dbgPerguntas.AutoNumberCol(0);
+  dbgPerguntas.refresh;
+//  dbgPerguntas.AutoNumberRow(0);
+end;
+
+procedure TfrmQuestionarios.btnExcluirPerguntasClick(Sender: TObject);
+begin
+  inherited;
+  dtmDicionarioDados.ExcluirPerguntas;
+end;
+
+procedure TfrmQuestionarios.btnExcluirRespostasClick(Sender: TObject);
+begin
+  inherited;
+  dtmDicionarioDados.ExcluirRespostas;
+end;
+
+procedure TfrmQuestionarios.btnIncluirRespostasClick(Sender: TObject);
+begin
+  inherited;
+  dtmDicionarioDados.AdicionarRespostas;
+  dbgRespostas.setfocus;
+
+end;
+
+procedure TfrmQuestionarios.sbnDeslocarRespostasParaCimaClick(
+  Sender: TObject);
+begin
+  inherited;
+  DeslocarRegistroParaCima(dtmDicionarioDados.qryRespostas, 'sequencia');
+end;
+
+procedure TfrmQuestionarios.sbnDeslocarRespostasRegistroParaBaixoClick(
+  Sender: TObject);
+begin
+  inherited;
+  DeslocarRegistroParaBaixo(dtmDicionarioDados.qryRespostas, 'sequencia');
+end;
+
+procedure TfrmQuestionarios.AfterOpenRespostas(Sender: TObject);
+begin
+  dbgRespostas.AutoNumberCol(0);
+  dbgRespostas.refresh;
+
+//  dbgRespostas.AutoNumberRow(0);
+end;
+
+procedure TfrmQuestionarios.dbgPerguntasCanAddRow(Sender: TObject;
+  var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := TtecQuery(dbgPerguntas.DataSource.DataSet).CheckRequiredFields;
+end;
+
+procedure TfrmQuestionarios.dbgRespostasCanAddRow(Sender: TObject;
+  var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := TtecQuery(dbgRespostas.DataSource.DataSet).CheckRequiredFields;
+end;
+
+procedure TfrmQuestionarios.dbgRespostasCanInsertRow(Sender: TObject;
+  ARow: Integer; var CanInsert: Boolean);
+begin
+  inherited;
+//  CanInsert := TtecQuery(dbgRespostas.DataSource.DataSet).CheckRequiredFields;
+end;
+
+procedure TfrmQuestionarios.dbgRespostasCellValidate(Sender: TObject; ACol,
+  ARow: Integer; var Value: String; var Valid: Boolean);
+begin
+  inherited;
+  {
+  if Value = '' then
+  begin
+
+    dbgRespostas.InvalidEntryTitle := 'valor inválido';
+    dbgRespostas.InvalidEntryText := 'não pode ser nulo';
+
+    Valid := false;
+ end;
+ }
+end;
+
+procedure TfrmQuestionarios.dbgRespostasCheckRequiredFields(
+  Sender: TObject; var Allow: Boolean);
+begin
+  inherited;
+  Allow := TtecQuery(dbgRespostas.DataSource.DataSet).CheckRequiredFields;
+end;
+
+procedure TfrmQuestionarios.dbgPerguntasCheckRequiredFields(
+  Sender: TObject; var Allow: Boolean);
+begin
+  inherited;
+  Allow := TtecQuery(dbgPerguntas.DataSource.DataSet).CheckRequiredFields;
+end;
+
+procedure TfrmQuestionarios.dbgPerguntasKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+  begin
+  ;
+  end;
+end;
+
+procedure TfrmQuestionarios.dbgPerguntasAutoAdvance(Sender: TObject;
+  OldRow, OldCol: Integer; var NewRow, NewCol: Integer;
+  var Allow: Boolean);
+
+begin
+  inherited;
+  {
+  if (OldRow <> newRow) and
+     (OldCol <> NewCol) and
+     (oldCol = dbgPerguntas.ColCount-1) then
+    Allow := true {dtmDicionarioDados.qryperguntas.CheckRequiredFields}
+    
+end;
+
+procedure TfrmQuestionarios.dbgPerguntasCanClickCell(Sender: TObject; ARow,
+  ACol: Integer; var Allow: Boolean);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmQuestionarios.dbgPerguntasRowMove(Sender: TObject;
+  ARow: Integer; var Allow: Boolean);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmQuestionarios.dbgPerguntasRowMoving(Sender: TObject;
+  ARow: Integer; var Allow: Boolean);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmQuestionarios.dbgPerguntasSelectCell(Sender: TObject; ACol,
+  ARow: Integer; var CanSelect: Boolean);
+begin
+  inherited;
+ ;
+end;
+
+procedure TfrmQuestionarios.DefinirMinDate;
+begin
+  if dtmDicionarioDados.qryQuestionarios.recordcount <> 0 then
+  begin
+    AdvDBDateTimePickerDataHoraInicial.MinDate := PrimeiroDiaAno(yearof(dtmDicionarioDados.qryQuestionariosdata_inicio.asDateTime));
+    AdvDBDateTimePickerDataHoraInicial.DateTime := dtmDicionarioDados.qryQuestionariosdata_inicio.asDateTime;
+
+    AdvDBDateTimePickerDataHoraFinal.mindate := UltimoDiaAno(yearof(dtmDicionarioDados.qryQuestionariosdata_inicio.asDateTime)+3);
+    AdvDBDateTimePickerDataHoraFinal.datetime := dtmDicionarioDados.qryQuestionariosdata_fim.asDateTime;
+
+    AdvDBDateTimePickerDataHoraInativacao.mindate := UltimoDiaAno(yearof(dtmDicionarioDados.DataServidor)+3);
+    if not dtmDicionarioDados.qryQuestionariosdata_inativo.isnull then
+      AdvDBDateTimePickerDataHoraInativacao.DateTime := dtmDicionarioDados.qryQuestionariosdata_inativo.asDateTime;
+
+    if dtmDicionarioDados.qryQuestionarios.state = dsedit then
+      dtmDicionarioDados.qryQuestionarios.post;  
+
+  end;
+
+end;
+
+end.

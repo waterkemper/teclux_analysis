@@ -1,0 +1,166 @@
+unit fmcadastrocontasentradasfiliais;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  cpdbfindcontrols, StdCtrls, Mask, DBCtrls, cptexto, cpdbtext,
+  //projetos
+  dmcadastrosinternos, Buttons, fmcadastropadrao, ComCtrls, ExtCtrls,
+  ctconstantes, fmConsultaBasica, fmconsultaporcampo, zquery, frconsulta,
+  frconsultacodigo, clparametrossistema, ToolWin;
+
+type
+  TfrmContasContabeisEntradas = class(TFrmCadastroPadrao)
+    pnlFilialDescricao: TPanel;
+    lblFilial: TLabel;
+    dtxCodigoFilial: TtecDBText;
+    dtxNomeFilial: TtecDBText;
+    lblDescricao: TLabel;
+    dtxDescricao: TtecDBText;
+    pnlContaContabil: TPanel;
+    lblContaContabil: TLabel;
+    flkConta: TtecDBFindLookup;
+    sbnProcurarContaEntrada: TSpeedButton;
+    dtxDescricaoConta: TtecDBText;
+    pnlFornecedor: TPanel;
+    fraConsultaFornecedor: TfraConsultaCodigo;
+    lblfornecedor: TLabel;
+    procedure sbnProcurarContaEntradaClick(Sender: TObject);
+  private
+    { Private declarations }
+    TipoConta : TtecTipoContaFilial;
+  public
+    { Public declarations }
+    function InternoIncluir: boolean; override;
+    function InternoExcluir: boolean; override;
+    function InternoGravar: boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    constructor Create(AOwner: TComponent; TipodeConta: TtecTipoContaFilial); Reintroduce;
+    destructor destroy; override;
+    procedure AtribuirNomeFornecedor;
+  end;
+
+var
+  frmContasContabeisEntradas: TfrmContasContabeisEntradas;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmContasContabeisEntradas }
+
+constructor TfrmContasContabeisEntradas.Create(AOwner: TComponent;
+ TipodeConta: TtecTipoContaFilial);
+begin
+  inherited Create(AOwner);
+  case TipodeConta of
+   tcENTRADA : begin
+                 DataSet := dtmCadastrosInternos.qryContasEntradasFiliais;
+                 Caption := 'Contas Contábeis de Entrada';
+                 lblFornecedor.Caption := ctFORNECEDOR;
+                 fraConsultaFornecedor.OnFound := AtribuirNomefornecedor;
+                 fraConsultaFornecedor.TipoPesquisa := pesFORNECEDORES;
+                 fraConsultaFornecedor.TipoCliente := dtmCadastrosInternos.TipoclienteEntrada;
+                 if not ParSistema.GerarContabilidade then
+                   dtmCadastrosInternos.qryContasEntradasFiliais.Edit;
+               end;
+   tcSAIDA : begin
+               DataSet := dtmCadastrosInternos.qryContasSaidasFiliais;
+               Caption := 'Contas Contábeis de Saídas';
+               lblFornecedor.Caption := ctCLIENTE;
+               fraConsultaFornecedor.OnFound := AtribuirNomeFornecedor;
+               fraConsultaFornecedor.TipoPesquisa := pesCLIENTES;
+               fraConsultaFornecedor.TipoCliente := dtmCadastrosInternos.TipoclienteSaida;
+               if not ParSistema.GerarContabilidade then
+                 dtmCadastrosInternos.qryContasSaidasFiliais.Edit;
+             end;
+  end;
+  pnlContaContabil.Visible := ParSistema.GerarContabilidade;
+  TipoConta := TipodeConta;
+end;
+
+destructor TfrmContasContabeisEntradas.destroy;
+begin
+  inherited;
+  frmContasContabeisEntradas := nil;
+end;
+
+function TfrmContasContabeisEntradas.InternoExcluir: boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+    dtmCadastrosInternos.ExcluirContasFilial(Tipoconta);
+  close;  
+end;
+
+function TfrmContasContabeisEntradas.InternoGravar: boolean;
+begin
+  Result:= Inherited InternoGravar;
+  if Result then
+    dtmCadastrosInternos.GravarContasEntradasFilial(TipoConta);
+  close;
+end;
+
+function TfrmContasContabeisEntradas.InternoIncluir: boolean;
+begin
+  result := false;
+  {
+  Result:= Inherited InternoIncluir;
+  if Result then
+    dtmCadastrosInternos.IncluirContasEntradasFilial(True, TipoConta);
+    }
+end;
+
+function TfrmContasContabeisEntradas.InternoPesquisar(
+  Titulo: String): Integer;
+begin
+  Result := mrNone;
+  if CtrlOn then
+    if flkConta.Focused then
+    begin
+      dtmCadastrosInternos.Abre(ctConsultaContaContabil);
+      Result := inherited InternoPesquisar(titulo);
+      if Result = mrOK then
+        dtmCadastrosInternos.SelecionarContaEntradaFilial(TipoConta);
+      dtmCadastrosInternos.Fecha(ctConsultaContaContabil);
+    end;
+end;
+
+function TfrmContasContabeisEntradas.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := false;
+end;
+
+function TfrmContasContabeisEntradas.TabelaDePesquisa: TZDataSet;
+begin
+  Result := dtmCadastrosInternos.qryConsultaContaContabil;
+end;
+
+procedure TfrmContasContabeisEntradas.sbnProcurarContaEntradaClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkConta, ctCONTAS)
+end;
+
+function TfrmContasContabeisEntradas.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  result := dtmCadastrosInternos.ExisteContaContabil(NomeCampo, Value)
+end;
+
+procedure TfrmContasContabeisEntradas.AtribuirNomeFornecedor;
+begin
+  case TipoConta of
+   tcENTRADA : dtmCadastrosInternos.NomeFornecedor := fraConsultaFornecedor.dtxDescricao.Field.Asstring;
+   tcSAIDA   : dtmCadastrosInternos.NomeCliente    := fraConsultaFornecedor.dtxDescricao.Field.Asstring;
+  end;
+end;
+
+end.

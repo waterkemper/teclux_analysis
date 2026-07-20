@@ -1,0 +1,369 @@
+unit fmGerarContratosPrestacaoServicos;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, dmGerarContratosPrestacaoServicos, fmajudabt, ComCtrls, Buttons,
+  ToolWin, ExtCtrls, StdCtrls, cpdata, Mask, frselecaoaleatoria, db,
+  frConsultaCodigo, ctconstantes, cpdbfindcontrols, biblio, ActnList,
+  Grids, DBGrids, cpdbgrid, cpeditioncontrolvalidation, DBCtrls, cptexto,
+  cpnumero, frintervalodatas, FmPrincipalBasico;
+
+type
+  TfrmGerarContratosPrestacaoServicos = class(TfrmAjudaBt)
+    pgcGerarContratosPrestacaoServicos: TPageControl;
+    tstParametros: TTabSheet;
+    tstDados: TTabSheet;
+    gbxClientes: TGroupBox;
+    fraSelecaoAleatoriaClientes: TfraSelecaoAleatoria;
+    sbnGerar: TSpeedButton;
+    sbnConfirma: TSpeedButton;
+    gbxContratos: TGroupBox;
+    dbgContratosSelecionados: TtecDBGrid;
+    ecvValida: TtecEditionControlValidation;
+    Panel1: TPanel;
+    gbxObservacoes: TGroupBox;
+    edtobservacoesnf: TDBEditTexto;
+    GroupBox1: TGroupBox;
+    gbxNrContratosTotal: TGroupBox;
+    edtQtdeContratos: TEditNumero;
+    gbxValorContratos: TGroupBox;
+    edtTotalContratos: TEditNumero;
+    gbxMarcados: TGroupBox;
+    gbxQtdeSelecionada: TGroupBox;
+    edtQtdeMarcados: TEditNumero;
+    gbxValoresSelecionados: TGroupBox;
+    edtTotalMarcados: TEditNumero;
+    ckbSelecionarTodos: TCheckBox;
+    Timer1: TTimer;
+    fraIntervaloDatas1: TfraIntervaloDatas;
+    rgpOpcaoSelecao: TRadioGroup;
+    sbnContrato: TSpeedButton;
+    procedure fraSelecaoAleatoriaClientesqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaClientesdbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaClientesdbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure fraSelecaoAleatoriaClientessbnProcuraClick(Sender: TObject);
+    procedure fraSelecaoAleatoriaClientessbnIncluirItemClick(
+      Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure ckbSelecionarTodosClick(Sender: TObject);
+    procedure dbgContratosSelecionadosDblClick(Sender: TObject);
+    procedure dbgContratosSelecionadosKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure Timer1Timer(Sender: TObject);
+    procedure sbnConfirmaClick(Sender: TObject);
+    procedure sbnContratoClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure AtribuirDadosClientes(Found: Boolean);
+    procedure AcionarPesquisaClientes;
+    procedure AtualizarContadores(SoMarcados: Boolean);
+    procedure ZerarContadores;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+
+  public
+    { Public declarations }
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+
+  end;
+
+var
+  frmGerarContratosPrestacaoServicos: TfrmGerarContratosPrestacaoServicos;
+  ControleValido: TWinControl;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmGerarContratosPrestacaoServicos.fraSelecaoAleatoriaClientesqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+var nc: integer;
+  
+begin
+  inherited;
+  with fraSelecaoAleatoriaClientes do begin
+     qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'CÓDIGO';
+     qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+     qrySelecaoAleatoria.FieldByName('tipo').DisplayLabel := 'T';
+     qrySelecaoAleatoria.FieldByName('tipo').ReadOnly := False;
+
+     qrySelecaoAleatoria.FieldByName('nome').DisplayLabel := 'NOME DO CLIENTE';
+     qrySelecaoAleatoria.FieldByName('nome').ReadOnly := true;
+
+     qrySelecaoAleatoria.Append;
+     qrySelecaoAleatoria.Post;
+
+     with dbgSelecaoAleatoria do
+          for nc:= 0 to 1 do with Columns[nc].Title do begin
+              Alignment:= taCenter;
+              Font.Name:= 'helvetica';
+              Font.Height:= -9;
+          end;
+  end;
+
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.fraSelecaoAleatoriaClientesdbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaClientes;
+
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.fraSelecaoAleatoriaClientesdbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                    fraSelecaoAleatoriaClientes.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                    if (Shift = []) or fraSelecaoAleatoriaClientes.ConsultaSelecaoAleatoria.CtrlOn then
+                      AcionarPesquisaClientes
+                  end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaClientes.dbgSelecaoAleatoria.SelectedIndex = 0  then
+               begin
+                 fraSelecaoAleatoriaClientes.ConsultaSelecaoAleatoria.edfCodigo.DoExit;
+                 if not fraSelecaoAleatoriaClientes.ConsultaSelecaoAleatoria.qryProcuraCliente.IsEmpty then
+                    AtribuirDadosClientes(true)
+                 else
+                 begin
+                   key := 0;
+                   fraSelecaoAleatoriaClientes.dbgSelecaoAleatoria.SelectedIndex := 0;
+                   fraSelecaoAleatoriaClientes.dbgSelecaoAleatoria.SetFocus;
+                 end;
+               end;
+  end;
+  inherited;
+
+end;
+
+constructor TfrmGerarContratosPrestacaoServicos.Create(Aowner: Tcomponent);
+begin
+  dtmGerarContratosPrestacaoServicos := TdtmGerarContratosPrestacaoServicos.Create(Self);
+  inherited;
+
+  fraSelecaoAleatoriaClientes.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaClientes.CampoParaLista2 := 'tipo';
+
+  fraSelecaoAleatoriaClientes.qrySelecaoAleatoria.Open;
+  with fraSelecaoAleatoriaClientes do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoriaClientes';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 4;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraCliente;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesCLIENTES;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosClientes;
+    ConsultaSelecaoAleatoria.TipoCliente := 'C';
+  end;
+  
+//  edtdiaInicial.text := '01';
+//  edtDataFinalPeriodo.Text := DateToStr(UltimoDiaMesPassado(1));
+    fraIntervaloDatas1.edtDataInicial.text := DateToStr(PrimeiroDiaMesPassado(0));
+    fraIntervaloDatas1.edtDataFinal.Text := DateToStr(DataLocal);
+
+end;
+
+destructor TfrmGerarContratosPrestacaoServicos.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.AcionarPesquisaClientes;
+begin
+  with fraSelecaoAleatoriaClientes do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar(ctCLIENTES);
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.AtribuirDadosClientes(Found: Boolean);
+begin
+  with fraSelecaoAleatoriaClientes do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraClientecodigo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('tipo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraClientetipo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('nome').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraClientenome.AsString;
+
+    qrySelecaoAleatoria.Post;
+  end;
+
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.fraSelecaoAleatoriaClientessbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaClientes;
+
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.fraSelecaoAleatoriaClientessbnIncluirItemClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraSelecaoAleatoriaClientes.sbnIncluirItemClick(Sender);
+
+end;
+
+
+procedure TfrmGerarContratosPrestacaoServicos.sbnGerarClick(
+  Sender: TObject);
+begin
+  inherited;
+  if ecvValida.Verify(fraIntervaloDatas1, ControleValido) then
+  begin
+
+    if dtmGerarContratosPrestacaoServicos.gerarConsultacontratosServicos(fraIntervaloDatas1.edtDataInicial.text,
+              fraIntervaloDatas1.edtDataFinal.Text, fraSelecaoAleatoriaClientes.StringSelecionada,
+              rgpOpcaoSelecao.itemIndex) then
+    begin
+      pgcGerarContratosPrestacaoServicos.ActivePage := tstDados;
+      dtmGerarContratosPrestacaoServicos.MarcarSelecionados(ckbSelecionarTodos.Checked,True);
+      AtualizarContadores(False);
+    end
+    else
+      MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']));
+  end
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.AtualizarContadores(
+  SoMarcados: Boolean);
+begin
+  with dtmGerarContratosPrestacaoServicos do
+  begin
+    if not SoMarcados then begin
+      edtQtdeContratos.Text  := IntToStr(QtdeContratos);
+      edtTotalContratos.Text := Format('%8.2m', [TotalContratos]);
+    end;
+    edtQtdeMarcados.Text  := IntToStr(QtdeMarcados);
+    edtTotalMarcados.Text := Format('%8.2m', [TotalMarcados]);
+  end;
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.ZerarContadores;
+begin
+  edtQtdeContratos.Clear;
+  edtQtdeMarcados.Clear;
+  edtTotalContratos.Clear;
+  edtTotalMarcados.Clear;
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.ckbSelecionarTodosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmGerarContratosPrestacaoServicos.MarcarSelecionados(ckbSelecionarTodos.Checked,True);
+  AtualizarContadores(True);
+
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.dbgContratosSelecionadosDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmGerarContratosPrestacaoServicos.MarcarSelecionados(ckbSelecionarTodos.Checked, False);
+  AtualizarContadores(True);
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.dbgContratosSelecionadosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_SPACE then
+    if Shift = [ssCtrl] then
+    begin
+      dtmGerarContratosPrestacaoServicos.MarcarSelecionados(ckbSelecionarTodos.Checked, False);
+      AtualizarContadores(True);
+    end;
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  sbnGerar.Enabled := (pgcGerarContratosPrestacaoServicos.ActivePage = tstParametros) and
+                      (fraIntervaloDatas1.edtDataInicial.text <> '') and (fraIntervaloDatas1.edtDataFinal.Text <> '');
+
+  sbnConfirma.Enabled := (pgcGerarContratosPrestacaoServicos.ActivePage = tstDados) and
+                         (dtmGerarContratosPrestacaoServicos.QtdeMarcados <> 0);
+
+  sbnContrato.Enabled := not dtmGerarContratosPrestacaoServicos.qryContratosManutencaocontrato.IsNull; 
+
+
+
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+
+  if (key = vk_F5) and not (ssCtrl in shift) then
+    if sbnConfirma.enabled then
+      sbnConfirmaClick(nil)
+  else
+  if (key = vk_F6) and not (ssCtrl in shift) then
+  begin
+    if sbnGerar.enabled then
+      sbnGerarClick(nil)
+  end
+  else
+  if (key = vk_F8) and not (ssCtrl in shift) then
+  begin
+    if sbnContrato.enabled then
+      sbnContratoClick(nil)
+  end;
+
+
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.sbnConfirmaClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmGerarContratosPrestacaoServicos.gerarcontratoporcontratodemanutencao;
+  sbnGerarClick(nil);
+  
+end;
+
+procedure TfrmGerarContratosPrestacaoServicos.sbnContratoClick(
+  Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmGerarContratosPrestacaoServicos.qryContratosManutencaocontrato.asstring], 'TfrmCadastroContratos', True);
+end;
+
+end.

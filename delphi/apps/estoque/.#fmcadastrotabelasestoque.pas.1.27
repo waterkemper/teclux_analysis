@@ -1,0 +1,1805 @@
+unit fmcadastrotabelasestoque;
+
+interface
+
+uses
+
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, DBCtrls, Mask, ComCtrls, ExtCtrls, Buttons, Windows,
+  Grids, DBGrids,
+  // Componentes
+  cpdbfindcontrols, cpdata, cpnumero, cptexto, cpdbdata, cpdbgrid,
+  cpdbtext, cppagecontrol, cpquery, cpdbradiogroup,
+  // Biblio
+  ctconstantes, biblio,
+  // Terceiros
+  ZQuery,
+  // Repositorio
+  fmconsultabasica, fmconsultaporcampo, fmcadastropadrao, frcomissao,
+  // Projeto
+  dmcadastrotabelasestoque, cpdbmemo, frconsulta, frconsultacodigo, ToolWin,
+  PCheck, PDBCheck, AdvDateTimePicker, AdvDBDateTimePicker, AdvSpin,
+  DBAdvSp, AdvEdit, AdvMoneyEdit, DBAdvMoneyEdit, AdvObj, BaseGrid,
+  AdvGrid, DBAdvGrid, AdvPageControl, GradientLabel, frmctrllink,
+  AsgFindDialog, Menus, AdvMenus, tmsAdvGridExcel;
+
+type
+  TfrmCadastroTabelasEstoque = class(TfrmCadastroPadrao)
+    pgcTabelas: TtecPageControl;
+    tstGrupos: TTabSheet;
+    tstClasses: TTabSheet;
+    tstUnidades: TTabSheet;
+    tstICMS: TTabSheet;
+    tstIPI: TTabSheet;
+    tstObsLegais: TTabSheet;
+    tstColunas: TTabSheet;
+    tstMarcas: TTabSheet;
+    fraComissaoClasse: TfraComissao;
+    edtDescricaoIPI: TDBEditTexto;
+    edtAliquotaIPI: TDBEditNumero;
+    edfIPI: TtecDbEditFind;
+    sbnSincronizarICMSEstados: TSpeedButton;
+    gbxICMSPorEstado: TGroupBox;
+    sbnReplicarValoresICMS: TSpeedButton;
+    dbgICMS: TtecDBGrid;
+    edtDescricaoICMS: TDBEditTexto;
+    edfICMS: TtecDbEditFind;
+    edtDescricaoUnidade: TDBEditTexto;
+    edfUnidade: TtecDbEditFind;
+    edtDescricaoClasses: TDBEditTexto;
+    edfClasse: TtecDbEditFind;
+    edtDescricaoMarcas: TDBEditTexto;
+    edtInativoMarcas: TDBEditData;
+    edfMarca: TtecDbEditFind;
+    edtDescricaoColunas: TDBEditTexto;
+    edfColuna: TtecDbEditFind;
+    edfObsLegaisNotas: TtecDbEditFind;
+    pnlFundoJanela: TPanel;
+    rgpGruposVendaNegativa: TtecDBRadioGroup;
+    rbnSimVendaNegativa: TtecRadioButton;
+    rbnNaoVendaNegativa: TtecRadioButton;
+    rgpClassesVendaNegativa: TtecDBRadioGroup;
+    tecRadioButton1: TtecRadioButton;
+    tecRadioButton2: TtecRadioButton;
+    tstGruposFornecedores: TTabSheet;
+    edtDescricaoGruposFornecedores: TDBEditTexto;
+    edfCodigoGruposFornecedores: TtecDbEditFind;
+    rgpUsadoPara: TtecDBRadioGroup;
+    rbnProduto: TtecRadioButton;
+    rbnFrete: TtecRadioButton;
+    rbnSeguro: TtecRadioButton;
+    tstFatorPreco: TTabSheet;
+    edtDescricaoFator: TDBEditTexto;
+    edfCodigoFator: TtecDbEditFind;
+    edtMultiploClasse: TDBEditNumero;
+    tstGradesProdutos: TTabSheet;
+    edtDescricaoGrade: TDBEditTexto;
+    edfGradesProdutos: TtecDbEditFind;
+    dbgElementosGrade: TtecDBGrid;
+    sbnExcluirElementoGrade: TSpeedButton;
+    ckbNaoReplicarClasse: TDBCheckBox;
+    gbxEstados: TGroupBox;
+    dbgEstadosIPI: TtecDBGrid;
+    gbxCodigoGrupo: TGroupBox;
+    gbxInativoGrupo: TGroupBox;
+    gbxDescricaoGrupo: TGroupBox;
+    gbxCodigoClasse: TGroupBox;
+    gbxInativoClasse: TGroupBox;
+    gbxDescricaoClasse: TGroupBox;
+    gbxCodigoUnidade: TGroupBox;
+    gbxInativoUnidade: TGroupBox;
+    gbxDescricao: TGroupBox;
+    gbxCodigoICMS: TGroupBox;
+    gbxInativoICMS: TGroupBox;
+    gbxDescricaoICMS: TGroupBox;
+    gbxCodigoIPI: TGroupBox;
+    gbxInativoIPI: TGroupBox;
+    gbxDescricaoIPI: TGroupBox;
+    gbxCodigoObsLegais: TGroupBox;
+    gbxInativoObsLegais: TGroupBox;
+    gbxDescricaoObsLegaisNotas: TGroupBox;
+    gbxCodigoColPreco: TGroupBox;
+    gbxInativoColPreco: TGroupBox;
+    gbxDescricaoColPreco: TGroupBox;
+    gbxCodigoMarca: TGroupBox;
+    gbxInativoMarca: TGroupBox;
+    gbxDescricaoMarca: TGroupBox;
+    gbxCodGrupoFornecedor: TGroupBox;
+    gbxInativoGrupoFornecedor: TGroupBox;
+    gbxDescricaoGrupoFornecedor: TGroupBox;
+    gbxCodigoMoeda: TGroupBox;
+    gbxInativoMoeda: TGroupBox;
+    gbxDescricaoMoeda: TGroupBox;
+    gbxCodigoGrade: TGroupBox;
+    gbxInativoGrade: TGroupBox;
+    gbxDescricaoGrade: TGroupBox;
+    edfGrupo: TtecDbEditFind;
+    edtDescricaoGrupos: TDBEditTexto;
+    gbxMarkUpGrupo: TGroupBox;
+    gbxMultiploGrupo: TGroupBox;
+    edtMarkup: TDBEditNumero;
+    edtMultiploGrupo: TDBEditNumero;
+    gbxOpcoesGrupo: TGroupBox;
+    ckbCalcularPreco: TDBCheckBox;
+    ckbNaoReplicarGrupo: TDBCheckBox;
+    ckbInclurPlanilhaCustos: TDBCheckBox;
+    lblPercGrupo: TLabel;
+    gbxMultiploClasse: TGroupBox;
+    gbxOpcoesClasse: TGroupBox;
+    gbxAliquotaIPI: TGroupBox;
+    lblPercIPI: TLabel;
+    gbxSubstituicaoTributaria: TGroupBox;
+    gbxElementos: TGroupBox;
+    gbxGenero: TGroupBox;
+    edtGenero: TDBEditNumero;
+    mmoDescricaoObsLegais: TtecDBMemo;
+    gbxObsLegaisLivros: TTabSheet;
+    gbxCodigoObsLivrosFiscais: TGroupBox;
+    edfObsLegaisLivros: TtecDbEditFind;
+    gbxDescricaoObsLegaisLivros: TGroupBox;
+    mmoDescricaoObsLegaisLivros: TtecDBMemo;
+    gbxDescricaoTabelaIPI: TGroupBox;
+    mmoDescricaoIPI: TtecDBMemo;
+    gbxTabelaIPI: TGroupBox;
+    gbxClassificacaoFiscal: TGroupBox;
+    gbxEXTIPI: TGroupBox;
+    edtEXTIPI: TDBEditTexto;
+    fraConsultaClassificacaoIPI: TfraConsultaCodigo;
+    tstModelos: TTabSheet;
+    gbxCodigoModelo: TGroupBox;
+    gbxEspecificacao: TGroupBox;
+    edtEspecificacao: TDBEditTexto;
+    gbxObservacaoModelo: TGroupBox;
+    mmoDescricaoModelo: TtecDBMemo;
+    gbxDescricaModelo: TGroupBox;
+    edtDescricaoModelo: TDBEditTexto;
+    edfCodigoModelo: TtecDBFindLookup;
+    gbxLimitesComissoes: TGroupBox;
+    dbgGruposComissoes: TtecDBGrid;
+    pnlDescricaoSetup: TPanel;
+    sbnIncluirGrupodeComissoes: TSpeedButton;
+    gbxDepreciacao: TGroupBox;
+    DBEditNumero1: TDBEditNumero;
+    Label1: TLabel;
+    ckbIsentoPisCofins: TDBCheckBox;
+    stxGruposVendaSem: TStaticText;
+    stxClassesVendaSem: TStaticText;
+    gbxInativoObsLegaisLivros: TGroupBox;
+    ColorDialog1: TColorDialog;
+    ckbEmExposicao: TDBCheckBox;
+    ckbUmaEtiquetaporbalcao: TDBCheckBox;
+    ckbExigirNumeroSerieaoFaturar: TDBCheckBox;
+    gbxObservaocoesProdutosVendasGrupos: TGroupBox;
+    mmoObservacaoProdutosVendasGrupos: TtecDBMemo;
+    gbxObservaocoesProdutosMarcas: TGroupBox;
+    mmoObservacaoProdutosVendasMarcas: TtecDBMemo;
+    dbgAgendamentoGrupos: TtecDBGrid;
+    gbxAgendamentoGruposProdutos: TGroupBox;
+    pnlGruposAgendamentosBotoes: TPanel;
+    sbnExcluirProdutosAgendamentos: TSpeedButton;
+    tstPromocoes: TTabSheet;
+    GroupBox1: TGroupBox;
+    edfPromocao: TtecDbEditFind;
+    GroupBox2: TGroupBox;
+    edtDescricaoPromocao: TDBEditTexto;
+    GroupBox3: TGroupBox;
+    edfValidadePromocao: TDBEditData;
+    GroupBox4: TGroupBox;
+    mmoObservacaoProdutosPromocoes: TtecDBMemo;
+    gbxClassesobservacoesvenda: TGroupBox;
+    mmoClassesobservacoesvenda: TtecDBMemo;
+    gbxAgendamentoClassesProdutos: TGroupBox;
+    dbgAgendamentoClassesProdutos: TtecDBGrid;
+    Panel1: TPanel;
+    sbnExcluirClssesAgendamentos: TSpeedButton;
+    GroupBox5: TGroupBox;
+    dbgAgendamentoMarcasProdutos: TtecDBGrid;
+    Panel2: TPanel;
+    sbnExcluirMarcasAgendamentos: TSpeedButton;
+    ckbNaoPermitirDesconto: TPDBCheck;
+    gbxObservaocoesProdutosEntradasGrupos: TGroupBox;
+    mmoObservaocoesProdutosEntradasGrupos: TtecDBMemo;
+    gbxNomeSite: TGroupBox;
+    edtnome_site: TDBEditTexto;
+    tstCashBack: TTabSheet;
+    gbxCashBack: TGroupBox;
+    gbxDescricaoCashBack: TGroupBox;
+    edtDescricaoCashBack: TDBEditTexto;
+    gbxvalidadeinicial: TGroupBox;
+    AdvDBDateTimePickervalidadeinicial: TAdvDBDateTimePicker;
+    gbxvalidadeFinal: TGroupBox;
+    AdvDBDateTimePickervalidadeFinal: TAdvDBDateTimePicker;
+    fraCashBack: TfraComissao;
+    gbxCompraMinima: TGroupBox;
+    DBAdvMoneyEdit1: TDBAdvMoneyEdit;
+    gbxValidadeSaldo: TGroupBox;
+    DBAdvSpinEdit1: TDBAdvSpinEdit;
+    fraConsultaCodigoCashBack: TfraConsultaCodigo;
+    AdvPageControlGrupos: TAdvPageControl;
+    AdvTabSheetProdutos: TAdvTabSheet;
+    AdvTabSheetGrupos: TAdvTabSheet;
+    AdvTabSheetClasses: TAdvTabSheet;
+    AdvTabSheetMarcas: TAdvTabSheet;
+    pnlTopCashBack: TPanel;
+    DBAdvGridProdutos: TDBAdvGrid;
+    GradientLabelPesquisaCampo: TGradientLabel;
+    pnlEdicaoDados: TPanel;
+    fraConsulta_: TfraConsultaCodigo;
+    PanelProdutos: TPanel;
+    sbnIncluirProdutosCashBack: TSpeedButton;
+    sbnExcluirProdutosCashBack: TSpeedButton;
+    FormControlEditLink1: TFormControlEditLink;
+    DBAdvGridGrupos: TDBAdvGrid;
+    Panel3: TPanel;
+    sbnIncluirCashBackGrupos: TSpeedButton;
+    sbnExcluirPCashBackGrupos: TSpeedButton;
+    DBAdvGridClasses: TDBAdvGrid;
+    Panel4: TPanel;
+    sbnIncluirCashBackClasses: TSpeedButton;
+    sbnExcluirPCashBackClasses: TSpeedButton;
+    DBAdvGridMarcas: TDBAdvGrid;
+    Panel5: TPanel;
+    sbnIncluirCashBackMarcas: TSpeedButton;
+    sbnExcluirPCashBackMarcas: TSpeedButton;
+    tstAtributos: TTabSheet;
+    GroupBoxCodigoAtributo: TGroupBox;
+    fraConsultaCodigoAtributos: TfraConsultaCodigo;
+    GroupBoxDescricaoAtributo: TGroupBox;
+    edtDescricaoAtributo: TDBEditTexto;
+    DBAdvGridAtributos_Produtos_Items: TDBAdvGrid;
+    pnlAtributos_Produtos_Items: TPanel;
+    pnlAtributos_Produtos: TPanel;
+    pnBotoeslAtributos_Produtos_Items: TPanel;
+    sbnIncluirAtributos_Produtos_Items: TSpeedButton;
+    sbnExcluirAtributos_Produtos_Items: TSpeedButton;
+    gbxDisponibilidadeSaldo: TGroupBox;
+    DBAdvSpinEdit2: TDBAdvSpinEdit;
+    AdvTabSheetCargos: TAdvTabSheet;
+    AdvTabSheetFiliais: TAdvTabSheet;
+    DBAdvGridCargos: TDBAdvGrid;
+    Panel6: TPanel;
+    sbnIncluirCashBackCargos: TSpeedButton;
+    sbnExcluirPCashBackCargos: TSpeedButton;
+    DBAdvGridFiliais: TDBAdvGrid;
+    Panel7: TPanel;
+    sbnIncluirCashBackFiliais: TSpeedButton;
+    sbnExcluirPCashBackFiliais: TSpeedButton;
+    rgpSite: TtecDBRadioGroup;
+    rbnSim: TtecRadioButton;
+    rbnNao: TtecRadioButton;
+    rbnSomente: TtecRadioButton;
+    PDBCheckdisponivelfrentecaixa: TPDBCheck;
+    AdvGridExcelIO1: TAdvGridExcelIO;
+    AdvPopupMenu1: TAdvPopupMenu;
+    Pesquizar1: TMenuItem;
+    ExportarExcel1: TMenuItem;
+    AdvGridFindDialog1: TAdvGridFindDialog;
+    procedure pgcTabelasChange(Sender: TObject);
+    procedure sbnReplicarValoresICMSClick(Sender: TObject);
+    procedure sbnSincronizarICMSEstadosClick(Sender: TObject);
+    procedure dbgICMSKeyPress(Sender: TObject; var Key: Char);
+    procedure dbgElementosGradeKeyPress(Sender: TObject; var Key: Char);
+    procedure sbnExcluirElementoGradeClick(Sender: TObject);
+    procedure dbgElementosGradeDblClick(Sender: TObject);
+    procedure dbgElementosGradeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgEstadosIPIDblClick(Sender: TObject);
+    procedure dbgEstadosIPIKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure fraComissaoClassergpTipoComissaoChange(Sender: TObject);
+    procedure dbgGruposComissoesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirGrupodeComissoesClick(Sender: TObject);
+    procedure dbgElementosGradeDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure sbnExcluirProdutosAgendamentosClick(Sender: TObject);
+    procedure sbnExcluirClssesAgendamentosClick(Sender: TObject);
+    procedure sbnExcluirMarcasAgendamentosClick(Sender: TObject);
+    procedure DBAdvGridProdutosGetEditorType(Sender: TObject; ACol,
+      ARow: Integer; var AEditor: TEditorType);
+    procedure DBAdvGridProdutosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnExcluirProdutosCashBackClick(Sender: TObject);
+    procedure sbnIncluirProdutosCashBackClick(Sender: TObject);
+    procedure FormControlEditLink1SetEditorFocus(Sender: TObject;
+      Grid: TAdvStringGrid; AControl: TWinControl);
+    procedure DBAdvGridGruposGetEditorType(Sender: TObject; ACol,
+      ARow: Integer; var AEditor: TEditorType);
+    procedure sbnIncluirCashBackGruposClick(Sender: TObject);
+    procedure sbnExcluirPCashBackGruposClick(Sender: TObject);
+    procedure DBAdvGridGruposKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure DBAdvGridClassesGetEditorType(Sender: TObject; ACol,
+      ARow: Integer; var AEditor: TEditorType);
+    procedure DBAdvGridMarcasGetEditorType(Sender: TObject; ACol,
+      ARow: Integer; var AEditor: TEditorType);
+    procedure sbnExcluirPCashBackClassesClick(Sender: TObject);
+    procedure sbnExcluirPCashBackMarcasClick(Sender: TObject);
+    procedure sbnIncluirCashBackClassesClick(Sender: TObject);
+    procedure sbnIncluirCashBackMarcasClick(Sender: TObject);
+    procedure DBAdvGridMarcasKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure DBAdvGridClassesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirAtributos_Produtos_ItemsClick(Sender: TObject);
+    procedure sbnExcluirAtributos_Produtos_ItemsClick(Sender: TObject);
+    procedure DBAdvGridAtributos_Produtos_ItemsKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure DBAdvGridAtributos_Produtos_ItemsCheckRequiredFields(
+      Sender: TObject; var Allow: Boolean);
+    procedure DBAdvGridCargosGetEditorType(Sender: TObject; ACol,
+      ARow: Integer; var AEditor: TEditorType);
+    procedure DBAdvGridCargosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirCashBackCargosClick(Sender: TObject);
+    procedure sbnExcluirPCashBackCargosClick(Sender: TObject);
+    procedure DBAdvGridFiliaisGetEditorType(Sender: TObject; ACol,
+      ARow: Integer; var AEditor: TEditorType);
+    procedure DBAdvGridFiliaisKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirCashBackFiliaisClick(Sender: TObject);
+    procedure sbnExcluirPCashBackFiliaisClick(Sender: TObject);
+    procedure Pesquizar1Click(Sender: TObject);
+    procedure ExportarExcel1Click(Sender: TObject);
+  protected
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure Keydown(var Key: Word; Shift: TShiftState); override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    procedure PosicionarCursor;
+    procedure AtualizarAliquota;
+    procedure NCMAntesAbrir;
+    procedure SelecionarCorElementoGrade;
+
+    procedure AtribuirDadosprodutoCashBack;
+    procedure AtribuirDadosGruposCashBack;
+    procedure AtribuirDadosClassesCashBack;
+    procedure AtribuirDadosMarcasCashBack;
+    procedure AtribuirDadosCargosCashBack;
+    procedure AtribuirDadosFiliaisCashBack;
+
+
+
+    procedure AtribuirDadosAtributos;
+
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    function TituloPesquisa : String;
+    function PesquisaHabilitada: Boolean;
+  end;
+
+var
+  frmCadastroTabelasEstoque: TfrmCadastroTabelasEstoque;
+  TipoTabela  : TtecTabelasEstoque;
+  TipoPesquisa: TtecPesquisa;
+
+implementation
+
+Uses
+  //Biblio
+  clparametrossistema, DB, dmbasico;
+
+{$R *.dfm}
+
+constructor TfrmCadastroTabelasEstoque.Create(AOwner: TComponent);
+begin
+  dtmCadastroTabelasEstoques := TdtmCadastroTabelasEstoques.Create(Self);
+  inherited;
+  DataSet := dtmCadastroTabelasEstoques.TabelaGrupos;
+  dtmCadastroTabelasEstoques.Abre(ctTabelaGrupos);
+  pgcTabelas.ActivePage := tstGrupos;
+  tstGradesProdutos.TabVisible := ParSistema.UsarGradesProdutos;
+  fraConsultaClassificacaoIPI.TipoPesquisa:= pesNCMTABELAIPI;
+  fraConsultaClassificacaoIPI.CondicoesdaConsulta:= NCMAntesAbrir;
+
+  dbgGruposComissoes.OnDelete := dtmCadastroTabelasEstoques.ExcluirGruposComissoes;
+  stxClassesVendaSem.Height:= 11;
+  stxGruposVendaSem. Height:= 11;
+  dbgAgendamentoGrupos.onDelete := dtmCadastroTabelasEstoques.ExcluirGruposAgendamentos;
+
+  fraConsultaCodigoCashBack.tipopesquisa := pesCashBack;
+  pnlEdicaoDados.visible := false;
+
+  AdvDBDateTimePickervalidadeinicial.DateTime := dtmCadastroTabelasEstoques.DataHoraServidor;
+  AdvDBDateTimePickervalidadeFinal.DateTime := dtmCadastroTabelasEstoques.DataHoraServidor;
+
+
+  fraConsultaCodigoAtributos.tipopesquisa := pesAtributos;
+  fraConsultaCodigoAtributos.OnFound := AtribuirDadosAtributos;
+
+
+end;
+
+destructor TfrmCadastroTabelasEstoque.Destroy;
+begin
+  dtmCadastroTabelasEstoques:=nil;
+  inherited;
+  frmCadastroTabelasEstoque := nil;
+end;
+
+
+procedure TfrmCadastroTabelasEstoque.sbnReplicarValoresICMSClick(Sender: TObject);
+begin
+  dtmCadastroTabelasEstoques.ReplicarValoresICMS
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnSincronizarICMSEstadosClick(Sender: TObject);
+begin
+  dtmCadastroTabelasEstoques.SincronizarICMSEstados(0);
+end;
+
+procedure TfrmCadastroTabelasEstoque.pgcTabelasChange(Sender: TObject);
+begin
+  with dtmCadastroTabelasEstoques do begin
+    case TtecTabelasEstoque(pgcTabelas.ActivePageIndex) of
+      tbeGRADES             : DataSet := TabelaGrade;
+      tbeGRUPOS             : DataSet := TabelaGrupos;
+      tbeCLASSES            : DataSet := TabelaClasses;
+      tbeUNIDADES           : DataSet := TabelaUnidades;
+      tbeICMS               : DataSet := TabelaICMS;
+      tbeIPI                : DataSet := TabelaIPI;
+      tbeOBSLEGAIS          : DataSet := TabelaObsLegais;
+      tbeOBSLIVROSFISCAIS   : DataSet := qryObsLivrosFiscais;
+      tbeCOLUNAS            : DataSet := TabelaColunas;
+      tbePROMOCOES          : DataSet := TabelaPromocoes;
+      tbeCASHBACK           :
+      begin
+        DataSet := qryCashBack;
+        {
+        AdvDBDateTimePickervalidadeinicial.Date := dtmCadastroTabelasEstoques.DataServidor;
+        AdvDBDateTimePickervalidadeinicial.Time := dtmCadastroTabelasEstoques.HoraServidor;
+        }
+//        AdvDBDateTimePickervalidadeinicial.DateTime := dtmCadastroTabelasEstoques.DataHoraServidor;
+
+//        AdvDBDateTimePickervalidadeinicial.Checked := false;
+
+//        AdvDBDateTimePickervalidadeFinal.Date := dtmCadastroTabelasEstoques.DataServidor;
+//        AdvDBDateTimePickervalidadeFinal.Time := dtmCadastroTabelasEstoques.HoraServidor;
+//        AdvDBDateTimePickervalidadeFinal.DateTime := dtmCadastroTabelasEstoques.DataHoraServidor;
+
+//        AdvDBDateTimePickervalidadefinal.Checked := false;
+
+      end;
+      tbeMARCAS             : DataSet := TabelaMarcas;
+      tbeMODELOS            : DataSet := qryModelos;
+      tbeGRUPOSFORNECEDORES : DataSet := TabelaGruposFornecedores;
+      tbeFATORES            : DataSet := TabelaFatoresPreco;
+      tbeATRIBUTOS          : DataSet := qryAtributos_Produtos;
+    end;
+    TipoTabela := TtecTabelasEstoque(pgcTabelas.ActivePageIndex);
+    AbrirTabelasCadastro(TipoTabela);
+    PosicionarCursor;
+  end;
+end;
+
+function TfrmCadastroTabelasEstoque.PesquisaHabilitada: Boolean;
+begin
+  if pgcTabelas.activepage = tstCashBack then
+  begin
+    result := false;
+//    if ActiveControl =  fraConsultaCodigoCashBack.edfCodigo then
+      fraConsultaCodigoCashBack.InternoPesquisar('Cash Back');
+  end
+  else
+  if pgcTabelas.activepage = tstAtributos then
+  begin
+    result := false;
+//    if ActiveControl =  fraConsultaCodigoAtributos.edfCodigo then
+      fraConsultaCodigoAtributos.InternoPesquisar('Atributos');
+  end
+  else
+  begin
+    if CtrlOn then
+    begin
+
+      if ActiveControl is TtecDBFindLookup then
+      begin
+        if fraConsultaClassificacaoIPI.edfCodigo.Focused then
+          Result:= False
+        else
+          Result:= True;
+
+      end
+      else
+        Result:= False;
+
+    end
+    else
+    begin
+      TipoPesquisa:= pesNENHUMA;
+      Result:= True;
+    end;
+  end;  
+
+end;
+
+function TfrmCadastroTabelasEstoque.InternoPesquisar(Titulo:String): Integer;
+begin
+  Result:= mrNone;
+  if PesquisaHabilitada then
+    with dtmCadastroTabelasEstoques do
+    begin
+      AbrirTabelasConsulta(TipoTabela);
+      Result:= inherited InternoPesquisar(TituloPesquisa);
+      if Result = mrOK then
+        SelecionarMultiplas(TipoTabela, TipoPesquisa);
+      FecharTabelasConsulta(TipoTabela);
+    end;
+end;
+
+function TfrmCadastroTabelasEstoque.InternoIncluir: Boolean;
+begin
+  PosicionarCursor;
+  Result:= inherited InternoIncluir;
+  if Result and not CtrlOn then
+     with dtmCadastroTabelasEstoques do
+      case TipoTabela of
+        tbeGRADES             : Result := IncluirGrade;
+        tbeGRUPOS             : Result := IncluirGrupos;
+        tbeCLASSES            : Result := IncluirClasses;
+        tbeUNIDADES           : Result := IncluirUnidades;
+        tbeICMS               : Result := IncluirICMS;
+        tbeIPI                : Result := IncluirIPI;
+        tbeOBSLEGAIS          : Result := IncluirObsLegais;
+        tbeOBSLIVROSFISCAIS   : Result := IncluirObsLivrosFiscais;
+        tbeCOLUNAS            : Result := IncluirColunas;
+        tbePROMOCOES          : Result := IncluirPromocoes;
+        tbeCASHBACK           :
+        begin
+          Result := IncluirCashBack;
+          AdvDBDateTimePickervalidadeFinal.checked := false;
+        end;
+        tbeMARCAS             : Result := IncluirMarcas;
+        tbeMODELOS            : Result := IncluirModelos;
+        tbeGRUPOSFORNECEDORES : Result := IncluirGruposFornecedores;
+        tbeFATORES            : Result := IncluirFatoresPreco;
+        tbeATRIBUTOS          : begin
+                                  result := IncluirAtributos_Produtos;
+                                   
+                                end;
+      end;
+end;
+
+function TfrmCadastroTabelasEstoque.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result and not CtrlOn then
+    with dtmCadastroTabelasEstoques do begin
+      case TipoTabela of
+        tbeGRADES             : Result := ExcluirGrade;
+        tbeGRUPOS             : Result := ExcluirGrupos;
+        tbeCLASSES            : Result := ExcluirClasses;
+        tbeUNIDADES           : Result := ExcluirUnidades;
+        tbeICMS               : Result := ExcluirICMS;
+        tbeIPI                : Result := ExcluirIPI;
+        tbeOBSLEGAIS          : Result := ExcluirObsLegaisNotas;
+        tbeOBSLIVROSFISCAIS   : Result := ExcluirObsLegaisLivros;
+        tbeCOLUNAS            : Result := ExcluirColunas;
+        tbePROMOCOES          : Result := ExcluirPromocoes;
+        tbeCASHBACK           : Result := ExcluirCashBack;
+        tbeMARCAS             : Result := ExcluirMarcas;
+        tbeMODELOS            : Result := ExcluirModelos;
+        tbeGRUPOSFORNECEDORES : Result := ExcluirGruposFornecedores;
+        tbeFATORES            : Result := ExcluirFatoresPreco;
+        tbeATRIBUTOS          : Result := ExcluirAtributos_Produtos;
+      end;
+    end;
+    PosicionarCursor;
+end;
+
+function TfrmCadastroTabelasEstoque.InternoGravar: Boolean;
+begin
+  Result := True;
+  if ActiveControl is TtecDBFindLookup then
+    Result := TtecDBFindLookup(ActiveControl).Exist;
+  if Result then begin
+    Result := inherited InternoGravar;
+    if Result then
+      with dtmCadastroTabelasEstoques do
+      case TipoTabela of
+        tbeGRADES             : Result := GravarGrade;
+        tbeGRUPOS             : Result := GravarGrupos;
+        tbeCLASSES            : Result := GravarClasses;
+        tbeUNIDADES           : Result := GravarUnidades;
+        tbeICMS               : Result := GravarICMS;
+        tbeIPI                : Result := GravarIPI;
+        tbeOBSLEGAIS          : Result := GravarObsLegaisNotas;
+        tbeOBSLIVROSFISCAIS   : Result := GravarObsLegaisLivros;
+        tbeCOLUNAS            : Result := GravarColunas;
+        tbePROMOCOES          : Result := GravarPromocoes;
+        tbeCASHBACK           : Result := GravarCashBack;
+        tbeMARCAS             : Result := GravarMarcas;
+        tbeModelos            : Result := GravarModelos;
+        tbeGRUPOSFORNECEDORES : Result := GravarGruposFornecedores;
+        tbeFATORES            : Result := GravarFatoresPreco;
+        tbeATRIBUTOS          :
+        begin
+          Result := GravarAtributos_Produtos;
+
+        end;
+      end;
+    if Result then
+      PosicionarCursor
+  end;
+end;
+
+function TfrmCadastroTabelasEstoque.TituloPesquisa: String;
+begin
+  case TipoTabela of
+    tbeGRADES            : Result := 'Grades';
+    tbeGRUPOS    :  case TipoPesquisa of
+                       pesCLASSES:  Result := 'Classes';
+                     else           Result := 'Grupos';
+                     end;
+    tbeCLASSES            : Result := 'Classes';
+    tbeUNIDADES           : Result := 'Unidades';
+    tbeICMS               : Result := 'ICMS';
+    tbeIPI                : Result := 'IPI';
+    tbeOBSLEGAIS,
+    tbeOBSLIVROSFISCAIS   : Result := 'Observações Legais';
+    tbeCOLUNAS            : Result := 'Colunas';
+    tbePROMOCOES          : Result := 'Promoções';
+
+
+    tbeMARCAS             : Result := 'Marcas';
+    tbeMODELOS            : Result := 'Modelos';
+    tbeGRUPOSFORNECEDORES : Result := 'Grupos Fornecedores';
+    tbeFATORES            : Result := 'Fatores Preço';
+  end;
+end;
+
+function TfrmCadastroTabelasEstoque.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+end;
+
+function TfrmCadastroTabelasEstoque.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmCadastroTabelasEstoques do
+    case TipoTabela of
+      tbeGRADES             : Result := ConsultarGrade;
+      tbeGRUPOS    : case TipoPesquisa of
+                       pesCLASSES:  Result := ConsultarClasses;
+                     else           Result := ConsultarGrupos;
+                     end;
+      tbeCLASSES            : Result := ConsultarClasses;
+      tbeUNIDADES           : Result := ConsultarUnidades;
+      tbeICMS               : Result := ConsultarICMS;
+      tbeIPI                : Result := ConsultarIPI;
+      tbeOBSLEGAIS          : Result := ConsultarObsLegais;
+      tbeOBSLIVROSFISCAIS   : Result := qryConsultaObsLivrosFiscais;
+      tbeCOLUNAS            : Result := ConsultarColunas;
+      tbePROMOCOES          : REsult := ConsultarPromocoes;
+      tbeMARCAS             : Result := ConsultarMarcas;
+      tbeModelos            : Result := qryConsultaModelos;
+      tbeGRUPOSFORNECEDORES : Result := ConsultarGruposFornecedores;
+      tbeFATORES            : Result := ConsultarFatoresPreco;
+      else                    Result := nil;
+    end;
+end;
+
+function TfrmCadastroTabelasEstoque.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmCadastroTabelasEstoques do
+  case TipoTabela of
+    tbeGRADES             : Result := ExisteGrade(NomeCampo, Value);
+    tbeGRUPOS    : case TipoPesquisa of
+                     pesCLASSES: Result := ExisteClasses(NomeCampo, Value)
+                   else          Result := ExisteGrupos(NomeCampo, Value)
+                   end;
+    tbeCLASSES            : Result := ExisteClasses(NomeCampo, Value);
+    tbeUNIDADES           : Result := ExisteUnidades(NomeCampo, Value);
+    tbeICMS               : Result := ExisteICMS(NomeCampo, Value);
+    tbeIPI                : Result := ExisteIPI(NomeCampo, Value);
+    tbeOBSLEGAIS          : Result := ExisteObsLegais(NomeCampo, Value);
+    tbeOBSLIVROSFISCAIS   : Result := ExisteLivrosFiscais(NomeCampo, Value);
+    tbeCOLUNAS            : Result := ExisteColunas(NomeCampo, Value);
+    tbePROMOCOES          : REsult := ExistePromocao(NomeCampo, Value);
+    tbeMARCAS             : Result := ExisteMarcas(NomeCampo, Value);
+    tbeModelos            : result := ExisteModelos(NomeCampo, Value);
+    tbeGRUPOSFORNECEDORES : Result := ExisteGruposFornecedores(NomeCampo, Value);
+    tbeFATORES            : Result := ExisteFatoresPreco(NomeCampo, Value);
+    else                    Result := False;
+  end;
+end;
+
+procedure TfrmCadastroTabelasEstoque.Keydown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if ((pgcTabelas.ActivePage = tstICMS) and
+      sbnReplicarValoresICMS.Enabled  and
+      (Shift = [ssCtrl]) and(Key = VK_R))
+  then
+    sbnReplicarValoresICMSClick(nil);
+end;
+
+procedure TfrmCadastroTabelasEstoque.PosicionarCursor;
+begin
+   case TipoTabela of
+     tbeGRADES             : edfGradesProdutos.SetFocus;
+     tbeGRUPOS             : edfGrupo.SetFocus;
+     tbeCLASSES            : edfClasse.SetFocus;
+     tbeUNIDADES           : edfUnidade.SetFocus;
+     tbeFATORES            : edfCodigoFator.SetFocus;
+     tbeICMS               : if edfICMS.canfocus then
+                               edfICMS.SetFocus
+                             else
+                               edtDescricaoICMS.SetFocus;
+
+     tbeIPI                : if edfIPI.canfocus then
+                               edfIPI.SetFocus
+                             else
+                               edtDescricaoIPI.SetFocus;
+
+     tbeOBSLEGAIS          : if edfObsLegaisNotas.canfocus then
+                               edfObsLegaisNotas.SetFocus
+                             else
+                               mmoDescricaoObsLegais.SetFocus;
+
+     tbeOBSLIVROSFISCAIS   : if edfObsLegaisLivros.canfocus then
+                               edfObsLegaisLivros.SetFocus
+                             else
+                               mmoDescricaoObsLegaisLivros.SetFocus;
+
+     tbeCOLUNAS            : if edfColuna.canfocus then
+                               edfColuna.SetFocus
+                             else
+                               edtDescricaoColunas.SetFocus;
+
+     tbePROMOCOES          : if edfPromocao.canfocus then
+                               edfPromocao.SetFocus
+                             else
+                               edtDescricaoPromocao.SetFocus;
+
+     tbeCASHBACK           : if fraConsultaCodigoCashBack.edfCodigo.canfocus then
+                               fraConsultaCodigoCashBack.edfCodigo.SetFocus
+                             else
+                               edtDescricaoCashBack.SetFocus;
+
+     tbeATRIBUTOS           : if fraConsultaCodigoAtributos.edfCodigo.CanFocus then
+                               fraConsultaCodigoAtributos.edfCodigo.SetFocus
+                             else
+                               edtDescricaoAtributo.SetFocus;
+
+     tbeMARCAS             : if edfMarca.canfocus then
+                               edfMarca.SetFocus
+                             else
+                               edtDescricaoMarcas.SetFocus;
+
+     tbeMODELOS             : if edfCodigoModelo.canfocus then
+                               edfCodigoModelo.SetFocus
+                             else
+                               edtEspecificacao.SetFocus;
+
+     tbeGRUPOSFORNECEDORES : if edfCodigoGruposFornecedores.canfocus then
+                               edfCodigoGruposFornecedores.SetFocus
+                             else
+                               edtDescricaoGruposFornecedores.SetFocus;
+   end;
+end;
+
+procedure TfrmCadastroTabelasEstoque.dbgICMSKeyPress(Sender: TObject; var Key: Char);
+begin
+  inherited;
+  case Key of
+    'e', 'E': Key:= Char(0);
+  end;
+end;
+
+procedure TfrmCadastroTabelasEstoque.dbgElementosGradeKeyPress(Sender: TObject; var Key: Char);
+begin
+  inherited;
+  if key = '_' then
+    key := #0
+  else
+    Key := UpCase(Key);
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnExcluirElementoGradeClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.ExcluirElementoGrade
+end;
+
+procedure TfrmCadastroTabelasEstoque.dbgElementosGradeDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  if dbgElementosGrade.SelectedField.Fieldname = dbgElementosGrade.ColumnByName('usual').FieldName then
+    dtmCadastroTabelasEstoques.marcarUsual
+  else
+  if dbgElementosGrade.SelectedField.fieldname = dbgElementosGrade.ColumnByName('cor').Fieldname then
+    SelecionarCorElementoGrade;
+end;
+
+procedure TfrmCadastroTabelasEstoque.dbgElementosGradeKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+             VK_SPACE: if Shift = [ssCtrl] then
+                          dtmCadastroTabelasEstoques.marcarusual;
+             VK_F9 :
+             begin
+                if ctrlon then
+                  SelecionarCorElementoGrade;
+             end;
+  end;
+end;
+
+procedure TfrmCadastroTabelasEstoque.dbgEstadosIPIDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.SelecionarEstadoIPI;
+end;
+
+procedure TfrmCadastroTabelasEstoque.dbgEstadosIPIKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_SPACE) and (Shift = [ssCtrl]) then
+    dtmCadastroTabelasEstoques.SelecionarEstadoIPI;
+end;
+
+procedure TfrmCadastroTabelasEstoque.fraComissaoClassergpTipoComissaoChange(
+  Sender: TObject);
+begin
+  inherited;
+  fraComissaoClasse.rgpTipoComissaoChange(Sender);
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.AtualizarAliquota;
+begin
+  with dtmCadastroTabelasEstoques do
+  begin
+    qryIPI.Edit;
+    qryIPIaliquota.AsFloat:= fraConsultaClassificacaoIPI.qryProcuraNCMTabelaaliquotanumero.AsFloat;
+  end;
+end;
+
+procedure TfrmCadastroTabelasEstoque.NCMAntesAbrir;
+begin
+  if fraConsultaClassificacaoIPI.edfCodigo.Text <> '' then
+    fraConsultaClassificacaoIPI.qryConsultaNCMTabela.Locate('classificacao',fraConsultaClassificacaoIPI.edfCodigo.Text,[])
+end;
+
+procedure TfrmCadastroTabelasEstoque.dbgGruposComissoesKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (shift = [ssCtrl]) and (key = VK_F3) then
+    sbnIncluirGrupodeComissoes.Click;
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnIncluirGrupodeComissoesClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.IncluirGruposComissoes(False);
+end;
+
+procedure TfrmCadastroTabelasEstoque.dbgElementosGradeDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if column.FieldName = 'cor' then
+  begin
+    if dtmCadastroTabelasEstoques.qryElementosGradecor.asstring <> '' then
+    begin
+      TDBGrid(Sender).Canvas.Font.Color := StringtoColor(dtmCadastroTabelasEstoques.qryElementosGradecor.asstring);
+      TDBGrid(Sender).Canvas.Brush.Color := StringtoColor(dtmCadastroTabelasEstoques.qryElementosGradecor.asstring);
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+  end;
+end;
+
+procedure TfrmCadastroTabelasEstoque.SelecionarCorElementoGrade;
+begin
+  if ColorDialog1.execute then
+  begin
+    dtmCadastroTabelasEstoques.qryElementosGrade.edit;
+    dtmCadastroTabelasEstoques.qryElementosGradecor.asString := inttostr(tcolorref(ColorDialog1.Color));
+  end;
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnExcluirProdutosAgendamentosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.ExcluirGruposAgendamentos;
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnExcluirClssesAgendamentosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.ExcluirClassesAgendamentos;
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnExcluirMarcasAgendamentosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.ExcluirMarcasAgendamentos;
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridProdutosGetEditorType(
+  Sender: TObject; ACol, ARow: Integer; var AEditor: TEditorType);
+
+begin
+  inherited;
+
+
+  fraConsulta_.visible := false;
+
+  if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'produtovisual') then
+  begin
+    With fraConsulta_ do
+    begin
+      fraConsulta_.Width := TDBAdvGrid(Sender).Columns[Acol].Width;
+      fraConsulta_.edfcodigo.Width := fraConsulta_.Width-23;
+      fraConsulta_.sbnprocura.left := fraConsulta_.edfcodigo.Width;
+
+
+
+      fraConsulta_.edfCodigo.Operacao := opATRIBUICAO;
+      fraConsulta_.edfCodigo.MaxLength := 18;
+
+      fraConsulta_.edfCodigo.DataaFieldInterno := '';
+      fraConsulta_.edfCodigo.DataaFieldVisual := '';
+      fraConsulta_.edfCodigo.DataField := '';
+      
+      fraConsulta_.edfCodigo.DataSource := dtmCadastroTabelasEstoques.dsrCashBackProdutos;
+      fraConsulta_.edfCodigo.DataaFieldInterno := 'produto';
+      fraConsulta_.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+      fraConsulta_.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+
+      fraConsulta_.edfCodigo.LookupaFieldinterno := '';
+      fraConsulta_.edfCodigo.LookupaFieldvisual := '';
+      fraConsulta_.edfCodigo.LookupQueryParameter := '';
+      fraConsulta_.edfCodigo.LookupField := '';
+      
+      fraConsulta_.edfCodigo.LookupSource := fraConsulta_.dsrProcuraItemProdutos;
+      fraConsulta_.edfCodigo.LookupaFieldinterno := 'codigo';
+      fraConsulta_.edfCodigo.LookupaFieldvisual := 'produtovisual';
+      fraConsulta_.edfCodigo.LookupQueryParameter := 'produtovisual';
+      fraConsulta_.edfCodigo.LookupField := 'produtovisual';
+
+      fraConsulta_.OnFound := AtribuirDadosprodutoCashBack;
+      TipoPesquisa := pesITEMPRODUTOS;
+
+      fraConsulta_.edfCodigo.text := dtmCadastroTabelasEstoques.dsrCashBackProdutos.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+      fraConsulta_.edfCodigo.exist;
+    end;
+    fraConsulta_.visible := true;
+
+  end;
+end;
+
+procedure TfrmCadastroTabelasEstoque.AtribuirDadosprodutoCashBack;
+
+begin
+
+  if DBAdvGridProdutos.GetDistinctValues(1, DBAdvGridProdutos.row, true ).indexof(fraConsulta_.qryProcuraItemProdutosprodutovisual.asString)<>-1 then
+  begin
+    MensagemAviso('Produto já cadastrado!');
+    dtmCadastroTabelasEstoques.qryCashBackProdutos.cancel;
+
+//    dtmCadastroTabelasEstoques.qryCashBackProdutos.locate(
+//      'produtovisual', fraConsulta_.qryProcuraItemProdutosprodutovisual.asString, []);
+  end
+  else
+  begin
+
+    dtmCadastroTabelasEstoques.qryCashBackProdutosdescricaoproduto.asString :=
+       fraConsulta_.qryProcuraItemProdutosdescricao.asString;
+
+    dtmCadastroTabelasEstoques.qryCashBackProdutosproduto.asString :=
+       fraConsulta_.qryProcuraItemProdutosproduto.asString;
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridProdutosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_F9) and (Shift = [ssCtrl]) then
+  begin
+    if (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'produtovisual') then
+    begin
+      DBAdvGridProdutos.Col := 1;
+      DBAdvGridProdutos.ShowInplaceEdit;
+      fraConsulta_.sbnProcuraClick(sender)
+    end;
+  end
+  else
+  if (key = VK_F2) and (Shift = [ssCtrl]) then
+    sbnIncluirProdutosCashBackClick(nil)
+  else
+  if (key = VK_F3) and (Shift = [ssCtrl]) then
+  begin
+    DBAdvGridProdutos.Col := 1;
+    dtmCadastroTabelasEstoques.qryCashBackProdutos.edit;
+    DBAdvGridProdutos.ShowInplaceEdit;
+  end
+  else
+  if (key = VK_DELETE) and (Shift = [ssCtrl]) then
+    dtmCadastroTabelasEstoques.ExcluirCashBackProdutos;
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnExcluirProdutosCashBackClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.ExcluirCashBackProdutos
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnIncluirProdutosCashBackClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not dtmCadastroTabelasEstoques.qryCashBack.isempty then
+  begin
+    DBAdvGridProdutos.setfocus;
+    DBAdvGridProdutos.col := 1;
+    if dtmCadastroTabelasEstoques.qryCashBackProdutos.isempty then
+      dtmCadastroTabelasEstoques.qryCashBackProdutos.edit
+    else
+      dtmCadastroTabelasEstoques.qryCashBackProdutos.append;
+
+    DBAdvGridProdutos.ShowInplaceEdit;
+//    fraConsulta_.sbnProcuraClick(sender);
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.FormControlEditLink1SetEditorFocus(
+  Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+begin
+  inherited;
+  if fraConsulta_.visible then
+    fraConsulta_.edfcodigo.setfocus;
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridGruposGetEditorType(
+  Sender: TObject; ACol, ARow: Integer; var AEditor: TEditorType);
+begin
+  inherited;
+
+
+  fraConsulta_.visible := false;
+
+  if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'grupo') then
+  begin
+    With fraConsulta_ do
+    begin
+      fraConsulta_.Width := TDBAdvGrid(Sender).Columns[Acol].Width;
+      fraConsulta_.edfcodigo.Width := fraConsulta_.Width-23;
+      fraConsulta_.sbnprocura.left := fraConsulta_.edfcodigo.Width;
+
+
+
+      fraConsulta_.edfCodigo.Operacao := opATRIBUICAO;
+      fraConsulta_.edfCodigo.MaxLength := 4;
+
+      fraConsulta_.edfCodigo.DataaFieldInterno := '';
+      fraConsulta_.edfCodigo.DataaFieldVisual := '';
+      fraConsulta_.edfCodigo.DataField := '';
+
+      fraConsulta_.edfCodigo.DataSource := dtmCadastroTabelasEstoques.dsrCashBackGrupos;
+
+      fraConsulta_.edfCodigo.DataaFieldInterno := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+      fraConsulta_.edfCodigo.DataaFieldVisual := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+      fraConsulta_.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+
+      fraConsulta_.edfCodigo.LookupaFieldinterno := '';
+      fraConsulta_.edfCodigo.LookupaFieldvisual := '';
+      fraConsulta_.edfCodigo.LookupQueryParameter := '';
+      fraConsulta_.edfCodigo.LookupField := '';
+
+      fraConsulta_.edfCodigo.LookupSource := fraConsulta_.dsrProcuraGrupoProdutos;
+      fraConsulta_.edfCodigo.LookupaFieldinterno := 'codigo';
+      fraConsulta_.edfCodigo.LookupaFieldvisual := 'codigo';
+
+      fraConsulta_.edfCodigo.LookupQueryParameter := 'codigo';
+      fraConsulta_.edfCodigo.LookupField := 'codigo';
+
+      fraConsulta_.OnFound := AtribuirDadosGruposCashBack;
+      TipoPesquisa := pesGRUPOS;
+
+      fraConsulta_.edfCodigo.text := dtmCadastroTabelasEstoques.dsrCashBackGrupos.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+      fraConsulta_.edfCodigo.exist;
+      
+    end;
+    fraConsulta_.visible := true;
+
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.AtribuirDadosGruposCashBack;
+begin
+  if DBAdvGridGrupos.GetDistinctValues(1, DBAdvGridGrupos.row, true ).indexof(fraConsulta_.qryProcuraGrupoProdutos.fieldbyname('codigo').asString)<>-1 then
+  begin
+    MensagemAviso('Grupo já cadastrado!');
+    dtmCadastroTabelasEstoques.qryCashBackGrupos.cancel;
+  end
+  else
+    dtmCadastroTabelasEstoques.qryCashBackGruposdescricaogrupo.asString :=
+       fraConsulta_.qryProcuraGrupoProdutos.fieldbyname('descricao').asString;
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnIncluirCashBackGruposClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not dtmCadastroTabelasEstoques.qryCashBack.isempty then
+  begin
+    DBAdvGridGrupos.setfocus;
+    DBAdvGridGrupos.col := 1;
+    if dtmCadastroTabelasEstoques.qryCashBackGrupos.isempty then
+      dtmCadastroTabelasEstoques.qryCashBackGrupos.edit
+    else
+      dtmCadastroTabelasEstoques.qryCashBackGrupos.append;
+
+    DBAdvGridGrupos.ShowInplaceEdit;
+//    fraConsulta_.sbnProcuraClick(sender);
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnExcluirPCashBackGruposClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.ExcluirCashBackGrupos
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridGruposKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_F9) and (Shift = [ssCtrl]) then
+  begin
+    if (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'grupo') then
+    begin
+      DBAdvGridGrupos.Col := 1;
+      DBAdvGridGrupos.ShowInplaceEdit;
+      fraConsulta_.sbnProcuraClick(sender)
+    end;
+  end
+  else
+  if (key = VK_F2) and (Shift = [ssCtrl]) then
+    sbnIncluirCashBackGruposClick(nil)
+  else
+  if (key = VK_F3) and (Shift = [ssCtrl]) then
+  begin
+    DBAdvGridGrupos.Col := 1;
+    dtmCadastroTabelasEstoques.qryCashBackGrupos.edit;
+    DBAdvGridGrupos.ShowInplaceEdit;
+  end
+  else
+  if (key = VK_DELETE) and (Shift = [ssCtrl]) then
+    dtmCadastroTabelasEstoques.ExcluirCashBackGrupos;
+
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridClassesGetEditorType(
+  Sender: TObject; ACol, ARow: Integer; var AEditor: TEditorType);
+begin
+  inherited;
+  fraConsulta_.visible := false;
+
+  if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'classe') then
+  begin
+    With fraConsulta_ do
+    begin
+      fraConsulta_.Width := TDBAdvGrid(Sender).Columns[Acol].Width;
+      fraConsulta_.edfcodigo.Width := fraConsulta_.Width-23;
+      fraConsulta_.sbnprocura.left := fraConsulta_.edfcodigo.Width;
+
+      fraConsulta_.edfCodigo.Operacao := opATRIBUICAO;
+      fraConsulta_.edfCodigo.MaxLength := 4;
+
+      fraConsulta_.edfCodigo.DataaFieldInterno := '';
+      fraConsulta_.edfCodigo.DataaFieldVisual := '';
+      fraConsulta_.edfCodigo.DataField := '';
+
+
+      fraConsulta_.edfCodigo.DataSource := dtmCadastroTabelasEstoques.dsrCashBackClasses;
+      fraConsulta_.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+
+      fraConsulta_.edfCodigo.LookupaFieldinterno := '';
+      fraConsulta_.edfCodigo.LookupaFieldvisual := '';
+      fraConsulta_.edfCodigo.LookupQueryParameter := '';
+      fraConsulta_.edfCodigo.LookupField := '';
+      
+      fraConsulta_.edfCodigo.LookupSource := fraConsulta_.dsrProcuraClasses;
+      fraConsulta_.edfCodigo.LookupQueryParameter := 'codigo';
+      fraConsulta_.edfCodigo.LookupField := 'codigo';
+
+      fraConsulta_.OnFound := AtribuirDadosClassesCashBack;
+      TipoPesquisa := pesCLASSES;
+
+      fraConsulta_.edfCodigo.text := dtmCadastroTabelasEstoques.dsrCashBackClasses.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+      fraConsulta_.edfCodigo.exist;
+
+    end;
+    fraConsulta_.visible := true;
+
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.AtribuirDadosClassesCashBack;
+begin
+  if DBAdvGridClasses.GetDistinctValues(1, DBAdvGridClasses.row, true ).indexof(fraConsulta_.qryProcuraClasses.fieldbyname('codigo').asString)<>-1 then
+  begin
+    MensagemAviso('Classe já cadastrado!');
+    dtmCadastroTabelasEstoques.qryCashBackClasses.cancel;
+  end
+  else
+    dtmCadastroTabelasEstoques.qryCashBackClassesdescricaoclasse.asString :=
+       fraConsulta_.qryProcuraClasses.fieldbyname('descricao').asString;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.AtribuirDadosMarcasCashBack;
+begin
+  if DBAdvGridMarcas.GetDistinctValues(1, DBAdvGridMarcas.row, true ).indexof(fraConsulta_.qryProcuraMarcacodigo.asString)<>-1 then
+  begin
+    MensagemAviso('Marca já cadastrado!');
+    dtmCadastroTabelasEstoques.qryCashBackMarcas.cancel;
+  end
+  else
+    dtmCadastroTabelasEstoques.qryCashBackMarcasdescricaomarca.asString :=
+       fraConsulta_.qryProcuraMarcadescricao.asString;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridMarcasGetEditorType(
+  Sender: TObject; ACol, ARow: Integer; var AEditor: TEditorType);
+begin
+  inherited;
+  fraConsulta_.visible := false;
+
+  if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'marca') then
+  begin
+    With fraConsulta_ do
+    begin
+      fraConsulta_.Width := TDBAdvGrid(Sender).Columns[Acol].Width;
+      fraConsulta_.edfcodigo.Width := fraConsulta_.Width-23;
+      fraConsulta_.sbnprocura.left := fraConsulta_.edfcodigo.Width;
+
+      fraConsulta_.edfCodigo.Operacao := opATRIBUICAO;
+      fraConsulta_.edfCodigo.MaxLength := 4;
+
+      fraConsulta_.edfCodigo.DataaFieldInterno := '';
+      fraConsulta_.edfCodigo.DataaFieldVisual := '';
+      fraConsulta_.edfCodigo.DataField := '';
+      
+      fraConsulta_.edfCodigo.DataSource := dtmCadastroTabelasEstoques.dsrCashBackmarcas;
+      fraConsulta_.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+
+      fraConsulta_.edfCodigo.LookupaFieldinterno := '';
+      fraConsulta_.edfCodigo.LookupaFieldvisual := '';
+      fraConsulta_.edfCodigo.LookupQueryParameter := '';
+      fraConsulta_.edfCodigo.LookupField := '';
+      
+      fraConsulta_.edfCodigo.LookupSource := fraConsulta_.dsrProcuraMarca;
+      fraConsulta_.edfCodigo.LookupQueryParameter := 'codigo';
+      fraConsulta_.edfCodigo.LookupField := 'codigo';
+
+      fraConsulta_.OnFound := AtribuirDadosmarcasCashBack;
+      TipoPesquisa := pesMARCAS;
+
+      fraConsulta_.edfCodigo.text := dtmCadastroTabelasEstoques.dsrCashBackmarcas.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+      fraConsulta_.edfCodigo.exist;
+    end;
+    fraConsulta_.visible := true;
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnExcluirPCashBackClassesClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.ExcluirCashBackClasses
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnExcluirPCashBackMarcasClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.ExcluirCashBackMarcas
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnIncluirCashBackClassesClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not dtmCadastroTabelasEstoques.qryCashBack.isempty then
+  begin
+    DBAdvGridclasses.setfocus;
+    DBAdvGridclasses.col := 1;
+
+    if dtmCadastroTabelasEstoques.qryCashBackclasses.isempty then
+      dtmCadastroTabelasEstoques.qryCashBackclasses.edit
+    else
+      dtmCadastroTabelasEstoques.qryCashBackclasses.append;
+
+    DBAdvGridclasses.ShowInplaceEdit;
+//    fraConsulta_.sbnProcuraClick(sender);
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnIncluirCashBackMarcasClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not dtmCadastroTabelasEstoques.qryCashBack.isempty then
+  begin
+    DBAdvGridmarcas.setfocus;
+    DBAdvGridmarcas.col := 1;
+
+    if dtmCadastroTabelasEstoques.qryCashBackmarcas.isempty then
+      dtmCadastroTabelasEstoques.qryCashBackmarcas.edit
+    else
+      dtmCadastroTabelasEstoques.qryCashBackmarcas.append;
+
+    DBAdvGridmarcas.ShowInplaceEdit;
+//    fraConsulta_.sbnProcuraClick(sender);
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridMarcasKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_F9) and (Shift = [ssCtrl]) then
+  begin
+    if (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'marca') then
+    begin
+      DBAdvGridMarcas.ShowInplaceEdit;
+      fraConsulta_.sbnProcuraClick(sender)
+    end;
+  end
+  else
+  if (key = VK_F2) and (Shift = [ssCtrl]) then
+    sbnIncluirCashBackMarcasClick(nil)
+  else
+  if (key = VK_F3) and (Shift = [ssCtrl]) then
+  begin
+    DBAdvGridMarcas.Col := 1;
+    dtmCadastroTabelasEstoques.qryCashBackMarcas.edit;
+    DBAdvGridMarcas.ShowInplaceEdit;
+  end
+  else
+  if (key = VK_DELETE) and (Shift = [ssCtrl]) then
+    dtmCadastroTabelasEstoques.ExcluirCashBackMarcas;
+  
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridClassesKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_F9) and (Shift = [ssCtrl]) then
+  begin
+    if (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'classe') then
+    begin
+      DBAdvGridClasses.ShowInplaceEdit;
+      fraConsulta_.sbnProcuraClick(sender)
+    end;
+  end
+  else
+  if (key = VK_F2) and (Shift = [ssCtrl]) then
+    sbnIncluirCashBackClassesClick(nil)
+  else
+  if (key = VK_F3) and (Shift = [ssCtrl]) then
+  begin
+    DBAdvGridClasses.Col := 1;
+    dtmCadastroTabelasEstoques.qryCashBackClasses.edit;
+    DBAdvGridClasses.ShowInplaceEdit;
+  end
+  else
+  if (key = VK_DELETE) and (Shift = [ssCtrl]) then
+    dtmCadastroTabelasEstoques.ExcluirCashBackClasses;
+
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.AtribuirDadosAtributos;
+begin
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnIncluirAtributos_Produtos_ItemsClick(
+  Sender: TObject);
+begin
+  inherited;
+
+
+  if not dtmCadastroTabelasEstoques.qryAtributos_Produtos.isempty then
+  begin
+    DBAdvGridAtributos_Produtos_Items.setfocus;
+    DBAdvGridAtributos_Produtos_Items.col := 1;
+
+    if dtmCadastroTabelasEstoques.qryAtributos_Produtos_Items.CheckRequiredFields(true, false, true, self, true)  then
+    begin
+      if dtmCadastroTabelasEstoques.qryAtributos_Produtos_Items.isempty then
+        dtmCadastroTabelasEstoques.qryAtributos_Produtos_Items.edit
+      else
+        dtmCadastroTabelasEstoques.qryAtributos_Produtos_Items.append;
+    end;
+
+//    DBAdvGridProdutos.ShowInplaceEdit;
+//    fraConsulta_.sbnProcuraClick(sender);
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnExcluirAtributos_Produtos_ItemsClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.ExcluirAtributos_Produtos_Items;
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridAtributos_Produtos_ItemsKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_F2) and (Shift = [ssCtrl]) then
+    sbnIncluirAtributos_Produtos_ItemsClick(nil)
+  else
+  if (key = VK_F3) and (Shift = [ssCtrl]) then
+  begin
+    DBAdvGridAtributos_Produtos_Items.Col := 1;
+    dtmCadastroTabelasEstoques.qryAtributos_Produtos_Items.edit;
+//    DBAdvGridProdutos.ShowInplaceEdit;
+  end
+  else
+  if (key = VK_DELETE) and (Shift = [ssCtrl]) then
+    dtmCadastroTabelasEstoques.ExcluirAtributos_Produtos_Items;;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridAtributos_Produtos_ItemsCheckRequiredFields(
+  Sender: TObject; var Allow: Boolean);
+begin
+  inherited;
+//  (dtmCadastroTabelasEstoques.qryAtributos_Produtos_Items.state <> dsinsert)
+  Allow := dtmCadastroTabelasEstoques.qryAtributos_Produtos_Items.CheckRequiredFields(false, true,
+  false,
+  self, true);
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridCargosGetEditorType(
+  Sender: TObject; ACol, ARow: Integer; var AEditor: TEditorType);
+begin
+  inherited;
+  fraConsulta_.visible := false;
+
+  if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'cargo') then
+  begin
+    With fraConsulta_ do
+    begin
+      fraConsulta_.Width := TDBAdvGrid(Sender).Columns[Acol].Width;
+      fraConsulta_.edfcodigo.Width := fraConsulta_.Width-23;
+      fraConsulta_.sbnprocura.left := fraConsulta_.edfcodigo.Width;
+
+      fraConsulta_.edfCodigo.Operacao := opATRIBUICAO;
+      fraConsulta_.edfCodigo.MaxLength := 4;
+
+      fraConsulta_.edfCodigo.DataaFieldInterno := '';
+      fraConsulta_.edfCodigo.DataaFieldVisual := '';
+      fraConsulta_.edfCodigo.DataField := '';
+
+      fraConsulta_.edfCodigo.DataSource := dtmCadastroTabelasEstoques.dsrCashBackCargos;
+      fraConsulta_.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+
+      fraConsulta_.edfCodigo.LookupaFieldinterno := '';
+      fraConsulta_.edfCodigo.LookupaFieldvisual := '';
+      fraConsulta_.edfCodigo.LookupQueryParameter := '';
+      fraConsulta_.edfCodigo.LookupField := '';
+
+      fraConsulta_.edfCodigo.LookupSource := fraConsulta_.dsrProcuraCargos;
+      fraConsulta_.edfCodigo.LookupQueryParameter := 'codigo';
+      fraConsulta_.edfCodigo.LookupField := 'codigo';
+
+      fraConsulta_.OnFound := AtribuirDadosCargosCashBack;
+      TipoPesquisa := pesCARGOS;
+
+      fraConsulta_.edfCodigo.text := dtmCadastroTabelasEstoques.dsrCashBackCargos.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+      fraConsulta_.edfCodigo.exist;
+    end;
+    fraConsulta_.visible := true;
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.AtribuirDadosCargosCashBack;
+begin
+  if DBAdvGridCargos.GetDistinctValues(1, DBAdvGridCargos.row, true ).indexof(fraConsulta_.qryProcuraCargoscodigo.asString)<>-1 then
+  begin
+    MensagemAviso('Cargo já cadastrado!');
+    dtmCadastroTabelasEstoques.qryCashBackCargos.cancel;
+  end
+  else
+    dtmCadastroTabelasEstoques.qryCashBackCargosdescricaocargo.asString :=
+       fraConsulta_.qryProcuraCargosdescricao.asString;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridCargosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_F9) and (Shift = [ssCtrl]) then
+  begin
+    if (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'cargo') then
+    begin
+      DBAdvGridCargos.ShowInplaceEdit;
+      fraConsulta_.sbnProcuraClick(sender)
+    end;
+  end
+  else
+  if (key = VK_F2) and (Shift = [ssCtrl]) then
+    sbnIncluirCashBackCargosClick(nil)
+  else
+  if (key = VK_F3) and (Shift = [ssCtrl]) then
+  begin
+    DBAdvGridCargos.Col := 1;
+    dtmCadastroTabelasEstoques.qryCashBackCargos.edit;
+    DBAdvGridCargos.ShowInplaceEdit;
+  end
+  else
+  if (key = VK_DELETE) and (Shift = [ssCtrl]) then
+    dtmCadastroTabelasEstoques.ExcluirCashBackCargos;
+  
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnIncluirCashBackCargosClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not dtmCadastroTabelasEstoques.qryCashBack.isempty then
+  begin
+    DBAdvGridCargos.setfocus;
+    DBAdvGridCargos.col := 1;
+
+    if dtmCadastroTabelasEstoques.qryCashBackCargos.isempty then
+      dtmCadastroTabelasEstoques.qryCashBackCargos.edit
+    else
+      dtmCadastroTabelasEstoques.qryCashBackCargos.append;
+
+    DBAdvGridCargos.ShowInplaceEdit;
+//    fraConsulta_.sbnProcuraClick(sender);
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnExcluirPCashBackCargosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.ExcluirCashBackCargos
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridFiliaisGetEditorType(
+  Sender: TObject; ACol, ARow: Integer; var AEditor: TEditorType);
+begin
+  inherited;
+  fraConsulta_.visible := false;
+
+  if (TDBAdvGrid(Sender).Columns[Acol].FieldName = 'filial') then
+  begin
+    With fraConsulta_ do
+    begin
+      fraConsulta_.Width := TDBAdvGrid(Sender).Columns[Acol].Width;
+      fraConsulta_.edfcodigo.Width := fraConsulta_.Width-23;
+      fraConsulta_.sbnprocura.left := fraConsulta_.edfcodigo.Width;
+
+      fraConsulta_.edfCodigo.Operacao := opATRIBUICAO;
+      fraConsulta_.edfCodigo.MaxLength := 4;
+
+      fraConsulta_.edfCodigo.DataaFieldInterno := '';
+      fraConsulta_.edfCodigo.DataaFieldVisual := '';
+      fraConsulta_.edfCodigo.DataField := '';
+
+      fraConsulta_.edfCodigo.DataSource := dtmCadastroTabelasEstoques.dsrCashBackFiliais;
+      fraConsulta_.edfCodigo.DataField := TDBAdvGrid(Sender).Columns[Acol].FieldName;
+
+
+      fraConsulta_.edfCodigo.LookupaFieldinterno := '';
+      fraConsulta_.edfCodigo.LookupaFieldvisual := '';
+      fraConsulta_.edfCodigo.LookupQueryParameter := '';
+      fraConsulta_.edfCodigo.LookupField := '';
+
+      fraConsulta_.edfCodigo.LookupSource := fraConsulta_.dsrProcuraFiliais;
+      fraConsulta_.edfCodigo.LookupQueryParameter := 'codigo';
+      fraConsulta_.edfCodigo.LookupField := 'codigo';
+
+      fraConsulta_.OnFound := AtribuirDadosFiliaisCashBack;
+      TipoPesquisa := pesFILIAIS;
+
+      fraConsulta_.edfCodigo.text := dtmCadastroTabelasEstoques.dsrCashBackFiliais.dataset.fieldbyname(TDBAdvGrid(Sender).Columns[Acol].fieldname).asString;
+      fraConsulta_.edfCodigo.exist;
+    end;
+    fraConsulta_.visible := true;
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.AtribuirDadosFiliaisCashBack;
+begin
+  if DBAdvGridFiliais.GetDistinctValues(1, DBAdvGridFiliais.row, true ).indexof(fraConsulta_.qryProcuraFiliais.fieldbyname('codigo').asString)<>-1 then
+  begin
+    MensagemAviso('Filial já cadastrada!');
+    dtmCadastroTabelasEstoques.qryCashBackFiliais.cancel;
+  end
+  else
+    dtmCadastroTabelasEstoques.qryCashBackFiliaisnomefilial.asString :=
+       fraConsulta_.qryProcuraFiliais.fieldbyName('nome').asString;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.DBAdvGridFiliaisKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_F9) and (Shift = [ssCtrl]) then
+  begin
+    if (TDBAdvGrid(Sender).Columns[TDBAdvGrid(Sender).col].FieldName = 'filial') then
+    begin
+      DBAdvGridFiliais.ShowInplaceEdit;
+      fraConsulta_.sbnProcuraClick(sender)
+    end;
+  end
+  else
+  if (key = VK_F2) and (Shift = [ssCtrl]) then
+    sbnIncluirCashBackFiliaisClick(nil)
+  else
+  if (key = VK_F3) and (Shift = [ssCtrl]) then
+  begin
+    DBAdvGridFiliais.Col := 1;
+    dtmCadastroTabelasEstoques.qryCashBackFiliais.edit;
+    DBAdvGridFiliais.ShowInplaceEdit;
+  end
+  else
+  if (key = VK_DELETE) and (Shift = [ssCtrl]) then
+    dtmCadastroTabelasEstoques.ExcluirCashBackFiliais;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnIncluirCashBackFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not dtmCadastroTabelasEstoques.qryCashBack.isempty then
+  begin
+    DBAdvGridFiliais.setfocus;
+    DBAdvGridFiliais.col := 1;
+
+    if dtmCadastroTabelasEstoques.qryCashBackFiliais.isempty then
+      dtmCadastroTabelasEstoques.qryCashBackFiliais.edit
+    else
+      dtmCadastroTabelasEstoques.qryCashBackFiliais.append;
+
+    DBAdvGridFiliais.ShowInplaceEdit;
+//    fraConsulta_.sbnProcuraClick(sender);
+  end;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.sbnExcluirPCashBackFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroTabelasEstoques.ExcluirCashBackFiliais
+end;
+
+procedure TfrmCadastroTabelasEstoque.Pesquizar1Click(Sender: TObject);
+begin
+  inherited;
+  if pgcTabelas.ActivePage = tstCashBack then
+  begin
+    if AdvPageControlGrupos.ActivePage = AdvTabSheetProdutos then
+      AdvGridFindDialog1.Grid := DBAdvGridProdutos
+    else
+    if AdvPageControlGrupos.ActivePage = AdvTabSheetGrupos then
+      AdvGridFindDialog1.Grid := DBAdvGridGrupos
+    else
+    if AdvPageControlGrupos.ActivePage = AdvTabSheetClasses then
+      AdvGridFindDialog1.Grid := DBAdvGridClasses
+    else
+    if AdvPageControlGrupos.ActivePage = AdvTabSheetMarcas then
+      AdvGridFindDialog1.Grid := DBAdvGridMarcas
+    else
+    if AdvPageControlGrupos.ActivePage = AdvTabSheetCargos then
+      AdvGridFindDialog1.Grid := DBAdvGridCargos
+    else
+    if AdvPageControlGrupos.ActivePage = AdvTabSheetFiliais then
+      AdvGridFindDialog1.Grid := DBAdvGridFiliais;
+
+  end;
+  AdvGridFindDialog1.Execute;
+
+end;
+
+procedure TfrmCadastroTabelasEstoque.ExportarExcel1Click(Sender: TObject);
+var vnomearquivo: String;
+begin
+  inherited;
+  if pgcTabelas.ActivePage = tstCashBack then
+  begin
+    if AdvPageControlGrupos.ActivePage = AdvTabSheetProdutos then
+    begin
+      AdvGridExcelIO1.AdvStringGrid := DBAdvGridProdutos;
+      vNomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas\CashBack_Produtos.xls';
+      AdvGridExcelIO1.XLSExport(vNomeArquivo, 'CashBack_Produtos');
+    end
+    else
+    if AdvPageControlGrupos.ActivePage = AdvTabSheetGrupos then
+    begin
+      AdvGridExcelIO1.AdvStringGrid := DBAdvGridGrupos;
+      vNomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas\CashBack_Grupos.xls';
+      AdvGridExcelIO1.XLSExport(vNomeArquivo, 'CashBack_Grupos');
+    end
+    else
+    if AdvPageControlGrupos.ActivePage = AdvTabSheetClasses then
+    begin
+      AdvGridExcelIO1.AdvStringGrid := DBAdvGridClasses;
+      vNomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas\CashBack_Classes.xls';
+      AdvGridExcelIO1.XLSExport(vNomeArquivo, 'CashBack_Classes');
+    end
+    else
+    if AdvPageControlGrupos.ActivePage = AdvTabSheetMarcas then
+    begin
+      AdvGridExcelIO1.AdvStringGrid := DBAdvGridMarcas;
+      vNomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas\CashBack_Marcas.xls';
+      AdvGridExcelIO1.XLSExport(vNomeArquivo, 'CashBack_Marcas');
+    end
+    else
+    if AdvPageControlGrupos.ActivePage = AdvTabSheetCargos then
+    begin
+      AdvGridExcelIO1.AdvStringGrid := DBAdvGridCargos;
+      vNomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas\CashBack_Cargos.xls';
+      AdvGridExcelIO1.XLSExport(vNomeArquivo, 'CashBack_Cargos');
+    end
+    else
+    if AdvPageControlGrupos.ActivePage = AdvTabSheetFiliais then
+    begin
+      AdvGridExcelIO1.AdvStringGrid := DBAdvGridFiliais;
+      vNomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas\CashBack_Filiais.xls';
+      AdvGridExcelIO1.XLSExport(vNomeArquivo, 'CashBack_Filiais');
+    end;
+
+  end;
+end;
+
+end.

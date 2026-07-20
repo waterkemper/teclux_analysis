@@ -1,0 +1,1900 @@
+inherited dtmManutencaoProdutos: TdtmManutencaoProdutos
+  OldCreateOrder = False
+  Left = 697
+  Top = 285
+  Height = 456
+  Width = 679
+  object dsrProdutos: TtecDataSource
+    DataSet = qryProdutos
+    Left = 192
+    Top = 224
+  end
+  object qryProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnFilterRecord = qryProdutosFilterRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ICMS'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'Condicao'
+        ParamType = ptUnknown
+        Value = 'and true'
+      end>
+    Sql.Strings = (
+      'select p.codigo as codigo_produto,'
+      '       p.codigovisual as codigovisual_produto,'
+      '       p.descricao as descricao_produto,'
+      
+        '       p.descricaoplanilhacusto as descricaoplanilhacusto_produt' +
+        'o,'
+      '       p.nome_site as nome_site_produto,'
+      '       p.referencia as referencia_produto,'
+      '       p.inativo as inativo_produto,'
+      '       p.foralinha as foralinha_produto,'
+      '       p.nlote as nlote_produto,'
+      '       p.dval as dval_produto,'
+      ''
+      '       /* dimensoes */'
+      '       p.peso_entrega as peso_entrega_produto,'
+      '       p.comprimento as comprimento_produto,'
+      '       p.altura as altura_produto,'
+      '       p.largura as largura_produto,'
+      '       p.diametro as diametro_produto,'
+      '       '
+      ''
+      '       c.codigo as codigo_caracteristica,'
+      '       c.descricao as descricao_caracteristica,'
+      '       c.codigovisual as codigovisual_caracteristica,'
+      '       c.complemento complemento_caracteristica,'
+      ''
+      '       c.tipoproduto tipoproduto_caracteristica,'
+      '       tp.descricao as descricaotipoproduto_caracteristica,'
+      ''
+      '       c.peso as peso_caracteristica,'
+      '       c.volumes as volumes_caracteristica,'
+      '       c.foralinha as foralinha_caracteristica,'
+      '       c.inativo as inativo_caracteristica,'
+      '       c.gtin as gtin_caracteristica,'
+      '       c.descricaonanf as descricaonanf_caracteristica,'
+      ''
+      ''
+      '       /* PAR'#194'METROS */'
+      
+        '       c.montagem as montagem_caracteristica, /* Requer montagem' +
+        ' */'
+      
+        '       c.emiteetiqueta as emiteetiqueta_caracteristica, /* Emiti' +
+        'r Etiqueta */'
+      '       c.brinde as brinde_caracteristica, /* Produto '#233' brinde */'
+      
+        '       c.emitecomplemento as emitecomplemento_caracteristica,/* ' +
+        'Imprimir complemento */'
+      
+        '       c.exigenumeroserie as exigenumeroserie_caracteristica, /*' +
+        ' Exige n'#250'mero de s'#233'rie */'
+      
+        '       c.gerenciarloteevalidade as gerenciarloteevalidade_caract' +
+        'eristica, /*Gerenciar lote e validade */'
+      ''
+      '       /* DISPONIBILIDADE */'
+      
+        '       c.disponivel_sistema as disponivel_sistema_caracteristica' +
+        ', /* Sistema  */'
+      
+        '       c.disponivel_site as disponivel_site_caracteristica,    /' +
+        '* Site  */'
+      
+        '       c.disponivel_marketplace as disponivel_marketplace_caract' +
+        'eristica, /* Marketplace */'
+      ''
+      '       /* PRODUTO COMPOSTO */'
+      '       c.composto as composto_caracteristica, /* Conjunto */'
+      
+        '       c.discriminarpreco as discriminarpreco_caracteristica, /*' +
+        ' Discriminar pre'#231'o */'
+      
+        '       c.conferircomposto as conferircomposto_caracteristica, /*' +
+        ' Conferir Componentes */'
+      '       c.composto2 as composto2_caracteristica, /* Composto */'
+      
+        '       c.desmembrarcomponente as  desmembrarcomponente_caracteri' +
+        'stica,/* Desmembrar componentes */'
+      ''
+      '       /* DISCRIMINA'#199#195'O */'
+      
+        '       C.discriminarcomposto AS discriminarcomposto_caracteristi' +
+        'ca, /* Sem composi'#231#227'o = N | Com composi'#231#227'o = C | S'#243' composi'#231#227'o =' +
+        ' S */'
+      ''
+      
+        '       c.vendanegativa as vendanegativa_caracteristica, /* VENDA' +
+        ' SEM ESTOQUE Sim = S | N'#227'o = N */'
+      
+        '       c.vendanegativanosite as vendanegativanosite_caracteristi' +
+        'ca, /* VENDA SEM ESTOQUE NO SITE Sim = S | N'#227'o = N */'
+      ''
+      '       c.markup as markup_caracteristica, /* MARK-UP */'
+      
+        '       c.custoadicionalproduto as custoadicionalproduto_caracter' +
+        'istica, /* CUSTO ADICIONAL */'
+      '       c.multiplo as multiplo_caracteristica, /* M'#218'LTIPLO */'
+      '       c.bonus as bonus_caracteristica, /* B'#212'NUS */'
+      ''
+      '       /* COMISS'#195'O VENDEDORES */'
+      '       c.tipocomissao as tipocomissao_caracteristica,'
+      '       c.comissao as comissao_caracteristica,'
+      ''
+      '       /* COMISS'#195'O INDICADORES */'
+      
+        '       c.tipocomissaoindicador as tipocomissaoindicador_caracter' +
+        'istica,'
+      '       c.comissaoindicador as comissaoindicador_caracteristica,'
+      ''
+      '       c.grupo as grupo_caracteristica,'
+      '       g.descricao as descricaogrupo_caracteristica,'
+      ''
+      '       c.classe as classe_caracteristica,'
+      '       cl.descricao as descricaoclasse_caracteristica,'
+      ''
+      '       c.marca as marca_caracteristica,'
+      '       m.descricao as descricaomarca_caracteristica,'
+      ''
+      '       c.unidade as unidade_caracteristica,'
+      '       u.descricao as descricaounidade_caracteristica,'
+      ''
+      '       c.fatorpreco as fatorpreco_caracteristica,'
+      '       fp.descricao as descricaofatorpreco_caracteristica,'
+      ''
+      '       c.setorproducao as setorproducao_caracteristica,'
+      '       sp.descricao as descricacaosetorproducao_caracteristica,'
+      ''
+      
+        '       /* ICMS - C'#211'D. SITUA'#199#195'O TRIBUT'#193'RIA (atualizar o campo inc' +
+        'idencia) */'
+      '       c.incidencia as incidencia_caracteristica,'
+      '       ti.valor as cst_caracteristica,'
+      '       ti.descricao as descricaocst_caracteristica,'
+      '       '
+      '       /* CSOSN - COD. SIT. OP. SIMPLES NACIONAL */'
+      '       c.csosn as csosn_caracteristica,'
+      '       csosn.descricao as descricaocsosn_caracteristica,'
+      ''
+      '       /* REDU'#199#195'O BASE */'
+      '       c.percreducaobase as percreducaobase_caracteristica,'
+      ''
+      '       c.icmsmodalidade as icmsmodalidade_caracteristica,'
+      
+        '       modalidadeBC_ICMS.descricao as descricaoicmsmodalidade_ca' +
+        'racteristica,'
+      ''
+      '       /* BASE ICMS */ '
+      '       c.baseicms as baseicms_caracteristica,'
+      ''
+      '       /* ICMS - AL'#205'QUOTA */'
+      '       c.icms as icms_caracteristica,'
+      '       icms.descricao as descricaoicms_caracteristica,'
+      ''
+      
+        '       (select ei.valor from estadosicms ei where icms = icms.co' +
+        'digo and ei.estado = :estado) as aliquotaicms_estadosicms, /* % ' +
+        'ICMS */'
+      ''
+      
+        '       /* ICMS - MODALIDADE BASE DE C'#193'LCULO NA SUBSTITUI'#199#195'O TRIB' +
+        'UT'#193'RIA */'
+      '       c.icmsmodsubst as icmsmodsubst_caracteristica,'
+      
+        '       modalidadeBC_ICMS_ST.descricao as descricaoicmsmodsubst_c' +
+        'aracteristica,'
+      ''
+      '       c.predbcst as predbcst_caracteristica, /* RED. BASE ST */'
+      ''
+      '       /* ORIGEM */'
+      '       c.origem as origem_caracteristica,'
+      '       om.descricao as descricaoorigem_caracteristica,'
+      ''
+      '       /* N'#176' ANVISA */'
+      '       c.anvisa as anvisa_caracteristica,'
+      ''
+      '       /* OBSERVA'#199#195'O LEGAL */'
+      '       c.obslegal as obslegal_caracteristica,'
+      '       ol.descricao as descricaoobslegal_caracteristica,'
+      ''
+      '       /* IPI - NCM - NOMENCLATURA COMUM DO MERCOSUL  */'
+      '       c.ipi as ipi_caracteristica,'
+      '       ipi.descricao as descricaoipi_caracteristica,'
+      
+        '       ipi.classificacaofiscal as classificacaofiscalipi_caracte' +
+        'ristica,'
+      '       ipi.aliquota as aliquotaipi_caracteristica,'
+      ''
+      '       /* IPI - C'#211'D. SITUA'#199#195'O TRIBUT'#193'RIA */'
+      '       c.ipicst as ipicst_caracteristica,'
+      '       tipi.descricao as descricaoipicst_caracteristica,'
+      ''
+      '       /* COFINS - C'#211'D. SITUA'#199#195'O TRIBUT'#193'RIA */'
+      '       c.cofinscst as cofinscst_caracteristica,'
+      '       tpc.descricao as descricaocofins_caracteristica,'
+      '       c.aliquotacofins as aliquotacofins_caracteristica,'
+      ''
+      '       /* PIS - C'#211'D. SITUA'#199#195'O TRIBUT'#193'RIA */'
+      '       c.piscst as piscst_caracteristica,'
+      '       tpp.descricao as descricaopis_caracteristica,'
+      '       c.aliquotapis as aliquotapis_caracteristica,'
+      ''
+      '       /* EFD - T53 */'
+      '       c.codigo_efd_t53 as codigo_efd_t53_caracteristica,'
+      '       efd_t53.descricao as descricaoefd_t53_caracteristica,'
+      ''
+      
+        '       c.producaopropria as producaopropria_caracteristica, /* P' +
+        'roduto de produ'#231#227'o pr'#243'pria */'
+      
+        '       c.substituicaoipi as substituicaoipi_caracteristica, /* S' +
+        'ubstitui'#231#227'o IPI */'
+      ''
+      '       false as marcar'
+      ''
+      'from ((produtos p'
+      '       join (((((((((((((((((((caracteristicas c'
+      '                     left join grupos g on c.grupo = g.codigo)'
+      
+        '                     left join classes cl on c.classe = cl.codig' +
+        'o)'
+      '                     left join marcas m on c.marca = m.codigo)'
+      
+        '                     left join tiposproduto tp on c.tipoproduto ' +
+        '= tp.codigo)'
+      
+        '                     left join tributosicms ti on c.incidencia =' +
+        ' ti.codigo)'
+      
+        '                     left join unidades u on c.unidade = u.codig' +
+        'o)'
+      
+        '                     left join fatorespreco fp on c.fatorpreco =' +
+        ' fp.codigo)'
+      
+        '                     left join setoresproducao sp on c.setorprod' +
+        'ucao = sp.codigo)'
+      '                     left join csosn on c.csosn = csosn.codigo)'
+      
+        '                     left join modalidadeBC_ICMS on c.icmsmodali' +
+        'dade = modalidadeBC_ICMS.codigo)'
+      '                     left join icms on c.icms = icms.codigo)'
+      
+        '                     left join modalidadeBC_ICMS_ST on c.icmsmod' +
+        'subst = modalidadeBC_ICMS.codigo)'
+      
+        '                     left join origemmercadorias om on c.origem ' +
+        '= om.codigo)'
+      
+        '                     left join obslegais ol on c.obslegal = ol.c' +
+        'odigo)'
+      '                     left join ipi on c.ipi = ipi.codigo)'
+      
+        '                     left join tributosipi tipi on c.ipicst = ti' +
+        'pi.codigo)'
+      
+        '                     left join tributospis_cofins tpc on tpc.cod' +
+        'igo = c.cofinscst)'
+      
+        '                     left join tributospis_cofins tpp on tpp.cod' +
+        'igo = c.piscst)'
+      
+        '                     left join efd_t53 on c.codigo_efd_t53 = efd' +
+        '_t53.codigo)'
+      ''
+      '      on p.caracteristica = c.codigo)'
+      ''
+      '      left join promocoes pro on p.promocao = pro.codigo)'
+      ''
+      'where true'
+      ''
+      '%Condicao'
+      ''
+      'order by c.codigovisual, p.codigovisual'
+      ''
+      ''
+      ''
+      '')
+    RequestLive = True
+    Left = 224
+    Top = 240
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'estado'
+        ParamType = ptUnknown
+      end>
+    object qryProdutoscodigo_produto: TLargeintField
+      FieldName = 'codigo_produto'
+      ReadOnly = True
+      Required = True
+      Visible = False
+    end
+    object qryProdutoscodigovisual_produto: TStringField
+      FieldName = 'codigovisual_produto'
+      Required = True
+      Size = 30
+    end
+    object qryProdutosdescricao_produto: TStringField
+      FieldName = 'descricao_produto'
+      Required = True
+      Size = 100
+    end
+    object qryProdutosdescricaoplanilhacusto_produto: TStringField
+      FieldName = 'descricaoplanilhacusto_produto'
+      Size = 50
+    end
+    object qryProdutosnome_site_produto: TStringField
+      FieldName = 'nome_site_produto'
+      Required = True
+      Size = 255
+    end
+    object qryProdutosreferencia_produto: TStringField
+      FieldName = 'referencia_produto'
+      Size = 50
+    end
+    object qryProdutosinativo_produto: TDateField
+      Alignment = taCenter
+      FieldName = 'inativo_produto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProdutosforalinha_produto: TDateField
+      Alignment = taCenter
+      FieldName = 'foralinha_produto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProdutosnlote_produto: TStringField
+      FieldName = 'nlote_produto'
+    end
+    object qryProdutosdval_produto: TDateField
+      Alignment = taCenter
+      FieldName = 'dval_produto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProdutospeso_entrega_produto: TFloatField
+      FieldName = 'peso_entrega_produto'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutoscomprimento_produto: TFloatField
+      FieldName = 'comprimento_produto'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosaltura_produto: TFloatField
+      FieldName = 'altura_produto'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutoslargura_produto: TFloatField
+      FieldName = 'largura_produto'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosdiametro_produto: TFloatField
+      FieldName = 'diametro_produto'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutoscodigo_caracteristica: TLargeintField
+      FieldName = 'codigo_caracteristica'
+      Required = True
+      Visible = False
+    end
+    object qryProdutosdescricao_caracteristica: TStringField
+      FieldName = 'descricao_caracteristica'
+      Required = True
+      Size = 100
+    end
+    object qryProdutoscodigovisual_caracteristica: TStringField
+      FieldName = 'codigovisual_caracteristica'
+      Required = True
+      Size = 30
+    end
+    object qryProdutoscomplemento_caracteristica: TStringField
+      FieldName = 'complemento_caracteristica'
+      Size = 1000
+    end
+    object qryProdutostipoproduto_caracteristica: TStringField
+      FieldName = 'tipoproduto_caracteristica'
+      Required = True
+      Size = 2
+    end
+    object qryProdutosdescricaotipoproduto_caracteristica: TStringField
+      FieldName = 'descricaotipoproduto_caracteristica'
+      Size = 30
+    end
+    object qryProdutospeso_caracteristica: TFloatField
+      FieldName = 'peso_caracteristica'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosvolumes_caracteristica: TIntegerField
+      FieldName = 'volumes_caracteristica'
+    end
+    object qryProdutosforalinha_caracteristica: TDateField
+      Alignment = taCenter
+      FieldName = 'foralinha_caracteristica'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProdutosinativo_caracteristica: TDateField
+      Alignment = taCenter
+      FieldName = 'inativo_caracteristica'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProdutosgtin_caracteristica: TStringField
+      FieldName = 'gtin_caracteristica'
+      Size = 14
+    end
+    object qryProdutosdescricaonanf_caracteristica: TStringField
+      FieldName = 'descricaonanf_caracteristica'
+      Size = 100
+    end
+    object qryProdutosmontagem_caracteristica: TBooleanField
+      FieldName = 'montagem_caracteristica'
+      Required = True
+    end
+    object qryProdutosemiteetiqueta_caracteristica: TBooleanField
+      FieldName = 'emiteetiqueta_caracteristica'
+      Required = True
+    end
+    object qryProdutosbrinde_caracteristica: TBooleanField
+      FieldName = 'brinde_caracteristica'
+      Required = True
+    end
+    object qryProdutosemitecomplemento_caracteristica: TBooleanField
+      FieldName = 'emitecomplemento_caracteristica'
+      Required = True
+    end
+    object qryProdutosexigenumeroserie_caracteristica: TBooleanField
+      FieldName = 'exigenumeroserie_caracteristica'
+      Required = True
+    end
+    object qryProdutosgerenciarloteevalidade_caracteristica: TBooleanField
+      FieldName = 'gerenciarloteevalidade_caracteristica'
+      Required = True
+    end
+    object qryProdutosdisponivel_sistema_caracteristica: TBooleanField
+      FieldName = 'disponivel_sistema_caracteristica'
+      Required = True
+    end
+    object qryProdutosdisponivel_site_caracteristica: TBooleanField
+      FieldName = 'disponivel_site_caracteristica'
+      Required = True
+    end
+    object qryProdutosdisponivel_marketplace_caracteristica: TBooleanField
+      FieldName = 'disponivel_marketplace_caracteristica'
+      Required = True
+    end
+    object qryProdutoscomposto_caracteristica: TBooleanField
+      FieldName = 'composto_caracteristica'
+      Required = True
+    end
+    object qryProdutosdiscriminarpreco_caracteristica: TBooleanField
+      FieldName = 'discriminarpreco_caracteristica'
+      Required = True
+    end
+    object qryProdutosconferircomposto_caracteristica: TBooleanField
+      FieldName = 'conferircomposto_caracteristica'
+      Required = True
+    end
+    object qryProdutoscomposto2_caracteristica: TBooleanField
+      FieldName = 'composto2_caracteristica'
+      Required = True
+    end
+    object qryProdutosdesmembrarcomponente_caracteristica: TBooleanField
+      FieldName = 'desmembrarcomponente_caracteristica'
+      Required = True
+    end
+    object qryProdutosdiscriminarcomposto_caracteristica: TStringField
+      FieldName = 'discriminarcomposto_caracteristica'
+      Size = 1
+    end
+    object qryProdutosvendanegativa_caracteristica: TStringField
+      FieldName = 'vendanegativa_caracteristica'
+      Size = 1
+    end
+    object qryProdutosvendanegativanosite_caracteristica: TStringField
+      FieldName = 'vendanegativanosite_caracteristica'
+      Size = 1
+    end
+    object qryProdutosmarkup_caracteristica: TFloatField
+      FieldName = 'markup_caracteristica'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutoscustoadicionalproduto_caracteristica: TFloatField
+      FieldName = 'custoadicionalproduto_caracteristica'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosmultiplo_caracteristica: TFloatField
+      FieldName = 'multiplo_caracteristica'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosbonus_caracteristica: TIntegerField
+      FieldName = 'bonus_caracteristica'
+    end
+    object qryProdutostipocomissao_caracteristica: TStringField
+      FieldName = 'tipocomissao_caracteristica'
+      Required = True
+      Size = 1
+    end
+    object qryProdutoscomissao_caracteristica: TFloatField
+      FieldName = 'comissao_caracteristica'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutostipocomissaoindicador_caracteristica: TStringField
+      FieldName = 'tipocomissaoindicador_caracteristica'
+      Required = True
+      Size = 1
+    end
+    object qryProdutoscomissaoindicador_caracteristica: TFloatField
+      FieldName = 'comissaoindicador_caracteristica'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosgrupo_caracteristica: TStringField
+      FieldName = 'grupo_caracteristica'
+      Required = True
+      Size = 4
+    end
+    object qryProdutosdescricaogrupo_caracteristica: TStringField
+      FieldName = 'descricaogrupo_caracteristica'
+      Size = 30
+    end
+    object qryProdutosclasse_caracteristica: TStringField
+      FieldName = 'classe_caracteristica'
+      Required = True
+      Size = 2
+    end
+    object qryProdutosdescricaoclasse_caracteristica: TStringField
+      FieldName = 'descricaoclasse_caracteristica'
+      Size = 30
+    end
+    object qryProdutosmarca_caracteristica: TIntegerField
+      FieldName = 'marca_caracteristica'
+    end
+    object qryProdutosdescricaomarca_caracteristica: TStringField
+      FieldName = 'descricaomarca_caracteristica'
+      Size = 15
+    end
+    object qryProdutosunidade_caracteristica: TStringField
+      FieldName = 'unidade_caracteristica'
+      Required = True
+      Size = 8
+    end
+    object qryProdutosdescricaounidade_caracteristica: TStringField
+      FieldName = 'descricaounidade_caracteristica'
+      Size = 30
+    end
+    object qryProdutosfatorpreco_caracteristica: TStringField
+      FieldName = 'fatorpreco_caracteristica'
+      Size = 4
+    end
+    object qryProdutosdescricaofatorpreco_caracteristica: TStringField
+      FieldName = 'descricaofatorpreco_caracteristica'
+      Size = 30
+    end
+    object qryProdutossetorproducao_caracteristica: TStringField
+      FieldName = 'setorproducao_caracteristica'
+      Size = 4
+    end
+    object qryProdutosdescricacaosetorproducao_caracteristica: TStringField
+      FieldName = 'descricacaosetorproducao_caracteristica'
+      Size = 50
+    end
+    object qryProdutosincidencia_caracteristica: TIntegerField
+      FieldName = 'incidencia_caracteristica'
+      Required = True
+    end
+    object qryProdutoscst_caracteristica: TStringField
+      FieldName = 'cst_caracteristica'
+      Required = True
+      Size = 2
+    end
+    object qryProdutosdescricaocst_caracteristica: TStringField
+      FieldName = 'descricaocst_caracteristica'
+      Size = 100
+    end
+    object qryProdutoscsosn_caracteristica: TStringField
+      FieldName = 'csosn_caracteristica'
+      Size = 3
+    end
+    object qryProdutosdescricaocsosn_caracteristica: TStringField
+      FieldName = 'descricaocsosn_caracteristica'
+      Size = 150
+    end
+    object qryProdutospercreducaobase_caracteristica: TFloatField
+      FieldName = 'percreducaobase_caracteristica'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosicmsmodalidade_caracteristica: TIntegerField
+      FieldName = 'icmsmodalidade_caracteristica'
+    end
+    object qryProdutosdescricaoicmsmodalidade_caracteristica: TStringField
+      FieldName = 'descricaoicmsmodalidade_caracteristica'
+      Size = 35
+    end
+    object qryProdutosbaseicms_caracteristica: TFloatField
+      FieldName = 'baseicms_caracteristica'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosicms_caracteristica: TIntegerField
+      FieldName = 'icms_caracteristica'
+    end
+    object qryProdutosdescricaoicms_caracteristica: TStringField
+      FieldName = 'descricaoicms_caracteristica'
+      Size = 30
+    end
+    object qryProdutosaliquotaicms_estadosicms: TFloatField
+      FieldName = 'aliquotaicms_estadosicms'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosicmsmodsubst_caracteristica: TIntegerField
+      FieldName = 'icmsmodsubst_caracteristica'
+    end
+    object qryProdutosdescricaoicmsmodsubst_caracteristica: TStringField
+      FieldName = 'descricaoicmsmodsubst_caracteristica'
+      Size = 35
+    end
+    object qryProdutospredbcst_caracteristica: TFloatField
+      FieldName = 'predbcst_caracteristica'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosorigem_caracteristica: TIntegerField
+      FieldName = 'origem_caracteristica'
+      Required = True
+    end
+    object qryProdutosdescricaoorigem_caracteristica: TStringField
+      FieldName = 'descricaoorigem_caracteristica'
+      Size = 170
+    end
+    object qryProdutosanvisa_caracteristica: TStringField
+      FieldName = 'anvisa_caracteristica'
+    end
+    object qryProdutosobslegal_caracteristica: TIntegerField
+      FieldName = 'obslegal_caracteristica'
+    end
+    object qryProdutosdescricaoobslegal_caracteristica: TStringField
+      FieldName = 'descricaoobslegal_caracteristica'
+      Size = 700
+    end
+    object qryProdutosipi_caracteristica: TIntegerField
+      FieldName = 'ipi_caracteristica'
+    end
+    object qryProdutosdescricaoipi_caracteristica: TStringField
+      FieldName = 'descricaoipi_caracteristica'
+      Size = 30
+    end
+    object qryProdutosclassificacaofiscalipi_caracteristica: TStringField
+      FieldName = 'classificacaofiscalipi_caracteristica'
+      Size = 8
+    end
+    object qryProdutosaliquotaipi_caracteristica: TFloatField
+      FieldName = 'aliquotaipi_caracteristica'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosipicst_caracteristica: TStringField
+      FieldName = 'ipicst_caracteristica'
+      Size = 2
+    end
+    object qryProdutosdescricaoipicst_caracteristica: TStringField
+      FieldName = 'descricaoipicst_caracteristica'
+      Size = 100
+    end
+    object qryProdutoscofinscst_caracteristica: TStringField
+      FieldName = 'cofinscst_caracteristica'
+      Size = 2
+    end
+    object qryProdutosdescricaocofins_caracteristica: TStringField
+      FieldName = 'descricaocofins_caracteristica'
+      Size = 150
+    end
+    object qryProdutosaliquotacofins_caracteristica: TFloatField
+      FieldName = 'aliquotacofins_caracteristica'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutospiscst_caracteristica: TStringField
+      FieldName = 'piscst_caracteristica'
+      Size = 2
+    end
+    object qryProdutosdescricaopis_caracteristica: TStringField
+      FieldName = 'descricaopis_caracteristica'
+      Size = 150
+    end
+    object qryProdutosaliquotapis_caracteristica: TFloatField
+      FieldName = 'aliquotapis_caracteristica'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutoscodigo_efd_t53_caracteristica: TStringField
+      FieldName = 'codigo_efd_t53_caracteristica'
+      Size = 10
+    end
+    object qryProdutosdescricaoefd_t53_caracteristica: TStringField
+      FieldName = 'descricaoefd_t53_caracteristica'
+      Size = 200
+    end
+    object qryProdutosproducaopropria_caracteristica: TBooleanField
+      FieldName = 'producaopropria_caracteristica'
+      Required = True
+    end
+    object qryProdutossubstituicaoipi_caracteristica: TBooleanField
+      FieldName = 'substituicaoipi_caracteristica'
+      Required = True
+    end
+    object qryProdutosmarcar: TBooleanField
+      FieldName = 'marcar'
+    end
+  end
+  object dsrProdutosLinha: TtecDataSource
+    DataSet = qryProdutosLinha
+    Left = 216
+    Top = 136
+  end
+  object qryProdutosLinha: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qryProdutosLinhaNewRecord
+    ExtraOptions = [poTextAsMemo]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ICMS'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select p.codigo as codigo_produto,'
+      '       p.codigovisual as codigovisual_produto,'
+      ''
+      '       p.descricao as descricao_produto,'
+      '       true as nulo_descricao_produto,'
+      ''
+      
+        '       p.descricaoplanilhacusto as descricaoplanilhacusto_produt' +
+        'o,'
+      '       true as nulo_descricaoplanilhacusto_produto,'
+      ''
+      '       p.nome_site as nome_site_produto,'
+      '       true as nulo_nome_site_produto,'
+      ''
+      '       p.referencia as referencia_produto,'
+      '       true as nulo_referencia_produto,'
+      ''
+      '       p.inativo as inativo_produto,'
+      '       true as nulo_inativo_produto,'
+      ''
+      '       p.foralinha as foralinha_produto,'
+      '       true as nulo_foralinha_produto,'
+      ''
+      '       p.nlote as nlote_produto,'
+      '       true as nulo_nlote_produto,'
+      ''
+      '       p.dval as dval_produto,'
+      '       true as nulo_dval_produto,'
+      ''
+      '       /* dimensoes */'
+      '       p.peso_entrega as peso_entrega_produto,'
+      '       true as nulo_peso_entrega_produto,'
+      ''
+      '       p.comprimento as comprimento_produto,'
+      '       true as nulo_comprimento_produto,'
+      ''
+      '       p.altura as altura_produto,'
+      '       true as nulo_altura_produto,'
+      ''
+      '       p.largura as largura_produto,'
+      '       true as nulo_largura_produto,'
+      ''
+      '       p.diametro as diametro_produto,'
+      '       true as nulo_diametro_produto,'
+      ''
+      '       c.codigo as codigo_caracteristica,'
+      '       c.descricao as descricao_caracteristica,'
+      '       true as nulo_descricao_caracteristica,'
+      ''
+      '       c.codigovisual as codigovisual_caracteristica,'
+      ''
+      '       c.complemento as complemento_caracteristica,'
+      '       true as nulo_complemento_caracteristica,'
+      ''
+      '       c.tipoproduto as tipoproduto_caracteristica,'
+      '       tp.descricao as descricaotipoproduto_caracteristica,'
+      '       true as nulo_tipoproduto_caracteristica,'
+      ''
+      '       c.peso as peso_caracteristica,'
+      '       true as nulo_peso_caracteristica,'
+      ''
+      '       c.volumes as volumes_caracteristica,'
+      '       true as nulo_volumes_caracteristica,'
+      ''
+      '       c.foralinha as foralinha_caracteristica,'
+      '       true as nulo_foralinha_caracteristica,'
+      ''
+      '       c.inativo as inativo_caracteristica,'
+      '       true as nulo_inativo_caracteristica,'
+      ''
+      '       c.gtin as gtin_caracteristica,'
+      '       true as nulo_gtin_caracteristica,'
+      ''
+      '       c.descricaonanf as descricaonanf_caracteristica,'
+      '       true as nulo_descricaonanf_caracteristica,'
+      ''
+      '       /* PAR'#194'METROS */'
+      
+        '       c.montagem as montagem_caracteristica, /* Requer montagem' +
+        ' */'
+      
+        '       c.emiteetiqueta as emiteetiqueta_caracteristica, /* Emiti' +
+        'r Etiqueta */'
+      '       c.brinde as brinde_caracteristica, /* Produto '#233' brinde */'
+      
+        '       c.emitecomplemento as emitecomplemento_caracteristica,/* ' +
+        'Imprimir complemento */'
+      
+        '       c.exigenumeroserie as exigenumeroserie_caracteristica, /*' +
+        ' Exige n'#250'mero de s'#233'rie */'
+      
+        '       c.gerenciarloteevalidade as gerenciarloteevalidade_caract' +
+        'eristica, /*Gerenciar lote e validade */'
+      ''
+      '       /* DISPONIBILIDADE */'
+      
+        '       c.disponivel_sistema as disponivel_sistema_caracteristica' +
+        ', /* Sistema  */'
+      
+        '       c.disponivel_site as disponivel_site_caracteristica,    /' +
+        '* Site  */'
+      
+        '       c.disponivel_marketplace as disponivel_marketplace_caract' +
+        'eristica, /* Marketplace */'
+      ''
+      '       /* PRODUTO COMPOSTO */'
+      '       c.composto as composto_caracteristica, /* Conjunto */'
+      
+        '       c.discriminarpreco as discriminarpreco_caracteristica, /*' +
+        ' Discriminar pre'#231'o */'
+      
+        '       c.conferircomposto as conferircomposto_caracteristica, /*' +
+        ' Conferir Componentes */'
+      '       c.composto2 as composto2_caracteristica, /* Composto */'
+      
+        '       c.desmembrarcomponente as  desmembrarcomponente_caracteri' +
+        'stica,/* Desmembrar componentes */'
+      ''
+      '       /* DISCRIMINA'#199#195'O */'
+      
+        '       C.discriminarcomposto AS discriminarcomposto_caracteristi' +
+        'ca, /* Sem composi'#231#227'o = N | Com composi'#231#227'o = C | S'#243' composi'#231#227'o =' +
+        ' S */'
+      '       true as nulo_discriminarcomposto_caracteristica,'
+      ''
+      
+        '       c.vendanegativa as vendanegativa_caracteristica, /* VENDA' +
+        ' SEM ESTOQUE Sim = S | N'#227'o = N */'
+      '       true as nulo_vendanegativa_caracteristica,'
+      ''
+      
+        '       c.vendanegativanosite as vendanegativanosite_caracteristi' +
+        'ca, /* VENDA SEM ESTOQUE NO SITE Sim = S | N'#227'o = N */'
+      '       true as nulo_vendanegativanosite_caracteristica,'
+      ''
+      '       c.markup as markup_caracteristica, /* MARK-UP */'
+      '       true as nulo_markup_caracteristica,'
+      ''
+      
+        '       c.custoadicionalproduto as custoadicionalproduto_caracter' +
+        'istica, /* CUSTO ADICIONAL */'
+      '       true as nulo_custoadicionalproduto_caracteristica,'
+      ''
+      '       c.multiplo as multiplo_caracteristica, /* M'#218'LTIPLO */'
+      '       true as nulo_multiplo_caracteristica,'
+      ''
+      '       c.bonus as bonus_caracteristica, /* B'#212'NUS */'
+      '       true as nulo_bonus_caracteristica,'
+      ''
+      '       /* COMISS'#195'O VENDEDORES */'
+      '       c.tipocomissao as tipocomissao_caracteristica,'
+      '       true as nulo_tipocomissao_caracteristica,'
+      ''
+      '       c.comissao as comissao_caracteristica,'
+      '       true as nulo_comissao_caracteristica,'
+      ''
+      '       /* COMISS'#195'O INDICADORES */'
+      
+        '       c.tipocomissaoindicador as tipocomissaoindicador_caracter' +
+        'istica,'
+      '       true as nulo_tipocomissaoindicador_caracteristica,'
+      ''
+      '       c.comissaoindicador as comissaoindicador_caracteristica,'
+      '       true as nulo_comissaoindicador_caracteristica,'
+      ''
+      '       c.grupo as grupo_caracteristica,'
+      '       true as nulo_grupo_caracteristica,'
+      '       g.descricao as descricaogrupo_caracteristica,'
+      ''
+      '       c.classe as classe_caracteristica,'
+      '       true as nulo_classe_caracteristica,'
+      '       cl.descricao as descricaoclasse_caracteristica,'
+      ''
+      '       c.marca as marca_caracteristica,'
+      '       true as nulo_marca_caracteristica,'
+      '       m.descricao as descricaomarca_caracteristica,'
+      ''
+      '       c.unidade as unidade_caracteristica,'
+      '       true as nulo_unidade_caracteristica,'
+      '       u.descricao as descricaounidade_caracteristica,'
+      ''
+      '       c.fatorpreco as fatorpreco_caracteristica,'
+      '       true as nulo_fatorpreco_caracteristica,'
+      '       fp.descricao as descricaofatorpreco_caracteristica,'
+      ''
+      '       c.setorproducao as setorproducao_caracteristica,'
+      '       true as nulo_setorproducao_caracteristica,'
+      '       sp.descricao as descricacaosetorproducao_caracteristica,'
+      ''
+      
+        '       /* ICMS - C'#211'D. SITUA'#199#195'O TRIBUT'#193'RIA (atualizar o campo inc' +
+        'idencia) */'
+      '       c.incidencia as incidencia_caracteristica,'
+      '       ti.valor as cst_caracteristica,'
+      '       true as nulo_cst_caracteristica,'
+      '       ti.descricao as descricaocst_caracteristica,'
+      ''
+      '       /* CSOSN - COD. SIT. OP. SIMPLES NACIONAL */'
+      '       c.csosn as csosn_caracteristica,'
+      '       true as nulo_csosn_caracteristica,'
+      '       csosn.descricao as descricaocsosn_caracteristica,'
+      ''
+      '       /* REDU'#199#195'O BASE */'
+      '       c.percreducaobase as percreducaobase_caracteristica,'
+      ''
+      '       c.icmsmodalidade as icmsmodalidade_caracteristica,'
+      '       true as nulo_icmsmodalidade_caracteristica,'
+      
+        '       modalidadeBC_ICMS.descricao as descricaoicmsmodalidade_ca' +
+        'racteristica,'
+      ''
+      '       /* BASE ICMS */'
+      '       c.baseicms as baseicms_caracteristica,'
+      ''
+      '       /* ICMS - AL'#205'QUOTA */'
+      '       c.icms as icms_caracteristica,'
+      '       true as nulo_icms_caracteristica,'
+      '       icms.descricao as descricaoicms_caracteristica,'
+      ''
+      
+        '       (select ei.valor from estadosicms ei where icms = icms.co' +
+        'digo and ei.estado = :estado) as aliquotaicms_estadosicms, /* % ' +
+        'ICMS */'
+      ''
+      
+        '       /* ICMS - MODALIDADE BASE DE C'#193'LCULO NA SUBSTITUI'#199#195'O TRIB' +
+        'UT'#193'RIA */'
+      '       c.icmsmodsubst as icmsmodsubst_caracteristica,'
+      '       true as nulo_icmsmodsubst_caracteristica,'
+      
+        '       modalidadeBC_ICMS_ST.descricao as descricaoicmsmodsubst_c' +
+        'aracteristica,'
+      ''
+      '       c.predbcst as predbcst_caracteristica, /* RED. BASE ST */'
+      '       true as nulo_predbcst_caracteristica,'
+      ''
+      '       /* ORIGEM */'
+      '       c.origem as origem_caracteristica,'
+      '       true as nulo_origem_caracteristica,'
+      '       om.descricao as descricaoorigem_caracteristica,'
+      ''
+      '       /* N'#176' ANVISA */'
+      '       c.anvisa as anvisa_caracteristica,'
+      '       true as nulo_anvisa_caracteristica,'
+      ''
+      ''
+      '       /* OBSERVA'#199#195'O LEGAL */'
+      '       c.obslegal as obslegal_caracteristica,'
+      '       true as nulo_obslegal_caracteristica,'
+      '       ol.descricao as descricaoobslegal_caracteristica,'
+      ''
+      '       /* IPI - NCM - NOMENCLATURA COMUM DO MERCOSUL  */'
+      '       c.ipi as ipi_caracteristica,'
+      '       true as nulo_ipi_caracteristica,'
+      '       ipi.descricao as descricaoipi_caracteristica,'
+      
+        '       ipi.classificacaofiscal as classificacaofiscalipi_caracte' +
+        'ristica,'
+      '       ipi.aliquota as aliquotaipi_caracteristica,'
+      ''
+      '       /* IPI - C'#211'D. SITUA'#199#195'O TRIBUT'#193'RIA */'
+      '       c.ipicst as ipicst_caracteristica,'
+      '       true as nulo_ipicst_caracteristica,'
+      '       tipi.descricao as descricaoipicst_caracteristica,'
+      ''
+      '       /* COFINS - C'#211'D. SITUA'#199#195'O TRIBUT'#193'RIA */'
+      '       c.cofinscst as cofinscst_caracteristica,'
+      '       true as nulo_cofinscst_caracteristica,'
+      '       tpc.descricao as descricaocofins_caracteristica,'
+      '       c.aliquotacofins as aliquotacofins_caracteristica,'
+      '       true as nulo_aliquotacofins_caracteristica,'
+      ''
+      ''
+      '       /* PIS - C'#211'D. SITUA'#199#195'O TRIBUT'#193'RIA */'
+      '       c.piscst as piscst_caracteristica,'
+      '       true as nulo_piscst_caracteristica,'
+      '       tpp.descricao as descricaopis_caracteristica,'
+      '       c.aliquotapis as aliquotapis_caracteristica,'
+      '       true as nulo_aliquotapis_caracteristica,'
+      ''
+      '       /* EFD - T53 */'
+      '       c.codigo_efd_t53 as codigo_efd_t53_caracteristica,'
+      '       true as nulo_codigo_efd_t53_caracteristica,'
+      '       efd_t53.descricao as descricaoefd_t53_caracteristica,'
+      ''
+      
+        '       c.producaopropria as producaopropria_caracteristica, /* P' +
+        'roduto de produ'#231#227'o pr'#243'pria */'
+      
+        '       c.substituicaoipi as substituicaoipi_caracteristica,  /* ' +
+        'Substitui'#231#227'o IPI */'
+      '       false as marcar'
+      ''
+      'from (produtos p'
+      '       join (((((((((((((((((((caracteristicas c'
+      '                     left join grupos g on c.grupo = g.codigo)'
+      
+        '                     left join classes cl on c.classe = cl.codig' +
+        'o)'
+      '                     left join marcas m on c.marca = m.codigo)'
+      
+        '                     left join tiposproduto tp on c.tipoproduto ' +
+        '= tp.codigo)'
+      
+        '                     left join tributosicms ti on c.incidencia =' +
+        ' ti.codigo)'
+      
+        '                     left join unidades u on c.unidade = u.codig' +
+        'o)'
+      
+        '                     left join fatorespreco fp on c.fatorpreco =' +
+        ' fp.codigo)'
+      
+        '                     left join setoresproducao sp on c.setorprod' +
+        'ucao = sp.codigo)'
+      '                     left join csosn on c.csosn = csosn.codigo)'
+      
+        '                     left join modalidadeBC_ICMS on c.icmsmodali' +
+        'dade = modalidadeBC_ICMS.codigo)'
+      '                     left join icms on c.icms = icms.codigo)'
+      
+        '                     left join modalidadeBC_ICMS_ST on c.icmsmod' +
+        'subst = modalidadeBC_ICMS.codigo)'
+      
+        '                     left join origemmercadorias om on c.origem ' +
+        '= om.codigo)'
+      
+        '                     left join obslegais ol on c.obslegal = ol.c' +
+        'odigo)'
+      '                     left join ipi on c.ipi = ipi.codigo)'
+      
+        '                     left join tributosipi tipi on c.ipicst = ti' +
+        'pi.codigo)'
+      
+        '                     left join tributospis_cofins tpc on tpc.cod' +
+        'igo = c.cofinscst)'
+      
+        '                     left join tributospis_cofins tpp on tpp.cod' +
+        'igo = c.piscst)'
+      
+        '                     left join efd_t53 on c.codigo_efd_t53 = efd' +
+        '_t53.codigo)'
+      ''
+      '      on p.caracteristica = c.codigo)'
+      ''
+      'where FALSE'
+      ''
+      'Order by c.codigovisual, p.codigovisual'
+      ''
+      ''
+      ''
+      ''
+      '')
+    RequestLive = True
+    Left = 248
+    Top = 152
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'estado'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosLinhacodigo_produto: TLargeintField
+      FieldName = 'codigo_produto'
+      ReadOnly = True
+      Visible = False
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhacodigovisual_produto: TStringField
+      FieldName = 'codigovisual_produto'
+      ReadOnly = True
+      OnGetText = qryProdutosLinhaGetText
+      Size = 30
+    end
+    object qryProdutosLinhadescricao_produto: TStringField
+      FieldName = 'descricao_produto'
+      Required = True
+      OnGetText = qryProdutosLinhaGetText
+      Size = 100
+    end
+    object qryProdutosLinhadescricaoplanilhacusto_produto: TStringField
+      FieldName = 'descricaoplanilhacusto_produto'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 50
+    end
+    object qryProdutosLinhanome_site_produto: TStringField
+      FieldName = 'nome_site_produto'
+      Required = True
+      OnGetText = qryProdutosLinhaGetText
+      Size = 255
+    end
+    object qryProdutosLinhareferencia_produto: TStringField
+      FieldName = 'referencia_produto'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 50
+    end
+    object qryProdutosLinhainativo_produto: TDateField
+      Alignment = taCenter
+      FieldName = 'inativo_produto'
+      OnGetText = qryProdutosLinhaGetText
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProdutosLinhaforalinha_produto: TDateField
+      Alignment = taCenter
+      FieldName = 'foralinha_produto'
+      OnGetText = qryProdutosLinhaGetText
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProdutosLinhanlote_produto: TStringField
+      FieldName = 'nlote_produto'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadval_produto: TDateField
+      Alignment = taCenter
+      FieldName = 'dval_produto'
+      OnGetText = qryProdutosLinhaGetText
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProdutosLinhapeso_entrega_produto: TFloatField
+      FieldName = 'peso_entrega_produto'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhacomprimento_produto: TFloatField
+      FieldName = 'comprimento_produto'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhaaltura_produto: TFloatField
+      FieldName = 'altura_produto'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhalargura_produto: TFloatField
+      FieldName = 'largura_produto'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhadiametro_produto: TFloatField
+      FieldName = 'diametro_produto'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhacodigo_caracteristica: TLargeintField
+      FieldName = 'codigo_caracteristica'
+      ReadOnly = True
+      Required = True
+      Visible = False
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadescricao_caracteristica: TStringField
+      FieldName = 'descricao_caracteristica'
+      Required = True
+      OnGetText = qryProdutosLinhaGetText
+      Size = 100
+    end
+    object qryProdutosLinhacodigovisual_caracteristica: TStringField
+      FieldName = 'codigovisual_caracteristica'
+      ReadOnly = True
+      Required = True
+      OnGetText = qryProdutosLinhaGetText
+      Size = 30
+    end
+    object qryProdutosLinhacomplemento_caracteristica: TStringField
+      FieldName = 'complemento_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 1000
+    end
+    object qryProdutosLinhatipoproduto_caracteristica: TStringField
+      FieldName = 'tipoproduto_caracteristica'
+      Required = True
+      OnGetText = qryProdutosLinhaGetText
+      Size = 2
+    end
+    object qryProdutosLinhadescricaotipoproduto_caracteristica: TStringField
+      FieldName = 'descricaotipoproduto_caracteristica'
+      Size = 30
+    end
+    object qryProdutosLinhapeso_caracteristica: TFloatField
+      FieldName = 'peso_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhavolumes_caracteristica: TIntegerField
+      FieldName = 'volumes_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhaforalinha_caracteristica: TDateField
+      Alignment = taCenter
+      FieldName = 'foralinha_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProdutosLinhainativo_caracteristica: TDateField
+      Alignment = taCenter
+      FieldName = 'inativo_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProdutosLinhagtin_caracteristica: TStringField
+      FieldName = 'gtin_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 14
+    end
+    object qryProdutosLinhadescricaonanf_caracteristica: TStringField
+      FieldName = 'descricaonanf_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 100
+    end
+    object qryProdutosLinhamontagem_caracteristica: TBooleanField
+      FieldName = 'montagem_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhaemiteetiqueta_caracteristica: TBooleanField
+      FieldName = 'emiteetiqueta_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhabrinde_caracteristica: TBooleanField
+      FieldName = 'brinde_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhaemitecomplemento_caracteristica: TBooleanField
+      FieldName = 'emitecomplemento_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhaexigenumeroserie_caracteristica: TBooleanField
+      FieldName = 'exigenumeroserie_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhagerenciarloteevalidade_caracteristica: TBooleanField
+      FieldName = 'gerenciarloteevalidade_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadisponivel_sistema_caracteristica: TBooleanField
+      FieldName = 'disponivel_sistema_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadisponivel_site_caracteristica: TBooleanField
+      FieldName = 'disponivel_site_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadisponivel_marketplace_caracteristica: TBooleanField
+      FieldName = 'disponivel_marketplace_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhacomposto_caracteristica: TBooleanField
+      FieldName = 'composto_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadiscriminarpreco_caracteristica: TBooleanField
+      FieldName = 'discriminarpreco_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhaconferircomposto_caracteristica: TBooleanField
+      FieldName = 'conferircomposto_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhacomposto2_caracteristica: TBooleanField
+      FieldName = 'composto2_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadesmembrarcomponente_caracteristica: TBooleanField
+      FieldName = 'desmembrarcomponente_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadiscriminarcomposto_caracteristica: TStringField
+      FieldName = 'discriminarcomposto_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 1
+    end
+    object qryProdutosLinhavendanegativa_caracteristica: TStringField
+      FieldName = 'vendanegativa_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 1
+    end
+    object qryProdutosLinhavendanegativanosite_caracteristica: TStringField
+      FieldName = 'vendanegativanosite_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 1
+    end
+    object qryProdutosLinhamarkup_caracteristica: TFloatField
+      FieldName = 'markup_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhacustoadicionalproduto_caracteristica: TFloatField
+      FieldName = 'custoadicionalproduto_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhamultiplo_caracteristica: TFloatField
+      FieldName = 'multiplo_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhabonus_caracteristica: TIntegerField
+      FieldName = 'bonus_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhatipocomissao_caracteristica: TStringField
+      FieldName = 'tipocomissao_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 1
+    end
+    object qryProdutosLinhacomissao_caracteristica: TFloatField
+      FieldName = 'comissao_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhatipocomissaoindicador_caracteristica: TStringField
+      FieldName = 'tipocomissaoindicador_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 1
+    end
+    object qryProdutosLinhacomissaoindicador_caracteristica: TFloatField
+      FieldName = 'comissaoindicador_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhagrupo_caracteristica: TStringField
+      FieldName = 'grupo_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 4
+    end
+    object qryProdutosLinhadescricaogrupo_caracteristica: TStringField
+      FieldName = 'descricaogrupo_caracteristica'
+      Size = 30
+    end
+    object qryProdutosLinhaclasse_caracteristica: TStringField
+      FieldName = 'classe_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 2
+    end
+    object qryProdutosLinhadescricaoclasse_caracteristica: TStringField
+      FieldName = 'descricaoclasse_caracteristica'
+      Size = 30
+    end
+    object qryProdutosLinhamarca_caracteristica: TIntegerField
+      FieldName = 'marca_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadescricaomarca_caracteristica: TStringField
+      FieldName = 'descricaomarca_caracteristica'
+      Size = 15
+    end
+    object qryProdutosLinhaunidade_caracteristica: TStringField
+      FieldName = 'unidade_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 8
+    end
+    object qryProdutosLinhadescricaounidade_caracteristica: TStringField
+      FieldName = 'descricaounidade_caracteristica'
+      Size = 30
+    end
+    object qryProdutosLinhafatorpreco_caracteristica: TStringField
+      FieldName = 'fatorpreco_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 4
+    end
+    object qryProdutosLinhadescricaofatorpreco_caracteristica: TStringField
+      FieldName = 'descricaofatorpreco_caracteristica'
+      Size = 30
+    end
+    object qryProdutosLinhasetorproducao_caracteristica: TStringField
+      FieldName = 'setorproducao_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 4
+    end
+    object qryProdutosLinhadescricacaosetorproducao_caracteristica: TStringField
+      FieldName = 'descricacaosetorproducao_caracteristica'
+      Size = 50
+    end
+    object qryProdutosLinhaincidencia_caracteristica: TIntegerField
+      FieldName = 'incidencia_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhacst_caracteristica: TStringField
+      FieldName = 'cst_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 2
+    end
+    object qryProdutosLinhadescricaocst_caracteristica: TStringField
+      FieldName = 'descricaocst_caracteristica'
+      Size = 100
+    end
+    object qryProdutosLinhacsosn_caracteristica: TStringField
+      FieldName = 'csosn_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 3
+    end
+    object qryProdutosLinhadescricaocsosn_caracteristica: TStringField
+      FieldName = 'descricaocsosn_caracteristica'
+      Size = 150
+    end
+    object qryProdutosLinhapercreducaobase_caracteristica: TFloatField
+      FieldName = 'percreducaobase_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhaicmsmodalidade_caracteristica: TIntegerField
+      FieldName = 'icmsmodalidade_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadescricaoicmsmodalidade_caracteristica: TStringField
+      FieldName = 'descricaoicmsmodalidade_caracteristica'
+      Size = 35
+    end
+    object qryProdutosLinhabaseicms_caracteristica: TFloatField
+      FieldName = 'baseicms_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhaicms_caracteristica: TIntegerField
+      FieldName = 'icms_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadescricaoicms_caracteristica: TStringField
+      FieldName = 'descricaoicms_caracteristica'
+      Size = 30
+    end
+    object qryProdutosLinhaaliquotaicms_estadosicms: TFloatField
+      FieldName = 'aliquotaicms_estadosicms'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhaicmsmodsubst_caracteristica: TIntegerField
+      FieldName = 'icmsmodsubst_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadescricaoicmsmodsubst_caracteristica: TStringField
+      FieldName = 'descricaoicmsmodsubst_caracteristica'
+      Size = 35
+    end
+    object qryProdutosLinhapredbcst_caracteristica: TFloatField
+      FieldName = 'predbcst_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhaorigem_caracteristica: TIntegerField
+      FieldName = 'origem_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadescricaoorigem_caracteristica: TStringField
+      FieldName = 'descricaoorigem_caracteristica'
+      Size = 170
+    end
+    object qryProdutosLinhaanvisa_caracteristica: TStringField
+      FieldName = 'anvisa_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhaobslegal_caracteristica: TIntegerField
+      FieldName = 'obslegal_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadescricaoobslegal_caracteristica: TStringField
+      FieldName = 'descricaoobslegal_caracteristica'
+      Size = 700
+    end
+    object qryProdutosLinhaipi_caracteristica: TIntegerField
+      FieldName = 'ipi_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhadescricaoipi_caracteristica: TStringField
+      FieldName = 'descricaoipi_caracteristica'
+      Size = 30
+    end
+    object qryProdutosLinhaclassificacaofiscalipi_caracteristica: TStringField
+      FieldName = 'classificacaofiscalipi_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 8
+    end
+    object qryProdutosLinhaaliquotaipi_caracteristica: TFloatField
+      FieldName = 'aliquotaipi_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhaipicst_caracteristica: TStringField
+      FieldName = 'ipicst_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 2
+    end
+    object qryProdutosLinhadescricaoipicst_caracteristica: TStringField
+      FieldName = 'descricaoipicst_caracteristica'
+      Size = 100
+    end
+    object qryProdutosLinhacofinscst_caracteristica: TStringField
+      FieldName = 'cofinscst_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 2
+    end
+    object qryProdutosLinhadescricaocofins_caracteristica: TStringField
+      FieldName = 'descricaocofins_caracteristica'
+      Size = 150
+    end
+    object qryProdutosLinhaaliquotacofins_caracteristica: TFloatField
+      FieldName = 'aliquotacofins_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhapiscst_caracteristica: TStringField
+      FieldName = 'piscst_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 2
+    end
+    object qryProdutosLinhadescricaopis_caracteristica: TStringField
+      FieldName = 'descricaopis_caracteristica'
+      Size = 150
+    end
+    object qryProdutosLinhaaliquotapis_caracteristica: TFloatField
+      FieldName = 'aliquotapis_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosLinhacodigo_efd_t53_caracteristica: TStringField
+      FieldName = 'codigo_efd_t53_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+      Size = 10
+    end
+    object qryProdutosLinhadescricaoefd_t53_caracteristica: TStringField
+      FieldName = 'descricaoefd_t53_caracteristica'
+      Size = 200
+    end
+    object qryProdutosLinhaproducaopropria_caracteristica: TBooleanField
+      FieldName = 'producaopropria_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhasubstituicaoipi_caracteristica: TBooleanField
+      FieldName = 'substituicaoipi_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhamarcar: TBooleanField
+      FieldName = 'marcar'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_inativo_produto: TBooleanField
+      FieldName = 'nulo_inativo_produto'
+      Visible = False
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_foralinha_produto: TBooleanField
+      FieldName = 'nulo_foralinha_produto'
+      Visible = False
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_dval_produto: TBooleanField
+      FieldName = 'nulo_dval_produto'
+      Visible = False
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_foralinha_caracteristica: TBooleanField
+      FieldName = 'nulo_foralinha_caracteristica'
+      Visible = False
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_inativo_caracteristica: TBooleanField
+      FieldName = 'nulo_inativo_caracteristica'
+      Visible = False
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_descricao_produto: TBooleanField
+      FieldName = 'nulo_descricao_produto'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_descricaoplanilhacusto_produto: TBooleanField
+      FieldName = 'nulo_descricaoplanilhacusto_produto'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_nome_site_produto: TBooleanField
+      FieldName = 'nulo_nome_site_produto'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_referencia_produto: TBooleanField
+      FieldName = 'nulo_referencia_produto'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_nlote_produto: TBooleanField
+      FieldName = 'nulo_nlote_produto'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_peso_entrega_produto: TBooleanField
+      FieldName = 'nulo_peso_entrega_produto'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_comprimento_produto: TBooleanField
+      FieldName = 'nulo_comprimento_produto'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_altura_produto: TBooleanField
+      FieldName = 'nulo_altura_produto'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_largura_produto: TBooleanField
+      FieldName = 'nulo_largura_produto'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_diametro_produto: TBooleanField
+      FieldName = 'nulo_diametro_produto'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_descricao_caracteristica: TBooleanField
+      FieldName = 'nulo_descricao_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_complemento_caracteristica: TBooleanField
+      FieldName = 'nulo_complemento_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_tipoproduto_caracteristica: TBooleanField
+      FieldName = 'nulo_tipoproduto_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_peso_caracteristica: TBooleanField
+      FieldName = 'nulo_peso_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_volumes_caracteristica: TBooleanField
+      FieldName = 'nulo_volumes_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_gtin_caracteristica: TBooleanField
+      FieldName = 'nulo_gtin_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_descricaonanf_caracteristica: TBooleanField
+      FieldName = 'nulo_descricaonanf_caracteristica'
+      OnGetText = qryProdutosLinhaGetText
+    end
+    object qryProdutosLinhanulo_discriminarcomposto_caracteristica: TBooleanField
+      FieldName = 'nulo_discriminarcomposto_caracteristica'
+    end
+    object qryProdutosLinhanulo_vendanegativa_caracteristica: TBooleanField
+      FieldName = 'nulo_vendanegativa_caracteristica'
+    end
+    object qryProdutosLinhanulo_vendanegativanosite_caracteristica: TBooleanField
+      FieldName = 'nulo_vendanegativanosite_caracteristica'
+    end
+    object qryProdutosLinhanulo_markup_caracteristica: TBooleanField
+      FieldName = 'nulo_markup_caracteristica'
+    end
+    object qryProdutosLinhanulo_custoadicionalproduto_caracteristica: TBooleanField
+      FieldName = 'nulo_custoadicionalproduto_caracteristica'
+    end
+    object qryProdutosLinhanulo_multiplo_caracteristica: TBooleanField
+      FieldName = 'nulo_multiplo_caracteristica'
+    end
+    object qryProdutosLinhanulo_bonus_caracteristica: TBooleanField
+      FieldName = 'nulo_bonus_caracteristica'
+    end
+    object qryProdutosLinhanulo_tipocomissao_caracteristica: TBooleanField
+      FieldName = 'nulo_tipocomissao_caracteristica'
+    end
+    object qryProdutosLinhanulo_comissao_caracteristica: TBooleanField
+      FieldName = 'nulo_comissao_caracteristica'
+    end
+    object qryProdutosLinhanulo_tipocomissaoindicador_caracteristica: TBooleanField
+      FieldName = 'nulo_tipocomissaoindicador_caracteristica'
+    end
+    object qryProdutosLinhanulo_comissaoindicador_caracteristica: TBooleanField
+      FieldName = 'nulo_comissaoindicador_caracteristica'
+    end
+    object qryProdutosLinhanulo_grupo_caracteristica: TBooleanField
+      FieldName = 'nulo_grupo_caracteristica'
+    end
+    object qryProdutosLinhanulo_classe_caracteristica: TBooleanField
+      FieldName = 'nulo_classe_caracteristica'
+    end
+    object qryProdutosLinhanulo_marca_caracteristica: TBooleanField
+      FieldName = 'nulo_marca_caracteristica'
+    end
+    object qryProdutosLinhanulo_unidade_caracteristica: TBooleanField
+      FieldName = 'nulo_unidade_caracteristica'
+    end
+    object qryProdutosLinhanulo_fatorpreco_caracteristica: TBooleanField
+      FieldName = 'nulo_fatorpreco_caracteristica'
+    end
+    object qryProdutosLinhanulo_setorproducao_caracteristica: TBooleanField
+      FieldName = 'nulo_setorproducao_caracteristica'
+    end
+    object qryProdutosLinhanulo_cst_caracteristica: TBooleanField
+      FieldName = 'nulo_cst_caracteristica'
+    end
+    object qryProdutosLinhanulo_csosn_caracteristica: TBooleanField
+      FieldName = 'nulo_csosn_caracteristica'
+    end
+    object qryProdutosLinhanulo_icmsmodalidade_caracteristica: TBooleanField
+      FieldName = 'nulo_icmsmodalidade_caracteristica'
+    end
+    object qryProdutosLinhanulo_icms_caracteristica: TBooleanField
+      FieldName = 'nulo_icms_caracteristica'
+    end
+    object qryProdutosLinhanulo_icmsmodsubst_caracteristica: TBooleanField
+      FieldName = 'nulo_icmsmodsubst_caracteristica'
+    end
+    object qryProdutosLinhanulo_predbcst_caracteristica: TBooleanField
+      FieldName = 'nulo_predbcst_caracteristica'
+    end
+    object qryProdutosLinhanulo_origem_caracteristica: TBooleanField
+      FieldName = 'nulo_origem_caracteristica'
+    end
+    object qryProdutosLinhanulo_anvisa_caracteristica: TBooleanField
+      FieldName = 'nulo_anvisa_caracteristica'
+    end
+    object qryProdutosLinhanulo_obslegal_caracteristica: TBooleanField
+      FieldName = 'nulo_obslegal_caracteristica'
+    end
+    object qryProdutosLinhanulo_ipi_caracteristica: TBooleanField
+      FieldName = 'nulo_ipi_caracteristica'
+    end
+    object qryProdutosLinhanulo_ipicst_caracteristica: TBooleanField
+      FieldName = 'nulo_ipicst_caracteristica'
+    end
+    object qryProdutosLinhanulo_cofinscst_caracteristica: TBooleanField
+      FieldName = 'nulo_cofinscst_caracteristica'
+    end
+    object qryProdutosLinhanulo_aliquotacofins_caracteristica: TBooleanField
+      FieldName = 'nulo_aliquotacofins_caracteristica'
+    end
+    object qryProdutosLinhanulo_piscst_caracteristica: TBooleanField
+      FieldName = 'nulo_piscst_caracteristica'
+    end
+    object qryProdutosLinhanulo_aliquotapis_caracteristica: TBooleanField
+      FieldName = 'nulo_aliquotapis_caracteristica'
+    end
+    object qryProdutosLinhanulo_codigo_efd_t53_caracteristica: TBooleanField
+      FieldName = 'nulo_codigo_efd_t53_caracteristica'
+    end
+  end
+  object qryAtualizarProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListaProdutos'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    Sql.Strings = (
+      'select p.*'
+      'from produtos p'
+      'where p.codigo in (%ListaProdutos)')
+    RequestLive = True
+    Left = 328
+    Top = 56
+    object qryAtualizarProdutoscodigo: TLargeintField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryAtualizarProdutoscodigovisual: TStringField
+      FieldName = 'codigovisual'
+      Required = True
+      Size = 30
+    end
+    object qryAtualizarProdutosdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 100
+    end
+    object qryAtualizarProdutosdescricaoplanilhacusto: TStringField
+      FieldName = 'descricaoplanilhacusto'
+      Size = 50
+    end
+    object qryAtualizarProdutosnome_site: TStringField
+      FieldName = 'nome_site'
+      Required = True
+      Size = 255
+    end
+    object qryAtualizarProdutosreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 50
+    end
+    object qryAtualizarProdutosinativo: TDateField
+      Alignment = taCenter
+      FieldName = 'inativo'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAtualizarProdutosforalinha: TDateField
+      Alignment = taCenter
+      FieldName = 'foralinha'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAtualizarProdutosnlote: TStringField
+      FieldName = 'nlote'
+    end
+    object qryAtualizarProdutosdval: TDateField
+      Alignment = taCenter
+      FieldName = 'dval'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAtualizarProdutospeso_entrega: TFloatField
+      FieldName = 'peso_entrega'
+      DisplayFormat = '0.00'
+    end
+    object qryAtualizarProdutoscomprimento: TFloatField
+      FieldName = 'comprimento'
+      DisplayFormat = '0.00'
+    end
+    object qryAtualizarProdutosaltura: TFloatField
+      FieldName = 'altura'
+      DisplayFormat = '0.00'
+    end
+    object qryAtualizarProdutoslargura: TFloatField
+      FieldName = 'largura'
+      DisplayFormat = '0.00'
+    end
+    object qryAtualizarProdutosdiametro: TFloatField
+      FieldName = 'diametro'
+      DisplayFormat = '0.00'
+    end
+  end
+  object qryAtualizarCaracteristicas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListaCaracteristicas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select c.*'
+      'from caracteristicas c'
+      'where c.codigo in (%ListaCaracteristicas)')
+    RequestLive = True
+    Left = 448
+    Top = 56
+  end
+end
