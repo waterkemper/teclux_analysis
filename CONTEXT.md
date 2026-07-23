@@ -4,6 +4,10 @@ Vocabulário transversal do ERP tecLUX, compartilhado pelos contextos funcionais
 
 ## Language
 
+**Estorno do Pagamento**:
+Transição que desfaz integral e atomicamente a Quitação de uma Duplicata, preservando a obrigação e sua identidade para que volte à situação autorizada e não paga.
+_Avoid_: exclusão da duplicata, cancelamento cadastral, refazer pagamento, edição do pagamento
+
 **Filial**:
 Estabelecimento fiscal representado no ERP.
 _Avoid_: unidade operacional, depósito, tenant
@@ -27,6 +31,22 @@ _Avoid_: autorização, aprovação
 **Autorização**:
 Aprovação contextual dada por um Usuário com a Permissão necessária para liberar uma operação específica.
 _Avoid_: permissão, acesso permanente
+
+**Autorizador**:
+Papel exercido por um Usuário que concede uma Autorização por possuir a Permissão exigida no contexto da operação.
+_Avoid_: operador, administrador, aprovador genérico
+
+**Duplicata**:
+Parcela de uma obrigação de Contas a Pagar, identificada dentro de um Documento a Pagar por vencimento e número.
+_Avoid_: documento a pagar, pagamento, parcela sem contexto
+
+**Autorização de Pagamento**:
+Evidência contextual de que uma Duplicata pode ser submetida a uma tentativa de Quitação; não representa a Quitação nem seus efeitos financeiros.
+_Avoid_: permissão de pagamento, pagamento autorizado como sinônimo de pago, quitação
+
+**Quitação**:
+Fato financeiro que confirma o pagamento de uma Duplicata após a conclusão atômica de seus efeitos e reconciliação.
+_Avoid_: autorização de pagamento, tentativa de pagamento, baixa genérica
 
 **Cadastro**:
 Conjunto mantido de informações de referência sobre uma entidade do domínio, como Cliente ou Produto.
