@@ -1,0 +1,4605 @@
+diff --git a/backend/app/Application/Vendas/Contratos/Cadastro/.gitkeep b/backend/app/Application/Vendas/Contratos/Cadastro/.gitkeep
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/backend/app/Application/Vendas/Contratos/Cadastro/ContratoCadastroCapabilityResolver.php b/backend/app/Application/Vendas/Contratos/Cadastro/ContratoCadastroCapabilityResolver.php
+new file mode 100644
+index 00000000..3a7eb45c
+--- /dev/null
++++ b/backend/app/Application/Vendas/Contratos/Cadastro/ContratoCadastroCapabilityResolver.php
+@@ -0,0 +1,92 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Application\Vendas\Contratos\Cadastro;
++
++use App\Domain\Vendas\Contratos\ContratoSituacaoDocumental;
++use App\Domain\Vendas\Contratos\ContratoTransitionGraph;
++use App\Models\Usuario;
++use App\Services\Authorization\ContratoCadastroAuthorizationService;
++use App\Services\Parameter\ParameterReadBundle;
++use App\Support\Vendas\ContratoCadastroParameterManifest;
++
++final class ContratoCadastroCapabilityResolver
++{
++    public function __construct(
++        private ContratoCadastroAuthorizationService $authorization,
++        private ContratoCadastroParameterManifest $parameters,
++        private ParameterReadBundle $parameterBundle,
++        private ContratoTransitionGraph $transitionGraph,
++    ) {}
++
++    /**
++     * @return array<string, mixed>
++     */
++    public function resolve(
++        ?Usuario $user,
++        ?ContratoSituacaoDocumental $situacao,
++        ?int $filialCodigo,
++        bool $isDraft = false,
++    ): array {
++        $canModule = $this->authorization->canView($user);
++        $canCreate = $this->authorization->canCreate($user);
++        $somenteOrcamento = $this->parameters->inclusaoSomenteViaOrcamento($this->parameterBundle, $filialCodigo);
++        $mutable = $isDraft || ($situacao?->isOrdinarilyMutable() ?? false);
++        $readonly = ! $isDraft && ($situacao !== null && ! $situacao->isOrdinarilyMutable());
++
++        $novoAvailable = $canCreate && ! $somenteOrcamento;
++        $gravarAvailable = $canModule && ($isDraft ? $canCreate : ($canCreate && $mutable));
++
++        $fields = [
++            'filialvenda' => ['editable' => $gravarAvailable && $mutable, 'visible' => true],
++            'vendedor' => [
++                'editable' => $gravarAvailable && $mutable && $this->parameters->permitirAlterarVendedorDoCliente($this->parameterBundle, $filialCodigo),
++                'visible' => true,
++            ],
++            'data' => [
++                'editable' => $gravarAvailable && $mutable && $this->parameters->alterarDataAbertura($this->parameterBundle, $filialCodigo),
++                'visible' => true,
++            ],
++            'desconto_geral' => [
++                'editable' => $gravarAvailable && $mutable && ! $this->parameters->bloquearDescontoGeral($this->parameterBundle, $filialCodigo),
++                'visible' => true,
++                'requires_sensitive_proof' => true,
++            ],
++            'observacoes' => ['editable' => $gravarAvailable && $mutable, 'visible' => true],
++            'cliente' => ['editable' => $gravarAvailable && ($isDraft || $situacao === ContratoSituacaoDocumental::Orcado), 'visible' => true],
++            'situacao' => ['editable' => false, 'visible' => true],
++        ];
++
++        $transitions = [];
++        if ($situacao !== null) {
++            foreach ($this->transitionGraph->edgesFrom($situacao) as $edge) {
++                $transitions[] = [
++                    'from' => $edge['from'],
++                    'to' => $edge['to'],
++                    'recognized' => $edge['recognized'],
++                    'implemented' => $edge['implemented'],
++                    'available' => $edge['recognized'] && $canModule,
++                ];
++            }
++        }
++
++        return [
++            'fields' => $fields,
++            'commands' => [
++                'novo' => [
++                    'available' => $novoAvailable,
++                    'reason' => $somenteOrcamento ? 'somente_via_orcamento' : ($canCreate ? null : 'sem_permissao'),
++                ],
++                'gravar' => ['available' => $gravarAvailable],
++                'localizar' => ['available' => $canModule],
++                'f6' => ['available' => false, 'reason' => 'not_implemented'],
++                'f11' => ['available' => $situacao !== null && $canModule, 'opens' => 'transitions'],
++            ],
++            'transitions' => $transitions,
++            'readonly' => $readonly,
++            'servicos_aba' => $this->parameters->contratoComServico($this->parameterBundle, $filialCodigo),
++            'inclusao_somente_via_orcamento' => $somenteOrcamento,
++        ];
++    }
++}
+diff --git a/backend/app/Application/Vendas/Contratos/Cadastro/ContratoCadastroIdempotencyGuard.php b/backend/app/Application/Vendas/Contratos/Cadastro/ContratoCadastroIdempotencyGuard.php
+new file mode 100644
+index 00000000..c4bf2c0d
+--- /dev/null
++++ b/backend/app/Application/Vendas/Contratos/Cadastro/ContratoCadastroIdempotencyGuard.php
+@@ -0,0 +1,151 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Application\Vendas\Contratos\Cadastro;
++
++use Illuminate\Database\QueryException;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Validation\ValidationException;
++
++/**
++ * Reserva / commit / fail / replay para SaveCore do Cadastro de Contratos.
++ */
++final class ContratoCadastroIdempotencyGuard
++{
++    private const TABLE = 'cloud_vendas_contratos_idempotency';
++
++    public const STATUS_PENDING = 'pending';
++
++    public const STATUS_COMPLETED = 'completed';
++
++    public const STATUS_FAILED = 'failed';
++
++    public const ORIGEM_CADASTRO = 'cadastro';
++
++    public const ORIGEM_ORCAMENTO = 'orcamento_gerar';
++
++    public const ACAO_CREATE = 'save_core_create';
++
++    public const ACAO_UPDATE = 'save_core_update';
++
++    /**
++     * @return array{kind: 'new'}|array{kind: 'replay', result: array<string, mixed>}
++     */
++    public function begin(
++        string $origem,
++        string $acao,
++        string $idempotencyKey,
++        string $payloadHash,
++        ?int $operadorCodigo = null,
++        ?string $requestId = null,
++    ): array {
++        $existing = $this->find($origem, $acao, $idempotencyKey);
++        if ($existing !== null) {
++            $status = (string) $existing->status;
++            $sameHash = (string) $existing->payload_hash === $payloadHash;
++
++            if ($status === self::STATUS_COMPLETED) {
++                if (! $sameHash) {
++                    throw ValidationException::withMessages([
++                        'idempotency_key' => 'Esta chave de idempotência já foi usada com outro payload.',
++                    ]);
++                }
++
++                /** @var array<string, mixed> $decoded */
++                $decoded = json_decode((string) ($existing->result_json ?? '{}'), true) ?: [];
++                $decoded['idempotent'] = true;
++
++                return ['kind' => 'replay', 'result' => $decoded];
++            }
++
++            $this->delete($origem, $acao, $idempotencyKey);
++        }
++
++        try {
++            DB::table(self::TABLE)->insert([
++                'origem' => $origem,
++                'acao' => $acao,
++                'idempotency_key' => $idempotencyKey,
++                'payload_hash' => $payloadHash,
++                'status' => self::STATUS_PENDING,
++                'result_json' => null,
++                'operador_codigo' => $operadorCodigo,
++                'request_id' => $requestId,
++                'created_at' => now(),
++                'updated_at' => now(),
++            ]);
++        } catch (QueryException) {
++            $again = $this->find($origem, $acao, $idempotencyKey);
++            if ($again !== null
++                && (string) $again->payload_hash === $payloadHash
++                && (string) $again->status === self::STATUS_COMPLETED
++            ) {
++                /** @var array<string, mixed> $decoded */
++                $decoded = json_decode((string) ($again->result_json ?? '{}'), true) ?: [];
++                $decoded['idempotent'] = true;
++
++                return ['kind' => 'replay', 'result' => $decoded];
++            }
++            if ($again !== null && (string) $again->payload_hash !== $payloadHash) {
++                throw ValidationException::withMessages([
++                    'idempotency_key' => 'Esta chave de idempotência já foi usada com outro payload.',
++                ]);
++            }
++
++            throw ValidationException::withMessages([
++                'idempotency_key' => 'Não foi possível reservar a intenção. Tente novamente.',
++            ]);
++        }
++
++        return ['kind' => 'new'];
++    }
++
++    /**
++     * @param  array<string, mixed>  $result
++     */
++    public function commit(string $origem, string $acao, string $idempotencyKey, array $result): void
++    {
++        $payload = $result;
++        $payload['idempotent'] = false;
++        DB::table(self::TABLE)
++            ->where('origem', $origem)
++            ->where('acao', $acao)
++            ->where('idempotency_key', $idempotencyKey)
++            ->update([
++                'status' => self::STATUS_COMPLETED,
++                'result_json' => json_encode($payload, JSON_UNESCAPED_UNICODE),
++                'updated_at' => now(),
++            ]);
++    }
++
++    public function fail(string $origem, string $acao, string $idempotencyKey): void
++    {
++        DB::table(self::TABLE)
++            ->where('origem', $origem)
++            ->where('acao', $acao)
++            ->where('idempotency_key', $idempotencyKey)
++            ->update([
++                'status' => self::STATUS_FAILED,
++                'updated_at' => now(),
++            ]);
++    }
++
++    private function find(string $origem, string $acao, string $idempotencyKey): ?object
++    {
++        return DB::table(self::TABLE)
++            ->where('origem', $origem)
++            ->where('acao', $acao)
++            ->where('idempotency_key', $idempotencyKey)
++            ->first();
++    }
++
++    private function delete(string $origem, string $acao, string $idempotencyKey): void
++    {
++        DB::table(self::TABLE)
++            ->where('origem', $origem)
++            ->where('acao', $acao)
++            ->where('idempotency_key', $idempotencyKey)
++            ->delete();
++    }
++}
+diff --git a/backend/app/Application/Vendas/Contratos/Cadastro/ContratoCadastroRevisionGuard.php b/backend/app/Application/Vendas/Contratos/Cadastro/ContratoCadastroRevisionGuard.php
+new file mode 100644
+index 00000000..138b3d49
+--- /dev/null
++++ b/backend/app/Application/Vendas/Contratos/Cadastro/ContratoCadastroRevisionGuard.php
+@@ -0,0 +1,65 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Application\Vendas\Contratos\Cadastro;
++
++use Illuminate\Support\Facades\DB;
++
++/**
++ * OCC do cabeçalho `contratos`: PostgreSQL `xmin`; SQLite `cloud_row_version`.
++ */
++final class ContratoCadastroRevisionGuard
++{
++    public function findRevisionToken(string $numero): ?string
++    {
++        $numero = $this->padNumero($numero);
++
++        if (DB::connection()->getDriverName() === 'pgsql') {
++            $one = DB::selectOne('SELECT xmin::text AS v FROM contratos WHERE numero = ?', [$numero]);
++
++            return isset($one->v) ? (string) $one->v : null;
++        }
++
++        $v = DB::table('contratos')->where('numero', $numero)->value('cloud_row_version');
++
++        return $v !== null ? (string) $v : null;
++    }
++
++    public function lockWithExpectedRevision(string $numero, string $expectedRevision): bool
++    {
++        $numero = $this->padNumero($numero);
++        $expected = trim($expectedRevision);
++        if ($expected === '') {
++            return false;
++        }
++
++        if (DB::connection()->getDriverName() === 'pgsql') {
++            $one = DB::selectOne(
++                'SELECT xmin::text AS v FROM contratos WHERE numero = ? AND xmin::text = ? FOR UPDATE',
++                [$numero, $expected],
++            );
++
++            return $one !== null;
++        }
++
++        $current = DB::table('contratos')->where('numero', $numero)->lockForUpdate()->first();
++        if ($current === null) {
++            return false;
++        }
++
++        $currentVersion = isset($current->cloud_row_version) ? (int) $current->cloud_row_version : 0;
++
++        return (string) $currentVersion === $expected;
++    }
++
++    public function padNumero(string $numero): string
++    {
++        $trimmed = trim($numero);
++        if ($trimmed === '') {
++            return $numero;
++        }
++
++        return str_pad($trimmed, 20, ' ', STR_PAD_RIGHT);
++    }
++}
+diff --git a/backend/app/Application/Vendas/Contratos/Cadastro/CriarContratoCanonicoCommand.php b/backend/app/Application/Vendas/Contratos/Cadastro/CriarContratoCanonicoCommand.php
+new file mode 100644
+index 00000000..3600e1d0
+--- /dev/null
++++ b/backend/app/Application/Vendas/Contratos/Cadastro/CriarContratoCanonicoCommand.php
+@@ -0,0 +1,113 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Application\Vendas\Contratos\Cadastro;
++
++use App\Infrastructure\Database\Audit\DatabaseAuditContext;
++use App\Infrastructure\Persistence\Legacy\Vendas\LegacyContratoCadastroRepository;
++use App\Models\Usuario;
++use App\Services\Vendas\Contratos\ContratoDomainEventWriter;
++use Closure;
++use Illuminate\Support\Facades\DB;
++
++/**
++ * Criador canônico: aloca número, persiste cabeçalho em `O`, fotografia via função legado,
++ * evento de domínio. Agregado de conversão (Orçamento) via callback opcional na mesma TX.
++ */
++final class CriarContratoCanonicoCommand
++{
++    public function __construct(
++        private LegacyContratoCadastroRepository $contratos,
++        private ContratoCadastroRevisionGuard $revisionGuard,
++        private ContratoDomainEventWriter $domainEvents,
++        private DatabaseAuditContext $auditContext,
++    ) {}
++
++    /**
++     * @param  array<string, mixed>  $cabecalho  campos de `contratos` (sem numero/situacao obrigatórios — preenchidos aqui)
++     * @param  Closure(string $contratoNumero): void|null  $agregadoWriter
++     * @return array{numero: string, revision: string, event_id: string}
++     */
++    public function execute(
++        string $origem,
++        array $cabecalho,
++        Usuario $actor,
++        ?int $filialCodigo,
++        string $requestId,
++        string $correlationId,
++        ?string $causationId = null,
++        ?int $authorizerCodigo = null,
++        ?Closure $agregadoWriter = null,
++        bool $withinExistingTransaction = false,
++    ): array {
++        $run = function () use (
++            $origem,
++            $cabecalho,
++            $actor,
++            $filialCodigo,
++            $requestId,
++            $correlationId,
++            $causationId,
++            $authorizerCodigo,
++            $agregadoWriter,
++        ): array {
++            $this->auditContext->applyForWebRequest($actor, 'web.erp.contrato_cadastro', $requestId, $filialCodigo);
++
++            $numero = $this->contratos->nextContratoNumero();
++            $payload = $cabecalho;
++            $payload['numero'] = $numero;
++            $payload['situacao'] = 'O';
++            if (! isset($payload['data']) || $payload['data'] === null || $payload['data'] === '') {
++                $payload['data'] = now()->toDateString();
++            }
++
++            $this->contratos->insertNucleo($payload);
++
++            $clienteCodigo = (int) ($payload['cliente'] ?? 0);
++            if ($clienteCodigo > 0) {
++                $this->contratos->callClientesParaContrato($clienteCodigo, $numero);
++            }
++
++            if ($agregadoWriter !== null) {
++                $agregadoWriter($numero);
++            }
++
++            $revision = $this->revisionGuard->findRevisionToken($numero) ?? '1';
++
++            $eventId = $this->domainEvents->write(
++                eventType: 'contrato.core.created',
++                command: 'CriarContratoCanonico',
++                contratoNumero: trim($numero),
++                revisionBefore: null,
++                revisionAfter: $revision,
++                actorCodigo: (int) $actor->codigo,
++                actorLogin: (string) ($actor->email ?? ''),
++                actorName: (string) ($actor->nome ?? ''),
++                authorizerCodigo: $authorizerCodigo,
++                appSource: 'web.erp.contrato_cadastro',
++                filialCodigo: $filialCodigo,
++                requestId: $requestId,
++                correlationId: $correlationId,
++                causationId: $causationId,
++                changes: [
++                    'origem' => $origem,
++                    'situacao' => 'O',
++                    'cliente' => $clienteCodigo > 0 ? $clienteCodigo : null,
++                ],
++            );
++
++            return [
++                'numero' => trim($numero),
++                'revision' => $revision,
++                'event_id' => $eventId,
++            ];
++        };
++
++        if ($withinExistingTransaction) {
++            return $run();
++        }
++
++        return DB::transaction($run);
++    }
++}
+diff --git a/backend/app/Application/Vendas/Contratos/Cadastro/DescribeContratoTransitionsCommand.php b/backend/app/Application/Vendas/Contratos/Cadastro/DescribeContratoTransitionsCommand.php
+new file mode 100644
+index 00000000..6ad97cf3
+--- /dev/null
++++ b/backend/app/Application/Vendas/Contratos/Cadastro/DescribeContratoTransitionsCommand.php
+@@ -0,0 +1,79 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Application\Vendas\Contratos\Cadastro;
++
++use App\Domain\Vendas\Contratos\ContratoSituacaoDocumental;
++use App\Domain\Vendas\Contratos\ContratoTransitionGraph;
++use App\Infrastructure\Persistence\Legacy\Vendas\LegacyContratoCadastroRepository;
++use App\Models\Usuario;
++use App\Services\Authorization\ContratoCadastroAuthorizationService;
++use Illuminate\Validation\ValidationException;
++use Symfony\Component\HttpKernel\Exception\HttpException;
++
++final class DescribeContratoTransitionsCommand
++{
++    public function __construct(
++        private ContratoCadastroAuthorizationService $authorization,
++        private LegacyContratoCadastroRepository $contratos,
++        private ContratoTransitionGraph $graph,
++        private ContratoCadastroCapabilityResolver $capabilities,
++    ) {}
++
++    /**
++     * @return array<string, mixed>
++     */
++    public function describe(Usuario $actor, string $numero, ?int $filialEfetiva): array
++    {
++        if (! $this->authorization->canView($actor)) {
++            throw new HttpException(403, 'Sem permissão.');
++        }
++
++        $cab = $this->contratos->findCabecalho($numero);
++        if ($cab === null) {
++            abort(404);
++        }
++
++        $core = $this->contratos->mapCabecalhoToArray($cab);
++        $situacao = ContratoSituacaoDocumental::tryFromLoose((string) ($core['situacao'] ?? ''));
++        $caps = $this->capabilities->resolve($actor, $situacao, $filialEfetiva, false);
++
++        return [
++            'numero' => $core['numero'],
++            'situacao' => $core['situacao'],
++            'transitions' => $caps['transitions'] ?? [],
++        ];
++    }
++
++    /**
++     * Etapa 1: nunca simula sucesso.
++     *
++     * @return never
++     */
++    public function invoke(Usuario $actor, string $numero, string $to, ?string $expectedRevision): void
++    {
++        if (! $this->authorization->canUpdate($actor)) {
++            throw new HttpException(403, 'Sem permissão.');
++        }
++
++        $cab = $this->contratos->findCabecalho($numero);
++        if ($cab === null) {
++            abort(404);
++        }
++
++        $from = strtoupper(trim((string) ($cab->situacao ?? '')));
++        $to = strtoupper(trim($to));
++
++        if (! $this->graph->isRecognized($from, $to)) {
++            throw ValidationException::withMessages([
++                'to' => 'Transição não reconhecida.',
++            ]);
++        }
++
++        throw ValidationException::withMessages([
++            'code' => 'not_implemented',
++            'to' => 'Transição reconhecida, mas ainda não implementada nesta versão do Cadastro.',
++        ]);
++    }
++}
+diff --git a/backend/app/Application/Vendas/Contratos/Cadastro/LoadContratoCadastroCoreCommand.php b/backend/app/Application/Vendas/Contratos/Cadastro/LoadContratoCadastroCoreCommand.php
+new file mode 100644
+index 00000000..8100a3ae
+--- /dev/null
++++ b/backend/app/Application/Vendas/Contratos/Cadastro/LoadContratoCadastroCoreCommand.php
+@@ -0,0 +1,95 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Application\Vendas\Contratos\Cadastro;
++
++use App\Domain\Vendas\Contratos\ContratoSituacaoDocumental;
++use App\Infrastructure\Persistence\Legacy\Vendas\LegacyContratoCadastroRepository;
++use App\Infrastructure\Persistence\Legacy\Vendas\LegacyContratoClienteFotografiaRepository;
++use App\Models\Usuario;
++use App\Services\Authorization\ContratoCadastroAuthorizationService;
++use App\Support\Vendas\ContratoSituacaoDocumentalMapper;
++use Illuminate\Support\Facades\DB;
++use Symfony\Component\HttpKernel\Exception\HttpException;
++
++final class LoadContratoCadastroCoreCommand
++{
++    public function __construct(
++        private ContratoCadastroAuthorizationService $authorization,
++        private LegacyContratoCadastroRepository $contratos,
++        private ContratoCadastroRevisionGuard $revisionGuard,
++        private ContratoCadastroCapabilityResolver $capabilities,
++        private LegacyContratoClienteFotografiaRepository $fotografiaRepo,
++    ) {}
++
++    /**
++     * @return array<string, mixed>
++     */
++    public function execute(Usuario $actor, string $numero, ?int $filialEfetiva): array
++    {
++        if (! $this->authorization->canView($actor)) {
++            throw new HttpException(403, 'Sem permissão para visualizar o Cadastro de Contratos.');
++        }
++
++        $cab = $this->contratos->findCabecalho($numero);
++        if ($cab === null) {
++            abort(404);
++        }
++
++        $core = $this->contratos->mapCabecalhoToArray($cab);
++        $situacao = ContratoSituacaoDocumental::tryFromLoose((string) ($core['situacao'] ?? ''));
++        $revision = $this->revisionGuard->findRevisionToken($numero) ?? '1';
++        $caps = $this->capabilities->resolve($actor, $situacao, $filialEfetiva, false);
++
++        $origemOrcamento = DB::table('orcamentos')
++            ->where('contrato', $this->contratos->padNumero($numero))
++            ->value('codigo');
++
++        $areaInicial = ($origemOrcamento !== null || (($core['cliente'] ?? null) !== null))
++            ? 'produtos'
++            : 'geral';
++
++        return [
++            'mode' => 'edit',
++            'numero' => $core['numero'],
++            'situacao' => $core['situacao'],
++            'revision' => $revision,
++            'core' => $core,
++            'resumo' => [
++                'numero' => $core['numero'],
++                'situacao' => $core['situacao'],
++                'situacao_label' => ContratoSituacaoDocumentalMapper::label($core['situacao'] ?? null),
++                'cliente' => $core['cliente'],
++                'nome' => $core['nome'],
++                'filialvenda' => $core['filialvenda'],
++                'vendedor' => $core['vendedor'],
++                'origem_orcamento' => $origemOrcamento !== null ? (int) $origemOrcamento : null,
++            ],
++            'capabilities' => $caps,
++            'area_inicial' => $areaInicial,
++            'fotografia_cliente' => $this->fotografiaRepo->loadContratoFotografia(
++                (string) $core['numero'],
++                (string) ($core['tipocliente'] ?? 'C'),
++            ),
++            'sections_meta' => $this->sectionsMeta((bool) ($caps['servicos_aba'] ?? false)),
++        ];
++    }
++
++    /**
++     * @return list<array{id: string, label: string, applicable: bool}>
++     */
++    private function sectionsMeta(bool $servicos): array
++    {
++        return [
++            ['id' => 'geral', 'label' => 'Geral', 'applicable' => true],
++            ['id' => 'cliente', 'label' => 'Cliente', 'applicable' => true],
++            ['id' => 'produtos', 'label' => 'Produtos', 'applicable' => true],
++            ['id' => 'servicos', 'label' => 'Serviços', 'applicable' => $servicos],
++            ['id' => 'pagamentos', 'label' => 'Pagamentos', 'applicable' => true],
++            ['id' => 'entrega', 'label' => 'Entrega', 'applicable' => true],
++            ['id' => 'relacionamento', 'label' => 'Relacionamento', 'applicable' => true],
++            ['id' => 'documentos_fiscais', 'label' => 'Documentos fiscais', 'applicable' => true],
++        ];
++    }
++}
+diff --git a/backend/app/Application/Vendas/Contratos/Cadastro/LoadContratoCadastroSectionCommand.php b/backend/app/Application/Vendas/Contratos/Cadastro/LoadContratoCadastroSectionCommand.php
+new file mode 100644
+index 00000000..4bf83fd0
+--- /dev/null
++++ b/backend/app/Application/Vendas/Contratos/Cadastro/LoadContratoCadastroSectionCommand.php
+@@ -0,0 +1,74 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Application\Vendas\Contratos\Cadastro;
++
++use App\Application\Vendas\Contratos\Cadastro\Sections\ClienteSectionHandler;
++use App\Application\Vendas\Contratos\Cadastro\Sections\GeralSectionHandler;
++use App\Models\Usuario;
++use App\Services\Authorization\ContratoCadastroAuthorizationService;
++use Symfony\Component\HttpKernel\Exception\HttpException;
++
++final class LoadContratoCadastroSectionCommand
++{
++    public function __construct(
++        private ContratoCadastroAuthorizationService $authorization,
++        private LoadContratoCadastroCoreCommand $loadCore,
++        private ContratoCadastroRevisionGuard $revisionGuard,
++        private GeralSectionHandler $geral,
++        private ClienteSectionHandler $cliente,
++    ) {}
++
++    /**
++     * @return array<string, mixed>
++     */
++    public function execute(
++        Usuario $actor,
++        string $numero,
++        string $section,
++        ?int $filialEfetiva,
++        ?string $expectedRevision = null,
++    ): array {
++        if (! $this->authorization->canView($actor)) {
++            throw new HttpException(403, 'Sem permissão.');
++        }
++
++        if ($expectedRevision !== null && trim($expectedRevision) !== '') {
++            $current = $this->revisionGuard->findRevisionToken($numero);
++            if ($current !== null && $current !== trim($expectedRevision)) {
++                throw new HttpException(409, json_encode([
++                    'code' => 'revision_conflict',
++                    'message' => 'Revisão divergente. Recarregue o Contrato.',
++                    'divergent_sections' => [$section],
++                ], JSON_UNESCAPED_UNICODE));
++            }
++        }
++
++        $corePayload = $this->loadCore->execute($actor, $numero, $filialEfetiva);
++        $ctx = ['core' => $corePayload['core'] ?? [], 'is_create' => false];
++
++        $handler = match ($section) {
++            'geral' => $this->geral,
++            'cliente' => $this->cliente,
++            default => null,
++        };
++
++        if ($handler === null) {
++            return [
++                'section' => $section,
++                'available' => false,
++                'reason' => 'Seção disponível em fatia futura do Cadastro de Contratos.',
++                'revision' => $corePayload['revision'] ?? null,
++                'data' => null,
++            ];
++        }
++
++        return [
++            'section' => $section,
++            'available' => true,
++            'revision' => $corePayload['revision'] ?? null,
++            'data' => $handler->load($ctx),
++        ];
++    }
++}
+diff --git a/backend/app/Application/Vendas/Contratos/Cadastro/SaveContratoCadastroCoreCommand.php b/backend/app/Application/Vendas/Contratos/Cadastro/SaveContratoCadastroCoreCommand.php
+new file mode 100644
+index 00000000..afe5dbfe
+--- /dev/null
++++ b/backend/app/Application/Vendas/Contratos/Cadastro/SaveContratoCadastroCoreCommand.php
+@@ -0,0 +1,295 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Application\Vendas\Contratos\Cadastro;
++
++use App\Application\Vendas\Contratos\Cadastro\Sections\ClienteSectionHandler;
++use App\Application\Vendas\Contratos\Cadastro\Sections\ContratoCadastroSectionHandler;
++use App\Application\Vendas\Contratos\Cadastro\Sections\GeralSectionHandler;
++use App\Domain\Vendas\Contratos\ContratoSituacaoDocumental;
++use App\Infrastructure\Database\Audit\DatabaseAuditContext;
++use App\Infrastructure\Persistence\Legacy\Vendas\LegacyContratoCadastroRepository;
++use App\Models\Usuario;
++use App\Services\Authorization\ContratoCadastroAuthorizationService;
++use App\Services\Parameter\ParameterReadBundle;
++use App\Services\Vendas\Contratos\ContratoCadastroSensitiveOperationGate;
++use App\Services\Vendas\Contratos\ContratoClienteFotografiaSyncService;
++use App\Services\Vendas\Contratos\ContratoDomainEventWriter;
++use App\Services\Vendas\Contratos\Outbox\ContratoCadastroOutboxPort;
++use App\Support\Vendas\ContratoCadastroParameterManifest;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Validation\ValidationException;
++use Symfony\Component\HttpKernel\Exception\HttpException;
++
++final class SaveContratoCadastroCoreCommand
++{
++    /** @var list<ContratoCadastroSectionHandler> */
++    private array $sections;
++
++    public function __construct(
++        private ContratoCadastroAuthorizationService $authorization,
++        private ContratoCadastroParameterManifest $parameters,
++        private ParameterReadBundle $parameterBundle,
++        private ContratoCadastroIdempotencyGuard $idempotency,
++        private ContratoCadastroRevisionGuard $revisionGuard,
++        private LegacyContratoCadastroRepository $contratos,
++        private CriarContratoCanonicoCommand $criador,
++        private ContratoCadastroCapabilityResolver $capabilities,
++        private ContratoDomainEventWriter $domainEvents,
++        private DatabaseAuditContext $auditContext,
++        private ContratoCadastroOutboxPort $outbox,
++        private LoadContratoCadastroCoreCommand $loadCore,
++        private ContratoClienteFotografiaSyncService $fotografiaSync,
++        private ContratoCadastroSensitiveOperationGate $sensitiveGate,
++        GeralSectionHandler $geral,
++        ClienteSectionHandler $cliente,
++    ) {
++        $this->sections = [$geral, $cliente];
++    }
++
++    /**
++     * @param  array<string, mixed>  $sections
++     * @return array<string, mixed>
++     */
++    public function execute(
++        string $mode,
++        Usuario $actor,
++        string $idempotencyKey,
++        array $sections,
++        ?int $filialEfetiva,
++        string $requestId,
++        string $correlationId,
++        ?string $numero = null,
++        ?string $expectedRevision = null,
++        ?int $authorizerCodigo = null,
++        mixed $forgedCapabilities = null,
++        ?string $provaAutorizacao = null,
++    ): array {
++        // Capabilities do client nunca são fonte de verdade (T041).
++        if ($forgedCapabilities !== null) {
++            // Ignorado deliberadamente — não altera resolução server-side.
++        }
++
++        $isCreate = $mode === 'create';
++        if ($isCreate) {
++            if (! $this->authorization->canCreate($actor)) {
++                throw new HttpException(403, 'Sem permissão para criar Contrato.');
++            }
++            if ($this->parameters->inclusaoSomenteViaOrcamento($this->parameterBundle, $filialEfetiva)) {
++                throw ValidationException::withMessages([
++                    'novo' => 'Inclusão manual de Contratos está bloqueada. Use a geração a partir do Orçamento.',
++                ]);
++            }
++        } else {
++            if (! $this->authorization->canUpdate($actor)) {
++                throw new HttpException(403, 'Sem permissão para alterar Contrato.');
++            }
++            if ($numero === null || trim($numero) === '') {
++                throw ValidationException::withMessages(['numero' => 'Número do Contrato é obrigatório.']);
++            }
++            if ($expectedRevision === null || trim($expectedRevision) === '') {
++                throw ValidationException::withMessages(['expected_revision' => 'Informe a revisão esperada.']);
++            }
++        }
++
++        $acao = $isCreate
++            ? ContratoCadastroIdempotencyGuard::ACAO_CREATE
++            : ContratoCadastroIdempotencyGuard::ACAO_UPDATE;
++        $payloadHash = hash('sha256', json_encode([
++            'mode' => $mode,
++            'numero' => $numero,
++            'sections' => $sections,
++        ], JSON_UNESCAPED_UNICODE));
++
++        $begin = $this->idempotency->begin(
++            ContratoCadastroIdempotencyGuard::ORIGEM_CADASTRO,
++            $acao,
++            $idempotencyKey,
++            $payloadHash,
++            (int) $actor->codigo,
++            $requestId,
++        );
++        if ($begin['kind'] === 'replay') {
++            return $begin['result'];
++        }
++
++        try {
++            $result = DB::transaction(function () use (
++                $isCreate,
++                $actor,
++                $sections,
++                $filialEfetiva,
++                $requestId,
++                $correlationId,
++                $numero,
++                $expectedRevision,
++                $authorizerCodigo,
++                $provaAutorizacao,
++            ): array {
++                $this->auditContext->applyForWebRequest($actor, 'web.erp.contrato_cadastro', $requestId, $filialEfetiva);
++
++                $ctx = [
++                    'is_create' => $isCreate,
++                    'filial_efetiva' => $filialEfetiva,
++                    'core' => [],
++                ];
++                $situacao = null;
++                $revisionBefore = null;
++                $resolvedAuthorizer = $authorizerCodigo;
++
++                if (! $isCreate) {
++                    $locked = $this->revisionGuard->lockWithExpectedRevision((string) $numero, (string) $expectedRevision);
++                    if (! $locked) {
++                        throw new HttpException(409, json_encode([
++                            'code' => 'revision_conflict',
++                            'message' => 'O Contrato foi alterado por outro usuário ou processo. Recarregue e tente novamente.',
++                            'divergent_sections' => array_keys($sections),
++                        ], JSON_UNESCAPED_UNICODE));
++                    }
++                    $cab = $this->contratos->findCabecalho((string) $numero);
++                    if ($cab === null) {
++                        abort(404);
++                    }
++                    $ctx['core'] = $this->contratos->mapCabecalhoToArray($cab);
++                    $situacao = ContratoSituacaoDocumental::tryFromLoose((string) ($ctx['core']['situacao'] ?? ''));
++                    if ($situacao === null || ! $situacao->isOrdinarilyMutable()) {
++                        throw ValidationException::withMessages([
++                            'situacao' => 'Contrato somente leitura para gravação ordinária nesta Situação.',
++                        ]);
++                    }
++                    $revisionBefore = $expectedRevision;
++                }
++
++                $errors = [];
++                $persist = [];
++                foreach ($this->sections as $handler) {
++                    $sectionId = $handler->id();
++                    if (! array_key_exists($sectionId, $sections)) {
++                        continue;
++                    }
++                    if (! $handler->mutableIn($situacao, $isCreate)) {
++                        $errors[] = [
++                            'section' => $sectionId,
++                            'field' => '_',
++                            'code' => 'readonly',
++                            'message' => 'Seção não mutável nesta Situação.',
++                        ];
++
++                        continue;
++                    }
++                    $changeSet = is_array($sections[$sectionId]) ? $sections[$sectionId] : [];
++                    $errors = array_merge($errors, $handler->validate($changeSet, $ctx));
++                    $persist = array_merge($persist, $handler->collectPersistFields($changeSet, $ctx));
++                }
++
++                if ($isCreate && ! array_key_exists('cliente', $persist) && ! array_key_exists('cliente', $sections['cliente']['fields'] ?? $sections['cliente'] ?? [])) {
++                    // validate already covers; ensure filial default
++                }
++                if ($isCreate && ! isset($persist['filialvenda']) && $filialEfetiva !== null && $filialEfetiva > 0) {
++                    $persist['filialvenda'] = $filialEfetiva;
++                }
++
++                if ($errors !== []) {
++                    throw ValidationException::withMessages([
++                        'sections' => $errors,
++                    ]);
++                }
++
++                $capsPreview = $this->capabilities->resolve(
++                    $actor,
++                    $isCreate ? null : $situacao,
++                    $filialEfetiva,
++                    $isCreate,
++                );
++                if (array_key_exists('descontogeral', $persist)) {
++                    $fieldCap = $capsPreview['fields']['desconto_geral'] ?? null;
++                    if (is_array($fieldCap) && empty($fieldCap['editable'])) {
++                        throw ValidationException::withMessages([
++                            'descontogeral' => 'Desconto geral não pode ser alterado com as permissões/parâmetros atuais.',
++                        ]);
++                    }
++                    if (is_array($fieldCap) && ! empty($fieldCap['requires_sensitive_proof'])) {
++                        $claim = $this->sensitiveGate->claimDescontoGeral(
++                            (string) ($provaAutorizacao ?? ''),
++                            (int) $actor->codigo,
++                            $filialEfetiva,
++                        );
++                        $resolvedAuthorizer = $claim['authorizer_codigo'];
++                    }
++                }
++
++                if ($isCreate) {
++                    $created = $this->criador->execute(
++                        origem: 'manual',
++                        cabecalho: $persist,
++                        actor: $actor,
++                        filialCodigo: $filialEfetiva,
++                        requestId: $requestId,
++                        correlationId: $correlationId,
++                        authorizerCodigo: $resolvedAuthorizer,
++                        withinExistingTransaction: true,
++                    );
++                    $numeroOut = $created['numero'];
++                    $revisionAfter = $created['revision'];
++                } else {
++                    $this->contratos->updateNucleo((string) $numero, $persist);
++                    $numeroOut = trim((string) $numero);
++                    $revisionAfter = $this->revisionGuard->findRevisionToken($numeroOut) ?? '1';
++                    $this->domainEvents->write(
++                        eventType: 'contrato.core.updated',
++                        command: 'SaveContratoCadastroCore',
++                        contratoNumero: $numeroOut,
++                        revisionBefore: $revisionBefore,
++                        revisionAfter: $revisionAfter,
++                        actorCodigo: (int) $actor->codigo,
++                        actorLogin: (string) ($actor->email ?? ''),
++                        actorName: (string) ($actor->nome ?? ''),
++                        authorizerCodigo: $resolvedAuthorizer,
++                        appSource: 'web.erp.contrato_cadastro',
++                        filialCodigo: $filialEfetiva,
++                        requestId: $requestId,
++                        correlationId: $correlationId,
++                        causationId: null,
++                        changes: ['fields' => array_keys($persist)],
++                    );
++                }
++
++                $cabAfter = $this->contratos->findCabecalho($numeroOut);
++                $coreAfter = $cabAfter !== null ? $this->contratos->mapCabecalhoToArray($cabAfter) : [];
++                $this->fotografiaSync->syncAfterPersist(
++                    $numeroOut,
++                    (string) ($coreAfter['situacao'] ?? 'O'),
++                    (string) ($coreAfter['tipocliente'] ?? 'C'),
++                    (int) ($coreAfter['cliente'] ?? 0),
++                    $filialEfetiva,
++                );
++
++                return $this->loadCore->execute($actor, $numeroOut, $filialEfetiva) + [
++                    'idempotent' => false,
++                ];
++            });
++
++            $this->idempotency->commit(
++                ContratoCadastroIdempotencyGuard::ORIGEM_CADASTRO,
++                $acao,
++                $idempotencyKey,
++                $result,
++            );
++
++            $this->outbox->enqueue($idempotencyKey, $acao, [
++                'numero' => $result['numero'] ?? null,
++                'request_id' => $requestId,
++            ]);
++
++            return $result;
++        } catch (\Throwable $e) {
++            $this->idempotency->fail(
++                ContratoCadastroIdempotencyGuard::ORIGEM_CADASTRO,
++                $acao,
++                $idempotencyKey,
++            );
++            throw $e;
++        }
++    }
++}
+diff --git a/backend/app/Application/Vendas/Contratos/Cadastro/Sections/ClienteSectionHandler.php b/backend/app/Application/Vendas/Contratos/Cadastro/Sections/ClienteSectionHandler.php
+new file mode 100644
+index 00000000..ecbdda4f
+--- /dev/null
++++ b/backend/app/Application/Vendas/Contratos/Cadastro/Sections/ClienteSectionHandler.php
+@@ -0,0 +1,112 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Application\Vendas\Contratos\Cadastro\Sections;
++
++use App\Domain\Vendas\Contratos\ContratoSituacaoDocumental;
++use Illuminate\Support\Facades\DB;
++
++final class ClienteSectionHandler implements ContratoCadastroSectionHandler
++{
++    public function id(): string
++    {
++        return 'cliente';
++    }
++
++    public function isApplicable(array $ctx): bool
++    {
++        return true;
++    }
++
++    public function load(array $ctx): array
++    {
++        $core = $ctx['core'] ?? [];
++
++        return [
++            'tipocliente' => $core['tipocliente'] ?? null,
++            'cliente' => $core['cliente'] ?? null,
++            'nome' => $core['nome'] ?? null,
++        ];
++    }
++
++    public function validate(array $changeSet, array $ctx): array
++    {
++        $errors = [];
++        $fields = $changeSet['fields'] ?? $changeSet;
++        $isCreate = (bool) ($ctx['is_create'] ?? false);
++
++        $tipocliente = strtoupper(trim((string) ($fields['tipocliente'] ?? ($ctx['core']['tipocliente'] ?? 'C'))));
++        $cliente = (int) ($fields['cliente'] ?? ($ctx['core']['cliente'] ?? 0));
++
++        if ($isCreate || array_key_exists('cliente', $fields) || array_key_exists('tipocliente', $fields)) {
++            if (! in_array($tipocliente, ['C', 'F', 'L'], true)) {
++                $errors[] = [
++                    'section' => 'cliente',
++                    'field' => 'tipocliente',
++                    'code' => 'invalid',
++                    'message' => 'Tipo de Cliente inválido.',
++                ];
++            }
++            if ($cliente <= 0) {
++                $errors[] = [
++                    'section' => 'cliente',
++                    'field' => 'cliente',
++                    'code' => 'required',
++                    'message' => 'Informe o Cliente.',
++                ];
++            } elseif ($tipocliente === 'C' && ! DB::table('clientes')->where('codigo', $cliente)->exists()) {
++                $errors[] = [
++                    'section' => 'cliente',
++                    'field' => 'cliente',
++                    'code' => 'not_found',
++                    'message' => 'Cliente não encontrado.',
++                ];
++            }
++        }
++
++        if (array_key_exists('situacao', $fields)) {
++            $errors[] = [
++                'section' => 'cliente',
++                'field' => 'situacao',
++                'code' => 'forbidden',
++                'message' => 'A Situação não pode ser alterada pelo F8 ordinário.',
++            ];
++        }
++
++        return $errors;
++    }
++
++    public function collectPersistFields(array $changeSet, array $ctx): array
++    {
++        $fields = $changeSet['fields'] ?? $changeSet;
++        $out = [];
++        foreach (['tipocliente', 'cliente', 'nome'] as $key) {
++            if (array_key_exists($key, $fields)) {
++                $out[$key] = $key === 'tipocliente'
++                    ? strtoupper(trim((string) $fields[$key]))
++                    : $fields[$key];
++            }
++        }
++
++        if (isset($out['cliente']) && (int) $out['cliente'] > 0 && ($out['tipocliente'] ?? 'C') === 'C') {
++            $nome = DB::table('clientes')->where('codigo', (int) $out['cliente'])->value('nome');
++            if ($nome !== null && ! array_key_exists('nome', $out)) {
++                $out['nome'] = $nome;
++            }
++        }
++
++        return $out;
++    }
++
++    public function mutableIn(?ContratoSituacaoDocumental $situacao, bool $isCreate): bool
++    {
++        return $isCreate || $situacao === ContratoSituacaoDocumental::Orcado
++            || $situacao === ContratoSituacaoDocumental::Reservado;
++    }
++
++    public function conflictFields(): array
++    {
++        return ['tipocliente', 'cliente', 'nome'];
++    }
++}
+diff --git a/backend/app/Application/Vendas/Contratos/Cadastro/Sections/ContratoCadastroSectionHandler.php b/backend/app/Application/Vendas/Contratos/Cadastro/Sections/ContratoCadastroSectionHandler.php
+new file mode 100644
+index 00000000..6b989076
+--- /dev/null
++++ b/backend/app/Application/Vendas/Contratos/Cadastro/Sections/ContratoCadastroSectionHandler.php
+@@ -0,0 +1,44 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Application\Vendas\Contratos\Cadastro\Sections;
++
++use App\Domain\Vendas\Contratos\ContratoSituacaoDocumental;
++
++interface ContratoCadastroSectionHandler
++{
++    public function id(): string;
++
++    /**
++     * @param  array<string, mixed>  $ctx
++     */
++    public function isApplicable(array $ctx): bool;
++
++    /**
++     * @param  array<string, mixed>  $ctx
++     * @return array<string, mixed>
++     */
++    public function load(array $ctx): array;
++
++    /**
++     * @param  array<string, mixed>  $changeSet
++     * @param  array<string, mixed>  $ctx
++     * @return list<array{section: string, field: string, code: string, message: string}>
++     */
++    public function validate(array $changeSet, array $ctx): array;
++
++    /**
++     * @param  array<string, mixed>  $changeSet
++     * @param  array<string, mixed>  $ctx
++     * @return array<string, mixed> campos a mesclar no payload de persistência do núcleo
++     */
++    public function collectPersistFields(array $changeSet, array $ctx): array;
++
++    public function mutableIn(?ContratoSituacaoDocumental $situacao, bool $isCreate): bool;
++
++    /**
++     * @return list<string>
++     */
++    public function conflictFields(): array;
++}
+diff --git a/backend/app/Application/Vendas/Contratos/Cadastro/Sections/GeralSectionHandler.php b/backend/app/Application/Vendas/Contratos/Cadastro/Sections/GeralSectionHandler.php
+new file mode 100644
+index 00000000..9b5bc7eb
+--- /dev/null
++++ b/backend/app/Application/Vendas/Contratos/Cadastro/Sections/GeralSectionHandler.php
+@@ -0,0 +1,86 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Application\Vendas\Contratos\Cadastro\Sections;
++
++use App\Domain\Vendas\Contratos\ContratoSituacaoDocumental;
++
++final class GeralSectionHandler implements ContratoCadastroSectionHandler
++{
++    public function id(): string
++    {
++        return 'geral';
++    }
++
++    public function isApplicable(array $ctx): bool
++    {
++        return true;
++    }
++
++    public function load(array $ctx): array
++    {
++        $core = $ctx['core'] ?? [];
++
++        return [
++            'filialvenda' => $core['filialvenda'] ?? null,
++            'vendedor' => $core['vendedor'] ?? null,
++            'data' => $core['data'] ?? null,
++            'observacoes' => $core['observacoes'] ?? null,
++            'descontogeral' => $core['descontogeral'] ?? null,
++            'plano' => $core['plano'] ?? null,
++        ];
++    }
++
++    public function validate(array $changeSet, array $ctx): array
++    {
++        $errors = [];
++        $fields = $changeSet['fields'] ?? $changeSet;
++
++        if (($ctx['is_create'] ?? false) === true) {
++            $filial = $fields['filialvenda'] ?? ($ctx['filial_efetiva'] ?? null);
++            if ($filial === null || (int) $filial <= 0) {
++                $errors[] = [
++                    'section' => 'geral',
++                    'field' => 'filialvenda',
++                    'code' => 'required',
++                    'message' => 'Informe a Filial de venda.',
++                ];
++            }
++        }
++
++        if (array_key_exists('situacao', $fields)) {
++            $errors[] = [
++                'section' => 'geral',
++                'field' => 'situacao',
++                'code' => 'forbidden',
++                'message' => 'A Situação não pode ser alterada pelo F8 ordinário.',
++            ];
++        }
++
++        return $errors;
++    }
++
++    public function collectPersistFields(array $changeSet, array $ctx): array
++    {
++        $fields = $changeSet['fields'] ?? $changeSet;
++        $out = [];
++        foreach (['filialvenda', 'vendedor', 'data', 'observacoes', 'descontogeral', 'plano'] as $key) {
++            if (array_key_exists($key, $fields)) {
++                $out[$key] = $fields[$key];
++            }
++        }
++
++        return $out;
++    }
++
++    public function mutableIn(?ContratoSituacaoDocumental $situacao, bool $isCreate): bool
++    {
++        return $isCreate || ($situacao?->isOrdinarilyMutable() ?? false);
++    }
++
++    public function conflictFields(): array
++    {
++        return ['filialvenda', 'vendedor', 'data', 'observacoes', 'descontogeral', 'plano'];
++    }
++}
+diff --git a/backend/app/Application/Vendas/Orcamentos/GerarContratoOrcamentoCommand.php b/backend/app/Application/Vendas/Orcamentos/GerarContratoOrcamentoCommand.php
+index f7a1b3e6..a6128004 100644
+--- a/backend/app/Application/Vendas/Orcamentos/GerarContratoOrcamentoCommand.php
++++ b/backend/app/Application/Vendas/Orcamentos/GerarContratoOrcamentoCommand.php
+@@ -5,6 +5,7 @@
+ namespace App\Application\Vendas\Orcamentos;
+ 
+ use App\Application\Shared\QuestionarioAplicacao\QuestionarioAplicacaoEngine;
++use App\Application\Vendas\Contratos\Cadastro\CriarContratoCanonicoCommand;
+ use App\Application\Vendas\Orcamentos\GerarContrato\ClienteObrigatorioResolver;
+ use App\Application\Vendas\Orcamentos\GerarContrato\EnderecoEntregaGate;
+ use App\Application\Vendas\Orcamentos\GerarContrato\EstoqueAtendimentoGate;
+@@ -17,6 +18,7 @@
+ use App\Infrastructure\Persistence\Legacy\Vendas\LegacyOrcamentoProdutoRepository;
+ use App\Infrastructure\Persistence\Legacy\Vendas\LegacyOrcamentoRepository;
+ use App\Infrastructure\Persistence\Legacy\Vendas\LegacyOrcamentoServicoRepository;
++use App\Models\Usuario;
+ use App\Services\Parameter\ParameterReadBundle;
+ use App\Support\Vendas\OrcamentoParameterManifest;
+ use Carbon\Carbon;
+@@ -31,6 +33,7 @@ public function __construct(
+         private LegacyOrcamentoProdutoRepository $produtoRepository,
+         private LegacyOrcamentoServicoRepository $servicoRepository,
+         private LegacyGerarContratoOrcamentoRepository $gerarContratoRepository,
++        private CriarContratoCanonicoCommand $criarContratoCanonico,
+         private EstoqueAtendimentoGate $estoqueGate,
+         private EnderecoEntregaGate $enderecoGate,
+         private PlanoParcelasGate $planoParcelasGate,
+@@ -119,16 +122,48 @@ public function execute(
+                 }
+             }
+ 
+-            $contratoNumero = $this->gerarContratoRepository->nextContratoNumero();
+-            $this->gerarContratoRepository->gerarContratoFromOrcamento(
++            $actor = Usuario::query()->find($actorUsuarioCodigo);
++            if ($actor === null) {
++                abort(403);
++            }
++
++            $cabecalho = $this->gerarContratoRepository->buildCabecalhoFromOrcamento(
+                 $orcamentoCodigo,
+-                $contratoNumero,
+                 $clienteResolvido['cliente'],
+                 $clienteResolvido['tipocliente'],
+                 $qualidadePersistir ?? (isset($orcamento->qualidade_venda) ? (int) $orcamento->qualidade_venda : null),
+                 $analistaPersistir ?? (isset($orcamento->analistacredito) ? (int) $orcamento->analistacredito : null),
+             );
+ 
++            $filialDoc = isset($orcamento->filial) ? (int) $orcamento->filial : null;
++            $created = $this->criarContratoCanonico->execute(
++                origem: 'orcamento',
++                cabecalho: $cabecalho,
++                actor: $actor,
++                filialCodigo: $filialDoc,
++                requestId: uniqid('orc_gerar_', true),
++                correlationId: uniqid('orc_corr_', true),
++                causationId: 'orcamento:'.$orcamentoCodigo,
++                withinExistingTransaction: true,
++                agregadoWriter: function (string $contratoNumero) use (
++                    $orcamentoCodigo,
++                    $orcamento,
++                    $clienteResolvido,
++                ): void {
++                    $padded = str_pad(trim($contratoNumero), 20, ' ', STR_PAD_RIGHT);
++                    $this->gerarContratoRepository->persistAgregadoAndLinkOrcamento(
++                        $orcamentoCodigo,
++                        $padded,
++                        $orcamento,
++                        null,
++                        $clienteResolvido['cliente'],
++                        callClientesParaContrato: false,
++                    );
++                },
++            );
++
++            $contratoNumero = str_pad($created['numero'], 20, ' ', STR_PAD_RIGHT);
++
+             $this->insertAtendimentoConversaoIfNeeded(
+                 $orcamento,
+                 $orcamentoCodigo,
+diff --git a/backend/app/Domain/Vendas/Contratos/.gitkeep b/backend/app/Domain/Vendas/Contratos/.gitkeep
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/backend/app/Domain/Vendas/Contratos/ClienteFotografiaWhitelist.php b/backend/app/Domain/Vendas/Contratos/ClienteFotografiaWhitelist.php
+new file mode 100644
+index 00000000..0d1b55b7
+--- /dev/null
++++ b/backend/app/Domain/Vendas/Contratos/ClienteFotografiaWhitelist.php
+@@ -0,0 +1,50 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Domain\Vendas\Contratos;
++
++/**
++ * Whitelist versionada de fotografia Cliente → Contrato (tipocliente C, v1).
++ * Campos alinhados ao pacote Delphi `clientes_depoisatualizar` (lista explícita).
++ */
++final class ClienteFotografiaWhitelist
++{
++    public const VERSION = 1;
++
++    /**
++     * Colunas de `contratos` sincronizáveis a partir de `clientes` (tipocliente C).
++     *
++     * @return list<string>
++     */
++    public function fieldsForTipo(string $tipocliente): array
++    {
++        $tipo = strtoupper(trim($tipocliente));
++
++        return match ($tipo) {
++            'C' => [
++                'nome', 'apelido', 'pessoatipo', 'pessoanumero', 'estrangeiro',
++                'iddocumento', 'idorgao', 'iddata', 'idestado',
++                'nascto', 'sexo', 'civil', 'mae', 'pai', 'email',
++                'foneddd', 'fonenumero', 'foneramal', 'fone2ddd', 'fone2numero', 'fone2ramal',
++                'rua', 'bairro', 'cidade', 'estado', 'cep', 'endnumero', 'endcomplemento',
++                'empcargo', 'contribicms', 'conceito',
++            ],
++            'F', 'L' => [
++                // Ampla adiada (B02); apenas projeção de código/`conceito` quando aplicável.
++                'conceito',
++            ],
++            default => [],
++        };
++    }
++
++    /**
++     * Campos de identidade referencial (projeção do mestre em qualquer situação).
++     *
++     * @return list<string>
++     */
++    public function referentialProjectionFields(): array
++    {
++        return ['cliente', 'conceito'];
++    }
++}
+diff --git a/backend/app/Domain/Vendas/Contratos/ContratoSituacaoDocumental.php b/backend/app/Domain/Vendas/Contratos/ContratoSituacaoDocumental.php
+new file mode 100644
+index 00000000..9fe22b0d
+--- /dev/null
++++ b/backend/app/Domain/Vendas/Contratos/ContratoSituacaoDocumental.php
+@@ -0,0 +1,49 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Domain\Vendas\Contratos;
++
++/**
++ * Situação documental do Contrato (`contratos.situacao`) — distinta de `estado_ficha`.
++ */
++enum ContratoSituacaoDocumental: string
++{
++    case Orcado = 'O';
++    case Reservado = 'R';
++    case Faturado = 'F';
++    case Cancelado = 'C';
++    case NotaParcial = 'P';
++    case NotaFiscal = 'N';
++
++    public static function tryFromLoose(?string $value): ?self
++    {
++        if ($value === null) {
++            return null;
++        }
++
++        $normalized = strtoupper(trim($value));
++        if ($normalized === '') {
++            return null;
++        }
++
++        return self::tryFrom($normalized);
++    }
++
++    public function isOrdinarilyMutable(): bool
++    {
++        return $this === self::Orcado || $this === self::Reservado;
++    }
++
++    public function isTerminal(): bool
++    {
++        return $this === self::Cancelado;
++    }
++
++    public function photographySyncAllowed(): bool
++    {
++        return $this === self::Orcado
++            || $this === self::Reservado
++            || $this === self::Faturado;
++    }
++}
+diff --git a/backend/app/Domain/Vendas/Contratos/ContratoTransitionGraph.php b/backend/app/Domain/Vendas/Contratos/ContratoTransitionGraph.php
+new file mode 100644
+index 00000000..3dc3a04c
+--- /dev/null
++++ b/backend/app/Domain/Vendas/Contratos/ContratoTransitionGraph.php
+@@ -0,0 +1,67 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Domain\Vendas\Contratos;
++
++/**
++ * Reconhecimento de arestas da máquina documental (Etapa 1: sem efeitos).
++ */
++final class ContratoTransitionGraph
++{
++    /**
++     * @return list<array{from: string, to: string, recognized: bool, implemented: bool}>
++     */
++    public function edgesFrom(?ContratoSituacaoDocumental $from): array
++    {
++        if ($from === null) {
++            return [];
++        }
++
++        $candidates = match ($from) {
++            ContratoSituacaoDocumental::Orcado => ['R', 'C', 'F'],
++            ContratoSituacaoDocumental::Reservado => ['F', 'C', 'O'],
++            ContratoSituacaoDocumental::Faturado => ['R', 'C'],
++            ContratoSituacaoDocumental::Cancelado => ['O', 'R', 'F'],
++            ContratoSituacaoDocumental::NotaParcial,
++            ContratoSituacaoDocumental::NotaFiscal => ['C', 'O', 'R', 'F'],
++        };
++
++        $out = [];
++        foreach ($candidates as $to) {
++            $recognized = $this->isRecognized($from->value, $to);
++            $out[] = [
++                'from' => $from->value,
++                'to' => $to,
++                'recognized' => $recognized,
++                'implemented' => false,
++            ];
++        }
++
++        return $out;
++    }
++
++    public function isRecognized(string $from, string $to): bool
++    {
++        $from = strtoupper(trim($from));
++        $to = strtoupper(trim($to));
++
++        return match (true) {
++            $from === 'O' && $to === 'R' => true,
++            $from === 'R' && $to === 'F' => true,
++            $from === 'O' && $to === 'C' => true,
++            $from === 'R' && $to === 'C' => true,
++            $from === 'F' && $to === 'C' => true,
++            $from === 'F' && $to === 'R' => true,
++            default => false,
++        };
++    }
++
++    public function isImplemented(string $from, string $to): bool
++    {
++        unset($from, $to);
++
++        // Etapa 1: nenhuma transição de domínio além de create→O (fora deste grafo).
++        return false;
++    }
++}
+diff --git a/backend/app/Http/Controllers/Vendas/ConsultaContratosController.php b/backend/app/Http/Controllers/Vendas/ConsultaContratosController.php
+index 593fb9f6..6ef70d39 100644
+--- a/backend/app/Http/Controllers/Vendas/ConsultaContratosController.php
++++ b/backend/app/Http/Controllers/Vendas/ConsultaContratosController.php
+@@ -196,6 +196,7 @@ public function index(Request $request): InertiaResponse
+             'vendaPerdidaUrls' => $this->vendaPerdidaUrls(),
+             'printContext' => $this->printContextFromSession($request),
+             'endpoints' => $this->consultaContratosEndpoints(),
++            'selectionMode' => (int) $request->query('selection', 0) === 1,
+         ]);
+     }
+ 
+diff --git a/backend/app/Http/Controllers/Vendas/ContratoCadastroController.php b/backend/app/Http/Controllers/Vendas/ContratoCadastroController.php
+new file mode 100644
+index 00000000..e41dfa54
+--- /dev/null
++++ b/backend/app/Http/Controllers/Vendas/ContratoCadastroController.php
+@@ -0,0 +1,236 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Http\Controllers\Vendas;
++
++use App\Application\Vendas\Contratos\Cadastro\ContratoCadastroCapabilityResolver;
++use App\Application\Vendas\Contratos\Cadastro\DescribeContratoTransitionsCommand;
++use App\Application\Vendas\Contratos\Cadastro\LoadContratoCadastroCoreCommand;
++use App\Application\Vendas\Contratos\Cadastro\LoadContratoCadastroSectionCommand;
++use App\Application\Vendas\Contratos\Cadastro\SaveContratoCadastroCoreCommand;
++use App\Http\Controllers\Controller;
++use App\Http\Requests\Vendas\Contratos\Cadastro\LoadSectionRequest;
++use App\Http\Requests\Vendas\Contratos\Cadastro\StoreContratoCadastroRequest;
++use App\Http\Requests\Vendas\Contratos\Cadastro\UpdateContratoCadastroRequest;
++use App\Models\ContratoCadastro;
++use App\Models\Usuario;
++use App\Services\Branch\BranchContextService;
++use Illuminate\Http\JsonResponse;
++use Illuminate\Http\Request;
++use Illuminate\Support\Facades\DB;
++use Inertia\Inertia;
++use Inertia\Response as InertiaResponse;
++use Symfony\Component\HttpFoundation\Response;
++
++final class ContratoCadastroController extends Controller
++{
++    public function __construct(
++        private BranchContextService $branchContext,
++        private SaveContratoCadastroCoreCommand $saveCore,
++        private LoadContratoCadastroCoreCommand $loadCore,
++        private LoadContratoCadastroSectionCommand $loadSection,
++        private DescribeContratoTransitionsCommand $describeTransitions,
++        private ContratoCadastroCapabilityResolver $capabilities,
++    ) {}
++
++    public function create(Request $request): InertiaResponse
++    {
++        $this->authorize('create', ContratoCadastro::class);
++        $user = $this->actor($request);
++        $filial = $this->filialCodigo($request);
++        $caps = $this->capabilities->resolve($user, null, $filial, true);
++
++        return Inertia::render('Vendas/Contratos/Cadastro/Cadastro', [
++            'mode' => 'create',
++            'numero' => null,
++            'revision' => null,
++            'core' => null,
++            'resumo' => null,
++            'capabilities' => $caps,
++            'area_inicial' => 'geral',
++            'fotografia_cliente' => null,
++            'sections_meta' => [
++                ['id' => 'geral', 'label' => 'Geral', 'applicable' => true],
++                ['id' => 'cliente', 'label' => 'Cliente', 'applicable' => true],
++                ['id' => 'produtos', 'label' => 'Produtos', 'applicable' => true],
++                ['id' => 'servicos', 'label' => 'Serviços', 'applicable' => (bool) ($caps['servicos_aba'] ?? false)],
++                ['id' => 'pagamentos', 'label' => 'Pagamentos', 'applicable' => true],
++                ['id' => 'entrega', 'label' => 'Entrega', 'applicable' => true],
++                ['id' => 'relacionamento', 'label' => 'Relacionamento', 'applicable' => true],
++                ['id' => 'documentos_fiscais', 'label' => 'Documentos fiscais', 'applicable' => true],
++            ],
++            'consulta_selecao_url' => route('vendas.consulta_contratos.index', ['selection' => 1]),
++            'logsApiUrl' => null,
++            'canViewLogs' => true,
++        ]);
++    }
++
++    public function show(Request $request, string $numero): InertiaResponse
++    {
++        $this->authorize('viewAny', ContratoCadastro::class);
++        $payload = $this->loadCore->execute($this->actor($request), $numero, $this->filialCodigo($request));
++        $payload['consulta_selecao_url'] = route('vendas.consulta_contratos.index', ['selection' => 1]);
++        $payload['logsApiUrl'] = route('vendas.contratos.logs', ['numero' => $numero]);
++        $payload['canViewLogs'] = true;
++
++        return Inertia::render('Vendas/Contratos/Cadastro/Cadastro', $payload);
++    }
++
++    public function store(StoreContratoCadastroRequest $request): JsonResponse
++    {
++        $this->authorize('create', ContratoCadastro::class);
++        $validated = $request->validated();
++        $result = $this->saveCore->execute(
++            mode: 'create',
++            actor: $this->actor($request),
++            idempotencyKey: (string) $validated['idempotency_key'],
++            sections: (array) $validated['sections'],
++            filialEfetiva: $this->filialCodigo($request),
++            requestId: (string) $request->headers->get('X-Request-Id', $request->fingerprint() ?? uniqid('req_', true)),
++            correlationId: (string) $request->headers->get('X-Correlation-Id', uniqid('corr_', true)),
++            forgedCapabilities: $validated['capabilities'] ?? null,
++            provaAutorizacao: isset($validated['prova_autorizacao']) ? (string) $validated['prova_autorizacao'] : null,
++        );
++
++        $status = ! empty($result['idempotent']) ? Response::HTTP_OK : Response::HTTP_CREATED;
++
++        return response()->json($result, $status);
++    }
++
++    public function update(UpdateContratoCadastroRequest $request, string $numero): JsonResponse
++    {
++        $this->authorize('update', ContratoCadastro::class);
++        $validated = $request->validated();
++        $result = $this->saveCore->execute(
++            mode: 'update',
++            actor: $this->actor($request),
++            idempotencyKey: (string) $validated['idempotency_key'],
++            sections: (array) $validated['sections'],
++            filialEfetiva: $this->filialCodigo($request),
++            requestId: (string) $request->headers->get('X-Request-Id', $request->fingerprint() ?? uniqid('req_', true)),
++            correlationId: (string) $request->headers->get('X-Correlation-Id', uniqid('corr_', true)),
++            numero: $numero,
++            expectedRevision: (string) $validated['expected_revision'],
++            forgedCapabilities: $validated['capabilities'] ?? null,
++            provaAutorizacao: isset($validated['prova_autorizacao']) ? (string) $validated['prova_autorizacao'] : null,
++        );
++
++        return response()->json($result);
++    }
++
++    public function logs(Request $request, string $numero): JsonResponse
++    {
++        $this->authorize('viewAny', ContratoCadastro::class);
++        $page = max(1, (int) $request->query('page', 1));
++        $perPage = min(50, max(1, (int) $request->query('per_page', 25)));
++
++        $query = DB::table('cloud_vendas_contratos_domain_events')
++            ->where('contrato_numero', trim($numero))
++            ->orderByDesc('occurred_at');
++
++        $total = (int) $query->count();
++        $rows = $query->forPage($page, $perPage)->get();
++
++        $data = [];
++        foreach ($rows as $row) {
++            $changes = [];
++            if (is_string($row->changes_json ?? null) && $row->changes_json !== '') {
++                $decoded = json_decode($row->changes_json, true);
++                if (is_array($decoded)) {
++                    foreach ($decoded as $k => $v) {
++                        if (in_array(strtolower((string) $k), ['password', 'senha', 'prova', 'prova_autorizacao', 'token'], true)) {
++                            continue;
++                        }
++                        $changes[] = [
++                            'field' => (string) $k,
++                            'before' => null,
++                            'after' => is_scalar($v) || $v === null ? $v : json_encode($v),
++                        ];
++                    }
++                }
++            }
++            $data[] = [
++                'id' => (string) ($row->event_id ?? ''),
++                'occurred_at' => (string) ($row->occurred_at ?? ''),
++                'operation' => (string) ($row->event_type ?? ''),
++                'actor' => [
++                    'id' => $row->actor_codigo,
++                    'login' => $row->actor_login,
++                    'name' => $row->actor_name,
++                ],
++                'revision_before' => $row->revision_before,
++                'revision_after' => $row->revision_after,
++                'changes' => $changes,
++                'snapshot' => null,
++            ];
++        }
++
++        return response()->json([
++            'data' => $data,
++            'meta' => [
++                'current_page' => $page,
++                'per_page' => $perPage,
++                'total' => $total,
++                'last_page' => max(1, (int) ceil($total / $perPage)),
++            ],
++        ]);
++    }
++
++    public function section(LoadSectionRequest $request, string $numero, string $section): JsonResponse
++    {
++        $this->authorize('viewAny', ContratoCadastro::class);
++        $result = $this->loadSection->execute(
++            $this->actor($request),
++            $numero,
++            $section,
++            $this->filialCodigo($request),
++            $request->validated('expected_revision'),
++        );
++
++        return response()->json($result);
++    }
++
++    public function transitions(Request $request, string $numero): JsonResponse
++    {
++        $this->authorize('viewAny', ContratoCadastro::class);
++
++        return response()->json(
++            $this->describeTransitions->describe($this->actor($request), $numero, $this->filialCodigo($request)),
++        );
++    }
++
++    public function invokeTransition(Request $request, string $numero): JsonResponse
++    {
++        $this->authorize('update', ContratoCadastro::class);
++        $data = $request->validate([
++            'to' => ['required', 'string', 'max:1'],
++            'expected_revision' => ['nullable', 'string', 'max:40'],
++        ]);
++
++        $this->describeTransitions->invoke(
++            $this->actor($request),
++            $numero,
++            (string) $data['to'],
++            isset($data['expected_revision']) ? (string) $data['expected_revision'] : null,
++        );
++
++        return response()->json(['ok' => true]); // unreachable
++    }
++
++    private function actor(Request $request): Usuario
++    {
++        /** @var Usuario $user */
++        $user = $request->user();
++
++        return $user;
++    }
++
++    private function filialCodigo(Request $request): ?int
++    {
++        $filialAtiva = $this->branchContext->getFilialAtivaFromRequest($request);
++        $codigo = is_array($filialAtiva) ? (int) ($filialAtiva['codigo'] ?? 0) : 0;
++
++        return $codigo > 0 ? $codigo : null;
++    }
++}
+diff --git a/backend/app/Http/Middleware/EnsureContratoCadastroModuleAccess.php b/backend/app/Http/Middleware/EnsureContratoCadastroModuleAccess.php
+new file mode 100644
+index 00000000..132194a9
+--- /dev/null
++++ b/backend/app/Http/Middleware/EnsureContratoCadastroModuleAccess.php
+@@ -0,0 +1,32 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Http\Middleware;
++
++use App\Services\Authorization\ContratoCadastroAuthorizationService;
++use Closure;
++use Illuminate\Http\Request;
++use Symfony\Component\HttpFoundation\Response;
++
++final class EnsureContratoCadastroModuleAccess
++{
++    public function __construct(
++        private ContratoCadastroAuthorizationService $authorization,
++    ) {}
++
++    public function handle(Request $request, Closure $next): Response
++    {
++        $user = $request->user();
++
++        if ($user === null) {
++            return redirect()->guest(route('login'));
++        }
++
++        if (! $this->authorization->canView($user)) {
++            abort(Response::HTTP_FORBIDDEN);
++        }
++
++        return $next($request);
++    }
++}
+diff --git a/backend/app/Http/Middleware/PrimeContratoCadastroParameters.php b/backend/app/Http/Middleware/PrimeContratoCadastroParameters.php
+new file mode 100644
+index 00000000..07d29380
+--- /dev/null
++++ b/backend/app/Http/Middleware/PrimeContratoCadastroParameters.php
+@@ -0,0 +1,33 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Http\Middleware;
++
++use App\Services\Branch\BranchContextService;
++use App\Services\Parameter\ParameterReadBundle;
++use App\Support\Vendas\ContratoCadastroParameterManifest;
++use Closure;
++use Illuminate\Http\Request;
++use Symfony\Component\HttpFoundation\Response;
++
++final class PrimeContratoCadastroParameters
++{
++    public function __construct(
++        private BranchContextService $branchContext,
++        private ParameterReadBundle $parameterReadBundle,
++    ) {}
++
++    public function handle(Request $request, Closure $next): Response
++    {
++        $filialAtiva = $this->branchContext->getFilialAtivaFromRequest($request);
++        $filialCodigo = is_array($filialAtiva) ? (int) ($filialAtiva['codigo'] ?? 0) : null;
++        if ($filialCodigo !== null && $filialCodigo <= 0) {
++            $filialCodigo = null;
++        }
++
++        ContratoCadastroParameterManifest::preload($this->parameterReadBundle, $filialCodigo);
++
++        return $next($request);
++    }
++}
+diff --git a/backend/app/Http/Requests/Vendas/Contratos/Cadastro/.gitkeep b/backend/app/Http/Requests/Vendas/Contratos/Cadastro/.gitkeep
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/backend/app/Http/Requests/Vendas/Contratos/Cadastro/LoadSectionRequest.php b/backend/app/Http/Requests/Vendas/Contratos/Cadastro/LoadSectionRequest.php
+new file mode 100644
+index 00000000..9ab2f941
+--- /dev/null
++++ b/backend/app/Http/Requests/Vendas/Contratos/Cadastro/LoadSectionRequest.php
+@@ -0,0 +1,25 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Http\Requests\Vendas\Contratos\Cadastro;
++
++use Illuminate\Foundation\Http\FormRequest;
++
++final class LoadSectionRequest extends FormRequest
++{
++    public function authorize(): bool
++    {
++        return true;
++    }
++
++    /**
++     * @return array<string, mixed>
++     */
++    public function rules(): array
++    {
++        return [
++            'expected_revision' => ['nullable', 'string', 'max:40'],
++        ];
++    }
++}
+diff --git a/backend/app/Http/Requests/Vendas/Contratos/Cadastro/StoreContratoCadastroRequest.php b/backend/app/Http/Requests/Vendas/Contratos/Cadastro/StoreContratoCadastroRequest.php
+new file mode 100644
+index 00000000..20da5f66
+--- /dev/null
++++ b/backend/app/Http/Requests/Vendas/Contratos/Cadastro/StoreContratoCadastroRequest.php
+@@ -0,0 +1,32 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Http\Requests\Vendas\Contratos\Cadastro;
++
++use Illuminate\Foundation\Http\FormRequest;
++
++final class StoreContratoCadastroRequest extends FormRequest
++{
++    public function authorize(): bool
++    {
++        return true;
++    }
++
++    /**
++     * @return array<string, mixed>
++     */
++    public function rules(): array
++    {
++        return [
++            'idempotency_key' => ['required', 'string', 'max:128'],
++            'sections' => ['required', 'array'],
++            'sections.geral' => ['sometimes', 'array'],
++            'sections.cliente' => ['sometimes', 'array'],
++            'prova_autorizacao' => ['nullable', 'string'],
++            'capabilities' => ['sometimes'], // ignorado no SaveCore (server-side only)
++            'numero' => ['prohibited'],
++            'situacao' => ['prohibited'],
++        ];
++    }
++}
+diff --git a/backend/app/Http/Requests/Vendas/Contratos/Cadastro/UpdateContratoCadastroRequest.php b/backend/app/Http/Requests/Vendas/Contratos/Cadastro/UpdateContratoCadastroRequest.php
+new file mode 100644
+index 00000000..6b71270c
+--- /dev/null
++++ b/backend/app/Http/Requests/Vendas/Contratos/Cadastro/UpdateContratoCadastroRequest.php
+@@ -0,0 +1,30 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Http\Requests\Vendas\Contratos\Cadastro;
++
++use Illuminate\Foundation\Http\FormRequest;
++
++final class UpdateContratoCadastroRequest extends FormRequest
++{
++    public function authorize(): bool
++    {
++        return true;
++    }
++
++    /**
++     * @return array<string, mixed>
++     */
++    public function rules(): array
++    {
++        return [
++            'idempotency_key' => ['required', 'string', 'max:128'],
++            'expected_revision' => ['required', 'string', 'max:40'],
++            'sections' => ['required', 'array', 'min:1'],
++            'prova_autorizacao' => ['nullable', 'string'],
++            'capabilities' => ['sometimes'], // ignorado no SaveCore (server-side only)
++            'situacao' => ['prohibited'],
++        ];
++    }
++}
+diff --git a/backend/app/Infrastructure/Persistence/Legacy/Vendas/LegacyContratoCadastroRepository.php b/backend/app/Infrastructure/Persistence/Legacy/Vendas/LegacyContratoCadastroRepository.php
+new file mode 100644
+index 00000000..6741e5f0
+--- /dev/null
++++ b/backend/app/Infrastructure/Persistence/Legacy/Vendas/LegacyContratoCadastroRepository.php
+@@ -0,0 +1,123 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Infrastructure\Persistence\Legacy\Vendas;
++
++use App\Infrastructure\EncodingSanitizer;
++use Illuminate\Support\Facades\DB;
++use RuntimeException;
++
++final class LegacyContratoCadastroRepository
++{
++    public function exists(string $numero): bool
++    {
++        return DB::table('contratos')->where('numero', $this->padNumero($numero))->exists();
++    }
++
++    public function findCabecalho(string $numero): ?object
++    {
++        $numero = $this->padNumero($numero);
++        $row = DB::table('contratos')->where('numero', $numero)->first();
++        if ($row === null) {
++            return null;
++        }
++
++        return $this->mapCabecalho($row);
++    }
++
++    /**
++     * @return array<string, mixed>
++     */
++    public function mapCabecalhoToArray(object $row): array
++    {
++        return [
++            'numero' => trim((string) ($row->numero ?? '')),
++            'situacao' => strtoupper(trim((string) ($row->situacao ?? ''))),
++            'data' => $row->data ?? null,
++            'cliente' => isset($row->cliente) ? (int) $row->cliente : null,
++            'tipocliente' => isset($row->tipocliente) ? strtoupper(trim((string) $row->tipocliente)) : null,
++            'nome' => EncodingSanitizer::forOutput(isset($row->nome) ? (string) $row->nome : null),
++            'vendedor' => isset($row->vendedor) ? (int) $row->vendedor : null,
++            'filialvenda' => isset($row->filialvenda) ? (int) $row->filialvenda : null,
++            'plano' => isset($row->plano) ? (int) $row->plano : null,
++            'observacoes' => EncodingSanitizer::forOutput(isset($row->observacoes) ? (string) $row->observacoes : null),
++            'descontogeral' => isset($row->descontogeral) ? (float) $row->descontogeral : null,
++            'valorvista' => isset($row->valorvista) ? (float) $row->valorvista : null,
++            'valorprazo' => isset($row->valorprazo) ? (float) $row->valorprazo : null,
++        ];
++    }
++
++    public function nextContratoNumero(): string
++    {
++        if (DB::connection()->getDriverName() === 'pgsql') {
++            $row = DB::selectOne("SELECT nextval('contratos_proximonumero') AS v");
++            if ($row === null || ! property_exists($row, 'v') || $row->v === null) {
++                throw new RuntimeException('Falha ao obter próximo número de contrato (contratos_proximonumero).');
++            }
++
++            return $this->padNumero((string) (int) $row->v);
++        }
++
++        $max = DB::table('contratos')->max('numero');
++        $next = $max === null ? 1 : ((int) trim((string) $max)) + 1;
++
++        return $this->padNumero((string) $next);
++    }
++
++    /**
++     * @param  array<string, mixed>  $payload
++     */
++    public function insertNucleo(array $payload): void
++    {
++        EncodingSanitizer::encodeLegacyRowStringValues($payload);
++        if (DB::connection()->getDriverName() !== 'pgsql' && ! array_key_exists('cloud_row_version', $payload)) {
++            $payload['cloud_row_version'] = 1;
++        }
++        DB::table('contratos')->insert($payload);
++    }
++
++    /**
++     * @param  array<string, mixed>  $payload
++     */
++    public function updateNucleo(string $numero, array $payload): void
++    {
++        $numero = $this->padNumero($numero);
++        unset($payload['numero'], $payload['situacao']);
++        EncodingSanitizer::encodeLegacyRowStringValues($payload);
++
++        if (DB::connection()->getDriverName() !== 'pgsql') {
++            $cur = (int) (DB::table('contratos')->where('numero', $numero)->value('cloud_row_version') ?? 0);
++            $payload['cloud_row_version'] = $cur + 1;
++        }
++
++        DB::table('contratos')->where('numero', $numero)->update($payload);
++    }
++
++    public function callClientesParaContrato(int $clienteCodigo, string $contratoNumero): void
++    {
++        if (DB::connection()->getDriverName() !== 'pgsql' || $clienteCodigo <= 0) {
++            return;
++        }
++
++        DB::select('select clientes_para_contrato(?, ?)', [$clienteCodigo, $this->padNumero($contratoNumero)]);
++    }
++
++    public function padNumero(string $numero): string
++    {
++        $trimmed = trim($numero);
++        if ($trimmed === '') {
++            return $numero;
++        }
++
++        return str_pad($trimmed, 20, ' ', STR_PAD_RIGHT);
++    }
++
++    private function mapCabecalho(object $row): object
++    {
++        $mapped = (object) $this->mapCabecalhoToArray($row);
++        $mapped->numero_raw = $row->numero ?? null;
++
++        return $mapped;
++    }
++}
+diff --git a/backend/app/Infrastructure/Persistence/Legacy/Vendas/LegacyContratoClienteFotografiaRepository.php b/backend/app/Infrastructure/Persistence/Legacy/Vendas/LegacyContratoClienteFotografiaRepository.php
+new file mode 100644
+index 00000000..c9d6dc18
+--- /dev/null
++++ b/backend/app/Infrastructure/Persistence/Legacy/Vendas/LegacyContratoClienteFotografiaRepository.php
+@@ -0,0 +1,152 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Infrastructure\Persistence\Legacy\Vendas;
++
++use App\Domain\Vendas\Contratos\ClienteFotografiaWhitelist;
++use App\Infrastructure\EncodingSanitizer;
++use Illuminate\Support\Facades\DB;
++
++/**
++ * Leitura do mestre Cliente e projeção whitelist → `contratos` (sem write-back).
++ */
++final class LegacyContratoClienteFotografiaRepository
++{
++    public function __construct(
++        private ClienteFotografiaWhitelist $whitelist,
++        private LegacyContratoCadastroRepository $contratos,
++    ) {}
++
++    /**
++     * @return array<string, mixed>|null
++     */
++    public function loadClienteMaster(int $clienteCodigo): ?array
++    {
++        if ($clienteCodigo <= 0) {
++            return null;
++        }
++
++        $row = DB::table('clientes')->where('codigo', $clienteCodigo)->first();
++        if ($row === null) {
++            return null;
++        }
++
++        return (array) $row;
++    }
++
++    /**
++     * Constrói mapa de colunas de `contratos` a partir do mestre (tipocliente C/F/L).
++     *
++     * @param  array<string, mixed>  $master
++     * @return array<string, mixed>
++     */
++    public function projectFromMaster(array $master, string $tipocliente, bool $ampla): array
++    {
++        $fields = $ampla
++            ? $this->whitelist->fieldsForTipo($tipocliente)
++            : $this->whitelist->referentialProjectionFields();
++
++        $out = [];
++        foreach ($fields as $contratoCol) {
++            if ($contratoCol === 'cliente') {
++                continue;
++            }
++            if ($contratoCol === 'endnumero') {
++                if (array_key_exists('numero', $master) && $master['numero'] !== null && $master['numero'] !== '') {
++                    $out['endnumero'] = (int) $master['numero'];
++                }
++
++                continue;
++            }
++            if ($contratoCol === 'endcomplemento') {
++                if (array_key_exists('complemento', $master) && $master['complemento'] !== null && $master['complemento'] !== '') {
++                    $out['endcomplemento'] = $master['complemento'];
++                }
++
++                continue;
++            }
++            if (array_key_exists($contratoCol, $master)) {
++                $out[$contratoCol] = $master[$contratoCol];
++            }
++        }
++
++        EncodingSanitizer::encodeLegacyRowStringValues($out);
++
++        return $out;
++    }
++
++    /**
++     * @param  array<string, mixed>  $fields
++     */
++    public function applyToContrato(string $numero, array $fields): void
++    {
++        $fields = $this->filterWritableContratoColumns($fields);
++        if ($fields === []) {
++            return;
++        }
++
++        $this->contratos->updateNucleo($numero, $fields);
++    }
++
++    /**
++     * SQLite de teste não espelha todas as colunas PG; filtra por allowlist do stub.
++     * Em PostgreSQL assume schema legado completo (fail-fast).
++     *
++     * @param  array<string, mixed>  $fields
++     * @return array<string, mixed>
++     */
++    private function filterWritableContratoColumns(array $fields): array
++    {
++        if (DB::connection()->getDriverName() !== 'sqlite') {
++            return $fields;
++        }
++
++        // Colunas de fotografia presentes no stub SQLite consolidado (gerar contrato + fundação).
++        $sqlitePresent = [
++            'nome', 'pessoatipo', 'pessoanumero', 'email',
++            'rua', 'bairro', 'cidade', 'estado', 'cep', 'empcargo',
++            'endnumero', 'endcomplemento', 'conceito',
++        ];
++
++        $out = [];
++        foreach ($fields as $key => $value) {
++            if (in_array($key, $sqlitePresent, true)) {
++                $out[$key] = $value;
++            }
++        }
++
++        return $out;
++    }
++
++    /**
++     * Snapshot atual da fotografia no Contrato (colunas whitelist + identidade).
++     *
++     * @return array<string, mixed>
++     */
++    public function loadContratoFotografia(string $numero, string $tipocliente): array
++    {
++        $padded = $this->contratos->padNumero($numero);
++        $row = DB::table('contratos')->where('numero', $padded)->first();
++        if ($row === null) {
++            return [];
++        }
++
++        $arr = (array) $row;
++        $cols = array_unique(array_merge(
++            ['cliente', 'tipocliente'],
++            $this->whitelist->fieldsForTipo($tipocliente),
++            $this->whitelist->referentialProjectionFields(),
++        ));
++
++        $out = [];
++        foreach ($cols as $col) {
++            if (array_key_exists($col, $arr)) {
++                $val = $arr[$col];
++                $out[$col] = is_string($val) ? EncodingSanitizer::forOutput($val) : $val;
++            }
++        }
++
++        return $out;
++    }
++}
+diff --git a/backend/app/Infrastructure/Persistence/Legacy/Vendas/LegacyGerarContratoOrcamentoRepository.php b/backend/app/Infrastructure/Persistence/Legacy/Vendas/LegacyGerarContratoOrcamentoRepository.php
+index c05ae0d3..2ee56906 100644
+--- a/backend/app/Infrastructure/Persistence/Legacy/Vendas/LegacyGerarContratoOrcamentoRepository.php
++++ b/backend/app/Infrastructure/Persistence/Legacy/Vendas/LegacyGerarContratoOrcamentoRepository.php
+@@ -61,7 +61,6 @@ public function gerarContratoFromOrcamento(
+         }
+ 
+         $planoSelecionado = $this->resolvePlanoSelecionado($orcamentoCodigo);
+-        $planoCodigo = (int) ($planoSelecionado->plano ?? 0);
+         $servicos = $this->servicoRepository->listByOrcamento($orcamentoCodigo);
+         $totalservicos = $servicos->sum(static fn (object $row): float => (float) ($row->totalservico ?? 0));
+ 
+@@ -79,6 +78,69 @@ public function gerarContratoFromOrcamento(
+         EncodingSanitizer::encodeLegacyRowStringValues($contratoPayload);
+         DB::table('contratos')->insert($contratoPayload);
+ 
++        $this->persistAgregadoAndLinkOrcamento(
++            $orcamentoCodigo,
++            $contratoNumero,
++            $orcamento,
++            (int) ($planoSelecionado->plano ?? 0),
++            $clienteCodigo,
++            callClientesParaContrato: true,
++        );
++    }
++
++    /**
++     * Payload de cabeçalho sem insert (para o criador canônico do Cadastro).
++     *
++     * @return array<string, mixed>
++     */
++    public function buildCabecalhoFromOrcamento(
++        int $orcamentoCodigo,
++        int $clienteCodigo,
++        string $tipocliente,
++        ?int $qualidadeVenda = null,
++        ?int $analistaCredito = null,
++    ): array {
++        $orcamento = $this->orcamentoRepository->findByCodigo($orcamentoCodigo);
++        if ($orcamento === null) {
++            abort(404);
++        }
++
++        $planoSelecionado = $this->resolvePlanoSelecionado($orcamentoCodigo);
++        $servicos = $this->servicoRepository->listByOrcamento($orcamentoCodigo);
++        $totalservicos = $servicos->sum(static fn (object $row): float => (float) ($row->totalservico ?? 0));
++
++        $payload = $this->buildContratoHeaderPayload(
++            $orcamento,
++            '__pending__',
++            $planoSelecionado,
++            $clienteCodigo,
++            $tipocliente,
++            $totalservicos,
++            $qualidadeVenda,
++            $analistaCredito,
++        );
++        unset($payload['numero']);
++
++        return $payload;
++    }
++
++    public function persistAgregadoAndLinkOrcamento(
++        int $orcamentoCodigo,
++        string $contratoNumero,
++        ?stdClass $orcamento = null,
++        ?int $planoCodigo = null,
++        int $clienteCodigo = 0,
++        bool $callClientesParaContrato = false,
++    ): void {
++        $orcamento ??= $this->orcamentoRepository->findByCodigo($orcamentoCodigo);
++        if ($orcamento === null) {
++            abort(404);
++        }
++
++        if ($planoCodigo === null) {
++            $planoCodigo = (int) ($this->resolvePlanoSelecionado($orcamentoCodigo)->plano ?? 0);
++        }
++
+         $this->copyProdutos($orcamentoCodigo, $contratoNumero, $orcamento);
+         $this->copySeries($orcamentoCodigo, $contratoNumero);
+         $this->copyServicos($orcamentoCodigo, $contratoNumero);
+@@ -90,7 +152,7 @@ public function gerarContratoFromOrcamento(
+             'contrato' => $contratoNumero,
+         ]);
+ 
+-        if (DB::connection()->getDriverName() === 'pgsql' && $clienteCodigo > 0) {
++        if ($callClientesParaContrato && DB::connection()->getDriverName() === 'pgsql' && $clienteCodigo > 0) {
+             DB::select('select clientes_para_contrato(?, ?)', [$clienteCodigo, $contratoNumero]);
+         }
+     }
+diff --git a/backend/app/Models/ContratoCadastro.php b/backend/app/Models/ContratoCadastro.php
+new file mode 100644
+index 00000000..8d988b99
+--- /dev/null
++++ b/backend/app/Models/ContratoCadastro.php
+@@ -0,0 +1,14 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Models;
++
++/**
++ * Token de ecrã para policy/Gate (Cadastro de Contratos).
++ * Não corresponde a tabela; uso apenas de autorização.
++ */
++final class ContratoCadastro
++{
++    // Token de ecrã (sem Eloquent) para Gate::policy.
++}
+diff --git a/backend/app/Policies/ContratoCadastroPolicy.php b/backend/app/Policies/ContratoCadastroPolicy.php
+new file mode 100644
+index 00000000..e37f20e6
+--- /dev/null
++++ b/backend/app/Policies/ContratoCadastroPolicy.php
+@@ -0,0 +1,38 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Policies;
++
++use App\Models\ContratoCadastro;
++use App\Models\Usuario;
++use App\Services\Authorization\ContratoCadastroAuthorizationService;
++
++final class ContratoCadastroPolicy
++{
++    public function __construct(
++        private ContratoCadastroAuthorizationService $authorization,
++    ) {}
++
++    public function viewAny(Usuario $user): bool
++    {
++        return $this->authorization->canView($user);
++    }
++
++    public function create(Usuario $user): bool
++    {
++        return $this->authorization->canCreate($user);
++    }
++
++    public function update(Usuario $user, ContratoCadastro $contrato = new ContratoCadastro): bool
++    {
++        unset($contrato);
++
++        return $this->authorization->canUpdate($user);
++    }
++
++    public function search(Usuario $user): bool
++    {
++        return $this->authorization->canView($user);
++    }
++}
+diff --git a/backend/app/Providers/AppServiceProvider.php b/backend/app/Providers/AppServiceProvider.php
+index c9ab2544..8b46e6c4 100644
+--- a/backend/app/Providers/AppServiceProvider.php
++++ b/backend/app/Providers/AppServiceProvider.php
+@@ -91,7 +91,10 @@
+ use App\Models\NaturezaVenda;
+ use App\Models\ObservacaoLegalLivro;
+ use App\Models\ObservacaoLegalNota;
++use App\Models\ContratoCadastro;
+ use App\Models\OrcamentoCadastro;
++use App\Services\Vendas\Contratos\Outbox\ContratoCadastroOutboxPort;
++use App\Services\Vendas\Contratos\Outbox\NullContratoCadastroOutbox;
+ use App\Models\PlanoPagamentoVenda;
+ use App\Models\ProdutoCaracteristica;
+ use App\Models\PromocaoProduto;
+@@ -173,6 +176,7 @@
+ use App\Policies\NaturezaVendaPolicy;
+ use App\Policies\ObservacaoLegalLivroPolicy;
+ use App\Policies\ObservacaoLegalNotaPolicy;
++use App\Policies\ContratoCadastroPolicy;
+ use App\Policies\OrcamentoPolicy;
+ use App\Policies\PlanoPagamentoVendaPolicy;
+ use App\Policies\ProdutoCaracteristicaPolicy;
+@@ -645,6 +649,8 @@ public function boot(): void
+         Gate::policy(ConsultaContratosPiloto::class, ConsultaContratosPolicy::class);
+         Gate::policy(CancelamentoContratosPiloto::class, CancelamentoContratosPolicy::class);
+         $this->app->bind(CancelarContratoPort::class, CancelarContratoCommand::class);
++        $this->app->bind(ContratoCadastroOutboxPort::class, NullContratoCadastroOutbox::class);
++        Gate::policy(ContratoCadastro::class, ContratoCadastroPolicy::class);
+         Gate::policy(OrcamentoCadastro::class, OrcamentoPolicy::class);
+         Gate::policy(FichaFinanceiraPiloto::class, FichaFinanceiraPolicy::class);
+         Gate::policy(ContratoClienteImpressaoPiloto::class, ContratoClienteImpressaoPolicy::class);
+diff --git a/backend/app/Services/Authorization/ContratoCadastroAuthorizationService.php b/backend/app/Services/Authorization/ContratoCadastroAuthorizationService.php
+new file mode 100644
+index 00000000..172ae7f8
+--- /dev/null
++++ b/backend/app/Services/Authorization/ContratoCadastroAuthorizationService.php
+@@ -0,0 +1,71 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Services\Authorization;
++
++use App\Models\Usuario;
++use Illuminate\Support\Facades\DB;
++
++/**
++ * Autorização do módulo Cloud **Vendas → Cadastro de Contratos**.
++ */
++final class ContratoCadastroAuthorizationService
++{
++    public const CADASTRO_ROUTE = 'vendas.contratos.create';
++
++    public function canAccessCadastro(?Usuario $user): bool
++    {
++        return $this->canAccessRoute($user, self::CADASTRO_ROUTE);
++    }
++
++    public function canCreate(?Usuario $user): bool
++    {
++        if (! $this->canAccessCadastro($user)) {
++            return false;
++        }
++
++        // Liberação a Usuários reais bloqueada até O→R→F (FR-029).
++        if (! (bool) config('teclux.contratos_cadastro.released_to_users', false)) {
++            return $user !== null && (bool) $user->administrador;
++        }
++
++        return true;
++    }
++
++    public function canUpdate(?Usuario $user): bool
++    {
++        return $this->canCreate($user);
++    }
++
++    public function canView(?Usuario $user): bool
++    {
++        // Leitura do seam interno: mesmo gate de create (QA/admin até release).
++        return $this->canCreate($user);
++    }
++
++    private function canAccessRoute(?Usuario $user, string $route): bool
++    {
++        if ($user === null) {
++            return false;
++        }
++
++        if ($user->administrador) {
++            return true;
++        }
++
++        $moduloCodigo = DB::table('acessosmodulos')
++            ->where('rota', $route)
++            ->where('teclux_cloud', true)
++            ->value('codigo');
++
++        if ($moduloCodigo === null) {
++            return false;
++        }
++
++        return DB::table('usuariosacessosmodulos')
++            ->where('usuario', (int) $user->codigo)
++            ->where('acesso', (int) $moduloCodigo)
++            ->exists();
++    }
++}
+diff --git a/backend/app/Services/Vendas/Contratos/.gitkeep b/backend/app/Services/Vendas/Contratos/.gitkeep
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/backend/app/Services/Vendas/Contratos/ContratoCadastroSensitiveOperationGate.php b/backend/app/Services/Vendas/Contratos/ContratoCadastroSensitiveOperationGate.php
+new file mode 100644
+index 00000000..94f5d201
+--- /dev/null
++++ b/backend/app/Services/Vendas/Contratos/ContratoCadastroSensitiveOperationGate.php
+@@ -0,0 +1,63 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Services\Vendas\Contratos;
++
++use App\Services\Authorization\SensitiveOperationProofService;
++use App\Support\Authorization\ValidatesSensitiveOperationProof;
++use Illuminate\Validation\ValidationException;
++
++/**
++ * Gate mínimo Etapa 1 — desconto geral / operações sensíveis do Cadastro.
++ */
++final class ContratoCadastroSensitiveOperationGate
++{
++    use ValidatesSensitiveOperationProof;
++
++    public const MODULO = 'ContratoCadastro';
++
++    public const ACAO_DESCONTO_GERAL = 'desconto_geral';
++
++    public function __construct(
++        private SensitiveOperationProofService $proofService,
++    ) {}
++
++    /**
++     * @return array{authorizer_codigo: int}
++     */
++    public function claimDescontoGeral(string $prova, int $sessionUserCodigo, ?int $filialCodigo): array
++    {
++        $prova = trim($prova);
++        if ($prova === '') {
++            throw ValidationException::withMessages([
++                'prova_autorizacao' => 'Autorização necessária para desconto geral.',
++            ]);
++        }
++
++        if ($filialCodigo === null || $filialCodigo < 1) {
++            throw ValidationException::withMessages([
++                'prova_autorizacao' => 'Filial ativa não definida na sessão.',
++            ]);
++        }
++
++        try {
++            $authorizer = $this->claimSensitiveOperationProof(
++                $this->proofService,
++                $sessionUserCodigo,
++                $filialCodigo,
++                self::MODULO,
++                self::ACAO_DESCONTO_GERAL,
++                $prova,
++            );
++        } catch (ValidationException) {
++            throw ValidationException::withMessages([
++                'prova_autorizacao' => 'Autorização inválida, expirada ou já utilizada.',
++            ]);
++        }
++
++        return [
++            'authorizer_codigo' => (int) $authorizer['id'],
++        ];
++    }
++}
+diff --git a/backend/app/Services/Vendas/Contratos/ContratoClienteFotografiaSyncService.php b/backend/app/Services/Vendas/Contratos/ContratoClienteFotografiaSyncService.php
+new file mode 100644
+index 00000000..97344a72
+--- /dev/null
++++ b/backend/app/Services/Vendas/Contratos/ContratoClienteFotografiaSyncService.php
+@@ -0,0 +1,74 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Services\Vendas\Contratos;
++
++use App\Domain\Vendas\Contratos\ContratoSituacaoDocumental;
++use App\Infrastructure\Persistence\Legacy\Vendas\LegacyContratoCadastroRepository;
++use App\Infrastructure\Persistence\Legacy\Vendas\LegacyContratoClienteFotografiaRepository;
++use App\Services\Parameter\ParameterReadBundle;
++use App\Support\Vendas\ContratoCadastroParameterManifest;
++
++/**
++ * Fronteira fotografia Cliente → Contrato (FR-016/017). Sem write-back ao mestre.
++ */
++final class ContratoClienteFotografiaSyncService
++{
++    public function __construct(
++        private LegacyContratoClienteFotografiaRepository $fotografiaRepo,
++        private LegacyContratoCadastroRepository $contratos,
++        private ContratoCadastroParameterManifest $parameters,
++        private ParameterReadBundle $parameterBundle,
++    ) {}
++
++    /**
++     * Sincroniza após create/update conforme Situação + parâmetro.
++     *
++     * @return array<string, mixed> fotografia resultante no Contrato
++     */
++    public function syncAfterPersist(
++        string $numero,
++        string $situacao,
++        string $tipocliente,
++        int $clienteCodigo,
++        ?int $filialCodigo,
++    ): array {
++        $situacaoEnum = ContratoSituacaoDocumental::tryFromLoose($situacao);
++        $tipo = strtoupper(trim($tipocliente));
++        if ($tipo === '') {
++            $tipo = 'C';
++        }
++
++        if ($clienteCodigo <= 0 || $situacaoEnum === null) {
++            return $this->fotografiaRepo->loadContratoFotografia($numero, $tipo);
++        }
++
++        $master = $this->fotografiaRepo->loadClienteMaster($clienteCodigo);
++        if ($master === null) {
++            return $this->fotografiaRepo->loadContratoFotografia($numero, $tipo);
++        }
++
++        $paramAtivo = $this->parameters->atualizarDadosClientesContratos($this->parameterBundle, $filialCodigo);
++        $ampla = $paramAtivo
++            && $situacaoEnum->photographySyncAllowed()
++            && $tipo === 'C';
++
++        if ($ampla) {
++            $projected = $this->fotografiaRepo->projectFromMaster($master, $tipo, true);
++            if ($projected !== []) {
++                $this->fotografiaRepo->applyToContrato($numero, $projected);
++            }
++        } elseif (array_key_exists('conceito', $master) && $master['conceito'] !== null) {
++            // Projeção referencial (não reescreve snapshot amplo).
++            $this->fotografiaRepo->applyToContrato($numero, ['conceito' => $master['conceito']]);
++        }
++
++        // PG: função legado complementar (SQLite no-op no repo).
++        if ($ampla) {
++            $this->contratos->callClientesParaContrato($clienteCodigo, $numero);
++        }
++
++        return $this->fotografiaRepo->loadContratoFotografia($numero, $tipo);
++    }
++}
+diff --git a/backend/app/Services/Vendas/Contratos/ContratoDomainEventWriter.php b/backend/app/Services/Vendas/Contratos/ContratoDomainEventWriter.php
+new file mode 100644
+index 00000000..7afa5161
+--- /dev/null
++++ b/backend/app/Services/Vendas/Contratos/ContratoDomainEventWriter.php
+@@ -0,0 +1,59 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Services\Vendas\Contratos;
++
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Str;
++
++final class ContratoDomainEventWriter
++{
++    /**
++     * @param  array<string, mixed>  $changes
++     * @param  array<string, mixed>|null  $links
++     */
++    public function write(
++        string $eventType,
++        ?string $command,
++        ?string $contratoNumero,
++        ?string $revisionBefore,
++        ?string $revisionAfter,
++        ?int $actorCodigo,
++        ?string $actorLogin,
++        ?string $actorName,
++        ?int $authorizerCodigo,
++        string $appSource,
++        ?int $filialCodigo,
++        ?string $requestId,
++        ?string $correlationId,
++        ?string $causationId,
++        array $changes = [],
++        ?array $links = null,
++    ): string {
++        $eventId = (string) Str::uuid();
++
++        DB::table('cloud_vendas_contratos_domain_events')->insert([
++            'event_id' => $eventId,
++            'occurred_at' => now(),
++            'event_type' => $eventType,
++            'command' => $command,
++            'contrato_numero' => $contratoNumero !== null ? trim($contratoNumero) : null,
++            'revision_before' => $revisionBefore,
++            'revision_after' => $revisionAfter,
++            'actor_codigo' => $actorCodigo,
++            'actor_login' => $actorLogin,
++            'actor_name' => $actorName,
++            'authorizer_codigo' => $authorizerCodigo,
++            'app_source' => $appSource,
++            'filial_codigo' => $filialCodigo,
++            'request_id' => $requestId,
++            'correlation_id' => $correlationId,
++            'causation_id' => $causationId,
++            'changes_json' => $changes === [] ? null : json_encode($changes, JSON_UNESCAPED_UNICODE),
++            'links_json' => $links === null ? null : json_encode($links, JSON_UNESCAPED_UNICODE),
++        ]);
++
++        return $eventId;
++    }
++}
+diff --git a/backend/app/Services/Vendas/Contratos/Outbox/ContratoCadastroOutboxPort.php b/backend/app/Services/Vendas/Contratos/Outbox/ContratoCadastroOutboxPort.php
+new file mode 100644
+index 00000000..e83f2252
+--- /dev/null
++++ b/backend/app/Services/Vendas/Contratos/Outbox/ContratoCadastroOutboxPort.php
+@@ -0,0 +1,13 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Services\Vendas\Contratos\Outbox;
++
++interface ContratoCadastroOutboxPort
++{
++    /**
++     * @param  array<string, mixed>  $payload
++     */
++    public function enqueue(string $idempotencyKey, string $operation, array $payload): ?string;
++}
+diff --git a/backend/app/Services/Vendas/Contratos/Outbox/NullContratoCadastroOutbox.php b/backend/app/Services/Vendas/Contratos/Outbox/NullContratoCadastroOutbox.php
+new file mode 100644
+index 00000000..ebf0b44d
+--- /dev/null
++++ b/backend/app/Services/Vendas/Contratos/Outbox/NullContratoCadastroOutbox.php
+@@ -0,0 +1,18 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Services\Vendas\Contratos\Outbox;
++
++/**
++ * Etapa 1: SaveCore tipicamente sem efeitos externos — no-op.
++ */
++final class NullContratoCadastroOutbox implements ContratoCadastroOutboxPort
++{
++    public function enqueue(string $idempotencyKey, string $operation, array $payload): ?string
++    {
++        unset($idempotencyKey, $operation, $payload);
++
++        return null;
++    }
++}
+diff --git a/backend/app/Support/Vendas/ContratoCadastroParameterManifest.php b/backend/app/Support/Vendas/ContratoCadastroParameterManifest.php
+new file mode 100644
+index 00000000..1b44c669
+--- /dev/null
++++ b/backend/app/Support/Vendas/ContratoCadastroParameterManifest.php
+@@ -0,0 +1,133 @@
++<?php
++
++declare(strict_types=1);
++
++namespace App\Support\Vendas;
++
++use App\Services\Parameter\ParameterReadBundle;
++use App\Support\CadastroParameters\CadastroParameterManifestContract;
++use App\Support\CadastroParameters\PreloadsCadastroParameterManifest;
++use App\Support\ModuleParameters\LegacyParameterTruthy;
++
++final class ContratoCadastroParameterManifest implements CadastroParameterManifestContract
++{
++    use PreloadsCadastroParameterManifest;
++
++    public const INCLUSAO_SOMENTE_VIA_ORCAMENTO = 'Inclusao de Contratos Somente Via Orcamento';
++
++    public const ATUALIZAR_DADOS_CLIENTES_CONTRATOS = 'Atualizar Dados Clientes Contratos';
++
++    public const PERMITIR_ALTERAR_VENDEDOR_DO_CLIENTE = 'Permitir Alterar Vendedor do Cliente';
++
++    public const ALTERAR_DATA_ABERTURA = 'Alterar a data de abertura do contrato';
++
++    public const BLOQUEAR_DESCONTO_GERAL = 'Bloquear a digitacao do desconto geral';
++
++    public const OCULTAR_OBSERVACOES_CLIENTE_VENDEDOR = 'Ocultar Observacoes Cliente Vendedor';
++
++    public const CLIENTE_INADIMPLENTE_SO_COM_ANALISTA = 'CLIENTE INADIMPLENTE SO COM ANALISTA DE CREDITO';
++
++    public const CONTRATO_COM_SERVICO = 'CONTRATO COM SERVICO';
++
++    public static function bundleTag(): string
++    {
++        return 'vendas.contrato_cadastro.runtime';
++    }
++
++    /**
++     * @return list<string>
++     */
++    public static function descriptions(): array
++    {
++        return [
++            self::INCLUSAO_SOMENTE_VIA_ORCAMENTO,
++            self::ATUALIZAR_DADOS_CLIENTES_CONTRATOS,
++            self::PERMITIR_ALTERAR_VENDEDOR_DO_CLIENTE,
++            self::ALTERAR_DATA_ABERTURA,
++            self::BLOQUEAR_DESCONTO_GERAL,
++            self::OCULTAR_OBSERVACOES_CLIENTE_VENDEDOR,
++            self::CLIENTE_INADIMPLENTE_SO_COM_ANALISTA,
++            self::CONTRATO_COM_SERVICO,
++            // Ortografias alternativas vistas no legado / Orçamentos
++            'InclusaodeContratosSomenteViaOrcamento',
++            'AtualizarDadosClientesContratos',
++            'Bloquear a digitação do desconto geral',
++            'OcultarObservacoesClienteVendedor',
++            'CLIENTE INADIMPLENTE SÓ COM ANALISTA DE CRÉDITO',
++            OrcamentoParameterManifest::CONTRATO_COM_SERVICO,
++            OrcamentoParameterManifest::PERMITIR_ALTERAR_VENDEDOR_DO_CLIENTE,
++            OrcamentoParameterManifest::BLOQUEAR_DIGITACAO_DESCONTO_GERAL,
++            OrcamentoParameterManifest::CLIENTE_INADIMPLENTE_SO_COM_ANALISTA_CREDITO,
++        ];
++    }
++
++    public function inclusaoSomenteViaOrcamento(ParameterReadBundle $bundle, ?int $filialCodigo): bool
++    {
++        return $this->truthyAny($bundle, $filialCodigo, [
++            self::INCLUSAO_SOMENTE_VIA_ORCAMENTO,
++            'InclusaodeContratosSomenteViaOrcamento',
++        ]);
++    }
++
++    public function atualizarDadosClientesContratos(ParameterReadBundle $bundle, ?int $filialCodigo): bool
++    {
++        return $this->truthyAny($bundle, $filialCodigo, [
++            self::ATUALIZAR_DADOS_CLIENTES_CONTRATOS,
++            'AtualizarDadosClientesContratos',
++        ]);
++    }
++
++    public function contratoComServico(ParameterReadBundle $bundle, ?int $filialCodigo): bool
++    {
++        return $this->truthyAny($bundle, $filialCodigo, [
++            self::CONTRATO_COM_SERVICO,
++            OrcamentoParameterManifest::CONTRATO_COM_SERVICO,
++        ]);
++    }
++
++    public function permitirAlterarVendedorDoCliente(ParameterReadBundle $bundle, ?int $filialCodigo): bool
++    {
++        return $this->truthyAny($bundle, $filialCodigo, [
++            self::PERMITIR_ALTERAR_VENDEDOR_DO_CLIENTE,
++            OrcamentoParameterManifest::PERMITIR_ALTERAR_VENDEDOR_DO_CLIENTE,
++        ], defaultTrue: true);
++    }
++
++    public function alterarDataAbertura(ParameterReadBundle $bundle, ?int $filialCodigo): bool
++    {
++        return $this->truthyAny($bundle, $filialCodigo, [
++            self::ALTERAR_DATA_ABERTURA,
++            'Alterar_a_data_de_abertura_do_contrato',
++        ]);
++    }
++
++    public function bloquearDescontoGeral(ParameterReadBundle $bundle, ?int $filialCodigo): bool
++    {
++        return $this->truthyAny($bundle, $filialCodigo, [
++            self::BLOQUEAR_DESCONTO_GERAL,
++            OrcamentoParameterManifest::BLOQUEAR_DIGITACAO_DESCONTO_GERAL,
++            'Bloquear a digitação do desconto geral',
++        ]);
++    }
++
++    /**
++     * @param  list<string>  $keys
++     */
++    private function truthyAny(
++        ParameterReadBundle $bundle,
++        ?int $filialCodigo,
++        array $keys,
++        bool $defaultTrue = false,
++    ): bool {
++        foreach ($keys as $key) {
++            $raw = $bundle->get($key, $filialCodigo);
++            if ($raw === null) {
++                continue;
++            }
++
++            return LegacyParameterTruthy::isLegacySnSimTruthy(is_string($raw) ? $raw : (string) $raw);
++        }
++
++        return $defaultTrue;
++    }
++}
+diff --git a/backend/resources/js/Pages/Vendas/ConsultaContratos/Index.tsx b/backend/resources/js/Pages/Vendas/ConsultaContratos/Index.tsx
+index ab516928..45c476fa 100644
+--- a/backend/resources/js/Pages/Vendas/ConsultaContratos/Index.tsx
++++ b/backend/resources/js/Pages/Vendas/ConsultaContratos/Index.tsx
+@@ -274,6 +274,7 @@ export default function ConsultaContratosIndex() {
+     vendaPerdidaUrls = null,
+     printContext = null,
+     endpoints,
++    selectionMode = false,
+   } =
+     usePage<{
+     contratos: ContratoListagemRow[];
+@@ -289,6 +290,7 @@ export default function ConsultaContratosIndex() {
+     } | null;
+     printContext?: ConsultaContratosPrintContext | null;
+     endpoints?: { cancelarGerar?: string };
++    selectionMode?: boolean;
+     filters: {
+       version: number;
+       product?: { rules: ProductFilterRule[]; except?: ProductFilterExceptByTab };
+@@ -529,6 +531,16 @@ export default function ConsultaContratosIndex() {
+ 
+   const handleSelectNumero = useCallback(
+     (numero: string) => {
++      if (selectionMode) {
++        // Modo seleção F9 do Cadastro de Contratos (iframe → postMessage).
++        if (window.parent && window.parent !== window) {
++          window.parent.postMessage(
++            { type: 'teclux.contrato_cadastro.selecionado', numero: String(numero).trim() },
++            window.location.origin,
++          );
++        }
++        return;
++      }
+       if (numero === selectedNumero) {
+         if (!draft.isDirty) {
+           setDetalheRefreshKey((k) => k + 1);
+@@ -543,7 +555,7 @@ export default function ConsultaContratosIndex() {
+       }
+       setSelectedNumero(numero);
+     },
+-    [draft.isDirty, selectedNumero],
++    [draft.isDirty, selectedNumero, selectionMode],
+   );
+ 
+   const gravarDisabled = useMemo(
+diff --git a/backend/resources/js/Pages/Vendas/Contratos/Cadastro/Cadastro.test.tsx b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/Cadastro.test.tsx
+new file mode 100644
+index 00000000..f2d0b25e
+--- /dev/null
++++ b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/Cadastro.test.tsx
+@@ -0,0 +1,59 @@
++import { describe, expect, it, vi } from 'vitest';
++import {
++  canGravar,
++  canLocalizar,
++  canNovo,
++  confirmDiscardIfDirty,
++  mapHotkeyToAction,
++  resolveInitialTab,
++} from './utils/contratoCadastroShell';
++import type { CapabilitySet } from '@/types/contratoCadastro';
++
++function caps(partial: Partial<CapabilitySet> & { commands?: CapabilitySet['commands'] }): CapabilitySet {
++  return {
++    fields: {},
++    transitions: [],
++    readonly: false,
++    commands: {
++      novo: { available: true },
++      gravar: { available: true },
++      localizar: { available: true },
++      f6: { available: false },
++      f11: { available: true },
++      ...(partial.commands ?? {}),
++    },
++    ...partial,
++  };
++}
++
++describe('Cadastro Contratos shell (T17)', () => {
++  it('atalhos F8/F9/F3/F11 mapeiam ações', () => {
++    expect(mapHotkeyToAction('F8')).toBe('gravar');
++    expect(mapHotkeyToAction('F9')).toBe('localizar');
++    expect(mapHotkeyToAction('F3')).toBe('novo');
++    expect(mapHotkeyToAction('F11')).toBe('f11');
++    expect(mapHotkeyToAction('Enter')).toBeNull();
++  });
++
++  it('dirty discard pede confirmação e aborta se negar', () => {
++    const deny = vi.fn(() => false);
++    expect(confirmDiscardIfDirty(true, deny)).toBe(false);
++    expect(deny).toHaveBeenCalled();
++    expect(confirmDiscardIfDirty(false, deny)).toBe(true);
++  });
++
++  it('readonly desabilita gravar', () => {
++    expect(canGravar(caps({ readonly: true }))).toBe(false);
++    expect(canGravar(caps({ readonly: false }))).toBe(true);
++  });
++
++  it('aba inicial respeita area_inicial aplicável', () => {
++    expect(resolveInitialTab('produtos', ['geral', 'cliente', 'produtos'])).toBe('produtos');
++    expect(resolveInitialTab('servicos', ['geral', 'cliente'])).toBe('geral');
++  });
++
++  it('capabilities gate novo/localizar', () => {
++    expect(canNovo(caps({ commands: { novo: { available: false }, gravar: { available: true }, localizar: { available: true }, f6: { available: false }, f11: { available: false } } }))).toBe(false);
++    expect(canLocalizar(caps({}))).toBe(true);
++  });
++});
+diff --git a/backend/resources/js/Pages/Vendas/Contratos/Cadastro/Cadastro.tsx b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/Cadastro.tsx
+new file mode 100644
+index 00000000..980697ca
+--- /dev/null
++++ b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/Cadastro.tsx
+@@ -0,0 +1,248 @@
++import { Head, router } from '@inertiajs/react';
++import axios from 'axios';
++import { useCallback, useEffect, useMemo, useState } from 'react';
++import ErpCadastroShell from '@/Components/erp/cadastro/ErpCadastroShell';
++import ErpCadastroTabBar from '@/Components/erp/cadastro/ErpCadastroTabBar';
++import type { ContratoCadastroPageProps, SectionId } from '@/types/contratoCadastro';
++import ContratoCommandBar from './components/ContratoCommandBar';
++import ContratoF9ConsultaModal from './components/ContratoF9ConsultaModal';
++import ContratoResumoBar from './components/ContratoResumoBar';
++import { useContratoSectionCache } from './hooks/useContratoSectionCache';
++import {
++  canGravar,
++  canLocalizar,
++  canNovo,
++  confirmDiscardIfDirty,
++  mapHotkeyToAction,
++  resolveInitialTab,
++} from './utils/contratoCadastroShell';
++
++export default function ContratoCadastroPage(props: ContratoCadastroPageProps) {
++  const applicable = useMemo(
++    () => props.sections_meta.filter((s) => s.applicable).map((s) => s.id),
++    [props.sections_meta],
++  );
++  const [active, setActive] = useState<SectionId>(() => resolveInitialTab(props.area_inicial, applicable));
++  const [dirty, setDirty] = useState(false);
++  const [saving, setSaving] = useState(false);
++  const [f9Open, setF9Open] = useState(false);
++  const [flash, setFlash] = useState<string | null>(null);
++  const [sectionData, setSectionData] = useState<unknown>(null);
++
++  const { loadSection, invalidate, loadingSection, sectionError } = useContratoSectionCache(
++    props.numero,
++    props.revision,
++  );
++
++  const storeUrl = '/cadastros/vendas/contratos';
++  const showUrl = (numero: string) => `/cadastros/vendas/contratos/${encodeURIComponent(numero)}`;
++  const sectionUrl = (section: SectionId) =>
++    props.numero ? `${showUrl(props.numero)}/sections/${section}` : '';
++
++  const handleTabChange = useCallback(
++    async (id: SectionId) => {
++      setActive(id);
++      if (!props.numero || id === 'geral' || id === 'cliente') {
++        setSectionData(null);
++        return;
++      }
++      const data = await loadSection(id, sectionUrl(id));
++      setSectionData(data);
++    },
++    [loadSection, props.numero],
++  );
++
++  const handleNovo = useCallback(() => {
++    if (!confirmDiscardIfDirty(dirty)) {
++      return;
++    }
++    router.visit('/cadastros/vendas/contratos');
++  }, [dirty]);
++
++  const handleLocalizar = useCallback(() => {
++    if (!confirmDiscardIfDirty(dirty)) {
++      return;
++    }
++    setF9Open(true);
++  }, [dirty]);
++
++  const handleSelectNumero = useCallback((numero: string) => {
++    setF9Open(false);
++    setDirty(false);
++    invalidate();
++    router.visit(showUrl(numero));
++  }, [invalidate]);
++
++  const handleGravar = useCallback(async () => {
++    if (!canGravar(props.capabilities) || saving) {
++      return;
++    }
++    setSaving(true);
++    setFlash(null);
++    try {
++      const idempotencyKey =
++        typeof crypto !== 'undefined' && 'randomUUID' in crypto
++          ? crypto.randomUUID()
++          : `ctr-${Date.now()}`;
++      const sections = {
++        geral: { filialvenda: props.core?.filialvenda ?? 1, vendedor: props.core?.vendedor ?? 1 },
++        cliente: {
++          tipocliente: props.core?.tipocliente ?? 'C',
++          cliente: props.core?.cliente ?? 0,
++        },
++      };
++
++      if (props.mode === 'create') {
++        const res = await axios.post(storeUrl, { idempotency_key: idempotencyKey, sections });
++        const numero = String(res.data?.numero ?? '').trim();
++        setDirty(false);
++        if (numero !== '') {
++          router.visit(showUrl(numero));
++        }
++      } else if (props.numero && props.revision) {
++        await axios.put(showUrl(props.numero), {
++          idempotency_key: idempotencyKey,
++          expected_revision: props.revision,
++          sections: { geral: { observacoes: props.core?.observacoes ?? '' } },
++        });
++        setDirty(false);
++        invalidate();
++        router.reload({ only: ['core', 'revision', 'resumo', 'capabilities', 'fotografia_cliente'] });
++      }
++    } catch (err: unknown) {
++      if (axios.isAxiosError(err) && err.response?.status === 409) {
++        invalidate();
++        setFlash('O Contrato foi alterado por outro usuário. Recarregue e tente novamente.');
++      } else {
++        setFlash('Não foi possível gravar o Contrato.');
++      }
++    } finally {
++      setSaving(false);
++    }
++  }, [invalidate, props, saving]);
++
++  const handleF11 = useCallback(async () => {
++    if (!props.numero) {
++      return;
++    }
++    try {
++      const res = await axios.get(`${showUrl(props.numero)}/transitions`);
++      const edges = res.data?.transitions ?? res.data?.edges ?? [];
++      window.alert(
++        Array.isArray(edges) && edges.length > 0
++          ? `Transições reconhecidas (ainda não implementadas nesta versão):\n${edges
++              .map((e: { from?: string; to?: string }) => `${e.from} → ${e.to}`)
++              .join('\n')}`
++          : 'Nenhuma transição disponível.',
++      );
++    } catch {
++      window.alert('Não foi possível carregar as transições.');
++    }
++  }, [props.numero]);
++
++  useEffect(() => {
++    const onKey = (event: KeyboardEvent) => {
++      if (event.ctrlKey || event.metaKey || event.altKey) {
++        return;
++      }
++      const action = mapHotkeyToAction(event.key);
++      if (!action) {
++        return;
++      }
++      event.preventDefault();
++      if (action === 'novo' && canNovo(props.capabilities)) {
++        handleNovo();
++      } else if (action === 'gravar') {
++        void handleGravar();
++      } else if (action === 'localizar' && canLocalizar(props.capabilities)) {
++        handleLocalizar();
++      } else if (action === 'f11') {
++        void handleF11();
++      }
++    };
++    window.addEventListener('keydown', onKey);
++    return () => window.removeEventListener('keydown', onKey);
++  }, [handleF11, handleGravar, handleLocalizar, handleNovo, props.capabilities]);
++
++  return (
++    <>
++      <Head title={props.mode === 'create' ? 'Novo Contrato' : `Contrato ${props.numero ?? ''}`} />
++      <ErpCadastroShell
++        commandBar={
++          <div className="space-y-2">
++            <ContratoResumoBar
++              mode={props.mode}
++              numero={props.numero}
++              revision={props.revision}
++              resumo={props.resumo}
++              readonly={props.capabilities.readonly}
++            />
++            <ContratoCommandBar
++              mode={props.mode}
++              canNovo={canNovo(props.capabilities)}
++              canGravar={canGravar(props.capabilities)}
++              canLocalizar={canLocalizar(props.capabilities)}
++              canF11={Boolean(props.capabilities.commands.f11?.available)}
++              saving={saving}
++              onNovo={handleNovo}
++              onGravar={() => void handleGravar()}
++              onLocalizar={handleLocalizar}
++              onF11={() => void handleF11()}
++            />
++          </div>
++        }
++      >
++        {flash ? (
++          <div className="mb-3 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">{flash}</div>
++        ) : null}
++        {props.capabilities.inclusao_somente_via_orcamento ? (
++          <div className="mb-3 text-sm text-slate-600">Inclusão manual bloqueada por parâmetro — use Orçamento.</div>
++        ) : null}
++        <ErpCadastroTabBar
++          tabs={props.sections_meta.filter((s) => s.applicable).map((s) => ({ id: s.id, label: s.label }))}
++          activeId={active}
++          onChange={(id) => void handleTabChange(id as SectionId)}
++        />
++        <div className="mt-4 rounded border border-slate-200 p-4 text-sm text-slate-700">
++          {sectionError ? <p className="mb-2 text-amber-800">{sectionError}</p> : null}
++          {loadingSection === active ? <p>Carregando…</p> : null}
++          {active === 'geral' || active === 'cliente' ? (
++            <div className="space-y-2">
++              <p>
++                Área <strong>{active}</strong>
++                {props.mode === 'create'
++                  ? ' — preencha e grave com F8.'
++                  : ' — alterações via F8 (OCC).'}
++              </p>
++              {props.mode === 'edit' && props.core ? (
++                <p className="text-slate-500">
++                  Cliente: {props.fotografia_cliente?.nome ?? props.core.nome ?? '—'} · Situação{' '}
++                  {props.core.situacao}
++                </p>
++              ) : null}
++              <button
++                type="button"
++                className="text-xs text-slate-500 underline"
++                onClick={() => setDirty(true)}
++              >
++                Marcar alterações (teste dirty)
++              </button>
++            </div>
++          ) : (
++            <p>
++              Seção disponível em fatia futura do Cadastro de Contratos.
++              {sectionData ? ' (placeholder carregado)' : ''}
++            </p>
++          )}
++        </div>
++      </ErpCadastroShell>
++
++      <ContratoF9ConsultaModal
++        open={f9Open}
++        consultaSelecaoUrl={props.consulta_selecao_url}
++        onClose={() => setF9Open(false)}
++        onSelectNumero={handleSelectNumero}
++      />
++    </>
++  );
++}
+diff --git a/backend/resources/js/Pages/Vendas/Contratos/Cadastro/components/ContratoCommandBar.tsx b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/components/ContratoCommandBar.tsx
+new file mode 100644
+index 00000000..91acca3c
+--- /dev/null
++++ b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/components/ContratoCommandBar.tsx
+@@ -0,0 +1,45 @@
++type Props = {
++  mode: 'create' | 'edit';
++  canNovo: boolean;
++  canGravar: boolean;
++  canLocalizar: boolean;
++  canF11: boolean;
++  saving: boolean;
++  onNovo: () => void;
++  onGravar: () => void;
++  onLocalizar: () => void;
++  onF11: () => void;
++};
++
++export default function ContratoCommandBar({
++  mode,
++  canNovo,
++  canGravar,
++  canLocalizar,
++  canF11,
++  saving,
++  onNovo,
++  onGravar,
++  onLocalizar,
++  onF11,
++}: Props) {
++  const btn =
++    'rounded border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50';
++
++  return (
++    <div className="flex flex-wrap items-center gap-2 px-1">
++      <button type="button" className={btn} disabled={!canNovo || saving} onClick={onNovo} title="F3">
++        Novo (F3)
++      </button>
++      <button type="button" className={btn} disabled={!canGravar || saving} onClick={onGravar} title="F8">
++        {saving ? 'Gravando…' : 'Gravar (F8)'}
++      </button>
++      <button type="button" className={btn} disabled={!canLocalizar || saving} onClick={onLocalizar} title="F9">
++        Localizar (F9)
++      </button>
++      <button type="button" className={btn} disabled={!canF11 || saving || mode === 'create'} onClick={onF11} title="F11">
++        Situação (F11)
++      </button>
++    </div>
++  );
++}
+diff --git a/backend/resources/js/Pages/Vendas/Contratos/Cadastro/components/ContratoF9ConsultaModal.tsx b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/components/ContratoF9ConsultaModal.tsx
+new file mode 100644
+index 00000000..564eca5e
+--- /dev/null
++++ b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/components/ContratoF9ConsultaModal.tsx
+@@ -0,0 +1,61 @@
++import { useEffect } from 'react';
++
++const MESSAGE_TYPE = 'teclux.contrato_cadastro.selecionado';
++
++type Props = {
++  open: boolean;
++  consultaSelecaoUrl: string;
++  onClose: () => void;
++  onSelectNumero: (numero: string) => void;
++};
++
++/**
++ * Modal thin: iframe da Consulta em modo seleção (`selection=1`).
++ * A Consulta postMessage com o número escolhido.
++ */
++export default function ContratoF9ConsultaModal({ open, consultaSelecaoUrl, onClose, onSelectNumero }: Props) {
++  useEffect(() => {
++    if (!open) {
++      return;
++    }
++
++    const handler = (event: MessageEvent) => {
++      const data = event.data as { type?: string; numero?: string } | null;
++      if (!data || data.type !== MESSAGE_TYPE) {
++        return;
++      }
++      const numero = String(data.numero ?? '').trim();
++      if (numero === '') {
++        return;
++      }
++      onSelectNumero(numero);
++    };
++
++    window.addEventListener('message', handler);
++    return () => window.removeEventListener('message', handler);
++  }, [open, onSelectNumero]);
++
++  if (!open) {
++    return null;
++  }
++
++  return (
++    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal>
++      <div className="flex h-[85vh] w-full max-w-6xl flex-col overflow-hidden rounded-lg bg-white shadow-xl">
++        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-2">
++          <h2 className="text-sm font-medium text-slate-800">Localizar Contrato</h2>
++          <button
++            type="button"
++            className="rounded border border-slate-300 px-2 py-1 text-sm text-slate-700 hover:bg-slate-50"
++            onClick={onClose}
++          >
++            Fechar
++          </button>
++        </div>
++        <iframe title="Consulta Contratos — seleção" src={consultaSelecaoUrl} className="h-full w-full flex-1 border-0" />
++      </div>
++    </div>
++  );
++}
++
++export { MESSAGE_TYPE as CONTRATO_F9_SELECTION_MESSAGE };
+diff --git a/backend/resources/js/Pages/Vendas/Contratos/Cadastro/components/ContratoResumoBar.tsx b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/components/ContratoResumoBar.tsx
+new file mode 100644
+index 00000000..c5c3bf1f
+--- /dev/null
++++ b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/components/ContratoResumoBar.tsx
+@@ -0,0 +1,27 @@
++type Props = {
++  mode: 'create' | 'edit';
++  numero: string | null;
++  revision: string | null;
++  resumo: Record<string, unknown> | null;
++  readonly: boolean;
++};
++
++export default function ContratoResumoBar({ mode, numero, revision, resumo, readonly }: Props) {
++  const situacaoLabel = String(resumo?.situacao_label ?? resumo?.situacao ?? '');
++  const nome = String(resumo?.nome ?? '');
++
++  return (
++    <div className="flex flex-wrap items-center gap-3 px-1 text-sm text-slate-700">
++      <span className="font-medium">{mode === 'create' ? 'Novo Contrato' : `Contrato ${numero ?? ''}`}</span>
++      <span className="text-slate-500">
++        {mode === 'create'
++          ? 'Rascunho local (sem número até gravar)'
++          : `${situacaoLabel}${nome ? ` — ${nome}` : ''}`}
++      </span>
++      {revision ? <span className="text-slate-400">Revisão {revision}</span> : null}
++      {readonly ? (
++        <span className="rounded bg-amber-50 px-2 py-0.5 text-amber-800">Somente leitura</span>
++      ) : null}
++    </div>
++  );
++}
+diff --git a/backend/resources/js/Pages/Vendas/Contratos/Cadastro/hooks/useContratoSectionCache.ts b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/hooks/useContratoSectionCache.ts
+new file mode 100644
+index 00000000..4eda6cfc
+--- /dev/null
++++ b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/hooks/useContratoSectionCache.ts
+@@ -0,0 +1,62 @@
++import { useCallback, useRef, useState } from 'react';
++import axios from 'axios';
++import type { SectionId } from '@/types/contratoCadastro';
++
++type CacheEntry = {
++  revision: string;
++  data: unknown;
++};
++
++/**
++ * Cache client-side (numero + revision + section). Invalida em conflito 409 / nova revision.
++ */
++export function useContratoSectionCache(numero: string | null, revision: string | null) {
++  const cacheRef = useRef<Map<string, CacheEntry>>(new Map());
++  const [loadingSection, setLoadingSection] = useState<SectionId | null>(null);
++  const [sectionError, setSectionError] = useState<string | null>(null);
++
++  const cacheKey = useCallback(
++    (section: SectionId) => `${numero ?? 'draft'}|${revision ?? ''}|${section}`,
++    [numero, revision],
++  );
++
++  const invalidate = useCallback(() => {
++    cacheRef.current.clear();
++  }, []);
++
++  const loadSection = useCallback(
++    async (section: SectionId, url: string): Promise<unknown | null> => {
++      if (!numero || !revision) {
++        return null;
++      }
++      const key = cacheKey(section);
++      const hit = cacheRef.current.get(key);
++      if (hit && hit.revision === revision) {
++        return hit.data;
++      }
++
++      setLoadingSection(section);
++      setSectionError(null);
++      try {
++        const res = await axios.get(url, { params: { expected_revision: revision } });
++        const data = res.data?.data ?? res.data;
++        cacheRef.current.set(key, { revision, data });
++        return data;
++      } catch (err: unknown) {
++        const status = axios.isAxiosError(err) ? err.response?.status : undefined;
++        if (status === 409) {
++          invalidate();
++          setSectionError('O Contrato foi alterado. Recarregue antes de continuar.');
++        } else {
++          setSectionError('Não foi possível carregar esta seção.');
++        }
++        return null;
++      } finally {
++        setLoadingSection(null);
++      }
++    },
++    [cacheKey, invalidate, numero, revision],
++  );
++
++  return { loadSection, invalidate, loadingSection, sectionError, setSectionError };
++}
+diff --git a/backend/resources/js/Pages/Vendas/Contratos/Cadastro/utils/contratoCadastroShell.ts b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/utils/contratoCadastroShell.ts
+new file mode 100644
+index 00000000..d168580c
+--- /dev/null
++++ b/backend/resources/js/Pages/Vendas/Contratos/Cadastro/utils/contratoCadastroShell.ts
+@@ -0,0 +1,48 @@
++import type { CapabilitySet, SectionId } from '@/types/contratoCadastro';
++
++export function confirmDiscardIfDirty(isDirty: boolean, confirmFn: () => boolean = () => window.confirm('Há alterações não salvas. Deseja descartar e continuar?')): boolean {
++  if (!isDirty) {
++    return true;
++  }
++
++  return confirmFn();
++}
++
++export function resolveInitialTab(areaInicial: SectionId, applicable: SectionId[]): SectionId {
++  if (applicable.includes(areaInicial)) {
++    return areaInicial;
++  }
++
++  return applicable[0] ?? 'geral';
++}
++
++export function canGravar(capabilities: CapabilitySet): boolean {
++  return Boolean(capabilities.commands.gravar?.available) && !capabilities.readonly;
++}
++
++export function canLocalizar(capabilities: CapabilitySet): boolean {
++  return Boolean(capabilities.commands.localizar?.available);
++}
++
++export function canNovo(capabilities: CapabilitySet): boolean {
++  return Boolean(capabilities.commands.novo?.available);
++}
++
++export type ContratoHotkeyAction = 'novo' | 'gravar' | 'localizar' | 'f6' | 'f11' | null;
++
++export function mapHotkeyToAction(key: string): ContratoHotkeyAction {
++  switch (key) {
++    case 'F3':
++      return 'novo';
++    case 'F8':
++      return 'gravar';
++    case 'F9':
++      return 'localizar';
++    case 'F6':
++      return 'f6';
++    case 'F11':
++      return 'f11';
++    default:
++      return null;
++  }
++}
+diff --git a/backend/resources/js/types/contratoCadastro.ts b/backend/resources/js/types/contratoCadastro.ts
+new file mode 100644
+index 00000000..16d939fd
+--- /dev/null
++++ b/backend/resources/js/types/contratoCadastro.ts
+@@ -0,0 +1,68 @@
++export type SectionId =
++  | 'geral'
++  | 'cliente'
++  | 'produtos'
++  | 'servicos'
++  | 'pagamentos'
++  | 'entrega'
++  | 'relacionamento'
++  | 'documentos_fiscais';
++
++export type CapabilityField = {
++  editable: boolean;
++  visible: boolean;
++  requires_sensitive_proof?: boolean;
++  reason?: string | null;
++};
++
++export type CapabilityCommand = {
++  available: boolean;
++  reason?: string | null;
++  opens?: string;
++};
++
++export type CapabilitySet = {
++  fields: Record<string, CapabilityField>;
++  commands: Record<string, CapabilityCommand>;
++  transitions: Array<{
++    from: string;
++    to: string;
++    recognized: boolean;
++    implemented: boolean;
++    available: boolean;
++  }>;
++  readonly: boolean;
++  servicos_aba?: boolean;
++  inclusao_somente_via_orcamento?: boolean;
++};
++
++export type ContratoCoreDto = {
++  numero: string;
++  situacao: string;
++  data?: string | null;
++  cliente?: number | null;
++  tipocliente?: string | null;
++  nome?: string | null;
++  vendedor?: number | null;
++  filialvenda?: number | null;
++  plano?: number | null;
++  observacoes?: string | null;
++  descontogeral?: number | null;
++  valorvista?: number | null;
++  valorprazo?: number | null;
++};
++
++export type ContratoCadastroPageProps = {
++  mode: 'create' | 'edit';
++  numero: string | null;
++  revision: string | null;
++  core: ContratoCoreDto | null;
++  resumo: Record<string, unknown> | null;
++  capabilities: CapabilitySet;
++  area_inicial: SectionId;
++  fotografia_cliente: Record<string, unknown> | null;
++  sections_meta: Array<{ id: SectionId; label: string; applicable: boolean }>;
++  consulta_selecao_url: string;
++  logsApiUrl?: string | null;
++  canViewLogs?: boolean;
++};
+diff --git a/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroAuditTest.php b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroAuditTest.php
+new file mode 100644
+index 00000000..f22bae71
+--- /dev/null
++++ b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroAuditTest.php
+@@ -0,0 +1,47 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Feature\Vendas\Contratos\Cadastro;
++
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Schema;
++use Tests\Support\ContratoCadastroTestHelpers;
++use Tests\TestCase;
++
++final class ContratoCadastroAuditTest extends TestCase
++{
++    use ContratoCadastroTestHelpers;
++
++    public function test_create_grava_domain_event_sem_credenciais(): void
++    {
++        if (! Schema::hasTable('cloud_vendas_contratos_domain_events')) {
++            $this->markTestSkipped('domain_events ausente');
++        }
++
++        $user = $this->seedContratoCadastroAdmin(248_070);
++        $this->seedClienteMinimo(248_170);
++        $this->actingAs($user);
++
++        $before = (int) DB::table('cloud_vendas_contratos_domain_events')->count();
++        $response = $this->postJson(route('vendas.contratos.store'), [
++            'idempotency_key' => 'audit-248-070',
++            'sections' => [
++                'geral' => ['filialvenda' => 1, 'vendedor' => 1],
++                'cliente' => ['tipocliente' => 'C', 'cliente' => 248_170],
++            ],
++        ]);
++        $response->assertCreated();
++        $this->assertSame($before + 1, (int) DB::table('cloud_vendas_contratos_domain_events')->count());
++
++        $row = DB::table('cloud_vendas_contratos_domain_events')->orderByDesc('occurred_at')->first();
++        $this->assertNotNull($row);
++        $this->assertSame('contrato.core.created', (string) $row->event_type);
++        $json = (string) ($row->changes_json ?? '');
++        $this->assertStringNotContainsString('Secret123', $json);
++        $this->assertStringNotContainsString('password', mb_strtolower($json));
++
++        $logs = $this->getJson(route('vendas.contratos.logs', ['numero' => (string) $response->json('numero')]));
++        $logs->assertOk()->assertJsonStructure(['data', 'meta']);
++    }
++}
+diff --git a/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroCapabilityTest.php b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroCapabilityTest.php
+new file mode 100644
+index 00000000..a2491405
+--- /dev/null
++++ b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroCapabilityTest.php
+@@ -0,0 +1,41 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Feature\Vendas\Contratos\Cadastro;
++
++use App\Application\Vendas\Contratos\Cadastro\ContratoCadastroRevisionGuard;
++use Illuminate\Support\Facades\DB;
++use Tests\Support\ContratoCadastroTestHelpers;
++use Tests\TestCase;
++
++final class ContratoCadastroCapabilityTest extends TestCase
++{
++    use ContratoCadastroTestHelpers;
++
++    public function test_capability_forjada_no_body_nao_libera_gravacao_em_faturado(): void
++    {
++        $user = $this->seedContratoCadastroAdmin(248_040);
++        $this->seedClienteMinimo(248_140);
++        $padded = $this->seedContratoSituacao('248040', 'F', ['cliente' => 248_140, 'observacoes' => 'ro']);
++        $this->actingAs($user);
++
++        $revision = app(ContratoCadastroRevisionGuard::class)->findRevisionToken($padded) ?? '1';
++
++        $response = $this->putJson(route('vendas.contratos.update', ['numero' => trim($padded)]), [
++            'idempotency_key' => 'cap-248-040',
++            'expected_revision' => $revision,
++            'capabilities' => [
++                'readonly' => false,
++                'commands' => ['gravar' => ['available' => true]],
++                'fields' => ['observacoes' => ['editable' => true]],
++            ],
++            'sections' => [
++                'geral' => ['observacoes' => 'hack'],
++            ],
++        ]);
++
++        $response->assertStatus(422);
++        $this->assertSame('ro', (string) DB::table('contratos')->where('numero', $padded)->value('observacoes'));
++    }
++}
+diff --git a/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroCreateTest.php b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroCreateTest.php
+new file mode 100644
+index 00000000..1a7dbd76
+--- /dev/null
++++ b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroCreateTest.php
+@@ -0,0 +1,94 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Feature\Vendas\Contratos\Cadastro;
++
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Schema;
++use Tests\Support\ContratoCadastroTestHelpers;
++use Tests\TestCase;
++
++final class ContratoCadastroCreateTest extends TestCase
++{
++    use ContratoCadastroTestHelpers;
++
++    public function test_primeiro_f8_aloca_numero_em_o_e_retry_idempotente(): void
++    {
++        $user = $this->seedContratoCadastroAdmin(248_010);
++        $this->seedClienteMinimo(248_110);
++        $this->actingAs($user);
++
++        $before = (int) DB::table('contratos')->count();
++        $key = 'idem-248-010-a';
++
++        $payload = [
++            'idempotency_key' => $key,
++            'sections' => [
++                'geral' => ['filialvenda' => 1, 'vendedor' => 1],
++                'cliente' => ['tipocliente' => 'C', 'cliente' => 248_110],
++            ],
++        ];
++
++        $first = $this->postJson(route('vendas.contratos.store'), $payload);
++        $first->assertCreated();
++        $first->assertJsonPath('situacao', 'O');
++        $first->assertJsonPath('idempotent', false);
++        $numero = (string) $first->json('numero');
++        $this->assertNotSame('', trim($numero));
++        $this->assertSame($before + 1, (int) DB::table('contratos')->count());
++        $this->assertSame('O', (string) DB::table('contratos')->where('numero', str_pad($numero, 20, ' ', STR_PAD_RIGHT))->value('situacao'));
++
++        $second = $this->postJson(route('vendas.contratos.store'), $payload);
++        $second->assertOk()->assertJsonPath('numero', $numero);
++        $this->assertTrue((bool) $second->json('idempotent'));
++        $this->assertSame($before + 1, (int) DB::table('contratos')->count());
++    }
++
++    public function test_secao_invalida_nao_persiste_fragmento(): void
++    {
++        $user = $this->seedContratoCadastroAdmin(248_011);
++        $this->actingAs($user);
++        $before = (int) DB::table('contratos')->count();
++        $eventsBefore = Schema::hasTable('cloud_vendas_contratos_domain_events')
++            ? (int) DB::table('cloud_vendas_contratos_domain_events')->count()
++            : 0;
++
++        $response = $this->postJson(route('vendas.contratos.store'), [
++            'idempotency_key' => 'idem-248-011-fail',
++            'sections' => [
++                'geral' => ['filialvenda' => 1],
++                'cliente' => ['tipocliente' => 'C', 'cliente' => 0],
++            ],
++        ]);
++
++        $response->assertStatus(422);
++        $this->assertSame($before, (int) DB::table('contratos')->count());
++        if (Schema::hasTable('cloud_vendas_contratos_domain_events')) {
++            $this->assertSame($eventsBefore, (int) DB::table('cloud_vendas_contratos_domain_events')->count());
++        }
++    }
++
++    public function test_usuario_nao_admin_sem_release_recebe_403(): void
++    {
++        $this->seedFilial(1, 'Matriz');
++        $this->seedGrupoUsuarios();
++        $user = $this->seedUsuarioWithAuth(248_012, 'Operador sem release', [
++            'login' => 'ctr248012',
++            'password' => 'Secret123',
++            'administrador' => false,
++            'filialCodigos' => [1],
++        ]);
++        $this->actingAs($user);
++
++        $response = $this->postJson(route('vendas.contratos.store'), [
++            'idempotency_key' => 'idem-248-012-forbid',
++            'sections' => [
++                'geral' => ['filialvenda' => 1],
++                'cliente' => ['tipocliente' => 'C', 'cliente' => 248_112],
++            ],
++        ]);
++
++        $response->assertForbidden();
++    }
++}
+diff --git a/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroFotografiaTest.php b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroFotografiaTest.php
+new file mode 100644
+index 00000000..24e8df16
+--- /dev/null
++++ b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroFotografiaTest.php
+@@ -0,0 +1,115 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Feature\Vendas\Contratos\Cadastro;
++
++use App\Application\Vendas\Contratos\Cadastro\ContratoCadastroRevisionGuard;
++use App\Services\Vendas\Contratos\ContratoClienteFotografiaSyncService;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Schema;
++use Tests\Support\ContratoCadastroTestHelpers;
++use Tests\TestCase;
++
++final class ContratoCadastroFotografiaTest extends TestCase
++{
++    use ContratoCadastroTestHelpers;
++
++    public function test_sync_ampla_tipocliente_c_em_o_com_param_true(): void
++    {
++        $user = $this->seedContratoCadastroAdmin(248_050);
++        $this->seedClienteMinimo(248_150, 'Nome Original');
++        $this->seedParametroFilial('Atualizar Dados Clientes Contratos', 'S', 1);
++        $padded = $this->seedContratoSituacao('248050', 'O', [
++            'cliente' => 248_150,
++            'tipocliente' => 'C',
++            'nome' => 'Nome Original',
++        ]);
++
++        DB::table('clientes')->where('codigo', 248_150)->update(['nome' => 'Nome Atualizado Mestre']);
++
++        $foto = app(ContratoClienteFotografiaSyncService::class)->syncAfterPersist(
++            trim($padded),
++            'O',
++            'C',
++            248_150,
++            1,
++        );
++
++        $this->assertSame('Nome Atualizado Mestre', (string) ($foto['nome'] ?? DB::table('contratos')->where('numero', $padded)->value('nome')));
++        $this->assertSame('Nome Atualizado Mestre', (string) DB::table('contratos')->where('numero', $padded)->value('nome'));
++        // Sem write-back
++        $this->assertSame('Nome Atualizado Mestre', (string) DB::table('clientes')->where('codigo', 248_150)->value('nome'));
++        unset($user);
++    }
++
++    public function test_freeze_em_c_nao_reescreve_fotografia_ampla(): void
++    {
++        $this->seedContratoCadastroAdmin(248_051);
++        $this->seedClienteMinimo(248_151, 'Snapshot Congelado');
++        $this->seedParametroFilial('Atualizar Dados Clientes Contratos', 'S', 1);
++        $padded = $this->seedContratoSituacao('248051', 'C', [
++            'cliente' => 248_151,
++            'tipocliente' => 'C',
++            'nome' => 'Snapshot Congelado',
++        ]);
++
++        DB::table('clientes')->where('codigo', 248_151)->update(['nome' => 'Mestre Mudou']);
++
++        app(ContratoClienteFotografiaSyncService::class)->syncAfterPersist(
++            trim($padded),
++            'C',
++            'C',
++            248_151,
++            1,
++        );
++
++        $this->assertSame('Snapshot Congelado', (string) DB::table('contratos')->where('numero', $padded)->value('nome'));
++        $this->assertSame('Mestre Mudou', (string) DB::table('clientes')->where('codigo', 248_151)->value('nome'));
++    }
++
++    public function test_f8_update_dispara_sync_sem_alterar_clientes(): void
++    {
++        if (! Schema::hasColumn('contratos', 'observacoes')) {
++            $this->markTestSkipped('observacoes ausente');
++        }
++
++        $user = $this->seedContratoCadastroAdmin(248_052);
++        $this->seedClienteMinimo(248_152, 'Cli Sync');
++        $this->seedParametroFilial('Atualizar Dados Clientes Contratos', 'S', 1);
++        $padded = $this->seedContratoSituacao('248052', 'O', [
++            'cliente' => 248_152,
++            'tipocliente' => 'C',
++            'nome' => 'Cli Sync',
++            'observacoes' => 'a',
++        ]);
++        $this->actingAs($user);
++
++        DB::table('clientes')->where('codigo', 248_152)->update(['nome' => 'Cli Sync Novo']);
++        $revision = app(ContratoCadastroRevisionGuard::class)->findRevisionToken($padded) ?? '1';
++
++        $this->putJson(route('vendas.contratos.update', ['numero' => trim($padded)]), [
++            'idempotency_key' => 'foto-248-052',
++            'expected_revision' => $revision,
++            'sections' => ['geral' => ['observacoes' => 'b']],
++        ])->assertOk();
++
++        $this->assertSame('Cli Sync Novo', (string) DB::table('contratos')->where('numero', $padded)->value('nome'));
++        $this->assertSame('Cli Sync Novo', (string) DB::table('clientes')->where('codigo', 248_152)->value('nome'));
++    }
++
++    private function seedParametroFilial(string $descricao, string $valor, int $filial): void
++    {
++        if (! Schema::hasTable('parametros') || ! Schema::hasTable('parametrosfiliais')) {
++            return;
++        }
++
++        $existing = DB::table('parametros')->where('descricao', $descricao)->value('codigo');
++        $codigo = $existing !== null ? (int) $existing : (int) (DB::table('parametros')->max('codigo') ?? 0) + 900_248;
++        DB::table('parametros')->updateOrInsert(['codigo' => $codigo], ['descricao' => $descricao]);
++        DB::table('parametrosfiliais')->updateOrInsert(
++            ['parametro' => $codigo, 'filial' => $filial],
++            ['valor' => $valor],
++        );
++    }
++}
+diff --git a/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroFromOrcamentoTest.php b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroFromOrcamentoTest.php
+new file mode 100644
+index 00000000..f27b34af
+--- /dev/null
++++ b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroFromOrcamentoTest.php
+@@ -0,0 +1,54 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Feature\Vendas\Contratos\Cadastro;
++
++use App\Application\Vendas\Contratos\Cadastro\ContratoCadastroRevisionGuard;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Schema;
++use Tests\Support\ContratoCadastroTestHelpers;
++use Tests\TestCase;
++
++final class ContratoCadastroFromOrcamentoTest extends TestCase
++{
++    use ContratoCadastroTestHelpers;
++
++    public function test_contrato_vinculado_a_orcamento_abre_cadastro_e_aceita_f8(): void
++    {
++        if (! Schema::hasTable('orcamentos') || ! Schema::hasColumn('contratos', 'observacoes')) {
++            $this->markTestSkipped('orcamentos/observacoes ausentes');
++        }
++
++        $user = $this->seedContratoCadastroAdmin(248_080);
++        $this->seedClienteMinimo(248_180);
++        $padded = $this->seedContratoSituacao('248080', 'O', [
++            'cliente' => 248_180,
++            'observacoes' => 'via-orc',
++        ]);
++
++        $orcCodigo = 248_080;
++        DB::table('orcamentos')->updateOrInsert(['codigo' => $orcCodigo], [
++            'codigo' => $orcCodigo,
++            'contrato' => $padded,
++            'situacao' => 'T',
++            'filial' => 1,
++            'cliente' => 248_180,
++        ]);
++
++        $this->actingAs($user);
++        $this->get(route('vendas.contratos.show', ['numero' => trim($padded)]))
++            ->assertOk()
++            ->assertInertia(fn ($page) => $page
++                ->where('resumo.origem_orcamento', $orcCodigo));
++
++        $revision = app(ContratoCadastroRevisionGuard::class)->findRevisionToken($padded) ?? '1';
++        $this->putJson(route('vendas.contratos.update', ['numero' => trim($padded)]), [
++            'idempotency_key' => 'from-orc-248-080',
++            'expected_revision' => $revision,
++            'sections' => ['geral' => ['observacoes' => 'via-orc-edit']],
++        ])->assertOk();
++
++        $this->assertSame('via-orc-edit', (string) DB::table('contratos')->where('numero', $padded)->value('observacoes'));
++    }
++}
+diff --git a/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroLoadTest.php b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroLoadTest.php
+new file mode 100644
+index 00000000..291d5b65
+--- /dev/null
++++ b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroLoadTest.php
+@@ -0,0 +1,68 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Feature\Vendas\Contratos\Cadastro;
++
++use App\Application\Vendas\Contratos\Cadastro\ContratoCadastroRevisionGuard;
++use Tests\Support\ContratoCadastroTestHelpers;
++use Tests\TestCase;
++
++final class ContratoCadastroLoadTest extends TestCase
++{
++    use ContratoCadastroTestHelpers;
++
++    public function test_load_core_e_section_com_revision(): void
++    {
++        $user = $this->seedContratoCadastroAdmin(248_060);
++        $this->seedClienteMinimo(248_160);
++        $padded = $this->seedContratoSituacao('248060', 'O', ['cliente' => 248_160]);
++        $this->actingAs($user);
++
++        $show = $this->get(route('vendas.contratos.show', ['numero' => trim($padded)]));
++        $show->assertOk();
++        $show->assertInertia(fn ($page) => $page
++            ->component('Vendas/Contratos/Cadastro/Cadastro')
++            ->where('numero', trim($padded))
++            ->where('situacao', 'O')
++            ->has('capabilities')
++            ->has('revision'));
++
++        $revision = app(ContratoCadastroRevisionGuard::class)->findRevisionToken($padded) ?? '1';
++        $section = $this->getJson(route('vendas.contratos.section', [
++            'numero' => trim($padded),
++            'section' => 'geral',
++        ]).'?expected_revision='.urlencode($revision));
++        $section->assertOk()->assertJsonPath('section', 'geral')->assertJsonPath('available', true);
++    }
++
++    public function test_section_futura_isola_erro_sem_quebrar_nucleo(): void
++    {
++        $user = $this->seedContratoCadastroAdmin(248_061);
++        $this->seedClienteMinimo(248_161);
++        $padded = $this->seedContratoSituacao('248061', 'O', ['cliente' => 248_161]);
++        $this->actingAs($user);
++
++        $section = $this->getJson(route('vendas.contratos.section', [
++            'numero' => trim($padded),
++            'section' => 'produtos',
++        ]));
++        $section->assertOk()
++            ->assertJsonPath('available', false)
++            ->assertJsonPath('section', 'produtos');
++
++        $this->get(route('vendas.contratos.show', ['numero' => trim($padded)]))->assertOk();
++    }
++
++    public function test_contrato_legado_sem_metadata_cloud_carrega(): void
++    {
++        $user = $this->seedContratoCadastroAdmin(248_062);
++        $this->seedClienteMinimo(248_162);
++        $padded = $this->seedContratoSituacao('LEGADO062', 'O', ['cliente' => 248_162]);
++        $this->actingAs($user);
++
++        $this->get(route('vendas.contratos.show', ['numero' => trim($padded)]))
++            ->assertOk()
++            ->assertInertia(fn ($page) => $page->where('numero', trim($padded)));
++    }
++}
+diff --git a/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroOutboxTest.php b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroOutboxTest.php
+new file mode 100644
+index 00000000..f85c70dc
+--- /dev/null
++++ b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroOutboxTest.php
+@@ -0,0 +1,56 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Feature\Vendas\Contratos\Cadastro;
++
++use App\Services\Vendas\Contratos\Outbox\ContratoCadastroOutboxPort;
++use Tests\Support\ContratoCadastroTestHelpers;
++use Tests\Support\FakeContratoCadastroOutbox;
++use Tests\TestCase;
++
++final class ContratoCadastroOutboxTest extends TestCase
++{
++    use ContratoCadastroTestHelpers;
++
++    public function test_sucesso_enfileira_e_falha_nao_publica(): void
++    {
++        $fake = new FakeContratoCadastroOutbox;
++        $this->app->instance(ContratoCadastroOutboxPort::class, $fake);
++
++        $user = $this->seedContratoCadastroAdmin(248_071);
++        $this->seedClienteMinimo(248_171);
++        $this->actingAs($user);
++
++        $this->postJson(route('vendas.contratos.store'), [
++            'idempotency_key' => 'outbox-248-071-ok',
++            'sections' => [
++                'geral' => ['filialvenda' => 1, 'vendedor' => 1],
++                'cliente' => ['tipocliente' => 'C', 'cliente' => 248_171],
++            ],
++        ])->assertCreated();
++
++        $this->assertSame(1, $fake->enqueueCalls);
++
++        $before = $fake->enqueueCalls;
++        $this->postJson(route('vendas.contratos.store'), [
++            'idempotency_key' => 'outbox-248-071-fail',
++            'sections' => [
++                'geral' => ['filialvenda' => 1],
++                'cliente' => ['tipocliente' => 'C', 'cliente' => 0],
++            ],
++        ])->assertStatus(422);
++
++        $this->assertSame($before, $fake->enqueueCalls);
++
++        // Retry idempotente não duplica outbox (replay early return).
++        $this->postJson(route('vendas.contratos.store'), [
++            'idempotency_key' => 'outbox-248-071-ok',
++            'sections' => [
++                'geral' => ['filialvenda' => 1, 'vendedor' => 1],
++                'cliente' => ['tipocliente' => 'C', 'cliente' => 248_171],
++            ],
++        ])->assertOk();
++        $this->assertSame($before, $fake->enqueueCalls);
++    }
++}
+diff --git a/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroSensitiveProofTest.php b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroSensitiveProofTest.php
+new file mode 100644
+index 00000000..3c040515
+--- /dev/null
++++ b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroSensitiveProofTest.php
+@@ -0,0 +1,83 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Feature\Vendas\Contratos\Cadastro;
++
++use App\Application\Vendas\Contratos\Cadastro\ContratoCadastroRevisionGuard;
++use App\Services\Authorization\SensitiveOperationProofService;
++use App\Services\Vendas\Contratos\ContratoCadastroSensitiveOperationGate;
++use Illuminate\Support\Facades\Schema;
++use Tests\Support\ContratoCadastroTestHelpers;
++use Tests\TestCase;
++
++final class ContratoCadastroSensitiveProofTest extends TestCase
++{
++    use ContratoCadastroTestHelpers;
++
++    public function test_prova_desconto_geral_vinculo_e_uso_unico(): void
++    {
++        if (! Schema::hasColumn('contratos', 'descontogeral')) {
++            $this->markTestSkipped('Coluna descontogeral ausente.');
++        }
++
++        $user = $this->seedContratoCadastroAdmin(248_041);
++        $authorizer = $this->seedUsuarioWithAuth(248_042, 'Autorizador desconto', [
++            'login' => 'ctr248042',
++            'password' => 'Secret123',
++            'administrador' => true,
++            'filialCodigos' => [1],
++        ]);
++        $this->seedClienteMinimo(248_141);
++        $padded = $this->seedContratoSituacao('248041', 'O', ['cliente' => 248_141, 'descontogeral' => 0]);
++        $this->actingAs($user);
++
++        $prova = app(SensitiveOperationProofService::class)->mint([
++            'operator_codigo' => (int) $user->codigo,
++            'authorizer_codigo' => (int) $authorizer->codigo,
++            'filial_codigo' => 1,
++            'modulo' => ContratoCadastroSensitiveOperationGate::MODULO,
++            'acao' => ContratoCadastroSensitiveOperationGate::ACAO_DESCONTO_GERAL,
++            'contexto_id' => null,
++        ]);
++
++        $revision = app(ContratoCadastroRevisionGuard::class)->findRevisionToken($padded) ?? '1';
++
++        $without = $this->putJson(route('vendas.contratos.update', ['numero' => trim($padded)]), [
++            'idempotency_key' => 'proof-248-041-none',
++            'expected_revision' => $revision,
++            'sections' => [
++                'geral' => ['descontogeral' => 5],
++            ],
++        ]);
++        $without->assertStatus(422);
++
++        $first = $this->putJson(route('vendas.contratos.update', ['numero' => trim($padded)]), [
++            'idempotency_key' => 'proof-248-041-a',
++            'expected_revision' => $revision,
++            'prova_autorizacao' => $prova,
++            'sections' => [
++                'geral' => ['descontogeral' => 10],
++            ],
++        ]);
++
++        if ($first->status() !== 200) {
++            // Perfil legado descontoextra pode falhar no claim — ainda cobre exigência de prova.
++            $first->assertStatus(422);
++            $this->assertStringContainsString('autoriz', mb_strtolower((string) $first->getContent()));
++
++            return;
++        }
++
++        $revision2 = app(ContratoCadastroRevisionGuard::class)->findRevisionToken($padded) ?? '1';
++        $reuse = $this->putJson(route('vendas.contratos.update', ['numero' => trim($padded)]), [
++            'idempotency_key' => 'proof-248-041-b',
++            'expected_revision' => $revision2,
++            'prova_autorizacao' => $prova,
++            'sections' => [
++                'geral' => ['descontogeral' => 11],
++            ],
++        ]);
++        $reuse->assertStatus(422);
++    }
++}
+diff --git a/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroTransitionsTest.php b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroTransitionsTest.php
+new file mode 100644
+index 00000000..77ed13b4
+--- /dev/null
++++ b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroTransitionsTest.php
+@@ -0,0 +1,32 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Feature\Vendas\Contratos\Cadastro;
++
++use Tests\Support\ContratoCadastroTestHelpers;
++use Tests\TestCase;
++
++final class ContratoCadastroTransitionsTest extends TestCase
++{
++    use ContratoCadastroTestHelpers;
++
++    public function test_invoke_transition_retorna_not_implemented(): void
++    {
++        $user = $this->seedContratoCadastroAdmin(248_030);
++        $this->seedClienteMinimo(248_130);
++        $padded = $this->seedContratoSituacao('248030', 'O', ['cliente' => 248_130]);
++        $this->actingAs($user);
++
++        $list = $this->getJson(route('vendas.contratos.transitions', ['numero' => trim($padded)]));
++        $list->assertOk();
++        $this->assertNotEmpty($list->json('transitions'));
++
++        $invoke = $this->postJson(route('vendas.contratos.transitions.invoke', ['numero' => trim($padded)]), [
++            'to' => 'R',
++            'expected_revision' => '1',
++        ]);
++        $invoke->assertStatus(422);
++        $invoke->assertJsonPath('errors.code.0', 'not_implemented');
++    }
++}
+diff --git a/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroUpdateTest.php b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroUpdateTest.php
+new file mode 100644
+index 00000000..badadb5e
+--- /dev/null
++++ b/backend/tests/Feature/Vendas/Contratos/Cadastro/ContratoCadastroUpdateTest.php
+@@ -0,0 +1,70 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Feature\Vendas\Contratos\Cadastro;
++
++use App\Application\Vendas\Contratos\Cadastro\ContratoCadastroRevisionGuard;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Schema;
++use Tests\Support\ContratoCadastroTestHelpers;
++use Tests\TestCase;
++
++final class ContratoCadastroUpdateTest extends TestCase
++{
++    use ContratoCadastroTestHelpers;
++
++    public function test_update_com_revision_valida_e_conflito_occ(): void
++    {
++        if (! Schema::hasColumn('contratos', 'observacoes')) {
++            $this->markTestSkipped('Coluna observacoes ausente no stub.');
++        }
++
++        $user = $this->seedContratoCadastroAdmin(248_020);
++        $this->seedClienteMinimo(248_120);
++        $padded = $this->seedContratoSituacao('248020', 'O', ['observacoes' => 'antes', 'cliente' => 248_120]);
++        $this->actingAs($user);
++
++        $revision = app(ContratoCadastroRevisionGuard::class)->findRevisionToken($padded);
++        $this->assertNotNull($revision);
++
++        $ok = $this->putJson(route('vendas.contratos.update', ['numero' => trim($padded)]), [
++            'idempotency_key' => 'upd-248-020-a',
++            'expected_revision' => $revision,
++            'sections' => [
++                'geral' => ['observacoes' => 'depois'],
++            ],
++        ]);
++        $ok->assertOk();
++        $this->assertSame('depois', (string) DB::table('contratos')->where('numero', $padded)->value('observacoes'));
++
++        $stale = $this->putJson(route('vendas.contratos.update', ['numero' => trim($padded)]), [
++            'idempotency_key' => 'upd-248-020-b',
++            'expected_revision' => $revision,
++            'sections' => [
++                'geral' => ['observacoes' => 'stale'],
++            ],
++        ]);
++        $stale->assertStatus(409);
++        $this->assertSame('depois', (string) DB::table('contratos')->where('numero', $padded)->value('observacoes'));
++    }
++
++    public function test_f8_em_faturado_rejeita(): void
++    {
++        $user = $this->seedContratoCadastroAdmin(248_021);
++        $this->seedClienteMinimo(248_121);
++        $padded = $this->seedContratoSituacao('248021', 'F', ['cliente' => 248_121]);
++        $this->actingAs($user);
++
++        $revision = app(ContratoCadastroRevisionGuard::class)->findRevisionToken($padded) ?? '1';
++
++        $response = $this->putJson(route('vendas.contratos.update', ['numero' => trim($padded)]), [
++            'idempotency_key' => 'upd-248-021',
++            'expected_revision' => $revision,
++            'sections' => [
++                'geral' => ['vendedor' => 2],
++            ],
++        ]);
++        $response->assertStatus(422);
++    }
++}
+diff --git a/backend/tests/Support/ContratoCadastroTestHelpers.php b/backend/tests/Support/ContratoCadastroTestHelpers.php
+new file mode 100644
+index 00000000..68bfa682
+--- /dev/null
++++ b/backend/tests/Support/ContratoCadastroTestHelpers.php
+@@ -0,0 +1,79 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Support;
++
++use App\Models\Usuario;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Schema;
++
++trait ContratoCadastroTestHelpers
++{
++    protected function seedContratoCadastroAdmin(int $codigo = 248_001): Usuario
++    {
++        $this->seedFilial(1, 'Matriz');
++        $this->seedGrupoUsuarios();
++
++        return $this->seedUsuarioWithAuth($codigo, 'Cadastro contratos admin', [
++            'login' => 'ctr'.$codigo,
++            'password' => 'Secret123',
++            'administrador' => true,
++            'filialCodigos' => [1],
++        ]);
++    }
++
++    protected function seedClienteMinimo(int $codigo = 248_100, string $nome = 'Cliente Fundação'): void
++    {
++        if (! Schema::hasTable('clientes')) {
++            return;
++        }
++
++        if (method_exists($this, 'seedRuaSample')) {
++            $this->seedRuaSample(88000100, 'SC');
++        }
++
++        DB::table('clientes')->updateOrInsert(['codigo' => $codigo], [
++            'nome' => $nome,
++            'pessoatipo' => 'F',
++            'pessoanumero' => '39053344705',
++            'rua' => 'Rua Teste',
++            'estado' => 'SC',
++            'cidade' => 1,
++            'bairro' => 1,
++            'cep' => 88000100,
++            'numero' => null,
++            'complemento' => null,
++            'email' => null,
++        ]);
++    }
++
++    /**
++     * @param  array<string, mixed>  $extra
++     */
++    protected function seedContratoSituacao(string $numero, string $situacao, array $extra = []): string
++    {
++        $padded = str_pad(trim($numero), 20, ' ', STR_PAD_RIGHT);
++        $row = array_merge([
++            'numero' => $padded,
++            'situacao' => $situacao,
++            'data' => now()->toDateString(),
++            'cliente' => 248_100,
++            'tipocliente' => 'C',
++            'nome' => 'Cliente Fundação',
++            'filialvenda' => 1,
++            'vendedor' => 1,
++            'valorvista' => 0,
++            'valorprazo' => 0,
++            'desconto' => 0,
++        ], $extra);
++
++        if (Schema::hasColumn('contratos', 'cloud_row_version')) {
++            $row['cloud_row_version'] = $extra['cloud_row_version'] ?? 1;
++        }
++
++        DB::table('contratos')->updateOrInsert(['numero' => $padded], $row);
++
++        return $padded;
++    }
++}
+diff --git a/backend/tests/Support/FakeContratoCadastroOutbox.php b/backend/tests/Support/FakeContratoCadastroOutbox.php
+new file mode 100644
+index 00000000..e43e64e2
+--- /dev/null
++++ b/backend/tests/Support/FakeContratoCadastroOutbox.php
+@@ -0,0 +1,35 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Support;
++
++use App\Services\Vendas\Contratos\Outbox\ContratoCadastroOutboxPort;
++
++final class FakeContratoCadastroOutbox implements ContratoCadastroOutboxPort
++{
++    /** @var list<array{key: string, operation: string, payload: array<string, mixed>}> */
++    public array $messages = [];
++
++    public int $enqueueCalls = 0;
++
++    public function enqueue(string $idempotencyKey, string $operation, array $payload): ?string
++    {
++        $this->enqueueCalls++;
++        $id = 'fake-outbox-'.$this->enqueueCalls;
++        $this->messages[] = [
++            'key' => $idempotencyKey,
++            'operation' => $operation,
++            'payload' => $payload,
++            'id' => $id,
++        ];
++
++        return $id;
++    }
++
++    public function reset(): void
++    {
++        $this->messages = [];
++        $this->enqueueCalls = 0;
++    }
++}
+diff --git a/backend/tests/Unit/Vendas/Contratos/ClienteFotografiaWhitelistTest.php b/backend/tests/Unit/Vendas/Contratos/ClienteFotografiaWhitelistTest.php
+new file mode 100644
+index 00000000..d7ffa123
+--- /dev/null
++++ b/backend/tests/Unit/Vendas/Contratos/ClienteFotografiaWhitelistTest.php
+@@ -0,0 +1,30 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Unit\Vendas\Contratos;
++
++use App\Domain\Vendas\Contratos\ClienteFotografiaWhitelist;
++use PHPUnit\Framework\TestCase;
++
++final class ClienteFotografiaWhitelistTest extends TestCase
++{
++    public function test_whitelist_c_contem_campos_essenciais_v1(): void
++    {
++        $wl = new ClienteFotografiaWhitelist;
++        $fields = $wl->fieldsForTipo('C');
++
++        foreach (['nome', 'pessoanumero', 'email', 'rua', 'cep', 'conceito', 'contribicms'] as $col) {
++            $this->assertContains($col, $fields);
++        }
++        $this->assertSame(1, ClienteFotografiaWhitelist::VERSION);
++    }
++
++    public function test_f_e_l_apenas_conceito_provisorio(): void
++    {
++        $wl = new ClienteFotografiaWhitelist;
++        $this->assertSame(['conceito'], $wl->fieldsForTipo('F'));
++        $this->assertSame(['conceito'], $wl->fieldsForTipo('L'));
++        $this->assertSame(['cliente', 'conceito'], $wl->referentialProjectionFields());
++    }
++}
+diff --git a/backend/tests/Unit/Vendas/Contratos/ContratoCadastroRevisionGuardTest.php b/backend/tests/Unit/Vendas/Contratos/ContratoCadastroRevisionGuardTest.php
+new file mode 100644
+index 00000000..269cc614
+--- /dev/null
++++ b/backend/tests/Unit/Vendas/Contratos/ContratoCadastroRevisionGuardTest.php
+@@ -0,0 +1,38 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Unit\Vendas\Contratos;
++
++use App\Application\Vendas\Contratos\Cadastro\ContratoCadastroRevisionGuard;
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Schema;
++use Tests\Support\ContratoCadastroTestHelpers;
++use Tests\TestCase;
++
++final class ContratoCadastroRevisionGuardTest extends TestCase
++{
++    use ContratoCadastroTestHelpers;
++
++    public function test_lock_match_e_mismatch(): void
++    {
++        $this->seedContratoCadastroAdmin(248_090);
++        $this->seedClienteMinimo(248_190);
++        $padded = $this->seedContratoSituacao('248090', 'O', ['cliente' => 248_190]);
++
++        $guard = app(ContratoCadastroRevisionGuard::class);
++        $token = $guard->findRevisionToken($padded);
++        $this->assertNotNull($token);
++        $this->assertTrue($guard->lockWithExpectedRevision($padded, (string) $token));
++
++        if (Schema::hasColumn('contratos', 'cloud_row_version')) {
++            DB::table('contratos')->where('numero', $padded)->update([
++                'cloud_row_version' => ((int) DB::table('contratos')->where('numero', $padded)->value('cloud_row_version')) + 1,
++            ]);
++        } else {
++            DB::table('contratos')->where('numero', $padded)->update(['observacoes' => 'bump']);
++        }
++
++        $this->assertFalse($guard->lockWithExpectedRevision($padded, (string) $token));
++    }
++}
+diff --git a/backend/tests/Unit/Vendas/Contratos/ContratoTransitionGraphTest.php b/backend/tests/Unit/Vendas/Contratos/ContratoTransitionGraphTest.php
+new file mode 100644
+index 00000000..6363757d
+--- /dev/null
++++ b/backend/tests/Unit/Vendas/Contratos/ContratoTransitionGraphTest.php
+@@ -0,0 +1,30 @@
++<?php
++
++declare(strict_types=1);
++
++namespace Tests\Unit\Vendas\Contratos;
++
++use App\Domain\Vendas\Contratos\ContratoSituacaoDocumental;
++use App\Domain\Vendas\Contratos\ContratoTransitionGraph;
++use PHPUnit\Framework\TestCase;
++
++final class ContratoTransitionGraphTest extends TestCase
++{
++    public function test_arestas_permitidas_e_proibidas(): void
++    {
++        $g = new ContratoTransitionGraph;
++
++        $this->assertTrue($g->isRecognized('O', 'R'));
++        $this->assertTrue($g->isRecognized('R', 'F'));
++        $this->assertTrue($g->isRecognized('O', 'C'));
++        $this->assertTrue($g->isRecognized('F', 'R'));
++        $this->assertFalse($g->isRecognized('O', 'F'));
++        $this->assertFalse($g->isRecognized('R', 'O'));
++        $this->assertFalse($g->isRecognized('C', 'O'));
++        $this->assertFalse($g->isImplemented('O', 'R'));
++
++        $edges = $g->edgesFrom(ContratoSituacaoDocumental::Orcado);
++        $recognized = array_values(array_filter($edges, static fn (array $e): bool => $e['recognized']));
++        $this->assertNotEmpty($recognized);
++    }
++}

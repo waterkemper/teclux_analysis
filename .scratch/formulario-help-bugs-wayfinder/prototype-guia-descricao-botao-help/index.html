@@ -1,0 +1,508 @@
+<title>Protótipo — Guia de descrição &amp; botão Help</title>
+<style>
+  :root {
+    --primary: #00b6bd;
+    --tertiary: #008389;
+    --neutral: #333333;
+    --secondary: #4a4a4a;
+    --bg: #f5f5f4;
+    --panel: #ffffff;
+    --border: #e7e5e4;
+    --border-strong: #d6d3d1;
+    --muted-bg: #fafaf9;
+    --code-bg: #f0f0ef;
+    --pill-color: #008389;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1c1b;
+    --panel: #262625;
+    --border: #3a3a38;
+    --border-strong: #4a4a47;
+    --muted-bg: #2d2d2b;
+    --code-bg: #232321;
+    --neutral: #f2f2f0;
+    --secondary: #b7b6b2;
+    --pill-color: #6fe3e8;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1c1b;
+      --panel: #262625;
+      --border: #3a3a38;
+      --border-strong: #4a4a47;
+      --muted-bg: #2d2d2b;
+      --code-bg: #232321;
+      --neutral: #f2f2f0;
+      --secondary: #b7b6b2;
+      --pill-color: #6fe3e8;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.4);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    background: var(--bg);
+    color: var(--neutral);
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  header.intro { margin-bottom: 2rem; }
+  header.intro .eyebrow {
+    font-size: .7rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--tertiary);
+    font-weight: 600;
+  }
+  header.intro h1 {
+    font-size: 1.5rem;
+    margin: .35rem 0 .5rem;
+    text-wrap: balance;
+  }
+  header.intro p {
+    max-width: 62ch;
+    color: var(--secondary);
+    font-size: .9rem;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .sections {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+  }
+  @media (min-width: 980px) {
+    .sections { grid-template-columns: 1fr 1fr; }
+  }
+
+  section.card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-head {
+    padding: 1.1rem 1.25rem .9rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-head h2 {
+    font-size: 1rem;
+    margin: 0 0 .2rem;
+  }
+  .card-head p {
+    margin: 0;
+    font-size: .8rem;
+    color: var(--secondary);
+    line-height: 1.5;
+  }
+
+  .switcher {
+    display: flex;
+    gap: .3rem;
+    padding: .75rem 1.25rem 0;
+  }
+  .switcher button {
+    appearance: none;
+    border: 1px solid var(--border);
+    background: var(--muted-bg);
+    color: var(--secondary);
+    font-size: .78rem;
+    font-weight: 600;
+    padding: .4rem .7rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .switcher button.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+  }
+  .switcher button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  .stage {
+    padding: 1.25rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .note {
+    margin: 0 1.25rem 1.25rem;
+    padding: .7rem .85rem;
+    background: var(--muted-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: .78rem;
+    color: var(--secondary);
+    line-height: 1.5;
+  }
+  .note b { color: var(--neutral); }
+
+  .variant { display: none; width: 100%; }
+  .variant.active { display: block; }
+
+  /* --- mock: help modal shell --- */
+  .modal-mock {
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .modal-mock .m-head {
+    padding: .8rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-mock .m-head h3 {
+    margin: 0;
+    font-size: .95rem;
+    font-weight: 600;
+  }
+  .modal-mock .m-head p {
+    margin: .2rem 0 0;
+    font-size: .72rem;
+    color: var(--secondary);
+  }
+  .modal-mock .m-body { padding: .85rem 1rem; display: flex; flex-direction: column; gap: .6rem; }
+  .field label {
+    display: block;
+    font-size: .7rem;
+    font-weight: 600;
+    color: var(--secondary);
+    margin-bottom: .2rem;
+  }
+  .field select, .field input[type="text"] {
+    width: 100%;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    padding: .4rem .55rem;
+    font-size: .82rem;
+    color: var(--neutral);
+    background: var(--panel);
+    font-family: inherit;
+  }
+  textarea {
+    width: 100%;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    padding: .5rem .6rem;
+    font-size: .82rem;
+    color: var(--neutral);
+    background: var(--panel);
+    font-family: inherit;
+    resize: none;
+    line-height: 1.45;
+  }
+  textarea::placeholder { color: #9a9a96; }
+  textarea.mini { min-height: 42px; }
+
+  .caption {
+    font-size: .72rem;
+    color: var(--secondary);
+    line-height: 1.5;
+    background: var(--muted-bg);
+    border: 1px dashed var(--border-strong);
+    border-radius: 8px;
+    padding: .4rem .55rem;
+    margin-top: .35rem;
+  }
+  .caption code {
+    background: var(--code-bg);
+    padding: .05rem .3rem;
+    border-radius: 4px;
+    font-size: .7rem;
+  }
+
+  .desc-main { min-height: 92px; }
+
+  .subfields { display: flex; flex-direction: column; gap: .5rem; }
+  .subfields .field label { display: flex; justify-content: space-between; align-items: baseline; }
+  .subfields .field label .hint { font-weight: 400; color: #9a9a96; font-size: .65rem; }
+
+  /* --- mock: top app bar --- */
+  .topbar-mock {
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: .55rem .8rem;
+    box-shadow: var(--shadow);
+  }
+  .topbar .brand {
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--tertiary);
+    letter-spacing: .01em;
+  }
+  .topbar .actions {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+  }
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    border: none;
+    background: transparent;
+    color: var(--secondary);
+    border-radius: 8px;
+    padding: .4rem;
+    cursor: default;
+    position: relative;
+  }
+  .icon-btn svg { width: 19px; height: 19px; }
+  .icon-btn.labelled { padding: .4rem .6rem; }
+  .icon-btn.labelled span { font-size: .78rem; font-weight: 600; color: var(--secondary); }
+
+  .dot-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 0 2px var(--panel);
+  }
+  .dot-badge.pulse { animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.35); opacity: .55; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dot-badge.pulse { animation: none; }
+  }
+
+  .pill-expand {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+    color: var(--pill-color);
+    border-radius: 999px;
+    padding: .4rem .7rem;
+    font-size: .78rem;
+    font-weight: 600;
+  }
+
+  .topbar-caption {
+    text-align: center;
+    font-size: .72rem;
+    color: var(--secondary);
+    margin-top: .6rem;
+  }
+
+  footer.credit {
+    max-width: 1180px;
+    margin: 2.5rem auto 0;
+    font-size: .72rem;
+    color: var(--secondary);
+    text-align: center;
+  }
+</style>
+
+<div class="page">
+  <header class="intro">
+    <div class="eyebrow">Protótipo · não vai pro código</div>
+    <h1>Guia de descrição &amp; descoberta do botão Help</h1>
+    <p>
+      Duas decisões de UI do formulário de Help (spec 161-erp-help-zendesk) para reagir antes de fechar o desenho:
+      o texto de apoio no campo de descrição e o tratamento visual do botão de Ajuda na barra superior.
+      Cores e tipografia aproximam o design system real do app (teal <code>#00b6bd</code>, neutros stone).
+    </p>
+  </header>
+
+  <div class="sections">
+    <section class="card" aria-labelledby="s1-title">
+      <div class="card-head">
+        <h2 id="s1-title">1 — Guia da descrição</h2>
+        <p>A spec original previa "texto de ajuda sobre o que incluir"; a implementação atual não tem nenhum. Três formas de reintroduzir isso.</p>
+      </div>
+      <div class="switcher" role="tablist" aria-label="Variantes do guia de descrição">
+        <button type="button" class="active" data-group="s1" data-variant="a">A — Placeholder</button>
+        <button type="button" data-group="s1" data-variant="b">B — Legenda fixa</button>
+        <button type="button" data-group="s1" data-variant="c">C — Campos guiados</button>
+      </div>
+      <div class="stage">
+        <div class="modal-mock">
+          <div class="m-head">
+            <h3>Ajuda — suporte Tecsoft</h3>
+            <p>Descreva o problema ou sugestão. O pedido é enviado por e-mail para a equipe de suporte.</p>
+          </div>
+          <div class="m-body">
+            <div class="field">
+              <label>Tipo</label>
+              <select disabled><option>Bug / erro</option></select>
+            </div>
+            <div class="field">
+              <label>Assunto</label>
+              <input type="text" value="Erro ao salvar cadastro de cliente" readonly>
+            </div>
+
+            <div class="variant active" data-group="s1" data-variant="a">
+              <div class="field">
+                <label>Descrição</label>
+                <textarea class="desc-main" placeholder="O que você estava fazendo: ...&#10;O que esperava que acontecesse: ...&#10;O que aconteceu: ..."></textarea>
+              </div>
+            </div>
+
+            <div class="variant" data-group="s1" data-variant="b">
+              <div class="field">
+                <label>Descrição</label>
+                <textarea class="desc-main"></textarea>
+                <div class="caption">
+                  Inclua: <b>passos</b> até o problema, <b>o que esperava</b> e <b>o que aconteceu</b>. Quanto mais concreto, mais rápido o suporte resolve.
+                </div>
+              </div>
+            </div>
+
+            <div class="variant" data-group="s1" data-variant="c">
+              <div class="subfields">
+                <div class="field">
+                  <label>O que você fez <span class="hint">passos até o problema</span></label>
+                  <textarea class="mini" placeholder="Ex.: abri o cadastro de cliente, preenchi os dados e cliquei em Salvar"></textarea>
+                </div>
+                <div class="field">
+                  <label>O que esperava <span class="hint">resultado esperado</span></label>
+                  <textarea class="mini" placeholder="Ex.: o cadastro deveria ser salvo e voltar para a lista"></textarea>
+                </div>
+                <div class="field">
+                  <label>O que aconteceu <span class="hint">resultado real</span></label>
+                  <textarea class="mini" placeholder="Ex.: apareceu uma mensagem de erro e nada foi salvo"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="note" id="s1-note">
+        <b>A — Placeholder:</b> some ao digitar; não ocupa espaço extra, mas se o usuário digitar rápido pode nunca reparar na estrutura sugerida.
+      </p>
+    </section>
+
+    <section class="card" aria-labelledby="s2-title">
+      <div class="card-head">
+        <h2 id="s2-title">2 — Descoberta do botão Help</h2>
+        <p>Hoje é só um ícone de interrogação sem rótulo visível. Três formas de torná-lo mais descobrível no lançamento.</p>
+      </div>
+      <div class="switcher" role="tablist" aria-label="Variantes do botão de ajuda">
+        <button type="button" class="active" data-group="s2" data-variant="a">A — Rótulo fixo</button>
+        <button type="button" data-group="s2" data-variant="b">B — Indicador pulsante</button>
+        <button type="button" data-group="s2" data-variant="c">C — Pílula de estreia</button>
+      </div>
+      <div class="stage">
+        <div class="topbar-mock">
+          <div class="topbar">
+            <div class="brand">tecLUX · Vendas</div>
+            <div class="actions">
+              <span class="icon-btn" aria-hidden="true">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6"/></svg>
+              </span>
+              <span class="icon-btn" aria-hidden="true">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+              </span>
+
+              <span class="variant active" data-group="s2" data-variant="a">
+                <span class="icon-btn labelled">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+                  <span>Ajuda</span>
+                </span>
+              </span>
+
+              <span class="variant" data-group="s2" data-variant="b">
+                <span class="icon-btn">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+                  <span class="dot-badge pulse"></span>
+                </span>
+              </span>
+
+              <span class="variant" data-group="s2" data-variant="c">
+                <span class="pill-expand">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+                  Precisa de ajuda?
+                </span>
+              </span>
+            </div>
+          </div>
+          <p class="topbar-caption" id="s2-caption">Rótulo "Ajuda" sempre visível ao lado do ícone — permanente, sem depender de o usuário reparar em algo animado.</p>
+        </div>
+      </div>
+      <p class="note" id="s2-note">
+        <b>A — Rótulo fixo:</b> mais previsível e acessível (leitor de tela já anuncia "Ajuda" sem precisar de aria-label extra), mas ocupa mais espaço permanente na barra.
+      </p>
+    </section>
+  </div>
+
+  <footer class="credit">Protótipo descartável · formulario-help-bugs-wayfinder · não reflete o código final</footer>
+</div>
+
+<script>
+  const notes = {
+    s1: {
+      a: '<b>A — Placeholder:</b> some ao digitar; não ocupa espaço extra, mas se o usuário digitar rápido pode nunca reparar na estrutura sugerida.',
+      b: '<b>B — Legenda fixa:</b> a dica continua visível mesmo depois que o usuário começa a escrever — mais insistente, ajuda quem esquece a estrutura no meio do texto.',
+      c: '<b>C — Campos guiados:</b> a mudança mais radical — três campos curtos em vez de um textarea livre. Força a estrutura, mas o backend precisa concatenar os três em uma única <code>descricao</code> (ou a spec/data-model muda).',
+    },
+    s2: {
+      a: '<b>A — Rótulo fixo:</b> mais previsível e acessível (leitor de tela já anuncia "Ajuda" sem precisar de aria-label extra), mas ocupa mais espaço permanente na barra.',
+      b: '<b>B — Indicador pulsante:</b> mantém o ícone compacto; o ponto pulsante chama atenção sem texto. Precisa de uma regra pra saber quando parar de pulsar (ex.: depois do primeiro clique) senão vira ruído permanente.',
+      c: '<b>C — Pílula de estreia:</b> expande automaticamente com texto por alguns segundos só nos primeiros acessos após o lançamento, depois recolhe pro ícone simples — mais chamativo no momento certo (quando ninguém ainda sabe que o canal existe), sem virar poluição visual depois.',
+    },
+  };
+
+  document.querySelectorAll('.switcher').forEach((sw) => {
+    sw.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-variant]');
+      if (!btn) return;
+      const group = btn.dataset.group;
+      const variant = btn.dataset.variant;
+
+      sw.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b === btn));
+      document.querySelectorAll(`.variant[data-group="${group}"]`).forEach((el) => {
+        el.classList.toggle('active', el.dataset.variant === variant);
+      });
+      const note = document.getElementById(`${group}-note`);
+      if (note) note.innerHTML = notes[group][variant];
+      const caption = document.getElementById(`${group}-caption`);
+      if (caption) {
+        const captions = {
+          s2: {
+            a: 'Rótulo "Ajuda" sempre visível ao lado do ícone — permanente, sem depender de o usuário reparar em algo animado.',
+            b: 'Ícone compacto de sempre + ponto pulsante discreto sinalizando "tem algo novo aqui".',
+            c: 'Ao entrar pela primeira vez após o lançamento, o botão se expande sozinho numa pílula com texto por alguns segundos.',
+          },
+        };
+        if (captions[group]) caption.textContent = captions[group][variant];
+      }
+    });
+  });
+</script>
