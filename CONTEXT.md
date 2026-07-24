@@ -16,6 +16,22 @@ _Avoid_: unidade operacional, depósito, tenant
 Identidade de uma pessoa autorizada a acessar o ERP.
 _Avoid_: operador, login, credencial
 
+**Catálogo de Grid**:
+Definição autorizada e estável das colunas que um grid ERP pode apresentar, identificando cada coluna independentemente do texto exibido.
+_Avoid_: preferência do grid, layout do grid, lista inferida do resultado
+
+**Preferência de Grid**:
+Escolha de apresentação de um grid ERP pertencente a um Usuário, sem alterar a identidade nem a autorização das colunas do Catálogo de Grid.
+_Avoid_: catálogo de grid, parâmetro do sistema, configuração global
+
+**Arquivo de Configuração de Grid**:
+Fotografia portátil da apresentação de um único grid ERP, sem identidade de Usuário, destinada ao intercâmbio explícito de configurações.
+_Avoid_: preferência de grid, backup do usuário, configuração global
+
+**Título Personalizado**:
+Nome de apresentação escolhido pelo Usuário para uma coluna do Catálogo de Grid; é um override durável do título padrão e nunca a identidade da coluna.
+_Avoid_: identificador da coluna, nome do campo, título global
+
 **Operador**:
 Papel exercido por um Usuário durante a realização de uma atividade operacional.
 _Avoid_: usuário, identidade, credencial

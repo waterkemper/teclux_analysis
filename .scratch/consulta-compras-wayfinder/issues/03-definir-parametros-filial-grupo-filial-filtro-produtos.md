@@ -14,11 +14,13 @@ Como migrar a aba Parâmetros — seleção de Filial e Grupo Filial (com listas
 
 DECISÃO: o filtro de produtos desta tela replica a arquitetura já usada pela Consulta de Estoques (`ConsultaEstoquesParameterManifest`, `GerarConsultaEstoquesRequest`, filtros nativos por cadastro — Item de Produto, Grupo, Classe, Marca, Modelo, Promoção, e os equivalentes aos `tstSelecaoAleatoria*` do Delphi: CST/CSOSN, Lista Padronizada, Localizações de Estoque, Lotes, Atributos, Serviços), sem componente compartilhado — cada Consulta constrói sua própria Parameter Manifest/Request seguindo essa mesma estrutura. Busca Assistida confirmadamente não entra.
 
-### Filial/Grupo Filial: comportamento do Delphi mantido como está (inclusive a ambiguidade)
+### Filial/Grupo Filial: comportamento do Delphi mantido como está
 
-CONFIRMADO (`MontarFiltroFiliais`, `dmconsultacompras.pas:2117-2142`): a variável `TodasFiliais` só fica `True` quando **todas** as filiais da lista estão marcadas; o loop marca `TodasFiliais := False` a cada filial desmarcada encontrada — inclusive no caso em que **nenhuma** filial está marcada (toda a lista cai no `else`), produzindo `STRFiliais` vazio e `TodasFiliais = False`. POSSÍVEL BUG LEGADO: o nome da variável sugere a intenção "nenhuma marcada = todas", mas a lógica implementada não faz essa distinção — o caso "nenhuma marcada" e o caso "algumas desmarcadas" são tratados de forma idêntica (`TodasFiliais=False`, filtro por lista explícita, que fica vazia no primeiro caso).
+**Correção (2026-07-24, ver ticket 20)**: a leitura anterior desta seção parou no meio de `MontarFiltroFiliais` e classificou como "possível bug legado" algo que na verdade é comportamento deliberado. Lendo a função completa (`dmconsultacompras.pas:2117-2158`): o loop de fato marca `TodasFiliais := False` a cada filial desmarcada encontrada, inclusive quando **nenhuma** está marcada — mas **depois do loop** (`:2154-2155`) há `if (Trim(STRFiliais) = '') then TodasFiliais := true;`, que reverte `TodasFiliais` para `True` exatamente quando nenhuma filial foi marcada. Ou seja: "nenhuma marcada" e "todas marcadas" produzem deliberadamente o mesmo resultado (`Filial=''`, `TodasFiliais=true` — sem restrição, analisa o grupo inteiro); só "algumas, mas não todas, marcadas" produz uma lista explícita. **Não há ambiguidade nem bug** — remover essa classificação.
 
-**DECISÃO DO USUÁRIO**: manter o comportamento do Delphi exatamente como está, sem corrigir a ambiguidade — o Laravel replica fielmente `TodasFiliais`/`STRFiliais` tal como evidenciado, incluindo o caso de lista vazia quando nenhuma Filial está marcada. Grupo Filial (`MontarFiltroGrupoFiliais`) segue a mesma lógica, espelhada.
+CONFIRMADO (`MontarFiltroFiliais`, `dmconsultacompras.pas:2117-2158`): `TodasFiliais` fica `True` quando todas as filiais estão marcadas **ou** quando nenhuma está marcada; fica `False` (com `STRFiliais` = lista explícita) só quando algumas — mas não todas — estão marcadas.
+
+**DECISÃO DO USUÁRIO (mantida)**: o Laravel replica fielmente esse comportamento — `Filial=''`/sem restrição tanto para "nenhuma marcada" quanto para "todas marcadas", lista explícita só para seleção parcial. Grupo Filial (`MontarFiltroGrupoFiliais`) segue a mesma lógica, espelhada.
 
 ### Período de vendas
 
