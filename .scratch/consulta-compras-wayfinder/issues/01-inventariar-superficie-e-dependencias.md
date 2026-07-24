@@ -20,7 +20,6 @@ Analisando conjuntamente `dmconsultacompras.pas`/`.dfm` e `fmconsultacompras.pas
 
 | Botão | Atalho | Handler | Destino/efeito |
 |---|---|---|---|
-| Gravar | F5 | (herdado do ancestral) | `LerArquivoCFG(true, ...)` — persiste parâmetros num arquivo `.cfg` local, não é gravação de negócio |
 | Gerar | F6 | `sbnGerarClick` | Recalcula a consulta/sugestão a partir dos parâmetros atuais |
 | Relatório | F7 | `sbnRelatorioClick` | Impressão do relatório da consulta (FastReport — fora de escopo detalhado, mas citado para o ticket de critérios) |
 | Estoque | F8 | `sbnConsultaEstoqueClick` | Abre `TfrmConsultaEstoque` (**já migrado**: `modules/estoque/consulta-estoques`), passando filial+produto da linha ativa (Total, Similares ou Grades) |
@@ -40,6 +39,18 @@ Analisando conjuntamente `dmconsultacompras.pas`/`.dfm` e `fmconsultacompras.pas
 - **Tabela Redutora**: `qryReducaoTabelaCompras`.
 - **Requisição entre Filiais**: `qryPedidosFiliais` (+ variantes `__`), `qryAtualizarPedidosFiliais`, `qryListaPedidosFiliais_Requisitante`/`_Requisitado`, `qryConsultaProdutosPedidos`.
 - **Auxiliares**: `qryFiliais`, `qryGrupoFiliais`, `qryConceitos`, `qryProdutosPendentes`, `qryProdutosSelecionados`, `qryListaProdutos`, `qryAtualizarProduto`/`qryAtualizarEstoque`/`qryAtualizarObsProduto`, `qryTabelaTempDetalhe`.
+
+### Correção (2026-07-24) — "F5" NÃO é "Gravar preferências"; achado um gap funcional real
+
+Reverificado a pedido do usuário. A linha original da tabela acima ("Gravar | F5 | LerArquivoCFG...") estava **errada** — corrigida por remoção. Evidência:
+
+- `TfrmConsultaCompras.KeyDown` (`fmconsultacompras.pas:594-601`): `VK_F5` chama `sbnSalvarClick(Self)`, condicionado a `sbnSalvar.Enabled := dtmConsultaCompras.vTotalAtendido <> 0`. **`sbnSalvarClick`** (já lido no ticket 11, `fmconsultacompras.pas:2084-2099`) é o mesmo botão "Confirmar" da grade de Requisição entre Filiais — chama `dtmConsultaCompras.IncluirPedidosFiliais` (a fase de persistência já documentada por completo no ticket 11 e no prompt `03`). Ou seja: **F5 é um atalho de teclado para confirmar/gravar a Requisição entre Filiais quando a grade está aberta e há algo pendente para salvar** — uma ação de negócio real, não uma preferência de UI. Só fica habilitado quando `gbxRequisicoes` está visível e `vTotalAtendido <> 0`.
+- `LerArquivoCFG` **existe** de fato (persistência de preferências de busca em arquivo `.cfg` local), mas é chamado automaticamente em `TfrmConsultaCompras.Create` (`:473`, modo leitura) e em `TfrmConsultaCompras.Destroy` (`:541`, modo gravação) — **nunca a partir do KeyDown/F5**. Não há botão "Gravar" nem atalho dedicado a essa persistência no Delphi; ela é inteiramente automática (abrir a tela lê o `.cfg`, fechar a tela grava).
+
+**Impacto nos artefatos já publicados** (achado, não corrigido neste ticket — decisão de correção fica com o usuário):
+- `modules/estoque/consulta-compras/01-speckit-prompt.md`, item 5, herda o mesmo engano ("Gravar F5" = preferência local).
+- `modules/estoque/consulta-compras/04-speckit-prompt-correcao-parametros.md`, seção 5, **instruiu remover** um botão "Gravar preferências (F5)" da tela Laravel (`Index.tsx:596-601`) — a remoção em si não é errada (persistência automática de preferências é uma melhoria legítima, e o Delphi realmente já faz isso automaticamente), mas a premissa de que isso era "o F5" estava equivocada.
+- **Gap funcional confirmado**: verificado em `teclux_cloud/backend/resources/js/Pages/Cadastros/Estoque/ConsultaCompras/Index.tsx` — não há nenhum handler de tecla F5 hoje. O atalho real do Delphi (F5 = confirmar a Requisição entre Filiais quando pendente) nunca foi implementado no Laravel; hoje a confirmação da Requisição só existe via clique no botão "Confirmar" do modal (`RequisicaoEntreFiliaisModal.tsx`). Isso é uma lacuna de atalho de teclado, não de funcionalidade (a ação em si — confirmar a requisição — já está implementada e correta, só falta o atalho F5).
 
 ### Dependências Laravel — o que já existe vs. o que é novo
 
