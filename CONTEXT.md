@@ -92,6 +92,38 @@ _Avoid_: log técnico, log de diagnóstico
 Apresentação estruturada de informações do ERP segundo critérios definidos, destinada à análise, conferência ou comunicação. Pode ser exibida em tela, impressa ou exportada sem que o formato altere o conceito.
 _Avoid_: consulta, listagem, exportação
 
+**Documento Lógico de Impressão**:
+Representação autorizada e independente de dispositivo do conteúdo e da apresentação que devem ser impressos.
+_Avoid_: comando de impressão, arquivo ESC/POS, job do agente, snapshot de impressão
+
+**Snapshot de Impressão**:
+Fotografia imutável de um Documento Lógico de Impressão e dos metadados autorizados que fundamentam uma impressão ou reimpressão.
+_Avoid_: documento editável, tentativa de impressão, job do agente
+
+**Tentativa de Impressão**:
+Ocorrência individual de envio de um Snapshot de Impressão a um Dispositivo Local, com resultado próprio e sem presumir que o papel foi fisicamente impresso.
+_Avoid_: documento lógico de impressão, reenvio, confirmação física
+
+**Reimpressão**:
+Nova Tentativa de Impressão explicitamente autorizada que reutiliza um Snapshot de Impressão anterior sem alterar nem substituir a evidência da tentativa original.
+_Avoid_: retry automático, continuação da tentativa, correção do resultado anterior
+
+**Dispositivo Local**:
+Identidade lógica de um equipamento disponível na estação e autorizado a executar capacidades locais específicas.
+_Avoid_: nome da fila, driver, porta, impressora escolhida no job
+
+**Homologação de Dispositivo Local**:
+Aprovação documentada de uma combinação específica de equipamento e ambiente para executar determinadas capacidades locais.
+_Avoid_: compatibilidade presumida pelo modelo, binding, teste isolado de impressão
+
+**Fila de Impressão**:
+Destino de impressão mantido pelo sistema operacional e vinculado explicitamente a um Dispositivo Local.
+_Avoid_: dispositivo local, impressora padrão, porta, job do agente
+
+**Job do Agente**:
+Entrega de uma operação autorizada ao agente local para executar uma Tentativa de Impressão ou outra capacidade local.
+_Avoid_: tentativa de impressão, documento lógico de impressão, comando arbitrário
+
 **Situação**:
 Condição atual de uma entidade ou processo de negócio, que pode determinar as operações permitidas e suas transições seguintes. Deve ser qualificada pela entidade, pois seus códigos não possuem significado universal.
 _Avoid_: status técnico, código sem contexto
@@ -195,6 +227,42 @@ _Avoid_: movimento, lançamento, valor sem domínio ou data de referência
 **Documento Fiscal**:
 Documento que formaliza fiscalmente uma operação, abrangendo modelos como nota fiscal, NF-e, NFC-e e cupom fiscal. Possui natureza fiscal identificada por CFOP e não se confunde com a representação técnica usada para armazená-lo no ERP.
 _Avoid_: dado fiscal, venda, contrato
+
+**DANFE NFC-e**:
+Representação auxiliar, impressa ou eletrônica, de uma NFC-e autorizada, destinada à consulta e conferência sem substituir o Documento Fiscal eletrônico.
+_Avoid_: NFC-e, documento fiscal, comprovante genérico, autorização fiscal
+
+**Emissão Fiscal Eletrônica**:
+Processo durável que reserva a numeração de uma Série Fiscal, forma, assina e transmite uma NF-e ou NFC-e, acompanha sua Situação perante a SEFAZ e preserva seus artefatos e eventos. Falha de comunicação não libera para reutilização o número reservado.
+_Avoid_: arquivo XML, tentativa HTTP, nota pendente sem qualificação, emissão UniNFe
+
+**Emissão Fiscal Pendente**:
+Emissão Fiscal Eletrônica sem resultado fiscal final conhecido, que exige retransmissão segura ou reconciliação com a SEFAZ antes de qualquer inutilização.
+_Avoid_: nota rejeitada, nota cancelada, número livre, erro de transmissão
+
+**Gerenciamento de Certificado A1**:
+Administração auditada do ciclo de vida dos Certificados A1 associados a uma Filial, incluindo validação, ativação, substituição e alerta de vencimento, sem expor o arquivo ou sua senha.
+_Avoid_: cadastro de senha, certificado do usuário, configuração do UniNFe
+
+**Tentativa Fiscal**:
+Ocorrência imutável de uma ação de comunicação com a SEFAZ no contexto de uma Emissão Fiscal Eletrônica ou Evento Fiscal, preservando requisição, resposta, resultado técnico e momento próprios sem criar outro Documento Fiscal.
+_Avoid_: emissão fiscal, reenvio sem identidade, tentativa HTTP descartável
+
+**Evento Fiscal**:
+Solicitação fiscal vinculada a uma Emissão Fiscal Eletrônica, como cancelamento, CC-e ou inutilização, com identidade, tentativas, XML, protocolo e resultado próprios. Somente sua autorização produz efeito fiscal sobre a emissão.
+_Avoid_: alteração do documento autorizado, situação da emissão, operação técnica
+
+**Situação Fiscal da Emissão**:
+Resultado fiscal efetivo conhecido de uma Emissão Fiscal Eletrônica perante a SEFAZ, independente da etapa técnica de processamento. Pode ser Pendente, Rejeitada Corrigível, Autorizada, Uso Denegado quando aplicável, Cancelada ou Inutilizada.
+_Avoid_: situação de processamento, cStat, situação genérica de dadosfiscais
+
+**Situação do Processamento Fiscal**:
+Condição operacional atual do processamento de uma Emissão Fiscal Eletrônica, como aguardando, processando, aguardando correção, operando em contingência ou aguardando reconciliação, sem afirmar por si só um resultado perante a SEFAZ.
+_Avoid_: situação fiscal da emissão, cStat, situação do documento fiscal
+
+**Episódio de Contingência**:
+Período auditado em que uma Emissão Fiscal Eletrônica segue uma modalidade de contingência oficialmente aplicável, registrando tipo, justificativa, início, fim, responsável e revisões fiscais produzidas.
+_Avoid_: autorização fiscal, falha genérica, forma de emissão sem contexto
 
 **Dado Fiscal**:
 Representação interna mantida em `dadosfiscais` que registra ou sustenta um Documento Fiscal e seus vínculos no ERP, como Produtos, Contrato, Orçamento e vencimentos.
