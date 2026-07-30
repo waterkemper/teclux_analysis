@@ -96,6 +96,18 @@ _Avoid_: log técnico, log de diagnóstico
 Apresentação estruturada de informações do ERP segundo critérios definidos, destinada à análise, conferência ou comunicação. Pode ser exibida em tela, impressa ou exportada sem que o formato altere o conceito.
 _Avoid_: consulta, listagem, exportação
 
+**Fotografia de Relatório**:
+Resultado imutável de uma geração de Relatório, contendo critérios, escopo, dados, agrupamentos e totais do mesmo instante lógico para que visualização, PDF e impressão representem exatamente o mesmo conteúdo.
+_Avoid_: consulta ao vivo, cache de PDF, arquivo temporário
+
+**Geração de Relatório**:
+Processo assíncrono identificado que aplica critérios e escopo autorizados para produzir uma Fotografia de Relatório. Possui ciclo de vida próprio e uma nova tentativa cria outra geração, sem sobrescrever a anterior.
+_Avoid_: relatório, fotografia de relatório, requisição síncrona, reutilização de geração concluída
+
+**Auditoria de Relatório**:
+Trilha operacional imutável dos acessos e ações sobre uma Geração de Relatório, como criar, visualizar, baixar PDF, imprimir e cancelar, identificando Usuário, instante, geração e Filiais envolvidas sem constituir fato financeiro.
+_Avoid_: movimento financeiro, log técnico, fotografia de relatório
+
 **Situação**:
 Condição atual de uma entidade ou processo de negócio, que pode determinar as operações permitidas e suas transições seguintes. Deve ser qualificada pela entidade, pois seus códigos não possuem significado universal.
 _Avoid_: status técnico, código sem contexto
