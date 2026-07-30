@@ -8,6 +8,10 @@ Vocabulário transversal do ERP tecLUX, compartilhado pelos contextos funcionais
 Transição que desfaz integral e atomicamente a Quitação de uma Duplicata, preservando a obrigação e sua identidade para que volte à situação autorizada e não paga.
 _Avoid_: exclusão da duplicata, cancelamento cadastral, refazer pagamento, edição do pagamento
 
+**Estorno de Pagamento em Lote**:
+Única intenção financeira que desfaz atomicamente a Quitação de uma ou várias Duplicatas; pode abranger apenas parte de uma Quitação em Lote anterior, desde que recomponha integralmente seus efeitos compartilhados.
+_Avoid_: cancelamento em lote, exclusão de pagamentos, estorno do lote inteiro
+
 **Filial**:
 Estabelecimento fiscal representado no ERP.
 _Avoid_: unidade operacional, depósito, tenant

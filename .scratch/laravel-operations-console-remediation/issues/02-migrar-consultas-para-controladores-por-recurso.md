@@ -4,12 +4,11 @@
 
 **Blocked by:** 01 — Expandir o contrato de requisições operacionais.
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Cada jornada de leitura é atendida pelo controlador do recurso correspondente, sem consulta direta a modelos nem projeção extensa no controlador.
-- [ ] Ambiente e autorização são aplicados antes de qualquer leitura e não revelam a existência de registros de outro ambiente.
-- [ ] Nomes de rotas, URLs e contratos Inertia existentes permanecem compatíveis.
-- [ ] Estados vazio, parcial, desatualizado e erro continuam expressos em português brasileiro.
-- [ ] Testes Feature percorrem todas as páginas e filtros públicos migrados.
-- [ ] O controlador legado deixa de responder pelas jornadas de leitura migradas.
-
+- [x] Cada jornada de leitura é atendida pelo controlador do recurso correspondente, sem consulta direta a modelos nem projeção extensa no controlador.
+- [x] Ambiente e autorização são aplicados antes de qualquer leitura e não revelam a existência de registros de outro ambiente.
+- [x] Nomes de rotas, URLs e contratos Inertia existentes permanecem compatíveis.
+- [x] Estados vazio, parcial, desatualizado e erro continuam expressos em português brasileiro.
+- [x] Testes Feature percorrem todas as páginas e filtros públicos migrados.
+- [x] O controlador legado deixa de responder pelas jornadas de leitura migradas.

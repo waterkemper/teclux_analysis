@@ -4,12 +4,11 @@
 
 **Blocked by:** None — can start immediately.
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] O contrato representa explicitamente ambiente, ator, ação e alvo e falha de forma fechada quando o contexto é ausente ou inválido.
-- [ ] Form Requests dedicados cobrem os formatos compartilhados de consultas e mutações sem remover ainda os consumidores legados.
-- [ ] Policies continuam decidindo permissão, enquanto o novo contrato aplica as garantias adicionais da operação.
-- [ ] Dependências do novo fluxo são injetadas e não resolvidas dinamicamente pelo contêiner.
-- [ ] Testes Feature demonstram que respostas, autorização, mensagens em português brasileiro e nomes de rotas permanecem compatíveis.
-- [ ] Testes arquiteturais impedem novas validações inline, consultas diretas a modelos e resolução dinâmica de serviços nos controladores da Console.
-
+- [x] O contrato representa explicitamente ambiente, ator, ação e alvo e falha de forma fechada quando o contexto é ausente ou inválido.
+- [x] Form Requests dedicados cobrem os formatos compartilhados de consultas e mutações sem remover ainda os consumidores legados.
+- [x] Policies continuam decidindo permissão, enquanto o novo contrato aplica as garantias adicionais da operação.
+- [x] Dependências do novo fluxo são injetadas e não resolvidas dinamicamente pelo contêiner.
+- [x] Testes Feature demonstram que respostas, autorização, mensagens em português brasileiro e nomes de rotas permanecem compatíveis.
+- [x] Testes arquiteturais impedem novas validações inline, consultas diretas a modelos e resolução dinâmica de serviços nos controladores da Console.
