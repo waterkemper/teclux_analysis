@@ -1,0 +1,51 @@
+# Definir o adapter Windows RAW e o renderer ESC/POS
+
+Type: grilling
+Status: resolved
+Blocked by: 01, 02
+
+## Question
+
+Qual seam, biblioteca/integração Win32, descoberta de filas, renderer, preflight de encoding, perfis ESC_POS_GENERIC, corte, QR/barcode, acompanhamento do Spooler e matriz de modelos deve sustentar Epson TM e compatíveis sem acoplar operações a hardware ou declarar impressão física sem confirmação?
+
+## Comments
+
+- Decisão confirmada: duas interfaces externas pequenas: `LocalPrinterCatalog.scan()` para inventário saneado e `ThermalPrintPort.submit(attempt)` para preflight, renderização, envio e resultado. Adapters iniciais Windows e Mock satisfazem ambas; operações não conhecem renderer, Win32, Spooler, code pages ou perfis.
+- Decisão normativa: usar helper nativo separado em Rust, responsável exclusivamente pelo Windows Print Spooler, com protocolo JSON versionado sobre stdin/stdout. Crash, falha ou timeout do helper não encerra o agente Node. No Node, a seam interna `PrintBackend` permite substituir Rust por .NET futuramente sem alterar o protocolo do Device Gateway.
+- Decisão confirmada: helper Rust é persistente, aquecido e supervisionado pelo Node; usa requisições correlacionadas e fila ordenada por impressora, fecha handles por comando e reinicia isoladamente. Metas do agente: `SENT_TO_DEVICE` p95 <= 250 ms/p99 <= 500 ms e início perceptível <= 500 ms, com métricas separadas por etapa. Queda durante comando produz resultado ambíguo, nunca reenvio automático.
+- Decisão confirmada: catálogo enumera somente filas locais e conexões já instaladas para a identidade do Windows Service, sem varrer rede, criar/alterar/remover filas ou drivers. Inventário básico é rápido/saneado; detalhes de fila vinculada ou diagnóstico são sob demanda, com timeout e isolamento de filas remotas indisponíveis.
+- Decisão confirmada: binding persiste fingerprint de servidor/fila normalizada, driver, processador/tipo de dados e porta. Mudança de identidade marca `STALE` e exige confirmação administrativa; mudança transitória de estado não. Sem religação por nome parecido, fila padrão ou primeiro dispositivo disponível.
+- Decisão confirmada: `EscPosRenderer.render(document, effectiveProfile)` é puro/determinístico e produz `RenderPlan` completo com bytes, SHA-256, code page, tamanho, recursos usados e estimativa de papel. Só depois o `PrintBackend` envia RAW; não acrescenta comandos. Testes golden verificam os bytes por documento/perfil.
+- Decisão confirmada: perfil é nome+versão (`ESC_POS_GENERIC@1`) e a Tentativa registra versão/hash efetivos. Overrides têm schema fechado para largura/colunas, code page, corte, QR/barcode e avanço; nunca bytes, hex, comandos, scripts ou caminhos. Sugestão por modelo exige confirmação, e qualquer mudança gera nova `bindingRevision`.
+- Decisão confirmada: perfil inicial seleciona uma única code page para o documento inteiro, na ordem configurada CP860/CP850. `RenderPlan` registra a escolha e emite seleção uma vez; se nenhuma representar tudo, retorna `UNSUPPORTED_CHARACTER`, sem alternância ou substituição.
+- Decisão confirmada: recibo com `copies` usa uma chamada ao helper e um job RAW do Spooler por cópia, todos com os mesmos bytes e corte próprio. Resultado conta jobs aceitos e não reenvia restante após falha; não usa `copies` do driver. NFC-e/reimpressão permanecem um job e uma cópia.
+- Decisão confirmada: `StartDocPrinter` fornece `spoolJobId`; bytes aceitos e `EndDocPrinter` concluído produzem `SENT_TO_DEVICE` sem esperar esvaziamento. IDs ficam na Tentativa; `GetJob` posterior é diagnóstico best effort e nunca gera `COMPLETED`. Crash/timeout antes da confirmação final resulta `UNKNOWN`.
+- Decisão confirmada: bloco `cut` exige capability confirmada e o perfil escolhe `PARTIAL` ou `FULL`, após avanço final limitado. Sem guilhotina, preflight retorna `CAPABILITY_MISMATCH`; não remove/substitui corte. Falha mecânica após aceite permanece fora da confirmação do adapter.
+- Decisão confirmada: variações de QR/barcode são identificadores fechados implementados e testados no renderer, selecionáveis pelo perfil. Nunca há template hex/bytes configurável. Modelo desconhecido inicia sem essas capabilities; homologação habilita a variante sem criar operationType por hardware.
+- Decisão confirmada: certificação mínima cobre Epson TM-T20X USB, TM-T20X Ethernet como fila Windows e uma compatível 80 mm de outro fabricante; TM-T88VII é desejável. Modelo não testado fica `UNVERIFIED`, limitado a `TEST_PRINTER`; NFC-e exige modelo/perfil homologado.
+- Decisão confirmada: envio usa `DOC_INFO_1.pDatatype = RAW` e fila homologada para passagem sem transformação, preferencialmente com driver oficial. `Generic / Text Only` exige homologação própria; GDI/XPS/EMF são incompatíveis. Driver/versão integram fingerprint e atualização exige reconfirmação.
+- Decisão confirmada: `PrintBackend` mantém um helper Rust persistente por `deviceId` ativo, fila serial por dispositivo e paralelismo entre dispositivos. Crash/timeout reinicia apenas o helper afetado e torna sua Tentativa em curso `UNKNOWN`. Helpers ociosos expiram, quantidade é limitada e catálogo usa processo separado.
+- Decisão confirmada: protocolo interno é JSON Lines versionado; Base64 leva bytes com tamanho e SHA-256 verificados antes do Spooler. Handshake e allowlist limitam comandos a `HELLO`, `HEALTH`, `SUBMIT_RAW`, `QUERY_JOB` e `SCAN_PRINTERS` no catálogo. `stdout` só respostas por `requestId`, logs seguros em `stderr`; sem arquivos, shell ou caminhos do job.
+- Decisão confirmada: `TEST_PRINTER` é Documento Lógico de fixture contratual produzido/autorizado pelo Laravel. `BASIC` cobre texto/acentos/layout/tabela/feed/corte; `FULL` acrescenta QR/barcodes e exige capabilities. Agente não acrescenta conteúdo; página expõe apenas referências seguras e resultado continua sendo aceite do Spooler.
+- Decisão confirmada: adapter inicial não usa consulta bidirecional ESC/POS nem depende de status físico. Estados eventualmente reportados pelo driver são diagnósticos e não promovem `SENT_TO_DEVICE`. Confirmação física fica para capability/adapter futuro homologado separadamente.
+- Decisão confirmada: nome no Spooler segue `tecLUX <operationType> <attemptId-curto> <copyIndex>`, limitado e saneado, sem cliente, documento, chave fiscal, valor, usuário ou conteúdo impresso.
+
+## Answer
+
+Adotar duas interfaces externas profundas: `LocalPrinterCatalog.scan()` para inventário saneado e `ThermalPrintPort.submit(attempt)` para executar uma Tentativa. Windows e Mock fornecem adapters reais para essas seams. Operações de recibo/NFC-e não conhecem renderer, Win32, Fila de Impressão, code page ou perfil.
+
+No Node, `PrintBackend` é a seam interna do Windows. Seu adapter inicial controla um helper nativo Rust, separado, assinado, persistente e supervisionado por `deviceId`. Cada dispositivo tem fila serial própria; dispositivos diferentes trabalham em paralelo; crash/timeout reinicia somente o helper afetado e torna sua Tentativa em curso `UNKNOWN`. O catálogo usa processo isolado. A escolha por Rust pode ser substituída por .NET sem alterar o protocolo Device Gateway.
+
+Node e Rust conversam por JSON Lines versionado, com handshake, `requestId`, comandos fechados e bytes Base64 acompanhados de tamanho/SHA-256. `stdout` contém apenas respostas e `stderr` logs saneados. Não existem shell, arquivo temporário, caminho ou comando arbitrário. Metas do agente aquecido: `SENT_TO_DEVICE` p95 <= 250 ms e p99 <= 500 ms; início perceptível da impressão <= 500 ms, com métricas separadas por etapa.
+
+O catálogo enumera somente filas já instaladas para a identidade do Windows Service, sem varredura de rede nem criação/alteração de filas/drivers. Detalhes lentos têm timeout e são buscados somente para binding/diagnóstico. Binding guarda fingerprint de servidor, fila normalizada, driver/versão, processador/tipo de dados e porta. Mudança relevante marca `STALE` e exige reconfirmação administrativa; nunca há fallback para fila padrão ou nome parecido.
+
+`EscPosRenderer.render(document, effectiveProfile)` é puro e determinístico. Ele produz `RenderPlan` com bytes finais, hash, code page, tamanho, recursos usados e estimativa de papel; somente depois `PrintBackend` envia RAW. `ESC_POS_GENERIC@1` e overrides têm schema fechado, versão/hash registrados na Tentativa e jamais aceitam bytes/templates. O documento inteiro usa uma única code page, tentando CP860 e CP850; incompatibilidade falha antes do Spooler. QR/barcode usam variantes nativas enumeradas e homologadas; corte exige guilhotina e não degrada silenciosamente.
+
+O helper usa o ciclo oficial do Windows Spooler com `DOC_INFO_1.pDatatype = RAW`, captura cada `spoolJobId` e considera `SENT_TO_DEVICE` somente após bytes aceitos e `EndDocPrinter` concluído. Não espera a fila esvaziar: `GetJob` posterior é diagnóstico best effort e nunca gera `COMPLETED`. Isso segue a semântica da API oficial, em que `StartDocPrinter` inicia o spooling/retorna o identificador e as chamadas são potencialmente bloqueantes ([Microsoft StartDocPrinter](https://learn.microsoft.com/en-us/windows/win32/printdocs/startdocprinter), [EnumJobs](https://learn.microsoft.com/en-us/windows/win32/printdocs/enumjobs)). A primeira entrega não usa leitura bidirecional ESC/POS.
+
+Recibos com 1–3 cópias fazem uma chamada ao helper e um job RAW por cópia, permitindo contar aceitações sem depender do `copies` do driver; não há reenvio automático das restantes. NFC-e/reimpressão usam uma cópia/job. Nomes no Spooler contêm somente operação, Tentativa abreviada e índice da cópia.
+
+`TEST_PRINTER` usa Documento Lógico versionado produzido pelo Laravel: BASIC cobre texto/acentos/layout/tabela/feed/corte; FULL inclui QR/barcodes suportados. O agente não acrescenta conteúdo e não afirma impressão física.
+
+Certificação mínima: Epson TM-T20X USB, TM-T20X Ethernet instalada no Windows e uma compatível 80 mm de outro fabricante; TM-T88VII é desejável. Filas precisam ser homologadas para passagem RAW, preferencialmente com driver oficial; Generic/Text Only requer homologação própria, e GDI/XPS/EMF são incompatíveis. Modelo não testado fica `UNVERIFIED`, limitado a `TEST_PRINTER`; NFC-e exige perfil/modelo homologado.
