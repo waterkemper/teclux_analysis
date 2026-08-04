@@ -10,6 +10,8 @@ O que já está efetivamente implementado no Laravel para Cadastro de Requisiç�
 
 ## Answer
 
+> **Correção de estado atual (2026-07-30):** o Cadastro passou a possuir a página `resources/js/Pages/Interlojas/RequisicaoParaExposicao/Cadastro.tsx`, hooks, componentes e testes. As referências abaixo à inexistência da UI registram o estado observado na sessão original e não devem orientar as especificações posteriores. A Consulta continua exigindo página própria, mas pode reutilizar/adaptar os diálogos de cancelamento e conflito, o alerta de Reserva Prévia, atalhos e feedback do Cadastro atual.
+
 ### Estado entregue
 
 O Cadastro de Requisição para Exposição possui backend funcional e documentado, mas não possui a página React referenciada pelo controller. `RequisicaoExposicaoController::cadastro()` renderiza `Cadastros/Interlojas/RequisicaoExposicao/Cadastro`, porém `resources/js/Pages/Cadastros/Interlojas/RequisicaoExposicao/Cadastro.tsx` não existe. O próprio `specs/293-requisicao-exposicao-cadastro/tasks.md` declara “UI React fora de escopo — apenas props Inertia e JSON”. Assim, não há formulário específico, lookups visuais ou atalhos efetivamente utilizáveis no frontend, embora os endpoints estejam prontos.
