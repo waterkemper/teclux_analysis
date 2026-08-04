@@ -16,17 +16,17 @@ Produzir comandos `/speckit.specify`, publicados em `modules/interlojas/consulta
 
 ## Decisions so far
 
-- [Decidir autorização, filiais e parâmetros da Consulta](issues/06-decidir-autorizacao-filiais-e-parametros.md) — capability própria em `acessosmodulos` para Interlojas → Consulta de Requisições; filial ativa como Base, requisitantes limitadas por `usuariosfiliais` e parâmetros resolvidos pelo manifesto Laravel com falso para valores vazios/inválidos.
-
-<!-- As decisões resolvidas serão indexadas aqui. -->
-
 - [Inventariar jornada e interface da Consulta Delphi](issues/01-inventariar-jornada-e-interface-delphi.md) — tela filtra Filial Base por período/situação, mostra Pedidos com quantidade editável e detalhe Confirmados para fechadas, oferece Gerar F7, Cancelar F6 e impressão, com cores de estado e alternância Data–Nota/Série.
-
 - [Mapear SQL, mutações, parâmetros e relatório Delphi](issues/02-mapear-sql-mutacoes-parametros-e-relatorio-delphi.md) — consulta fixa a requisitante na Filial Base e ordena por requisitada/produto; edição e cancelamento de abertas coordenam bloqueio, TEP/TPE/TFR e venda futura conforme parâmetros, sem autorização de usuário local, e imprimem o conjunto filtrado.
-
-- [Inventariar Interlojas já existente no Laravel](issues/03-inventariar-interlojas-existente-no-laravel.md) — backend do Cadastro e núcleo já oferecem autorização, ficha/F9, comandos transacionais, revisão, auditoria, parâmetros e tratamento de reserva/futuro; faltam a página React, a consulta por período/situação e o relatório específico.
-
+- [Inventariar Interlojas já existente no Laravel](issues/03-inventariar-interlojas-existente-no-laravel.md) — Cadastro e núcleo oferecem backend, UI React, autorização, ficha/F9, comandos, revisão, auditoria e parâmetros; ainda faltam a página/consulta filtrada, detalhe e relatório específicos da Consulta.
 - [Comparar a Consulta Delphi com o Cadastro Laravel](issues/04-comparar-consulta-delphi-com-cadastro-laravel.md) — Consulta exige página, leitura paginada, detalhe Confirmados e relatório próprios, mas deve delegar quantidade/cancelamento ao núcleo com adapters estreitos, mantendo autorização, parâmetros, revisão, auditoria, locks, movimentos e alertas compartilhados.
+- [Decidir jornada e edição na Consulta Laravel](issues/05-decidir-jornada-e-edicao-na-consulta-laravel.md) — Consulta abre na filial ativa com datas do servidor e Aberto, gera sob demanda, mantém Pedidos/Confirmados, estados explícitos e edição restrita de quantidade; usa barra Laravel com atalhos F7/F5/F6/F12 complementares.
+- [Decidir autorização, filiais e parâmetros da Consulta](issues/06-decidir-autorizacao-filiais-e-parametros.md) — capability própria em `acessosmodulos` para Interlojas → Consulta de Requisições; filial ativa como Base, requisitantes limitadas por `usuariosfiliais` e parâmetros resolvidos pelo manifesto Laravel com falso para valores vazios/inválidos.
+- [Decidir cancelamento, concorrência e auditoria na Consulta](issues/07-decidir-cancelamento-concorrencia-e-auditoria.md) — F6 delega cancelamento lógico ao núcleo com quantidade integral, futuro prioritário e alerta de reserva; alterações usam revisão/locks e `409`, enquanto `pedidosfiliais_log_new` é preenchido exclusivamente pelo trigger via `DatabaseAuditContext`.
+- [Decidir impressão e relatório da Consulta](issues/08-decidir-impressao-e-relatorio.md) — F12 gera PDF paisagem inline sobre todos os registros filtrados no servidor, agrupados por filial, com cabeçalho institucional/filtros, nove colunas operacionais e OK manual sem persistência.
+- [Classificar lacunas e consolidar o plano de reúso](issues/09-classificar-lacunas-e-plano-de-reuso.md) — quatro cortes verticais: fundação/autorização, leitura/grid, adapters de ações compartilhadas e relatório; a Consulta coordena o núcleo existente e reutiliza componentes concretos do Cadastro atual.
+- [Definir critérios de aceite e testes](issues/10-definir-criterios-de-aceite-e-testes.md) — cada corte exige critérios observáveis cobertos por Feature Laravel, integração PostgreSQL, Vitest e testes de relatório, com as suítes atuais do Cadastro/núcleo como gate de regressão.
+- [Publicar comandos SpecKit da Consulta de Requisições](issues/11-publicar-comandos-speckit-specify.md) — quatro prompts autocontidos publicados em `modules/`: fundação/autorização, leitura/grid, ações compartilhadas e relatório F12, com dependências e testes explícitos.
 
 ## Not yet specified
 
@@ -38,9 +38,3 @@ Produzir comandos `/speckit.specify`, publicados em `modules/interlojas/consulta
 - Geração em lote pela Consulta de Compras.
 - Reimplementar o Cadastro Manual já existente, salvo seams necessários ao reúso.
 - Alterações no Delphi; a jornada termina na publicação dos comandos SpecKit.
-- [Comparar a Consulta Delphi com o Cadastro Laravel](issues/04-comparar-consulta-delphi-com-cadastro-laravel.md) — Consulta exige página, leitura paginada, detalhe Confirmados e relatório próprios, mas deve delegar quantidade/cancelamento ao núcleo com adapters estreitos, mantendo autorização, parâmetros, revisão, auditoria, locks, movimentos e alertas compartilhados.
-+- [Decidir jornada e edição na Consulta Laravel](issues/05-decidir-jornada-e-edicao-na-consulta-laravel.md) — Consulta abre na filial ativa com datas do servidor e Aberto, gera sob demanda, mantém Pedidos/Confirmados, estados explícitos e edição restrita de quantidade; usa barra Laravel com atalhos F7/F5/F6/F12 complementares.
-+- [Decidir cancelamento, concorrência e auditoria na Consulta](issues/07-decidir-cancelamento-concorrencia-e-auditoria.md) — F6 delega cancelamento lógico ao núcleo com quantidade integral, futuro prioritário e alerta de reserva; alterações usam revisão/locks e `409`, enquanto `pedidosfiliais_log_new` é preenchido exclusivamente pelo trigger via `DatabaseAuditContext`.
-- [Decidir autorização, filiais e parâmetros da Consulta](issues/06-decidir-autorizacao-filiais-e-parametros.md) — capability própria em `acessosmodulos` para Interlojas → Consulta de Requisições; filial ativa como Base, requisitantes limitadas por `usuariosfiliais` e parâmetros resolvidos pelo manifesto Laravel com falso para valores vazios/inválidos.
-- [Decidir jornada e edição na Consulta Laravel](issues/05-decidir-jornada-e-edicao-na-consulta-laravel.md) — jornada confirmada: filial ativa, geração sob demanda, abas Pedidos/Confirmados, edição restrita e barra Laravel com atalhos.
-- [Decidir cancelamento, concorrência e auditoria na Consulta](issues/07-decidir-cancelamento-concorrencia-e-auditoria.md) — cancelamento pelo núcleo, revisão/locks, conflito 409 e auditoria pelo trigger.
