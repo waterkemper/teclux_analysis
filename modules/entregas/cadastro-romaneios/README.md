@@ -2,7 +2,7 @@
 
 Este pacote agora inclui o prompt 08, separado para corrigir os filtros da inclusao multipla de Notas. Consulte modules/entregas/cadastro-romaneios/08-speckit-prompt-correcao-filtros-inclusao-multipla.md.
 
-Esta pasta contém o pacote de evidências e dez prompts coordenados para especificar no Laravel o módulo **Entregas e Montagens → Entregas → Romaneios**. Os prompts 07–10 são correções posteriores derivadas da validação da implementação contra o fluxo legado já consolidado nas evidências do módulo.
+Esta pasta contém o pacote de evidências e doze prompts coordenados para especificar no Laravel o módulo **Entregas e Montagens → Entregas → Romaneios**. Os prompts 07–12 são correções posteriores derivadas da validação da implementação contra o fluxo legado já consolidado nas evidências do módulo.
 
 ## Ordem de execução
 
@@ -18,6 +18,8 @@ Esta pasta contém o pacote de evidências e dez prompts coordenados para especi
 | 8 | [Correção dos filtros da inclusão múltipla](08-speckit-prompt-correcao-filtros-inclusao-multipla.md) | clientes, datas, Filiais, chave NF-e, estados, cancelamento e testes da F6 |
 | 9 | [Correção da conferência por chave e volume](09-speckit-prompt-correcao-conferencia-chave-volume.md) | modo N/T, chave versus chave+volume, granularidade, parcial, recomeço, persistência e aceite |
 | 10 | [Auditoria do fluxo Normal/Transferência e situações](10-speckit-prompt-auditoria-fluxo-normal-transferencia-status.md) | fluxo mestre–itens, elegibilidade, conferência de notas/volumes, ROS/RPS/ROE/ROP, estados por tipo, capabilities e comparação pós-implementação |
+| 11 | [Botões e operações por tipo e Situação](11-speckit-prompt-botoes-operacoes-por-status.md) | matriz de visibilidade/habilitação, atalhos, capabilities, ações do mestre/Item, estados N/T e proteção UI/backend |
+| 12 | [Transferência em trânsito sem ações do grid](12-speckit-prompt-correcao-transferencia-em-transito.md) | correção da regra T + EM TRÂNSITO, todos os botões do grid desabilitados, capabilities, atalhos, rotas e handlers |
 
 Execute cada bloco com `/speckit.specify` no checkout Laravel alvo. A saída de uma etapa é pré-condição da seguinte; não peça implementação ao comando de especificação. Antes de cada execução, confira se o checkout ainda contém os componentes citados e se o snapshot autoritativo continua representando o banco-alvo.
 

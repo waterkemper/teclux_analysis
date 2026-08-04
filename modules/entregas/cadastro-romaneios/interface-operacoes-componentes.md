@@ -75,6 +75,7 @@ O backend devolve capacidades derivadas da Situação do Romaneio, Situação do
 - Ação que o Usuário não pode conhecer/executar segue o padrão de segurança Laravel, sem vazar capacidade sensível.
 - Operações busy desabilitam comandos concorrentes e apresentam progresso textual.
 - `ABERTA` permite manutenção estrutural; `FECHADA` é somente leitura.
+- **DECISÃO NOVA, confirmada na validação funcional** — `tipo = 'T'` (Transferência) em `EM TRÂNSITO` mantém todos os botões da superfície ao lado do grid desabilitados: incluir, editar, excluir, cancelar/reativar, conferir, entrega, assinatura e movimentações quando estiverem nessa barra. Não usar a regra genérica “não FECHADA = editável”; consulta somente leitura deve ser superfície separada.
 - Liberar aparece apenas para Romaneio Normal confirmado; Reter apenas para Normal em trânsito.
 - Recebimento, justificativa, reagendamento, conferência, assinatura e exclusão de Item seguem os guards comprovados e a resposta canônica do backend.
 

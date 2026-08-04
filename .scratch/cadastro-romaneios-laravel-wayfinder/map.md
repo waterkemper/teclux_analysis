@@ -47,6 +47,7 @@ Produzir, em `modules/entregas/cadastro-romaneios/`, uma sequência coordenada d
 - Ticket 13 auditou os filtros da inclusao multipla e publicou o prompt separado 08: modules/entregas/cadastro-romaneios/08-speckit-prompt-correcao-filtros-inclusao-multipla.md.
 - [Auditar conferencia por chave e por chave + volume](issues/14-auditar-conferencia-chave-volume.md) — confirmou que N usa chave NF-e, T usa chave composta com volume, encontrou leitura simulada, gravacao por Documento, subcontagem/N+1 e rejeicao indevida de parcial, e publicou o prompt corretivo 09.
 - [Auditar fluxo Normal/Transferência, conferências e estados](issues/15-auditar-fluxo-normal-transferencia-status-conferencias.md) — comparou o fluxo completo N/T, confirmou defaults de frete, elegibilidade, âncoras de Transferência, estados canônicos por tipo e efeitos ROS/RPS/ROE/ROP, encontrou divergências de defaults, inclusão unitária/criação, situação, capabilities e contrato de conferência, e publicou o prompt pós-implementação 10.
+- **DECISÃO NOVA após validação funcional** — em Transferência (`T`) com situação `EM TRÂNSITO`, todos os botões ao lado do grid ficam desabilitados; a regra “não FECHADA = pode incluir” foi rejeitada e publicada no prompt 12.
 
 ## Not yet specified
 

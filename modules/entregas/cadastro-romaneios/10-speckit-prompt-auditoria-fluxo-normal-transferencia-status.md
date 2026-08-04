@@ -22,24 +22,24 @@ A especificação deve corrigir o Laravel atual sem criar uma segunda fonte de v
 
 ## Autoridades obrigatórias
 
-- `modules/entregas/cadastro-romaneios/pesquisa-interface-delphi.md`;
-- `modules/entregas/cadastro-romaneios/pesquisa-sql-dominio-efeitos-delphi.md`;
-- `modules/entregas/cadastro-romaneios/modelo-dominio-coexistencia-transacoes.md`;
-- `modules/entregas/cadastro-romaneios/interface-operacoes-componentes.md`;
-- `modules/entregas/cadastro-romaneios/schema/README.md`, JSON do snapshot e `functions-2026-08-01.sql`;
-- `laravel/backend/app/Application/Entregas/Romaneios/Commands/Handlers/CreateRomaneioHandler.php`;
-- `laravel/backend/app/Application/Entregas/Romaneios/Commands/Handlers/UpsertRomaneioItemHandler.php`;
-- `laravel/backend/app/Application/Entregas/Romaneios/Commands/Handlers/IncluirMultiplosItensHandler.php`;
-- `laravel/backend/app/Application/Entregas/Romaneios/CadastroRomaneiosElegibilidadeService.php`;
-- `laravel/backend/app/Application/Entregas/Romaneios/CadastroRomaneiosOperacoesGuard.php`;
-- `laravel/backend/app/Infrastructure/Persistence/Legacy/Entregas/LegacyRomaneioSituacaoGateway.php`;
-- `laravel/backend/app/Infrastructure/Persistence/Legacy/Entregas/LegacyRomaneioAggregateReadRepository.php`;
-- `laravel/backend/app/Services/Entregas/Romaneios/CadastroRomaneiosInclusaoMultiplaRomaneioContextService.php`;
-- `laravel/backend/app/Services/Entregas/Romaneios/CadastroRomaneiosAuthorizationService.php`;
-- `laravel/backend/resources/js/Pages/Entregas/Romaneios/Cadastro.tsx`;
-- `laravel/backend/resources/js/Pages/Entregas/Romaneios/components/RomaneioCabecalhoForm.tsx`;
-- `laravel/backend/resources/js/Pages/Entregas/Romaneios/hooks/useCadastroRomaneiosOperacoes.ts`;
-- `laravel/docs/architecture/entregas-cadastro-romaneios-operacoes.md`.
+- `/home/tecsoft/projects/teclux_cloud/modules/entregas/cadastro-romaneios/pesquisa-interface-delphi.md`;
+- `/home/tecsoft/projects/teclux_cloud/modules/entregas/cadastro-romaneios/pesquisa-sql-dominio-efeitos-delphi.md`;
+- `/home/tecsoft/projects/teclux_cloud/modules/entregas/cadastro-romaneios/modelo-dominio-coexistencia-transacoes.md`;
+- `/home/tecsoft/projects/teclux_cloud/modules/entregas/cadastro-romaneios/interface-operacoes-componentes.md`;
+- `/home/tecsoft/projects/teclux_cloud/modules/entregas/cadastro-romaneios/schema/README.md`, JSON do snapshot e `functions-2026-08-01.sql`;
+- `/home/tecsoft/projects/teclux_cloud/backend/app/Application/Entregas/Romaneios/Commands/Handlers/CreateRomaneioHandler.php`;
+- `/home/tecsoft/projects/teclux_cloud/backend/app/Application/Entregas/Romaneios/Commands/Handlers/UpsertRomaneioItemHandler.php`;
+- `/home/tecsoft/projects/teclux_cloud/backend/app/Application/Entregas/Romaneios/Commands/Handlers/IncluirMultiplosItensHandler.php`;
+- `/home/tecsoft/projects/teclux_cloud/backend/app/Application/Entregas/Romaneios/CadastroRomaneiosElegibilidadeService.php`;
+- `/home/tecsoft/projects/teclux_cloud/backend/app/Application/Entregas/Romaneios/CadastroRomaneiosOperacoesGuard.php`;
+- `/home/tecsoft/projects/teclux_cloud/backend/app/Infrastructure/Persistence/Legacy/Entregas/LegacyRomaneioSituacaoGateway.php`;
+- `/home/tecsoft/projects/teclux_cloud/backend/app/Infrastructure/Persistence/Legacy/Entregas/LegacyRomaneioAggregateReadRepository.php`;
+- `/home/tecsoft/projects/teclux_cloud/backend/app/Services/Entregas/Romaneios/CadastroRomaneiosInclusaoMultiplaRomaneioContextService.php`;
+- `/home/tecsoft/projects/teclux_cloud/backend/app/Services/Entregas/Romaneios/CadastroRomaneiosAuthorizationService.php`;
+- `/home/tecsoft/projects/teclux_cloud/backend/resources/js/Pages/Entregas/Romaneios/Cadastro.tsx`;
+- `/home/tecsoft/projects/teclux_cloud/backend/resources/js/Pages/Entregas/Romaneios/components/RomaneioCabecalhoForm.tsx`;
+- `/home/tecsoft/projects/teclux_cloud/backend/resources/js/Pages/Entregas/Romaneios/hooks/useCadastroRomaneiosOperacoes.ts`;
+- `/home/tecsoft/projects/teclux_cloud/docs/architecture/entregas-cadastro-romaneios-operacoes.md`.
 
 As evidências consolidadas nos documentos `modules/` são suficientes. Se o checkout divergir delas, classifique o achado como `DIVERGENTE`, `POSSÍVEL BUG ATUAL`, `NÃO LOCALIZADO` ou `DECISÃO NOVA`; não peça investigação adicional do Delphi.
 
@@ -93,7 +93,7 @@ Registrar arquivo, linha/componente, evidência, classificação e correção pa
 7. `LegacyRomaneioAggregateReadRepository.php` lê a situação persistida diretamente e conta linhas de `volumesdadosfiscais`, não a quantidade expandida por `coalesce(nullif(volumes,0),1)`/`generate_series`. Corrigir a leitura set-based e não usar contagem de linhas como total de volumes.
 8. O agregado busca o conferente apenas em `conferencia.tipo = 'ROS'`; a leitura deve considerar o tipo efetivamente aplicável ao Romaneio e não perder RPS/ROE/ROP no histórico de Transferência.
 9. A implementação atual da modal e do handler de Conferência continua sujeita aos achados detalhados no prompt 09: Enter não interpreta a leitura, o estado é incrementado pelo primeiro Documento pendente, o payload não carrega a unidade `(dadofiscal,numerovolume,nrvolume)`, a gravação chama a função que marca todos os volumes e a conferência parcial é rejeitada. O prompt 10 deve integrar a correção 09 ao fluxo N/T, sem reexecutar o prompt 09 como se fosse novo.
-10. `laravel/docs/architecture/entregas-cadastro-romaneios-operacoes.md` ainda descreve `incluirconferenciadocumentos` como escritor canônico da conferência interativa. Atualizar a especificação/contrato para separar inicialização comprovada da função e gravação individual de unidades, conforme o prompt 09 e o schema.
+10. `docs/architecture/entregas-cadastro-romaneios-operacoes.md` ainda descreve `incluirconferenciadocumentos` como escritor canônico da conferência interativa. Atualizar a especificação/contrato para separar inicialização comprovada da função e gravação individual de unidades, conforme o prompt 09 e o schema.
 
 ## Contratos que a especificação deve produzir
 
