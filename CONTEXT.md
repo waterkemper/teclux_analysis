@@ -60,6 +60,10 @@ _Avoid_: operador, administrador, aprovador genérico
 Parcela de uma obrigação de Contas a Pagar, identificada dentro de um Documento a Pagar por vencimento e número.
 _Avoid_: documento a pagar, pagamento, parcela sem contexto
 
+**Documento a Pagar**:
+Obrigação registrada em Contas a Pagar para uma Parte Fornecedora e uma Filial, com valor próprio e zero ou mais Duplicatas que estabelecem seus vencimentos.
+_Avoid_: duplicata, nota fiscal de entrada, pagamento, documento genérico
+
 **Autorização de Pagamento**:
 Evidência contextual de que uma Duplicata pode ser submetida a uma tentativa de Quitação; não representa a Quitação nem seus efeitos financeiros.
 _Avoid_: permissão de pagamento, pagamento autorizado como sinônimo de pago, quitação
@@ -177,8 +181,12 @@ Pessoa ou organização cadastrada como Fornecedor, correspondente ao tipo legad
 _Avoid_: parte fornecedora, cliente, filial
 
 **Parte Fornecedora**:
-Entidade que ocupa o papel de origem ou fornecimento em uma operação de entrada. Pode ser um Cliente (`C`), Fornecedor (`F`) ou Filial (`L`) e não coincide necessariamente com o Emitente do Documento Fiscal.
-_Avoid_: fornecedor quando o tipo for desconhecido
+Entidade que ocupa o papel de origem ou fornecimento em uma operação de entrada. É identificada em `vfornecedores` pela composição de código e tipo, podendo ser Cliente (`C`), Fornecedor (`F`) ou Filial (`L`), e não coincide necessariamente com o Emitente do Documento Fiscal.
+_Avoid_: fornecedor quando o tipo for desconhecido, código sem tipo, emitente fiscal
+
+**Pedido de Compra**:
+Intenção registrada de adquirir Produtos de uma Parte Fornecedora para uma ou mais Filiais, contendo itens, condições e Previsões de Entrega que podem originar um Documento a Pagar, sem constituir por si só o recebimento dos Produtos.
+_Avoid_: nota fiscal de entrada, documento a pagar, requisição entre filiais, recebimento
 
 **Produto**:
 Item comercial individualmente identificado por um registro próprio. Pode participar de estoque e operações comerciais, pertencer a uma Característica de Produto, possuir valores de grade e ser simples, composto ou conjunto.
@@ -239,6 +247,10 @@ _Avoid_: lançamento, registro da transação, saldo
 **Saldo**:
 Posição quantitativa ou financeira resultante dos Movimentos acumulados até um momento de referência. Deve ser qualificado pelo domínio e pela referência temporal, como Saldo de Estoque, Saldo Bancário, saldo inicial ou saldo final. Seu eventual armazenamento para consulta ou desempenho não altera esse significado conceitual.
 _Avoid_: movimento, lançamento, valor sem domínio ou data de referência
+
+**Saldo Devedor na Data de Situação**:
+Parcela da obrigação de um Documento a Pagar ainda não liquidada no encerramento da data de situação informada, calculada sem considerar pagamentos, baixas ou outros efeitos posteriores a essa referência temporal.
+_Avoid_: saldo atual, valor total do documento, soma das duplicatas sem referência temporal
 
 **Documento Fiscal**:
 Documento que formaliza fiscalmente uma operação, abrangendo modelos como nota fiscal, NF-e, NFC-e e cupom fiscal. Possui natureza fiscal identificada por CFOP e não se confunde com a representação técnica usada para armazená-lo no ERP.
