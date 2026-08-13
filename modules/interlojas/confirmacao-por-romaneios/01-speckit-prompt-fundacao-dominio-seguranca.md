@@ -13,7 +13,7 @@ Não implemente durante /speckit.specify. Inspecione o checkout Laravel e cite a
 - modules/interlojas/confirmacao-por-romaneios/pesquisa-sql-dominio-efeitos-delphi.md
 - modules/interlojas/confirmacao-por-romaneios/schema/README.md
 - modules/interlojas/confirmacao-por-romaneios/schema/postgresql-authoritative-2026-08-03.json
-- laravel/CONTEXT.md
+- CONTEXT.md
 
 ## Contrato de domínio
 

@@ -16,13 +16,15 @@ Quais módulos, telas e funções já estão efetivamente liberados no Laravel h
 
 **Estoque** — Produtos (Ficha completa), Consulta de Estoques, Consulta de Compras, Pedidos de Compra, Manutenção de Preços, Lançamentos Avulsos, Análise de Estoques, relatórios de Curva ABC e Movimentação Diária. Tabelas auxiliares: Grupos, Classes, Marcas, Modelos, Grades, Atributos de Produto, Unidades, Colunas de Preço, Promoções, Cashback, ICMS, IPI, Códigos Fiscais, Códigos Fiscais de Serviços, Grupos de Fornecedores, Observações Legais (Notas e Livros), Tipos de Movimentos, Vigilância Sanitária, Tabela de Fretes, Tabela de Montagens.
 
-**Contas a Pagar** — Documentos a Pagar, Autorização de Pagamentos, Quitação em Lote, Estorno de Pagamento em Lote, Tipos de Pagamento, Relatório.
+**Contas a Pagar** — Documentos a Pagar, Autorização de Pagamentos, Quitação em Lote, Estorno de Pagamento em Lote, Tipos de Pagamento, Relatório, Relatório de Situação dos Fornecedores.
 
 **Cobrança e SAC** — Atendimentos, Ligar para Clientes, Mala Direta de Clientes, Manutenção de Agendamentos, Manutenção de Observações de Venda, Tipos de Atendimento.
 
 **Vendas** — Orçamentos, Consulta de Orçamentos, Contratos, Consulta de Contratos, Cancelamento de Contratos, Ficha Financeira, Simulação de Financiamento, Vendas Perdidas. Tabelas auxiliares: Agentes, Cargos, Conceitos, Eventos, Históricos, Motivos, Naturezas, Planos de Pagamento, Qualidade de Venda, Questionários, Redes Adquirentes, Setores de Venda, Tipos de Planos, Tipos de Recebimento.
 
-**Interlojas** — Consulta de Requisições, Requisição para Exposição.
+**Interlojas** — Consulta de Requisições, Requisição para Exposição, Confirmação por Notas, Confirmação por Romaneios, Consulta de Transferências.
+
+**Entregas** — Romaneios (cadastro completo: geração/inclusão múltipla de notas, conferência de volumes, assinatura do recebedor, justificativa de entrega, impressão, integração automática com Contas a Pagar para o frete).
 
 **Financeiro** — Bancos (Balancete Financeiro, Extrato de Conta, Movimentação Bancária — distinto do cadastro de Bancos em Cadastros), DRE Demonstrativo, DRE Gerencial.
 
@@ -35,3 +37,5 @@ Placeholders confirmados (item no menu, tela ainda não real): fallbacks genéri
 **Panorama técnico leve (para citar de passagem):** o ERP roda como aplicação web — frontend em React (via Inertia.js) servido pelo backend em Laravel/PHP, com todos os dados no mesmo banco PostgreSQL que o sistema Delphi já usa hoje. Não é uma migração de dados: os dois sistemas operam sobre a mesma base, o que permite transição módulo a módulo sem perder histórico.
 
 Fora do inventário: `Prototype/EmissaoFiscalOperacao.tsx` é um protótipo visual, não a funcionalidade real — emissão fiscal ainda não implementada (ver ticket 06).
+
+> **Adendo (2026-08-06):** dez domínios agora, não nove — **Entregas** entra como domínio novo (Romaneios), e Interlojas ganha três telas (Confirmação por Notas, Confirmação por Romaneios, Consulta de Transferências) e Contas a Pagar ganha o Relatório de Situação dos Fornecedores. Levantamento completo na ticket "Atualizar inventário de módulos com as novidades desde a última correção (30/07)".

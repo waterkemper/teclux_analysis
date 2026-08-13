@@ -30,10 +30,9 @@ Laravel requer PHP ^8.3 e as imagens usam 8.5, sem conflito aparente. Os Dockerf
 - `NfePhpFiscalGateway` na infraestrutura; nenhum `Make`, `Tools`, `Certificate`, `stdClass` ou XML interno no domínio;
 - DTOs imutáveis e resultados com `cStat`, motivo, protocolo/recibo e request/response;
 - nova `Tools` por operação, configurando Filial, UF, ambiente, modelo e contingência;
-- estado, fila, idempotência, reconciliação, S3 e autorizações na aplicação;
+- estado, fila, idempotência, reconciliação, S3, vínculos de certificado e autorizações na aplicação;
 - contratos com fixtures oficiais/anônimas e homologação por UF.
 
 ## Gate após o ticket 02
 
-Matriz oficial × versão/tag/schema; PHP 8.5/OpenSSL/extensões; XML/XSD/A1 por Filial; autorização, timeout/reconciliação, cancelamento, CC-e, inutilização e contingências; QR Code, DANFE/DANFC-e e impressoras; pin no lock e regressão regulatória.
-
+Matriz oficial × versão/tag/schema; PHP 8.5/OpenSSL/extensões; XML/XSD/A1 por Contribuinte Fiscal e Vínculo de Certificado Fiscal; autorização, timeout/reconciliação, cancelamento, CC-e, inutilização e contingências; QR Code, DANFE/DANFC-e e impressoras; pin no lock e regressão regulatória.

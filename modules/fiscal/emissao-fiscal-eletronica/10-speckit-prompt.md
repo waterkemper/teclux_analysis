@@ -3,7 +3,7 @@
 ```text
 /speckit.specify
 
-Crie uma especificação funcional e técnica detalhada para cancelar NF-e autorizada a partir da Central. Depende de `09-speckit-prompt.md` e inaugura o pipeline compartilhado de Eventos Fiscais.
+Crie uma especificação funcional e técnica detalhada para cancelar NF-e autorizada a partir da Central. Depende de `09-speckit-prompt.md` em em /mnt/c/teclux_analysis/modules/fiscal/emissao-fiscal-eletronica/ e inaugura o pipeline compartilhado de Eventos Fiscais.
 
 Não implemente. Reutilize gateway, certificado, leases, Tentativas, reconciliação e custódia já especificados; não crie atalhos síncronos.
 

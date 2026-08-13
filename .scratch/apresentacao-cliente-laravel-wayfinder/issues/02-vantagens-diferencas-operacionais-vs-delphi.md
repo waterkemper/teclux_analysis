@@ -43,3 +43,8 @@ Fontes: `.scratch/orcamentos-cotacao-frete-wayfinder`, `.scratch/orcamentos-conf
 >
 > - **Agente local de periféricos (Device Gateway) já em produção.** Não é só especificação: pareamento de dispositivo, fila de trabalhos, heartbeat, auditoria e painel administrativo já funcionam de verdade no Laravel (`DeviceGatewayActivationService`, `DeviceGatewayOperatorJobService`, `DeviceGatewayAuditLogger` e controllers Admin/Operador/Agente). O que falta é só a impressão térmica em impressora física real — hoje só o modo de teste/mock funciona; a especificação técnica para o adapter real (ESC/POS) já está fechada e publicada em `modules/erp/device-gateway/`.
 > - **Atualizações mais frequentes.** Reforçar que a atualização automática (já registrada acima) também significa um ritmo de entrega mais frequente que o ciclo de versões do Delphi — melhorias chegam em semanas, não em um próximo grande release.
+
+> **Adendo (2026-08-06, novidades desde 30/07):**
+>
+> - **Interlojas — Confirmação de recebimento entre lojas (por Nota ou por Romaneio).** No Delphi, confirmação é uma nota/romaneio de cada vez, sem garantia de tudo-ou-nada, e "cancelar" uma busca não interrompe de fato a consulta no banco. No Laravel, seleção múltipla com confirmação atômica (tudo ou nada) e cancelamento real; a chave de NF-e usada para localizar passa a ser validada automaticamente (dígito verificador), não só "somente números" como no Delphi.
+> - **Entregas — Cadastro de Romaneios.** Uma única tela reúne o que no Delphi era espalhado em passos separados: inclusão múltipla de notas, conferência de volumes, assinatura do recebedor e justificativa de entrega, com o frete lançado automaticamente em Contas a Pagar (sem lançamento manual à parte).

@@ -11,7 +11,7 @@ Não implemente durante o specify. Confirme os seams reais do Laravel e componha
 
 - worker da fila `fiscal-nfe`, lease durável e Tentativa Fiscal;
 - serialização da Fotografia selada, validação XSD, assinatura A1 e persistência dos bytes/hash antes da rede;
-- checkpoint `PRONTO_PARA_ENVIO`, versão do certificado e correlação;
+- checkpoint `PRONTO_PARA_ENVIO`, versão e Vínculo de Certificado Fiscal selecionados, estabelecimento titular e correlação;
 - transmissão normal, interpretação de autorização e rejeição explícita;
 - registro de chave, recibo, protocolo, datas e evidência bruta sem transformar `cStat` em estado de domínio;
 - projeção idempotente de `nfeProc` e protocolo nas tabelas legadas;
@@ -26,6 +26,8 @@ Não inclua reconciliação completa, correção, S3/DANFE, eventos ou contingê
 3. Falha comprovada antes do primeiro byte pode retentar com backoff; após início do envio vai para `AGUARDANDO_RECONCILIACAO`, sem reenvio cego.
 4. Retransmissão não cria nova Emissão nem nova Fotografia.
 5. Processamento e ambiguidade não inventam códigos de situação legados.
+6. A Tentativa Fiscal persiste a versão, o vínculo, o contexto e o motivo da seleção do certificado antes da rede; não escolhe certificado de outra Filial apenas pela raiz do CNPJ.
+7. Assinatura XML e autenticação da transmissão são capacidades separadas, ainda que usem a mesma credencial.
 
 ## Testes obrigatórios
 
@@ -33,6 +35,7 @@ Não inclua reconciliação completa, correção, S3/DANFE, eventos ou contingê
 - falha antes do envio versus timeout após início;
 - replay do worker, lease expirado e resultado tardio não duplicam efeitos;
 - bytes enviados correspondem ao hash persistido;
+- seleção correta entre certificado compartilhado e exclusivo, vínculo ausente, vínculo de outro Contribuinte Fiscal e credencial de transmissão distinta;
 - projeção legada idempotente e nenhum segredo na telemetria.
 
 Produza spec, plano, contratos do worker/gateway, transições e testes. Não implemente durante `/speckit.specify`.

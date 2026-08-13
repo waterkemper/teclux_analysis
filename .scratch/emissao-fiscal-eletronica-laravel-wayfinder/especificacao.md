@@ -16,7 +16,8 @@ Esta especificação define o comportamento a implementar. As decisões detalhad
 
 - NF-e e NFC-e de saída originadas por frente de caixa, contratos e Nota Fiscal de Saída avulsa;
 - ambientes de homologação e produção;
-- Certificado A1 por Filial;
+- Certificado A1 custodiado por Contribuinte Fiscal, com Vínculos de Certificado Fiscal explícitos por Estabelecimento Fiscal;
+- observação contínua de leiautes, schemas, regras, endpoints, tabelas, QR Code, contingências e prazos oficiais;
 - autorização, consulta, rejeição corrigível e Reconciliação Fiscal;
 - cancelamento, CC-e e inutilização;
 - contingências permitidas por UF e modelo;
@@ -62,6 +63,10 @@ REQ-DOM-004 — Cancelamento, CC-e e inutilização são Eventos Fiscais indepen
 
 REQ-DOM-005 — cStat e respostas brutas são evidências, não estados do domínio.
 
+REQ-DOM-006 — A Emissão Fiscal mantém como emitente o Estabelecimento Fiscal/Filial que consta na nota. Contribuinte Fiscal agrupa estabelecimentos para fins de vínculo cadastral e custódia, mas não substitui a identidade, o credenciamento, a numeração ou o rollout da Filial.
+
+REQ-DOM-007 — Igualdade da raiz de CNPJ não é, isoladamente, autorização operacional. Toda relação entre estabelecimento emitente e certificado deve ser comprovada pelo Contribuinte Fiscal cadastrado, por Vínculo de Certificado Fiscal vigente e pela elegibilidade oficial do contexto.
+
 ### 4.2 Estados
 
 REQ-STATE-001 — A Situação Fiscal deve ser uma entre PENDENTE, REJEITADA_CORRIGIVEL, AUTORIZADA, USO_DENEGADO quando oficialmente aplicável, CANCELADA e INUTILIZADA.
@@ -104,15 +109,23 @@ REQ-NUM-006 — Geração, assinatura, SEFAZ, S3 e DANFE somente ocorrem após o
 
 ## 6. Certificado A1
 
-REQ-CERT-001 — Certificados são versionados por Filial, com histórico, validade, fingerprint, titular e estado de ativação.
+REQ-CERT-001 — Versões de Certificado Fiscal são custodiadas por Contribuinte Fiscal, com histórico, validade, fingerprint, titular e estado de ativação, e podem ser reutilizadas por várias Filiais por meio de vínculos explícitos.
 
 REQ-CERT-002 — PFX e senha devem permanecer cifrados no PostgreSQL com chaves externas, separadas e rotacionáveis. Logs, filas e Artefatos não podem conter material privado.
 
-REQ-CERT-003 — Upload deve validar PKCS#12, cadeia, titular, CNPJ, validade, uso e correspondência da senha antes de permitir ativação administrativa.
+REQ-CERT-003 — Upload deve validar PKCS#12, cadeia, titular, CNPJ, validade, uso e correspondência da senha; o CNPJ titular deve corresponder a um estabelecimento do mesmo Contribuinte Fiscal e não precisa ser exatamente o CNPJ da Filial emitente quando a regra oficial permitir.
 
 REQ-CERT-004 — Workers devem descriptografar somente em memória, pelo menor tempo possível, e limpar buffers quando praticável.
 
-REQ-CERT-005 — Deve haver alerta de expiração, rotação sem interrupção, teste de recuperação e Auditoria de upload, validação, ativação, uso e expurgo.
+REQ-CERT-005 — Deve haver alerta de expiração, rotação sem interrupção, teste de recuperação e Auditoria de upload, validação, ativação, uso e expurgo; uma versão compartilhada alerta todas as Filiais afetadas.
+
+REQ-CERT-006 — Cada Vínculo de Certificado Fiscal deve registrar Contribuinte Fiscal, Filial, versão, vigência, UF, ambiente, modelo, operação/capacidade, prioridade e evidência de credenciamento/elegibilidade. Vínculo não é inferido apenas da raiz de CNPJ.
+
+REQ-CERT-007 — A seleção da credencial deve ser determinística por Filial, UF, ambiente, modelo e operação. Se não houver vínculo elegível, a assinatura/transmissão é bloqueada com Pendência Fiscal Acionável; não há fallback implícito para outra Filial do mesmo grupo.
+
+REQ-CERT-008 — Certificado para assinatura XML e certificado para autenticação da transmissão são capacidades distintas. Podem usar a mesma Versão de Certificado Fiscal ou vínculos/credenciais diferentes quando o serviço, a UF ou a política oficial exigir.
+
+REQ-CERT-009 — Cada Tentativa Fiscal deve persistir a versão e o vínculo efetivamente selecionados, o estabelecimento titular do certificado, o contexto de UF/ambiente/modelo e o motivo da seleção. Rotação posterior não reassina XML já persistido.
 
 ## 7. Comandos, filas e idempotência
 
@@ -124,7 +137,7 @@ REQ-ORCH-003 — Há no máximo um Comando Fiscal mutável ativo por Emissão. R
 
 REQ-ORCH-004 — Worker deve adquirir lease sob FOR UPDATE, criar Tentativa, liberar a transação antes da rede e aplicar resultado somente se token e estado ainda forem válidos.
 
-REQ-ORCH-005 — Antes da rede, XML assinado, hash, versão do certificado e checkpoint PRONTO_PARA_ENVIO devem estar persistidos.
+REQ-ORCH-005 — Antes da rede, XML assinado, hash, versão e vínculo do certificado e checkpoint PRONTO_PARA_ENVIO devem estar persistidos.
 
 REQ-ORCH-006 — Falha comprovada antes do primeiro byte pode retentar com backoff. Falha depois de iniciado o envio entra em AGUARDANDO_RECONCILIACAO.
 
@@ -190,7 +203,7 @@ REQ-MIR-003 — Registro Delphi sem vínculo cria Espelho Fiscal somente leitura
 
 REQ-MIR-004 — Estado importado usa protocolos e evidências, não apenas dadosfiscais.situacao. O sincronizador nunca corrige o Delphi.
 
-REQ-MIR-005 — Transferência Administrativa exige Administrador reautenticado, motivo, sincronização, A1 ativo, consulta SEFAZ, evidências validadas, fotografia para pendente e confirmação de inatividade no Delphi.
+REQ-MIR-005 — Transferência Administrativa exige Administrador reautenticado, motivo, sincronização, Vínculo de Certificado Fiscal ativo e elegível para a Filial/UF/ambiente/modelo, consulta SEFAZ, evidências validadas, fotografia para pendente e confirmação de inatividade no Delphi.
 
 REQ-MIR-006 — Mudança Delphi após transferência suspende comandos Laravel e força Reconciliação.
 
@@ -216,7 +229,7 @@ REQ-DIST-008 — Canais iniciais são e-mail, impressão/reimpressão e download
 
 REQ-OBS-001 — Usuário com permissão fiscal recebe aviso no login quando houver Pendência Fiscal Acionável e pode abrir a Central. Pendências não expiram por idade.
 
-REQ-OBS-002 — A Central mostra estados, idade, latência, reconciliações, contingências, eventos, divergências, filas, outbox, leases, Artefatos, certificados e relógio por Filial/modelo/Série/origem.
+REQ-OBS-002 — A Central mostra estados, idade, latência, reconciliações, contingências, eventos, divergências, filas, outbox, leases, Artefatos, certificados, vínculos compartilhados e relógio por Contribuinte Fiscal/Filial/modelo/Série/origem.
 
 REQ-OBS-003 — Pulse agrega métricas, Sentry recebe exceções e Telescope não roda em produção.
 
@@ -224,7 +237,23 @@ REQ-OBS-004 — Incidente crítico cria alerta persistente, e-mail aos administr
 
 REQ-AUD-001 — Auditoria imutável cobre modos, testes, suspensão, contingência, reconciliação manual, eventos, certificado, transferência, acesso a Artefatos, distribuição e incidentes.
 
-REQ-AUD-002 — Auditoria guarda usuário, Filial, alvo, ação, justificativa, instante, sessão/IP, correlação e antes/depois. Não guarda XML completo, senha, PFX ou segredos.
+REQ-AUD-002 — Auditoria guarda usuário, Contribuinte Fiscal, Filial, vínculo, alvo, ação, justificativa, instante, sessão/IP, correlação e antes/depois. Não guarda XML completo, senha, PFX ou segredos.
+
+REQ-NORM-001 — O Laravel deve manter um Catálogo Normativo Fiscal versionado para fontes nacionais e estaduais, relacionando cada artefato a autoridade, UF/autorizador, modelo, ambiente, publicação, vigência e evidência oficial.
+
+REQ-NORM-002 — O Observador Regulatório deve consultar por HTTP o Portal Nacional, CONFAZ e portais SEFAZ/autorizadores; RSS/Atom não pode ser dependência obrigatória. A periodicidade padrão é 15 minutos para disponibilidade/contingência/manutenção/TLS crítico, horária para serviços e portais usados, diária para documentos/tabelas e semanal para varredura estadual ampla.
+
+REQ-NORM-003 — Cada página e artefato observado deve preservar bytes originais, URL, cabeçalhos disponíveis, MIME, tamanho, data de coleta, SHA-256 bruto e hash normalizado. ZIP, XSD, PDF, tabela, WSDL e cadeia TLS devem manter metadados e inventário interno quando aplicável.
+
+REQ-NORM-004 — O sistema deve detectar e resumir diffs de publicação, versão, vigência, links, XSDs, regras, tabelas, endpoints, WSDLs, QR Code/CSC, TLS, contingência e prazos, sem substituir a evidência original.
+
+REQ-NORM-005 — Cada mudança deve registrar escopo por UF/autorizador, modelo, ambiente e capacidade, datas de publicação/homologação/produção/vigência/efeitos, classificação de impacto, revisão humana requerida e evidência vinculada.
+
+REQ-NORM-006 — A governança normativa deve usar `OBSERVADA`, `ANALISADA`, `HOMOLOGACAO`, `APROVADA`, `ATIVA` e `RETIRADA`. Produção só consome configuração `APROVADA` e nenhuma coleta ou diff ativa produção automaticamente.
+
+REQ-NORM-007 — Mudanças em MOC, NT, schema, tabela fiscal, endpoint, WSDL, QR Code/CSC, cadeia TLS, contingência, eventos, regras de rejeição ou prazos exigem revisão humana, homologação por UF/modelo/ambiente, aprovação auditada, rollout e rollback.
+
+REQ-NORM-008 — Sinais críticos abrem Pendência Fiscal Acionável e podem suspender promoção, mas não alteram sozinhos `tpEmis`, endpoint ou Modo de Operação Fiscal. Disponibilidade e sondagem TLS são evidências operacionais, não autorização normativa.
 
 ## 14. Rollout
 
@@ -248,7 +277,8 @@ Cada cenário deve registrar aprovado/reprovado, evidência, data e responsável
 - cancelamento, CC-e e inutilização;
 - contingências NF-e habilitadas;
 - NFC-e rápida, offline, transmissão posterior e cancelamento por substituição;
-- certificado vencido, inválido e rotacionado;
+- certificado vencido, inválido e rotacionado, incluindo certificado compartilhado entre Filiais e certificado exclusivo;
+- rejeição de vínculo entre contribuintes distintos, ausência de credenciamento por UF e seleção determinística entre certificado compartilhado e próprio;
 - falhas e recuperação de Redis, worker, PostgreSQL, S3 e relógio;
 - reimpressão, integridade e recuperação de Artefatos;
 - espelhamento e Transferência Administrativa;
@@ -270,7 +300,7 @@ Cada runbook deve declarar sinais, permissões, passos seguros, ações proibida
 
 1. Fundações regulatórias, configuração versionada e gateway NFePHP.
 2. Schema do domínio, estados, comandos, outbox e Auditoria.
-3. Certificado A1.
+3. Certificado A1, vínculos por Contribuinte Fiscal e seleção por Filial.
 4. Fotografia Fiscal, cálculo de fronteira e numeração.
 5. Geração, assinatura, autorização e Reconciliação de NF-e.
 6. Artefatos S3, Projeção Legada e DANFE.
@@ -291,10 +321,12 @@ Cada etapa deve ser uma fatia vertical verificável; a decomposição em tickets
 - Domínio e estados: [Definir o modelo da Emissão Fiscal Eletrônica e seus estados](issues/04-definir-modelo-emissao-estados.md)
 - Numeração: [Definir numeração e convivência entre Delphi e Laravel](issues/05-definir-numeracao-convivencia.md)
 - Certificado: [Definir a custódia e a operação dos Certificados A1](issues/06-definir-seguranca-certificados-a1.md)
+- Associação de certificados: [Definir a associação de Certificados A1 a grupos de CNPJ e Filiais](issues/15-definir-associacao-certificado-grupo-cnpj.md)
 - Artefatos: [Definir artefatos fiscais, S3 e compatibilidade legada](issues/07-definir-artefatos-fiscais-s3.md)
 - Orquestração: [Definir a orquestração idempotente e a reconciliação com a SEFAZ](issues/08-definir-orquestracao-idempotente.md)
 - Operação: [Definir a operação de NF-e, NFC-e e contingência](issues/09-definir-operacao-nfe-nfce.md)
 - Rollout: [Definir observabilidade, aceite e rollout paralelo](issues/10-definir-observabilidade-aceite-rollout.md)
+- Normas: [Definir o monitoramento de atualizações de leiaute e regras da SEFAZ](issues/16-definir-monitoramento-atualizacoes-layout-sefaz.md)
 - Fotografia: [Definir a fotografia imutável do payload fiscal](issues/12-definir-fotografia-payload-fiscal.md)
 - Distribuição: [Definir a distribuição do Documento Fiscal ao destinatário](issues/13-definir-distribuicao-destinatario.md)
 - Espelhamento: [Definir o espelhamento e a transferência de emissões do Delphi](issues/14-definir-espelhamento-transferencia-delphi.md)

@@ -3,7 +3,7 @@
 ```text
 /speckit.specify
 
-Crie uma especificação funcional e técnica detalhada para custodiar Artefatos Fiscais e disponibilizar XML/DANFE de NF-e autorizada. Depende de `04-speckit-prompt.md`.
+Crie uma especificação funcional e técnica detalhada para custodiar Artefatos Fiscais e disponibilizar XML/DANFE de NF-e autorizada. Depende de `/mnt/c/teclux_analysis/modules/fiscal/emissao-fiscal-eletronica/04-speckit-prompt.md`.
 
 Não implemente. Inspecione os adapters de storage, autenticação e geração de documentos existentes no Laravel antes de propor novos seams.
 

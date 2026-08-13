@@ -3,7 +3,7 @@
 ```text
 /speckit.specify
 
-Crie uma especificação funcional e técnica detalhada para emitir Carta de Correção Eletrônica de NF-e, reutilizando o pipeline de Eventos Fiscais de `10-speckit-prompt.md`.
+Crie uma especificação funcional e técnica detalhada para emitir Carta de Correção Eletrônica de NF-e, reutilizando o pipeline de Eventos Fiscais de `10-speckit-prompt.md` em em /mnt/c/teclux_analysis/modules/fiscal/emissao-fiscal-eletronica/.
 
 Não implemente. Inspecione o checkout Laravel e mantenha validações regulatórias versionadas no servidor.
 

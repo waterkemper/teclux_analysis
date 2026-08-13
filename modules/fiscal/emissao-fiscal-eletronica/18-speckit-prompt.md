@@ -3,7 +3,7 @@
 ```text
 /speckit.specify
 
-Crie uma especificação funcional e técnica detalhada para distribuir documentos fiscais por e-mail, impressão/reimpressão e download autenticado. Depende de `07`, `10` e `11`.
+Crie uma especificação funcional e técnica detalhada para distribuir documentos fiscais por e-mail, impressão/reimpressão e download autenticado. Depende de `07`, `10` e `11` em 346-fiscal-transferencia-posse.
 
 Não implemente. Inspecione a infraestrutura real de e-mail e perfis SMTP do Laravel. Preserve inicialmente o comportamento Delphi confirmado: SMTP completo da Filial tem precedência e, se ausente, usa-se o perfil completo do Usuário; nunca misture campos dos dois.
 

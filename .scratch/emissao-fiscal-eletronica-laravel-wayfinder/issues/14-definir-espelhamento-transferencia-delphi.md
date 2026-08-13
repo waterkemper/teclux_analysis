@@ -30,7 +30,7 @@ Depois, o cursor assume. Não há backfill histórico em massa.
 
 Se o `dadosfiscais.numero` já estiver ligado a uma Emissão criada pelo Laravel, a alteração é reconciliada nessa mesma emissão. Sem vínculo, cria-se um Espelho Fiscal com `Sistema de Origem = DELPHI`. O sincronizador nunca cria `dadosfiscais`/`notas`, aloca número ou modifica `seriesfiliais`.
 
-A identidade principal é `chv_nfe` quando presente; antes dela vale Filial, ambiente, modelo, Série Fiscal e número. Colisão ou chave divergente bloqueia o espelho e gera alerta, sem sobrescrita.
+A identidade principal é `chv_nfe` quando presente; antes dela vale Filial/Estabelecimento Fiscal, ambiente, modelo, Série Fiscal e número. Contribuinte Fiscal não colapsa Filiais nem numerações. Colisão ou chave divergente bloqueia o espelho e gera alerta, sem sobrescrita.
 
 Reprocessar cursor ou conteúdo igual atualiza o mesmo espelho. Se a origem desaparecer, o Laravel não apaga nada: marca `ORIGEM_LEGADA_AUSENTE`, bloqueia ações e solicita análise.
 
@@ -74,7 +74,7 @@ Antes de confirmar, exige:
 
 - Administrador reautenticado e motivo;
 - sincronização imediata e ausência de cursor pendente para a linha;
-- Certificado A1 ativo da Filial;
+- Vínculo de Certificado Fiscal ativo e elegível para a Filial, UF, ambiente, modelo e operação;
 - consulta recente à SEFAZ;
 - importação e validação de XMLs/protocolos disponíveis;
 - para pendente, nova Fotografia Fiscal selada dos dados legados atuais;

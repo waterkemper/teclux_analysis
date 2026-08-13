@@ -46,10 +46,14 @@ Produzir um artefato HTML tipo slide-deck (via Artifact), em pt-BR, pronto para 
 - [Decidir como apresentar o uso de IA e a resolução ágil de tickets/demandas](issues/09-decidir-framing-ia-e-resolucao-agil.md) — IA no processo citada de forma genérica sem nomear ferramenta; resolução de demandas fala do processo sem prometer prazo/SLA; Busca Assistida citada como prova concreta já em uso — os três blocos juntos numa seção coesa de IA.
 - [Decidir estrutura e roteiro final do deck](issues/10-decidir-roteiro-final-do-deck.md) — 10 seções: abertura, estrutura/módulos, vantagens/diferenças, mobile, documentação/suporte, Help, IA, roadmap Caixa, roadmap NFe, fechamento; deck genérico sem nome de cliente, abre com o que já existe e fecha olhando para frente.
 - [Produzir e publicar o artefato HTML final do deck](issues/11-produzir-publicar-artefato-html.md) — publicado em [tecLUX Cloud — Apresentação Prévia](https://claude.ai/code/artifact/caa66719-83a7-4ca8-92b1-1bb543dac726): 11 seções em scroll-snap navegáveis, tema claro/escuro. Refinado em 2026-07-30 com as cores reais do sistema, estrutura exaustiva, Device Gateway, templates de e-mail e integrações via API (Nexxera/PayGo como direção futura).
+- [Atualizar inventário de módulos com as novidades desde a última correção (30/07)](issues/12-atualizar-inventario-novidades-agosto.md) — dez domínios agora (era nove): **Entregas** entra como domínio novo (Cadastro de Romaneios de entrega/transferência), Interlojas ganha Confirmação por Notas, Confirmação por Romaneios e Consulta de Transferências, Contas a Pagar ganha o Relatório de Situação dos Fornecedores.
+- [Incorporar exemplo operacional concreto das novas telas de Confirmação (Interlojas) e Romaneios (Entregas) em vantagens/diferenças vs Delphi](issues/13-exemplo-operacional-confirmacao-romaneios-entregas.md) — confirmação em lote com atomicidade tudo-ou-nada e cancelamento real (vs. Delphi um-a-um sem garantia) + chave de NF-e com dígito verificador; Cadastro de Romaneios consolida inclusão múltipla, conferência, assinatura e frete automático em Contas a Pagar numa única tela.
+
+- [Republicar o artefato HTML com as novidades de Entregas, Interlojas e Contas a Pagar](issues/14-republicar-artefato-novidades-agosto.md) — mesmo link, 11 seções mantidas; card Entregas novo e Interlojas/Contas a Pagar atualizados no slide de Estrutura, dois exemplos novos no slide de Vantagens.
 
 ## Not yet specified
 
-_(vazio — mapa concluído. As 11 tickets foram resolvidas e o artefato final está publicado.)_
+_(vazio — mapa concluído novamente. As 14 tickets foram resolvidas e o artefato está republicado com as novidades de agosto/2026.)_
 
 ## Out of scope
 

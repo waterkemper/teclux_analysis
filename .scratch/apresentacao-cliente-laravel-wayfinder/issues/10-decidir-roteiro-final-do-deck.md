@@ -13,7 +13,7 @@ Com todo o conteúdo das tickets anteriores em mãos, qual a ordem final das se�
 Roteiro final confirmado, calibrado para reunião ao vivo de ~30-45min, deck genérico (sem nome de cliente específico — personalização fica a cargo de quem apresenta):
 
 1. **Abertura** — título tecLUX Cloud, tagline, contexto rápido do que será mostrado.
-2. **Estrutura e módulos já liberados** — panorama técnico leve (React + Laravel + PostgreSQL compartilhado com o Delphi) seguido do mapa de módulos por domínio (ticket 01: Cadastros, Estoque, Contas a Pagar, Cobrança e SAC, Vendas, Interlojas, Financeiro, Marketplaces, Administração).
+2. **Estrutura e módulos já liberados** — panorama técnico leve (React + Laravel + PostgreSQL compartilhado com o Delphi) seguido do mapa de módulos por domínio (ticket 01: Cadastros, Estoque, Contas a Pagar, Cobrança e SAC, Vendas, Interlojas, Entregas, Financeiro, Marketplaces, Administração — dez domínios desde o adendo de 2026-08-06).
 3. **Vantagens e diferenças operacionais vs Delphi** — vantagens de fundo (sem instalação, atualização automática, mesmo banco) + exemplos concretos por domínio (ticket 02).
 4. **Uso mobile** — acesso via navegador de qualquer aparelho, com a ressalva honesta sobre grids densas (ticket 07).
 5. **Documentação e suporte já disponíveis** — 85 guias de usuário + 45 runbooks de suporte (ticket 03).

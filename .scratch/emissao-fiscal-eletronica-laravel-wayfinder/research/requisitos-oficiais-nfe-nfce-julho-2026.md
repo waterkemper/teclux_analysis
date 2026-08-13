@@ -28,9 +28,11 @@ Consequência: manter registro da versão de schema/regras usada em cada tentati
 
 O XML da NF-e/NFC-e e os eventos sujeitos a assinatura usam certificado digital ICP-Brasil. As regras do [MOC 7.0 — Anexo I](https://www.nfe.fazenda.gov.br/portal/exibirArquivo.aspx?conteudo=J+I+v4eN00E%3D) validam no TLS a existência, cadeia ICP-Brasil, validade, revogação e uso para autenticação de cliente; também validam autoria e integridade da assinatura XML. Um A1 (`PKCS#12`, normalmente `.pfx/.p12`) é compatível com processamento automático, mas essa é uma escolha operacional: a norma não autoriza ignorar expiração, revogação ou vínculo do titular.
 
+**Atualização da decisão:** fontes oficiais permitem que um certificado de qualquer estabelecimento do contribuinte assine documentos dos demais estabelecimentos da mesma empresa, mas o compartilhamento não substitui o credenciamento por estabelecimento/UF. A arquitetura deve distinguir Contribuinte Fiscal, Estabelecimento Fiscal e Vínculo de Certificado Fiscal; a raiz de CNPJ não é, sozinha, prova suficiente.
+
 Requisitos arquiteturais mínimos:
 
-- cofre criptografado por certificado e filial, senha separada, acesso mínimo e nenhuma exposição em logs;
+- cofre criptografado por Versão de Certificado Fiscal, custodiada no Contribuinte Fiscal e associada por vínculo explícito à Filial, senha separada, acesso mínimo e nenhuma exposição em logs;
 - validação no upload (cadeia, validade, titular e compatibilidade com o emitente), ativação explícita, histórico e alertas;
 - seleção determinística do certificado por emissão e retenção do seu identificador/fingerprint na auditoria;
 - relógio confiável e trilha de auditoria, pois assinatura, validade, emissão, eventos e contingência dependem de data/hora;
@@ -131,7 +133,7 @@ O [Portal Nacional](https://www.nfe.fazenda.gov.br/portal/WebServices.aspx/consu
 2. Adaptador de autorizador/UF/ambiente dirigido por configuração versionada e publicado por rollout de filial.
 3. Estados persistentes e idempotentes; nenhuma retransmissão depois de timeout sem consulta por chave/recibo.
 4. Numeração reservada atomicamente antes da emissão e nunca reutilizada; falhas seguem para retransmissão, reconciliação ou inutilização explícita.
-5. Cofre e rotação de A1 por filial com validação prévia e auditoria; emissão deve registrar exatamente qual certificado assinou.
+5. Cofre e rotação de A1 por Contribuinte Fiscal, com vínculos por Filial, validação prévia e auditoria; emissão deve registrar exatamente qual certificado e vínculo assinaram.
 6. NFC-e síncrona no PDV com fila durável para off-line; NF-e pode ser predominantemente assíncrona.
 7. S3 como arquivo canônico imutável, com hash e metadados no banco, cópia temporária em `dadosfiscais.xmlnfe` e reconciliador de consistência.
 8. Geração própria de DANFE/DANFE NFC-e conforme manuais vigentes, incluindo contingência, QR Code v2/v3 e DANFE Simplificado Tipo 2 quando aplicável.
@@ -147,4 +149,3 @@ O [Portal Nacional](https://www.nfe.fazenda.gov.br/portal/WebServices.aspx/consu
 - [CONFAZ — MOC 7.0, Visão Geral](https://www.confaz.fazenda.gov.br/legislacao/arquivo-manuais/moc7-visao-geral.pdf)
 - [Portal Nacional — legislação/Ajustes SINIEF](https://www.nfe.fazenda.gov.br/portal/listaConteudo.aspx?tipoConteudo=3GhDwJ%2FZeSI%3D)
 - [SPED — legislação de NF-e](https://sped.rfb.gov.br/item/show/1521)
-

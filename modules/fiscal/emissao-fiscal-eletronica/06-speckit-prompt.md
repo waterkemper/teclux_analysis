@@ -3,7 +3,7 @@
 ```text
 /speckit.specify
 
-Crie uma especificação funcional e técnica detalhada para corrigir e retransmitir uma NF-e explicitamente rejeitada e elegível. Depende de `04-speckit-prompt.md` e deve reutilizar seus comandos e pipeline.
+Crie uma especificação funcional e técnica detalhada para corrigir e retransmitir uma NF-e explicitamente rejeitada e elegível. Depende de `/mnt/c/teclux_analysis/modules/fiscal/emissao-fiscal-eletronica/04-speckit-prompt.md` e deve reutilizar seus comandos e pipeline.
 
 Não implemente. Confirme no checkout Laravel quais dados da Nota Fiscal de Saída podem ser editados e mantenha regras fiscais server-side.
 

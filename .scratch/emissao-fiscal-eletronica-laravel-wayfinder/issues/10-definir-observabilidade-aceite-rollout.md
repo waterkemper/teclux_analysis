@@ -66,7 +66,7 @@ A Central permite recorte por Filial, origem, modelo, Série Fiscal, ambiente e 
 - divergências Laravel, Delphi e SEFAZ;
 - atraso de outbox, filas, leases, workers e sweepers;
 - Artefatos Fiscais aguardando S3 ou com falha de integridade;
-- validade da Versão de Certificado Fiscal e desvio de relógio.
+- validade da Versão de Certificado Fiscal, seus Vínculos de Certificado Fiscal e desvio de relógio. Uma versão compartilhada deve exibir o impacto em todas as Filiais associadas.
 
 Pulse agrega tendências técnicas. Sentry recebe exceções e incidentes técnicos quando configurado. Telescope serve somente para diagnóstico fora de produção.
 
@@ -83,7 +83,8 @@ Os testes são executados e aprovados pelo usuário. A matriz mínima por UF, mo
 - timeout após envio e Reconciliação Fiscal;
 - duplicidade com protocolo compatível e incompatível;
 - cancelamento, CC-e e inutilização;
-- certificado vencido, inválido e rotacionado;
+- certificado vencido, inválido e rotacionado, tanto exclusivo quanto compartilhado entre Filiais;
+- vínculo compartilhado elegível, vínculo entre Contribuintes Fiscais distintos recusado e credenciamento ausente por UF;
 - falhas de Redis, worker, PostgreSQL, S3 e recuperação posterior;
 - concorrência Laravel e Delphi na Série Fiscal;
 - reimpressão e recuperação de Artefatos Fiscais;
@@ -115,9 +116,9 @@ A Auditoria imutável registra:
 - abertura e encerramento de contingência;
 - reconciliação ou retransmissão manual;
 - cancelamento, CC-e e inutilização;
-- troca ou ativação de certificado;
+- troca ou ativação de certificado e alteração de Vínculo de Certificado Fiscal;
 - Transferência Administrativa;
 - impressão, reimpressão, download e distribuição de Artefato Fiscal;
 - reconhecimento e encerramento de incidente crítico.
 
-Cada registro guarda usuário, Filial, emissão ou evento, ação, justificativa, instante, IP ou sessão, correlação e valores anterior e novo, sem segredos ou XML completo. A retenção mínima é cinco anos, ou prazo legal maior configurado.
+Cada registro guarda usuário, Contribuinte Fiscal, Filial, vínculo, emissão ou evento, ação, justificativa, instante, IP ou sessão, correlação e valores anterior e novo, sem segredos ou XML completo. A retenção mínima é cinco anos, ou prazo legal maior configurado.

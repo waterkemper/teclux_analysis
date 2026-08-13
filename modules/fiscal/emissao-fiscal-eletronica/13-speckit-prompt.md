@@ -3,7 +3,7 @@
 ```text
 /speckit.specify
 
-Crie uma especificação funcional e técnica detalhada para operar contingências de NF-e modelo 55 e retornar ao fluxo normal. Depende de `05`, `07` e `10`; reutilize configuração, Eventos, Reconciliação e Artefatos existentes.
+Crie uma especificação funcional e técnica detalhada para operar contingências de NF-e modelo 55 e retornar ao fluxo normal. Depende de `05`, `07` e `10` em em /mnt/c/teclux_analysis/modules/fiscal/emissao-fiscal-eletronica/; reutilize configuração, Eventos, Reconciliação e Artefatos existentes.
 
 Não implemente. Especifique somente modalidades oficialmente habilitadas por UF/modelo/ambiente/vigência.
 
